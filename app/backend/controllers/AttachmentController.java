@@ -26,6 +26,9 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
+import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import play.Environment;
@@ -46,6 +49,7 @@ import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 
@@ -81,6 +85,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return attachment;
     }
 
+    @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Override
     public CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -131,6 +137,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(attachment));
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -153,6 +160,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(question, filePart, newFilePath);
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public Result deleteQuestionAttachment(Long id) {
 
@@ -164,6 +172,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return ok();
     }
 
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -188,6 +198,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(notFound());
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public CompletionStage<Result> deleteExamAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -203,6 +215,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok());
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public CompletionStage<Result> deleteFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -214,6 +227,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok());
     }
 
+    @Authenticated
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     @Override
     public CompletionStage<Result> deleteStatementAttachment(Long id, Http.Request request) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
@@ -225,6 +240,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok());
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public CompletionStage<Result> addAttachmentToExam(Http.Request request) {
         MultipartForm mf  = getForm(request);
@@ -247,6 +264,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(exam, filePart, newFilePath);
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     public CompletionStage<Result> addFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -271,6 +290,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(comment, filePart, newFilePath);
     }
 
+    @Authenticated
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     @Override
     public CompletionStage<Result> addStatementAttachment(Long id, Http.Request request) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
@@ -295,6 +316,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(comment, filePart, newFilePath);
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -313,8 +336,10 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(question.getAttachment());
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {
+        // TODO: Authorization?
         ExamSectionQuestion question = getExamSectionQuestion(request, qid);
         if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
             return wrapAsPromise(notFound());
@@ -322,8 +347,10 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadExamAttachment(Long id, Http.Request request) {
+        // TODO: Authorization?
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null || exam.getAttachment() == null) {
             return wrapAsPromise(notFound());
@@ -331,6 +358,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(exam.getAttachment());
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadFeedbackAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -346,6 +375,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(exam.getExamFeedback().getAttachment());
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
 

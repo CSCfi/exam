@@ -26,9 +26,6 @@ import java.util.concurrent.CompletionStage;
 
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Pattern;
-import be.objectify.deadbolt.java.actions.Restrict;
 import play.Logger;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
@@ -39,55 +36,32 @@ import backend.models.Exam;
 import backend.models.User;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
-import backend.security.Authenticated;
 import backend.util.config.ConfigUtil;
 import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;
 
 public interface BaseAttachmentInterface<T> {
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> addAttachmentToQuestion(Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> addAttachmentToExam(Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("STUDENT")})
     CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> deleteExamAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> addFeedbackAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     CompletionStage<Result> downloadFeedbackAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     CompletionStage<Result> addStatementAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     CompletionStage<Result> downloadStatementAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request);
 
-    @Authenticated
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request);
 
     default User getUser(Http.Request request) {

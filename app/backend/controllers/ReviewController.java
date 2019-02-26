@@ -110,6 +110,7 @@ public class ReviewController extends BaseController {
 
     private static final Logger.ALogger logger = Logger.of(ReviewController.class);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "grade"})
     public Result getParticipationsForExamAndUser(Long eid, Http.Request request) {
@@ -133,6 +134,7 @@ public class ReviewController extends BaseController {
         return writeAnonymousResult(request, ok(participations), exam.isAnonymous());
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail"})
     public Result listNoShowsForExamAndUser(Long eid, Http.Request request) {
@@ -391,6 +393,7 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user"})
     public Result listNoShows(Long eid, Http.Request request) {

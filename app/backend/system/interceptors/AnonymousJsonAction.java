@@ -16,6 +16,8 @@
 
 package backend.system.interceptors;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -41,8 +43,8 @@ public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
         return delegate.call(request).thenCompose(result -> {
             if (result.header(ANONYMOUS_HEADER).isPresent()) {
                 final String key = configuration.contextParamKey();
-                Set<Long> ids = request.attrs().get(TypedKey.create(key));
-                return filterJsonResponse(result, ids, configuration.filteredProperties());
+                Optional<Set<Long>> ids = request.attrs().getOptional(TypedKey.create(key));
+                return filterJsonResponse(result, ids.orElse(Collections.emptySet()), configuration.filteredProperties());
             }
             return CompletableFuture.supplyAsync(() -> result);
         });

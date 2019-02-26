@@ -31,6 +31,7 @@ import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
@@ -106,6 +107,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     default CompletionStage<Result> deleteExamAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
@@ -116,6 +118,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     default CompletionStage<Result> addAttachmentToExam(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -129,6 +132,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     default CompletionStage<Result> downloadExamAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
@@ -138,6 +142,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     default CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -176,6 +181,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Override
     default CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -221,6 +227,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     default CompletionStage<Result> addFeedbackAttachment(T id, Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -240,6 +247,8 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                 ).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     default CompletionStage<Result> downloadFeedbackAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
@@ -251,6 +260,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Override
     default CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
@@ -263,6 +273,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     @Override
     default CompletionStage<Result> addStatementAttachment(T id, Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -286,6 +297,8 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     }
 
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     default CompletionStage<Result> downloadStatementAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
@@ -298,6 +311,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     @Authenticated
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
     @Override
     default CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
