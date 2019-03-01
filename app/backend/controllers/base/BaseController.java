@@ -17,25 +17,23 @@ package backend.controllers.base;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import play.Logger;
-import play.cache.SyncCacheApi;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -48,34 +46,28 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.Reservation;
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
+import backend.sanitizers.Attrs;
 import backend.system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    public static final String SITNET_CACHE_KEY = "user.session.";
-
-    protected static final int SITNET_TIMEOUT_MINUTES = 30;
-    protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
-
     private static final double HUNDRED = 100d;
-    private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
-    @Inject
-    protected SyncCacheApi cache;
+    private static final Logger.ALogger logger = Logger.of(BaseController.class);
+
     @Inject
     protected FormFactory formFactory;
     @Inject
     private NoShowHandler noShowHandler;
 
-    protected <T> T bindForm(final Class<T> clazz) {
+    protected <T> T bindForm(final Class<T> clazz, Http.Request request) {
         final Form<T> form = formFactory.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());
         }
-        return form.bindFromRequest().get();
+        return form.bindFromRequest(request).get();
     }
 
     protected Result ok(Object object) {
@@ -96,43 +88,6 @@ public class BaseController extends Controller {
     protected Result created(Object object, PathProperties props) {
         String body = Ebean.json().toJson(object, props);
         return created(body).as("application/json");
-    }
-
-    private Optional<String> createToken() {
-        return LOGIN_TYPE.equals("HAKA") ?
-                request().header("Shib-Session-ID") :
-                Optional.of(UUID.randomUUID().toString());
-    }
-
-    private Optional<String> getToken() {
-        return request().header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-    }
-
-    public static Optional<String> getToken(Http.RequestHeader request) {
-        return request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-    }
-
-    public static Optional<String> getToken(Http.Context context) {
-        return getToken(context.request());
-    }
-
-    protected User getLoggedUser() {
-        Session session = cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
-        return Ebean.find(User.class, session.getUserId());
-    }
-
-    protected Session getSession() {
-        return cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
-    }
-
-    protected void updateSession(Session session) {
-        cache.set(SITNET_CACHE_KEY + getToken().orElse(""), session);
-    }
-
-    protected String createSession(Session session) {
-        String token = createToken().orElse("INVALID");
-        cache.set(SITNET_CACHE_KEY + token, session);
-        return token;
     }
 
     protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
@@ -223,34 +178,33 @@ public class BaseController extends Controller {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
-    protected boolean isUserAdmin() {
-        return getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession());
-    }
-
     protected Double round(Double src) {
         return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
-    protected Result writeAnonymousResult(Result result, boolean anonymous, boolean admin) {
+    protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous, boolean admin) {
         if (anonymous && !admin) {
-            return withAnonymousHeader(result);
+            return withAnonymousHeader(result, request, Collections.emptySet());
         }
         return result;
     }
 
-    protected Result writeAnonymousResult(Result result, boolean anonymous) {
-        return writeAnonymousResult(result, anonymous, isUserAdmin());
+    protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN));
     }
 
-    protected Result writeAnonymousResult(Result result, Set<Long> anonIds) {
-        if (!anonIds.isEmpty() && !getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession())) {
-            ctx().args.put(AnonymousJsonAction.CONTEXT_KEY, anonIds);
-            return withAnonymousHeader(result);
+    protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN)) {
+            return withAnonymousHeader(result, request, anonIds);
         }
         return result;
     }
 
-    private Result withAnonymousHeader(Result result) {
+    private Result withAnonymousHeader(Result result, Http.Request request, Set<Long> anonIds) {
+        TypedKey<Set<Long>> tk = TypedKey.create(AnonymousJsonAction.CONTEXT_KEY);
+        request.addAttr(tk, anonIds);
         return result.withHeader(AnonymousJsonAction.ANONYMOUS_HEADER, Boolean.TRUE.toString());
     }
 
@@ -260,7 +214,7 @@ public class BaseController extends Controller {
             String json = mapper.writeValueAsString(o);
             return mapper.readTree(json);
         } catch (IOException e) {
-            Logger.error("unable to serialize");
+            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }

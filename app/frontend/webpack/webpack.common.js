@@ -64,10 +64,6 @@ const config = {
                 exclude: /node_modules/
             },
             {
-                test: /\.json$/,
-                use: 'json-loader'
-            },
-            {
                 test: /\.(jpg|png|svg)$/,
                 use: 'url-loader?limit=100000'
             },
@@ -87,9 +83,6 @@ const config = {
         ]
     },
     plugins: [
-        new webpack.ProvidePlugin({
-            'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch'
-        }),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',

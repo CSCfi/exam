@@ -16,19 +16,21 @@
 
 package backend.controllers.iop.transfer.impl;
 
+import java.io.IOException;
+import java.util.Optional;
+import javax.inject.Inject;
+
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import play.libs.ws.WSClient;
+import play.mvc.Http;
+
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentInterface;
 import backend.models.Exam;
+import backend.models.Role;
 import backend.models.User;
 import backend.models.json.ExternalExam;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import play.Logger;
-import play.libs.ws.WSClient;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Optional;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
 
@@ -47,7 +49,7 @@ public class ExternalAttachmentController extends BaseController implements Exte
             externalExam.save();
             return true;
         } catch (IOException e) {
-            Logger.error("Can not serialize exam!", e);
+            logger().error("Can not serialize exam!", e);
         }
         return false;
     }
@@ -62,25 +64,20 @@ public class ExternalAttachmentController extends BaseController implements Exte
         try {
             return Optional.of(externalExam.deserialize());
         } catch (IOException e) {
-            Logger.error("Can not deserialize external exam!", e);
+            logger().error("Can not deserialize external exam!", e);
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<ExternalExam> getExternalExam(String id) {
-        final User user = getLoggedUser();
+    public Optional<ExternalExam> getExternalExam(String id, Http.Request request) {
+        final User user = getUser(request);
         final ExpressionList<ExternalExam> query = Ebean.find(ExternalExam.class).where()
                 .eq("hash", id);
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             query.eq("creator", user);
         }
         return query.findOneOrEmpty();
-    }
-
-    @Override
-    public User getLoggedUser() {
-        return super.getLoggedUser();
     }
 
 }

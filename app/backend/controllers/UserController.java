@@ -15,18 +15,12 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.Language;
-import backend.models.Permission;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.UserLanguageSanitizer;
-import backend.validators.JsonValidator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,14 +32,23 @@ import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import play.data.DynamicForm;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.Language;
+import backend.models.Permission;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.UserLanguageSanitizer;
+import backend.security.Authenticated;
+import backend.validators.JsonValidator;
 
 public class UserController extends BaseController {
 
@@ -55,8 +58,8 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result grantUserPermission() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result grantUserPermission(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
         if (user == null) {
@@ -77,8 +80,8 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result revokeUserPermission() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result revokeUserPermission(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
         if (user == null) {
@@ -216,11 +219,12 @@ public class UserController extends BaseController {
         return ok(Json.toJson(asArray(users)));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getQuestionOwnersByRoleFilter(String role, String criteria, Optional<Long> qid) {
+    public Result getQuestionOwnersByRoleFilter(String role, String criteria, Optional<Long> qid, Http.Request request) {
         List<User> users = findUsersByRoleAndName(role, criteria);
         Set<User> owners = new HashSet<>();
-        owners.add(getLoggedUser());
+        owners.add(request.attrs().get(Attrs.AUTHENTICATED_USER));
         if (qid.isPresent()) {
             Question question = Ebean.find(Question.class, qid.get());
             if (question == null) {
@@ -248,11 +252,12 @@ public class UserController extends BaseController {
         return ok(Json.toJson(asArray(users)));
     }
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    public Result updateUserAgreementAccepted() {
+    public Result updateUserAgreementAccepted(Http.Request request) {
         Result result;
         User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where()
-                .idEq(getLoggedUser().getId())
+                .idEq(request.attrs().get(Attrs.AUTHENTICATED_USER).getId())
                 .findOne();
         if (user == null) {
             result = notFound();
@@ -264,12 +269,13 @@ public class UserController extends BaseController {
         return result;
     }
 
+    @Authenticated
     @JsonValidator(schema = "userLang")
     @With(UserLanguageSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
-    public Result updateLanguage() {
-        User user = getLoggedUser();
-        String lang = request().attrs().get(Attrs.LANG);
+    public Result updateLanguage(Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        String lang = request.attrs().get(Attrs.LANG);
         Language language = Ebean.find(Language.class, lang);
         if (language == null) {
             return badRequest("Unsupported language code");

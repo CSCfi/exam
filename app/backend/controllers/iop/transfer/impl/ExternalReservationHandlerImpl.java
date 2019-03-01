@@ -18,6 +18,7 @@ package backend.controllers.iop.transfer.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
@@ -56,6 +58,8 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Inject
     EmailComposer emailComposer;
 
+    private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
+
 
     private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
             throws MalformedURLException {
@@ -65,6 +69,25 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             sb.append("/").append(reservationRef);
         }
         return new URL(sb.toString());
+    }
+
+    @Override
+    public CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation) {
+        ExternalReservation external = reservation.getExternalReservation();
+        URL url;
+        try {
+            url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
+        } catch (MalformedURLException e) {
+            return CompletableFuture.supplyAsync(() -> Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+        }
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Optional<Integer>> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                return Optional.of(Http.Status.INTERNAL_SERVER_ERROR);
+            }
+            return Optional.empty();
+        };
+        return request.delete().thenApplyAsync(onSuccess);
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user) throws IOException {
@@ -90,7 +113,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Result> onSuccess = response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 JsonNode root = response.asJson();
                 return Results.internalServerError(root.get("message").asText("Connection refused"));
             }
@@ -102,8 +125,9 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             // send email asynchronously
             boolean isStudentUser = user.equals(enrolment.getUser());
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
+                emailComposer.composeReservationCancellationNotification(enrolment.getUser(),
+                        reservation, "", isStudentUser, enrolment);
+                logger.info("Reservation cancellation confirmation email sent");
             }, system.dispatcher());
 
             return Results.ok();
@@ -112,7 +136,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     @Override
-    public CompletionStage<Result> removeReservation(Reservation reservation, User user) {
+    public CompletionStage<Result> removeReservations(Reservation reservation, User user) {
         if (reservation.getExternalReservation() == null) {
             return CompletableFuture.supplyAsync(Results::ok);
         }
@@ -122,4 +146,5 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             return CompletableFuture.supplyAsync(() -> Results.internalServerError(e.getMessage()));
         }
     }
+
 }

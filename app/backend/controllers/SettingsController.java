@@ -25,6 +25,7 @@ import io.ebean.Update;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.ActionMethod;
@@ -92,8 +93,8 @@ public class SettingsController  extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result updateUserAgreement() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result updateUserAgreement(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String eula = df.get("value");
         GeneralSettings gs = getOrCreateSettings("eula", eula, null);
 
@@ -107,16 +108,16 @@ public class SettingsController  extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result setDeadline() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result setDeadline(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String deadline = df.get("value");
         GeneralSettings gs = getOrCreateSettings("review_deadline", deadline, null);
         return ok(Json.toJson(gs));
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result setReservationWindowSize() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result setReservationWindowSize(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String deadline = df.get("value");
         GeneralSettings gs = getOrCreateSettings("reservation_window_size", deadline, null);
         return ok(Json.toJson(gs));

@@ -34,6 +34,7 @@ import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
@@ -44,16 +45,17 @@ import backend.models.Course;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
 import backend.models.ExamMachine;
-import backend.models.sections.ExamSection;
 import backend.models.ExamType;
 import backend.models.GradeScale;
 import backend.models.Language;
 import backend.models.Role;
 import backend.models.Software;
 import backend.models.User;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.system.interceptors.Anonymous;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.config.ConfigUtil;
 
@@ -112,11 +114,12 @@ public class ExamController extends BaseController {
 
     // HELPER METHODS END
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExams(Optional<String> filter) {
-        User user = getLoggedUser();
+    public Result getExams(Optional<String> filter, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams;
-        if (user.hasRole("ADMIN", getSession())) {
+        if (user.hasRole(Role.Name.ADMIN)) {
             exams = getAllExams(filter.orElse(null));
         } else {
             exams = getAllExamsOfTeacher(user);
@@ -135,9 +138,11 @@ public class ExamController extends BaseController {
         return ok(printouts, pp);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
-        User user = getLoggedUser();
+    public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds,
+                            Optional<List<Long>> tagIds, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
         List<Long> tags = tagIds.orElse(Collections.emptyList());
@@ -145,7 +150,7 @@ public class ExamController extends BaseController {
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
         ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
-        if (!user.hasRole("ADMIN", getSession())) {
+        if (!user.hasRole(Role.Name.ADMIN)) {
             el = el.eq("examOwners", user);
         }
         if (!courses.isEmpty()) {
@@ -160,8 +165,9 @@ public class ExamController extends BaseController {
         return ok(el.findList(), pp);
     }
 
+    @Authenticated
     @Restrict(@Group("TEACHER"))
-    public Result getTeachersExams() {
+    public Result getTeachersExams(Http.Request request) {
         // Get list of exams that user is assigned to inspect or is creator of
         PathProperties props = PathProperties.parse("(*, course(id, code), " +
                 "children(id, state, examInspections(user(id, firstName, lastName))), " +
@@ -171,7 +177,7 @@ public class ExamController extends BaseController {
                 "examEnrolments(id, user(id), reservation(id, endAt)))");
         Query<Exam> query = Ebean.createQuery(Exam.class);
         props.apply(query);
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams = query
                 .where()
                 .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
@@ -184,14 +190,15 @@ public class ExamController extends BaseController {
         return ok(exams, props);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteExam(Long id) {
+    public Result deleteExam(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (user.hasRole("ADMIN", getSession()) || exam.isOwnedOrCreatedBy(user)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
             if (examUpdater.isAllowedToRemove(exam)) {
                 AppUtil.setModifier(exam, user);
                 exam.setState(Exam.State.DELETED);
@@ -215,17 +222,18 @@ public class ExamController extends BaseController {
                 .findOne();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user"})
-    public Result getExam(Long id) {
+    public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
-            return writeAnonymousResult(ok(exam), exam.isAnonymous());
+            return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
         }
         return forbidden("sitnet_error_access_forbidden");
     }
@@ -251,9 +259,10 @@ public class ExamController extends BaseController {
         return ok(types);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExamPreview(Long id) {
-        User user = getLoggedUser();
+    public Result getExamPreview(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("executionType")
@@ -277,45 +286,46 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
-                getLoggedUser().hasRole("ADMIN", getSession())) {
+                user.hasRole(Role.Name.ADMIN)) {
             examUpdater.preparePreview(exam);
             return ok(exam);
         }
         return forbidden("sitnet_error_access_forbidden");
     }
 
-    private Result handleExamUpdate(Exam exam) {
-        Optional<Integer> grading = request().attrs().getOptional(Attrs.GRADE_ID);
+    private Result handleExamUpdate(Exam exam, User user, Http.Request request) {
+        Optional<Integer> grading = request.attrs().getOptional(Attrs.GRADE_ID);
         boolean gradeScaleChanged = false;
         if (grading.isPresent()) {
             gradeScaleChanged = didGradeChange(exam, grading.get());
         }
-        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
-        examUpdater.update(exam, request(), loginRole);
+        final Role.Name loginRole = user.getLoginRole();
+        examUpdater.update(exam, request, loginRole);
         if (gradeScaleChanged) {
             if (exam.getAutoEvaluationConfig() != null) {
                 exam.getAutoEvaluationConfig().delete();
                 exam.setAutoEvaluationConfig(null);
             }
-        } else if (request().attrs().containsKey(Attrs.AUTO_EVALUATION_CONFIG)) {
-            examUpdater.updateAutoEvaluationConfig(exam, request().attrs().get(Attrs.AUTO_EVALUATION_CONFIG));
+        } else if (request.attrs().containsKey(Attrs.AUTO_EVALUATION_CONFIG)) {
+            examUpdater.updateAutoEvaluationConfig(exam, request.attrs().get(Attrs.AUTO_EVALUATION_CONFIG));
         }
         exam.save();
         return ok(exam);
     }
 
+    @Authenticated
     @With(ExamUpdateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExam(Long id) {
+    public Result updateExam(Long id, Http.Request request) {
         Exam exam = prototypeQuery().where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }
-        User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
-            return examUpdater.updateTemporalFieldsAndValidate(exam, user, request(), getSession())
-                    .orElseGet(() -> examUpdater.updateStateAndValidate(exam, user, request())
-                            .orElseGet(() -> handleExamUpdate(exam)));
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+            return examUpdater.updateTemporalFieldsAndValidate(exam, user, request)
+                    .orElseGet(() -> examUpdater.updateStateAndValidate(exam, user, request)
+                            .orElseGet(() -> handleExamUpdate(exam, user, request)));
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -334,14 +344,15 @@ public class ExamController extends BaseController {
         return changed;
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamSoftware(Long eid, Long sid) {
+    public Result updateExamSoftware(Long eid, Long sid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!examUpdater.isPermittedToUpdate(exam, user, getSession())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!examUpdater.isPermittedToUpdate(exam, user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         Software software = Ebean.find(Software.class, sid);
@@ -366,21 +377,24 @@ public class ExamController extends BaseController {
         return machines.stream().anyMatch((m) -> m.getSoftwareInfo().containsAll(exam.getSoftwareInfo()));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamLanguage(Long eid, String code) {
+    public Result updateExamLanguage(Long eid, String code, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        return examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession()).orElseGet(() -> {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return examUpdater.updateLanguage(exam, code, user).orElseGet(() -> {
             exam.update();
             return ok();
         });
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result copyExam(Long id) {
-        User user = getLoggedUser();
+    public Result copyExam(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam prototype = Ebean.find(Exam.class) // TODO: check if all this fetching is necessary
                 .fetch("creator", "id")
                 .fetch("examType", "id, type")
@@ -400,7 +414,7 @@ public class ExamController extends BaseController {
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
-        String type = formFactory.form().bindFromRequest().get("type");
+        String type = formFactory.form().bindFromRequest(request).get("type");
         ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
@@ -424,9 +438,10 @@ public class ExamController extends BaseController {
         return ok(copy);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createExamDraft() {
-        String executionType = formFactory.form().bindFromRequest().get("executionType");
+    public Result createExamDraft(Http.Request request) {
+        String executionType = formFactory.form().bindFromRequest(request).get("executionType");
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", executionType)
@@ -434,7 +449,7 @@ public class ExamController extends BaseController {
         if (examExecutionType == null) {
             return badRequest("Unsupported execution type");
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
@@ -469,7 +484,7 @@ public class ExamController extends BaseController {
 
         exam.save();
 
-        exam.getExamOwners().add(getLoggedUser());
+        exam.getExamOwners().add(user);
         exam.setTrialCount(1);
 
         exam.setExpanded(true);
@@ -480,17 +495,18 @@ public class ExamController extends BaseController {
         return ok(Json.toJson(Json.newObject().put("id", exam.getId())));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateCourse(Long eid, Long cid) {
+    public Result updateCourse(Long eid, Long cid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!examUpdater.isAllowedToUpdate(exam, user, getSession())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!examUpdater.isAllowedToUpdate(exam, user)) {
             return forbidden("sitnet_error_future_reservations_exist");
         }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             Course course = Ebean.find(Course.class, cid);
             if (course == null) {
                 return notFound("sitnet_error_not_found");

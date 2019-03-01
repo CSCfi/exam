@@ -40,7 +40,7 @@ angular.module('app.review')
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
 
             vm.pageSelected = function (page) {
-                vm.currentPage = page;
+                vm.data.page = page;
             }
 
             const translateGrade = (exam) => {

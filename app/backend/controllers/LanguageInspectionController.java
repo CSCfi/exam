@@ -31,6 +31,7 @@ import io.ebean.ExpressionList;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
@@ -40,6 +41,8 @@ import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.LanguageInspection;
 import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 
@@ -50,6 +53,8 @@ public class LanguageInspectionController extends BaseController {
 
     @Inject
     protected ActorSystem actor;
+
+    private static final Logger.ALogger logger = Logger.of(LanguageInspectionController.class);
 
     @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
@@ -91,9 +96,10 @@ public class LanguageInspectionController extends BaseController {
         return ok(inspections);
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result createInspection() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result createInspection(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         Long examId = Long.parseLong(df.get("examId"));
         Exam exam = Ebean.find(Exam.class, examId);
         if (exam == null) {
@@ -106,15 +112,16 @@ public class LanguageInspectionController extends BaseController {
             return forbidden("not allowed to send for inspection");
         }
         LanguageInspection inspection = new LanguageInspection();
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setCreator(inspection, user);
         inspection.setExam(exam);
         inspection.save();
         return ok();
     }
 
+    @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result assignInspection(Long id) {
+    public Result assignInspection(Long id, Http.Request request) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
         if (inspection == null) {
             return notFound("Inspection not found");
@@ -122,7 +129,7 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getAssignee() != null) {
             return forbidden("Inspection already taken");
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setModifier(inspection, user);
         inspection.setAssignee(user);
         inspection.setStartedAt(new Date());
@@ -130,9 +137,10 @@ public class LanguageInspectionController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result setApproval(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result setApproval(Long id, Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
         if (inspection == null) {
@@ -150,7 +158,7 @@ public class LanguageInspectionController extends BaseController {
         inspection.setFinishedAt(new Date());
         inspection.setApproved(isApproved);
 
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setModifier(inspection, user);
         inspection.update();
 
@@ -158,17 +166,17 @@ public class LanguageInspectionController extends BaseController {
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
                 emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
-                Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
             }
         }, actor.dispatcher());
-
 
         return ok();
     }
 
+    @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result setStatement(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result setStatement(Long id, Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String text = df.get("comment");
         if (text == null) {
             return badRequest();
@@ -183,7 +191,7 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getFinishedAt() != null) {
             return forbidden("Inspection already finalized");
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Comment statement = inspection.getStatement();
         if (statement == null) {
             statement = new Comment();

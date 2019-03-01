@@ -21,6 +21,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
@@ -31,15 +32,15 @@ import backend.models.ExamRoom;
 public class AccessibilityController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
-    public Result addAccessibility() {
-        Accessibility accessibility = bindForm(Accessibility.class);
+    public Result addAccessibility(Http.Request request) {
+        Accessibility accessibility = bindForm(Accessibility.class, request);
         accessibility.save();
         return ok(Json.toJson(accessibility));
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateAccessibility() {
-        Accessibility accessibility = bindForm(Accessibility.class);
+    public Result updateAccessibility(Http.Request request) {
+        Accessibility accessibility = bindForm(Accessibility.class, request);
         accessibility.update();
         return ok(Json.toJson(accessibility));
     }

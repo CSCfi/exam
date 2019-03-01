@@ -470,6 +470,49 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
+    public void testRequestReservationPreviousInTheFuture() throws Exception {
+        // Setup
+        initialize(null);
+
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(4);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(5);
+
+        Reservation reservation = new Reservation();
+        reservation.setStartAt(DateTime.now().plusHours(1));
+        reservation.setEndAt(DateTime.now().plusHours(2));
+        reservation.setExternalRef(RESERVATION_REF);
+        ExternalReservation er = new ExternalReservation();
+        er.setOrgRef(ORG_REF);
+        er.setRoomRef(ROOM_REF);
+        er.setMachineName("M1");
+        er.setRoomName("External Room R1");
+        er.save();
+        reservation.setExternalReservation(er);
+
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        ObjectNode json = Json.newObject();
+        json.put("start", ISODateTimeFormat.dateTime().print(start));
+        json.put("end", ISODateTimeFormat.dateTime().print(end));
+        json.put("examId", exam.getId());
+        json.put("orgId", ORG_REF);
+        json.put("roomId", ROOM_REF);
+        Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
+
+        assertThat(result.status()).isEqualTo(201);
+        assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation().getId()).isNotEqualTo(reservation.getId());
+        assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+    }
+
+
+    @Test
+    @RunAsStudent
     public void testRequestReservationRemoval() throws Exception {
         initialize(null);
 

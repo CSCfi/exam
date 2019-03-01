@@ -46,11 +46,13 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.Reservation;
+import backend.models.Role;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import backend.sanitizers.EnrolmentInformationSanitizer;
 import backend.sanitizers.StudentEnrolmentSanitizer;
+import backend.security.Authenticated;
 import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
 import backend.validators.JsonValidator;
@@ -58,6 +60,7 @@ import backend.validators.JsonValidator;
 public class EnrolmentController extends BaseController {
 
     private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
+    private static final Logger.ALogger logger = Logger.of(EnrolmentController.class);
 
     protected final EmailComposer emailComposer;
 
@@ -151,17 +154,19 @@ public class EnrolmentController extends BaseController {
         return enrolment;
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result checkIfEnrolled(Long id) {
+    public Result checkIfEnrolled(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return badRequest();
         }
-        if (isAllowedToParticipate(exam, getLoggedUser(), emailComposer)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (isAllowedToParticipate(exam, user, emailComposer)) {
             DateTime now = DateTimeUtils.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()
-                    .eq("user", getLoggedUser())
+                    .eq("user", user)
                     .eq("exam.id", id)
                     .gt("exam.examActiveEndDate", now.toDate())
                     .disjunction()
@@ -181,11 +186,12 @@ public class EnrolmentController extends BaseController {
         return forbidden("sitnet_no_trials_left");
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result removeEnrolment(Long id) {
-        User user = getLoggedUser();
+    public Result removeEnrolment(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment;
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
                     .where().idEq(id).eq("user", user).findOne();
         } else {
@@ -206,14 +212,16 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @JsonValidator(schema = "enrolmentInfo")
     @With(EnrolmentInformationSanitizer.class)
     @Restrict({@Group("STUDENT")})
-    public Result updateEnrolment(Long id) {
-        String info = request().attrs().getOptional(Attrs.ENROLMENT_INFORMATION).orElse(null);
+    public Result updateEnrolment(Long id, Http.Request request) {
+        String info = request.attrs().getOptional(Attrs.ENROLMENT_INFORMATION).orElse(null);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
-                .eq("user", getLoggedUser())
+                .eq("user", user)
                 .findOne();
         if (enrolment == null) {
             return notFound("enrolment not found");
@@ -277,7 +285,7 @@ public class EnrolmentController extends BaseController {
                     .filter(ee -> ee.getReservation().toInterval().isAfterNow())
                             .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
-                Logger.error("Several enrolments with future reservations found for user {} and exam {}",
+                logger.error("Several enrolments with future reservations found for user {} and exam {}",
                         user, exam.getId());
                 return wrapAsPromise(internalServerError()); // Lets fail right here
             }
@@ -285,7 +293,7 @@ public class EnrolmentController extends BaseController {
             if (!enrolmentsWithFutureReservations.isEmpty()) {
                 ExamEnrolment enrolment = enrolmentsWithFutureReservations.get(0);
                 Reservation reservation = enrolment.getReservation();
-                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
+                return externalReservationHandler.removeReservations(reservation, user).thenApplyAsync(result -> {
                     enrolment.delete();
                     ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                     return ok(newEnrolment);
@@ -304,16 +312,17 @@ public class EnrolmentController extends BaseController {
         if (codes.contains(code)) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         } else {
-            Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
+            logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
             return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
     }
 
+    @Authenticated
     @With(EnrolmentCourseInformationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createEnrolment(final Long id) throws IOException {
-        String code = request().attrs().get(Attrs.COURSE_CODE);
-        User user = getLoggedUser();
+    public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) throws IOException {
+        String code = request.attrs().get(Attrs.COURSE_CODE);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!PERM_CHECK_ACTIVE) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }
@@ -323,11 +332,12 @@ public class EnrolmentController extends BaseController {
                 .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
+    @Authenticated
     @With(StudentEnrolmentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> createStudentEnrolment(Long eid) {
-        Optional<Long> uid = request().attrs().getOptional(Attrs.USER_ID);
-        Optional<String> email = request().attrs().getOptional(Attrs.EMAIL);
+    public CompletionStage<Result> createStudentEnrolment(Long eid, Http.Request request) {
+        Optional<Long> uid = request.attrs().getOptional(Attrs.USER_ID);
+        Optional<String> email = request.attrs().getOptional(Attrs.EMAIL);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
@@ -369,7 +379,7 @@ public class EnrolmentController extends BaseController {
         }
 
         final User receiver = user;
-        final User sender = getLoggedUser();
+        final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
             if (receiver == null) {
                 return result;
@@ -382,15 +392,16 @@ public class EnrolmentController extends BaseController {
             }
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composePrivateExamParticipantNotification(receiver, sender, exam);
-                Logger.info("Exam participation notification email sent to {}", receiver.getEmail());
+                logger.info("Exam participation notification email sent to {}", receiver.getEmail());
             }, actor.dispatcher());
             return result;
         });
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result removeStudentEnrolment(Long id) {
-        User user = getLoggedUser();
+    public Result removeStudentEnrolment(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
                 .ne("exam.executionType.type", ExamExecutionType.Type.PUBLIC.toString())
@@ -411,9 +422,10 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result getRoomInfoFromEnrolment(String hash) {
-        User user = getLoggedUser();
+    public Result getRoomInfoFromEnrolment(String hash, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id")
                 .fetch("user.language")
@@ -424,7 +436,7 @@ public class EnrolmentController extends BaseController {
                 .eq("externalExam.hash", hash)
                 .endJunction()
                 .isNotNull("reservation.machine.room");
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             query = query.eq("user", user);
         }
         ExamEnrolment enrolment = query.findOne();

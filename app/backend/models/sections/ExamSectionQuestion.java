@@ -45,6 +45,8 @@ import backend.models.questions.Question;
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
 
+    private static final Logger.ALogger logger = Logger.of(ExamSectionQuestion.class);
+
     @ManyToOne
     @JoinColumn(name = "exam_section_id")
     @JsonBackReference
@@ -209,7 +211,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 esqoCopy.setOption(optionCopy);
                 esqCopy.getOptions().add(esqoCopy);
             } else {
-                Logger.error("Failed to copy a multi-choice question option!");
+                logger.error("Failed to copy a multi-choice question option!");
                 throw new RuntimeException();
             }
         });
@@ -253,7 +255,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     esqoCopy.setOption(optionCopy);
                     esqCopy.getOptions().add(esqoCopy);
                 } else {
-                    Logger.error("Failed to copy a multi-choice question option!");
+                    logger.error("Failed to copy a multi-choice question option!");
                     throw new RuntimeException();
                 }
             });
@@ -421,6 +423,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         options.add(option);
     }
 
+    private void initOptionScore(Double score, List<ExamSectionQuestionOption> options) {
+        BigDecimal delta = calculateOptionScores(score * -1, options);
+        if (!options.isEmpty()) {
+            ExamSectionQuestionOption first = options.get(0);
+            first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
+        }
+    }
+
     @Transient
     public void removeOption(MultipleChoiceOption option, boolean preserveScores) {
         ExamSectionQuestionOption esqo = options.stream()
@@ -442,20 +452,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             List<ExamSectionQuestionOption> opts = options.stream()
                     .filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score * -1, opts);
-            if (opts.size() > 0) {
-                ExamSectionQuestionOption first = opts.get(0);
-                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
-            }
+            initOptionScore(score, opts);
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options.stream()
                     .filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score * -1, opts);
-            if (opts.size() > 0) {
-                ExamSectionQuestionOption first = opts.get(0);
-                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
-            }
+            initOptionScore(score, opts);
         }
     }
 

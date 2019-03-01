@@ -47,6 +47,7 @@ import play.db.ebean.Transactional;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.SettingsController;
@@ -87,6 +88,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private ExternalAttachmentLoader externalAttachmentLoader;
+
+    private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
@@ -137,13 +140,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @SubjectNotPresent
     @Transactional
-    public CompletionStage<Result> addExamForAssessment(String ref) throws IOException {
+    public CompletionStage<Result> addExamForAssessment(String ref, Http.Request request) throws IOException {
         Optional<ExamEnrolment> option = getPrototype(ref);
         if (!option.isPresent()) {
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
-        JsonNode body = request().body().asJson();
+        JsonNode body = request.body().asJson();
         ExternalExam ee = JsonDeserializer.deserialize(ExternalExam.class, body);
         if (ee == null) {
             return wrapAsPromise(badRequest());
@@ -217,7 +220,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
-                    Logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                    logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
                     return internalServerError();
                 });
     }
@@ -232,11 +235,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Override
     public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
-        URL url = parseUrl("/api/enrolments/%s", reservation.getExternalRef());
+        URL url = parseUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return null;
             }
             // Create external exam!
@@ -305,8 +308,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .findOneOrEmpty();
     }
 
-    private static URL parseUrl(String format, Object... args) throws MalformedURLException {
-        final String path = args.length < 1 ? format : String.format(format, args);
+    private static URL parseUrl(Object... args) throws MalformedURLException {
+        final String path = args.length < 1 ? "/api/enrolments/%s" : String.format("/api/enrolments/%s", args);
         return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
                 + path);
     }

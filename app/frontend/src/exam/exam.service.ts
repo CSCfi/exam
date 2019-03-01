@@ -171,7 +171,7 @@ export class ExamService {
 
     refreshGradeScales = (isCollaborative: boolean): Observable<GradeScale[]> => {
         const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
-        this.http.get<GradeScale[]>(url).pipe(
+        return this.http.get<GradeScale[]>(url).pipe(
             map(resp => resp.map(gs => Object.assign(gs, { name: this.getScaleDisplayName(gs) })))
         );
     }

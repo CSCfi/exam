@@ -33,49 +33,53 @@ import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
-import play.cache.SyncCacheApi;
 import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
+import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
+import backend.security.SessionHandler;
 import backend.util.datetime.DateTimeUtils;
 
 
 public class SystemRequestHandler implements ActionCreator {
 
-    protected SyncCacheApi cache;
-    protected Environment environment;
+    private SessionHandler sessionHandler;
+    private Environment environment;
+
+    private static final Logger.ALogger logger = Logger.of(SystemRequestHandler.class);
 
     @Inject
-    public SystemRequestHandler(SyncCacheApi cache, Environment environment) {
-        this.cache = cache;
+    public SystemRequestHandler(SessionHandler sessionHandler, Environment environment) {
+        this.sessionHandler = sessionHandler;
         this.environment = environment;
     }
 
     @Override
     public Action createAction(Http.Request request, Method actionMethod) {
-        String token = BaseController.getToken(request).orElse("");
-        Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
-        boolean temporalStudent = session != null && session.isTemporalStudent();
-        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+        Optional<Session> os = sessionHandler.getSession(request);
+        Optional<String> ot = sessionHandler.getSessionToken(request);
+        boolean temporalStudent = os.isPresent() && os.get().isTemporalStudent();
+        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
         AuditLogger.log(request, user);
 
         // logout, no further processing
         if (request.path().equals("/app/logout")) {
             return propagateAction();
         }
+        Session session = os.orElse(null);
+        String token = ot.orElse(null);
 
         return validateSession(session, token).orElseGet(() -> {
-            updateSession(request, session, token);
-            if ((user == null || !user.hasRole("STUDENT", session)) && !temporalStudent) {
+            updateSession(request, session);
+            if ((user == null || !user.hasRole(Role.Name.STUDENT)) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
             } else {
@@ -88,16 +92,16 @@ public class SystemRequestHandler implements ActionCreator {
     private Optional<Action> validateSession(Session session, String token) {
         if (session == null) {
             if (token == null) {
-                Logger.debug("User not logged in");
+                logger.debug("User not logged in");
             } else {
-                Logger.info("Session with token {} not found", token);
+                logger.info("Session with token {} not found", token);
             }
             return Optional.of(propagateAction());
         } else if (!session.getValid()) {
-            Logger.warn("Session #{} is marked as invalid", token);
+            logger.warn("Session #{} is marked as invalid", token);
             return Optional.of(new Action.Simple() {
                 @Override
-                public CompletionStage<Result> call(final Http.Context ctx) {
+                public CompletionStage<Result> call(final Http.Request request) {
                     return CompletableFuture.supplyAsync(() ->
                             Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.")
                     );
@@ -134,23 +138,22 @@ public class SystemRequestHandler implements ActionCreator {
     private Action propagateAction(Map<String, String> headers) {
         return new Action.Simple() {
             @Override
-            public CompletionStage<Result> call(Http.Context ctx) {
-                CompletionStage<Result> result = delegate.call(ctx);
-                Http.Response response = ctx.response();
-                response.setHeader("Cache-Control", "no-cache;no-store");
-                response.setHeader("Pragma", "no-cache");
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    response.setHeader(entry.getKey(), entry.getValue());
-                }
-                return result;
+            public CompletionStage<Result> call(Http.Request request) {
+                return  delegate.call(request).thenApply(r -> {
+                    Result result = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
+                    for (Map.Entry<String, String> entry : headers.entrySet()) {
+                        result = result.withHeader(entry.getKey(), entry.getValue());
+                    }
+                    return result;
+                });
             }
         };
     }
 
-    private void updateSession(Http.RequestHeader request, Session session, String token) {
+    private void updateSession(Http.Request request, Session session) {
         if (!request.path().contains("checkSession")) {
             session.setSince(DateTime.now());
-            cache.set(BaseController.SITNET_CACHE_KEY + token, session);
+            sessionHandler.updateSession(request, session);
         }
     }
 
@@ -173,7 +176,7 @@ public class SystemRequestHandler implements ActionCreator {
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
 
-        Logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
+        logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
 
         if (!remoteIp.equals(machineIp)) {
             String message;
@@ -199,10 +202,10 @@ public class SystemRequestHandler implements ActionCreator {
                 message = enrolment.getId() + ":::" + lookedUp.getId();
             }
             headers.put(header, Base64.encodeBase64String(message.getBytes()));
-            Logger.debug("room and machine not ok. " + message);
+            logger.debug("room and machine not ok. " + message);
             return false;
         }
-        Logger.debug("room and machine ok");
+        logger.debug("room and machine ok");
         return true;
     }
 
