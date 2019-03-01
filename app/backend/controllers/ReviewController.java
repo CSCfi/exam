@@ -88,8 +88,8 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
@@ -202,17 +202,19 @@ public class ReviewController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = PathProperties.parse("(" +
                 "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
-                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
-                "examInspections(ready, user(id, firstName, lastName, email)), " +
+                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-                "languageInspection(*), examLanguages(*)" +
+                "languageInspection(*), examLanguages(*), " +
                 "parent(examOwners(firstName, lastName, email)), " +
                 "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
                 ")");
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
         query.fetchQuery("course", "code, credits")
-                .fetch("course.gradeScale.grades");
+                .fetch("course.gradeScale.grades")
+                .fetchQuery("examInspections", "ready")
+                .fetch("examInspections.user", "id, firstName, lastName, email")
+                .fetchQuery("examLanguages");
         query.where()
                 .eq("parent.id", eid)
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
