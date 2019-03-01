@@ -227,10 +227,6 @@ public class BaseController extends Controller {
         return getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession());
     }
 
-    protected Double round(Double src) {
-        return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
-    }
-
     protected Result writeAnonymousResult(Result result, boolean anonymous, boolean admin) {
         if (anonymous && !admin) {
             return withAnonymousHeader(result);

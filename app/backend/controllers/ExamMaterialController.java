@@ -120,9 +120,6 @@ public class ExamMaterialController extends QuestionController implements Sectio
             if (oes.isPresent()) {
                 ExamSection es = oes.get();
                 es.getExamMaterials().remove(em);
-                if (es.getExamMaterials().isEmpty()) {
-                    es.setOptional(false);
-                }
                 es.update();
                 return ok();
             }
