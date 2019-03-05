@@ -79,7 +79,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="user in $ctrl.users" ng-if="$ctrl.isUnfiltered(user)">
+                    <tr
+                        ng-repeat="user in $ctrl.filteredUsers | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
                         <td>{{user.lastName}}</td>
                         <td>{{user.firstName}}</td>
                         <td>
@@ -176,6 +177,10 @@
                     </tr>
                 </tbody>
             </table>
+            <div ng-show="$ctrl.filteredUsers.length > $ctrl.pageSize">
+                <paginator items="$ctrl.filteredUsers" on-select-page="$ctrl.pageSelected(page)"
+                    page-size="$ctrl.pageSize" current-page="$ctrl.currentPage" />
+            </div>
         </div>
     </div>
 
