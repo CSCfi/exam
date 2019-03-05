@@ -141,14 +141,18 @@ export class ReservationController implements angular.IComponentController {
                         r.enrolment.exam = r.enrolment.collaborativeExam;
                         r.enrolment.exam.examOwners = [];
                     }
-                    const exam = r.enrolment.exam.parent || r.enrolment.exam;
-                    r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
-                        return o.lastName + o.firstName;
-                    }).join();
-                    const state = this.Reservation.printExamState(r);
-                    r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
-                        'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
+                    if (!r.enrolment.exam) {
+                        console.warn('no exam for enrolment ' + r.enrolment.id);
+                    } else {
+                        const exam = r.enrolment.exam.parent || r.enrolment.exam;
+                        r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
+                            return o.lastName + o.firstName;
+                        }).join();
+                        const state = this.Reservation.printExamState(r);
+                        r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
+                            'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
+                            'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
+                    }
                 });
                 this.reservations = reservations;
             }).catch(resp => {
@@ -198,7 +202,7 @@ export class ReservationController implements angular.IComponentController {
         }
     }
 
-    protected initExamOptions() {
+    protected initExamOptions(): void {
         this.$http.get('/app/reservations/exams')
             .then((resp: angular.IHttpResponse<{ id: string, name: string }[]>) => {
                 return resp.data;
