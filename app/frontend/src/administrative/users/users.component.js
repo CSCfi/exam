@@ -25,6 +25,7 @@ angular.module('app.administrative.users')
                 const vm = this;
 
                 vm.$onInit = function () {
+                    vm.pageSize = 30;
                     vm.filter = {};
                     vm.roles = [
                         { type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog' },
@@ -49,33 +50,29 @@ angular.module('app.administrative.users')
 
                 };
 
-                vm.search = function () {
+                vm.pageSelected = page => vm.currentPage = page;
+
+                vm.search = () => {
                     vm.loader.loading = true;
                     search();
                 };
 
-                vm.hasRole = function (user, role) {
-                    return user.roles.some(function (r) {
-                        return r.name === role;
-                    });
-                };
+                vm.hasRole = (user, role) => user.roles.some(r => r.name === role);
 
-                vm.hasPermission = function (user, permission) {
-                    return user.permissions.some(function (p) {
-                        return p.type === permission;
-                    });
-                };
+                vm.hasPermission = (user, permission) => user.permissions.some(p => p.type === permission);
 
                 vm.applyRoleFilter = function (role) {
                     vm.roles.forEach(function (r) {
                         r.filtered = r.type === role.type ? !r.filtered : false;
                     });
+                    filterUsers();
                 };
 
                 vm.applyPermissionFilter = function (permission) {
                     vm.permissions.forEach(function (p) {
                         p.filtered = p.type === permission.type ? !p.filtered : false;
                     });
+                    filterUsers();
                 };
 
                 vm.isUnfiltered = function (user) {
@@ -127,6 +124,7 @@ angular.module('app.administrative.users')
                         }).indexOf(role.type);
                         user.roles.splice(i, 1);
                         updateEditOptions(user);
+                        filterUsers();
                     });
                 };
 
@@ -137,8 +135,11 @@ angular.module('app.administrative.users')
                         }).indexOf(permission.type);
                         user.permissions.splice(i, 1);
                         updateEditOptions(user);
+                        filterUsers();
                     });
                 };
+
+                const filterUsers = () => vm.filteredUsers = vm.users.filter(vm.isUnfiltered);
 
                 const updateEditOptions = function (user) {
                     user.availableRoles = [];
@@ -171,6 +172,7 @@ angular.module('app.administrative.users')
                         vm.users.forEach(function (user) {
                             updateEditOptions(user);
                         });
+                        filterUsers();
                         vm.loader.loading = false;
                     }, function (err) {
                         vm.loader.loading = false;
