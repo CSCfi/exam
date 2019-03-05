@@ -19,17 +19,17 @@ import toast from 'toastr';
 angular.module('app.administrative.users')
     .component('users', {
         template: require('./users.template.html'),
-        controller: ['$timeout', '$translate', 'UserManagement', 'Session',
-            function ($timeout, $translate, UserManagement, Session) {
+        controller: ['$translate', 'UserManagement', 'Session',
+            function ($translate, UserManagement, Session) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
                     vm.filter = {};
                     vm.roles = [
-                        {type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog'},
-                        {type: 'TEACHER', name: 'sitnet_teacher', icon: 'fa-university'},
-                        {type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap'}
+                        { type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog' },
+                        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'fa-university' },
+                        { type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap' }
                     ];
 
                     UserManagement.permissions.query(function (permissions) {
@@ -88,10 +88,10 @@ angular.module('app.administrative.users')
                         function (role) {
                             return role.filtered;
                         }).forEach(function (role) {
-                        if (!vm.hasRole(user, role.type)) {
-                            result = false;
-                        }
-                    });
+                            if (!vm.hasRole(user, role.type)) {
+                                result = false;
+                            }
+                        });
                     if (!result) {
                         return result;
                     }
@@ -99,29 +99,29 @@ angular.module('app.administrative.users')
                         function (permission) {
                             return permission.filtered;
                         }).forEach(function (permission) {
-                        if (!vm.hasPermission(user, permission.type)) {
-                            result = false;
-                        }
-                    });
+                            if (!vm.hasPermission(user, permission.type)) {
+                                result = false;
+                            }
+                        });
                     return result;
                 };
 
                 vm.addRole = function (user, role) {
-                    UserManagement.roles.add({id: user.id, role: role.type}, function () {
-                        user.roles.push({name: role.type});
+                    UserManagement.roles.add({ id: user.id, role: role.type }, function () {
+                        user.roles.push({ name: role.type });
                         updateEditOptions(user);
                     });
                 };
 
                 vm.addPermission = function (user, permission) {
-                    UserManagement.permissions.add({id: user.id, permission: permission.type}, function () {
-                        user.permissions.push({type: permission.type});
+                    UserManagement.permissions.add({ id: user.id, permission: permission.type }, function () {
+                        user.permissions.push({ type: permission.type });
                         updateEditOptions(user);
                     });
                 };
 
                 vm.removeRole = function (user, role) {
-                    UserManagement.roles.remove({id: user.id, role: role.type}, function () {
+                    UserManagement.roles.remove({ id: user.id, role: role.type }, function () {
                         const i = user.roles.map(function (r) {
                             return r.name;
                         }).indexOf(role.type);
@@ -131,7 +131,7 @@ angular.module('app.administrative.users')
                 };
 
                 vm.removePermission = function (user, permission) {
-                    UserManagement.permissions.remove({id: user.id, permission: permission.type}, function () {
+                    UserManagement.permissions.remove({ id: user.id, permission: permission.type }, function () {
                         const i = user.permissions.map(function (p) {
                             return p.type;
                         }).indexOf(permission.type);
@@ -145,8 +145,8 @@ angular.module('app.administrative.users')
                     user.removableRoles = [];
                     vm.roles.forEach(function (role) {
                         if (user.roles.map(function (r) {
-                                return r.name;
-                            }).indexOf(role.type) === -1) {
+                            return r.name;
+                        }).indexOf(role.type) === -1) {
                             user.availableRoles.push(angular.copy(role));
                         } else {
                             user.removableRoles.push(angular.copy(role));
@@ -156,8 +156,8 @@ angular.module('app.administrative.users')
                     user.removablePermissions = [];
                     vm.permissions.forEach(function (permission) {
                         if (user.permissions.map(function (p) {
-                                return p.type;
-                            }).indexOf(permission.type) === -1) {
+                            return p.type;
+                        }).indexOf(permission.type) === -1) {
                             user.availablePermissions.push(angular.copy(permission));
                         } else {
                             user.removablePermissions.push(angular.copy(permission));
@@ -166,7 +166,7 @@ angular.module('app.administrative.users')
                 };
 
                 const search = function () {
-                    UserManagement.users.query({filter: vm.filter.text}, function (users) {
+                    UserManagement.users.query({ filter: vm.filter.text }, function (users) {
                         vm.users = users;
                         vm.users.forEach(function (user) {
                             updateEditOptions(user);
