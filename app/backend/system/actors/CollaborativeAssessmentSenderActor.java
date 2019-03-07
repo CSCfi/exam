@@ -55,7 +55,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            logger.debug("{}: Running collaborative assessment sender ...", getClass().getCanonicalName());
+            logger.debug("Starting collaborative assessment sending check ->");
             Query<ExamParticipation> query = Ebean.find(ExamParticipation.class);
             PathProperties pp = getPath();
             pp.apply(query);
@@ -70,9 +70,10 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 try {
                     send(e, pp);
                 } catch (IOException ex) {
-                    logger.error("I/O failure while sending exam to XM");
+                    logger.error("I/O failure while sending assessment to proxy server", ex);
                 }
             });
+            logger.debug("<- done");
         }).build();
     }
 

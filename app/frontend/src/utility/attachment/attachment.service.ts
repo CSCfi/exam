@@ -20,6 +20,7 @@ import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
 import { Attachment, Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ReviewQuestion } from '../../review/review.model';
 
 interface ExamWithFeedback {
     id: number;
@@ -227,7 +228,7 @@ export class AttachmentService {
         }
     }
 
-    downloadQuestionAnswerAttachment(question: AnsweredQuestion) {
+    downloadQuestionAnswerAttachment(question: AnsweredQuestion | ReviewQuestion) {
         this.Files.download(`/app/attachment/question/${question.id}/answer`,
             question.essayAnswer.attachment.fileName);
     }

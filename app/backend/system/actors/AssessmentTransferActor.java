@@ -51,7 +51,7 @@ public class AssessmentTransferActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            logger.debug("{}: Running assessment transfer ...", getClass().getCanonicalName());
+            logger.debug("Assessment transfer check started ->");
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()
                     .isNotNull("externalExam")
@@ -64,9 +64,10 @@ public class AssessmentTransferActor extends AbstractActor {
                 try {
                     send(e);
                 } catch (IOException ex) {
-                    logger.error("I/O failure while sending exam to XM");
+                    logger.error("I/O failure while sending assessment to proxy server", ex);
                 }
             });
+            logger.debug("<- done");
         }).build();
     }
 

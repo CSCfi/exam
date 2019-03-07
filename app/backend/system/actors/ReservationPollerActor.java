@@ -41,7 +41,7 @@ public class ReservationPollerActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
+            logger.debug("Starting no-show check ->");
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .fetch("enrolment")
@@ -55,10 +55,11 @@ public class ReservationPollerActor extends AbstractActor {
                     .findList();
 
             if (reservations.isEmpty()) {
-                logger.debug("{}: ... none found.", getClass().getCanonicalName());
+                logger.debug("None found");
             } else {
                 handler.handleNoShows(reservations);
             }
+            logger.debug("<- done");
 
         }).build();
     }
