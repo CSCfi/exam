@@ -33,11 +33,14 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
     template: require('./dropDownSelect.template.html'),
     bindings: {
         options: '<',
+        limitTo: '<',
         placeholder: '@',
         onSelect: '&'
     },
     controller: class DropDownSelectController implements angular.IComponentController {
-        options: Option[];
+        options: Option[]; // everything
+        filteredOptions: Option[]; // filtered
+        limitTo?: number;
         placeholder: string;
         onSelect: (_?: Selection) => void;
         searchFilter: string;
@@ -52,8 +55,15 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
+            this.options = this.options || [];
             this.placeholder = this.placeholder || '-';
+            this.limitTo = this.limitTo || 15;
             this.searchFilter = '';
+            this.filterOptions();
+        }
+
+        filterOptions() {
+            this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
         }
 
         selectOption(option: Option) {

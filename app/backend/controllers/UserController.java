@@ -204,11 +204,6 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getUsersByRoleFilter(String role, String criteria) {
-        return ok(Json.toJson(asArray(findUsersByRoleAndName(role, criteria))));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
