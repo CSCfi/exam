@@ -22,13 +22,13 @@ angular.module('app.review')
             review: '<',
             onSelection: '&'
         },
-        controller: ['$sce', 'QuestionReview',
-            function ($sce, QuestionReview) {
+        controller: ['$sce', 'QuestionReview', 'Session',
+            function ($sce, QuestionReview, Session) {
 
                 const vm = this;
 
                 vm.getAssessedAnswerCount = function () {
-                    return QuestionReview.getAssessedAnswerCount(vm.review);
+                    return QuestionReview.getProcessedAnswerCount(vm.review, Session.getUser());
                 };
 
                 vm.sanitizeQuestion = function () {
@@ -36,7 +36,7 @@ angular.module('app.review')
                 };
 
                 vm.reviewSelected = function () {
-                    vm.onSelection({id: vm.review.question.id, selected: vm.review.selected});
+                    vm.onSelection({ id: vm.review.question.id, selected: vm.review.selected });
                 };
 
 

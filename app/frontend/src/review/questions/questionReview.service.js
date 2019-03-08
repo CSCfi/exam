@@ -37,13 +37,32 @@ angular.module('app.review')
                 return answer.selected && answer.essayAnswer && parseFloat(answer.essayAnswer.evaluatedScore) >= 0;
             };
 
+            self.isLocked = function (answer, user) {
+                const states = ['REVIEW', 'REVIEW_STARTED'];
+                const exam = answer.examSection.exam;
+                const isInspector = exam.examInspections.map(function (ei) {
+                    return ei.user.id;
+                }).indexOf(user.id) > -1;
+                if (!isInspector) {
+                    states.push('GRADED');
+                }
+                return states.indexOf(exam.state) === -1;
+            };
+
             self.getAssessedAnswerCount = function (review) {
                 if (!review) {
                     return 0;
                 }
                 return review.answers.filter(function (a) {
-                    return a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0; //TODO: check this
+                    return a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) >= 0;
                 }).length;
+            };
+
+            self.getProcessedAnswerCount = function (review, user) {
+                if (!review) {
+                    return 0;
+                }
+                return review.answers.filter(a => self.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore))).length;
             };
 
         }]);

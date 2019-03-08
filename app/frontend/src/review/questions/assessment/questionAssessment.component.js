@@ -15,6 +15,7 @@
 
 import angular from 'angular';
 import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('questionAssessment', {
@@ -28,7 +29,7 @@ angular.module('app.review')
                     vm.user = Session.getUser();
                     vm.examId = $routeParams.id;
                     const ids = $routeParams.q || [];
-                    QuestionReview.questionsApi.query({id: vm.examId, ids: ids}, function (data) {
+                    QuestionReview.questionsApi.query({ id: vm.examId, ids: ids }, function (data) {
                         data.forEach(function (r, i) {
                             r.selected = i === 0; // select the first in the list
                         });
@@ -40,7 +41,10 @@ angular.module('app.review')
                                 return $sce.trustAsHtml(vm.selectedReview.question.question);
                             };
 
-                            vm.getAssessedAnswerCount = function () {
+                            vm.getAssessedAnswerCount = function (includeLocked) {
+                                if (includeLocked) {
+                                    return vm.assessedAnswers.length + vm.lockedAnswers.length;
+                                }
                                 return vm.assessedAnswers.length;
                             };
 
@@ -96,7 +100,7 @@ angular.module('app.review')
                         return a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0 && !isLocked(a);
                     });
                     vm.unassessedAnswers = vm.selectedReview.answers.filter(function (a) {
-                        return !a.essayAnswer || a.essayAnswer.evaluatedScore === null && !isLocked(a);
+                        return !a.essayAnswer || !_.isNumber(a.essayAnswer.evaluatedScore) && !isLocked(a);
                     });
                     vm.lockedAnswers = vm.selectedReview.answers.filter(function (a) {
                         return isLocked(a);
@@ -105,7 +109,7 @@ angular.module('app.review')
 
                 const saveEvaluation = function (answer) {
                     const deferred = $q.defer();
-                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                    answer.essayAnswer.evaluatedScore = parseFloat(answer.essayAnswer.score);
                     Assessment.saveEssayScore(answer).then(function () {
                         toast.info($translate.instant('sitnet_graded'));
                         if (vm.assessedAnswers.indexOf(answer) === -1) {
@@ -115,7 +119,7 @@ angular.module('app.review')
                         deferred.resolve();
                     }, function (err) {
                         // Roll back
-                        answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                        answer.essayAnswer.evaluatedScore = parseFloat(answer.essayAnswer.score);
                         toast.error(err.data);
                         deferred.resolve();
                     });
