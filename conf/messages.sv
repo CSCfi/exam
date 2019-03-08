@@ -79,6 +79,7 @@ email.template.reservation.change.message=Hej, administrator har bytt din tentam
 email.template.reservation.change.previous=Föregående dator
 email.template.reservation.change.current=Ny dator
 email.template.reservation.exam.info=Information om tentamen
-email.template.material.title=Tenttimateriaalit SV
-email.template.material.name=Nimi SV
-email.template.material.author=Tekijä SV
+email.template.section.title=Valitsemasi aihealueet SV
+email.template.section.name=Nimi SV
+email.template.section.description=Kuvaus SV
+

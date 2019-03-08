@@ -66,7 +66,7 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-import backend.models.sections.ExamMaterial;
+import backend.models.sections.ExamSection;
 import backend.util.config.ConfigUtil;
 
 class EmailComposerImpl implements EmailComposer {
@@ -235,14 +235,12 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    private String formatMaterial(ExamMaterial material, Lang lang) {
-        // String title = messaging.get(lang, "email.template.material.title");
+    private String formatSection(ExamSection section, Lang lang) {
         String name = String.format("%s: %s",
-                messaging.get(lang, "email.template.material.name"), material.getName());
-        String author = material.getAuthor() == null ? "" : String.format(" - %s: %s",
-                messaging.get(lang, "email.template.material.author"), material.getAuthor());
-        String isbn = material.getIsbn() == null ? "" : String.format(" - ISBN: %s", material.getIsbn());
-        return String.format("%s%s%s", name, author, isbn);
+                messaging.get(lang, "email.template.section.name"), section.getName());
+        String description = section.getDescription() == null ? "" : String.format(" - %s: %s",
+                messaging.get(lang, "email.template.section.description"), section.getDescription());
+        return String.format("%s%s", name, description);
     }
 
     @Override
@@ -262,17 +260,13 @@ class EmailComposerImpl implements EmailComposer {
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
-        Stream<ExamMaterial> requiredMaterials = exam.getExamSections().stream()
-                .filter(es -> !es.isOptional())
-                .flatMap(es -> es.getExamMaterials().stream());
-        Stream<ExamMaterial> optionalMaterials = reservation.getOptionalSections().stream()
-                .flatMap(es -> es.getExamMaterials().stream());
-        Set<String> allMaterials = Stream.concat(requiredMaterials, optionalMaterials)
-                .map(em -> formatMaterial(em, lang)).collect(Collectors.toSet());
+        Set<String> sections = reservation.getOptionalSections().stream()
+                .map(es -> formatSection(es, lang))
+                .collect(Collectors.toSet());
 
-        String materials = String.format("%s<br/>%s",
-                messaging.get(lang, "email.template.material.title"),
-                String.join("<br/>", allMaterials));
+        String sectionBlock = String.format("%s<br/>%s",
+                messaging.get(lang, "email.template.section.title"),
+                String.join("<br/>", sections));
 
         DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
         DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
@@ -299,7 +293,7 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("room_name", messaging.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
-        stringValues.put("exam_materials", materials);
+        stringValues.put("exam_sections", sectionBlock);
         stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
         stringValues.put("cancellation_link", HOSTNAME);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));

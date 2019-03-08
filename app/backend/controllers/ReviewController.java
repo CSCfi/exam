@@ -664,6 +664,10 @@ public class ReviewController extends BaseController {
         }, actor.dispatcher());
     }
 
+    private Double round(Double src) {
+        return src == null ? null : Math.round(src * 100) / 100d;
+    }
+
     private static Query<Exam> createQuery() {
         return Ebean.find(Exam.class)
                 .fetch("course")

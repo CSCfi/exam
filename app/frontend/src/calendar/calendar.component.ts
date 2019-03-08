@@ -329,7 +329,12 @@ export const CalendarComponent: angular.IComponentOptions = {
             if (!room || !this.reservation || this.confirming) {
                 return;
             }
+            const requiredSections = this.examInfo.examSections.filter(es => !es.optional);
             const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
+            if (requiredSections.length === 0 && selectedSectionIds.length === 0) {
+                toast.error(this.$translate.instant('sitnet_select_at_least_one_section'));
+                return;
+            }
             this.confirming = true;
             this.Calendar.reserve(
                 this.reservation.start,
@@ -339,7 +344,7 @@ export const CalendarComponent: angular.IComponentOptions = {
                 { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
                 this.isCollaborative,
                 selectedSectionIds
-            ).then(() => this.confirming = false);
+            ).catch(angular.noop).finally(() => this.confirming = false);
         }
 
         setOrganisation(org: { _id: string, name: string, filtered: boolean }) {
