@@ -903,5 +903,6 @@
   "sitnet_search_by_name": "Hae nimen perusteella",
   "sitnet_author": "Tekijä",
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen",
-  "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt"
+  "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt",
+  "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue"
 }

@@ -17,6 +17,7 @@ package backend.controllers;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -42,6 +43,7 @@ import backend.models.ExamMachine;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
 import backend.util.datetime.DateTimeUtils;
@@ -96,7 +98,7 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
-    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user) {
+    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
         }
@@ -112,6 +114,14 @@ public class CalendarController extends BaseController {
         if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
             return Optional.of(forbidden("sitnet_no_trials_left"));
         }
+        // Check that at least one section will end up in the exam
+        Set<ExamSection> sections = enrolment.getExam().getExamSections();
+        if (sections.stream().allMatch(ExamSection::isOptional)) {
+            if (sections.stream().noneMatch(es -> sectionIds.contains(es.getId()))) {
+                return Optional.of(forbidden("No optional sections selected. At least one needed"));
+            }
+        }
+
         return Optional.empty();
     }
 
@@ -150,7 +160,7 @@ public class CalendarController extends BaseController {
                 return wrapAsPromise(notFound());
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
-            Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
+            Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
             }

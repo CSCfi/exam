@@ -145,7 +145,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
         User user = getLoggedUser();
         if (!oe.get().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
-            return forbidden("sitnet_error_access_forbidden");
+            return unauthorized("sitnet_error_access_forbidden");
         }
 
         ExamSection form = formFactory.form(ExamSection.class).bindFromRequest(
@@ -166,7 +166,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         // Disallow changing optionality if future reservations exist
         if (section.isOptional() != form.isOptional() &&
                 !examUpdater.isAllowedToUpdate(section.getExam(), user, getSession())) {
-            return forbidden("sitnet_error_future_reservations_exist");
+            return badRequest("sitnet_error_future_reservations_exist");
         }
 
         section.setOptional(form.isOptional());

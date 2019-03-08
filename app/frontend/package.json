@@ -27,7 +27,7 @@
     "angular-ui-calendar": "~1.0.2",
     "async": "^2.6.1",
     "base64-js": "^1.3.0",
-    "bootstrap-sass": "^3.3.7",
+    "bootstrap-sass": "^3.4.1",
     "file-saver": "^1.3.3",
     "font-awesome": "^4.7.0",
     "fullcalendar": "^2.8.0",

@@ -247,7 +247,7 @@ public class ExternalCalendarController extends CalendarController {
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findOne();
-        Optional<Result> error = checkEnrolment(enrolment, user);
+        Optional<Result> error = checkEnrolment(enrolment, user, Collections.emptyList());
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
@@ -274,7 +274,7 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
+    public CompletionStage<Result> requestReservationRemoval(String ref) {
         User user = getLoggedUser();
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
         return externalReservationHandler.removeReservations(reservation, user);
