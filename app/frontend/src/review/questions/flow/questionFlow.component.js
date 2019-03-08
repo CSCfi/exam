@@ -22,16 +22,22 @@ angular.module('app.review')
             reviews: '<',
             onSelection: '&'
         },
-        controller: ['QuestionReview',
-            function (QuestionReview) {
+        controller: ['QuestionReview', 'Session',
+            function (QuestionReview, Session) {
 
                 const vm = this;
 
                 const init = function () {
                     vm.unfinished = vm.reviews.filter(function (r) {
-                        return !QuestionReview.isFinalized(r);
+                        return vm.getAssessedAnswerCount(r) < r.answers.length;
                     });
-                    vm.finished = vm.reviews.filter(QuestionReview.isFinalized);
+                    vm.finished = vm.reviews.filter(function (r) {
+                        return vm.getAssessedAnswerCount(r) === r.answers.length;
+                    });
+                };
+
+                vm.getAssessedAnswerCount = function (review) {
+                    return QuestionReview.getProcessedAnswerCount(review, Session.getUser());
                 };
 
                 vm.$onInit = function () {
@@ -48,7 +54,7 @@ angular.module('app.review')
                     vm.unfinished.concat(vm.finished).forEach(function (r) {
                         r.selected = r.question.id === review.question.id;
                     });
-                    vm.onSelection({index: vm.reviews.indexOf(review)});
+                    vm.onSelection({ index: vm.reviews.indexOf(review) });
                 };
 
             }

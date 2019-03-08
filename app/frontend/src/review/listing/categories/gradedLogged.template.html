@@ -2,12 +2,15 @@
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_exam_graded_logged' | translate }}
             <a ng-click="$ctrl.data.toggle = !$ctrl.data.toggle" class="pointer">
-                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
-                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
+                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
+                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
             </a>
             <sup class="padl05">
-                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_graded_logged_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                <img popover-placement="right" popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_graded_logged_description' | translate}}" src="Images/icon_tooltip.svg"
+                    alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
             </sup>
         </div>
     </div>
@@ -53,14 +56,22 @@
                     </ul>
                 </th>
                 <th ng-if="$ctrl.showId()">Id</th>
-                <th sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="exam.totalScore" text="sitnet_total_score" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
-                <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
+                <th sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="exam.totalScore" text="sitnet_total_score" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
+                <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
             </tr>
         </thead>
 
@@ -101,11 +112,12 @@
             </tr>
             <!--Fill if page not full-->
             <tr ng-if=" $ctrl.data.filtered.length === 0">
-                <td colspan="8">{{'sitnet_review_no_result' | translate}}</td>
+                <td ng-if="$ctrl.showId()" colspan="10">{{'sitnet_review_no_result' | translate}}</td>
+                <td ng-if="!$ctrl.showId()" colspan="9">{{'sitnet_review_no_result' | translate}}</td>
             </tr>
             <tr ng-repeat="r in [] | pagefill: $ctrl.data.filtered.length:$ctrl.data.page:$ctrl.data.pageSize">
-                <td class="table-column-examname">&nbsp;</td>
-                <td colspan="7"></td>
+                <td ng-if="$ctrl.showId()" colspan="10">&nbsp;</td>
+                <td ng-if="!$ctrl.showId()" colspan="9">&nbsp;</td>
             </tr>
 
         </tbody>

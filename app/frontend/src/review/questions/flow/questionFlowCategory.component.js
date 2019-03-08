@@ -24,10 +24,16 @@ angular.module('app.review')
             allDone: '<',
             onSelection: '&'
         },
-        controller: ['$sce', '$filter', 'QuestionReview',
-            function ($sce, $filter, QuestionReview) {
+        controller: ['$sce', '$filter', 'Session', 'QuestionReview',
+            function ($sce, $filter, Session, QuestionReview) {
 
                 const vm = this;
+
+                vm.$onChanges = function (changes) {
+                    if (changes.reviews) {
+                        console.log("Reviews changed!");
+                    }
+                }
 
                 vm.displayQuestionText = function (review) {
                     const truncate = function (content, offset) {
@@ -43,11 +49,11 @@ angular.module('app.review')
                 };
 
                 vm.getAssessedAnswerCount = function (review) {
-                    return vm.allDone ? 0 : QuestionReview.getAssessedAnswerCount(review);
+                    return vm.allDone ? 0 : QuestionReview.getProcessedAnswerCount(review, Session.getUser());
                 };
 
                 vm.selectQuestion = function (review) {
-                    vm.onSelection({review: review});
+                    vm.onSelection({ review: review });
                 };
 
 
