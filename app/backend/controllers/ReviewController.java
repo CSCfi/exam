@@ -260,6 +260,35 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result forceScoreExamQuestion(Long id) {
+        DynamicForm df = formFactory.form().bindFromRequest(request());
+        Optional<ExamSectionQuestion> oeq = Ebean.find(ExamSectionQuestion.class)
+                .fetch("examSection.exam.parent.examOwners")
+                .where()
+                .idEq(id)
+                .ne("question.type", Question.Type.EssayQuestion)
+                .findOneOrEmpty();
+        if (!oeq.isPresent()) {
+            return notFound("question not found");
+        }
+        ExamSectionQuestion question = oeq.get();
+        Exam exam = question.getExamSection().getExam();
+        if (isDisallowedToModify(exam, getLoggedUser(), exam.getState())) {
+            return forbidden();
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+            return forbidden("Not allowed to update grading of this exam");
+        }
+        Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
+        if (forcedScore != null && (forcedScore < 0 || forcedScore > question.getMaxAssessedScore())) {
+            return badRequest("score out of acceptable range");
+        }
+        question.setForcedScore(forcedScore);
+        question.update();
+        return ok();
+    }
+
     @Restrict({@Group("TEACHER")})
     public Result updateAssessmentInfo(Long id) {
         String info = request().body().asJson().get("assessmentInfo").asText();
