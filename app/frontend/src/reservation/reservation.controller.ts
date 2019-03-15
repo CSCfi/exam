@@ -14,6 +14,7 @@
  */
 
 import * as angular from 'angular';
+import * as _ from 'lodash';
 import * as toast from 'toastr';
 import { ReservationService } from './reservationService';
 import { SessionService, User } from '../session/session.service';
@@ -104,7 +105,7 @@ export class ReservationController implements angular.IComponentController {
                 }
             }
 
-            if (!Number.isInteger(params.examId)) {
+            if (!_.isNumber(parseInt(params.examId))) {
                 params.externalRef = params.examId;
                 delete params.examId;
             }
