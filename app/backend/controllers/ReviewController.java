@@ -268,6 +268,36 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result forceScoreExamQuestion(Long id, Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
+        Optional<ExamSectionQuestion> oeq = Ebean.find(ExamSectionQuestion.class)
+                .fetch("examSection.exam.parent.examOwners")
+                .where()
+                .idEq(id)
+                .ne("question.type", Question.Type.EssayQuestion)
+                .findOneOrEmpty();
+        if (!oeq.isPresent()) {
+            return notFound("question not found");
+        }
+        ExamSectionQuestion question = oeq.get();
+        Exam exam = question.getExamSection().getExam();
+        if (isDisallowedToModify(exam, request.attrs().get(Attrs.AUTHENTICATED_USER), exam.getState())) {
+            return forbidden();
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+            return forbidden("Not allowed to update grading of this exam");
+        }
+        Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
+        if (forcedScore != null && (forcedScore < 0 || forcedScore > question.getMaxAssessedScore())) {
+            return badRequest("score out of acceptable range");
+        }
+        question.setForcedScore(forcedScore);
+        question.update();
+        return ok();
+    }
+
+    @Authenticated
     @Restrict({@Group("TEACHER")})
     public Result updateAssessmentInfo(Long id, Http.Request request) {
         String info = request.body().asJson().get("assessmentInfo").asText();
@@ -677,6 +707,10 @@ public class ReviewController extends BaseController {
             emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
             logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
+    }
+
+    private Double round(Double src) {
+        return src == null ? null : Math.round(src * 100) / 100d;
     }
 
     private static Query<Exam> createQuery() {

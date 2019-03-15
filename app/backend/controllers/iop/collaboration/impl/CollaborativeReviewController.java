@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -55,8 +56,8 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExternalRefCollectionSanitizer;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 import backend.util.json.JsonDeserializer;
@@ -121,6 +122,14 @@ public class CollaborativeReviewController extends CollaborationController {
         // calculate scores
         calculateScores(root);
         return writeAnonymousResult(request, ok(root), true, admin);
+    }
+
+    private void forceScoreAnswer(JsonNode examNode, Long qid, Double score) {
+        stream(examNode.get("examSections"))
+                .flatMap(es -> stream(es.get("sectionQuestions")))
+                .filter(esq -> esq.get("id").asLong() == qid)
+                .findAny()
+                .ifPresent(esq -> ((ObjectNode) esq).put("forcedScore", score));
     }
 
     private void scoreAnswer(JsonNode examNode, Long qid, Double score) {
@@ -268,7 +277,8 @@ public class CollaborativeReviewController extends CollaborationController {
         return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
                     JsonNode body = request.body().asJson();
                     String input = body.get("evaluatedScore").asText();
-                    Double score = input == null ? null : Double.parseDouble(input);
+                    JsonNode scoreNode = body.path("evaluatedScore");
+                    Double score = scoreNode.isNumber() ? scoreNode.asDouble() : null;
                     String revision = body.get("rev").asText();
                     WSRequest wsRequest = wsClient.url(url.toString());
                     Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
@@ -283,6 +293,34 @@ public class CollaborativeReviewController extends CollaborationController {
                     return wsRequest.get().thenComposeAsync(onSuccess);
                 }).getOrElseGet(Function.identity())
         ).get();
+    }
+
+	@Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public CompletionStage<Result> forceUpdateAnswerScore(Long id, String ref, Long qid, Http.Request request) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        JsonNode body = request.body().asJson();
+        JsonNode scoreNode = body.path("forcedScore");
+        Double score = scoreNode.isNumber() ? scoreNode.asDouble() : null;
+        String revision = body.get("rev").asText();
+        WSRequest wsRequest = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            forceScoreAnswer(root.get("exam"), qid, score);
+            ((ObjectNode) root).put("rev", revision);
+            return upload(url.get(), root);
+        };
+        return wsRequest.get().thenComposeAsync(onSuccess);
     }
 
     @Authenticated

@@ -252,7 +252,7 @@ public class ExternalCalendarController extends CalendarController {
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findOne();
-        Optional<Result> error = checkEnrolment(enrolment, user);
+        Optional<Result> error = checkEnrolment(enrolment, user, Collections.emptyList());
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }

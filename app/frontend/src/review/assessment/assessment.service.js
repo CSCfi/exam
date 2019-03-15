@@ -207,6 +207,13 @@ angular.module('app.review')
                 return $http.put(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
             };
 
+            self.saveForcedScore = (question, examId, examRef, rev) => {
+                const url = examId && examRef ?
+                    `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force` :
+                    `/app/review/examquestion/${question.id}/score/force`;
+                return $http.put(url, { forcedScore: question.forcedScore, rev: rev });
+            };
+
             self.saveAssessmentInfo = function (exam) {
                 if (exam.state === 'GRADED_LOGGED') {
                     self.examAssessmentApi.update({ id: exam.id, assessmentInfo: exam.assessmentInfo }, function () {
