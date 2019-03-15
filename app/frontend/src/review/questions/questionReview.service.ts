@@ -14,7 +14,9 @@
  */
 
 import * as angular from 'angular';
+import * as _ from 'lodash';
 import { QuestionReview, ReviewQuestion } from '../review.model';
+import { User } from '../../session/session.service';
 
 export class QuestionReviewService {
 
@@ -30,13 +32,25 @@ export class QuestionReviewService {
         !review ? false : review.answers.length === this.getAssessedAnswerCount(review)
 
     isAssessed = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && parseFloat(answer.essayAnswer.score) >= 0
+        answer.selected && answer.essayAnswer && answer.essayAnswer.score >= 0
 
     isEvaluated = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && parseFloat(answer.essayAnswer.evaluatedScore) >= 0
+        answer.selected && answer.essayAnswer && answer.essayAnswer.evaluatedScore >= 0
+
+    isLocked = (answer: ReviewQuestion, user: User) => {
+        const states = ['REVIEW', 'REVIEW_STARTED'];
+        const exam = answer.examSection.exam;
+        const isInspector = exam.examInspections.map(ei => {
+            return ei.user.id;
+        }).indexOf(user.id) > -1;
+        if (!isInspector) {
+            states.push('GRADED');
+        }
+        return states.indexOf(exam.state) === -1;
+    }
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        !review ? 0 : review.answers.filter(a => a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0).length
+        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length
 
     getReviews(examId: number, ids = []): angular.IPromise<QuestionReview[]> {
         const deferred: angular.IDeferred<QuestionReview[]> = this.$q.defer();
@@ -46,6 +60,14 @@ export class QuestionReviewService {
             })
             .catch(resp => deferred.reject(resp));
         return deferred.promise;
+    }
+
+    getProcessedAnswerCount = (review: QuestionReview, user: User) => {
+        if (!review) {
+            return 0;
+        }
+        return review.answers.filter(
+            a => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore))).length;
     }
 
 }

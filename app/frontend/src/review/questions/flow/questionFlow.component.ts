@@ -16,6 +16,7 @@
 import * as angular from 'angular';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
+import { SessionService } from '../../../session/session.service';
 
 export const QuestionFlowComponent: angular.IComponentOptions = {
     template: require('./questionFlow.template.html'),
@@ -30,14 +31,18 @@ export const QuestionFlowComponent: angular.IComponentOptions = {
         unfinished: QuestionReview[];
         finished: QuestionReview[];
 
-        constructor(private QuestionReview: QuestionReviewService) {
+        constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {
             'ngInject';
         }
 
         private init = () => {
-            this.unfinished = this.reviews.filter(r => !this.QuestionReview.isFinalized(r));
-            this.finished = this.reviews.filter(this.QuestionReview.isFinalized);
+            this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
+            this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
         }
+
+        getAssessedAnswerCount = (review: QuestionReview) =>
+            this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
+
 
         $onInit() {
             this.init();

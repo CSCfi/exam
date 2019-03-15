@@ -43,15 +43,21 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
             this.answer.expanded = true;
             this.answer.essayAnswer = this.answer.essayAnswer || {};
             this.answer.essayAnswer.score = this.answer.essayAnswer.evaluatedScore;
+            this.answer.essayAnswer.textualScore = this.answer.essayAnswer.score.toString();
         }
 
         getWordCount = () => this.Assessment.countWords(this.answer.essayAnswer.answer);
 
         getCharacterCount = () => this.Assessment.countCharacters(this.answer.essayAnswer.answer);
 
-        saveScore = () => this.onSelection({ answer: this.answer });
+        saveScore = () => {
+            this.answer.essayAnswer.score =
+                this.answer.essayAnswer.evaluatedScore =
+                parseFloat(this.answer.essayAnswer.textualScore);
+            this.onSelection({ answer: this.answer });
+        }
 
-        isAssessed = () => this.answer.essayAnswer && parseFloat(this.answer.essayAnswer.score) >= 0;
+        isAssessed = () => this.answer.essayAnswer && this.answer.essayAnswer.score >= 0;
 
         displayMaxScore = () => this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1;
 

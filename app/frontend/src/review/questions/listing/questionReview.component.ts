@@ -16,6 +16,7 @@
 import * as angular from 'angular';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
+import { SessionService } from '../../../session/session.service';
 
 export const QuestionReviewComponent: angular.IComponentOptions = {
     template: require('./questionReview.template.html'),
@@ -27,15 +28,14 @@ export const QuestionReviewComponent: angular.IComponentOptions = {
         review: QuestionReview;
         onSelection: (_: { id: number, selected: boolean }) => any;
 
-        constructor(private $sce: angular.ISCEService, private QuestionReview: QuestionReviewService) {
+        constructor(private $sce: angular.ISCEService,
+            private QuestionReview: QuestionReviewService,
+            private Session: SessionService
+        ) {
             'ngInject';
         }
 
-        $onInit() {
-            console.log('loaded');
-        }
-
-        getAssessedAnswerCount = () => this.QuestionReview.getAssessedAnswerCount(this.review);
+        getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
 
         sanitizeQuestion = () => this.$sce.trustAsHtml(this.review.question.question);
 

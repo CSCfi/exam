@@ -2,8 +2,9 @@ import { Question, ReverseExamSectionQuestion, Attachment } from '../exam/exam.m
 
 export interface EssayAnswer {
     id: number;
-    evaluatedScore: string;
-    score: string;
+    evaluatedScore: number;
+    textualScore: string;
+    score: number;
     answer: string;
     attachment: Attachment;
 }

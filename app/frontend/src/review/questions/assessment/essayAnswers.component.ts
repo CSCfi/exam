@@ -58,13 +58,6 @@ export const EssayAnswerListComponent: angular.IComponentOptions = {
             return this.answers.filter(this.QuestionReview.isAssessed).length;
         }
 
-        $onChanges(changes: angular.IOnChangesObject) {
-            if (changes.answers.previousValue) {
-                console.log(JSON.stringify(changes.answers));
-                console.log(JSON.stringify(this.answers));
-            }
-        }
-
         assessSelected = () => this.onAssessed({ answers: this.answers.filter(this.QuestionReview.isAssessed) });
 
         assessEssay = (answer: ReviewQuestion) => {

@@ -36,6 +36,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         constructor(
             private $routeParams: angular.route.IRouteParamsService,
             private $sce: angular.ISCEService,
+            private $q: angular.IQService,
             private $translate: angular.translate.ITranslateService,
             private QuestionReview: QuestionReviewService,
             private Assessment: any, // TODO
@@ -64,7 +65,12 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
             return this.$sce.trustAsHtml(this.selectedReview.question.question);
         }
 
-        getAssessedAnswerCount = () => this.assessedAnswers.length;
+        getAssessedAnswerCount = (includeLocked: boolean) => {
+            if (includeLocked) {
+                return this.assessedAnswers.length + this.lockedAnswers.length;
+            }
+            return this.assessedAnswers.length;
+        }
 
         getUnassessedAnswerCount = () => this.unassessedAnswers.length;
 
@@ -95,7 +101,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
 
         saveAssessments = (answers: ReviewQuestion[]) => {
             const promises: Promise<void>[] = answers.map(this.saveEvaluation);
-            Promise.all(promises).then(() => this.reviews = angular.copy(this.reviews));
+            this.$q.when(Promise.all(promises)).then(() => this.reviews = angular.copy(this.reviews));
         }
 
         downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
@@ -103,7 +109,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         setSelectedReview = (review: QuestionReview) => {
             this.selectedReview = review;
             this.assessedAnswers = this.selectedReview.answers
-                .filter(a => a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0 && !this.isLocked(a));
+                .filter(a => a.essayAnswer && a.essayAnswer.evaluatedScore >= 0 && !this.isLocked(a));
             this.unassessedAnswers = this.selectedReview.answers
                 .filter(a => !a.essayAnswer || !_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a));
             this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);

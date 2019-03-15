@@ -16,6 +16,8 @@
 import * as angular from 'angular';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
+import { SessionService } from '../../../session/session.service';
+
 const truncate = require('truncate-html').default;
 
 export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
@@ -34,12 +36,9 @@ export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
 
         constructor(
             private $sce: angular.ISCEService,
-            private QuestionReview: QuestionReviewService) {
+            private QuestionReview: QuestionReviewService,
+            private Session: SessionService) {
             'ngInject';
-        }
-
-        $onInit() {
-            console.log('inited');
         }
 
         displayQuestionText = (review: QuestionReview) => {
@@ -50,7 +49,7 @@ export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
         isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
         getAssessedAnswerCount = (review: QuestionReview) =>
-            this.allDone ? 0 : this.QuestionReview.getAssessedAnswerCount(review)
+            this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
 
         selectQuestion = (review: QuestionReview) => this.onSelection({ review: review });
 
