@@ -15,13 +15,17 @@
 
 package backend.models.iop;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
+import backend.controllers.RoomLike;
+import backend.models.MailAddress;
 import backend.models.base.GeneratedIdentityModel;
 
 
 @Entity
-public class ExternalReservation extends GeneratedIdentityModel {
+public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {
 
     private String orgRef;
 
@@ -30,6 +34,13 @@ public class ExternalReservation extends GeneratedIdentityModel {
     private String orgCode;
 
     private String roomRef;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private MailAddress mailAddress = new MailAddress();
+
+    private String buildingName;
+
+    private String campus;
 
     private String machineName;
 
@@ -109,6 +120,31 @@ public class ExternalReservation extends GeneratedIdentityModel {
         this.roomTz = roomTz;
     }
 
+    public MailAddress getMailAddress() {
+        return mailAddress;
+    }
+
+    public void setMailAddress(MailAddress mailAddress) {
+        this.mailAddress = mailAddress;
+    }
+
+    public String getBuildingName() {
+        return buildingName;
+    }
+
+    public void setBuildingName(String buildingName) {
+        this.buildingName = buildingName;
+    }
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    @Override
     public String getRoomInstruction() {
         return roomInstruction;
     }
@@ -117,6 +153,7 @@ public class ExternalReservation extends GeneratedIdentityModel {
         this.roomInstruction = roomInstruction;
     }
 
+    @Override
     public String getRoomInstructionEN() {
         return roomInstructionEN;
     }
@@ -125,6 +162,7 @@ public class ExternalReservation extends GeneratedIdentityModel {
         this.roomInstructionEN = roomInstructionEN;
     }
 
+    @Override
     public String getRoomInstructionSV() {
         return roomInstructionSV;
     }
@@ -132,4 +170,5 @@ public class ExternalReservation extends GeneratedIdentityModel {
     public void setRoomInstructionSV(String roomInstructionSV) {
         this.roomInstructionSV = roomInstructionSV;
     }
+
 }
