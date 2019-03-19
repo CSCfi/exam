@@ -254,6 +254,7 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
+                .fetch("reservation.externalReservation.mailAddress")
                 .fetch("reservation.optionalSections")
                 .fetch("reservation.optionalSections.examMaterials")
                 .fetch("reservation.machine", "name")

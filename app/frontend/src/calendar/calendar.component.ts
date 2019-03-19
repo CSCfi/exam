@@ -197,7 +197,7 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         getRoomAccessibility(): string {
             const room = this.selectedRoom;
-            return room ? room.accessibilities.map(a => a.name).join(', ') : '';
+            return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
         }
 
         makeExternalReservation() {

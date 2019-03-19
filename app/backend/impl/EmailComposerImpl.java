@@ -60,7 +60,6 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamMachine;
 import backend.models.ExamParticipation;
-import backend.models.ExamRoom;
 import backend.models.Language;
 import backend.models.LanguageInspection;
 import backend.models.MailAddress;
@@ -280,8 +279,13 @@ class EmailComposerImpl implements EmailComposer {
         ExamMachine machine = reservation.getMachine();
         ExternalReservation er = reservation.getExternalReservation();
         String machineName = forceNotNull(er == null ? machine.getName() : er.getMachineName());
-        String buildingInfo = forceNotNull(er == null ? machine.getRoom().getBuildingName() : "N/A");
-        String roomInstructions = forceNotNull(er == null ? getRoomInstruction(machine.getRoom(), lang) : "N/A");
+        String buildingInfo = forceNotNull(er == null ? machine.getRoom().getBuildingName() : er.getBuildingName());
+        String roomInstructions;
+        if (er == null) {
+            roomInstructions = forceNotNull(machine.getRoom().getRoomInstructions(lang));
+        } else {
+            roomInstructions = forceNotNull(er.getRoomInstructions(lang));
+        }
         String roomName = forceNotNull(er == null ? machine.getRoom().getName() : er.getRoomName());
 
         String title = messaging.get(lang, "email.template.reservation.new");
@@ -772,7 +776,7 @@ class EmailComposerImpl implements EmailComposer {
         return src == null ? "" : src;
     }
 
-    private static Lang  getLang(User user) {
+    private static Lang getLang(User user) {
         Language userLang = user.getLanguage();
         return Lang.forCode(userLang == null ? "en" : userLang.getCode());
     }
@@ -785,18 +789,5 @@ class EmailComposerImpl implements EmailComposer {
         return dateTime;
     }
 
-    private static String getRoomInstruction(ExamRoom room, Lang lang) {
-        String instructions;
-        switch (lang.code()) {
-            case "sv":
-                instructions = room.getRoomInstructionSV();
-                return instructions == null ? room.getRoomInstruction() : instructions;
-            case "en":
-                instructions = room.getRoomInstructionEN();
-                return instructions == null ? room.getRoomInstruction() : instructions;
-            case "fi":
-            default:
-                return room.getRoomInstruction();
-        }
-    }
+
 }
