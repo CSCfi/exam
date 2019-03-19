@@ -106,5 +106,12 @@
   "engines": {
     "node": ">= 5",
     "npm": ">= 3"
-  }
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "Firefox ESR",
+    "maintained node versions",
+    "not dead"
+  ]
 }
