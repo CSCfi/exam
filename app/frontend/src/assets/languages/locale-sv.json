@@ -904,5 +904,6 @@
   "sitnet_author": "Tekijä SV",
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen SV",
   "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt SV",
-  "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue SV"
+  "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue SV",
+  "sitnet_confirm_external_reservation": "OBS! När du anmälar till tentamen vid en utomstående utbildningsorganisation, godkänner du användar villkor och övervaknings praktik vid denna organisation."
 }

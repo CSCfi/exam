@@ -904,5 +904,6 @@
   "sitnet_author": "Tekijä",
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen",
   "sitnet_optional_materials_selected": "Valitut aihealueet",
-  "sitnet_select_at_least_one_section": "Valitse vähintään yksi aihealue"
+  "sitnet_select_at_least_one_section": "Valitse vähintään yksi aihealue",
+  "sitnet_confirm_external_reservation": "HUOM! Kun varaat tenttiajan toisen korkeakoulun tenttitilaan, hyväksyt kohdekorkeakoulun EXAM-käyttöehdot sekä valvontakäytännöt."
 }
