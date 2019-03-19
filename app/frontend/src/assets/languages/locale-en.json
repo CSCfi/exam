@@ -904,5 +904,6 @@
   "sitnet_author": "Tekijä EN",
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen EN",
   "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt EN",
-  "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue EN"
+  "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue EN",
+  "sitnet_confirm_external_reservation": "NB! When you book an exam time in another university's exam room, you agree to comply with that university's eExam guidelines and surveillance practices."
 }
