@@ -102,9 +102,10 @@ export const CalendarComponent: angular.IComponentOptions = {
                     this.isInteroperable = resp.data.isInteroperable;
                     // TODO: allow making external reservations to collaborative exams in the future
                     if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
-                        this.$http.get('/integration/iop/organisations').then((resp: IHttpResponse<any[]>) => {
-                            this.organisations = resp.data.filter(org => !org.homeOrg);
-                        });
+                        this.$http.get('/integration/iop/organisations')
+                            .then((resp: IHttpResponse<any[]>) => {
+                                this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
+                            });
                     }
                 }).catch(resp => angular.noop);
             const url = this.isCollaborative ?
@@ -195,26 +196,22 @@ export const CalendarComponent: angular.IComponentOptions = {
             return info;
         }
 
-        getRoomAccessibility(): string {
+        getRoomAccessibility = () => {
             const room = this.selectedRoom;
             return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
         }
 
-        makeExternalReservation() {
-            this.$location.path('/iop/calendar/' + this.$routeParams.id);
-        }
+        makeExternalReservation = () => this.$location.path('/iop/calendar/' + this.$routeParams.id);
 
-        makeInternalReservation() {
-            this.$location.path('/calendar/' + this.$routeParams.id);
-        }
+        makeInternalReservation = () => this.$location.path('/calendar/' + this.$routeParams.id);
 
-        private adjust(date, tz): string {
-            let adjusted: moment.Moment = moment.tz(date, tz);
+        private adjust = (date: string, tz: string): string => {
+            const adjusted: moment.Moment = moment.tz(date, tz);
             const offset = adjusted.isDST() ? -1 : 0;
             return adjusted.add(offset, 'hour').format();
         }
 
-        private getTitle(slot: AvailableSlot): string {
+        private getTitle = (slot: AvailableSlot): string => {
             if (slot.availableMachines > 0) {
                 return `${this.$translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
             } else {
@@ -224,7 +221,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
-        private getColor(slot: AvailableSlot) {
+        private getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
                 return '#92c3e4'; // blueish
             } else if (slot.availableMachines > 0) {
@@ -301,17 +298,6 @@ export const CalendarComponent: angular.IComponentOptions = {
             this.exceptionHours = this.Calendar.getExceptionHours(room);
         }
 
-        private listExternalRooms() {
-            if (this.selectedOrganisation) {
-                this.$http.get('/integration/iop/facilities', {
-                    params: {
-                        org: this.selectedOrganisation._id
-                    }
-                }).then((resp: IHttpResponse<FilteredRoom[]>) => this.rooms = resp.data)
-                    .catch(angular.noop);
-            }
-        }
-
         createReservation(start: moment.Moment, end: moment.Moment) {
             const room = this.selectedRoom;
             if (room !== undefined) {
@@ -347,12 +333,12 @@ export const CalendarComponent: angular.IComponentOptions = {
             ).catch(angular.noop).finally(() => this.confirming = false);
         }
 
-        setOrganisation(org: { _id: string, name: string, filtered: boolean }) {
+        setOrganisation(org: { _id: string, name: string, facilities: FilteredRoom[], filtered: boolean }) {
             this.organisations.forEach(o => o.filtered = false);
             org.filtered = true;
             this.selectedOrganisation = org;
             this.selectedRoom = undefined;
-            this.listExternalRooms();
+            this.rooms = org.facilities;
         }
 
         selectAccessibility(accessibility) {
