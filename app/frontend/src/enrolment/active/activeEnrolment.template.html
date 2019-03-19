@@ -137,15 +137,15 @@
                         </span>
                         <strong>{{ 'sitnet_room_campus' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.campus }}<br />
-                        <strong></strong>{{ 'sitnet_room_building_name' | translate | uppercase }}:</strong>
+                        <strong>{{ 'sitnet_room_building_name' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.buildingName }}<br />
-                        <strong></strong>{{ 'sitnet_exam_room' | translate | uppercase }}:</strong>
+                        <strong>{{ 'sitnet_exam_room' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.roomName }}
                         ({{ $ctrl.enrolment.reservation.externalReservation.roomCode }})<br />
-                        <strong></strong>{{'sitnet_exam_machine' | translate | uppercase }}:</strong>
+                        <strong>{{'sitnet_exam_machine' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.machineName }}<br />
-                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.street }}
-                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.zip }},
+                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.street }},
+                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp;
                         {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.city | uppercase }}
                     </div>
 
