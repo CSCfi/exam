@@ -1,11 +1,8 @@
 /* global __dirname */
-require('webpack');
 const path = require('path');
-console.log(__dirname);
 const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 /**
  * Base configuration object for Webpack
@@ -16,8 +13,6 @@ const config = {
     ],
     output: {
         path: buildPath,
-        filename: 'app.bundle.js',
-        sourceMapFilename: 'app.bundle.map',
         publicPath: '/bundles/'
     },
     externals: {},
@@ -65,8 +60,7 @@ const config = {
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
-        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
-        new HtmlWebpackPlugin({ title: 'Production' })
+        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') })
     ],
     resolve: {
         alias: { Images: path.resolve(__dirname, '../src/assets/images') },
