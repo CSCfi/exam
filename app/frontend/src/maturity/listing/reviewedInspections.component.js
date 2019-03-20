@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 import moment from 'moment';
 
 angular.module('app.maturity')
@@ -24,8 +24,8 @@ angular.module('app.maturity')
             onStartDateChange: '&',
             onEndDateChange: '&'
         },
-        controller: ['$translate', 'LanguageInspections',
-            function ($translate, LanguageInspections) {
+        controller: ['filterFilter', 'LanguageInspections',
+            function (filterFilter, LanguageInspections) {
 
                 const vm = this;
 
@@ -34,21 +34,25 @@ angular.module('app.maturity')
                         predicate: 'exam.created',
                         reverse: true
                     };
-
-                    vm.getInspectionAmounts = function () {
-                        const amount = vm.inspections.length.toString();
-                        const year = moment().format('YYYY');
-                        return $translate.instant('sitnet_processed_language_inspections_detail').replace('{0}', amount)
-                            .replace('{1}', year);
-                    };
+                    vm.pageSize = 10;
+                    vm.filterText = '';
+                    vm.filterTextChanged();
                 };
 
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
+
+                vm.filterTextChanged = function () {
+                    vm.filteredInspections = filterFilter(vm.inspections, vm.filterText);
+                }
+
                 vm.startDateChanged = function (date) {
-                    vm.onStartDateChange({date: date});
+                    vm.onStartDateChange({ date: date });
                 };
 
                 vm.endDateChanged = function (date) {
-                    vm.onEndDateChange({date: date});
+                    vm.onEndDateChange({ date: date });
                 };
 
                 vm.showStatement = function (statement) {
