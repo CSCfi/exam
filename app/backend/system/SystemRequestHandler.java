@@ -79,7 +79,8 @@ public class SystemRequestHandler implements ActionCreator {
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session);
-            if ((user == null || !user.hasRole(Role.Name.STUDENT)) && !temporalStudent) {
+            boolean isStudent = hasRole(Role.Name.STUDENT, session);
+            if ((user == null || !isStudent) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
             } else {
@@ -87,6 +88,10 @@ public class SystemRequestHandler implements ActionCreator {
                 return propagateAction(getReservationHeaders(request, user));
             }
         });
+    }
+
+    private boolean hasRole(Role.Name name, Session session) {
+        return session != null && session.getLoginRole() != null && name.toString().equals(session.getLoginRole());
     }
 
     private Optional<Action> validateSession(Session session, String token) {
