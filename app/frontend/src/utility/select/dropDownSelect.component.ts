@@ -62,6 +62,13 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
             this.filterOptions();
         }
 
+        $onChanges(changes: angular.IOnChangesObject) {
+            if (this.options && changes.options) {
+                this.searchFilter = this.searchFilter || '';
+                this.filterOptions();
+            }
+        }
+
         filterOptions() {
             this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
         }
