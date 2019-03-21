@@ -229,6 +229,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @BodyParser.Of(BodyParser.Json.class)
     @Authenticated
     @With(QuestionTextSanitizer.class)
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result createQuestion(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Question question = parseFromBody(request, user, null);
