@@ -628,7 +628,6 @@
   "sitnet_ongoing_language_inspections_detail": "({0} st)",
   "sitnet_processed_language_inspections": "Språkgranskade mognadsprov",
   "sitnet_processed_language_inspections_no_results": "Det finns inga granskade mognadsprov",
-  "sitnet_processed_language_inspections_detail": "({0} st i året {1}, max 20 st visas)",
   "sitnet_arrived": "Kommit",
   "sitnet_finished": "Utförd/Avlagd",
   "sitnet_language_inspector": "Språkgranskare",

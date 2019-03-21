@@ -83,17 +83,9 @@ public class LanguageInspectionController extends BaseController {
             DateTime startWithMonth = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
             DateTime endWithMonth = startWithMonth.plusMonths(1);
             query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
-        } else {
-            DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
-            query = query
-                    .disjunction()
-                    .isNull("finishedAt")
-                    .gt("finishedAt", beginningOfYear.toDate())
-                    .endJunction();
         }
 
-        Set<LanguageInspection> inspections = query.findSet();
-        return ok(inspections);
+        return ok(query.findSet());
     }
 
     @Authenticated
