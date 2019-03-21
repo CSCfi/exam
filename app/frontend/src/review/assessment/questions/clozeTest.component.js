@@ -14,20 +14,30 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('rClozeTest', {
         template: require('./clozeTest.template.html'),
         bindings: {
             sectionQuestion: '<',
+            onScore: '&'
         },
         require: {
             parentCtrl: '^^rExamSection'
         },
-        controller: ['$sce', 'Attachment',
-            function ($sce, Attachment) {
+        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment',
+            function ($sce, $routeParams, $translate, Assessment, Attachment) {
 
                 const vm = this;
+
+                vm.$onInit = function () {
+                    vm.participation = vm.parentCtrl.participation;
+                    vm.isScorable = vm.parentCtrl.isScorable;
+                }
+
+                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
 
                 vm.displayQuestionText = function () {
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);
@@ -41,12 +51,20 @@ angular.module('app.review')
                     return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
                 };
 
-                vm.displayClozeTestScore = function () {
+                vm.displayAchievedScore = function () {
                     const max = vm.sectionQuestion.maxScore;
                     const score = vm.sectionQuestion.clozeTestAnswer.score;
                     return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
-                        + ' / ' + max;
-                };
+                }
+
+                vm.insertForcedScore = () => {
+                    Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                        .then(resp => {
+                            toast.info($translate.instant('sitnet_graded'));
+                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
+                        })
+                        .catch(err => toast.error(err.data));
+                }
             }
         ]
     });

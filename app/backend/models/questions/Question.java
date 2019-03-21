@@ -66,7 +66,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     public enum EvaluationType {
         @EnumValue("1") Points,
-        @EnumValue("2")Selection
+        @EnumValue("2") Selection
     }
 
     @Column

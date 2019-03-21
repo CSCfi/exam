@@ -51,6 +51,7 @@ import backend.util.AppUtil;
 
 public class CsvBuilderImpl implements CsvBuilder {
 
+    private static final Logger.ALogger logger = Logger.of(CsvBuilderImpl.class);
 
     @Override
     public File build(Long startDate, Long endDate) throws IOException {
@@ -110,7 +111,7 @@ public class CsvBuilderImpl implements CsvBuilder {
         String[] records;
         while ((records = reader.readNext()) != null) {
             if (records.length < 2) {
-                Logger.warn("Mandatory information missing, unable to grade");
+                logger.warn("Mandatory information missing, unable to grade");
                 continue;
             }
             if (records[0].equalsIgnoreCase("exam id")) {
@@ -121,7 +122,7 @@ public class CsvBuilderImpl implements CsvBuilder {
             try {
                 examId = Long.parseLong(records[0]);
             } catch (NumberFormatException e) {
-                Logger.warn("Invalid input, unable to grade");
+                logger.warn("Invalid input, unable to grade");
                 continue;
             }
             ExpressionList<Exam> el = Ebean.find(Exam.class).where()
@@ -136,7 +137,7 @@ public class CsvBuilderImpl implements CsvBuilder {
             }
             Exam exam = el.findOne();
             if (exam == null) {
-                Logger.warn("Exam with id {} not found or inaccessible, unable to grade it", examId);
+                logger.warn("Exam with id {} not found or inaccessible, unable to grade it", examId);
                 continue;
             }
             String gradeName = records[1];
@@ -145,9 +146,9 @@ public class CsvBuilderImpl implements CsvBuilder {
                     .eq("gradeScale", exam.getGradeScale())
                     .findList();
             if (grades.isEmpty()) {
-                Logger.warn("No grade found with name {}", gradeName);
+                logger.warn("No grade found with name {}", gradeName);
             } else if (grades.size() > 1) {
-                Logger.warn("Multiple grades found with name {}", gradeName);
+                logger.warn("Multiple grades found with name {}", gradeName);
             } else {
                 exam.setGrade(grades.get(0));
                 exam.setGradedByUser(user);

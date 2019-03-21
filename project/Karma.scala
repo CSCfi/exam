@@ -12,7 +12,7 @@ object Karma {
 
       var karma: Option[Process] = None
 
-      override def afterStarted(address: InetSocketAddress): Unit = {
+      override def afterStarted(): Unit = {
         println("Karma running...")
         karma = Some(Process("./node_modules/karma/bin/karma start ./test/karma.conf.js", base).run())
       }

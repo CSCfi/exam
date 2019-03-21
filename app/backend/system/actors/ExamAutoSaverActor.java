@@ -42,6 +42,8 @@ import backend.util.datetime.DateTimeUtils;
 
 public class ExamAutoSaverActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(ExamAutoSaverActor.class);
+
     private EmailComposer composer;
 
     @Inject
@@ -52,9 +54,10 @@ public class ExamAutoSaverActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
+            logger.debug("Starting check for ongoing exams ->");
             checkLocalExams();
             checkExternalExams();
+            logger.debug("<- done");
         }).build();
     }
 
@@ -69,10 +72,11 @@ public class ExamAutoSaverActor extends AbstractActor {
                 .findList();
 
         if (participations.isEmpty()) {
-            Logger.debug("{}: ... none found.", getClass().getCanonicalName());
+            logger.debug("None found");
             return;
         }
         markEnded(participations);
+        logger.debug("<- done");
     }
 
     private void markEnded(List<ExamParticipation> participations) {
@@ -93,7 +97,7 @@ public class ExamAutoSaverActor extends AbstractActor {
                 participation.setDeadline(deadline);
 
                 participation.save();
-                Logger.info("{}: ... setting exam {} state to REVIEW", getClass().getCanonicalName(), exam.getId());
+                logger.info("Setting exam {} state to REVIEW", exam.getId());
                 exam.setState(Exam.State.REVIEW);
                 exam.save();
                 if (exam.isPrivate()) {
@@ -105,8 +109,7 @@ public class ExamAutoSaverActor extends AbstractActor {
                     AppUtil.notifyPrivateExamEnded(recipients, exam, composer);
                 }
             } else {
-                Logger.info("{}: ... exam {} is ongoing until {}", getClass().getCanonicalName(), exam.getId(),
-                        participationTimeLimit);
+                logger.info("Exam {} is ongoing until {}", exam.getId(), participationTimeLimit);
             }
         }
     }
@@ -128,7 +131,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             try {
                 content = exam.deserialize();
             } catch (IOException e) {
-                Logger.error("failed to parse content out of an external exam");
+                logger.error("Failed to parse content out of an external exam", e);
                 continue;
             }
             Reservation reservation = enrolment.getReservation();
@@ -140,9 +143,9 @@ public class ExamAutoSaverActor extends AbstractActor {
                 content.setState(Exam.State.REVIEW);
                 try {
                     exam.serialize(content);
-                    Logger.info("{}: ... setting external exam {} state to REVIEW", getClass().getCanonicalName(), exam.getHash());
+                    logger.info("Setting external exam {} state to REVIEW", exam.getHash());
                 } catch (IOException e) {
-                    Logger.error("failed to parse content out of an external exam");
+                    logger.error("failed to parse content out of an external exam", e);
                 }
             }
         }

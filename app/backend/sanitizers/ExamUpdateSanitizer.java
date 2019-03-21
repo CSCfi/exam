@@ -31,8 +31,8 @@ import backend.models.GradeEvaluation;
 public class ExamUpdateSanitizer extends BaseSanitizer {
 
     @Override
-    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
-        Http.Request request = ctx.request();
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        Http.Request request = req;
         Optional<Long> start = SanitizingHelper.parse("examActiveStartDate", body, Long.class);
         Optional<Long> end = SanitizingHelper.parse("examActiveEndDate", body, Long.class);
         Optional<Integer> duration = SanitizingHelper.parse("duration", body, Integer.class);

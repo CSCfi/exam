@@ -17,6 +17,7 @@ package backend.controllers;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
@@ -42,8 +44,10 @@ import backend.models.ExamMachine;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -61,10 +65,13 @@ public class CalendarController extends BaseController {
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
 
+    private static final Logger.ALogger logger = Logger.of(CalendarController.class);
 
+
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result removeReservation(long id) throws NotFoundException {
-        User user = getLoggedUser();
+    public Result removeReservation(long id, Http.Request request) throws NotFoundException {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -91,12 +98,12 @@ public class CalendarController extends BaseController {
         final boolean isStudentUser = user.equals(enrolment.getUser());
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-            Logger.info("Reservation cancellation confirmation email sent");
+            logger.info("Reservation cancellation confirmation email sent");
         }, system.dispatcher());
         return ok("removed");
     }
 
-    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user) {
+    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
         }
@@ -112,22 +119,31 @@ public class CalendarController extends BaseController {
         if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
             return Optional.of(forbidden("sitnet_no_trials_left"));
         }
+        // Check that at least one section will end up in the exam
+        Set<ExamSection> sections = enrolment.getExam().getExamSections();
+        if (sections.stream().allMatch(ExamSection::isOptional)) {
+            if (sections.stream().noneMatch(es -> sectionIds.contains(es.getId()))) {
+                return Optional.of(forbidden("No optional sections selected. At least one needed"));
+            }
+        }
+
         return Optional.empty();
     }
 
+    @Authenticated
     @With(CalendarReservationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createReservation() {
-        Long roomId = request().attrs().get(Attrs.ROOM_ID);
-        Long examId = request().attrs().get(Attrs.EXAM_ID);
-        DateTime start = request().attrs().get(Attrs.START_DATE);
-        DateTime end = request().attrs().get(Attrs.END_DATE);
-        Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
-        Collection<Long> sectionIds = request().attrs().get(Attrs.SECTION_IDS);
+    public CompletionStage<Result> createReservation(Http.Request request) {
+        Long roomId = request.attrs().get(Attrs.ROOM_ID);
+        Long examId = request.attrs().get(Attrs.EXAM_ID);
+        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime end = request.attrs().get(Attrs.END_DATE);
+        Collection<Integer> aids = request.attrs().get(Attrs.ACCESSABILITES);
+        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
-        final User user = getLoggedUser();
+        final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Start manual transaction.
         Ebean.beginTransaction();
         try {
@@ -150,7 +166,7 @@ public class CalendarController extends BaseController {
                 return wrapAsPromise(notFound());
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
-            Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
+            Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
             }
@@ -181,7 +197,7 @@ public class CalendarController extends BaseController {
             if (oldReservation != null) {
                 String externalReference = oldReservation.getExternalRef();
                 if (externalReference != null) {
-                    return externalReservationHandler.removeReservation(oldReservation, user)
+                    return externalReservationHandler.removeReservations(oldReservation, user)
                             .thenCompose(result -> {
                                 // Refetch enrolment
                                 ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -214,15 +230,16 @@ public class CalendarController extends BaseController {
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationNotification(user, reservation, exam, false);
-            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
 
         return wrapAsPromise(ok("ok"));
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids) {
-        User user = getLoggedUser();
+    public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         if (ee == null) {
             return forbidden("sitnet_error_enrolment_not_found");

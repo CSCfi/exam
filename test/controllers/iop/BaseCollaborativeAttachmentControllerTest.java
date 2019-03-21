@@ -55,6 +55,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class BaseCollaborativeAttachmentControllerTest<T> extends IntegrationTestCase {
 
+    private static final Logger.ALogger logger = Logger.of(BaseCollaborativeAttachmentControllerTest.class);
+
     static final String EXAM_HASH = "0e6d16c51f857a20ab578f57f105032e";
     private static Server server;
     private static Path testUpload;
@@ -140,10 +142,10 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
     @After
     public void tearDown() {
         try {
-            Logger.info("Cleaning test upload directory: {}", testUpload.toString());
+            logger.info("Cleaning test upload directory: {}", testUpload.toString());
             FileUtils.deleteDirectory(testUpload.toFile());
         } catch (IOException e) {
-            Logger.error("Test upload directory delete failed!", e);
+            logger.error("Test upload directory delete failed!", e);
         }
         super.tearDown();
     }

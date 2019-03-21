@@ -22,6 +22,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -57,6 +58,9 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     @Inject
     private Environment environment;
 
+    private static final Logger.ALogger logger = Logger.of(ExternalAttachmentLoaderImpl.class);
+
+    @Override
     public CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam) {
         final ArrayList<CompletableFuture<Void>> futures = new ArrayList<>();
         if (exam.getAttachment() != null) {
@@ -102,7 +106,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     attachment.setExternalId(externalId);
                     File file = new File(attachment.getFilePath());
                     if (!file.exists()) {
-                        Logger.warn("Could not find file {} for attachment id {}.",
+                        logger.warn("Could not find file {} for attachment id {}.",
                                 file.getAbsoluteFile(), attachment.getId());
                         return;
                     }
@@ -111,7 +115,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                         updateRequest = wsClient.url(parseUrl("/api/attachments/%s",
                                 attachment.getExternalId()).toString());
                     } catch (MalformedURLException e) {
-                        Logger.error("Invalid URL!", e);
+                        logger.error("Invalid URL!", e);
                         return;
                     }
                     final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
@@ -122,18 +126,41 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
                     updateRequest.put(Source.from(Arrays.asList(filePart, dp)))
                             .thenAccept(wsResponse -> {
-                                if (wsResponse.getStatus() != 200) {
-                                    Logger.warn("File upload {} failed!", file.getAbsoluteFile());
+                                if (wsResponse.getStatus() != Http.Status.OK) {
+                                    logger.warn("File upload {} failed!", file.getAbsoluteFile());
                                     return;
                                 }
-                                Logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
+                                logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
                             });
                 }).toCompletableFuture();
+    }
+
+    @Override
+    public CompletableFuture<Void> uploadAssessmentAttachments(Exam exam) {
+        List<CompletableFuture> futures = new ArrayList<>();
+        // Create external attachments.
+        if (exam.getAttachment() != null) {
+            futures.add(createExternalAttachment(exam.getAttachment()));
+        }
+        exam.getExamSections().stream()
+                .flatMap(s -> s.getSectionQuestions().stream())
+                .flatMap(sq -> {
+                    List<Attachment> attachments = new ArrayList<>();
+                    if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
+                        attachments.add(sq.getEssayAnswer().getAttachment());
+                    }
+                    if (sq.getQuestion().getAttachment() != null) {
+                        attachments.add(sq.getQuestion().getAttachment());
+                    }
+                    return attachments.stream();
+                }).forEach(a -> futures.add(createExternalAttachment(a)));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
         return CompletableFuture.runAsync(() -> {
             if (StringUtils.isEmpty(attachment.getExternalId())) {
+                logger.error("Could not find external ID for an attachment");
                 return;
             }
             final URL attachmentUrl;
@@ -150,11 +177,13 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                                 .runWith(FileIO.toPath(Paths.get(filePath)), ActorMaterializer.create(actor))
                                 .thenAccept(ioResult -> {
                                     if (!ioResult.wasSuccessful()) {
-                                        Logger.error("Could not write file " + filePath + " to disk!");
+                                        logger.error("Could not write file " + filePath + " to disk!");
                                         return;
                                     }
                                     attachment.setFilePath(filePath);
                                     attachment.save();
+                                    logger.info("Saved attachment {} locally as # {}",
+                                            attachment.getExternalId(), attachment.getId());
                                 });
                     });
         });

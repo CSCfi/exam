@@ -26,6 +26,7 @@ import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
@@ -70,8 +71,8 @@ public class ExamMachineController extends BaseController {
 
 
     @Restrict({@Group("ADMIN")})
-    public Result updateExamMachine(Long id) {
-        ExamMachine src = formFactory.form(ExamMachine.class).bindFromRequest(
+    public Result updateExamMachine(Long id, Http.Request request) {
+        ExamMachine src = formFactory.form(ExamMachine.class).bindFromRequest(request,
                 "id",
                 "name",
                 "otherIdentifier",
@@ -88,7 +89,6 @@ public class ExamMachineController extends BaseController {
         if (dest == null) {
             return notFound();
         }
-        ExamRoom room = dest.getRoom();
 
         if (src.getIpAddress().length() > 0) {
             List<ExamMachine> machines = Ebean.find(ExamMachine.class).findList();
@@ -174,13 +174,13 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result insertExamMachine(Long id) {
+    public Result insertExamMachine(Long id, Http.Request request) {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
             return notFound();
         }
-        ExamMachine machine = bindForm(ExamMachine.class);
+        ExamMachine machine = bindForm(ExamMachine.class, request);
         room.getExamMachines().add(machine);
         room.save();
 
@@ -215,8 +215,8 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result addSoftware(String name) {
-        Software software = bindForm(Software.class);
+    public Result addSoftware(String name, Http.Request request) {
+        Software software = bindForm(Software.class, request);
         software.setStatus("ACTIVE");
         software.setName(name);
         Ebean.save(software);

@@ -452,7 +452,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public void setEnrollInstruction(String enrollInstruction) {
-        this.enrollInstruction  = enrollInstruction;
+        this.enrollInstruction = enrollInstruction;
     }
 
     public Exam getParent() {

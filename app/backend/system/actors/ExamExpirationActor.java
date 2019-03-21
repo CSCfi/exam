@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -28,10 +28,12 @@ import backend.util.config.ConfigUtil;
 
 public class ExamExpirationActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
+
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running exam expiration check ...", getClass().getCanonicalName());
+            logger.debug("Starting exam expiration check ->");
             List<Exam> exams = Ebean.find(Exam.class)
                     .where()
                     .disjunction()
@@ -47,15 +49,15 @@ public class ExamExpirationActor extends AbstractActor {
                 DateTime expirationDate = exam.getState() == Exam.State.ABORTED ?
                         exam.getExamParticipation().getEnded() : exam.getGradedTime();
                 if (expirationDate == null) {
-                    Logger.error("no grading time for exam #" + exam.getId().toString());
+                    logger.error("no grading time for exam {}", exam.getId());
                     continue;
                 }
                 if (ConfigUtil.getExamExpirationDate(expirationDate).isBefore(now)) {
                     cleanExamData(exam);
-                    Logger.info("{}: ... Marked exam {} as expired", getClass().getCanonicalName(), exam.getId());
+                    logger.info("Marked exam {} as expired", exam.getId());
                 }
             }
-            Logger.debug("{}: ... Done", getClass().getCanonicalName());
+            logger.debug("<- done");
         }).build();
     }
 

@@ -15,19 +15,6 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.Question;
-import backend.system.interceptors.Anonymous;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
-import play.mvc.Result;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,10 +24,27 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
+import play.mvc.Http;
+import play.mvc.Result;
+
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
+
 
 public class QuestionReviewController extends BaseController {
 
-    private static final Exam.State VALID_STATES[] = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
+    private static final Exam.State[] VALID_STATES = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
             Exam.State.GRADED_LOGGED, Exam.State.REJECTED};
 
     private boolean canAssess(User user, Exam exam) {
@@ -50,12 +54,13 @@ public class QuestionReviewController extends BaseController {
 
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER")})
     @Anonymous(filteredProperties = {"user", "creator", "modifier"})
-    public Result getEssays(Long examId, Optional<List<Long>> ids) {
+    public Result getEssays(Long examId, Optional<List<Long>> ids, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, examId);
-        User user = getLoggedUser();
-        if (exam == null || !exam.isInspectedOrCreatedOrOwnedBy(getLoggedUser())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (exam == null || !exam.isInspectedOrCreatedOrOwnedBy(user)) {
             return badRequest();
         }
         List<Long> questionIds = ids.orElse(Collections.emptyList());
@@ -107,7 +112,7 @@ public class QuestionReviewController extends BaseController {
                 .collect(Collectors.toList());
 
         String json = String.format("[%s]", String.join(", ", results));
-        return writeAnonymousResult(ok(json).as("application/json"), exam.isAnonymous());
+        return writeAnonymousResult(request, ok(json).as("application/json"), exam.isAnonymous());
     }
 
     // DTO

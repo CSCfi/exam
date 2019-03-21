@@ -15,21 +15,21 @@
 
 package backend.security;
 
-import be.objectify.deadbolt.java.cache.HandlerCache;
-import play.api.Configuration;
-import play.api.Environment;
-import play.api.inject.Binding;
-import play.api.inject.Module;
-import scala.collection.Seq;
+import java.util.List;
 
+import be.objectify.deadbolt.java.cache.HandlerCache;
+import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
+import play.Environment;
+import play.inject.Binding;
+import play.inject.Module;
 
 public class DeadboltHook extends Module {
-
     @Override
-    public Seq<Binding<?>> bindings(Environment environment, Configuration configuration) {
-        return seq(
-                bind(AuthorizationHandler.class).toSelf().eagerly(),
-                bind(HandlerCache.class).to(DeadboltCache.class).eagerly()
+    public List<Binding<?>> bindings(Environment environment, Config config) {
+        return ImmutableList.of(
+                bindClass(AuthorizationHandler.class).toSelf().eagerly(),
+                bindClass(HandlerCache.class).to(DeadboltCache.class).eagerly()
         );
     }
 

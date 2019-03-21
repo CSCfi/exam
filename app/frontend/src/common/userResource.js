@@ -19,17 +19,12 @@ angular.module('app.common')
     .factory('UserRes', ['$resource', function ($resource) {
         return {
             userRoles: $resource("/app/users/:id/roles/:role", {
-                    id: "@id", role: "@role"
-                },
+                id: "@id", role: "@role"
+            },
                 {
-                    "update": {method: "PUT", params: {id: "@id", role: "@role"}}
+                    "update": { method: "PUT", params: { id: "@id", role: "@role" } }
                 }),
             usersByRole: $resource("/app/users/byrole/:role",
-                {
-                    role: "@role"
-                }),
-
-            filterUsers: $resource("/app/users/filter/:role",
                 {
                     role: "@role"
                 }),
@@ -52,7 +47,7 @@ angular.module('app.common')
 
             updateAgreementAccepted: $resource("/app/users/agreement", {},
                 {
-                    "update": {method: "PUT"}
+                    "update": { method: "PUT" }
                 }),
             unenrolledStudents: $resource("/app/students/:eid",
                 {

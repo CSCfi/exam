@@ -52,6 +52,8 @@ import backend.models.questions.Question;
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
 
+    private static final Logger.ALogger logger = Logger.of(ExamSectionQuestion.class);
+
     @ManyToOne
     @JoinColumn(name = "exam_section_id")
     @JsonBackReference
@@ -72,6 +74,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Double maxScore;
+
+    @Column
+    private Double forcedScore;
 
     @Transient
     private Double derivedMaxScore;
@@ -137,6 +142,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
+    }
+
+    public Double getForcedScore() {
+        return forcedScore;
+    }
+
+    public void setForcedScore(Double forcedScore) {
+        this.forcedScore = forcedScore;
     }
 
     public Double getDerivedMaxScore() {
@@ -216,7 +229,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 esqoCopy.setOption(optionCopy);
                 esqCopy.getOptions().add(esqoCopy);
             } else {
-                Logger.error("Failed to copy a multi-choice question option!");
+                logger.error("Failed to copy a multi-choice question option!");
                 throw new RuntimeException();
             }
         });
@@ -233,7 +246,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     ExamSectionQuestion copy(boolean preserveOriginalQuestion, boolean setParent) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esqCopy, "id", "options");
+        BeanUtils.copyProperties(this, esqCopy, "id", "options", "creator", "modifier");
         Question blueprint;
         if (preserveOriginalQuestion) {
             // Use the existing question references, no copying
@@ -260,7 +273,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     esqoCopy.setOption(optionCopy);
                     esqCopy.getOptions().add(esqoCopy);
                 } else {
-                    Logger.error("Failed to copy a multi-choice question option!");
+                    logger.error("Failed to copy a multi-choice question option!");
                     throw new RuntimeException();
                 }
             });
@@ -319,6 +332,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case MultipleChoiceQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 Optional<ExamSectionQuestionOption> o = options.stream()
                         .filter(ExamSectionQuestionOption::isAnswered).findFirst();
                 if (o.isPresent()) {
@@ -326,6 +342,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case WeightedMultipleChoiceQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 Double evaluation = options.stream()
                         .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                         .map(ExamSectionQuestionOption::getScore)
@@ -333,6 +352,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
             case ClozeTestQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 // sanity check
                 if (clozeTestAnswer == null) {
                     return 0.0;
@@ -428,6 +450,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         options.add(option);
     }
 
+    private void initOptionScore(Double score, List<ExamSectionQuestionOption> options) {
+        BigDecimal delta = calculateOptionScores(score * -1, options);
+        if (!options.isEmpty()) {
+            ExamSectionQuestionOption first = options.get(0);
+            first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
+        }
+    }
+
     @Transient
     public void removeOption(MultipleChoiceOption option, boolean preserveScores) {
         ExamSectionQuestionOption esqo = options.stream()
@@ -449,20 +479,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             List<ExamSectionQuestionOption> opts = options.stream()
                     .filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score * -1, opts);
-            if (opts.size() > 0) {
-                ExamSectionQuestionOption first = opts.get(0);
-                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
-            }
+            initOptionScore(score, opts);
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options.stream()
                     .filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score * -1, opts);
-            if (opts.size() > 0) {
-                ExamSectionQuestionOption first = opts.get(0);
-                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
-            }
+            initOptionScore(score, opts);
         }
     }
 

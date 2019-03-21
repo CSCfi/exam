@@ -15,37 +15,36 @@
 
 package backend.system.interceptors;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
-import play.cache.SyncCacheApi;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
 import backend.models.Session;
+import backend.security.SessionHandler;
 
 public class ExamActionRouterImpl extends Action<ExamActionRouter> {
 
-    private final SyncCacheApi cache;
+    private final SessionHandler sessionHandler;
 
     @Inject
-    public ExamActionRouterImpl(SyncCacheApi cache) {
-        this.cache = cache;
+    public ExamActionRouterImpl(SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
 
     @Override
-    public CompletionStage<Result> call(Http.Context ctx) {
-        String token = BaseController.getToken(ctx).orElse("");
-        Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
-        if (session != null && session.isTemporalStudent()) {
+    public CompletionStage<Result> call(Http.Request request) {
+        Optional<Session> session = sessionHandler.getSession(request);
+        if (session.isPresent() && session.get().isTemporalStudent()) {
             return CompletableFuture.supplyAsync(
-                    () -> redirect(ctx.request().path().replace("/app/", "/app/iop/"))
+                    () -> redirect(request.path().replace("/app/", "/app/iop/"))
             );
         }
-        return delegate.call(ctx);
+        return delegate.call(request);
     }
 
 }

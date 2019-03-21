@@ -100,7 +100,13 @@ export const SectionComponent: ng.IComponentOptions = {
                         toast.info(this.$translate.instant('sitnet_section_updated'));
                     }
                 })
-                .catch(resp => toast.error(resp.data));
+                .catch((resp: IHttpResponse<string>) => {
+                    if (resp.status == 400) {
+                        // This is a bit of a hack to revert optionality in case rejected by server
+                        this.section.optional = !this.section.optional;
+                    }
+                    toast.error(resp.data);
+                });
         }
 
         private insertExamQuestion = (question: Question, seq: number) => {
@@ -108,8 +114,11 @@ export const SectionComponent: ng.IComponentOptions = {
             const resource = this.parentCtrl.collaborative ?
                 `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions` :
                 `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-
-            this.$http.post(resource, { sequenceNumber: seq, question: question })
+            const data: any = { sequenceNumber: seq };
+            if (this.parentCtrl.collaborative) {
+                data.question = question;
+            }
+            this.$http.post(resource, data)
                 .then((resp: IHttpResponse<ExamSectionQuestion>) => {
                     // Collaborative exam question handling.
                     this.addAttachment(resp.data, question, this.onReloadRequired);

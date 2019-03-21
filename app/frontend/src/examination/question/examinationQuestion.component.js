@@ -45,12 +45,11 @@ angular.module('app.examination')
                 vm.downloadQuestionAttachment = function () {
                     if (vm.exam.external) {
                         Attachment.downloadExternalQuestionAttachment(vm.exam, vm.sq);
-                        return;
                     } else if (vm.isCollaborative) {
                         Attachment.downloadCollaborativeQuestionAttachment(vm.exam.id, vm.sq);
-                        return;
+                    } else {
+                        Attachment.downloadQuestionAttachment(vm.sq.question);
                     }
-                    Attachment.downloadQuestionAttachment(vm.sq.question);
                 };
 
                 vm.isAnswered = function () {

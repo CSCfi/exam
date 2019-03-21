@@ -23,6 +23,7 @@ import play.libs.typedmap.TypedKey;
 
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
+import backend.models.User;
 
 public enum Attrs {
     ;
@@ -59,4 +60,5 @@ public enum Attrs {
     public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");
     public static final TypedKey<String> ESSAY_ANSWER = TypedKey.create("essayAnswer");
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
+    public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
 }
