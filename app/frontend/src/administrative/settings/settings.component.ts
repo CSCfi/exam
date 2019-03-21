@@ -42,7 +42,6 @@ export const SettingsComponent: angular.IComponentOptions = {
 
         constructor(private $translate: angular.translate.ITranslateService,
             private $http: angular.IHttpService,
-            private Settings: any
         ) {
             'ngInject';
         }
@@ -53,20 +52,26 @@ export const SettingsComponent: angular.IComponentOptions = {
 
         private onError = (error) => toast.error(error.data);
 
-        $onInit = function () {
-            this.Settings.config.get((config: AppConfig) => {
-                this.config = config;
+        $onInit = () => {
+            this.$http.get('/app/config').then((resp: angular.IHttpResponse<AppConfig>) => {
+                this.config = resp.data;
             });
-        };
+        }
 
         updateAgreement = () =>
-            this.Settings.agreement.update(this.config.eula, this.onSuccess, this.onError)
+            this.$http.put('/app/settings/agreement', { value: this.config.eula })
+                .then(this.onSuccess)
+                .catch(this.onError)
 
         updateDeadline = () =>
-            this.Settings.deadline.update(this.config.reviewDeadline, this.onSuccess, this.onError)
+            this.$http.put('/app/settings/deadline', { value: this.config.reviewDeadline })
+                .then(this.onSuccess)
+                .catch(this.onError)
 
         updateReservationWindow = () =>
-            this.Settings.reservationWindow.update(this.config.reservationWindowSize, this.onSuccess, this.onError)
+            this.$http.put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
+                .then(this.onSuccess)
+                .catch(this.onError)
 
         showAttributes = () => this.$http.get('/attributes').then((resp: angular.IHttpResponse<string[]>) =>
             this.attributes = resp.data
