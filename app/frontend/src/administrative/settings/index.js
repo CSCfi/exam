@@ -17,5 +17,4 @@
 
 require('./settings.module');
 require('./settings.component.ts');
-require('./settings.service');
 
