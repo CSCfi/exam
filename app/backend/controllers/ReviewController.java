@@ -88,6 +88,8 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
+
+import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
@@ -469,6 +471,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
+    @With(CommentSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateComment(Long eid, Long cid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
@@ -478,34 +481,31 @@ public class ReviewController extends BaseController {
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
-        Comment form = bindForm(Comment.class, request);
         Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findOne();
         if (comment == null) {
             return notFound();
         }
-        if (form.getComment() != null) {
+        Optional<String> commentText = request.attrs().getOptional(Attrs.COMMENT);
+        if (commentText.isPresent()) {
             AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
-            comment.setComment(form.getComment());
-            comment.save();
-            exam.setExamFeedback(comment);
-            exam.save();
+            comment.setComment(commentText.get());
         }
         return ok(comment);
     }
 
     @Authenticated
+    @With(CommentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result addInspectionComment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound("Inspection not found");
         }
-        DynamicForm df = formFactory.form().bindFromRequest(request);
         InspectionComment ic = new InspectionComment();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setCreator(ic, user);
         AppUtil.setModifier(ic, user);
-        ic.setComment(df.get("comment"));
+        ic.setComment(request.attrs().getOptional(Attrs.COMMENT).orElse(null));
         ic.setExam(exam);
         ic.save();
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));

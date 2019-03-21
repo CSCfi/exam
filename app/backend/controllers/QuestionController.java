@@ -39,6 +39,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.base.SectionQuestionHandler;
@@ -48,9 +49,8 @@ import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
@@ -165,8 +165,9 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     // TODO: Move to sanitizer
-    private Question parseFromBody(JsonNode node, User user, Question existing) {
-        String questionText = SanitizingHelper.parse("question", node, String.class).orElse(null);
+    private Question parseFromBody(Http.Request request, User user, Question existing) {
+        JsonNode node = request.body().asJson();
+        String questionText = request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null);
         Double defaultMaxScore = round(SanitizingHelper.parse("defaultMaxScore", node, Double.class).orElse(null));
         Integer defaultWordCount = SanitizingHelper.parse("defaultExpectedWordCount", node, Integer.class).orElse(null);
         Question.EvaluationType defaultEvaluationType =
@@ -227,12 +228,13 @@ public class QuestionController extends BaseController implements SectionQuestio
 
     @BodyParser.Of(BodyParser.Json.class)
     @Authenticated
+    @With(QuestionTextSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result createQuestion(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        JsonNode body = request.body().asJson();
-        Question question = parseFromBody(body, user, null);
+        Question question = parseFromBody(request, user, null);
         question.getQuestionOwners().add(user);
+        JsonNode body = request.body().asJson();
         return question.getValidationResult(body).orElseGet(() -> {
             if (question.getType() != Question.Type.EssayQuestion) {
                 processOptions(question, user, (ArrayNode) body.get("options"));
@@ -243,6 +245,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @With(QuestionTextSanitizer.class)
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id, Http.Request request) {
@@ -259,8 +262,8 @@ public class QuestionController extends BaseController implements SectionQuestio
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        Question updatedQuestion = parseFromBody(request, user, question);
         JsonNode body = request.body().asJson();
-        Question updatedQuestion = parseFromBody(body, user, question);
         return question.getValidationResult(body).orElseGet(() -> {
             if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
                 processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
@@ -338,7 +341,7 @@ public class QuestionController extends BaseController implements SectionQuestio
 
     private void createOption(Question question, JsonNode node, User user) {
         MultipleChoiceOption option = new MultipleChoiceOption();
-        option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
+        option.setOption(SanitizingHelper.parseHtml("option", node));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);

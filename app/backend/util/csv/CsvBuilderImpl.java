@@ -35,6 +35,8 @@ import io.ebean.ExpressionList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import play.Logger;
 
 import backend.models.Comment;
@@ -162,7 +164,7 @@ public class CsvBuilderImpl implements CsvBuilder {
                         AppUtil.setCreator(comment, user);
                     }
                     AppUtil.setModifier(comment, user);
-                    comment.setComment(feedback);
+                    comment.setComment(Jsoup.clean(feedback, Whitelist.relaxed()));
                     comment.save();
                     exam.setExamFeedback(comment);
                 }

@@ -13,36 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models;
+package backend.sanitizers;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import com.fasterxml.jackson.databind.JsonNode;
+import play.mvc.Http;
 
-import backend.models.base.OwnedModel;
+public class EssayAnswerSanitizer extends BaseSanitizer {
 
-@Entity
-public class InspectionComment extends OwnedModel {
-
-    @Column(columnDefinition = "TEXT")
-    private String comment;
-
-    @ManyToOne
-    private Exam exam;
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public Exam getExam() {
-        return exam;
-    }
-
-    public void setExam(Exam exam) {
-        this.exam = exam;
+    protected Http.Request sanitize(Http.Request req, JsonNode body) {
+        Http.Request request = SanitizingHelper.sanitizeOptionalHtml("answer", body, Attrs.ESSAY_ANSWER, req);
+        request = SanitizingHelper.sanitizeOptional("objectVersion", body, Long.class, Attrs.OBJECT_VERSION, request);
+        return request;
     }
 }

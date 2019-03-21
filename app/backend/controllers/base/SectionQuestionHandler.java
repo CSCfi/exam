@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -136,8 +138,14 @@ public interface SectionQuestionHandler {
     default void updateExamQuestion(ExamSectionQuestion sectionQuestion, Question question) {
         sectionQuestion.setQuestion(question);
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());
-        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
-        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
+        String answerInstructions = question.getDefaultAnswerInstructions();
+        sectionQuestion.setAnswerInstructions(
+                answerInstructions == null ? null : Jsoup.clean(answerInstructions, Whitelist.relaxed())
+        );
+        String evaluationCriteria = question.getDefaultEvaluationCriteria();
+        sectionQuestion.setEvaluationCriteria(
+                evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Whitelist.relaxed())
+        );
         sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
         sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
         updateOptions(sectionQuestion, question);

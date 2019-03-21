@@ -39,6 +39,7 @@ import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.base.SectionQuestionHandler;
@@ -53,6 +54,7 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
+import backend.sanitizers.SectionQuestionSanitizer;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
 
@@ -224,7 +226,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             if (exam == null) {
                 return notFound("sitnet_error_exam_not_found");
             }
-            User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
                 ExamSection section = Ebean.find(ExamSection.class, sid);
                 if (section == null) {
@@ -250,12 +252,10 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
 
-    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, Http.Request request) {
         sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
-        sectionQuestion.setAnswerInstructions(
-                SanitizingHelper.parse("answerInstructions", body, String.class).orElse(null));
-        sectionQuestion.setEvaluationCriteria(
-                SanitizingHelper.parse("evaluationCriteria", body, String.class).orElse(null));
+        sectionQuestion.setAnswerInstructions(request.attrs().getOptional(Attrs.ANSWER_INSTRUCTIONS).orElse(null));
+        sectionQuestion.setEvaluationCriteria(request.attrs().getOptional(Attrs.EVALUATION_CRITERIA).orElse(null));
         sectionQuestion.setEvaluationType(
                 SanitizingHelper.parseEnum("evaluationType", body, Question.EvaluationType.class).orElse(null));
         sectionQuestion.setExpectedWordCount(
@@ -416,7 +416,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
     }
 
-	private void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, User user, JsonNode node) {
+    private void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, User user, JsonNode node) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         JsonNode baseOptionNode = node.get("option");
         option.setOption(SanitizingHelper.parse("option", baseOptionNode, String.class).orElse(null));
@@ -469,6 +469,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
+    @With(SectionQuestionSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -497,10 +498,9 @@ public class ExamSectionController extends BaseController implements SectionQues
             return badRequest("sitnet_correct_option_required");
         }
         // Update question: text
-        JsonNode questionNode = body.get("question");
-        question.setQuestion(SanitizingHelper.parse("question", questionNode, String.class).orElse(null));
+        question.setQuestion(request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null));
         question.update();
-        updateExamQuestion(examSectionQuestion, body);
+        updateExamQuestion(examSectionQuestion, body, request);
         examSectionQuestion.update();
         if (question.getType() != Question.Type.EssayQuestion && question.getType() != Question.Type.ClozeTestQuestion) {
             // Process the options, this has an impact on the base question options as well as all the section questions
@@ -514,7 +514,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateUndistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
-        User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.eq("examSection.exam.examOwners", user);
