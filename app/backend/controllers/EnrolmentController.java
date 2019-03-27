@@ -252,17 +252,17 @@ public class EnrolmentController extends BaseController {
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .where()
-                    // either user ID or pre-enrolment email address matches
-                    .or()
-                    .eq("user.id", user.getId())
-                    .eq("preEnrolledUserEmail", user.getEmail())
-                    .endOr()
                     // either exam id matches or parent exam's id matches
                     .or()
                     .eq("exam.id", exam.getId())
                     .eq("exam.parent.id", exam.getId())
                     .endOr()
-                    .findList();
+                    .findList().stream().filter(ee ->
+                        (ee.getUser() != null && ee.getUser().equals(user)) ||
+                                (ee.getPreEnrolledUserEmail() != null &&
+                                        ee.getPreEnrolledUserEmail().equals(user.getEmail()))
+                    ).collect(Collectors.toList());
+
 
             // already enrolled
             if (enrolments.stream().anyMatch(e -> e.getReservation() == null)) {
