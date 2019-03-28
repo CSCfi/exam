@@ -18,9 +18,9 @@ import _ from 'lodash';
 import toast from 'toastr';
 
 angular.module('app.question')
-    .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
+    .service('Question', ['$q', '$resource', '$translate', '$sessionStorage',
         'ExamQuestion', 'Session', 'Files', 'Attachment',
-        function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
+        function ($q, $resource, $translate, $sessionStorage, ExamQuestion, Session,
             Files, Attachment) {
 
             const self = this;

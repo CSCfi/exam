@@ -1,11 +1,13 @@
 <div class="row col-md-12 margin-20">
-    <div class="col-md-3 exam-basic-title">{{'sitnet_exam_materials' | translate}}
-        <sup><img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_material_description' | translate}}"
-                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
+    <div class="col-md-3 exam-basic-title">{{'sitnet_exam_editor_materials' | translate}}
+        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_exam_material_description' | translate}}" src="Images/icon_tooltip.svg"
+                alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
     </div>
     <div class="col-md-6">
-        <input type="text" class="form-control wdth-30 make-inline" ng-model="$ctrl.filter" uib-typeahead="t.name for t in $ctrl.filterMaterials()"
-            typeahead-editable="false" typeahead-min-length="1" typeahead-on-select="$ctrl.selectMaterial($item)">
+        <input type="text" class="form-control wdth-30 make-inline" ng-model="$ctrl.filter"
+            uib-typeahead="t.name for t in $ctrl.filterMaterials()" typeahead-editable="false" typeahead-min-length="1"
+            typeahead-on-select="$ctrl.selectMaterial($item)">
         <span><button ng-click="$ctrl.addMaterial()" class="btn btn-primary green border-green">{{'sitnet_add' |
                 translate}}</button></span>
     </div>
@@ -18,8 +20,10 @@
     <div class="col-md-9">
         <ul class="list-inline mart10">
             <li ng-repeat="material in $ctrl.section.examMaterials">{{material.name}}
-                <button class="reviewer-remove" ng-click="$ctrl.removeMaterial(material)" title="{{'sitnet_remove' | translate}}">
-                    <img src="Images/icon_remove.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                <button class="reviewer-remove" ng-click="$ctrl.removeMaterial(material)"
+                    title="{{'sitnet_remove' | translate}}">
+                    <img src="Images/icon_remove.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
                 </button>
             </li>
         </ul>

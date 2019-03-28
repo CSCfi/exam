@@ -888,7 +888,7 @@
   "sitnet_openinghours_exception_datetimes": "Aukioloajat ja poikkeusaukioloajat",
   "sitnet_collaborative_exams": "Yhteistentit",
   "sitnet_pre_published": "Esijulkaistu",
-  "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä",
+  "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä.",
   "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu",
   "sitnet_anonymous_review": "Anonyymi arviointi",
   "sitnet_collaborative_exam_responses": "Yhteistenttien suoritukset",
@@ -904,5 +904,9 @@
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen",
   "sitnet_optional_materials_selected": "Valitut aihealueet",
   "sitnet_select_at_least_one_section": "Valitse vähintään yksi aihealue",
-  "sitnet_confirm_external_reservation": "HUOM! Kun varaat tenttiajan toisen korkeakoulun tenttitilaan, hyväksyt kohdekorkeakoulun EXAM-käyttöehdot sekä valvontakäytännöt."
+  "sitnet_confirm_external_reservation": "HUOM! Kun varaat tenttiajan toisen korkeakoulun tenttitilaan, hyväksyt kohdekorkeakoulun EXAM-käyttöehdot sekä valvontakäytännöt.",
+  "sitnet_save_and_pre_publish": "Tallenna ja esijulkaise",
+  "sitnet_exam_owner_missing": "Tentaattori puuttuu",
+  "sitnet_exam_editor_materials": "Tenttimateriaalit",
+  "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu"
 }
