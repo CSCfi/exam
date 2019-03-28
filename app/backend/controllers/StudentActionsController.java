@@ -333,6 +333,7 @@ public class StudentActionsController extends CollaborationController {
             query = query
                     .ilike("name", condition)
                     .ilike("course.code", condition)
+                    .ilike("course.name", condition)
                     .endJunction();
         }
         List<Exam> exams = query.orderBy("course.code").findList();
