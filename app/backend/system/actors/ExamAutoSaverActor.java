@@ -76,7 +76,6 @@ public class ExamAutoSaverActor extends AbstractActor {
             return;
         }
         markEnded(participations);
-        logger.debug("<- done");
     }
 
     private void markEnded(List<ExamParticipation> participations) {
