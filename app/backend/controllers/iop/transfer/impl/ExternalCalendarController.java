@@ -242,10 +242,10 @@ public class ExternalCalendarController extends CalendarController {
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)
                 .eq("exam.state", Exam.State.PUBLISHED)
-                .disjunction()
+                .or()
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
-                .endJunction()
+                .endOr()
                 .findOne();
         Optional<Result> error = checkEnrolment(enrolment, user);
         if (error.isPresent()) {
