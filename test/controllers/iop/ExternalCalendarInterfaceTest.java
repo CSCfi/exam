@@ -474,12 +474,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         // Setup
         initialize(null);
 
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(4);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(5);
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(6);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(7);
 
         Reservation reservation = new Reservation();
-        reservation.setStartAt(DateTime.now().plusHours(1));
-        reservation.setEndAt(DateTime.now().plusHours(2));
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setExternalRef(RESERVATION_REF);
         ExternalReservation er = new ExternalReservation();
         er.setOrgRef(ORG_REF);
