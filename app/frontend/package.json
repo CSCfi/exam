@@ -13,7 +13,6 @@
     "start": "node ./webpack/webpack.server --config ./webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
     "angular": "^1.7.7",
     "angular-animate": "^1.7.7",
     "angular-dialog-service": "^5.3.0",
@@ -27,6 +26,7 @@
     "angular-ui-bootstrap": "^2.5.6",
     "angular-ui-calendar": "~1.0.2",
     "async": "^2.6.1",
+    "babel-polyfill": "^6.26.0",
     "base64-js": "^1.3.0",
     "bootstrap-sass": "^3.3.7",
     "file-saver": "^1.3.3",
@@ -62,7 +62,7 @@
     "@types/moment-timezone": "^0.5.9",
     "@types/node": "^8.10.29",
     "@types/toastr": "^2.1.35",
-    "angular-mocks": "^1.7.4",
+    "angular-mocks": "^1.7.7",
     "awesome-typescript-loader": "^3.4.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-angularjs-annotate": "^0.8.2",
@@ -89,7 +89,7 @@
     "pg": "^6",
     "phantomjs-prebuilt": "^2.1.16",
     "protractor": "^5.4.1",
-    "protractor-browser-logs": "^1.0.351",
+    "protractor-browser-logs": "^1.0.361",
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
     "sass-loader": "^6.0.6",
     "sql-fixtures": "^1",
