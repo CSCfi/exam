@@ -7,7 +7,7 @@
     </div>
     <div class="col-md-9">
         <form name="myForm">
-            <input type="email" name="email" placeholder="{{'sitnet_write_pre_participant_email' | translate}}" class="form-control wdth-30 make-inline"
+            <input type="email" name="email" placeholder="{{'sitnet_write_exam_owner_email' | translate}}" class="form-control wdth-30 make-inline"
                 ng-model="$ctrl.newOwner.email">
             <button ng-disabled="!myForm.email.$valid || !$ctrl.newOwner.email || !$ctrl.user.isAdmin" ng-click="$ctrl.addOwner()" class="btn btn-primary green border-green">{{'sitnet_add' | translate}}
             </button>

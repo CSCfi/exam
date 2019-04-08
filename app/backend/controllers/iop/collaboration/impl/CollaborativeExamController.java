@@ -234,7 +234,6 @@ public class CollaborativeExamController extends CollaborationController {
                 if (result.isPresent()) {
                     Exam exam = result.get();
                     Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
-                    examUpdater.update(exam, request, user.getLoginRole());
                     return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
                             null, user);
                 }
@@ -254,7 +253,6 @@ public class CollaborativeExamController extends CollaborationController {
                     Exam exam = result.get();
                     User owner = createOwner(request.attrs().get(Attrs.EMAIL));
                     exam.getExamOwners().add(owner);
-                    examUpdater.update(exam, request, user.getLoginRole());
                     return uploadExam(ce, exam, false, owner, user);
                 }
                 return wrapAsPromise(notFound());
@@ -273,7 +271,6 @@ public class CollaborativeExamController extends CollaborationController {
                     User owner = new User();
                     owner.setId(oid);
                     exam.getExamOwners().remove(owner);
-                    examUpdater.update(exam, request, user.getLoginRole());
                     return uploadExam(ce, exam, false, null, user);
                 }
                 return wrapAsPromise(notFound());

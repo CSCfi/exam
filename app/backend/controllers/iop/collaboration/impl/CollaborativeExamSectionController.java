@@ -57,7 +57,6 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     if (isAuthorizedToView(exam, user)) {
                         ExamSection section = createDraft(exam, user);
                         exam.getExamSections().add(section);
-                        examUpdater.update(exam, request, user.getLoginRole());
                         return uploadExam(ce, exam, false, section, user);
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
@@ -67,8 +66,9 @@ public class CollaborativeExamSectionController extends CollaborationController 
         }).get();
     }
 
-    private CompletionStage<Result> update(Http.Request request, Long examId, BiFunction<Exam, User, Optional<Result>> updater,
-                                                  Function<Exam, Optional<? extends Model>> resultProvider) {
+    private CompletionStage<Result> update(Http.Request request, Long examId,
+                                               BiFunction<Exam, User, Optional<Result>> updater,
+                                               Function<Exam, Optional<? extends Model>> resultProvider) {
         return findCollaborativeExam(examId).map(ce -> {
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             return downloadExam(ce).thenComposeAsync(result -> {
@@ -79,7 +79,6 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         if (err.isPresent()) {
                             return wrapAsPromise(err.get());
                         }
-                        examUpdater.update(exam, request, user.getLoginRole());
                         return uploadExam(ce, exam, false, resultProvider.apply(exam).orElse(null),
                                 user);
                     }
@@ -352,7 +351,6 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         request.body().asJson().get("question"));
                                 ExamSectionQuestion esqBody = new ExamSectionQuestion();
                                 updateExamQuestion(esq, questionBody);
-                                examUpdater.update(exam, request, user.getLoginRole());
                                 return uploadExam(ce, exam, false, esqBody, user);
                             } else {
                                 return wrapAsPromise(notFound("sitnet_error_not_found"));
@@ -381,7 +379,6 @@ public class CollaborativeExamSectionController extends CollaborationController 
         AppUtil.setCreator(section, user);
         return section;
     }
-
 
 
 }
