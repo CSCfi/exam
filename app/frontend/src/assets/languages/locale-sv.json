@@ -908,5 +908,6 @@
   "sitnet_save_and_pre_publish": "Save and pre-publish SV",
   "sitnet_exam_owner_missing": "Tentaattori puuttuu SV",
   "sitnet_exam_editor_materials": "Tenttimateriaalit SV",
-  "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu SV"
+  "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu SV",
+  "sitnet_write_exam_owner_email": "Tentaattorin sähköpostiosoite SV"
 }
