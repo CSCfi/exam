@@ -77,7 +77,7 @@
 
         <tbody>
             <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
-        | offset: $ctrl.currentPageGradedLogged*$ctrl.data.pageSize | limitTo:$ctrl.data.pageSize">
+        | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo:$ctrl.data.pageSize">
                 <td class="table-column-checkbox">
                     <input type="checkbox" ng-model="review.selected" class="selectionBox" value="{{review.exam.id}}" />
                 </td>
