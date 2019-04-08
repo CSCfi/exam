@@ -22,9 +22,9 @@ before_script:
   - nvm use 8.9.1
 
 script:
-  - npm install --prefix app/frontend
+  - npm --prefix app/frontend install
+  - npm --prefix app/frontend run-script build
   - sbt test
-
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
