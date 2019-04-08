@@ -251,12 +251,10 @@ public class CollaborativeExamController extends CollaborationController {
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
-                examUpdater.update(exam, request(), loginRole);
                 return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
                         null, getLoggedUser());
             }
@@ -271,13 +269,11 @@ public class CollaborativeExamController extends CollaborationController {
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 User user = createOwner(request().attrs().get(Attrs.EMAIL));
                 exam.getExamOwners().add(user);
-                examUpdater.update(exam, request(), loginRole);
                 return uploadExam(ce, exam, false, user, getLoggedUser());
             }
             return wrapAsPromise(notFound());
@@ -290,14 +286,12 @@ public class CollaborativeExamController extends CollaborationController {
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 User user = new User();
                 user.setId(oid);
                 exam.getExamOwners().remove(user);
-                examUpdater.update(exam, request(), loginRole);
                 return uploadExam(ce, exam, false, null, getLoggedUser());
             }
             return wrapAsPromise(notFound());
