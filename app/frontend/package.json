@@ -43,8 +43,6 @@
     "truncate-html": "^1.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.3.4",
     "@types/angular": "^1.6.50",
     "@types/angular-dialog-service": "5.2.31",
     "@types/angular-resource": "^1.5.14",
@@ -64,8 +62,10 @@
     "@types/toastr": "^2.1.35",
     "angular-mocks": "^1.7.7",
     "awesome-typescript-loader": "^3.4.1",
-    "babel-loader": "^8.0.5",
+    "babel-core": "^6.26.3",
+    "babel-loader": "7.1.2",
     "babel-plugin-angularjs-annotate": "^0.8.2",
+    "babel-preset-env": "^1.7.0",
     "clean-webpack-plugin": "^0.1.17",
     "css-loader": "^0.28.7",
     "file-loader": "^1.1.6",
