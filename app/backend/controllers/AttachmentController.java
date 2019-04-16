@@ -336,6 +336,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(question.getAttachment());
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {

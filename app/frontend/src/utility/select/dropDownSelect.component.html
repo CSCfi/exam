@@ -6,9 +6,11 @@
             <span class="caret"></span>
         </div>
     </button>
-    <ul ngbDropdownMenu class="scrollable-menu" style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dd1">
+    <ul ngbDropdownMenu class="scrollable-menu" style="padding-left: 0; min-width: 17em" role="menu"
+        aria-labelledby="dd1">
         <li class="input-group">
-            <input [(ngModel)]="searchFilter" class="form-control" (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
+            <input [(ngModel)]="searchFilter" class="form-control" (change)="filterOptions()"
+                (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
             <div class="input-group-addon">
                 <i class="fa fa-search fa-fw"></i>
             </div>
@@ -16,7 +18,7 @@
         <li>
             <a class="dropdown-item pointer" (click)="clearSelection()">{{placeholder | translate}}</a>
         </li>
-        <li *ngFor="let opt of labelFilter(options)" [ngClass]="getClasses(opt)">
+        <li *ngFor="let opt of filteredOptions" [ngClass]="getClasses(opt)">
             <a *ngIf="!opt.isHeader" class="dropdown-item pointer" (click)="selectOption(opt)">
                 {{opt.label | translate | truncate: 40}}
             </a>

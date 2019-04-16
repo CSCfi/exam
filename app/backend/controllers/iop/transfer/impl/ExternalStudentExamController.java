@@ -38,9 +38,9 @@ import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Environment;
-import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.controllers.StudentExamController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
@@ -56,6 +56,7 @@ import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.datetime.DateTimeUtils;
@@ -160,6 +161,7 @@ public class ExternalStudentExamController extends StudentExamController {
     }
 
     @Authenticated
+    @With(EssayAnswerSanitizer.class)
     @Override
     public Result answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -169,9 +171,8 @@ public class ExternalStudentExamController extends StudentExamController {
                 return forbidden();
             }
             ExternalExam ee = optional.get();
-            DynamicForm df = formFactory.form().bindFromRequest(request);
-            String essayAnswer = df.get("answer");
-
+            String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+            Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
             Optional<ExamSectionQuestion> optionalQuestion;
             Exam content;
             try {
@@ -187,13 +188,12 @@ public class ExternalStudentExamController extends StudentExamController {
             EssayAnswer answer = question.getEssayAnswer();
             if (answer == null) {
                 answer = new EssayAnswer();
-            } else if (df.get("objectVersion") != null) {
-                long objectVersion = Long.parseLong(df.get("objectVersion"));
-                if (answer.getObjectVersion() > objectVersion) {
+            } else if (objectVersion.isPresent()) {
+                if (answer.getObjectVersion() > objectVersion.get()) {
                     // Optimistic locking problem
                     return forbidden("sitnet_error_data_has_changed");
                 }
-                answer.setObjectVersion(objectVersion + 1);
+                answer.setObjectVersion(objectVersion.get() + 1);
             }
             answer.setAnswer(essayAnswer);
             question.setEssayAnswer(answer);
@@ -222,6 +222,7 @@ public class ExternalStudentExamController extends StudentExamController {
     }
 
     @Authenticated
+    @With(EssayAnswerSanitizer.class)
     @Override
     public Result answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -232,21 +233,20 @@ public class ExternalStudentExamController extends StudentExamController {
             }
             ExternalExam ee = optional.get();
             return findSectionQuestion(ee, qid).map(t -> {
-                JsonNode node = request.body().asJson();
                 ExamSectionQuestion esq = t._2;
                 ClozeTestAnswer answer = esq.getClozeTestAnswer();
                 if (answer == null) {
                     answer = new ClozeTestAnswer();
                     esq.setClozeTestAnswer(answer);
                 } else {
-                    long objectVersion = node.get("objectVersion").asLong();
+                    long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
                     if (answer.getObjectVersion() > objectVersion) {
                         // Optimistic locking problem
                         return forbidden("sitnet_error_data_has_changed");
                     }
                     answer.setObjectVersion(objectVersion + 1);
                 }
-                answer.setAnswer(node.get("answer").toString());
+                answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
                 try {
                     ee.serialize(t._1);
                 } catch (IOException e) {
@@ -256,6 +256,7 @@ public class ExternalStudentExamController extends StudentExamController {
             }).getOrElseGet(Function.identity());
         });
     }
+
 
     private Optional<ExamSectionQuestion> findQuestion(Long qid, Exam content) {
         return content.getExamSections().stream()

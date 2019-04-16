@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+/// <reference types="angular-dialog-service" />
 
 import * as moment from 'moment';
 import * as toast from 'toastr';
@@ -25,8 +26,8 @@ import { SessionService } from '../session/session.service';
 import { takeUntil, tap, switchMap } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { BookingCalendarComponent } from './bookingCalendar.component';
-import { IHttpResponse } from 'angular';
 import { ExamSection } from '../exam/exam.model';
+import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 
 interface SelectableSection extends ExamSection {
     selected: boolean;
@@ -90,6 +91,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         @Inject('$routeParams') private RouteParams: any,
         private DateTime: DateTimeService,
+        private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
         private Session: SessionService
         // private uiCalendarConfig: any
@@ -131,9 +133,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
                         this.isInteroperable = resp[2].isInteroperable;
                         // TODO: allow making external reservations to collaborative exams in the future
                         if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
-                            this.http.get<any[]>('/integration/iop/organisations').subscribe(resp => {
-                                this.organisations = resp.filter(org => !org.homeOrg);
-                            });
+                            this.http.get<any[]>('/integration/iop/organisations').subscribe(resp =>
+                                this.organisations = resp.filter(org => !org.homeOrg && org.facilities.length > 0)
+                            );
                         }
                     }
                 );
@@ -211,11 +213,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     getRoomAccessibility(): string {
         const room = this.selectedRoom;
-        return room ? room.accessibilities.map(a => a.name).join(', ') : '';
+        return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
     }
 
     makeExternalReservation() {
-        this.location.go('/iop/calendar/' + this.RouteParams.id);
+        this.Dialog.open(this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_external_reservation')).result
+            .then(() => this.location.go('/iop/calendar/' + this.RouteParams.id));
     }
 
     makeInternalReservation() {
@@ -320,16 +324,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
             ? [] : this.Calendar.getExceptionHours(room, moment(view.start), moment(view.end));
     }
 
-    private listExternalRooms() {
-        if (this.selectedOrganisation) {
-            this.http.get<FilteredRoom[]>('/integration/iop/facilities', {
-                params: {
-                    org: this.selectedOrganisation._id
-                }
-            }).subscribe(resp => this.rooms = resp);
-        }
-    }
-
     createReservation(start: moment.Moment, end: moment.Moment) {
         const room = this.selectedRoom;
         if (room !== undefined) {
@@ -347,7 +341,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
         if (!room || !this.reservation || this.confirming) {
             return;
         }
+        const requiredSections = this.examInfo.examSections.filter(es => !es.optional);
         const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
+        if (requiredSections.length === 0 && selectedSectionIds.length === 0) {
+            toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
+            return;
+        }
         this.confirming = true;
         this.Calendar.reserve$(
             this.reservation.start,
@@ -358,20 +357,17 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.isCollaborative,
             selectedSectionIds
         ).subscribe(
-            () => {
-                this.confirming = false;
-                this.location.go('/');
-            },
+            () => this.location.go('/'),
             resp => toast.error(resp.error)
-        );
+        ).add(() => this.confirming = false);
     }
 
-    setOrganisation(org: { _id: string, name: string, filtered: boolean }) {
+    setOrganisation(org: { _id: string, name: string, facilities: FilteredRoom[], filtered: boolean }) {
         this.organisations.forEach(o => o.filtered = false);
         org.filtered = true;
         this.selectedOrganisation = org;
         this.selectedRoom = undefined;
-        this.listExternalRooms();
+        this.rooms = org.facilities;
         this.hide();
     }
 

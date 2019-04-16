@@ -172,15 +172,22 @@ public class SessionController extends BaseController {
         }
     }
 
+    private boolean isUserPreEnrolled(String mail, User user) {
+        return mail.equalsIgnoreCase(user.getEmail()) || mail.equalsIgnoreCase(user.getEppn());
+    }
+
     private void associateWithPreEnrolments(User user) {
         // Associate pre-enrolment with a real user now that he/she is logged in
         Ebean.find(ExamEnrolment.class)
                 .where()
-                .in("preEnrolledUserEmail", user.getEmail(), user.getEppn())
-                .findEach(e -> {
-                    e.setPreEnrolledUserEmail(null);
-                    e.setUser(user);
-                    e.update();
+                .isNotNull("preEnrolledUserEmail")
+                .findSet()
+                .stream()
+                .filter(ee -> isUserPreEnrolled(ee.getPreEnrolledUserEmail(), user))
+                .forEach(ee -> {
+                    ee.setPreEnrolledUserEmail(null);
+                    ee.setUser(user);
+                    ee.update();
                 });
     }
 

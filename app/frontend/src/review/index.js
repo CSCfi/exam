@@ -64,13 +64,14 @@ require('./listing/categories/graded.component');
 require('./listing/categories/gradedLogged.component');
 require('./listing/categories/rejected.component');
 
-require('./questions/questionReview.service');
-require('./questions/assessment/questionAssessment.component');
-require('./questions/assessment/essayAnswer.component');
-require('./questions/assessment/essayAnswers.component');
+require('./review.model.ts');
+require('./questions/questionReview.service.ts');
+require('./questions/assessment/questionAssessment.component.ts');
+require('./questions/assessment/essayAnswer.component.ts');
+require('./questions/assessment/essayAnswers.component.ts');
 
-require('./questions/flow/questionFlow.component');
-require('./questions/flow/questionFlowCategory.component');
+require('./questions/flow/questionFlow.component.ts');
+require('./questions/flow/questionFlowCategory.component.ts');
 
-require('./questions/listing/questionReview.component');
-require('./questions/listing/questionReviews.component');
+require('./questions/listing/questionReview.component.ts');
+require('./questions/listing/questionReviews.component.ts');

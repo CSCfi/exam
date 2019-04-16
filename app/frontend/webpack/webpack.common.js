@@ -1,13 +1,9 @@
 /* global __dirname */
-require('webpack');
 const path = require('path');
-console.log(__dirname);
 const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-
 
 /**
  * Base configuration object for Webpack
@@ -19,8 +15,6 @@ const config = {
     ],
     output: {
         path: buildPath,
-        filename: 'app.bundle.js',
-        sourceMapFilename: 'app.bundle.map',
         publicPath: '/bundles/'
     },
     externals: {},
@@ -90,7 +84,6 @@ const config = {
         }),
         new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/, path.join(__dirname, './src')),
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
-        new HtmlWebpackPlugin({ title: 'Production' }),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false })
     ],
     resolve: {

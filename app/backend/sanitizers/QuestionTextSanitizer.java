@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,16 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+package backend.sanitizers;
 
-angular.module('app.administrative.settings')
-    .factory('Settings', ['$resource',
-        function ($resource) {
-            return {
-                config: $resource("/app/config"),
-                agreement: $resource("/app/settings/agreement", {}, { 'update': { method: 'PUT' } }),
-                deadline: $resource("/app/settings/deadline", {}, { "update": { method: 'PUT' } }),
-                reservationWindow: $resource("/app/settings/reservationWindow", {}, { "update": { method: 'PUT' } })
-            };
-        }
-    ]);
+import com.fasterxml.jackson.databind.JsonNode;
+import play.mvc.Http;
+
+public class QuestionTextSanitizer extends BaseSanitizer {
+
+    protected Http.Request sanitize(Http.Request req, JsonNode body) {
+        return SanitizingHelper.sanitizeOptionalHtml("question", body, Attrs.QUESTION_TEXT, req);
+    }
+}

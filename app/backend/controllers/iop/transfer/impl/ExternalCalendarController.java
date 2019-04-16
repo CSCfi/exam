@@ -247,12 +247,12 @@ public class ExternalCalendarController extends CalendarController {
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)
                 .eq("exam.state", Exam.State.PUBLISHED)
-                .disjunction()
+                .or()
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
-                .endJunction()
+                .endOr()
                 .findOne();
-        Optional<Result> error = checkEnrolment(enrolment, user);
+        Optional<Result> error = checkEnrolment(enrolment, user, Collections.emptyList());
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
@@ -358,6 +358,16 @@ public class ExternalCalendarController extends CalendarController {
         external.setRoomInstruction(roomNode.path("roomInstruction").asText(null));
         external.setRoomInstructionEN(roomNode.path("roomInstructionEN").asText(null));
         external.setRoomInstructionSV(roomNode.path("roomInstructionSV").asText(null));
+        JsonNode addressNode = node.path("mailAddress");
+        if (addressNode.isObject()) {
+            MailAddress mailAddress = new MailAddress();
+            mailAddress.setStreet(addressNode.path("street").asText());
+            mailAddress.setCity(addressNode.path("city").asText());
+            mailAddress.setZip(addressNode.path("zip").asText());
+            external.setMailAddress(mailAddress);
+        }
+        external.setBuildingName(roomNode.path("buildingName").asText());
+        external.setCampus(roomNode.path("campus").asText());
         external.save();
         reservation.setExternalReservation(external);
         Ebean.save(reservation);

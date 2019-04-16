@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('printedClozeTest', {
@@ -30,13 +31,13 @@ angular.module('app.review')
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);
                 };
 
-                vm.displayClozeTestScore = function () {
+                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
+
+                vm.displayAchievedScore = function () {
                     const max = vm.sectionQuestion.maxScore;
                     const score = vm.sectionQuestion.clozeTestAnswer.score;
                     return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
-                        + ' / ' + max;
-                };
-
+                }
 
             }
         ]

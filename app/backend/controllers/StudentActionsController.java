@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
@@ -253,6 +254,7 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
+                .fetch("reservation.externalReservation.mailAddress")
                 .fetch("reservation.optionalSections")
                 .fetch("reservation.optionalSections.examMaterials")
                 .fetch("reservation.machine", "name")
@@ -331,6 +333,7 @@ public class StudentActionsController extends CollaborationController {
             query = query
                     .ilike("name", condition)
                     .ilike("course.code", condition)
+                    .ilike("course.name", condition)
                     .endJunction();
         }
         List<Exam> exams = query.orderBy("course.code").findList();

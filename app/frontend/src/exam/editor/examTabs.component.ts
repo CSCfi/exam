@@ -67,7 +67,8 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
 
         isOwner = () => {
-            return this.exam.examOwners.some(x => x.id === this.user.id || x.email == this.user.email);
+            return this.exam.examOwners.some(x => x.id === this.user.id ||
+                x.email.toLowerCase() === this.user.email.toLowerCase());
         }
 
         tabChanged = (index: number) => {

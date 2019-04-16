@@ -38,13 +38,13 @@ import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 
 
 public class QuestionReviewController extends BaseController {
 
-    private static final Exam.State VALID_STATES[] = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
+    private static final Exam.State[] VALID_STATES = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
             Exam.State.GRADED_LOGGED, Exam.State.REJECTED};
 
     private boolean canAssess(User user, Exam exam) {

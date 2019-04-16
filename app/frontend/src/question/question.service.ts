@@ -18,6 +18,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import * as toast from 'toastr';
+import * as _ from 'lodash';
 import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuestion } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
@@ -110,6 +111,9 @@ export class QuestionService {
         if (!sectionQuestion.clozeTestAnswer) {
             return 0;
         }
+        if (_.isNumber(sectionQuestion.forcedScore)) {
+            return sectionQuestion.forcedScore;
+        }
         const score = sectionQuestion.clozeTestAnswer.score;
         const proportion = score.correctAnswers * sectionQuestion.maxScore /
             (score.correctAnswers + score.incorrectAnswers);
@@ -117,6 +121,9 @@ export class QuestionService {
     }
 
     scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
+        if (_.isNumber(sectionQuestion.forcedScore)) {
+            return sectionQuestion.forcedScore;
+        }
         const score = sectionQuestion.options
             .filter(o => o.answered)
             .reduce((a, b) => a + b.score, 0);
@@ -125,6 +132,9 @@ export class QuestionService {
 
     // For non-weighted mcq
     scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
+        if (_.isNumber(sectionQuestion.forcedScore)) {
+            return sectionQuestion.forcedScore;
+        }
         const answered = sectionQuestion.options.filter(o => o.answered);
         if (answered.length === 0) {
             // No answer

@@ -10,6 +10,11 @@ module.exports = merge(common, {
         'webpack/hot/dev-server',
         'webpack-dev-server/client?http://localhost:8080'
     ],
+    output: {
+        filename: 'app.bundle.js',
+        sourceMapFilename: 'app.bundle.map',
+    },
+    optimization: {},
     plugins: [
         new webpack.HotModuleReplacementPlugin()
     ]

@@ -21,6 +21,8 @@ import play.mvc.Http;
 public class CommentSanitizer extends BaseSanitizer {
 
     protected Http.Request sanitize(Http.Request req, JsonNode body) {
-        return SanitizingHelper.sanitizeOptional("comment", body, String.class, Attrs.COMMENT, req);
+        Http.Request request = SanitizingHelper.sanitizeOptionalHtml("comment", body, Attrs.COMMENT, req);
+        return SanitizingHelper.sanitizeOptional("id", body, Long.class, Attrs.COMMENT_ID, request);
     }
+
 }

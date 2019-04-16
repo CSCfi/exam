@@ -24,7 +24,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -67,6 +74,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Double maxScore;
+
+    @Column
+    private Double forcedScore;
 
     @Transient
     private Double derivedMaxScore;
@@ -132,6 +142,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
+    }
+
+    public Double getForcedScore() {
+        return forcedScore;
+    }
+
+    public void setForcedScore(Double forcedScore) {
+        this.forcedScore = forcedScore;
     }
 
     public Double getDerivedMaxScore() {
@@ -314,6 +332,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case MultipleChoiceQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 Optional<ExamSectionQuestionOption> o = options.stream()
                         .filter(ExamSectionQuestionOption::isAnswered).findFirst();
                 if (o.isPresent()) {
@@ -321,6 +342,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case WeightedMultipleChoiceQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 Double evaluation = options.stream()
                         .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                         .map(ExamSectionQuestionOption::getScore)
@@ -328,6 +352,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
             case ClozeTestQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
                 // sanity check
                 if (clozeTestAnswer == null) {
                     return 0.0;

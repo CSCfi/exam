@@ -14,20 +14,30 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('rMultiChoiceQuestion', {
         template: require('./multiChoiceQuestion.template.html'),
         bindings: {
-            sectionQuestion: '<'
+            sectionQuestion: '<',
+            onScore: '&'
         },
         require: {
             parentCtrl: '^^rExamSection'
         },
-        controller: ['$sce', 'Attachment', 'Question',
-            function ($sce, Attachment, Question) {
+        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment', 'Question',
+            function ($sce, $routeParams, $translate, Assessment, Attachment, Question) {
 
                 const vm = this;
+
+                vm.$onInit = function () {
+                    vm.participation = vm.parentCtrl.participation;
+                    vm.isScorable = vm.parentCtrl.isScorable;
+                }
+
+                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
 
                 vm.scoreWeightedMultipleChoiceAnswer = function () {
                     if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
@@ -50,6 +60,15 @@ angular.module('app.review')
                 vm.displayQuestionText = function () {
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);
                 };
+
+                vm.insertForcedScore = () => {
+                    Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                        .then(resp => {
+                            toast.info($translate.instant('sitnet_graded'));
+                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
+                        })
+                        .catch(err => toast.error(err.data));
+                }
 
                 vm.downloadQuestionAttachment = function () {
                     if (vm.parentCtrl.collaborative) {

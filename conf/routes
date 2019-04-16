@@ -9,7 +9,6 @@ POST          /app/logout                                              backend.c
 ############### User interface ###############
 GET           /app/users/:id                                           backend.controllers.UserController.getUser(id: Long)
 GET           /app/users/byrole/:role                                  backend.controllers.UserController.getUsersByRole(role: String)
-GET           /app/users/filter/:role                                  backend.controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /app/users/filter/:role/:eid                             backend.controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/exam/owners/:role/:eid                        backend.controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/question/owners/:role                         backend.controllers.UserController.getQuestionOwnersByRoleFilter(role: String, q: String, qid: java.util.Optional[java.lang.Long], request: Request)
@@ -134,6 +133,7 @@ GET           /app/reviews/:id                                         backend.c
 PUT           /app/review/:id                                          backend.controllers.ReviewController.reviewExam(id: Long, request: Request)
 PUT           /app/review/:id/info                                     backend.controllers.ReviewController.updateAssessmentInfo(id: Long, request: Request)
 PUT           /app/review/examquestion/:id/score                       backend.controllers.ReviewController.scoreExamQuestion(id: Long, request: Request)
+PUT           /app/review/examquestion/:id/score/force                 backend.controllers.ReviewController.forceScoreExamQuestion(id: Long, request: Request)
 PUT           /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.updateComment(eid: Long, request: Request)
 GET           /app/noshows/:eid                                        backend.controllers.ReviewController.listNoShows(eid: Long, request: Request)
 PUT           /app/reviews/archive                                     backend.controllers.ReviewController.archiveExams(request: Request)
@@ -332,6 +332,7 @@ POST          /integration/iop/calendar/reservation                    backend.c
 GET           /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long, request: Request)
 GET           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
+PUT           /integration/iop/reviews/:id/:ref/question/:qid/force    backend.controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
 PUT           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/info                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String, request: Request)

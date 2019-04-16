@@ -14,8 +14,7 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import * as angular from 'angular';
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 interface Selection {
     value: any;
@@ -32,20 +31,28 @@ export interface Option {
     selector: 'dropdown-select',
     template: require('./dropDownSelect.component.html'),
 })
-export class DropdownSelectComponent {
-    @Input() options: Option[] = [];
+export class DropdownSelectComponent implements OnChanges, OnInit {
+    @Input() options: Option[] = []; // everything
     @Input() placeholder = '-';
+    @Input() limitTo?: number;
     @Output() onSelect = new EventEmitter<Selection>();
+    filteredOptions: Option[]; // filtered
     searchFilter = '';
     selected: Option;
     labelFilter: (_: Option) => boolean;
 
-    constructor() {
-        this.labelFilter = (option: Option): boolean => {
-            return option.label != null &&
-                option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
-        };
+    ngOnInit() {
+        this.filterOptions();
     }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (this.options && changes.options) {
+            this.searchFilter = this.searchFilter || '';
+            this.filterOptions();
+        }
+    }
+
+    filterOptions = () => this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
 
     selectOption = (option: Option) => {
         this.selected = option;

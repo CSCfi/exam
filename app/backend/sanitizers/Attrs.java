@@ -53,7 +53,13 @@ public enum Attrs {
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
+    public static final TypedKey<Long> COMMENT_ID = TypedKey.create("commentId");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
+    public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
+    public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
+    public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");
+    public static final TypedKey<String> ESSAY_ANSWER = TypedKey.create("essayAnswer");
+    public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
 }

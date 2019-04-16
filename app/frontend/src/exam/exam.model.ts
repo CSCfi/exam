@@ -126,10 +126,19 @@ export interface ClozeTestAnswer {
     objectVersion: number;
 }
 
+export interface ReverseExamSection extends ExamSection {
+    exam: Exam;
+}
+
+export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
+    examSection: ReverseExamSection;
+}
+
 export interface ExamSectionQuestion {
     id: number;
     question: Question;
     evaluationType?: string;
+    forcedScore: number;
     maxScore: number;
     essayAnswer?: EssayAnswer;
     clozeTestAnswer?: ClozeTestAnswer;
@@ -137,6 +146,7 @@ export interface ExamSectionQuestion {
     answerInstructions: string;
     evaluationCriteria: string;
     expectedWordCount?: number;
+    examInspections: { user: User, ready: boolean }[];
 }
 
 export interface ExamMaterial {

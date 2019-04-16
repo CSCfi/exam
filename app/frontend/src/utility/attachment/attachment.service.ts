@@ -14,6 +14,7 @@
  */
 import * as toast from 'toastr';
 import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ReviewQuestion } from '../../review/review.model';
 import { FileService } from '../file/file.service';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -159,7 +160,7 @@ export class AttachmentService {
         }
     }
 
-    downloadQuestionAnswerAttachment(question: AnsweredQuestion) {
+    downloadQuestionAnswerAttachment(question: AnsweredQuestion | ReviewQuestion) {
         this.Files.download(`/app/attachment/question/${question.id}/answer`,
             question.essayAnswer.attachment.fileName);
     }

@@ -88,14 +88,14 @@ public class CollaborationController extends BaseController {
     boolean isAuthorizedToView(Exam exam, User user, Role.Name loginRole) {
         return loginRole == Role.Name.ADMIN || (
                 exam.getExamOwners().stream().anyMatch(u ->
-                        u.getEmail().equals(user.getEmail()) || u.getEmail().equals(user.getEppn()))
+                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn()))
                         && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)
         );
     }
 
     boolean isUnauthorizedToAssess(Exam exam, User user) {
         return user.getLoginRole() != Role.Name.ADMIN && (exam.getExamOwners().stream().noneMatch(u ->
-                u.getEmail().equals(user.getEmail()) || u.getEmail().equals(user.getEppn()))
+                u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn()))
                 || !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED));
     }
 

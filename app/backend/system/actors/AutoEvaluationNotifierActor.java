@@ -44,7 +44,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
+            logger.debug("Auto evaluation notification check started ->");
             Ebean.find(Exam.class)
                     .fetch("autoEvaluationConfig")
                     .where()
@@ -59,7 +59,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
                     .stream()
                     .filter(this::isPastReleaseDate)
                     .forEach(this::notifyStudent);
-            logger.debug("{}: ... Done", getClass().getCanonicalName());
+            logger.debug("<- done");
         }).build();
     }
 
@@ -95,11 +95,11 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
         User student = exam.getCreator();
         try {
             composer.composeInspectionReady(student, null, exam, Collections.emptySet());
-            logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
+            logger.debug("Mail sent to {}", student.getEmail());
             exam.setAutoEvaluationNotified(DateTime.now());
             exam.update();
         } catch (RuntimeException e) {
-            logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());
+            logger.error("Sending mail to {} failed", student.getEmail());
         }
     }
 

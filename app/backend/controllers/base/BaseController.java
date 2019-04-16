@@ -53,8 +53,6 @@ import backend.system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    private static final double HUNDRED = 100d;
-
     private static final Logger.ALogger logger = Logger.of(BaseController.class);
 
     @Inject
@@ -176,10 +174,6 @@ public class BaseController extends Controller {
 
     protected CompletionStage<Result> wrapAsPromise(Result result) {
         return CompletableFuture.supplyAsync(() -> result);
-    }
-
-    protected Double round(Double src) {
-        return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous, boolean admin) {

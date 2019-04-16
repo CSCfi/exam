@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('printedMultiChoice', {
@@ -43,6 +44,8 @@ angular.module('app.review')
                 vm.calculateMaxPoints = function () {
                     return Question.calculateMaxPoints(vm.sectionQuestion);
                 };
+
+                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
 
             }
         ]

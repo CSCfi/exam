@@ -39,22 +39,23 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.controllers.base.BaseController;
+import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
 import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
 
-public class QuestionController extends BaseController {
+public class QuestionController extends BaseController implements SectionQuestionHandler {
 
     private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
@@ -164,8 +165,9 @@ public class QuestionController extends BaseController {
     }
 
     // TODO: Move to sanitizer
-    private Question parseFromBody(JsonNode node, User user, Question existing) {
-        String questionText = SanitizingHelper.parse("question", node, String.class).orElse(null);
+    private Question parseFromBody(Http.Request request, User user, Question existing) {
+        JsonNode node = request.body().asJson();
+        String questionText = request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null);
         Double defaultMaxScore = round(SanitizingHelper.parse("defaultMaxScore", node, Double.class).orElse(null));
         Integer defaultWordCount = SanitizingHelper.parse("defaultExpectedWordCount", node, Integer.class).orElse(null);
         Question.EvaluationType defaultEvaluationType =
@@ -226,15 +228,16 @@ public class QuestionController extends BaseController {
 
     @BodyParser.Of(BodyParser.Json.class)
     @Authenticated
+    @With(QuestionTextSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result createQuestion(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        JsonNode body = request.body().asJson();
-        Question question = parseFromBody(body, user, null);
+        Question question = parseFromBody(request, user, null);
         question.getQuestionOwners().add(user);
+        JsonNode body = request.body().asJson();
         return question.getValidationResult(body).orElseGet(() -> {
             if (question.getType() != Question.Type.EssayQuestion) {
-                processOptions(question, (ArrayNode) body.get("options"), user);
+                processOptions(question, user, (ArrayNode) body.get("options"));
             }
             question.save();
             return ok(Json.toJson(question));
@@ -242,6 +245,7 @@ public class QuestionController extends BaseController {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @With(QuestionTextSanitizer.class)
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id, Http.Request request) {
@@ -258,11 +262,11 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        Question updatedQuestion = parseFromBody(request, user, question);
         JsonNode body = request.body().asJson();
-        Question updatedQuestion = parseFromBody(body, user, question);
         return question.getValidationResult(body).orElseGet(() -> {
             if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
-                processOptions(updatedQuestion, (ArrayNode) body.get("options"), user);
+                processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
             }
             updatedQuestion.update();
             return ok(Json.toJson(updatedQuestion));
@@ -310,7 +314,8 @@ public class QuestionController extends BaseController {
         return ok();
     }
 
-    private void processOptions(Question question, ArrayNode node, User user) {
+
+    private void processOptions(Question question, User user, ArrayNode node) {
         Set<Long> persistedIds = question.getOptions().stream()
                 .map(MultipleChoiceOption::getId)
                 .collect(Collectors.toSet());
@@ -323,7 +328,7 @@ public class QuestionController extends BaseController {
                 .filter(o -> {
                     Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
                     return id.isPresent() && persistedIds.contains(id.get());
-                }).forEach(o -> updateOption(o, false));
+                }).forEach(o -> updateOption(o, OptionUpdateOptions.HANDLE_DEFAULTS));
         // Removals
         question.getOptions().stream()
                 .filter(o -> !providedIds.contains(o.getId()))
@@ -334,99 +339,15 @@ public class QuestionController extends BaseController {
                 .forEach(o -> createOption(question, o, user));
     }
 
-    private void saveOption(MultipleChoiceOption option, Question question, boolean correctOption, User user) {
-        option.setCorrectOption(correctOption);
-        question.getOptions().add(option);
-        AppUtil.setModifier(question, user);
-        question.save();
-        option.save();
-    }
-
     private void createOption(Question question, JsonNode node, User user) {
         MultipleChoiceOption option = new MultipleChoiceOption();
-        option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
+        option.setOption(SanitizingHelper.parseHtml("option", node));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
-        saveOption(option, question, correctOption, user);
+        option.setCorrectOption(correctOption);
+        saveOption(option, question, user);
         propagateOptionCreationToExamQuestions(question, null, option);
-    }
-
-    void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, JsonNode node, User user) {
-        MultipleChoiceOption option = new MultipleChoiceOption();
-        JsonNode baseOptionNode = node.get("option");
-        option.setOption(SanitizingHelper.parse("option", baseOptionNode, String.class).orElse(null));
-        option.setDefaultScore(round(SanitizingHelper.parse("score", node, Double.class).orElse(null)));
-        Boolean correctOption = SanitizingHelper.parse("correctOption", baseOptionNode, Boolean.class, false);
-        saveOption(option, question, correctOption, user);
-        propagateOptionCreationToExamQuestions(question, esq, option);
-    }
-
-    private void propagateOptionCreationToExamQuestions(Question question, ExamSectionQuestion modifiedExamQuestion,
-                                                        MultipleChoiceOption option) {
-        // Need to add the new option to bound exam section questions as well
-        if (question.getType() == Question.Type.MultipleChoiceQuestion
-                || question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
-            for (ExamSectionQuestion examQuestion : question.getExamSectionQuestions()) {
-                ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-                // Preserve scores for the exam question that is under modification right now
-                boolean preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion);
-                Double score = round(preserveScore ? option.getDefaultScore() :
-                        calculateOptionScore(question, option, examQuestion));
-                esqo.setScore(score);
-                esqo.setOption(option);
-                examQuestion.addOption(esqo, preserveScore);
-                examQuestion.update();
-            }
-        }
-    }
-
-    void updateOption(JsonNode node, boolean skipDefaults) {
-        Long id = SanitizingHelper.parse("id", node, Long.class).orElse(null);
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
-        if (option != null) {
-            option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
-            if (!skipDefaults) {
-                option.setDefaultScore(round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null)));
-            }
-            option.setCorrectOption(
-                    SanitizingHelper.parse("correctOption", node, Boolean.class, Boolean.FALSE));
-            option.update();
-        }
-    }
-
-    void deleteOption(MultipleChoiceOption option) {
-        Question question = option.getQuestion();
-        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
-            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
-                esq.removeOption(option, false);
-                esq.save();
-            }
-        }
-        option.delete();
-    }
-
-    /**
-     * Calculates new option score for ExamSectionQuestionOption.
-     *
-     * @param question Base question.
-     * @param option   New added option.
-     * @param esq      ExamSectionQuestion.
-     * @return New calculated score rounded to two decimals.
-     */
-    private Double calculateOptionScore(Question question, MultipleChoiceOption option, ExamSectionQuestion esq) {
-        Double defaultScore = option.getDefaultScore();
-        if (defaultScore == null || defaultScore == 0) {
-            return defaultScore;
-        }
-
-        double result = 0.0;
-        if (defaultScore > 0) {
-            result = (esq.getMaxAssessedScore() / 100) * ((defaultScore / question.getMaxDefaultScore()) * 100);
-        } else if (defaultScore < 0) {
-            result = (esq.getMinScore() / 100) * ((defaultScore / question.getMinDefaultScore()) * 100);
-        }
-        return result;
     }
 
     @Authenticated

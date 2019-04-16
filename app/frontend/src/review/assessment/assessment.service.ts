@@ -20,7 +20,7 @@ import * as _ from 'lodash';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
-import { Feedback, Exam } from '../../exam/exam.model';
+import { Feedback, Exam, ExamSectionQuestion } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { Examination, ExaminationQuestion } from '../../examination/examination.service';
 import { SessionService } from '../../session/session.service';
@@ -215,6 +215,13 @@ export class AssessmentService {
 
             }
         }
+    }
+
+    saveForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
+        const url = examId && examRef ?
+            `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force` :
+            `/app/review/examquestion/${question.id}/score/force`;
+        return this.http.put(url, { forcedScore: question.forcedScore, rev: rev });
     }
 
     rejectMaturity = (exam: Examination, askConfirmation, followUpUrl) => {

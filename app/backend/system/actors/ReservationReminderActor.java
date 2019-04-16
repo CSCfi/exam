@@ -47,7 +47,7 @@ public class ReservationReminderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
+            logger.debug("Starting reservation reminder task ->");
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             DateTime tomorrow = now.plusDays(1);
             Ebean.find(Reservation.class)
@@ -61,7 +61,7 @@ public class ReservationReminderActor extends AbstractActor {
                     .ne("reminderSent", true)
                     .findList()
                     .forEach(this::remind);
-            logger.debug("{}: Reservation reminder task done", getClass().getCanonicalName());
+            logger.debug("<- done");
 
         }).build();
     }

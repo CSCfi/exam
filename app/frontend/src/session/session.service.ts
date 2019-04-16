@@ -38,7 +38,7 @@ export interface User {
     lastName: string;
     email: string;
     lang: string;
-    loginRole: { name: string } | null;
+    loginRole: string | null;
     roles: Role[];
     token: string;
     userAgreementAccepted: boolean;
@@ -118,7 +118,7 @@ export class SessionService {
     }
 
     static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole !== null && user.loginRole.name === role;
+        return user && user.loginRole !== null && user.loginRole === role;
     }
 
     getEnv$(): Observable<'DEV' | 'PROD'> {
@@ -244,11 +244,11 @@ export class SessionService {
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
             tap(role => this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe()),
-            map(role => {
+            map((role: string) => {
                 user.loginRole = role;
-                user.isAdmin = role.name === 'ADMIN';
-                user.isTeacher = role.name === 'TEACHER';
-                user.isStudent = role.name === 'STUDENT';
+                user.isAdmin = role === 'ADMIN';
+                user.isTeacher = role === 'TEACHER';
+                user.isStudent = role === 'STUDENT';
                 user.isLanguageInspector =
                     user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 return user;
@@ -274,14 +274,14 @@ export class SessionService {
             }
         });
 
-        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
-        const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
+        const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
+        const isTeacher = loginRole != null && loginRole === 'TEACHER';
 
         Object.assign(user, {
             loginRole: loginRole,
             isTeacher: isTeacher,
-            isAdmin: loginRole != null && loginRole.name === 'ADMIN',
-            isStudent: loginRole != null && loginRole.name === 'STUDENT',
+            isAdmin: loginRole != null && loginRole === 'ADMIN',
+            isStudent: loginRole != null && loginRole === 'STUDENT',
             isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
         });
         return user;
