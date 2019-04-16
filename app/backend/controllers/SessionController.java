@@ -250,7 +250,8 @@ public class SessionController extends BaseController {
                     this::parseStudentIdDomain,
                     this::parseStudentIdValue,
                     (v1, v2) -> {
-                        throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
+                        logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
+                        return "null";
                     },
                     () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
                             ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
