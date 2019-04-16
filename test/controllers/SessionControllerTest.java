@@ -49,16 +49,4 @@ public class SessionControllerTest extends IntegrationTestCase {
         assertThat(user.getUserIdentifier()).isEqualTo("org1.org:null org2.org:aaaaa");
     }
 
-    @Test
-    public void testLoginWithInvalidUserIdentifierString() {
-        String eppn = "newuser@test.org";
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
-        assertThat(user).isNull();
-
-        login(eppn, ImmutableMap.of("schacPersonalUniqueCode", "11111"));
-
-        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
-        assertThat(user).isNotNull();
-        assertThat(user.getUserIdentifier()).isEqualTo("11111");
-    }
 }
