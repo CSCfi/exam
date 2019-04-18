@@ -80,6 +80,8 @@ public class SessionController extends BaseController {
 
     private static final String URN_PREFIX = "urn:";
 
+    private static final String URN_PREFIX = "urn:";
+
     @Inject
     public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
         this.environment = environment;
