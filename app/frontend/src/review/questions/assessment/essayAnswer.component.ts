@@ -14,6 +14,7 @@
  */
 
 import * as angular from 'angular';
+import * as _ from 'lodash';
 import { ReviewQuestion } from '../../review.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
@@ -42,8 +43,11 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
                 this.answer.examSection.exam.id.toString();
             this.answer.expanded = true;
             this.answer.essayAnswer = this.answer.essayAnswer || {};
-            this.answer.essayAnswer.score = this.answer.essayAnswer.evaluatedScore;
-            this.answer.essayAnswer.textualScore = this.answer.essayAnswer.score.toString();
+            this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
+            if (this.answer.evaluationType === 'Selection') {
+                this.answer.essayAnswer.textualScore =
+                    this.answer.essayAnswer.evaluatedScore ? this.answer.essayAnswer.evaluatedScore.toString() : '';
+            }
         }
 
         getWordCount = () => this.Assessment.countWords(this.answer.essayAnswer.answer);
@@ -51,13 +55,15 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
         getCharacterCount = () => this.Assessment.countCharacters(this.answer.essayAnswer.answer);
 
         saveScore = () => {
-            this.answer.essayAnswer.score =
-                this.answer.essayAnswer.evaluatedScore =
-                parseFloat(this.answer.essayAnswer.textualScore);
+            if (this.answer.essayAnswer.textualScore) {
+                this.answer.essayAnswer.temporaryScore = parseFloat(this.answer.essayAnswer.textualScore);
+            }
             this.onSelection({ answer: this.answer });
+            this.answer.selected = false;
         }
 
-        isAssessed = () => this.answer.essayAnswer && this.answer.essayAnswer.score >= 0;
+        isAssessed = () => this.answer.essayAnswer &&
+            (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore)
 
         displayMaxScore = () => this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1;
 

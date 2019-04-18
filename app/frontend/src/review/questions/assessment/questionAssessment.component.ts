@@ -82,7 +82,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
 
         private saveEvaluation = (answer: ReviewQuestion) => {
             return new Promise<void>((resolve, _) => {
-                answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
                 this.Assessment.saveEssayScore(answer).then(() => {
                     toast.info(this.$translate.instant('sitnet_graded'));
                     if (this.assessedAnswers.indexOf(answer) === -1) {
@@ -92,7 +92,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
                     resolve();
                 }).catch(err => {
                     // Roll back
-                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
                     toast.error(err.data);
                     resolve();
                 });
@@ -109,7 +109,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         setSelectedReview = (review: QuestionReview) => {
             this.selectedReview = review;
             this.assessedAnswers = this.selectedReview.answers
-                .filter(a => a.essayAnswer && a.essayAnswer.evaluatedScore >= 0 && !this.isLocked(a));
+                .filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a));
             this.unassessedAnswers = this.selectedReview.answers
                 .filter(a => !a.essayAnswer || !_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a));
             this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
