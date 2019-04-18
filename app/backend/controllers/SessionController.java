@@ -78,6 +78,8 @@ public class SessionController extends BaseController {
     private static final String MULTI_STUDENT_ID_ORGS =
             ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
 
+    private static final String URN_PREFIX = "urn:";
+
     @Inject
     public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
         this.environment = environment;
@@ -243,7 +245,8 @@ public class SessionController extends BaseController {
     }
 
     private String parseUserIdentifier(String src) {
-        if (!MULTI_STUDENT_ID_ON) {
+        if (!MULTI_STUDENT_ID_ON || !src.startsWith(URN_PREFIX)) {
+            // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
             return Arrays.stream(src.split(";")).collect(Collectors.toMap(
