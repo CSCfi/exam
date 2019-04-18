@@ -186,7 +186,7 @@
                 <span ng-if="!$ctrl.isDraftCollaborativeExam()">{{'sitnet_save_and_publish' | translate}}</span>
                 <span ng-if="$ctrl.isDraftCollaborativeExam()">{{'sitnet_save_and_pre_publish' | translate}}</span></a>
         </div>
-        <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC'"
+        <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC' && !$ctrl.collaborative"
             class="review-attachment-button exam-questions-buttons marl10">
             <a class="pointer warning" ng-click="$ctrl.unpublishExam()">
                 {{'sitnet_unpublish_exam' | translate}}
