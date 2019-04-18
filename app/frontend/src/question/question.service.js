@@ -137,8 +137,8 @@ angular.module('app.question')
                     (score.correctAnswers + score.incorrectAnswers).toFixed(2));
             };
 
-            self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
-                if (_.isNumber(sectionQuestion.forcedScore)) {
+            self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion, ignoreForcedScore) {
+                if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
                     return sectionQuestion.forcedScore;
                 }
                 const score = sectionQuestion.options
@@ -148,8 +148,8 @@ angular.module('app.question')
             };
 
             // For non-weighted mcq
-            self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-                if (_.isNumber(sectionQuestion.forcedScore)) {
+            self.scoreMultipleChoiceAnswer = function (sectionQuestion, ignoreForcedScore) {
+                if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
                     return sectionQuestion.forcedScore;
                 }
                 const selected = sectionQuestion.options.filter(function (o) {

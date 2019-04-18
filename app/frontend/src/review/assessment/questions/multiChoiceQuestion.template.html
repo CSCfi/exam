@@ -14,7 +14,7 @@
                     <!-- grade -->
                     <div class="review-points" ng-if="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'">
                         <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                            {{$ctrl.scoreMultipleChoiceAnswer()}}
+                            {{$ctrl.scoreMultipleChoiceAnswer(true)}}
                         </span>
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
@@ -25,7 +25,7 @@
                     <div class="review-points"
                         ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
                         <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                            {{$ctrl.scoreWeightedMultipleChoiceAnswer()}}
+                            {{$ctrl.scoreWeightedMultipleChoiceAnswer(true)}}
                         </span>
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
