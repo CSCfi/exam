@@ -2,9 +2,9 @@ import { Question, ReverseExamSectionQuestion, Attachment } from '../exam/exam.m
 
 export interface EssayAnswer {
     id: number;
-    evaluatedScore: number;
-    textualScore: string;
-    score: number;
+    evaluatedScore: number; // score entered and saved
+    temporaryScore: number; // score entered but not saved
+    textualScore: string; // score as text for html-select mapping purposes in approved/rejected case
     answer: string;
     attachment: Attachment;
 }
