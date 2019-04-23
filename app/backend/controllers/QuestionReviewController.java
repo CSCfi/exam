@@ -15,19 +15,6 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.Question;
-import backend.system.interceptors.Anonymous;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
-import play.mvc.Result;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,10 +24,24 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
+import play.mvc.Result;
+
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.system.interceptors.Anonymous;
+
 
 public class QuestionReviewController extends BaseController {
 
-    private static final Exam.State VALID_STATES[] = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
+    private static final Exam.State[] VALID_STATES = {Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED,
             Exam.State.GRADED_LOGGED, Exam.State.REJECTED};
 
     private boolean canAssess(User user, Exam exam) {

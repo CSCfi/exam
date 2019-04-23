@@ -57,7 +57,7 @@ angular.module('app.review')
                 vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
                 vm.pageSelected = function (page) {
-                    vm.currentPage = page;
+                    vm.data.page = page;
                 }
 
                 vm.applyFreeSearchFilter = () =>

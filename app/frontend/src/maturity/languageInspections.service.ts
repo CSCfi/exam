@@ -64,7 +64,7 @@ export class LanguageInspectionService {
         dialog.result.then(() => {
             this.$http.put(`/app/inspection/${inspection.id}`, {}).then(() =>
                 this.$location.path(`assessments/${inspection.exam.id}`)
-            ).catch((err) => toast.erroro(err.data));
+            ).catch((err) => toast.error(err.data));
         });
     }
 

@@ -15,18 +15,12 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.Language;
-import backend.models.Permission;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.UserLanguageSanitizer;
-import backend.validators.JsonValidator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,11 +35,18 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.With;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.Language;
+import backend.models.Permission;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.UserLanguageSanitizer;
+import backend.validators.JsonValidator;
 
 public class UserController extends BaseController {
 
@@ -198,11 +199,6 @@ public class UserController extends BaseController {
         ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", role).disjunction();
         el = applyUserFilter(null, el, nameFilter);
         return el.endJunction().findList();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getUsersByRoleFilter(String role, String criteria) {
-        return ok(Json.toJson(asArray(findUsersByRoleAndName(role, criteria))));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

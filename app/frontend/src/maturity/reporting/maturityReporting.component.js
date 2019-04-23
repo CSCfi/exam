@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 
 angular.module('app.maturity')
     .component('maturityReporting', {
@@ -24,7 +24,7 @@ angular.module('app.maturity')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    vm.selection = {opened: false, month: new Date()};
+                    vm.selection = { opened: false, month: new Date() };
                     vm.query();
                 };
 
@@ -47,7 +47,7 @@ angular.module('app.maturity')
                     }
                     LanguageInspections.query(params).then(
                         function (inspections) {
-                            vm.processedInspections = inspections.filter(function (i) {
+                            vm.processedInspections = inspections.data.filter(function (i) {
                                 return i.finishedAt;
                             });
                         });

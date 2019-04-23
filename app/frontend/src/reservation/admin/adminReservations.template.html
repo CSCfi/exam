@@ -13,12 +13,14 @@
         <div class="pad30">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_student' | translate}}</strong>
-                <drop-down-select options="$ctrl.studentOptions" on-select="$ctrl.studentChanged(value)">
+                <drop-down-select ng-if="$ctrl.studentOptions" options="$ctrl.studentOptions"
+                    on-select="$ctrl.studentChanged(value)">
                 </drop-down-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{'sitnet_exam' | translate}}</strong>
-                <drop-down-select options="$ctrl.examOptions" on-select="$ctrl.examChanged(value)">
+                <drop-down-select ng-if="$ctrl.examOptions" options="$ctrl.examOptions"
+                    on-select="$ctrl.examChanged(value)">
                 </drop-down-select>
             </div>
             <div class="col-md-2 reservation-search-titles">
@@ -33,17 +35,20 @@
         <div class="pad30">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_exam_owners' | translate}}</strong>
-                <drop-down-select options="$ctrl.teacherOptions" on-select="$ctrl.ownerChanged(value)">
+                <drop-down-select ng-if="$ctrl.teacherOptions" options="$ctrl.teacherOptions"
+                    on-select="$ctrl.ownerChanged(value)">
                 </drop-down-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_room' | translate}}</strong>
-                <drop-down-select options="$ctrl.roomOptions" on-select="$ctrl.roomChanged(value)">
+                <drop-down-select ng-if="$ctrl.roomOptions" options="$ctrl.roomOptions"
+                    on-select="$ctrl.roomChanged(value)">
                 </drop-down-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_exam_machine' | translate}}</strong>
-                <drop-down-select options="$ctrl.machineOptions" on-select="$ctrl.machineChanged(value)">
+                <drop-down-select ng-if="$ctrl.machineOptions" options="$ctrl.machineOptions"
+                    on-select="$ctrl.machineChanged(value)">
                 </drop-down-select>
             </div>
             <div class="col-md-3">
@@ -53,7 +58,8 @@
             </div>
         </div>
 
-        <reservation-detail ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true"></reservation-detail>
+        <reservation-detail ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true">
+        </reservation-detail>
 
     </div>
 </div>

@@ -57,7 +57,7 @@ angular.module('app.review')
             };
 
             vm.pageSelected = function (page) {
-                vm.currentPage = page;
+                vm.data.page = page;
             }
 
             vm.getLinkToAssessment = (review) =>

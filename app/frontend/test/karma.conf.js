@@ -17,10 +17,10 @@ const webpackConf = require('../webpack/webpack.dev');
 
 module.exports = function (config) {
     config.set({
-        basePath: '.',
+        basePath: '',
         files: [
             'unit/test.bundle.js',
-            {pattern: 'unit/fixtures/**/*.json', watched: true, served: true, included: false}
+            { pattern: 'unit/fixtures/**/*.json', watched: true, served: true, included: false }
         ],
         singleRun: false,
         autoWatch: true,

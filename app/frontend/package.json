@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "5.0.4",
+  "version": "5.0.8",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
     "angular-ui-bootstrap": "^2.5.6",
     "angular-ui-calendar": "~1.0.2",
     "async": "^2.6.1",
+    "babel-polyfill": "^6.26.0",
     "base64-js": "^1.3.0",
     "bootstrap-sass": "^3.3.7",
     "file-saver": "^1.3.3",
@@ -34,7 +35,7 @@
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
     "jquery-ui-touch-punch": "^0.2.3",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
     "ngstorage": "^0.3.11",
@@ -59,7 +60,7 @@
     "@types/moment-timezone": "^0.5.9",
     "@types/node": "^8.10.29",
     "@types/toastr": "^2.1.35",
-    "angular-mocks": "^1.7.4",
+    "angular-mocks": "^1.7.7",
     "awesome-typescript-loader": "^3.4.1",
     "babel-core": "^6.26.3",
     "babel-loader": "7.1.2",
@@ -88,7 +89,7 @@
     "pg": "^6",
     "phantomjs-prebuilt": "^2.1.16",
     "protractor": "^5.4.1",
-    "protractor-browser-logs": "^1.0.351",
+    "protractor-browser-logs": "^1.0.361",
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
     "sass-loader": "^6.0.6",
     "sql-fixtures": "^1",
@@ -105,5 +106,10 @@
   "engines": {
     "node": ">= 5",
     "npm": ">= 3"
-  }
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "Firefox ESR"
+  ]
 }

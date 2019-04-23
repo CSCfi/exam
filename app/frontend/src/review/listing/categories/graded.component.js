@@ -84,7 +84,7 @@ angular.module('app.review')
                         : `/assessments/${review.exam.id}`
 
                 vm.pageSelected = function (page) {
-                    vm.currentPage = page;
+                    vm.data.page = page;
                 }
 
                 vm.selectAll = () =>

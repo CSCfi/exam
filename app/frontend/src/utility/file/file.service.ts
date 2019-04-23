@@ -54,7 +54,7 @@ export class FileService {
     open(file: Blob) {
         const reader = new FileReader();
         reader.onload = () => {
-            const f = reader.result;
+            const f: any = reader.result;
             this.$window.open(f);
         };
         reader.readAsDataURL(file);
@@ -91,7 +91,7 @@ export class FileService {
         this._doUpload(url, file, params)
             .then(resp => {
                 parent.objectVersion = resp.data.objectVersion;
-                parent.attachment = resp.data.attachment;
+                parent.attachment = resp.data.attachment ? resp.data.attachment : resp.data;
             })
             .catch(resp =>
                 toast.error(this.$translate.instant(resp.data))

@@ -9,7 +9,6 @@ POST          /app/logout                                              backend.c
 ############### User interface ###############
 GET           /app/users/:id                                           backend.controllers.UserController.getUser(id: Long)
 GET           /app/users/byrole/:role                                  backend.controllers.UserController.getUsersByRole(role: String)
-GET           /app/users/filter/:role                                  backend.controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /app/users/filter/:role/:eid                             backend.controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/exam/owners/:role/:eid                        backend.controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/question/owners/:role                         backend.controllers.UserController.getQuestionOwnersByRoleFilter(role: String, q: String, qid: java.util.Optional[java.lang.Long])

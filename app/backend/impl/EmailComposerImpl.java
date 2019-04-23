@@ -262,6 +262,8 @@ class EmailComposerImpl implements EmailComposer {
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
+        /*
+        Disabled for now
         Stream<ExamMaterial> requiredMaterials = exam.getExamSections().stream()
                 .filter(es -> !es.isOptional())
                 .flatMap(es -> es.getExamMaterials().stream());
@@ -273,7 +275,7 @@ class EmailComposerImpl implements EmailComposer {
         String materials = String.format("%s<br/>%s",
                 messaging.get(lang, "email.template.material.title"),
                 String.join("<br/>", allMaterials));
-
+        */
         DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
         DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
         String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
@@ -299,7 +301,7 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("room_name", messaging.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
-        stringValues.put("exam_materials", materials);
+        // stringValues.put("exam_materials", materials);
         stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
         stringValues.put("cancellation_link", HOSTNAME);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));

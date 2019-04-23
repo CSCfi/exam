@@ -16,12 +16,13 @@
 
 package backend.controllers.iop.transfer.api;
 
+import java.util.concurrent.CompletableFuture;
+
+import com.google.inject.ImplementedBy;
+
 import backend.controllers.iop.transfer.impl.ExternalAttachmentLoaderImpl;
 import backend.models.Attachment;
 import backend.models.Exam;
-import com.google.inject.ImplementedBy;
-
-import java.util.concurrent.CompletableFuture;
 
 @ImplementedBy(ExternalAttachmentLoaderImpl.class)
 public interface ExternalAttachmentLoader {
@@ -29,4 +30,6 @@ public interface ExternalAttachmentLoader {
     CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam);
 
     CompletableFuture<Void> createExternalAttachment(Attachment attachment);
+
+    CompletableFuture<Void> uploadAssessmentAttachments(Exam exam);
 }

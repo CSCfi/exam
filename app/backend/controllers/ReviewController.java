@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,8 +72,6 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.ExamType;
 import backend.models.Grade;
 import backend.models.GradeScale;
@@ -87,6 +84,8 @@ import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
 import backend.system.interceptors.Anonymous;
@@ -196,17 +195,19 @@ public class ReviewController extends BaseController {
         User user = getLoggedUser();
         PathProperties pp = PathProperties.parse("(" +
                 "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
-                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
-                "examInspections(ready, user(id, firstName, lastName, email)), " +
+                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-                "languageInspection(*), examLanguages(*)" +
+                "languageInspection(*), examLanguages(*), " +
                 "parent(examOwners(firstName, lastName, email)), " +
                 "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
                 ")");
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
         query.fetchQuery("course", "code, credits")
-                .fetch("course.gradeScale.grades");
+                .fetch("course.gradeScale.grades")
+                .fetchQuery("examInspections", "ready")
+                .fetch("examInspections.user", "id, firstName, lastName, email")
+                .fetchQuery("examLanguages");
         query.where()
                 .eq("parent.id", eid)
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
@@ -271,7 +272,7 @@ public class ReviewController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
-        if (exam.getState() != Exam.State.GRADED_LOGGED || !isAllowedToModify(exam, getLoggedUser(), exam.getState())) {
+        if (exam.getState() != Exam.State.GRADED_LOGGED || isDisallowedToModify(exam, getLoggedUser(), exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
@@ -288,7 +289,7 @@ public class ReviewController extends BaseController {
         }
         User user = getLoggedUser();
         Exam.State newState = Exam.State.valueOf(df.get("state"));
-        if (!isAllowedToModify(exam, user, newState)) {
+        if (isDisallowedToModify(exam, user, newState)) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
@@ -465,19 +466,6 @@ public class ReviewController extends BaseController {
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
 
-    private List<String> parseArrayFieldFromBody(String field) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String args = df.get(field);
-        String[] array;
-        if (args == null || args.isEmpty()) {
-            array = new String[]{};
-        } else {
-            array = args.split(",");
-        }
-        return Arrays.asList(array);
-    }
-
-
     @With(CommaJoinedListSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result archiveExams() {
@@ -547,7 +535,7 @@ public class ReviewController extends BaseController {
                             esq.getQuestion().getId() : esq.getQuestion().getParent().getId();
                     questions.put(questionId, esq.getQuestion().getQuestion());
                     String questionIdText = esq.getQuestion().getParent() == null ?
-                            Long.toString(questionId) + "#original_question_removed" :
+                            questionId + "#original_question_removed" :
                             Long.toString(esq.getQuestion().getParent().getId());
                     EssayAnswer answer = esq.getEssayAnswer();
                     Attachment attachment;
@@ -643,9 +631,9 @@ public class ReviewController extends BaseController {
                 li.getFinishedAt() != null && user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
     }
 
-    private boolean isAllowedToModify(Exam exam, User user, Exam.State newState) {
-        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
-                isRejectedInLanguageInspection(exam, user, newState);
+    private boolean isDisallowedToModify(Exam exam, User user, Exam.State newState) {
+        return !exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession()) &&
+                !isRejectedInLanguageInspection(exam, user, newState);
     }
 
     private Result updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {

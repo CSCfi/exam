@@ -37,8 +37,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     private boolean isEnrollable(Exam exam) {
         return exam.getState() == Exam.State.PUBLISHED &&
                 exam.getExecutionType().getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
-                exam.getExamActiveEndDate().isAfterNow() &&
-                exam.getExamActiveStartDate().isBeforeNow();
+                exam.getExamActiveEndDate().isAfterNow();
     }
 
 

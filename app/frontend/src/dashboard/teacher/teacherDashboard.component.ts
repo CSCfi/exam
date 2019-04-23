@@ -55,7 +55,7 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
                     text: 'sitnet_participation_unreviewed',
                     property: 'unassessedCount',
                     link: '/exams/__/4',
-                    checkOwnership: true
+                    checkOwnership: false
                 }, {
                     text: 'sitnet_participation_unfinished',
                     property: 'unfinishedCount',
@@ -73,7 +73,7 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
                     text: 'sitnet_participation_unreviewed',
                     property: 'unassessedCount',
                     link: '/exams/__/4',
-                    checkOwnership: true
+                    checkOwnership: false
                 }, {
                     text: 'sitnet_participation_unfinished',
                     property: 'unfinishedCount',
