@@ -349,9 +349,11 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                 ExamSectionQuestion esq = question.get();
                                 Question questionBody = JsonDeserializer.deserialize(Question.class,
                                         request.body().asJson().get("question"));
-                                ExamSectionQuestion esqBody = new ExamSectionQuestion();
+                                questionBody.getOptions().stream()
+                                        .filter(o -> o.getId() == null)
+                                        .forEach(o -> o.setId(newId()));
                                 updateExamQuestion(esq, questionBody);
-                                return uploadExam(ce, exam, false, esqBody, user);
+                                return uploadExam(ce, exam, false, null, user);
                             } else {
                                 return wrapAsPromise(notFound("sitnet_error_not_found"));
 
