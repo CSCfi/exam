@@ -75,9 +75,9 @@
                     </div>
                     <form name="forcedPoints">
                         <input id="score" name="score" type="number" class="form-control"
-                            ng-model="$ctrl.sectionQuestion.forcedScore" ui-blur="$ctrl.insertForcedScore()"
-                            onclick="this.focus()" ng-disabled="!$ctrl.isScorable" min="0"
-                            max="{{$ctrl.sectionQuestion.maxScore}}" />
+                            ng-model="$ctrl.sectionQuestion.forcedScore"
+                            ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()" onclick="this.focus()"
+                            ng-disabled="!$ctrl.isScorable" min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
                         <small ng-show="forcedPoints.$invalid" class="alert-danger">
                             <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate
                                     }}
