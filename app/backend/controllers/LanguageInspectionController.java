@@ -141,9 +141,6 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getFinishedAt() != null) {
             return Optional.of(forbidden("Inspection already finalized"));
         }
-        if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
-            return Optional.of(forbidden("No statement given"));
-        }
         return Optional.empty();
     }
 
@@ -154,6 +151,9 @@ public class LanguageInspectionController extends BaseController {
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
         return checkInspection(inspection).orElseGet(() -> {
+            if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+                return forbidden("No statement given");
+            }
             inspection.setFinishedAt(new Date());
             inspection.setApproved(isApproved);
 
