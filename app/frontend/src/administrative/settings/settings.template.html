@@ -61,8 +61,8 @@
                 </li>
                 <li>
                     <strong>{{'sitnet_anonymous_review' | translate }}:</strong>&nbsp;
-                    <span ng-if="$ctrl.config.anonymousReview">{{'DIALOGS_YES' | translate }}</span>
-                    <span ng-if="!$ctrl.config.anonymousReview">{{'DIALOGS_NO' | translate }}</span>
+                    <span ng-if="$ctrl.config.anonymousReviewEnabled">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.anonymousReviewEnabled">{{'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{'sitnet_course_integration_support' | translate}}:</strong>&nbsp;
