@@ -46,6 +46,11 @@ interface FilteredRoom extends Room {
     filtered: boolean;
 }
 
+interface ReservationInfo {
+    id: number;
+    optionalSections: ExamSection[];
+}
+
 export const CalendarComponent: ng.IComponentOptions = {
     template: require('./calendar.template.html'),
     bindings: {
@@ -115,6 +120,19 @@ export const CalendarComponent: ng.IComponentOptions = {
                 `/app/student/exam/${this.$routeParams.id}/info`;
             this.$http.get(url).then((resp: ng.IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
+                this.$http.get(`/app/calendar/enrolment/${this.$routeParams.id}/reservation`)
+                    .then((resp: ng.IHttpResponse<ReservationInfo>) => {
+                        if (resp.data.optionalSections) {
+                            this.examInfo.examSections
+                                .filter(es => es.optional)
+                                .forEach(es => {
+                                    es.selected = resp.data.optionalSections
+                                        .map(es => es.id)
+                                        .indexOf(es.id) > -1;
+                                });
+                        }
+                    });
+                // this.examInfo.examSections.forEach(es => )
                 this.$http.get('/app/settings/reservationWindow').then((resp: ng.IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
                     this.reservationWindowEndDate = moment().add(resp.data.value, 'days');
@@ -135,8 +153,8 @@ export const CalendarComponent: ng.IComponentOptions = {
             });
         }
 
-        hasExamMaterials(): boolean {
-            return this.examInfo.examSections.some(es => es.examMaterials.length > 0);
+        hasOptionalSections(): boolean {
+            return this.examInfo.examSections.some(es => es.optional);
         }
 
         getSequenceNumber(area: string): number {
@@ -150,9 +168,9 @@ export const CalendarComponent: ng.IComponentOptions = {
                 case 'material':
                     return this.isExternal ? 4 : 3;
                 case 'confirmation':
-                    if (this.isExternal && this.hasExamMaterials()) {
+                    if (this.isExternal && this.hasOptionalSections()) {
                         return 5;
-                    } else if (this.isExternal || this.hasExamMaterials()) {
+                    } else if (this.isExternal || this.hasOptionalSections()) {
                         return 4;
                     } else {
                         return 3;
