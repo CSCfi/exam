@@ -366,6 +366,7 @@ GET           /app/time/:hash                                          backend.c
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer], request: Request)
+GET           /app/calendar/enrolment/:id/reservation                  backend.controllers.CalendarController.getCurrentReservation(id: Long, request: Request)
 POST          /app/calendar/reservation                                backend.controllers.CalendarController.createReservation(request: Request)
 DELETE        /app/calendar/reservation/:id                            backend.controllers.CalendarController.removeReservation(id: Long, request: Request)
 GET           /app/availability/:roomId/:date                          backend.controllers.AvailabilityController.getAvailability(roomId: Long, date: String)
