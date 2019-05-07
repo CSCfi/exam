@@ -490,6 +490,7 @@ public class ReviewController extends BaseController {
             AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setComment(commentText.get());
         }
+        comment.update();
         return ok(comment);
     }
 
