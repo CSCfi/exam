@@ -74,7 +74,7 @@
                             <small>[0 &hellip; {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}]</small></span>
                     </div>
                     <form name="forcedPoints">
-                        <input id="score" name="score" type="number" class="form-control"
+                        <input id="score" name="score" type="number" lang="en" class="form-control"
                             ng-model="$ctrl.sectionQuestion.forcedScore"
                             ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()" onclick="this.focus()"
                             ng-disabled="!$ctrl.isScorable" min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
