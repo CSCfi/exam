@@ -6,7 +6,8 @@
     <div class="col-md-2 general-info-title">{{'sitnet_inspection_status' | translate}}:</div>
     <div class="col-md-4 general-info-content">
         <div ng-repeat="inspection in $ctrl.exam.examInspections">
-            <r-inspection inspection="inspection" user="$ctrl.user" disabled="$ctrl.isGraded() || $ctrl.isReadOnly()" on-inspection="$ctrl.inspectionDone()">
+            <r-inspection inspection="inspection" user="$ctrl.user" disabled="$ctrl.isGraded() || $ctrl.isReadOnly()"
+                on-inspection="$ctrl.inspectionDone()">
             </r-inspection>
         </div>
     </div>
@@ -16,7 +17,8 @@
 <div ng-if="$ctrl.questionSummary.accepted > 0 || $ctrl.questionSummary.rejected > 0" class="review-grade-row marb20">
     <div class="col-md-2 general-info-title">{{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}:
     </div>
-    <div class="col-md-4 general-info-content">{{ $ctrl.questionSummary.accepted }} / {{ $ctrl.questionSummary.rejected }}
+    <div class="col-md-4 general-info-content">{{ $ctrl.questionSummary.accepted }} /
+        {{ $ctrl.questionSummary.rejected }}
     </div>
     <div class="col-md-2 general-info-title">&nbsp;</div>
     <div class="col-md-4 general-info-content">&nbsp;</div>
@@ -50,26 +52,31 @@
 
 <div class="review-grade-row">
     <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:
-        <sup><img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_additional_info_for_registry_description' | translate}}"
-                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" /></sup>
+        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_additional_info_for_registry_description' | translate}}"
+                src="Images/icon_tooltip.svg" alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" /></sup>
     </div>
     <div class="col-md-10 general-info-content">
-        <textarea class="form-control" ng-model="$ctrl.exam.additionalInfo" rows="3" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()">
+        <textarea class="form-control" ng-model="$ctrl.exam.additionalInfo" rows="3"
+            ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()">
         </textarea>
     </div>
 </div>
 <div class="review-grade-row" ng-hide="!$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()">
     <div class="col-md-2 general-info-title ">{{ 'sitnet_additional_info_for_student' | translate }}:
-        <sup><img popover-placement="right " popover-trigger=" 'mouseenter' " uib-popover="{{ 'sitnet_additional_info_for_student_description' | translate}} "
-                src="Images/icon_tooltip.svg " alt="exam " onerror="this.onerror=null;this.src='Images/icon_tooltip.png' ; "
-            /></sup>
+        <sup><img popover-placement="right " popover-trigger=" 'mouseenter' "
+                uib-popover="{{ 'sitnet_additional_info_for_student_description' | translate}} "
+                src="Images/icon_tooltip.svg " alt="exam "
+                onerror="this.onerror=null;this.src='Images/icon_tooltip.png' ; " /></sup>
     </div>
     <div class="col-md-8 general-info-content ">
         <textarea class="form-control " ng-model="$ctrl.exam.assessmentInfo " rows="3 ">
         </textarea>
     </div>
     <div class="cold-md-2 general-info-content ">
-        <button class="btn btn-success " ng-disabled="!$ctrl.exam.assessmentInfo " ng-click="$ctrl.saveAssessmentInfo() ">
+        <button class="btn btn-success " ng-disabled="!$ctrl.exam.assessmentInfo "
+            ng-click="$ctrl.saveAssessmentInfo() ">
             {{'sitnet_save' | translate}}
         </button>
     </div>
@@ -79,9 +86,10 @@
 <div class="review-grade-row marb20 " ng-show="$ctrl.getTeacherCount()> 1">
     <div ng-hide="$ctrl.isReadOnly()">
         <div class="col-md-2 general-info-title">{{ 'sitnet_send_to_other_reviewers' | translate }}:
-            <sup><img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_send_to_other_reviewers_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
-                /></sup>
+            <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_send_to_other_reviewers_description' | translate}}"
+                    src="Images/icon_tooltip.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" /></sup>
         </div>
         <div class="col-md-10 general-info-content">
             <textarea class="form-control" ng-model="$ctrl.message.text" rows="3" cols="120">
@@ -114,25 +122,28 @@
 <div class="review-grade-row marb20">
     <form name="examForm" role="form" novalidate>
         <div class="col-md-3 general-info-content">
-            <select id="examGrade" name="examGrade" class="form-control" ng-model="$ctrl.selections.grade" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()"
-                ng-change="$ctrl.setGrade()" required ng-options="grade.name for grade in $ctrl.grades">
+            <select id="examGrade" name="examGrade" class="form-control" ng-model="$ctrl.selections.grade"
+                ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" ng-change="$ctrl.setGrade()" required
+                ng-options="grade.name for grade in $ctrl.grades">
                 <option value="" ng-selected="!$ctrl.exam.grade">{{'sitnet_choose' | translate}}
                 </option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">
-            <select id="creditType" name="creditType" class="form-control" ng-model="$ctrl.selections.type" ng-change="$ctrl.setCreditType()"
-                ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" required ng-options="type.name for type in $ctrl.creditTypes">
+            <select id="creditType" name="creditType" class="form-control" ng-model="$ctrl.selections.type"
+                ng-change="$ctrl.setCreditType()" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" required
+                ng-options="type.name for type in $ctrl.creditTypes">
             </select>
         </div>
         <div class="col-md-3 general-info-title">
-            <select id="answerLanguage" name="answerLanguage" class="form-control" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()"
-                ng-model="$ctrl.selections.language" ng-change="$ctrl.setLanguage()" required ng-options="lang.name for lang in $ctrl.languages">
+            <select id="answerLanguage" name="answerLanguage" class="form-control"
+                ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" ng-model="$ctrl.selections.language"
+                ng-change="$ctrl.setLanguage()" required ng-options="lang.name for lang in $ctrl.languages">
             </select>
         </div>
         <div class="col-md-3 general-info-title">
-            <input id="customCredit" type="number" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" required min="0" class="form-control"
-                maxlength="3" ng-model="$ctrl.exam.customCredit" />
+            <input id="customCredit" type="number" lang="en" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()"
+                required min="0" class="form-control" maxlength="3" ng-model="$ctrl.exam.customCredit" />
         </div>
 
     </form>

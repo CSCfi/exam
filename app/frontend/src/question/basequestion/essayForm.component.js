@@ -25,7 +25,8 @@ angular.module('app.question')
                 </div>
                 <div class="col-lg-5 col-md-7">
                     <div class="input-group" id="defaultExpectedWordCount">
-                            <input name="defaultExpectedWordCount" type="number" class="form-control" ng-model="$ctrl.question.defaultExpectedWordCount"
+                            <input name="defaultExpectedWordCount" type="number" lang="en" class="form-control" 
+                                ng-model="$ctrl.question.defaultExpectedWordCount"
                                 ui-change="$ctrl.estimateCharacters()" min="1" max="1000000">
                         <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
                             {{'sitnet_approximately' | translate}} {{$ctrl.estimateCharacters()}} {{'sitnet_characters' | translate}}

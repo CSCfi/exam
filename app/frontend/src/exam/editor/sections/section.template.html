@@ -106,8 +106,9 @@
                 </input>
                 <!-- lottery item count -->
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
-                    <input type="number" name="" min="1" value="1" max="{{$ctrl.section.sectionQuestions.length}}"
-                        ng-model="$ctrl.section.lotteryItemCount" ui-change="$ctrl.updateLotteryCount()" autofocus />
+                    <input type="number" lang="en" name="" min="1" value="1"
+                        max="{{$ctrl.section.sectionQuestions.length}}" ng-model="$ctrl.section.lotteryItemCount"
+                        ui-change="$ctrl.updateLotteryCount()" autofocus />
                 </span>
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
                     &nbsp;/&nbsp;{{$ctrl.section.sectionQuestions.length}}
