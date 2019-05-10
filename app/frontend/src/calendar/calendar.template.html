@@ -133,7 +133,7 @@
                 {{ 'sitnet_calendar_phase_2' | translate }}
                 <small>
                     <button class="btn btn-sm btn-success btn-link" ng-click="$ctrl.makeExternalReservation()"
-                        ng-if="$ctrl.isInteroperable && !$ctrl.isCollaborative && !$ctrl.isExternal">
+                        ng-if="$ctrl.isInteroperable && !$ctrl.isCollaborative && !$ctrl.isExternal && !$ctrl.hasOptionalSections()">
                         {{'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>
                     </button>
