@@ -172,8 +172,8 @@ export class ReservationController implements angular.IComponentController {
                     return { id: s.id, value: s, label: s.name };
                 });
             }).catch(resp => toast.error(resp.data));
-        this.SettingsResource.iop.get((data) => {
-            this.isInteroperable = data.isInteroperable;
+        this.SettingsResource.examVisit.get((data) => {
+            this.isInteroperable = data.isExamVisitSupported;
             this.initExamOptions();
         });
 

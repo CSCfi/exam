@@ -391,7 +391,8 @@ GET           /app/settings/durations                                  backend.c
 GET           /app/settings/gradescale                                 backend.controllers.SettingsController.isExamGradeScaleOverridable
 GET           /app/settings/enrolmentPermissionCheck                   backend.controllers.SettingsController.isEnrolmentPermissionCheckActive
 GET           /app/settings/environment                                backend.controllers.SettingsController.isProd
-GET           /app/settings/iop                                        backend.controllers.SettingsController.isInteroperable
+GET           /app/settings/iop/examVisit                              backend.controllers.SettingsController.isExamVisitSupported
+GET           /app/settings/iop/examCollaboration                      backend.controllers.SettingsController.isExamCollaborationSupported
 GET           /app/settings/anonymousReviewEnabled                     backend.controllers.SettingsController.isAnonymousReviewEnabled
 GET           /app/settings/maxfilesize                                backend.controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 backend.controllers.SettingsController.getAppVersion
