@@ -53,6 +53,19 @@ export class CollaborativeAssesmentService {
         }
     }
 
+    sendEmailMessage = (examId: number, examRef: string, message: string): ng.IPromise<void> => {
+        const deferred: ng.IDeferred<void> = this.$q.defer();
+        const url = `/integration/iop/reviews/${examId}/${examRef}/mail`;
+        this.$http.post(url, { msg: message }).then(() => {
+            toast.info(this.$translate.instant('sitnet_email_sent'));
+            deferred.resolve();
+        }).catch(err => {
+            toast.error(err.data);
+            deferred.reject();
+        });
+        return deferred.promise;
+    }
+
     saveFeedback(examId: number, examRef: string, participation: Participation): ng.IPromise<void> {
         const deferred: ng.IDeferred<void> = this.$q.defer();
         const payload = {
