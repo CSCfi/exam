@@ -66,6 +66,7 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
+import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
 import backend.util.config.ConfigUtil;
 
@@ -135,34 +136,48 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(student.getEmail(), senderEmail, ccEmails, subject, template);
     }
 
+    private void sendInspectionMessage(String link, String teacher, String exam, String msg, User recipient, User sender) {
+        Lang lang = getLang(recipient);
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("teacher_review_done", messaging.get(lang, "email.template.inspection.done", teacher));
+        stringValues.put("inspection_comment_title", messaging.get(lang, "email.template.inspection.comment"));
+        stringValues.put("inspection_link_text", messaging.get(lang, "email.template.link.to.review"));
+        stringValues.put("exam_info", exam);
+        stringValues.put("inspection_link", link);
+        stringValues.put("inspection_comment", msg);
+
+        //Replace template strings
+        String templatePath = getTemplatesRoot() + "inspectionReady.html";
+        String template = readFile(templatePath);
+        template = replaceAll(template, stringValues);
+
+        String subject = messaging.get(lang, "email.inspection.comment.subject");
+        //Send notification
+        emailSender.send(recipient.getEmail(), sender.getEmail(), subject, template);
+    }
+
+    /**
+     * This notification is sent to the creator of exam when assigned inspector has finished inspection
+     */
+    @Override
+    public void composeInspectionMessage(User inspector, User sender, CollaborativeExam ce, Exam exam, String msg) {
+        String teacherName = String.format("%s %s <%s>", sender.getFirstName(), sender.getLastName(), sender.getEmail());
+        String examInfo = exam.getName();
+        String linkToInspection = String.format("%s/assessments/collaborative/%d/%s", HOSTNAME, ce.getId(), ce.getRevision());
+        sendInspectionMessage(linkToInspection, teacherName, examInfo, msg, inspector, sender);
+    }
+
     /**
      * This notification is sent to the creator of exam when assigned inspector has finished inspection
      */
     @Override
     public void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) {
 
-        String templatePath = getTemplatesRoot() + "inspectionReady.html";
-        String template = readFile(templatePath);
-        Lang lang = getLang(inspector);
-
-        String subject = messaging.get(lang, "email.inspection.comment.subject");
         String teacherName = String.format("%s %s <%s>", sender.getFirstName(), sender.getLastName(), sender.getEmail());
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getName());
         String linkToInspection = String.format("%s/assessments/%d", HOSTNAME, exam.getId());
 
-        Map<String, String> stringValues = new HashMap<>();
-        stringValues.put("teacher_review_done", messaging.get(lang, "email.template.inspection.done", teacherName));
-        stringValues.put("inspection_comment_title", messaging.get(lang, "email.template.inspection.comment"));
-        stringValues.put("inspection_link_text", messaging.get(lang, "email.template.link.to.review"));
-        stringValues.put("exam_info", examInfo);
-        stringValues.put("inspection_link", linkToInspection);
-        stringValues.put("inspection_comment", msg);
-
-        //Replace template strings
-        template = replaceAll(template, stringValues);
-
-        //Send notification
-        emailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
+        sendInspectionMessage(linkToInspection, teacherName, examInfo, msg, inspector, sender);
     }
 
     private class ReviewStats implements Comparable<ReviewStats> {

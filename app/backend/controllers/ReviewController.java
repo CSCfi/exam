@@ -409,15 +409,13 @@ public class ReviewController extends BaseController {
         Set<User> recipients = inspections.stream()
                 .map(ExamInspection::getUser)
                 .collect(Collectors.toSet());
-
         // add owners to list, except those how are already in the list and self
         if (exam.getParent() != null) {
-            for (User owner : exam.getParent().getExamOwners()) {
-                if (owner.equals(loggedUser)) {
-                    continue;
-                }
-                recipients.add(owner);
-            }
+            recipients.addAll(
+                    exam.getParent().getExamOwners().stream()
+                            .filter(o -> !o.equals(loggedUser))
+                            .collect(Collectors.toSet())
+            );
         }
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User user : recipients) {

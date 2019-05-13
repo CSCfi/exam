@@ -340,6 +340,7 @@ PUT           /integration/iop/reviews/:id/:ref/info                   backend.c
 PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
 POST          /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
 GET           /integration/iop/reviews/:eid/participations/:aid        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getParticipationsForExamAndUser(eid: Long, aid: String, request: Request)
+POST          /integration/iop/reviews/:id/:ref/mail                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.sendInspectionMessage(id: Long, ref: String, request: Request)
 
 ############# Integration attachments #################
 GET           /integration/iop/attachment/:id                          backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExternalAttachment(id: String)
