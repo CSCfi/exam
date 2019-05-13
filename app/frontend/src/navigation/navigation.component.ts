@@ -66,9 +66,9 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         private getLinks = (checkInteroperability: boolean) => {
             if (checkInteroperability) {
-                this.$http.get('/app/settings/iop')
-                    .then((resp: angular.IHttpResponse<{ isInteroperable: boolean }>) => {
-                        this.isInteroperable = resp.data.isInteroperable;
+                this.$http.get('/app/settings/iop/examCollaboration')
+                    .then((resp: angular.IHttpResponse<{ isExamCollaborationSupported: boolean }>) => {
+                        this.isInteroperable = resp.data.isExamCollaborationSupported;
                         this.links = this.Navigation.getLinks(this.isInteroperable);
                     })
                     .catch(angular.noop);

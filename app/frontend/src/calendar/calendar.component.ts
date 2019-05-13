@@ -104,9 +104,9 @@ export const CalendarComponent: ng.IComponentOptions = {
                 }
             });
 
-            this.$http.get('/app/settings/iop')
-                .then((resp: ng.IHttpResponse<{ isInteroperable: boolean }>) => {
-                    this.isInteroperable = resp.data.isInteroperable;
+            this.$http.get('/app/settings/iop/examVisit')
+                .then((resp: ng.IHttpResponse<{ isExamVisitSupported: boolean }>) => {
+                    this.isInteroperable = resp.data.isExamVisitSupported;
                     // TODO: allow making external reservations to collaborative exams in the future
                     if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
                         this.$http.get('/integration/iop/organisations')

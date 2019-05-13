@@ -226,6 +226,9 @@ public class ExternalCalendarController extends CalendarController {
     @Authenticated
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
+        if (!ConfigUtil.isVisitingExaminationSupported()) {
+            return wrapAsPromise(forbidden("Feature not enabled in the installation"));
+        }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
         JsonNode node = request.body().asJson();

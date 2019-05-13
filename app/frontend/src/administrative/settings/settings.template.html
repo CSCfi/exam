@@ -56,8 +56,13 @@
             <ul>
                 <li>
                     <strong>{{'sitnet_interoperable' | translate }}:</strong>&nbsp;
-                    <span ng-if="$ctrl.config.isInteroperable">{{'DIALOGS_YES' | translate }}</span>
-                    <span ng-if="!$ctrl.config.isInteroperable">{{'DIALOGS_NO' | translate }}</span>
+                    <span ng-if="$ctrl.config.isExamVisitSupported">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.isExamVisitSupported">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_exam_collaboration_supported' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.isExamCollaborationSupported">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.isExamCollaborationSupported">{{'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{'sitnet_anonymous_review' | translate }}:</strong>&nbsp;

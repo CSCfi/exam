@@ -909,5 +909,6 @@
   "sitnet_exam_owner_missing": "Tentaattori puuttuu",
   "sitnet_exam_editor_materials": "Tenttimateriaalit",
   "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu",
-  "sitnet_write_exam_owner_email": "Tentaattorin sähköpostiosoite"
+  "sitnet_write_exam_owner_email": "Tentaattorin sähköpostiosoite",
+  "sitnet_exam_collaboration_supported": "Yhteistentit tuettu"
 }
