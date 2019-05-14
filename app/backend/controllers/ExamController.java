@@ -434,6 +434,10 @@ public class ExamController extends BaseController {
         DateTime now = DateTime.now().withTimeAtStartOfDay();
         copy.setExamActiveStartDate(now);
         copy.setExamActiveEndDate(now.plusDays(1));
+        // Force anonymous review if globally enabled
+        if (ConfigUtil.isAnonymousReviewEnabled()) {
+            copy.setAnonymous(true);
+        }
         copy.save();
         return ok(copy);
     }
