@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "5.0.6",
+  "version": "5.1.0-RC3",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -100,7 +100,7 @@
     "merge-json": "^0.1.0-b.3",
     "ng-annotate-loader": "^0.6.1",
     "ng-cache-loader": "^0.0.26",
-    "node-sass": "^4.9.3",
+    "node-sass": "^4.11.0",
     "pg": "^6",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^3.0.0",
@@ -112,7 +112,7 @@
     "sass-loader": "^7.1.0",
     "sql-fixtures": "^1",
     "style-loader": "^0.23.1",
-    "tslint": "^5.13.1",
+    "tslint": "^5.16.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-loader": "^3.5.4",
     "typescript": "^3.3.0",

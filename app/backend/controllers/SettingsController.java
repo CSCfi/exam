@@ -174,9 +174,16 @@ public class SettingsController  extends BaseController {
     }
 
     @ActionMethod
-    public Result isInteroperable() {
+    public Result isExamVisitSupported() {
         ObjectNode node = Json.newObject();
-        node.put("isInteroperable", ConfigUtil.isInteroperable());
+        node.put("isExamVisitSupported", ConfigUtil.isVisitingExaminationSupported());
+        return ok(Json.toJson(node));
+    }
+
+    @ActionMethod
+    public Result isExamCollaborationSupported() {
+        ObjectNode node = Json.newObject();
+        node.put("isExamCollaborationSupported", ConfigUtil.isCollaborationExaminationSupported());
         return ok(Json.toJson(node));
     }
 
@@ -218,7 +225,8 @@ public class SettingsController  extends BaseController {
                 getOrCreateSettings("review_deadline", null, "14");
         node.put("reviewDeadline", Integer.parseInt(reviewDeadline.getValue()));
 
-        node.put("isInteroperable", ConfigUtil.isInteroperable());
+        node.put("isExamVisitSupported", ConfigUtil.isVisitingExaminationSupported());
+        node.put("isExamCollaborationSupported", ConfigUtil.isCollaborationExaminationSupported());
         node.put("hasEnrolmentCheckIntegration", ConfigUtil.isEnrolmentPermissionCheckActive());
         node.put("isGradeScaleOverridable", ConfigUtil.isCourseGradeScaleOverridable());
         node.put("supportsMaturity", ConfigUtil.isMaturitySupported());

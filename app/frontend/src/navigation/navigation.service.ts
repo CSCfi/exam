@@ -40,8 +40,8 @@ export class NavigationService {
         return this.http.get<{ appVersion: string }>('/app/settings/appVersion');
     }
 
-    getInteroperability(): Observable<{ isInteroperable: boolean }> {
-        return this.http.get<{ isInteroperable: boolean }>('/app/settings/iop');
+    getInteroperability(): Observable<{ isExamCollaborationSupported: boolean }> {
+        return this.http.get<{ isExamCollaborationSupported: boolean }>('/app/settings/iop/examCollaboration');
     }
 
     getLinks(interoperable: boolean): Link[] {

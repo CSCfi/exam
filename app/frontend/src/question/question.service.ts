@@ -61,6 +61,7 @@ export class QuestionService {
 
     getQuestionDraft(): ReverseQuestion {
         return {
+            id: 0,
             question: '',
             type: '',
             examSectionQuestions: [],
@@ -120,8 +121,8 @@ export class QuestionService {
         return parseFloat(proportion.toFixed(2));
     }
 
-    scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
-        if (_.isNumber(sectionQuestion.forcedScore)) {
+    scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.options
@@ -131,8 +132,8 @@ export class QuestionService {
     }
 
     // For non-weighted mcq
-    scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
-        if (_.isNumber(sectionQuestion.forcedScore)) {
+    scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
         const answered = sectionQuestion.options.filter(o => o.answered);

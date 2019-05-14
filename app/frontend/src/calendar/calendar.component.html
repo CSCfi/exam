@@ -257,9 +257,9 @@
 
     </div>
 
-    <!-- Exam material selection (if any) -->
+    <!-- Optional exam section selection (if any) -->
     <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'"
-        *ngIf="examInfo && hasExamMaterials()">
+        *ngIf="examInfo && hasOptionalSections()">
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">{{ getSequenceNumber('material')}}. {{
                 'sitnet_exam_materials' | translate }}</span>

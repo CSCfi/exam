@@ -32,10 +32,10 @@ export class QuestionReviewService {
         !review ? false : review.answers.length === this.getAssessedAnswerCount(review)
 
     isAssessed = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && answer.essayAnswer.score >= 0
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.temporaryScore)
 
     isEvaluated = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && answer.essayAnswer.evaluatedScore >= 0
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.evaluatedScore)
 
     isLocked = (answer: ReviewQuestion, user: User) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];

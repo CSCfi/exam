@@ -1,16 +1,16 @@
-import { Question, ReverseExamSectionQuestion, Attachment } from '../exam/exam.model';
+import { EssayAnswer, Question, ReverseExamSectionQuestion, Attachment } from '../exam/exam.model';
 
-export interface EssayAnswer {
+export interface ScorableEssayAnswer extends EssayAnswer {
     id: number;
-    evaluatedScore: number;
-    textualScore: string;
-    score: number;
+    evaluatedScore: number; // score entered and saved
+    temporaryScore: number; // score entered but not saved
+    textualScore: string; // score as text for html-select mapping purposes in approved/rejected case
     answer: string;
     attachment: Attachment;
 }
 
 export interface ReviewQuestion extends ReverseExamSectionQuestion {
-    essayAnswer: EssayAnswer;
+    essayAnswer: ScorableEssayAnswer;
     selected: boolean;
     expanded: boolean;
 }

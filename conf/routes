@@ -339,6 +339,7 @@ PUT           /integration/iop/reviews/:id/:ref/info                   backend.c
 PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
 POST          /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
 GET           /integration/iop/reviews/:eid/participations/:aid        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getParticipationsForExamAndUser(eid: Long, aid: String, request: Request)
+POST          /integration/iop/reviews/:id/:ref/mail                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.sendInspectionMessage(id: Long, ref: String, request: Request)
 
 ############# Integration attachments #################
 GET           /integration/iop/attachment/:id                          backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExternalAttachment(id: String)
@@ -365,6 +366,7 @@ GET           /app/time/:hash                                          backend.c
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer], request: Request)
+GET           /app/calendar/enrolment/:id/reservation                  backend.controllers.CalendarController.getCurrentReservation(id: Long, request: Request)
 POST          /app/calendar/reservation                                backend.controllers.CalendarController.createReservation(request: Request)
 DELETE        /app/calendar/reservation/:id                            backend.controllers.CalendarController.removeReservation(id: Long, request: Request)
 GET           /app/availability/:roomId/:date                          backend.controllers.AvailabilityController.getAvailability(roomId: Long, date: String)
@@ -389,7 +391,8 @@ GET           /app/settings/durations                                  backend.c
 GET           /app/settings/gradescale                                 backend.controllers.SettingsController.isExamGradeScaleOverridable
 GET           /app/settings/enrolmentPermissionCheck                   backend.controllers.SettingsController.isEnrolmentPermissionCheckActive
 GET           /app/settings/environment                                backend.controllers.SettingsController.isProd
-GET           /app/settings/iop                                        backend.controllers.SettingsController.isInteroperable
+GET           /app/settings/iop/examVisit                              backend.controllers.SettingsController.isExamVisitSupported
+GET           /app/settings/iop/examCollaboration                      backend.controllers.SettingsController.isExamCollaborationSupported
 GET           /app/settings/anonymousReviewEnabled                     backend.controllers.SettingsController.isAnonymousReviewEnabled
 GET           /app/settings/maxfilesize                                backend.controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 backend.controllers.SettingsController.getAppVersion

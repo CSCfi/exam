@@ -362,17 +362,17 @@ public class ReviewController extends BaseController {
         User loggedUser = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class).fetch("user").fetch("exam").where()
                 .eq("exam.id", exam.getId()).ne("user.id", loggedUser.getId()).findList();
-
-        Set<User> recipients = inspections.stream().map(ExamInspection::getUser).collect(Collectors.toSet());
+        Set<User> recipients = inspections.stream()
+                .map(ExamInspection::getUser)
+                .collect(Collectors.toSet());
 
         // add owners to list, except those how are already in the list and self
         if (exam.getParent() != null) {
-            for (User owner : exam.getParent().getExamOwners()) {
-                if (owner.equals(loggedUser)) {
-                    continue;
-                }
-                recipients.add(owner);
-            }
+            recipients.addAll(
+                    exam.getParent().getExamOwners().stream()
+                            .filter(o -> !o.equals(loggedUser))
+                            .collect(Collectors.toSet())
+            );
         }
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User user : recipients) {
@@ -431,6 +431,7 @@ public class ReviewController extends BaseController {
             }
 
         }
+        comment.update();
         return ok(comment);
     }
 

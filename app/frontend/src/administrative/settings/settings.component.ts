@@ -20,6 +20,7 @@ export interface AppConfig {
     eula: string;
     examDurations: number[];
     expirationPeriod: string;
+    anonymousReviewEnabled: boolean;
     hasCourseSearchIntegration: boolean;
     hasEnrolmentCheckIntegration: boolean;
     isGradeScaleOverridable: boolean;

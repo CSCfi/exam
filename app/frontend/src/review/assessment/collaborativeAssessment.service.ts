@@ -59,6 +59,11 @@ export class CollaborativeAssesmentService {
         return of(participation);
     }
 
+    sendEmailMessage = (examId: number, examRef: string, message: string): Observable<void> => {
+        const url = `/integration/iop/reviews/${examId}/${examRef}/mail`;
+        return this.http.post<void>(url, { msg: message });
+    }
+
     saveFeedback(examId: number, examRef: string, participation: Participation): Observable<Participation> {
         const payload = {
             'rev': participation._rev,

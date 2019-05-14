@@ -81,7 +81,7 @@ export interface ReverseQuestion extends Question {
 }
 
 export interface Question {
-    id?: number;
+    id: number;
     question: string;
     creator?: User;
     type: string;
@@ -146,7 +146,6 @@ export interface ExamSectionQuestion {
     answerInstructions: string;
     evaluationCriteria: string;
     expectedWordCount?: number;
-    examInspections: { user: User, ready: boolean }[];
 }
 
 export interface ExamMaterial {
@@ -229,6 +228,7 @@ export interface ExamImpl {
     customCredit: number;
     additionalInfo: string;
     instruction: string;
+    examInspections: { user: User, ready: boolean }[];
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object

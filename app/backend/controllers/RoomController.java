@@ -62,7 +62,7 @@ import backend.util.datetime.DateTimeUtils;
 
 public class RoomController extends BaseController {
 
-    private static final boolean IOP_ACTIVATED = ConfigUtil.isInteroperable();
+    private static final boolean EXAM_VISIT_ACTIVATED = ConfigUtil.isVisitingExaminationSupported();
     private static final Logger.ALogger logger = Logger.of(RoomController.class);
 
     @Inject
@@ -72,7 +72,7 @@ public class RoomController extends BaseController {
     protected ActorSystem system;
 
     private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
-        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
             return externalApi.updateFacility(room)
                     .thenApplyAsync(x -> ok("updated"))
                     .exceptionally(throwable -> internalServerError(throwable.getMessage()));
@@ -83,7 +83,7 @@ public class RoomController extends BaseController {
 
     private void asyncUpdateRemote(ExamRoom room) {
         // Handle remote updates in dedicated threads
-        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 try {
                     externalApi.updateFacility(room);
@@ -377,7 +377,7 @@ public class RoomController extends BaseController {
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
 
-        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
             return externalApi.inactivateFacility(room.getId())
                     .thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {
@@ -395,7 +395,7 @@ public class RoomController extends BaseController {
         room.setState(ExamRoom.State.ACTIVE.toString());
         room.update();
 
-        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
             return externalApi.activateFacility(room.getId())
                     .thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {

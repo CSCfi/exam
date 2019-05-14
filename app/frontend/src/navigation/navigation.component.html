@@ -31,7 +31,8 @@
                             translate }}</span>
                     </a>
                     <ul class="submenu" [hidden]="!link.submenu.hidden">
-                        <li *ngFor="let subitem of link.submenu.items" [ngClass]="{'selectedsub': isActive(subitem)}">
+                        <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible"
+                            [ngClass]="{'selectedsub': isActive(subitem)}">
                             <a href="{{subitem.href}}">
                                 <div>
                                     <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="" />

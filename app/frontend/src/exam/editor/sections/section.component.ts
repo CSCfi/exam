@@ -26,7 +26,7 @@ export const SectionComponent: ng.IComponentOptions = {
     bindings: {
         section: '<',
         examId: '<',
-        collaborative: '<',
+        canBeOptional: '<',
         materials: '<',
         onDelete: '&',
         onReloadRequired: '&', // TODO: try to live without this callback?
@@ -36,6 +36,7 @@ export const SectionComponent: ng.IComponentOptions = {
 
         section: ExamSection;
         examId: number;
+        canBeOptional: boolean;
         onDelete: (_: { section: ExamSection }) => any;
         onReloadRequired: () => any;
         onMaterialsChanged: () => any;

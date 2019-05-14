@@ -54,7 +54,7 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
         <div ng-show="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'" class="sub-content-row col-md-9 ">
             <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                {{$ctrl.scoreMultipleChoiceAnswer()}}
+                {{$ctrl.scoreMultipleChoiceAnswer(true)}}
             </span>
             <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                 {{$ctrl.sectionQuestion.forcedScore}}
@@ -65,7 +65,7 @@
         <div ng-show="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
             class="sub-content-row col-md-9 ">
             <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                {{$ctrl.scoreWeightedMultipleChoiceAnswer()}}
+                {{$ctrl.scoreWeightedMultipleChoiceAnswer(true)}}
             </span>
             <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                 {{$ctrl.sectionQuestion.forcedScore}}

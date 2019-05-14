@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +35,8 @@ import backend.models.json.CollaborativeExam;
 import backend.util.json.JsonDeserializer;
 
 public class CollaborationController extends BaseController {
+
+    private static final long SAFE_NUMBER = (long) Math.pow(2, 53) - 1;
 
     @Inject
     WSClient wsClient;
@@ -100,7 +103,7 @@ public class CollaborationController extends BaseController {
     }
 
     long newId() {
-        return Math.abs(random.nextLong());
+        return ThreadLocalRandom.current().nextLong(SAFE_NUMBER);
     }
 
     void calculateScores(JsonNode root) {

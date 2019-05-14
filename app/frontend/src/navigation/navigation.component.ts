@@ -91,7 +91,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         if (checkInteroperability) {
             this.Navigation.getInteroperability().subscribe(
                 resp => {
-                    this.isInteroperable = resp.isInteroperable;
+                    this.isInteroperable = resp.isExamCollaborationSupported;
                     this.links = this.Navigation.getLinks(this.isInteroperable);
                 }, e => toastr.error(e));
         } else {

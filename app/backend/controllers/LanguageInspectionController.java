@@ -131,42 +131,49 @@ public class LanguageInspectionController extends BaseController {
         return ok();
     }
 
+    private Optional<Result> checkInspection(LanguageInspection inspection) {
+        if (inspection == null) {
+            return Optional.of(notFound("Inspection not found"));
+        }
+        if (inspection.getStartedAt() == null) {
+            return Optional.of(forbidden("Inspection not assigned"));
+        }
+        if (inspection.getFinishedAt() != null) {
+            return Optional.of(forbidden("Inspection already finalized"));
+        }
+        return Optional.empty();
+    }
+
     @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setApproval(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
-        if (inspection == null) {
-            return notFound("Inspection not found");
-        }
-        if (inspection.getStartedAt() == null) {
-            return forbidden("Inspection not assigned");
-        }
-        if (inspection.getFinishedAt() != null) {
-            return forbidden("Inspection already finalized");
-        }
-        if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
-            return forbidden("No statement given");
-        }
-        inspection.setFinishedAt(new Date());
-        inspection.setApproved(isApproved);
-
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setModifier(inspection, user);
-        inspection.update();
-
-        Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User recipient : recipients) {
-                emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
-                logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+        return checkInspection(inspection).orElseGet(() -> {
+            if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+                return forbidden("No statement given");
             }
-        }, actor.dispatcher());
+            inspection.setFinishedAt(new Date());
+            inspection.setApproved(isApproved);
 
-        return ok();
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            AppUtil.setModifier(inspection, user);
+            inspection.update();
+
+            Set<User> recipients = inspection.getExam().getParent().getExamOwners();
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                for (User recipient : recipients) {
+                    emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
+                    logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                }
+            }, actor.dispatcher());
+
+            return ok();
+        });
     }
 
+    @Authenticated
     @With(CommentSanitizer.class)
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setStatement(Long id, Http.Request request) {
@@ -175,30 +182,23 @@ public class LanguageInspectionController extends BaseController {
             return badRequest();
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
-        if (inspection == null) {
-            return notFound("Inspection not found");
-        }
-        if (inspection.getStartedAt() == null) {
-            return forbidden("Inspection not assigned");
-        }
-        if (inspection.getFinishedAt() != null) {
-            return forbidden("Inspection already finalized");
-        }
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Comment statement = inspection.getStatement();
-        if (statement == null) {
-            statement = new Comment();
-            AppUtil.setCreator(statement, user);
-            statement.save();
-            inspection.setStatement(statement);
+        return checkInspection(inspection).orElseGet(() -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            Comment statement = inspection.getStatement();
+            if (statement == null) {
+                statement = new Comment();
+                AppUtil.setCreator(statement, user);
+                statement.save();
+                inspection.setStatement(statement);
+                inspection.update();
+            }
+            statement.setComment(text.get());
+            AppUtil.setModifier(statement, user);
+            statement.update();
+            AppUtil.setModifier(inspection, user);
             inspection.update();
-        }
-        statement.setComment(text.get());
-        AppUtil.setModifier(statement, user);
-        statement.update();
-        AppUtil.setModifier(inspection, user);
-        inspection.update();
-        return ok(inspection);
+            return ok(inspection);
+        });
     }
 
 }

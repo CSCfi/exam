@@ -70,9 +70,10 @@
         </div>
 
         <!-- Section material resources-->
-        <exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials"
-            on-changes="$ctrl.materialsChanged()"></exam-material-selector>
-        <div class="row col-md-12 margin-20">
+        <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
+        <!-- exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials"
+            on-changes="$ctrl.materialsChanged()"></exam-material-selector -->
+        <div class="row col-md-12 margin-20" ng-if="$ctrl.canBeOptional">
             <div class="col-md-3 exam-basic-title">{{'sitnet_optional_section' | translate}}
                 <sup>
                     <img popover-placement="right" popover-trigger="'mouseenter'"
@@ -105,8 +106,9 @@
                 </input>
                 <!-- lottery item count -->
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
-                    <input type="number" name="" min="1" value="1" max="{{$ctrl.section.sectionQuestions.length}}"
-                        ng-model="$ctrl.section.lotteryItemCount" ui-change="$ctrl.updateLotteryCount()" autofocus />
+                    <input type="number" lang="en" name="" min="1" value="1"
+                        max="{{$ctrl.section.sectionQuestions.length}}" ng-model="$ctrl.section.lotteryItemCount"
+                        ui-change="$ctrl.updateLotteryCount()" autofocus />
                 </span>
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
                     &nbsp;/&nbsp;{{$ctrl.section.sectionQuestions.length}}
@@ -139,7 +141,7 @@
                     class="sectionQuestion"
                     ng-repeat="sectionQuestion in $ctrl.section.sectionQuestions | orderBy:sequenceNumber">
                     <section-question section-question="sectionQuestion" lottery-on="$ctrl.section.lotteryOn"
-                        on-delete="$ctrl.removeQuestion(sectionQuestion)">
+                        on-delete="$ctrl.removeQuestion(sectionQuestion)" on-update="$ctrl.onReloadRequired()">
                     </section-question>
                 </li>
             </ul>

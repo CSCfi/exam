@@ -29,7 +29,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
     bindings: {
         sectionQuestion: '<',
         lotteryOn: '<',
-        onDelete: '&'
+        onDelete: '&',
+        onUpdate: '&'
     },
     require: {
         parentCtrl: '^^section'
@@ -39,6 +40,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         sectionQuestion: ExamSectionQuestion;
         lotteryOn: boolean;
         onDelete: (_: { sectionQuestion: ExamSectionQuestion }) => any;
+        onUpdate: () => any;
         parentCtrl: { collaborative: boolean, section: ExamSection, examId: number };
 
         constructor(
@@ -144,7 +146,12 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                                 });
                         }
                     })
-                    .catch(resp => toast.error(resp.data));
+                    .catch(resp => toast.error(resp.data))
+                    .finally(() => {
+                        if (this.parentCtrl.collaborative) {
+                            this.onUpdate();
+                        }
+                    });
             });
         }
 

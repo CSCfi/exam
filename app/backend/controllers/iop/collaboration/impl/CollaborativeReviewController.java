@@ -22,10 +22,14 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,8 +50,11 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
+import backend.impl.EmailComposer;
 import backend.models.Exam;
+import backend.models.ExamInspection;
 import backend.models.Grade;
 import backend.models.Role;
 import backend.models.User;
@@ -67,6 +74,12 @@ public class CollaborativeReviewController extends CollaborationController {
 
     @Inject
     WSClient wsClient;
+
+    @Inject
+    ActorSystem actor;
+
+    @Inject
+    EmailComposer emailComposer;
 
     @Inject
     CsvBuilder csvBuilder;
@@ -277,7 +290,6 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> updateAnswerScore(Long id, String ref, Long qid, Http.Request request) {
         return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
                     JsonNode body = request.body().asJson();
-                    String input = body.get("evaluatedScore").asText();
                     JsonNode scoreNode = body.path("evaluatedScore");
                     Double score = scoreNode.isNumber() ? scoreNode.asDouble() : null;
                     String revision = body.get("rev").asText();
@@ -293,6 +305,45 @@ public class CollaborativeReviewController extends CollaborationController {
                     };
                     return wsRequest.get().thenComposeAsync(onSuccess);
                 }).getOrElseGet(Function.identity())
+        ).get();
+    }
+
+    @Authenticated
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public CompletionStage<Result> sendInspectionMessage(Long id, String ref, Http.Request request) {
+        JsonNode body = request.body().asJson();
+        if (!body.has("msg")) {
+            return wrapAsPromise(badRequest("no message received"));
+        }
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        String message = body.path("msg").asText();
+        return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
+            WSRequest wsRequest = wsClient.url(url.toString());
+            Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != OK) {
+                    return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                }
+                JsonNode examNode = root.get("exam");
+                Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+                if (isUnauthorizedToAssess(exam, user)) {
+                    return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+                }
+                Set<User> recipients = exam.getExamInspections().stream()
+                        .map(ExamInspection::getUser)
+                        .collect(Collectors.toSet());
+                recipients.addAll(exam.getExamOwners());
+                actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                    for (User u : recipients.stream()
+                            .filter(u -> !u.getEmail().equalsIgnoreCase(user.getEmail())).collect(Collectors.toSet())
+                    ) {
+                        emailComposer.composeInspectionMessage(u, user, ce, exam, message);
+                    }
+                }, actor.dispatcher());
+                return wrapAsPromise(ok());
+            };
+            return wsRequest.get().thenComposeAsync(onSuccess);
+            }).getOrElseGet(Function.identity())
         ).get();
     }
 

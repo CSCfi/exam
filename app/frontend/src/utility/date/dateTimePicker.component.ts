@@ -51,9 +51,9 @@ export class DateTimePickerComponent {
     }
 
     onDateUpdate($event: { date: Date }) {
-        this.date.setDate($event.date.getDate());
-        this.date.setMonth($event.date.getMonth());
-        this.date.setFullYear($event.date.getFullYear());
+        this.date.setFullYear(this.date.getFullYear());
+        this.date.setMonth(this.date.getMonth());
+        this.date.setDate(this.date.getDate());
         this.date.setHours(this.time.hour);
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);

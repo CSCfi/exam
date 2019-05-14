@@ -90,15 +90,23 @@ angular.module('app.review')
                         toast.error($translate.instant('sitnet_email_empty'));
                         return;
                     }
-                    ExamRes.email.inspection({
-                        eid: vm.exam.id,
-                        msg: vm.message.text
-                    }, function () {
-                        toast.info($translate.instant('sitnet_email_sent'));
-                        delete vm.message.text;
-                    }, function (error) {
-                        toast.error(error.data);
-                    });
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.sendEmailMessage($routeParams.id, $routeParams.ref, vm.message.text)
+                            .subscribe(() => {
+                                delete vm.message.text;
+                                toast.info(this.$translate.instant('sitnet_email_sent'));
+                            }, err => toast.error(err.data));
+                    } else {
+                        ExamRes.email.inspection({
+                            eid: vm.exam.id,
+                            msg: vm.message.text
+                        }, function () {
+                            toast.info($translate.instant('sitnet_email_sent'));
+                            delete vm.message.text;
+                        }, function (error) {
+                            toast.error(error.data);
+                        });
+                    }
                 };
 
                 vm.saveAssessmentInfo = function () {

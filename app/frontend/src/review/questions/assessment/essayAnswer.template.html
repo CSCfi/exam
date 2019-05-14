@@ -87,8 +87,8 @@
                 <div class="detail-row">
                     <div ng-if="$ctrl.answer.evaluationType === 'Points'">
                         <form name="essayPoints">
-                            <input id="score" name="score" type="number" class="form-control"
-                                ng-model="$ctrl.answer.essayAnswer.textualScore" size="5" onclick="this.focus();"
+                            <input id="score" name="score" type="number" lang="en" class="form-control"
+                                ng-model="$ctrl.answer.essayAnswer.temporaryScore" size="5" onclick="this.focus();"
                                 ng-disabled="!$ctrl.editable" min="0" max="{{$ctrl.answer.maxScore}}" />
                             <small ng-show="essayPoints.$invalid" class="alert-danger">
                                 <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate

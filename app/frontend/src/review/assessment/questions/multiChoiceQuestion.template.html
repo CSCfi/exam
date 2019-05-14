@@ -14,7 +14,7 @@
                     <!-- grade -->
                     <div class="review-points" ng-if="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'">
                         <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                            {{$ctrl.scoreMultipleChoiceAnswer()}}
+                            {{$ctrl.scoreMultipleChoiceAnswer(true)}}
                         </span>
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
@@ -25,7 +25,7 @@
                     <div class="review-points"
                         ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
                         <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
-                            {{$ctrl.scoreWeightedMultipleChoiceAnswer()}}
+                            {{$ctrl.scoreWeightedMultipleChoiceAnswer(true)}}
                         </span>
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
@@ -65,9 +65,10 @@
                             {{ $ctrl.sectionQuestion.maxScore || $ctrl.calculateMaxPoints() }}]</small></span>
                 </div>
                 <form name="forcedPoints">
-                    <input id="score" name="score" type="number" class="form-control"
-                        ng-model="$ctrl.sectionQuestion.forcedScore" ui-blur="$ctrl.insertForcedScore()"
-                        onclick="this.focus()" ng-disabled="!$ctrl.isScorable" min="0"
+                    <input id="score" name="score" type="number" lang="en" class="form-control"
+                        ng-model="$ctrl.sectionQuestion.forcedScore"
+                        ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()" onclick="this.focus()"
+                        ng-disabled="!$ctrl.isScorable" min="0"
                         max="{{ $ctrl.sectionQuestion.maxScore || $ctrl.calculateMaxPoints()}}" />
                     <small ng-show="forcedPoints.$invalid" class="alert-danger">
                         <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate

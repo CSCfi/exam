@@ -47,7 +47,8 @@ angular.module('app.question')
                         <!-- buttons -->
                         <div class="mart20">
                             <div class="question-cancel">
-                                <button ng-disabled="!questionForm.$valid || !$ctrl.question.type"
+                                <button ng-disabled=
+                                    "!questionForm.$valid || !$ctrl.question.type || $ctrl.hasNoCorrectOption()"
                                     ng-click="$ctrl.saveQuestion()"
                                     type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
                                 </button>
@@ -82,6 +83,7 @@ angular.module('app.question')
                     vm.currentOwners = [];
                     if (vm.newQuestion) {
                         vm.question = Question.getQuestionDraft();
+                        delete vm.question.id; // TODO: TS/JS hack
                         vm.currentOwners = angular.copy(vm.question.questionOwners);
                     } else if (vm.questionDraft && vm.collaborative) {
                         vm.question = vm.questionDraft;
@@ -101,6 +103,10 @@ angular.module('app.question')
                         );
                     }
                 };
+
+                vm.hasNoCorrectOption = () =>
+                    vm.question.type === 'MultipleChoiceQuestion' &&
+                    vm.question.options.every(o => !o.correctOption);
 
                 vm.saveQuestion = function () {
                     vm.question.questionOwners = vm.currentOwners;

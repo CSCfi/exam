@@ -26,6 +26,7 @@ import java.util.function.Function;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Model;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
@@ -227,8 +228,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
-                Question question = JsonDeserializer.deserialize(Question.class,
-                        request.body().asJson().get("question"));
+                JsonNode questionBody = request.body().asJson().get("question");
+                Question question = JsonDeserializer.deserialize(Question.class, questionBody);
+                Optional<Result> error = question.getValidationResult(questionBody);
+                if (error.isPresent()) {
+                    return error;
+                }
                 ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
                 question.getOptions().forEach(o -> o.setId(newId()));
@@ -347,11 +352,17 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                     .findFirst();
                             if (question.isPresent()) {
                                 ExamSectionQuestion esq = question.get();
-                                Question questionBody = JsonDeserializer.deserialize(Question.class,
-                                        request.body().asJson().get("question"));
-                                ExamSectionQuestion esqBody = new ExamSectionQuestion();
+                                JsonNode payload = request.body().asJson().get("question");
+                                Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
+                                Optional<Result> error = questionBody.getValidationResult(payload);
+                                if (error.isPresent()) {
+                                    return wrapAsPromise(error.get());
+                                }
+                                questionBody.getOptions().stream()
+                                        .filter(o -> o.getId() == null)
+                                        .forEach(o -> o.setId(newId()));
                                 updateExamQuestion(esq, questionBody);
-                                return uploadExam(ce, exam, false, esqBody, user);
+                                return uploadExam(ce, exam, false, null, user);
                             } else {
                                 return wrapAsPromise(notFound("sitnet_error_not_found"));
 

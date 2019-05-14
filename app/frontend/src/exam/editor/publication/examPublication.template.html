@@ -139,7 +139,7 @@
         </collaborative-exam-owner-selector>
 
         <!-- Link to enrolment -->
-        <div ng-if="!$ctrl.collaborative">
+        <div ng-if="$ctrl.exam.executionType.type === 'PUBLIC' && !$ctrl.collaborative">
             <div class="col-md-12 mart40">
                 <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
                     <sup>
@@ -152,12 +152,8 @@
             </div>
 
             <div class="col-md-12 mart20">
-                <a ng-if="$ctrl.exam.executionType.type === 'PUBLIC'"
-                    href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
-                    {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a>
-                <a ng-if="$ctrl.exam.executionType.type !== 'PUBLIC'"
-                    href="{{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}">
-                    {{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}</a>
+                <a href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
+                    {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}
                 </a>
             </div>
         </div>
@@ -186,7 +182,7 @@
                 <span ng-if="!$ctrl.isDraftCollaborativeExam()">{{'sitnet_save_and_publish' | translate}}</span>
                 <span ng-if="$ctrl.isDraftCollaborativeExam()">{{'sitnet_save_and_pre_publish' | translate}}</span></a>
         </div>
-        <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC'"
+        <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC' && !$ctrl.collaborative"
             class="review-attachment-button exam-questions-buttons marl10">
             <a class="pointer warning" ng-click="$ctrl.unpublishExam()">
                 {{'sitnet_unpublish_exam' | translate}}

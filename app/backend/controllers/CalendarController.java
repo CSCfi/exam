@@ -131,6 +131,25 @@ public class CalendarController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
+    public Result getCurrentReservation(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        Optional<ExamEnrolment> enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.optionalSections")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", id)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .gt("reservation.startAt", now.toDate())
+                .isNull("reservation.externalReservation")
+                .findOneOrEmpty();
+        return enrolment.map(e -> ok(e.getReservation())).orElse(ok());
+    }
+
+
+    @Authenticated
     @With(CalendarReservationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public CompletionStage<Result> createReservation(Http.Request request) {

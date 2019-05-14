@@ -217,10 +217,10 @@ export class ExamService {
             let score = 0;
             switch (sq.question.type) {
                 case 'MultipleChoiceQuestion':
-                    score = this.Question.scoreMultipleChoiceAnswer(sq);
+                    score = this.Question.scoreMultipleChoiceAnswer(sq, false);
                     break;
                 case 'WeightedMultipleChoiceQuestion':
-                    score = this.Question.scoreWeightedMultipleChoiceAnswer(sq);
+                    score = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
                     break;
                 case 'ClozeTestQuestion':
                     score = this.Question.scoreClozeTestAnswer(sq);

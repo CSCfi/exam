@@ -53,6 +53,11 @@ interface FilteredRoom extends Room {
     filtered: boolean;
 }
 
+interface ReservationInfo {
+    id: number;
+    optionalSections: ExamSection[];
+}
+
 @Component({
     selector: 'calendar',
     template: require('./calendar.component.html')
@@ -125,17 +130,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 forkJoin(
                     this.http.get<Accessibility[]>('/app/accessibility'),
                     this.http.get<Room[]>('/app/rooms'),
-                    this.http.get<{ isInteroperable: boolean }>('/app/settings/iop')
+                    this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop'),
+                    this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.RouteParams.id}/reservation`)
                 ).subscribe(
                     resp => {
                         this.accessibilities = resp[0];
                         this.rooms = resp[1].map(r => Object.assign(r, { filtered: false }));
-                        this.isInteroperable = resp[2].isInteroperable;
+                        this.isInteroperable = resp[2].isExamVisitSupported;
                         // TODO: allow making external reservations to collaborative exams in the future
                         if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
                             this.http.get<any[]>('/integration/iop/organisations').subscribe(resp =>
                                 this.organisations = resp.filter(org => !org.homeOrg && org.facilities.length > 0)
                             );
+                        }
+                        if (resp[3].optionalSections) {
+                            this.examInfo.examSections
+                                .filter(es => es.optional)
+                                .forEach(es =>
+                                    es.selected =
+                                    resp[3].optionalSections
+                                        .map(es => es.id)
+                                        .indexOf(es.id) > -1
+                                );
                         }
                     }
                 );
@@ -143,8 +159,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         ).subscribe();
     }
 
-    hasExamMaterials(): boolean {
-        return this.examInfo.examSections.some(es => es.examMaterials.length > 0);
+    hasOptionalSections(): boolean {
+        return this.examInfo.examSections.some(es => es.optional);
     }
 
     getSequenceNumber(area: string): number {
@@ -158,9 +174,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
             case 'material':
                 return this.isExternal ? 4 : 3;
             case 'confirmation':
-                if (this.isExternal && this.hasExamMaterials()) {
+                if (this.isExternal && this.hasOptionalSections()) {
                     return 5;
-                } else if (this.isExternal || this.hasExamMaterials()) {
+                } else if (this.isExternal || this.hasOptionalSections()) {
                     return 4;
                 } else {
                     return 3;

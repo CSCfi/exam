@@ -19,9 +19,9 @@
 
             <div [ngClass]="exam.examSections.length > 1 ? 'section-handle' : ''"
                 *ngFor="let section of exam.examSections">
-                <section [section]="section" [collaborative]="collaborative" [examId]="exam.id"
-                    (on-delete)="removeSection(section)" (on-reload-required)="onReloadRequired()"
-                    (on-materials-changed)="loadMaterials()">
+                <section [section]="section" [examId]="exam.id"
+                    [can-be-optional]="exam.executionType.type !== 'MATURITY'" (on-delete)="removeSection(section)"
+                    (on-reload-required)="onReloadRequired()" (on-materials-changed)="loadMaterials()">
                 </section>
 
             </div>
