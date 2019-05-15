@@ -23,6 +23,7 @@ export class SectionComponent extends UpgradeComponent {
     @Input() section: ExamSection;
     @Input() collaborative: boolean;
     @Input() examId: number;
+    @Input() canBeOptional: boolean;
     @Output() onDelete: EventEmitter<ExamSection>;
     @Output() onReloadRequired: EventEmitter<void>;
 

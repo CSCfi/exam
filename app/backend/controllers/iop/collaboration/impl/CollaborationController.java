@@ -88,8 +88,8 @@ public class CollaborationController extends BaseController {
         return examLoader.uploadExam(ce, content, isPrePublication, resultModel, sender);
     }
 
-    boolean isAuthorizedToView(Exam exam, User user, Role.Name loginRole) {
-        return loginRole == Role.Name.ADMIN || (
+    boolean isAuthorizedToView(Exam exam, User user) {
+        return user.getLoginRole() == Role.Name.ADMIN || (
                 exam.getExamOwners().stream().anyMatch(u ->
                         u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn()))
                         && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)

@@ -26,11 +26,11 @@ export class DraggableModalDirective implements OnInit {
     constructor(private el: ElementRef, private zone: NgZone) { }
 
     ngOnInit() {
-        this.zone.runOutsideAngular(() => {
+        this.zone.runOutsideAngular(() =>
             $(this.el.nativeElement).draggable({
                 revert: false,
                 drag: (_, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto')
-            });
-        });
+            })
+        );
     }
 }

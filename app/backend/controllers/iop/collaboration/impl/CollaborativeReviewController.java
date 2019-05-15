@@ -69,7 +69,6 @@ import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 import backend.util.json.JsonDeserializer;
 
-
 public class CollaborativeReviewController extends CollaborationController {
 
     @Inject
@@ -496,9 +495,7 @@ public class CollaborativeReviewController extends CollaborationController {
                     }).getOrElseGet(Function.identity());
 
             return wsRequest.get().thenComposeAsync(onSuccess);
-        }).
-
-                getOrElseGet(Function.identity());
+        }).getOrElseGet(Function.identity());
 
     }
 
