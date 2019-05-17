@@ -16,7 +16,7 @@
  */
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { ReservationService } from './reservationService';
+import { ReservationService } from './reservation.service';
 
 export const ReservationDetailComponent: angular.IComponentOptions = {
     template: require('./reservationDetails.template.html'),

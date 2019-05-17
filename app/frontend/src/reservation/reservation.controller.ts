@@ -18,7 +18,7 @@ import * as _ from 'lodash';
 import * as toast from 'toastr';
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
-import { ReservationService } from './reservationService';
+import { ReservationService } from './reservation.service';
 
 interface Selection {
     roomId?: number;

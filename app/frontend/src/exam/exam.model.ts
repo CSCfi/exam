@@ -173,6 +173,7 @@ export interface CollaborativeExam {
     id: number;
     name: string;
     examLanguages: ExamLanguage[];
+    state: string;
 }
 
 export interface Participation {

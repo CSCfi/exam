@@ -1,10 +1,13 @@
-import { Exam } from '../exam/exam.model';
+import { Exam, CollaborativeExam } from '../exam/exam.model';
+import { Reservation } from '../reservation/reservation.model';
 
 export interface ExamEnrolment {
     id: number;
     information: string;
-    reservation: any;
+    reservation?: Reservation;
     exam: Exam;
+    collaborativeExam: CollaborativeExam;
+    reservationCanceled: boolean;
 }
 
 export interface EnrolmentInfo extends Exam {

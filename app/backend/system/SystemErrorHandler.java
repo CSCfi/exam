@@ -53,7 +53,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
     @Override
     public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
         return CompletableFuture.supplyAsync(() -> {
-            logger.error("onServerError: URL: {}", request.uri(), exception);
+            logger.error(String.format("onServerError: URL: %s", request.uri()), exception);
             Throwable cause = exception.getCause();
             String errorMessage = cause == null ? exception.getMessage() : cause.getMessage();
             if (cause != null) {

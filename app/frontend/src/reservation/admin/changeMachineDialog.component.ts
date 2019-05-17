@@ -15,69 +15,54 @@
  *
  */
 
-import * as angular from 'angular';
-import { IHttpResponse } from 'angular';
 import * as toast from 'toastr';
 import { Option } from '../../utility/select/dropDownSelect.component';
+import { Component, Input, OnInit } from '@angular/core';
+import { Reservation, ExamMachine } from '../reservation.model';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import { HttpClient } from '@angular/common/http';
 
-export const ChangeMachineDialogComponent: angular.IComponentOptions = {
-    template: require('./changeMachineDialog.template.html'),
-    bindings: {
-        resolve: '<',
-        close: '&',
-        dismiss: '&'
-    },
-    controller: class ChangeMachineDialogController implements angular.IComponentController {
+@Component({
+    selector: 'change-machine-dialog',
+    template: require('./changeMachineDialog.component.html')
+})
+export class ChangeMachineDialogComponent implements OnInit {
 
-        resolve: { reservation: { id: number } };
-        close: (_: any) => void;
-        dismiss: () => void;
+    @Input() reservation: Reservation;
+    selection: ExamMachine;
+    availableMachineOptions: Option[];
 
-        selection: { id: number };
-        availableMachineOptions: Option[];
-        reservation: { id: number };
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private translate: TranslateService
+    ) { }
 
-        constructor(
-            private $http: angular.IHttpService,
-            private $translate: angular.translate.ITranslateService
-        ) {
-            'ngInject';
-        }
-
-        $onInit() {
-            this.reservation = this.resolve.reservation;
-            this.$http.get(`/app/reservations/${this.reservation.id}/machines`).then((resp: IHttpResponse<any[]>) => {
-                this.availableMachineOptions = resp.data.map(o => {
-                    return {
-                        id: o.id,
-                        label: o.name,
-                        value: o
-                    };
-                });
-            }).catch(angular.noop);
-        }
-
-        machineChanged = (machine) => this.selection = machine;
-
-
-        ok() {
-            this.$http.put(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
-                .then((resp: angular.IHttpResponse<any>) => {
-                    toast.info(this.$translate.instant('sitnet_updated'));
-                    this.close(
-                        {
-                            $value: {
-                                msg: 'Accepted',
-                                machine: resp.data
-                            }
-                        });
-                }).catch(resp => toast.error(resp.data));
-        }
-
-        cancel() {
-            this.close({ $value: 'Dismissed' });
-        }
-
+    ngOnInit() {
+        this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/machines`).subscribe(resp =>
+            this.availableMachineOptions = resp.map(o => {
+                return {
+                    id: o.id,
+                    label: o.name,
+                    value: o
+                };
+            })
+        );
     }
 
-};
+    machineChanged = (machine: ExamMachine) => this.selection = machine;
+
+    ok = () =>
+        this.http.put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
+            .subscribe(
+                resp => {
+                    toast.info(this.translate.instant('sitnet_updated'));
+                    this.activeModal.close(resp);
+                },
+                err => toast.error(err.data))
+
+
+    cancel = () => this.activeModal.dismiss();
+
+}

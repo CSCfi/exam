@@ -211,7 +211,7 @@ GET           /app/reservations/teachers                               backend.c
 GET           /app/reservations/examrooms                              backend.controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                  backend.controllers.ReservationController.getExams(request: Request)
 GET           /app/reservations                                        backend.controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], externalRef: java.util.Optional[String], request: Request)
-DELETE        /app/reservations/:id                                    backend.controllers.ReservationController.removeReservation(id: Long, request: Request)
+DELETE        /app/reservations/:id                                    backend.controllers.ReservationController.removeReservation(id: Long, msg: java.util.Optional[String])
 PUT           /app/reservations/:id                                    backend.controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                           backend.controllers.ReservationController.findAvailableMachines(id: Long)
 PUT           /app/reservations/:id/machine                            backend.controllers.ReservationController.updateMachine(id: Long, request: Request)

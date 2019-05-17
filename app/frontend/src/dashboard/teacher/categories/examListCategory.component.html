@@ -1,0 +1,118 @@
+<div>
+    <div class="form-group input-group search tab-search">
+        <input [(ngModel)]="filterText" type="text" class="form-control search"
+            placeholder="{{'sitnet_exam_search_description' | translate }}" (ngModelChange)="search($event)">
+        <div class="input-group-addon search">
+            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+        </div>
+    </div>
+    <div>
+        <div>
+            <table class="table table-striped exams-table">
+                <thead>
+                    <tr>
+                        <th class="with-top">
+                            <table-sort [reverse]="sorting.reverse" [predicate]="sorting.predicate" by="name"
+                                text="sitnet_exam_name" (click)="setPredicate('name')"></table-sort>
+                        </th>
+                        <th class="with-top">
+                            <table-sort by="course.code" text="sitnet_course_code" [predicate]="sorting.predicate"
+                                [reverse]="sorting.reverse" (click)="setPredicate('course.code')"></table-sort>
+                        </th>
+                        <th class="with-top">
+                            <table-sort by="executionType.type" text="sitnet_exam_type" [predicate]="sorting.predicate"
+                                [reverse]="sorting.reverse" (click)="setPredicate('executionType.type')"></table-sort>
+                        </th>
+                        <th class="with-top">
+                            <table-sort by="examActiveEndDate" text="sitnet_exam_validity"
+                                [predicate]="sorting.predicate" [reverse]="sorting.reverse"
+                                (click)="setPredicate('examActiveEndDate')"></table-sort>
+                        </th>
+
+                        <th *ngFor="let column of extraColumns" class="with-top with-space">
+                            <table-sort by="{{column.property}}" text="{{column.text}}" [predicate]="sorting.predicate"
+                                [reverse]="sorting.reverse" (on-sort)="setPredicate($event)"></table-sort>
+                        </th>
+                        <th class="with-top">
+                            <table-sort by="ownerAggregate" text="sitnet_teachers" [predicate]="sorting.predicate"
+                                [reverse]="sorting.reverse" (click)="setPredicate('ownerAggregate')"></table-sort>
+                        </th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'">
+
+                        <td *ngIf="exam.name" class="table-column-examname">
+                            <a *ngIf="isOwner(exam)" href="/exams/{{exam.id}}/1">{{ exam.name }}</a>
+                            <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
+                        </td>
+                        <td *ngIf="!exam.name" class="table-column-examname">
+                            <a class="text-danger" *ngIf="isOwner(exam)" href="/exams/{{exam.id}}/1">{{ 'sitnet_no_name'
+                                | translate }}</a>
+                            <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
+                        </td>
+                        <td>
+                            <span class="exam-code">{{ exam.course?.code }}</span>
+                        </td>
+                        <td>
+                            <span class="exam-type">{{ getExecutionTypeTranslation(exam) | translate }}</span>
+                        </td>
+                        <td class="table-column-open-until">
+                            <span *ngIf="exam.examActiveStartDate && exam.examActiveEndDate">
+                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} -
+                                {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                            </span>
+                        </td>
+
+                        <td *ngFor="let column of extraColumns" class="table-column-enroll-participation">
+                            <span class="exam-count">
+                                <a *ngIf="(!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'"
+                                    href="{{ column.link.replace('__', exam.id)}}">{{exam[column.property]}}</a>
+                                <span
+                                    *ngIf="(!isOwner(exam) && column.checkOwnership) && exam.executionType.type !== 'PRINTOUT'"
+                                    class="exam-count-not-active">{{exam[column.property]}}</span>
+                            </span>
+                            <div *ngIf="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                        </td>
+
+                        <td class="table-column-teachers">
+                            <teacher-list [exam]="exam"></teacher-list>
+                        </td>
+                        <td class="text-center">
+                            <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
+                                <img src="/assets/assets/images/icon_trashcan.svg" alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_trashcan.png'"
+                                    ngbPopover="{{'sitnet_exam_remove' | translate}}" placement="left"
+                                    triggers="mouseenter:mouseleave" />
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <span *ngIf="isOwner(exam)" ngbDropdown>
+                                <a href class="pointer" ngbDropdownToggle id="ddMenu">
+                                    <img src="/assets/assets/images/icon_copy.svg" alt="exam"
+                                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_copy.png'"
+                                        ngbPopover="{{'sitnet_copy' | translate}}" placement="left"
+                                        triggers="mouseenter,mouseleave" />
+                                </a>
+                                <ul ngbDropdownMenu aria-labelledby="ddMenu">
+                                    <li>{{'sitnet_choose_execution_type' | translate}}</li>
+                                    <li *ngFor="let type of examTypes">
+                                        <a role="menuitem" class="pointer" ng-click="copyExam(exam, type.type)">
+                                            {{type.name | translate}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="!items || items.length === 0">
+                        <td colspan="8">{{'sitnet_exam_no_result' | translate}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

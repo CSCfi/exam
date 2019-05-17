@@ -13,9 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
 import { SessionService } from '../../session/session.service';
 import { TeacherDashboardService } from './teacherDashboard.service';
+import { Location } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { ExamExecutionType } from '../../exam/exam.model';
+import { ExamSearchPipe } from '../examSearch.pipe';
+import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 interface ExtraColumn {
     text: string;
@@ -23,109 +27,113 @@ interface ExtraColumn {
     link: string;
     checkOwnership: boolean;
 }
+@Component({
+    selector: 'teacher-dashboard',
+    template: require('./teacherDashboard.component.html'),
+})
+export class TeacherDashboardComponent implements OnInit {
 
-export const TeacherDashboardComponent: angular.IComponentOptions = {
-    template: require('./teacherDashboard.template.html'),
-    controller: class TeacherDashboardController implements angular.IComponentController {
+    activeTab: string;
+    userId: number;
+    executionTypes: ExamExecutionType[];
+    activeExtraColumns: ExtraColumn[];
+    finishedExtraColumns: ExtraColumn[];
+    archivedExtraColumns: ExtraColumn[];
+    draftExtraColumns: ExtraColumn[];
+    finishedExams: any[];
+    filteredFinished: any[];
+    activeExams: any[];
+    filteredActive: any[];
+    archivedExams: any[];
+    filteredArchived: any[];
+    draftExams: any[];
+    filteredDrafts: any[];
 
-        activeTab: number;
-        userId: number;
-        activeExtraColumns: ExtraColumn[];
-        finishedExtraColumns: ExtraColumn[];
-        archivedExtraColumns: ExtraColumn[];
-        draftExtraColumns: ExtraColumn[];
-        finishedExams: any[];
-        filteredFinished: any[];
-        activeExams: any[];
-        filteredActive: any[];
-        archivedExams: any[];
-        filteredArchived: any[];
-        draftExams: any[];
-        filteredDrafts: any[];
+    constructor(
+        private TeacherDashboard: TeacherDashboardService,
+        private Session: SessionService,
+        @Inject('$location') private $location: any,
+        private searchFilter: ExamSearchPipe
+    ) {
+        this.activeExtraColumns = [
+            {
+                text: 'sitnet_participation_unreviewed',
+                property: 'unassessedCount',
+                link: '/exams/__/4',
+                checkOwnership: false
+            }, {
+                text: 'sitnet_participation_unfinished',
+                property: 'unfinishedCount',
+                link: '/exams/__/4',
+                checkOwnership: true
+            }, {
+                text: 'sitnet_dashboard_title_waiting_reservation',
+                property: 'reservationCount',
+                link: '/reservations/__',
+                checkOwnership: false
+            }
+        ];
+        this.finishedExtraColumns = [
+            {
+                text: 'sitnet_participation_unreviewed',
+                property: 'unassessedCount',
+                link: '/exams/__/4',
+                checkOwnership: false
+            }, {
+                text: 'sitnet_participation_unfinished',
+                property: 'unfinishedCount',
+                link: '/exams/__/4',
+                checkOwnership: true
+            }
+        ];
+        this.archivedExtraColumns = [
+            {
+                text: 'sitnet_participations_assessed',
+                property: 'assessedCount',
+                link: '/exams/__/4',
+                checkOwnership: true
+            }
+        ];
+        this.draftExtraColumns = [];
+    }
 
-        constructor(
-            private $location: angular.ILocationService,
-            private $filter: angular.IFilterService,
-            private TeacherDashboard: TeacherDashboardService,
-            private Session: SessionService
-        ) {
-            'ngInject';
-            this.activeExtraColumns = [
-                {
-                    text: 'sitnet_participation_unreviewed',
-                    property: 'unassessedCount',
-                    link: '/exams/__/4',
-                    checkOwnership: false
-                }, {
-                    text: 'sitnet_participation_unfinished',
-                    property: 'unfinishedCount',
-                    link: '/exams/__/4',
-                    checkOwnership: true
-                }, {
-                    text: 'sitnet_dashboard_title_waiting_reservation',
-                    property: 'reservationCount',
-                    link: '/reservations/__',
-                    checkOwnership: false
-                }
-            ];
-            this.finishedExtraColumns = [
-                {
-                    text: 'sitnet_participation_unreviewed',
-                    property: 'unassessedCount',
-                    link: '/exams/__/4',
-                    checkOwnership: false
-                }, {
-                    text: 'sitnet_participation_unfinished',
-                    property: 'unfinishedCount',
-                    link: '/exams/__/4',
-                    checkOwnership: true
-                }
-            ];
-            this.archivedExtraColumns = [
-                {
-                    text: 'sitnet_participations_assessed',
-                    property: 'assessedCount',
-                    link: '/exams/__/4',
-                    checkOwnership: true
-                }
-            ];
-            this.draftExtraColumns = [];
-        }
+    ngOnInit() {
+        const activeTab = this.$location.search().tab;
+        this.activeTab = activeTab || '1';
+        this.userId = this.Session.getUser().id;
+        this.TeacherDashboard.populate().subscribe(dashboard => {
+            this.filteredFinished = this.finishedExams = dashboard.finishedExams;
+            this.filteredActive = this.activeExams = dashboard.activeExams;
+            this.filteredArchived = this.archivedExams = dashboard.archivedExams;
+            this.filteredDrafts = this.draftExams = dashboard.draftExams;
+            this.executionTypes = dashboard.executionTypes;
+        });
+    }
 
-        $onInit() {
-            this.activeTab = this.$location.search().tab ? parseInt(this.$location.search().tab) : 1;
-            this.userId = this.Session.getUser().id;
-            this.TeacherDashboard.populate(this).then(() => {
-                this.filteredFinished = this.finishedExams;
-                this.filteredActive = this.activeExams;
-                this.filteredArchived = this.archivedExams;
-                this.filteredDrafts = this.draftExams;
-            });
-        }
+    changeTab = (event: NgbTabChangeEvent) => {
+        this.activeTab = event.nextId;
+        this.$location.search('tab', event.nextId);
+    }
 
-        changeTab = (index) => this.$location.search('tab', index);
+    search = (text: string) => {
 
-        search(text) {
+        // Use same search parameter for all the 4 result tables
+        this.filteredFinished = this.searchFilter.transform(this.finishedExams, text);
+        this.filteredActive = this.searchFilter.transform(this.activeExams, text);
+        this.filteredArchived = this.searchFilter.transform(this.archivedExams, text);
+        this.filteredDrafts = this.searchFilter.transform(this.draftExams, text);
 
-            // Use same search parameter for all the 4 result tables
-            this.filteredFinished = this.$filter('filter')(this.finishedExams, text);
-            this.filteredActive = this.$filter('filter')(this.activeExams, text);
-            this.filteredArchived = this.$filter('filter')(this.archivedExams, text);
-            this.filteredDrafts = this.$filter('filter')(this.draftExams, text);
+        // for drafts, display exams only for owners AM-1658
+        this.filteredDrafts = this.filteredDrafts.filter(exam => exam.examOwners.some(eo => eo.id === this.userId));
 
-            // for drafts, display exams only for owners AM-1658
-            this.filteredDrafts = this.filteredDrafts.filter(exam => exam.examOwners.some(eo => eo.id === this.userId));
+        // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
+        this.filteredFinished = this.filteredFinished.filter(
+            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
 
-            // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
-            this.filteredFinished = this.filteredFinished.filter(
-                exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
-
-            // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-            this.filteredActive = this.filteredActive.filter(exam =>
-                exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
-
-        }
+        // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
+        this.filteredActive = this.filteredActive.filter(exam =>
+            exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
 
     }
-};
 
+}

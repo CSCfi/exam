@@ -35,6 +35,7 @@ import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @NgModule({
     imports: [
@@ -48,6 +49,7 @@ import { UtilityModule } from './utility/utility.module';
         UpgradeModule,
         SessionModule,
         NavigationModule,
+        DashboardModule,
         ExamModule,
         QuestionModule,
         UtilityModule,
@@ -73,6 +75,12 @@ import { UtilityModule } from './utility/utility.module';
         {
             provide: '$routeParams',
             useFactory: ($injector: any) => $injector.get('$routeParams'),
+            deps: ['$injector']
+        },
+        // Provider for AJS Location service, needed until having switched to new router
+        {
+            provide: '$location',
+            useFactory: ($injector: any) => $injector.get('$location'),
             deps: ['$injector']
         },
     ]

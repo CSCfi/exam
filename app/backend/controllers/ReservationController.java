@@ -55,8 +55,8 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.sanitizers.Attrs;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -162,10 +162,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result removeReservation(long id, Http.Request request) throws NotFoundException {
-
-        DynamicForm df = formFactory.form().bindFromRequest(request);
-        String msg = df.get("msg");
+    public Result removeReservation(long id, Optional<String> msg) throws NotFoundException {
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
@@ -189,7 +186,8 @@ public class ReservationController extends BaseController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().isAfter(DateTime.now())) {
             User student = enrolment.getUser();
-            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
+            emailComposer.composeReservationCancellationNotification(student, reservation,
+                    msg.orElse(""), false, enrolment);
         }
 
         enrolment.setReservation(null);

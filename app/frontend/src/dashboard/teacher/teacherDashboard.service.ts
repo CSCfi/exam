@@ -13,54 +13,82 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
-import { IHttpResponse } from 'angular';
 import { ExamService } from '../../exam/exam.service';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Exam, ExamExecutionType } from '../../exam/exam.model';
+import { ReservationService } from '../../reservation/reservation.service';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+export interface DraftExam extends Exam {
+    ownerAggregate: string;
+}
+export interface FinalizedExam extends DraftExam {
+    unassessedCount: number;
+    unfinishedCount: number;
+}
+export interface ActiveExam extends FinalizedExam {
+    reservationCount: number;
+}
+export interface ArchivedExam extends DraftExam {
+    assessedCount: number;
+}
+
+export class Dashboard {
+    executionTypes: ExamExecutionType[] = [];
+    draftExams: DraftExam[] = [];
+    activeExams: ActiveExam[] = [];
+    finishedExams: FinalizedExam[] = [];
+    archivedExams: ArchivedExam[] = [];
+}
+
+@Injectable()
 export class TeacherDashboardService {
 
     constructor(
-        private $http: angular.IHttpService,
-        private $q: angular.IQService,
+        private http: HttpClient,
         private Exam: ExamService,
-        private Reservation: any // TBD
-    ) {
-        'ngInject';
-    }
+        private Reservation: ReservationService
+    ) { }
 
     // Exam is private and has unfinished participants
-    private participationsInFuture = (exam) =>
+    private participationsInFuture = (exam: Exam) =>
         exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0
 
 
-    private hasUpcomingExaminationDates = (exam: { examinationDates: { date: VarDate }[] }) =>
+    private hasUpcomingExaminationDates = (exam: Exam) =>
         exam.examinationDates.some(ed =>
             Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999)
         )
 
     // Printout exams do not have an activity period but have examination dates.
     // Produce a fake period for information purposes by selecting first and last examination dates.
-    private createFakeActivityPeriod(exam) {
+    private createFakeActivityPeriod(exam: Exam) {
         const dates = exam.examinationDates.map(es => es.date);
         exam.examActiveStartDate = Math.min.apply(Math, dates);
         exam.examActiveEndDate = Math.max.apply(Math, dates);
     }
 
-    populate(scope) {
-        const deferred = this.$q.defer();
-        this.Exam.listExecutionTypes().subscribe(types => {
-            scope.executionTypes = types;
-            this.$http.get('/app/reviewerexams').then((resp: IHttpResponse<any[]>) => {
-                const reviews = resp.data;
-                scope.draftExams = reviews.filter(r =>
+    populate = (): Observable<Dashboard> =>
+        forkJoin(
+            this.Exam.listExecutionTypes(),
+            this.http.get<Exam[]>('/app/reviewerexams')
+        ).pipe(
+            map(resp => {
+                const dashboard = new Dashboard();
+                dashboard.executionTypes = resp[0];
+                const reviews = resp[1];
+                const draftExams = reviews.filter(r =>
                     (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r)
                 );
-
-                scope.draftExams.forEach(de =>
-                    de.ownerAggregate = de.examOwners.map(o => o.firstName + ' ' + o.lastName).join()
-                );
-
-                scope.activeExams = reviews.filter(r => {
+                dashboard.draftExams = draftExams.map(de => {
+                    return {
+                        ...de,
+                        ownerAggregate: de.examOwners.map(o => `${o.firstName} ${o.lastName}`).join()
+                    };
+                });
+                const activeExams = reviews.filter(r => {
                     if (r.state !== 'PUBLISHED') {
                         return false;
                     }
@@ -71,18 +99,18 @@ export class TeacherDashboardService {
                         this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
                 });
-                scope.activeExams.forEach(ae => {
+                dashboard.activeExams = activeExams.map(ae => {
                     if (ae.executionType.type === 'PRINTOUT') {
                         this.createFakeActivityPeriod(ae);
                     }
-                    ae.unassessedCount = this.Exam.getReviewablesCount(ae);
-                    ae.unfinishedCount = this.Exam.getGradedCount(ae);
-                    ae.reservationCount = this.Reservation.getReservationCount(ae);
-                    ae.ownerAggregate = ae.examOwners.map(o => o.firstName + ' ' + o.lastName).join();
+                    return {
+                        ...ae,
+                        unassessedCount: this.Exam.getReviewablesCount(ae),
+                        unfinishedCount: this.Exam.getGradedCount(ae),
+                        reservationCount: this.Reservation.getReservationCount(ae),
+                        ownerAggregate: ae.examOwners.map(o => `${o.firstName} ${o.lastName}`).join()
+                    };
                 });
-
-                scope.finishedExams = [];
-                scope.archivedExams = [];
                 const endedExams = reviews.filter(r => {
                     if (r.state !== 'PUBLISHED') {
                         return false;
@@ -93,26 +121,40 @@ export class TeacherDashboardService {
                         !this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
                 });
+
                 endedExams.forEach(ee => {
-                    ee.ownerAggregate = ee.examOwners.map(o => o.firstName + ' ' + o.lastName).join();
+                    const ownerAggregate = ee.examOwners.map(o => `${o.firstName} ${o.lastName}`).join();
                     const unassessedCount = this.Exam.getReviewablesCount(ee);
                     const unfinishedCount = this.Exam.getGradedCount(ee);
                     if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
-                        ee.unassessedCount = unassessedCount;
-                        ee.unfinishedCount = unfinishedCount;
-                        scope.finishedExams.push(ee);
+                        dashboard.finishedExams.push({
+                            ...ee,
+                            ownerAggregate: ownerAggregate,
+                            unassessedCount: unassessedCount,
+                            unfinishedCount: unfinishedCount
+                        });
                     } else {
                         if (ee.executionType.type === 'PRINTOUT') {
                             this.createFakeActivityPeriod(ee);
                         }
-                        ee.assessedCount = this.Exam.getProcessedCount(ee);
-                        scope.archivedExams.push(ee);
+                        dashboard.archivedExams.push({
+                            ...ee,
+                            ownerAggregate: ownerAggregate,
+                            assessedCount: this.Exam.getProcessedCount(ee)
+                        });
                     }
                 });
-                return deferred.resolve(scope);
-            }).catch(() => deferred.reject());
-        }, () => deferred.reject());
-        return deferred.promise;
-    }
+                return dashboard;
+            })
+        )
 
+    getQueryParams(url: string): { [k: string]: string } {
+        let hashes = url.slice(url.indexOf('?') + 1).split('&');
+        let params: { [k: string]: string } = {};
+        hashes.map(hash => {
+            let [key, val] = hash.split('=');
+            params[key] = decodeURIComponent(val);
+        });
+        return params;
+    }
 }

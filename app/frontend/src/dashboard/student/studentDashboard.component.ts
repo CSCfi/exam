@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
-import { ReservationService } from '../../reservation/reservationService';
+import { ReservationService } from '../../reservation/reservation.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { StudentDashboardService } from './studentDashboard.service';

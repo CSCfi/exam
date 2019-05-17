@@ -17,9 +17,8 @@
 
 <div ng-hide="$ctrl.hideItems">
 
-    <div class="top-row marb20 padt20">
+    <div class="row marl10 marb20 padt20">
         <div class="col-md-12">
-            <!-- Start & End time datepickers -->
             <div class="row">
                 <div class="col-md-6">
                     <span class="exam-basic-selecttitle">&nbsp;</span>
@@ -38,14 +37,17 @@
                     </div>
                 </div>
 
-                <form>
-                    <div class="col-md-2">
-                        <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
-                        <date-picker [optional]="true" (on-update)="$ctrl.startDateChanged($event)"></date-picker>
-                    </div>
-                    <div class="col-md-2">
-                        <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
-                        <date-picker [optional]="true" (on-update)="$ctrl.endDateChanged($event)"></date-picker>
+                <!-- Start & End time datepickers -->
+                <form class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
+                            <date-picker [optional]="true" (on-update)="$ctrl.startDateChanged($event)"></date-picker>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
+                            <date-picker [optional]="true" (on-update)="$ctrl.endDateChanged($event)"></date-picker>
+                        </div>
                     </div>
                 </form>
             </div>

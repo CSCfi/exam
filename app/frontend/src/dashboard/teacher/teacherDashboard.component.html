@@ -1,0 +1,86 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title marl20">{{'sitnet_dashboard' | translate}}</div>
+            </div>
+            <div class="teacher-toolbar">
+                <div class="make-inline">
+                    <div class="review-attachment-button print-button">
+                        <a href="/exams/new" class="pointer">
+                            {{'sitnet_toolbar_new_exam' | translate}}
+                        </a>
+                    </div>
+                </div>
+                <div class="make-inline">
+                    <div class="review-attachment-button print-button">
+                        <a href="/questions/newQuestion/1" class="pointer">
+                            {{'sitnet_toolbar_new_question' | translate}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-wrapper">
+        <ngb-tabset [activeId]="activeTab" (tabChange)="changeTab($event)">
+            <ngb-tab id="1">
+                <ng-template ngbTabTitle>
+                    <div class="make-inline marr10">{{ 'sitnet_active_exams_title' | translate }}</div>
+                    <div *ngIf="activeExams" class="make-inline tab-number">
+                        {{ filteredActive.length }}
+                    </div>
+                </ng-template>
+                <ng-template ngbTabContent>
+                    <exam-list-category [items]="filteredActive" default-predicate="examActiveEndDate"
+                        [examTypes]="executionTypes" [extraColumns]="activeExtraColumns"
+                        (onFilterChange)="search($event)">
+                    </exam-list-category>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab id="2">
+                <ng-template ngbTabTitle>
+                    <div class="make-inline marr10">{{ 'sitnet_finished_exams_title' | translate }}</div>
+                    <div *ngIf="finishedExams" class="make-inline tab-number">
+                        {{ filteredFinished.length }}
+                    </div>
+                </ng-template>
+                <ng-template ngbTabContent>
+                    <exam-list-category [items]="filteredFinished" default-predicate="unassessedCount"
+                        default-reverse="true" [extraColumns]="finishedExtraColumns" [examTypes]="executionTypes"
+                        (onFilterChange)="search($event)">
+                    </exam-list-category>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab id="3">
+                <ng-template ngbTabTitle>
+                    <div class="make-inline marr10">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
+                    <div *ngIf="archivedExams" class="make-inline tab-number">
+                        {{ filteredArchived.length }}
+                    </div>
+                </ng-template>
+                <ng-template ngbTabContent>
+                    <exam-list-category [items]="filteredArchived" default-predicate="examActiveEndDate"
+                        default-reverse="true" [extraColumns]="archivedExtraColumns" [examTypes]="executionTypes"
+                        (onFilterChange)="search($event)">
+                    </exam-list-category>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab id="4">
+                <ng-template ngbTabTitle>
+                    <div class="make-inline marr10">{{ 'sitnet_draft_exams' | translate }}</div>
+                    <div *ngIf="draftExams" class="make-inline tab-number">
+                        {{ filteredDrafts.length }}
+                    </div>
+                </ng-template>
+                <ng-template ngbTabContent>
+                    <exam-list-category [items]="filteredDrafts" default-predicate="examActiveEndDate"
+                        default-reverse="true" [examTypes]="executionTypes" (onFilterChange)="search($event)">
+                    </exam-list-category>
+                </ng-template>
+            </ngb-tab>
+        </ngb-tabset>
+    </div>
+
+</div>

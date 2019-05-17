@@ -130,7 +130,7 @@ export class EnrolmentService {
                         });
                 this.$http.get(`/app/enrolments/exam/${exam.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
                     info.alreadyEnrolled = true;
-                    info.reservationMade = resp.data.some(e => e.reservation);
+                    info.reservationMade = resp.data.some(e => _.isObject(e.reservation));
                     deferred.resolve(info);
                 }).catch((err: ng.IHttpResponse<any>) => {
                     info.alreadyEnrolled = err.status !== 404;
@@ -151,7 +151,7 @@ export class EnrolmentService {
         const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
         this.$http.get(`/app/enrolments/exam/${info.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
             // check if student has reservation
-            info.reservationMade = resp.data.some(e => e.reservation);
+            info.reservationMade = resp.data.some(e => _.isObject(e.reservation));
             // enrolled to exam
             info.alreadyEnrolled = true;
             deferred.resolve(info);

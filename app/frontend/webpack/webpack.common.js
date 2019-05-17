@@ -53,6 +53,12 @@ const config = {
                 loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
             },
             {
+                // Mark files inside `@angular/core` as using SystemJS style dynamic imports.
+                // Removing this will cause deprecation warnings to appear.
+                test: /[\/\\]@angular[\/\\]core[\/\\].+\.js$/,
+                parser: { system: true },  // enable SystemJS
+            },
+            {
                 test: /\.js$/,
                 use: ['babel-loader'],
                 exclude: /node_modules/

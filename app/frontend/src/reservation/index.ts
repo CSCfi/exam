@@ -18,14 +18,15 @@ import { AdminReservationComponent } from './admin/adminReservations.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
 import { ReservationDetailComponent } from './reservationDetail.component';
-import { ReservationService } from './reservationService';
+import { ReservationService } from './reservation.service';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 
 export default angular.module('app.reservation', [])
-    .service('Reservation', ReservationService)
+    .service('Reservation', downgradeInjectable(ReservationService))
     .component('adminReservations', AdminReservationComponent)
     .component('teacherReservations', TeacherReservationComponent)
     .component('reservationDetail', ReservationDetailComponent)
-    .component('changeMachineDialog', ChangeMachineDialogComponent)
-    .component('removeReservationDialog', RemoveReservationDialogComponent)
+    .directive('changeMachineDialog', downgradeComponent({ component: ChangeMachineDialogComponent }))
+    .directive('removeReservationDialog', downgradeComponent({ component: RemoveReservationDialogComponent }))
     .name;

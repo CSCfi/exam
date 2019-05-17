@@ -34,8 +34,9 @@ import { LanguageService } from './language/language.service';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { UserService } from './user/user.service';
 import { WindowRef } from './window/window.service';
-import { SessionService } from '../session/session.service';
-
+import { TeacherListComponent } from './user/teacherList.component';
+import { TableSortComponent } from './sorting/tableSort.component';
+import { DropdownSelectComponent } from './select/dropDownSelect.component';
 
 @NgModule({
     imports: [
@@ -51,8 +52,11 @@ import { SessionService } from '../session/session.service';
         CKEditorComponent,
         TruncatingPipe,
         DraggableModalDirective,
+        DropdownSelectComponent,
         SortableDirective,
-        HistoryBackComponent
+        HistoryBackComponent,
+        TeacherListComponent,
+        TableSortComponent
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -63,7 +67,10 @@ import { SessionService } from '../session/session.service';
         HistoryBackComponent,
         PaginatorComponent,
         DraggableModalDirective,
+        DropdownSelectComponent,
         SortableDirective,
+        TableSortComponent,
+        TeacherListComponent,
         TruncatingPipe,
     ],
     entryComponents: [
@@ -72,7 +79,9 @@ import { SessionService } from '../session/session.service';
         DatePickerComponent,
         DateTimePickerComponent,
         HistoryBackComponent,
-        PaginatorComponent
+        PaginatorComponent,
+        TeacherListComponent,
+        TableSortComponent
     ],
     providers: [
         AttachmentService,
