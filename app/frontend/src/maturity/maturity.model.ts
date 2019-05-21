@@ -1,4 +1,4 @@
-import { ExamImpl } from '../exam/exam.model';
+import { ExamImpl, Attachment } from '../exam/exam.model';
 import { User } from '../session/session.service';
 
 interface Maturity extends ExamImpl {
@@ -13,4 +13,5 @@ export interface LanguageInspection {
     finishedAt?: Date;
     approved?: boolean;
     modifier: User;
+    statement: { attachment: Attachment };
 }

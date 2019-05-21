@@ -81,16 +81,19 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
 
         $onInit() {
             this.user = this.Session.getUser();
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams;
-            }).catch(angular.noop);
+            this.CollaborativeExam.listExams().subscribe(
+                (exams: CollaborativeExam[]) => this.exams = exams,
+                err => toast.error(err.data)
+            );
         }
 
         createExam() {
-            this.CollaborativeExam.createExam().then((exam: CollaborativeExam) => {
-                toast.info(this.$translate.instant('sitnet_exam_created'));
-                this.$location.path(`/exams/collaborative/${exam.id}/1`);
-            }).catch(resp => toast.error(resp.data));
+            this.CollaborativeExam.createExam().subscribe(
+                (exam: CollaborativeExam) => {
+                    toast.info(this.$translate.instant('sitnet_exam_created'));
+                    this.$location.path(`/exams/collaborative/${exam.id}/1`);
+                }, err => toast.error(err.data)
+            );
         }
 
     }

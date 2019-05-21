@@ -15,7 +15,7 @@
 
 import angular from 'angular';
 
-angular.module('app.exam')
+angular.module('app.printout')
     .component('printout', {
         template: require('./printout.template.html'),
         controller: ['$http', '$routeParams', '$location', '$sce', 'Files',

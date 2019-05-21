@@ -12,235 +12,195 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
-
-import * as ng from 'angular';
-import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 import { Exam } from '../exam/exam.model';
 import { User } from '../session/session.service';
 import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { HttpClient } from '@angular/common/http';
+import { Location } from '@angular/common';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { LanguageService } from '../utility/language/language.service';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { map, tap, switchMap, catchError } from 'rxjs/operators';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { ExamRoom } from '../reservation/reservation.model';
+import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
 
-
+@Injectable()
 export class EnrolmentService {
 
     constructor(
-        private $translate: ng.translate.ITranslateService,
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $location: ng.ILocationService,
-        private $uibModal: uib.IModalService,
-        private Language: any,
-    ) {
-        'ngInject';
-    }
+        private translate: TranslateService,
+        private http: HttpClient,
+        private location: Location,
+        private ngbModal: NgbModal,
+        private Language: LanguageService,
+    ) { }
 
-    private getMaturityInstructions(exam: Exam): Promise<{ instructions: string | null }> {
+    private getMaturityInstructions = (exam: Exam): Observable<string> => {
+        if (exam.executionType.type !== 'MATURITY') {
+            return of('');
+        }
         if (exam.examLanguages.length !== 1) {
             console.warn('Exam has no exam languages or it has several!');
         }
-        return new Promise<{ instructions: string | null }>((resolve, reject) => {
-            if (exam.executionType.type !== 'MATURITY') {
-                return resolve({ instructions: null });
-            }
-            const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
-            this.$http.get(`/app/settings/maturityInstructions?lang=${lang}`)
-                .then(((resp: ng.IHttpResponse<{ value: string }>) => {
-                    resolve({ instructions: resp.data.value || 'N/A' });
-                })).catch(resp => {
-                    toast.error(resp.data);
-                    reject();
-                });
-        });
+        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
+        return this.http.get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`).pipe(
+            map(data => data.value)
+        );
     }
 
     private getResource = (path: string, collaborative: boolean) =>
         (collaborative ? '/integration/iop/enrolments/' : '/app/enrolments/') + path
 
 
-    enroll(exam: Exam, collaborative = false): ng.IPromise<any> {
-        const deferred = this.$q.defer();
-        this.$http.post(this.getResource(`${exam.id}`, collaborative),
-            { code: exam.course ? exam.course.code : undefined })
-            .then(() => {
-                toast.success(this.$translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
-                    this.$translate.instant('sitnet_remember_exam_machine_reservation'));
-                this.$location.path((collaborative ? '/calendar/collaborative/' : '/calendar/') + exam.id);
-                deferred.resolve();
-            }).catch(error => {
-                toast.error(error.data);
-                deferred.reject(error);
-            });
-        return deferred.promise;
-    }
+    enroll = (exam: Exam, collaborative = false): Observable<void> =>
+        this.http.post<void>(this.getResource(`${exam.id}`, collaborative),
+            { code: exam.course ? exam.course.code : undefined }).pipe(
+                tap(() => {
+                    toast.success(this.translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
+                        this.translate.instant('sitnet_remember_exam_machine_reservation'));
+                    this.location.go((collaborative ? '/calendar/collaborative/' : '/calendar/') + exam.id);
+                })
+            )
 
-    getEnrolments(examId: number, collaborative = false): ng.IPromise<ExamEnrolment[]> {
-        const deferred: ng.IDeferred<ExamEnrolment[]> = this.$q.defer();
-        this.$http.get(this.getResource(`exam/${examId}`, collaborative)).then(
-            (resp: ng.IHttpResponse<ExamEnrolment[]>) => {
-                deferred.resolve(resp.data);
-            }).catch((err: ng.IHttpResponse<any>) => deferred.reject());
-        return deferred.promise;
-    }
 
-    checkAndEnroll(exam: Exam, collaborative = false): ng.IPromise<any> {
-        const deferred = this.$q.defer();
-        this.$http.get(this.getResource(`exam/${exam.id}`, collaborative)).then(() => {
-            toast.error(this.$translate.instant('sitnet_already_enrolled'));
-            deferred.reject();
-        }).catch((err: ng.IHttpResponse<any>) => {
-            if (err.status === 403) {
-                toast.error(err.data);
-                deferred.reject(err);
-            } else if (err.status === 404) {
-                this.enroll(exam, collaborative)
-                    .then(() => deferred.resolve())
-                    .catch(error => deferred.reject(error));
-            } else {
-                deferred.resolve();
-            }
-        });
-        return deferred.promise;
-    }
+    getEnrolments = (examId: number, collaborative = false): Observable<ExamEnrolment[]> =>
+        this.http.get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative))
 
-    enrollStudent(exam: Exam, student: User): ng.IPromise<ExamEnrolment> {
-        const deferred: ng.IDeferred<ExamEnrolment> = this.$q.defer();
+    checkAndEnroll = (exam: Exam, collaborative = false): Observable<void> =>
+        this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
+            switchMap(enrolments => {
+                if (enrolments.length > 0) {
+                    toast.error(this.translate.instant('sitnet_already_enrolled'));
+                    return throwError('already enrolled');
+                }
+                return this.enroll(exam, collaborative);
+            })
+        )
+
+    enrollStudent = (exam: Exam, student: User): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };
-        this.$http.post(`/app/enrolments/student/${exam.id}`, data).then((resp: ng.IHttpResponse<ExamEnrolment>) => {
-            toast.success(this.$translate.instant('sitnet_student_enrolled_to_exam'));
-            deferred.resolve(resp.data);
-        }).catch(err => deferred.reject(err));
-        return deferred.promise;
+        return this.http.post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data).pipe(
+            tap(() => toast.success(this.translate.instant('sitnet_student_enrolled_to_exam')))
+        );
     }
 
-    getEnrolmentInfo(code: string, id: number): ng.IPromise<EnrolmentInfo> {
-        const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
-        this.$http.get(`/app/enrolments/${id}?code=${code}`).then((resp: ng.IHttpResponse<Exam>) => {
-            const exam = resp.data;
-            this.getMaturityInstructions(exam).then(data => {
-                const info: EnrolmentInfo =
-                    _.assign(exam,
-                        {
+    getEnrolmentInfo = (code: string, id: number): Observable<EnrolmentInfo> =>
+        this.http.get<Exam>(`/app/enrolments/${id}?code=${code}`).pipe(
+            switchMap(exam =>
+                this.getMaturityInstructions(exam).pipe(
+                    map(instructions => {
+                        return {
+                            ...exam,
                             languages: exam.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
-                            maturityInstructions: data.instructions,
+                            maturityInstructions: instructions,
                             alreadyEnrolled: false,
                             reservationMade: false,
                             noTrialsLeft: false
-                        });
-                this.$http.get(`/app/enrolments/exam/${exam.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
+                        };
+                    })
+                )
+            ),
+            switchMap(ei =>
+                this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${ei.id}`).pipe(
+                    map(resp => {
+                        if (resp.length > 0) {
+                            ei.alreadyEnrolled = true;
+                            ei.reservationMade = resp.some(e => _.isObject(e.reservation));
+                        }
+                        return ei;
+                    }),
+                    catchError(() => {
+                        ei.noTrialsLeft = true;
+                        return of(ei);
+                    })
+                )
+            )
+        )
+
+    private check = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
+        this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
+            map(resp => {
+                if (resp.length > 0) {
                     info.alreadyEnrolled = true;
-                    info.reservationMade = resp.data.some(e => _.isObject(e.reservation));
-                    deferred.resolve(info);
-                }).catch((err: ng.IHttpResponse<any>) => {
-                    info.alreadyEnrolled = err.status !== 404;
-                    if (err.status === 403) {
-                        info.noTrialsLeft = true;
-                    }
-                    info.reservationMade = false;
-                    deferred.resolve(info);
-                });
-
-            }).catch(resp => deferred.reject(resp));
-        }).catch(resp => deferred.reject(resp));
-
-        return deferred.promise;
-    }
-
-    private check(info: EnrolmentInfo): ng.IPromise<EnrolmentInfo> {
-        const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
-        this.$http.get(`/app/enrolments/exam/${info.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
-            // check if student has reservation
-            info.reservationMade = resp.data.some(e => _.isObject(e.reservation));
-            // enrolled to exam
-            info.alreadyEnrolled = true;
-            deferred.resolve(info);
-        }).catch(() => {
-            // not enrolled or made reservations
-            info.alreadyEnrolled = false;
-            info.reservationMade = false;
-            deferred.resolve(info);
-        });
-        return deferred.promise;
-    }
-
-    private checkEnrolments(infos: EnrolmentInfo[]): ng.IPromise<EnrolmentInfo[]> {
-        const deferred: ng.IDeferred<EnrolmentInfo[]> = this.$q.defer();
-        const promises: ng.IPromise<EnrolmentInfo>[] = [];
-        infos.forEach(i => promises.push(this.check(i)));
-        this.$q.all(promises).then(() => deferred.resolve(infos)).catch(angular.noop);
-        return deferred.promise;
-    }
-
-    listEnrolments(code: string, id: number): ng.IPromise<EnrolmentInfo[]> {
-        const deferred: ng.IDeferred<EnrolmentInfo[]> = this.$q.defer();
-        this.$http.get(`/app/enrolments?code=${code}`).then((resp: ng.IHttpResponse<Exam[]>) => {
-            const exams = resp.data.filter(e => e.id !== id);
-            const infos: EnrolmentInfo[] = exams.map(e => _.assign(e,
-                {
-                    languages: e.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
-                    maturityInstructions: null,
-                    alreadyEnrolled: false,
-                    reservationMade: false,
-                    noTrialsLeft: false
+                    info.reservationMade = resp.some(e => _.isObject(e.reservation));
+                } else {
+                    info.alreadyEnrolled = info.reservationMade = false;
                 }
-            ));
-            this.checkEnrolments(infos).then(function (data) {
-                deferred.resolve(data);
-            }).catch(err => toast.error(err.data));
-        }).catch(err => {
-            toast.error(err.data);
-            deferred.reject();
+                return info;
+            }),
+            catchError(() => {
+                info.alreadyEnrolled = false;
+                info.reservationMade = false;
+                return of(info);
+            })
+        )
+
+    private checkEnrolments = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> =>
+        forkJoin(infos.map(this.check))
+
+    listEnrolments = (code: string, id: number): Observable<EnrolmentInfo[]> =>
+        this.http.get<Exam[]>(`/app/enrolments?code=${code}`).pipe(
+            map(resp =>
+                resp.filter(e => e.id !== id).map(e => {
+                    return {
+                        ...e,
+                        languages: e.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
+                        maturityInstructions: null,
+                        alreadyEnrolled: false,
+                        reservationMade: false,
+                        noTrialsLeft: false
+                    };
+                })
+            ),
+            switchMap(this.checkEnrolments)
+        )
+
+    removeEnrolment = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
+
+    addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
+        const modalRef = this.ngbModal.open(AddEnrolmentInformationDialogComponent, {
+            backdrop: 'static',
+            keyboard: false
         });
-        return deferred.promise;
+        modalRef.componentInstance.information = enrolment.information;
+        modalRef.result.then((information: string) => {
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
+                () => {
+                    toast.success(this.translate.instant('sitnet_saved'));
+                    enrolment.information = information;
+                }, err => toast.error(err)
+            );
+        });
     }
 
-    removeEnrolment = (enrolment: ExamEnrolment) => this.$http.delete(`/app/enrolments/${enrolment.id}`);
+    getRoomInstructions = (hash: string): Observable<ExamRoom> =>
+        this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`)
 
-    addEnrolmentInformation(enrolment: ExamEnrolment): void {
-        this.$uibModal.open({
+    showInstructions = (enrolment: ExamEnrolment): void => {
+        const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
             backdrop: 'static',
-            keyboard: true,
-            component: 'addEnrolmentInformationDialog',
-            resolve: {
-                information: () => enrolment.information
-            }
-        }).result.then((information: string) => {
-            this.$http.put(`/app/enrolments/${enrolment.id}`, { information: information }).then(() => {
-                toast.success(this.$translate.instant('sitnet_saved'));
-                enrolment.information = information;
-            });
-        }).catch(angular.noop);
-    }
-
-    getRoomInstructions = (hash: string) => this.$http.get(`/app/enrolments/room/${hash}`);
-
-    showInstructions = (enrolment: ExamEnrolment) => {
-        this.$uibModal.open({
-            backdrop: 'static',
-            keyboard: true,
-            component: 'showInstructionsDialog',
-            resolve: {
-                title: () => 'sitnet_instructions',
-                instructions: () => enrolment.exam.enrollInstruction
-            }
-        }).result.catch(angular.noop);
+            keyboard: false
+        });
+        modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
+        modalRef.componentInstance.title = 'sitnet_instructions';
+        modalRef.result.catch(err => toast.error(err));
     }
 
     showMaturityInstructions = (enrolment: ExamEnrolment) => {
-        this.getMaturityInstructions(enrolment.exam).then(resp => {
-            this.$uibModal.open({
+        this.getMaturityInstructions(enrolment.exam).subscribe(instructions => {
+            const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',
-                keyboard: true,
-                component: 'showInstructionsDialog',
-                resolve: {
-                    title: () => 'sitnet_maturity_instructions',
-                    instructions: () => resp.instructions
-                }
-            }).result.catch(angular.noop);
-        }).catch(err => toast.error(err.data));
+                keyboard: false
+            });
+            modalRef.componentInstance.instructions = instructions;
+            modalRef.componentInstance.title = 'sitnet_maturity_instructions';
+            modalRef.result.catch(err => toast.error(err));
+        });
     }
 
 }
-
-angular.module('app.enrolment').service('Enrolment', EnrolmentService);

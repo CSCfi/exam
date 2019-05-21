@@ -13,42 +13,39 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import * as toast from 'toastr';
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
+import { Component, Input } from '@angular/core';
+import { Location } from '@angular/common';
 
-export const ExamSearchResultComponent: angular.IComponentOptions = {
-    template: require('./examSearchResult.template.html'),
-    bindings: {
-        exam: '<',
-        collaborative: '<'
-    },
-    controller: class ExamSearchResultController implements angular.IComponentController {
-        exam: Exam;
-        collaborative: boolean;
-        enrolling: boolean;
+@Component({
+    selector: 'exam-search-result',
+    template: require('./examSearchResult.component.html')
+})
+export class ExamSearchResultComponent {
 
-        constructor(
-            private $location: angular.ILocationService,
-            private Enrolment: EnrolmentService) {
-            'ngInject';
+    @Input() exam: Exam;
+    @Input() collaborative: boolean;
+
+    enrolling: boolean;
+
+    constructor(
+        private location: Location,
+        private Enrolment: EnrolmentService
+    ) { }
+
+    enrollForExam = () => {
+        if (this.enrolling) {
+            return;
         }
-
-        enrollForExam = () => {
-            if (this.enrolling) {
-                return;
-            }
-            this.enrolling = true;
-            this.Enrolment.checkAndEnroll(this.exam, this.collaborative)
-                .then(() => this.enrolling = false)
-                .catch(angular.noop);
-        }
-
-        makeReservation = () =>
-            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id)
-
-
+        this.enrolling = true;
+        this.Enrolment.checkAndEnroll(this.exam, this.collaborative)
+            .subscribe(() => this.enrolling = false, err => toast.error(err.data));
     }
-};
 
-angular.module('app.enrolment').component('examSearchResult', ExamSearchResultComponent);
+    makeReservation = () => this.location.go(
+        (this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id
+    )
+
+}

@@ -24,7 +24,7 @@
                 </div>
                 <div class="col-md-10">
                     <div class="pull-right">
-                        <span (hidden)="!exam.examFeedback.attachment">
+                        <span [hidden]="!exam.examFeedback.attachment">
                             <a class="pointer" (click)="downloadFeedbackAttachment()">{{exam.examFeedback.attachment?.fileName}}</a>
                             <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
                                 <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>

@@ -24,7 +24,7 @@ export const AppComponent: angular.IComponentOptions = {
             <dev-login (on-logged-in)="$ctrl.setUser($event)"></dev-login>
         </div>
         <div ng-if="$ctrl.user">
-            <navigation (hidden)="$ctrl.hideNavBar"></navigation>
+            <navigation [hidden]="$ctrl.hideNavBar"></navigation>
             <div id="mainView" class="container-fluid"
                 ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
                 <div class="ng-view"></div>
@@ -69,15 +69,15 @@ export const AppComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
-                this.Session.getEnv$().subscribe(
-                    (value: 'DEV' | 'PROD') => {
-                        if (value === 'PROD') {
-                            this.Session.login$('', '').subscribe(user => this.user = user);
-                        }
-                        this.devLoginRequired = value === 'DEV';
-                    }, () => console.log('no env found')
-                );
             }
+            this.Session.getEnv$().subscribe(
+                (value: 'DEV' | 'PROD') => {
+                    if (value === 'PROD') {
+                        this.Session.login$('', '').subscribe(user => this.user = user);
+                    }
+                    this.devLoginRequired = value === 'DEV';
+                }, () => console.log('no env found')
+            );
         }
 
         $onDestroy() {

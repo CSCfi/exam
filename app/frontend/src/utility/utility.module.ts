@@ -37,6 +37,8 @@ import { WindowRef } from './window/window.service';
 import { TeacherListComponent } from './user/teacherList.component';
 import { TableSortComponent } from './sorting/tableSort.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
+import { AdjustDstFilter } from '../app.filter';
+import { ApplyDstPipe } from './date/applyDst.pipe';
 
 @NgModule({
     imports: [
@@ -50,13 +52,16 @@ import { DropdownSelectComponent } from './select/dropDownSelect.component';
         TranslateModule,
         FormsModule,
         CKEditorComponent,
+        DatePickerComponent,
         TruncatingPipe,
+        ApplyDstPipe,
         DraggableModalDirective,
         DropdownSelectComponent,
         SortableDirective,
         HistoryBackComponent,
         TeacherListComponent,
-        TableSortComponent
+        TableSortComponent,
+        PaginatorComponent
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -72,6 +77,7 @@ import { DropdownSelectComponent } from './select/dropDownSelect.component';
         TableSortComponent,
         TeacherListComponent,
         TruncatingPipe,
+        ApplyDstPipe
     ],
     entryComponents: [
         AttachmentSelectorComponent,

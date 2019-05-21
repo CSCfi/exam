@@ -178,13 +178,16 @@ export class AttachmentService {
             exam.attachment.fileName);
     }
 
-    downloadFeedbackAttachment(exam: Examination) {
+    downloadFeedbackAttachment(exam: Exam) {
         if (exam.examFeedback.attachment) {
             this.Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
         }
     }
 
-    downloadStatementAttachment(exam: ExamWithStatement) {
+    downloadStatementAttachment(exam: Exam) {
+        if (!exam.languageInspection) {
+            return;
+        }
         this.Files.download('/app/attachment/exam/' + exam.id + '/statement',
             exam.languageInspection.statement.attachment.fileName);
     }

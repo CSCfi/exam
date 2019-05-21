@@ -18,22 +18,36 @@ import { ReservationService } from './reservation.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ReservationDetailsComponent } from './reservationDetails.component';
+import { AdminReservationComponent } from './admin/adminReservations.component';
+import { TeacherReservationComponent } from './teacher/teacherReservations.component';
+import { OrderModule } from 'ngx-order-pipe';
 
 @NgModule({
     imports: [
         NgbModule,
         UtilityModule,
+        OrderModule,
+    ],
+    exports: [
+        AdminReservationComponent
     ],
     declarations: [
         ChangeMachineDialogComponent,
-        RemoveReservationDialogComponent
+        RemoveReservationDialogComponent,
+        ReservationDetailsComponent,
+        AdminReservationComponent,
+        TeacherReservationComponent
     ],
     entryComponents: [
         ChangeMachineDialogComponent,
-        RemoveReservationDialogComponent
+        RemoveReservationDialogComponent,
+        ReservationDetailsComponent,
+        AdminReservationComponent,
+        TeacherReservationComponent
     ],
     providers: [
-        ReservationService
+        ReservationService,
     ]
 })
 export class ReservationModule { }

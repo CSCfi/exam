@@ -244,11 +244,11 @@ export class SessionService {
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
             tap(role => this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe()),
-            map((role: string) => {
-                user.loginRole = role;
-                user.isAdmin = role === 'ADMIN';
-                user.isTeacher = role === 'TEACHER';
-                user.isStudent = role === 'STUDENT';
+            map((role: Role) => {
+                user.loginRole = role.name;
+                user.isAdmin = role.name === 'ADMIN';
+                user.isTeacher = role.name === 'TEACHER';
+                user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector =
                     user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 return user;

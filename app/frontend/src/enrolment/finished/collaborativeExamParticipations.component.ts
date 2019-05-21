@@ -14,58 +14,56 @@
  *
  */
 
-import * as angular from 'angular';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { Participation } from '../../exam/exam.model';
+import { Component, OnInit } from '@angular/core';
 
 interface Filter {
     ordering: string;
     text: string;
 }
 
-export const CollaborativeExamParticipationsComponent: angular.IComponentOptions = {
-    template: require('./examParticipations.template.html'),
-    controller: class CollaborativeExamParticipationsController implements angular.IComponentController {
+@Component({
+    selector: 'collaborative-exam-participations',
+    template: require('./examParticipations.component.html')
+})
+export class CollaborativeExamParticipationsComponent implements OnInit {
 
-        collaborative = true;
-        originals: Participation[];
-        participations: Participation[];
-        pageSize: Number = 10;
-        currentPage: Number = 1;
-        filter: Filter;
+    collaborative = true;
+    originals: Participation[];
+    participations: Participation[] = [];
+    pageSize: Number = 10;
+    currentPage: Number = 1;
+    filter: Filter;
 
-        constructor(
-            private CollaborativeExam: CollaborativeExamService
-        ) {
-            'ngInject';
-        }
+    constructor(
+        private CollaborativeExam: CollaborativeExamService
+    ) { }
 
-        $onInit() {
-            this.filter = { ordering: '-ended', text: '' };
-            this.CollaborativeExam.listStudentParticipations().then((participations: Participation[]) => {
+    ngOnInit() {
+        this.filter = { ordering: '-ended', text: '' };
+        this.CollaborativeExam.listStudentParticipations().subscribe(
+            (participations: Participation[]) => {
                 this.originals = Array.from(participations);
                 this.participations = Array.from(participations);
-            }).catch(angular.noop);
-        }
-
-        pageSelected(page: Number) {
-            this.currentPage = page;
-        }
-
-        search() {
-            let text = this.filter.text;
-            if (!text || text.length < 1) {
-                this.participations = this.originals;
-                return;
-            }
-            this.participations = this.originals.filter((participation: Participation) => {
-                let exam = participation.exam;
-                return exam && exam.name && exam.name.indexOf(text) > -1;
-            });
-        }
-
+            }, err => toastr.error(err.data)
+        );
     }
-};
 
-angular.module('app.enrolment')
-    .component('collaborativeExamParticipations', CollaborativeExamParticipationsComponent);
+    pageSelected(page: Number) {
+        this.currentPage = page;
+    }
+
+    search() {
+        let text = this.filter.text;
+        if (!text || text.length < 1) {
+            this.participations = this.originals;
+            return;
+        }
+        this.participations = this.originals.filter((participation: Participation) => {
+            let exam = participation.exam;
+            return exam && exam.name && exam.name.indexOf(text) > -1;
+        });
+    }
+
+}

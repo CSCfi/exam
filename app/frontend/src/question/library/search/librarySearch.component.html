@@ -36,7 +36,7 @@
                             <i class="fa fa-search fa-fw"></i>
                         </div>
                     </li>
-                    <li *ngFor="let course of filteredCourses" (hidden)="course.filtered" role="presentation" (click)="applyFilter(course)">
+                    <li *ngFor="let course of filteredCourses" [hidden]="course.filtered" role="presentation" (click)="applyFilter(course)">
                         <a role="menuitem">{{course.name | truncate:30}}</a>
                     </li>
                 </ul>
@@ -55,7 +55,7 @@
                             <i class="fa fa-search fa-fw"></i>
                         </div>
                     </li>
-                    <li *ngFor="let exam of filteredExams" (hidden)="exam.filtered" role="presentation" (click)="applyFilter(exam)">
+                    <li *ngFor="let exam of filteredExams" [hidden]="exam.filtered" role="presentation" (click)="applyFilter(exam)">
                         <a role="menuitem">{{exam.name | truncate:30}}</a>
                     </li>
                 </ul>
@@ -76,7 +76,7 @@
                             <i class="fa fa-search fa-fw"></i>
                         </div>
                     </li>
-                    <li *ngFor="let tag of filteredTags" (hidden)="tag.filtered" role="presentation" (click)="applyFilter(tag)">
+                    <li *ngFor="let tag of filteredTags" [hidden]="tag.filtered" role="presentation" (click)="applyFilter(tag)">
                         <a role="menuitem" [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'" title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate }}">
                             {{tag.name | truncate:30}}
                         </a>

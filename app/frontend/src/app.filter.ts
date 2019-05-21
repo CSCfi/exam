@@ -53,7 +53,7 @@ export class DiffInDaysFilter {
 
 export class OffsetFilter {
     static factory(): angular.FilterFactory {
-        return () => (input: string | undefined, start: string): string => {
+        return () => (input: any, start: string): any => {
             if (!input) {
                 return '';
             }

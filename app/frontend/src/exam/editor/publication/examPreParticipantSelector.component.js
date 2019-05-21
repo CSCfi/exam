@@ -22,8 +22,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'Enrolment', 'EnrollRes',
-            function ($translate, Enrolment, EnrollRes) {
+        controller: ['$translate', '$http', 'Enrolment',
+            function ($translate, $http, Enrolment) {
 
                 const vm = this;
 
@@ -50,14 +50,13 @@ angular.module('app.exam.editor')
                 };
 
                 vm.removeParticipant = function (id) {
-                    EnrollRes.unenrollStudent.remove({id: id}, function () {
-                        vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
-                            return ee.id !== id;
-                        });
-                        toast.info($translate.instant('sitnet_participant_removed'));
-                    }, function (error) {
-                        toast.error(error.data);
-                    });
+                    $http.delete(`/app/enrolments/student/${id}`).then(
+                        function () {
+                            vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
+                                return ee.id !== id;
+                            });
+                            toast.info($translate.instant('sitnet_participant_removed'));
+                        }).catch(err => toast.error(err.data));
                 };
 
                 vm.isPreEnrolment = function (enrolment) {

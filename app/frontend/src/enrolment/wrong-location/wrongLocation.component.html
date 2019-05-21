@@ -1,0 +1,74 @@
+<div id="dashboard">
+    <div class="main-row" style="padding-left: 0;">
+        <div class="col-md-12 alert-danger exams-table-title-area"
+            style="padding-bottom: 1em; padding-top: 1em; padding-left: 15px">
+            <p class="col-md-12 exams-list-title-text">
+                {{'sitnet_logged_on_wrong_machine' | translate}}
+            </p>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-3 text">{{ 'sitnet_current_wrong_machine_title' | translate}}:</div>
+        <div class="col-md-9 light-text sitnet-text-alarm">{{ currentMachine.name }}</div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-3 text">{{ 'sitnet_reserved_machine' | translate }}:</div>
+        <div class="col-md-9 light-text sitnet-text-ready">{{ enrolment.reservation.machine.name }}</div>
+    </div>
+    <div class="detail-row" *ngIf="cause === 'room'">
+        <div class="col-md-3 text">{{ 'sitnet_current_wrong_room_title' | translate }}:</div>
+        <div class="col-md-9 light-text sitnet-text-alarm">{{ currentMachine.room.name }}
+            ({{currentMachine.room.buildingName}})</div>
+    </div>
+    <div class="detail-row" *ngIf="cause === 'room'">
+        <div class="col-md-3 text">{{ 'sitnet_reserved_room' | translate }}:</div>
+        <div class="col-md-9 light-text sitnet-text-ready">{{ enrolment.reservation.machine.room.name }}
+            ({{ enrolment.reservation.machine.room.roomCode }})
+        </div>
+    </div>
+
+    <div class="main-row">
+        <div class="col-md-12">
+            <span class="exams-list-title-text pull-left">{{ 'sitnet_reserved_exam' | translate}}:&nbsp
+                {{enrolment.exam.name}} - {{enrolment.exam.course.code}}</span>
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="col-md-3 header text">{{ 'sitnet_course_name' | translate }}:</div>
+        <strong class="col-md-9 text">{{ enrolment.exam.course.name }}</strong>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-3 header text">{{ 'sitnet_exam_duration' | translate }}:</div>
+        <strong class="col-md-9 text">{{ printExamDuration() }}</strong>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-3 header text">{{ 'sitnet_exam_room' | translate }}:</div>
+        <strong class="col-md-9 text">{{enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            {{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</strong>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-3 header text">{{ 'sitnet_reservation_time' | translate }}:</div>
+        <strong class="col-md-9 text">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}
+            {{enrolment.reservation.occasion.startAt }} - {{enrolment.reservation.occasion.endAt }}
+            ({{enrolment.reservation.machine.room.localTimezone}})
+        </strong>
+    </div>
+    <div class="detail-row" *ngIf="enrolment.exam.enrollInstruction">
+        <div class="col-md-3 header text">{{ 'sitnet_instructions' | translate }}:</div>
+        <a (click)="showInstructions()">{{ 'sitnet_view' | translate }}</a>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-3 header text">{{ 'sitnet_teachers' | translate }}:</div>
+        <div class="col-md-9 light-text">
+            <teacher-list [exam]="enrolment.exam"></teacher-list>
+        </div>
+    </div>
+
+    <div class="main-row">
+        <div class="col-md-12">
+            <p class="sitnet-text-theme pull-left">{{ 'sitnet_logout_and_login_elsewhere' | translate}}</p>
+        </div>
+    </div>
+
+</div>

@@ -105,7 +105,7 @@
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li-->
-                        <li *ngFor="let org of organisations" (hidden)="org.filtered" role="presentation"
+                        <li *ngFor="let org of organisations" [hidden]="org.filtered" role="presentation"
                             (click)="setOrganisation(org)">
                             <a role="menuitem">{{org.code}}&nbsp;({{org.name}})</a>
                         </li>
@@ -143,7 +143,7 @@
                 <img class="arrow_icon" alt="phase {{ isExternal ? 3 : 2 }}" src="Images/icon-phase.png">
             </div>
         </div>
-        <div class="student-exam-header-row" (hidden)="isExternal">
+        <div class="student-exam-header-row" [hidden]="isExternal">
             <div class="calendar-accessibility-link">
                 <a (click)="showAccs = !showAccs">
                     {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
@@ -181,7 +181,7 @@
                             </div>
                         </li-->
 
-                        <li *ngFor="let room of rooms" (hidden)="room.filtered" role="presentation"
+                        <li *ngFor="let room of rooms" [hidden]="room.filtered" role="presentation"
                             [ngClass]="room.outOfService ? 'disabled' : ''" (click)="selectRoom(room)">
                             <a role="menuitem" ngbPopover="{{getDescription(room)}}" trigger="mouseenter">
                                 {{room.name | truncate:30}}</a>
@@ -263,7 +263,7 @@
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">{{ getSequenceNumber('material')}}. {{
                 'sitnet_exam_materials' | translate }}</span>
-            <div class="calendar-phase-icon" (hidden)="!reservation">
+            <div class="calendar-phase-icon" [hidden]="!reservation">
                 <img class="arrow_icon" alt="exam materials" src="Images/icon-phase.png">
             </div>
         </div>

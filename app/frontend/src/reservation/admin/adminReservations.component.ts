@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
-import { ReservationController } from '../reservation.controller';
+import { Component } from '@angular/core';
+import { ReservationComponentBase } from '../reservation.baseComponent';
 
-export const AdminReservationComponent: angular.IComponentOptions = {
-    template: require('./adminReservations.template.html'),
-    controller: ReservationController
-};
+@Component({
+    selector: 'admin-reservations',
+    template: require('./adminReservations.component.html')
+})
+export class AdminReservationComponent extends ReservationComponentBase { }

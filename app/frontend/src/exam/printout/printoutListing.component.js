@@ -16,7 +16,7 @@
 import angular from 'angular';
 import moment from 'moment';
 
-angular.module('app.exam')
+angular.module('app.printout')
     .component('printoutListing', {
         template:
             '<div id="sitnet-header" class="header">\n' +

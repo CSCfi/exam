@@ -36,6 +36,7 @@ import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { EnrolmentModule } from './enrolment/enrolment.module';
 
 @NgModule({
     imports: [
@@ -51,6 +52,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
         NavigationModule,
         DashboardModule,
         ExamModule,
+        EnrolmentModule,
         QuestionModule,
         UtilityModule,
         ReviewModule,

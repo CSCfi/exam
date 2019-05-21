@@ -22,8 +22,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes',
-            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes) {
+        controller: ['$translate', '$http', 'limitToFilter', 'UserRes', 'Enrolment',
+            function ($translate, $http, limitToFilter, UserRes, Enrolment) {
 
                 const vm = this;
 
@@ -42,7 +42,7 @@ angular.module('app.exam.editor')
 
                 vm.allStudents = function (filter, criteria) {
 
-                    return UserRes.unenrolledStudents.query({eid: vm.exam.id, q: criteria}).$promise.then(
+                    return UserRes.unenrolledStudents.query({ eid: vm.exam.id, q: criteria }).$promise.then(
                         function (names) {
                             return limitToFilter(names, 15);
                         },
@@ -75,14 +75,13 @@ angular.module('app.exam.editor')
                 };
 
                 vm.removeParticipant = function (id) {
-                    EnrollRes.unenrollStudent.remove({id: id}, function () {
-                        vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
-                            return ee.id !== id;
-                        });
-                        toast.info($translate.instant('sitnet_participant_removed'));
-                    }, function (error) {
-                        toast.error(error.data);
-                    });
+                    $http.delete(`/app/enrolments/student/${id}`).then(
+                        function () {
+                            vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
+                                return ee.id !== id;
+                            });
+                            toast.info($translate.instant('sitnet_participant_removed'));
+                        }).catch(err => toast.error(err.data));
                 };
 
                 vm.isActualEnrolment = function (enrolment) {

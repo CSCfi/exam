@@ -21,6 +21,7 @@ import { SectionsListComponent } from './editor/sections/sectionsList.component'
 import { ExamService } from './exam.service';
 import { CoursePickerService } from './editor/common/coursePicker.service';
 import { CoursePickerComponent } from './editor/common/coursePicker.component';
+import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
 
 @NgModule({
     imports: [
@@ -40,7 +41,8 @@ import { CoursePickerComponent } from './editor/common/coursePicker.component';
     ],
     providers: [
         ExamService,
-        CoursePickerService
+        CoursePickerService,
+        CollaborativeExamService
     ]
 })
 export class ExamModule { }

@@ -150,7 +150,10 @@ export class ExamService {
             map(resp => resp.map(et => Object.assign(et, { name: this.getExamTypeDisplayName(et.type) })))
         )
 
-    getScaleDisplayName = (gs: GradeScale): string => {
+    getScaleDisplayName = (gs: GradeScale | null): string => {
+        if (!gs) {
+            return '';
+        }
         let name = '';
         const description = gs.description;
         switch (description) {

@@ -92,7 +92,7 @@
             <!-- Floating feedback window -->
             <r-feedback ng-if="$ctrl.exam && !$ctrl.isUnderLanguageInspection()" [exam]="$ctrl.exam"
                 [collaborative]="$ctrl.collaborative" [participation]="$ctrl.participation"
-                (hidden)="($ctrl.isGraded() && !$ctrl.isOwnerOrAdmin()) || $ctrl.isReadOnly()">
+                ng-hide="($ctrl.isGraded() && !$ctrl.isOwnerOrAdmin()) || $ctrl.isReadOnly()">
             </r-feedback>
             <r-statement ng-if="$ctrl.exam && $ctrl.isUnderLanguageInspection()" exam="$ctrl.exam"></r-statement>
         </div>

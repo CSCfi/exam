@@ -28,7 +28,6 @@ import 'toastr/toastr.scss';
 
 import './administrative';
 import './assets/styles/main.scss';
-import './enrolment';
 import './exam/printout';
 import './maturity';
 
@@ -37,7 +36,8 @@ import configs from './app.config';
 import * as directives from './app.directive';
 import * as filters from './app.filter';
 import runBlock from './app.run';
-import DashboardModule from './dashboard';
+import DashboardModule from './dashboard/dashboard.module.ajs';
+import EnrolmentModule from './enrolment/enrolment.module.ajs';
 import CollaborativeExamModule from './exam/collaborative';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
@@ -56,6 +56,7 @@ angularJS.module('app', [
     SessionModuleAjs,
     NavigationModuleAjs,
     UtilityModule,
+    EnrolmentModule,
     DashboardModule,
     CollaborativeExamModule,
     'app.enrolment',

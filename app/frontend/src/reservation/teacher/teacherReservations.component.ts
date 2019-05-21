@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
-import { ReservationController } from '../reservation.controller';
+import { ReservationComponentBase } from '../reservation.baseComponent';
+import { Component } from '@angular/core';
 
-export const TeacherReservationComponent: angular.IComponentOptions = {
-    template: require('./teacherReservations.template.html'),
-    controller: ReservationController
-};
+@Component({
+    selector: 'teacher-reservations',
+    template: require('./teacherReservations.component.html')
+})
+export class TeacherReservationComponent extends ReservationComponentBase { }

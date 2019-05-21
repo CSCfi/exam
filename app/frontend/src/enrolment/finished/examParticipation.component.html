@@ -1,0 +1,83 @@
+<div class="student-enrolment-wrapper marr20 marl20">
+    <div class="col-md-12">
+
+        <div class="student-exam-header-row">
+
+            <div>
+                <!-- exam title n stuff -->
+                <div class="student-enrolment-exam">
+                    <span *ngIf="participation.exam.anonymous">#{{ participation.exam.id }}</span>
+                    {{ participation.exam.name }}
+                    <span *ngIf="participation.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                </div>
+            </div>
+
+            <div ng-hide="collaborative" class="row evaluation-padtop">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_course_name' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ participation.exam.course.code }} {{ participation.exam.course.name }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_teachers' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            <div>
+                                <teacher-list [exam]="participation.exam" [useParent]="true"></teacher-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row evaluation-padtop">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_exam_endtime' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ participation.ended | applyDst | date:'dd.MM.yyyy'}}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            &nbsp;
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-exam-row" *ngIf="participation.reviewedExam">
+                <div class="student-exam-row-infolink">
+                    <a class="infolink pointer" (click)="showEvaluation = !showEvaluation">
+                        <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate}}</span>
+                        <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate}}</span>
+                        <img class="arrow_icon" alt="hide evaluation" [hidden]="showEvaluation"
+                            src="/assets/assets/images/arrow_right.png">
+                        <img class="arrow_icon" alt="show evaluation" [hidden]="!showEvaluation"
+                            src="/assets/assets/images/arrow_down.png">
+                    </a>
+                </div>
+                <exam-feedback class="student-exam-row-infobox" [hidden]="!showEvaluation"
+                    [assessment]="participation.reviewedExam" scores="[participation.scores]">
+                </exam-feedback>
+            </div>
+            <div class="student-exam-row" *ngIf="participation.reservation.noShow">
+                <div class="student-exam-row-infolink text-danger">{{ 'sitnet_no_show' | translate }}</div>
+            </div>
+            <div class="student-exam-row" *ngIf="!participation.reservation.noShow && !participation.reviewedExam"
+                class="text-muted">
+                <div class="student-exam-row-infolink">{{'sitnet_no_comments' | translate}}</div>
+            </div>
+
+        </div>
+    </div>
+</div>

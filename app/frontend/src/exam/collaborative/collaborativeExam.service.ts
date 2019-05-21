@@ -13,56 +13,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as ng from 'angular';
-import * as toast from 'toastr';
 import { SessionService } from '../../session/session.service';
 import { CollaborativeExam, Participation } from '../exam.model';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
+@Injectable()
 export class CollaborativeExamService {
 
     exams: CollaborativeExam[];
 
     constructor(
-        private $http: ng.IHttpService,
-        private $q: ng.IQService,
-        private Session: SessionService) {
+        private http: HttpClient,
+        private Session: SessionService
+    ) { }
 
-        'ngInject';
-    }
+    listStudentParticipations = (): Observable<Participation[]> =>
+        this.http.get<Participation[]>('/integration/iop/student/finishedExams')
 
-    listStudentParticipations(): ng.IPromise<Participation[]> {
-        const deferred: ng.IDeferred<Participation[]> = this.$q.defer();
-        this.$http.get('/integration/iop/student/finishedExams')
-            .then((resp: ng.IHttpResponse<Participation[]>) => {
-                deferred.resolve(resp.data);
-            }, err => {
-                toast.error(err.data);
-                deferred.reject(err);
-            });
-        return deferred.promise;
-    }
-
-    listExams(): ng.IPromise<CollaborativeExam[]> {
-        const deferred: ng.IDeferred<CollaborativeExam[]> = this.$q.defer();
+    listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
-        this.$http.get(path).then((resp: ng.IHttpResponse<CollaborativeExam[]>) => {
-            deferred.resolve(resp.data);
-        }, err => {
-            toast.error(err.data);
-            deferred.reject(err);
-        });
-        return deferred.promise;
+        return this.http.get<CollaborativeExam[]>(path);
     }
 
-    createExam(): ng.IPromise<CollaborativeExam> {
-        const deferred: ng.IDeferred<CollaborativeExam> = this.$q.defer();
-        this.$http.post('/integration/iop/exams', {}).then((resp: ng.IHttpResponse<CollaborativeExam>) => {
-            deferred.resolve(resp.data);
-        }, err => {
-            toast.error(err.data);
-            deferred.reject(err);
-        });
-        return deferred.promise;
-    }
+    createExam = (): Observable<CollaborativeExam> =>
+        this.http.post<CollaborativeExam>('/integration/iop/exams', {})
 
 }

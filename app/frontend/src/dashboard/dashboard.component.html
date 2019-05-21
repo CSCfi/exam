@@ -1,0 +1,11 @@
+<div style="min-height: 700px">
+    <div *ngIf="user.isStudent">
+        <student-dashboard></student-dashboard>
+    </div>
+    <div *ngIf="user.isTeacher">
+        <teacher-dashboard></teacher-dashboard>
+    </div>
+    <div *ngIf="user.isAdmin">
+        <admin-reservations></admin-reservations>
+    </div>
+</div>

@@ -12,50 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
-import { IHttpResponse, IHttpService, IQService } from 'angular';
 import * as moment from 'moment';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { map } from 'rxjs/operators';
+import { Reservation } from '../../reservation/reservation.model';
 
-interface Reservation {
-    machine?: {
-        room: { localTimezone: string },
-    };
-    externalReservation?: {
-        roomTz: string;
-    };
-    startAt: moment.MomentInput;
-    endAt: moment.MomentInput;
-    occasion: {
-        startAt: string;
-        endAt: string;
-    };
+interface Occasion {
+    startAt: string;
+    endAt: string;
 }
 
+export interface DashboardEnrolment extends ExamEnrolment {
+    occasion?: Occasion;
+    startAtAggregate: any;
+}
+
+@Injectable()
 export class StudentDashboardService {
 
-    constructor(private $q: IQService, private $http: IHttpService) {
-        'ngInject';
-    }
+    constructor(private http: HttpClient) { }
 
-    listEnrolments(): angular.IPromise<{ result: any[] }> {
-        const deferred: angular.IDeferred<{ result: any[] }> = this.$q.defer();
+    listEnrolments = (): Observable<DashboardEnrolment[]> =>
+        this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(
+            map(enrolments =>
+                enrolments.map(e => {
+                    const occasion = e.reservation ? this.getOccasion(e.reservation) : undefined;
+                    const startAt = e.reservation ? e.reservation.startAt : 0;
+                    return {
+                        ...e,
+                        occasion,
+                        startAtAggregate: startAt
+                    };
+                })
+            )
+        )
 
-        this.$http.get('/app/student/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
-            const enrolments = resp.data;
-            enrolments.forEach((e) => {
-                if (e.reservation) {
-                    this.setOccasion(e.reservation);
-                }
-            });
-            deferred.resolve({ result: enrolments });
-        }).catch((resp) => {
-            deferred.reject(resp);
-        });
-        return deferred.promise;
-    }
-
-    private setOccasion(reservation: Reservation) {
+    private getOccasion(reservation: Reservation): Occasion {
         const machine = reservation.machine;
         const external = reservation.externalReservation;
         let tz;
@@ -73,10 +68,11 @@ export class StudentDashboardService {
         if (end.isDST()) {
             end.add(-1, 'hour');
         }
-        reservation.occasion = {
+        return {
             startAt: start.format('HH:mm'),
             endAt: end.format('HH:mm')
         };
+
     }
 
 }

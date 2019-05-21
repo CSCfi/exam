@@ -1,9 +1,11 @@
 import { User } from '../session/session.service';
+import { LanguageInspection } from '../maturity/maturity.model';
 
 export interface Grade {
     id: number;
     name: string;
     marksRejection: boolean;
+    displayName: string;
 }
 
 export interface GradeEvaluation {
@@ -224,11 +226,20 @@ export interface ExamImpl {
     objectVersion: number;
     examFeedback: Feedback;
     grade: Grade;
+    gradedTime?: Date;
+    contentGrade?: string;
     gradeless: boolean;
-    creditType: { type: string };
+    credit: number;
+    creditType: { type: string, displayName: string };
     customCredit: number;
+    maxScore: number;
+    totalScore: number;
+    approvedAnswerCount: number;
+    rejectedAnswerCount: number;
     additionalInfo: string;
     instruction: string;
+    autoEvaluationNotified: boolean;
+    languageInspection?: LanguageInspection;
     examInspections: { user: User, ready: boolean }[];
 }
 

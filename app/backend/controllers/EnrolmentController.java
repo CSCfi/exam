@@ -178,9 +178,6 @@ public class EnrolmentController extends BaseController {
                     .eq("exam.state", Exam.State.STUDENT_STARTED)
                     .endJunction()
                     .findList();
-            if (enrolments.isEmpty()) {
-                return notFound("error not found");
-            }
             return ok(enrolments);
         }
         return forbidden("sitnet_no_trials_left");

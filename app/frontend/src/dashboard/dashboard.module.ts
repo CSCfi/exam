@@ -21,6 +21,10 @@ import { TeacherDashboardComponent } from './teacher/teacherDashboard.component'
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 import { ReservationModule } from '../reservation/reservation.module';
 import { ExamSearchPipe } from './examSearch.pipe';
+import { StudentDashboardComponent } from './student/studentDashboard.component';
+import { DashboardComponent } from './dashboard.component';
+import { EnrolmentModule } from '../enrolment/enrolment.module';
+import { StudentDashboardService } from './student/studentDashboard.service';
 
 @NgModule({
     imports: [
@@ -28,18 +32,24 @@ import { ExamSearchPipe } from './examSearch.pipe';
         OrderModule,
         ReservationModule,
         UtilityModule,
+        EnrolmentModule
     ],
     declarations: [
         ExamListCategoryComponent,
         TeacherDashboardComponent,
+        StudentDashboardComponent,
+        DashboardComponent,
         ExamSearchPipe
     ],
     entryComponents: [
         ExamListCategoryComponent,
-        TeacherDashboardComponent
+        TeacherDashboardComponent,
+        StudentDashboardComponent,
+        DashboardComponent
     ],
     providers: [
         TeacherDashboardService,
+        StudentDashboardService,
         ExamSearchPipe
     ]
 })

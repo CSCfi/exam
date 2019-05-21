@@ -1,0 +1,18 @@
+<div id="sitnet-dialog">
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <div class="student-enroll-title">{{title | translate}}</div>
+        </div>
+        <div>
+            <!-- TODO: mathjax -->
+            <p [innerHtml]="instructions"></p>
+        </div>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" (click)="ok()">
+                    {{'sitnet_button_ok' | translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

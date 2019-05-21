@@ -13,11 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import * as toastr from 'toastr';
 import * as _ from 'lodash';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { CollaborativeExam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
+import { Component, OnInit } from '@angular/core';
+import { LanguageService } from '../../utility/language/language.service';
 
 
 interface CollaborativeExamInfo extends CollaborativeExam {
@@ -26,7 +28,8 @@ interface CollaborativeExamInfo extends CollaborativeExam {
     enrolled: boolean;
 }
 
-export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
+@Component({
+    selector: 'collaborative-exam-search',
     template: `
     <div id="dashboard">
         <div>
@@ -34,40 +37,40 @@ export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
                 <div class="student-exam-search-title">{{'sitnet_collaborative_exams' | translate}}</div>
             </div>
         </div>
-        <div class="exams-list marr30 list-item" ng-repeat="exam in $ctrl.exams">
-            <exam-search-result exam="exam" collaborative="true"></exam-search-result>
+        <div class="exams-list marr30 list-item" *ngFor="let exam of exams">
+            <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
         </div>
     </div>
-    `,
-    controller: class CollaborativeExamSearchController implements angular.IComponentController {
+    `
+})
+export class CollaborativeExamSearchComponent implements OnInit {
 
-        exams: CollaborativeExamInfo[];
+    exams: CollaborativeExamInfo[];
 
-        constructor(
-            private Enrolment: EnrolmentService,
-            private Language: any,
-            private CollaborativeExam: CollaborativeExamService) {
-            'ngInject';
-        }
+    constructor(
+        private Enrolment: EnrolmentService,
+        private Language: LanguageService,
+        private CollaborativeExam: CollaborativeExamService
+    ) { }
 
-        $onInit() {
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams.map(e =>
-                    _.assign(e, {
-                        reservationMade: false,
-                        enrolled: false,
-                        languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
-                    }));
-                this.exams.forEach(e => {
-                    this.Enrolment.getEnrolments(e.id, true).then(enrolments => {
+    ngOnInit() {
+        this.CollaborativeExam.listExams().subscribe((exams: CollaborativeExam[]) => {
+            this.exams = exams.map(e =>
+                _.assign(e, {
+                    reservationMade: false,
+                    enrolled: false,
+                    languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
+                }));
+            this.exams.forEach(e => {
+                this.Enrolment.getEnrolments(e.id, true).subscribe(
+                    enrolments => {
                         e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
                         e.enrolled = enrolments.length > 0;
-                    }).catch(angular.noop);
-                });
-            }).catch(angular.noop);
-        }
+                    },
+                    err => toastr.error(err.data)
+                );
+            });
+        });
 
     }
-};
-
-angular.module('app.enrolment').component('collaborativeExamSearch', CollaborativeExamSearchComponent);
+}

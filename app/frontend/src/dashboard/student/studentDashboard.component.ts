@@ -12,60 +12,48 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
 import { ReservationService } from '../../reservation/reservation.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
-import { StudentDashboardService } from './studentDashboard.service';
+import { StudentDashboardService, DashboardEnrolment } from './studentDashboard.service';
 import { EnrolmentService } from '../../enrolment/enrolment.service';
 import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { Component, OnInit } from '@angular/core';
+import { Exam } from '../../exam/exam.model';
 
-export const StudentDashboardComponent: angular.IComponentOptions = {
-    template: require('./studentDashboard.template.html'),
-    controller: class StudentDashboardController implements angular.IComponentController {
+@Component({
+    selector: 'student-dashboard',
+    template: require('./studentDashboard.component.html')
+})
+export class StudentDashboardComponent implements OnInit {
 
-        userEnrolments: any[];
+    userEnrolments: DashboardEnrolment[];
 
-        constructor(
-            private StudentDashboard: StudentDashboardService,
-            private Reservation: ReservationService,
-            private DateTime: DateTimeService,
-            private Enrolment: EnrolmentService,
-            private Session: SessionService) {
-            'ngInject';
-        }
-
-        $onInit() {
-            this.StudentDashboard.listEnrolments().then(data =>
-                this.userEnrolments = data.result
-            ).catch(function (e) {
-                console.error(e);
-            });
-        }
-
-        printExamDuration(exam) {
-            return this.DateTime.printExamDuration(exam);
-        }
-
-        removeReservation(enrolment) {
-            this.Reservation.removeReservation(enrolment);
-        }
-
-        addEnrolmentInformation(enrolment) {
-            this.Enrolment.addEnrolmentInformation(enrolment);
-        }
-
-        getUsername(): string {
-            return this.Session.getUserName();
-        }
-
-        enrolmentRemoved(data: ExamEnrolment) {
-            this.userEnrolments.splice(this.userEnrolments.indexOf(data), 1);
-        }
-
-        removeEnrolment(enrolment: ExamEnrolment) {
-            this.Enrolment.removeEnrolment(enrolment);
-        }
+    constructor(
+        private StudentDashboard: StudentDashboardService,
+        private Reservation: ReservationService,
+        private DateTime: DateTimeService,
+        private Enrolment: EnrolmentService,
+        private Session: SessionService) {
     }
-};
 
+    ngOnInit() {
+        this.StudentDashboard.listEnrolments().subscribe(
+            data => this.userEnrolments = data,
+            err => console.error(err)
+        );
+    }
+
+    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
+
+    removeReservation = (enrolment: ExamEnrolment) => this.Reservation.removeReservation(enrolment);
+
+    addEnrolmentInformation = (enrolment: ExamEnrolment) => this.Enrolment.addEnrolmentInformation(enrolment);
+
+    getUsername = (): string => this.Session.getUserName();
+
+    enrolmentRemoved = (data: DashboardEnrolment) => this.userEnrolments.splice(this.userEnrolments.indexOf(data), 1);
+
+    removeEnrolment = (enrolment: ExamEnrolment) => this.Enrolment.removeEnrolment(enrolment);
+
+}

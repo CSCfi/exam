@@ -1,5 +1,3 @@
-import { ExamEnrolment } from '../enrolment/enrolment.model';
-
 /*
  * Copyright (c) 2017 Exam Consortium
  *
@@ -14,9 +12,27 @@ import { ExamEnrolment } from '../enrolment/enrolment.model';
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import moment = require('moment');
+import { User } from '../session/session.service';
+
+export interface ExamRoom {
+    id: number;
+    localTimezone: string;
+    roomInstruction: string;
+    roomInstructionEn: string;
+    roomInstructionFi: string;
+    roomInstructionSv: string;
+}
+
 export interface ExamMachine {
     id: number;
     name: string;
+    room: ExamRoom;
+}
+
+export interface ExternalReservation {
+    roomTz: string;
 }
 
 export interface Reservation {
@@ -24,5 +40,10 @@ export interface Reservation {
     noShow: boolean;
     enrolment: ExamEnrolment;
     externalRef?: string;
+    externalReservation?: ExternalReservation;
+    externalUserRef?: string;
     machine: ExamMachine;
+    startAt: moment.MomentInput;
+    endAt: moment.MomentInput;
+    user: User;
 }

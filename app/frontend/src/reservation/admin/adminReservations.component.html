@@ -1,0 +1,60 @@
+<div id="dashboard">
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title">{{'sitnet_reservations_administration' | translate}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reservation-border">
+
+        <div class="pad30">
+            <div class="col-md-2">
+                <strong class="reservation-search-titles">{{'sitnet_student' | translate}}</strong>
+                <dropdown-select *ngIf="studentOptions" [options]="studentOptions" (onSelect)="studentChanged($event)">
+                </dropdown-select>
+            </div>
+            <div class="col-md-3">
+                <strong class="reservation-search-titles">{{'sitnet_exam' | translate}}</strong>
+                <dropdown-select *ngIf="examOptions" [options]="examOptions" (onSelect)="examChanged(value)">
+                </dropdown-select>
+            </div>
+            <div class="col-md-2 reservation-search-titles">
+                {{'sitnet_begin' | translate}}
+                <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+            </div>
+            <div class="col-md-2 reservation-search-titles">
+                {{'sitnet_end' | translate}}
+                <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+            </div>
+        </div>
+        <div class="pad30">
+            <div class="col-md-2">
+                <strong class="reservation-search-titles">{{'sitnet_exam_owners' | translate}}</strong>
+                <dropdown-select *ngIf="teacherOptions" [options]="teacherOptions" (onSelect)="ownerChanged($event)">
+                </dropdown-select>
+            </div>
+            <div class="col-md-2">
+                <strong class="reservation-search-titles">{{'sitnet_room' | translate}}</strong>
+                <dropdown-select *ngIf="roomOptions" [options]="roomOptions" (onSelect)="roomChanged($event)">
+                </dropdown-select>
+            </div>
+            <div class="col-md-2">
+                <strong class="reservation-search-titles">{{'sitnet_exam_machine' | translate}}</strong>
+                <dropdown-select *ngIf="machineOptions" [options]="machineOptions" (onSelect)="machineChanged($event)">
+                </dropdown-select>
+            </div>
+            <div class="col-md-3">
+                <strong class="reservation-search-titles">{{'sitnet_exam_state' | translate}}</strong>
+                <dropdown-select [options]="stateOptions" (onSelect)="stateChanged($event)">
+                </dropdown-select>
+            </div>
+        </div>
+
+        <reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="true">
+        </reservation-details>
+
+    </div>
+</div>

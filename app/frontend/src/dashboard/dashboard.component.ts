@@ -13,22 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
 import { SessionService, User } from '../session/session.service';
+import { Component, OnInit } from '@angular/core';
 
-export const DashboardComponent: angular.IComponentOptions = {
-    template: require('./dashboard.template.html'),
-    controller: class DashboardController implements angular.IComponentController {
+@Component({
+    selector: 'dashboard',
+    template: require('./dashboard.component.html')
+})
+export class DashboardComponent implements OnInit {
 
-        user: User;
+    user: User;
 
-        constructor(private Session: SessionService) { 'ngInject'; }
+    constructor(private Session: SessionService) { }
 
-        $onInit() {
-            this.user = this.Session.getUser();
-            if (!this.user) {
-                console.log('not logged in');
-            }
+    ngOnInit() {
+        this.user = this.Session.getUser();
+        if (!this.user) {
+            console.log('not logged in');
         }
     }
-};
+}

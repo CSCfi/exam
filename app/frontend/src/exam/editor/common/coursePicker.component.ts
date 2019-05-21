@@ -73,8 +73,8 @@ export class CoursePickerComponent implements OnInit {
             })
         )
 
-    getCoursesByCode$ = (text$) => this.getCourses$('code', text$);
-    getCoursesByName$ = (text$) => this.getCourses$('name', text$);
+    getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
+    getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
     codeFormat = (c: CourseFilter) => c.code;
     nameFormat = (c: CourseFilter) => c.name;
     courseFormat = (c: Course) => `${c.code} ${c.name}`;
