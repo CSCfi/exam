@@ -71,11 +71,70 @@
         </div>
     </div>
 
+    <!-- Optional exam section selection (if any) -->
+    <div class="student-enrolment-wrapper details-view" *ngIf="examInfo && hasOptionalSections()"
+        [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
+        <div class="student-exam-header-row">
+            <span class="calendar-phase-title">{{ getSequenceNumber('material')}}. {{
+                'sitnet_exam_materials' | translate }}</span>
+            <div class="calendar-phase-icon" *ngIf="sectionSelectionOk()">
+                <img class="arrow_icon" alt="exam materials" src="Images/icon-phase.png">
+            </div>
+        </div>
+        <div *ngFor="let section of examInfo.examSections" class="marb20">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>{{ 'sitnet_exam_section' | translate}}:</strong> {{ section.name }}
+                </div>
+                <div class="col-md-6">
+                    <div *ngIf="section.optional" class="text text-success">
+                        {{ 'sitnet_optional_section' | translate | uppercase }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ section.description }}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check" *ngIf="section.optional">
+                        <input class="form-check-input" type="checkbox" value="" [(ngModel)]="section.selected"
+                            id="check1" (ngModelChange)="checkSectionSelections()">
+                        <label class="form-check-label" for="check1">
+                            {{ 'sitnet_select_optional_section' | translate}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="section.examMaterials.length > 0">
+                <div class="row">
+                    <div class="col-md-12">
+                        <strong>{{'sitnet_exam_materials' | translate}}</strong>
+                    </div>
+                </div>
+                <div ng-repeat="material in section.examMaterials">
+                    <div class="row">
+                        <span class="col-md-12">
+                            {{'sitnet_name' | translate | uppercase}}: {{ material.name }}
+                            <span *ngIf="material.author">
+                                {{'sitnet_author' | translate | uppercase}}: {{ material.author }}
+                            </span>
+                            <span *ngIf="material.isbn">
+                                ISBN: {{ material.isbn }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Organisation picker -->
     <div *ngIf="isExternal" class="student-enrolment-wrapper details-view"
         [ngClass]="selectedOrganisation ? '' : 'notactive'">
         <div class="student-exam-header-row">
-            <span class="calendar-phase-title">2. {{ 'sitnet_choose_institution' | translate }}
+            <span class="calendar-phase-title">
+                {{$ctrl.getSequenceNumber('organization')}}. {{ 'sitnet_choose_institution' | translate }}
                 <small>
                     <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
                         {{'sitnet_internal_reservation' | translate }}&nbsp;
@@ -91,8 +150,9 @@
         <div class="student-exam-row">
             <div class="col-1 student-exam-row-title">
                 <span ngbDropdown>
-                    <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button"
-                        id="dropDownMenu21" aria-haspopup="true" aria-expanded="true">
+                    <button style="width:13em;" [disabled]="!sectionSelectionOk()" ngbDropdownToggle
+                        class="btn btn-default" type="button" id="dropDownMenu21" aria-haspopup="true"
+                        aria-expanded="true">
                         {{ 'sitnet_faculty_name' | translate }}&nbsp;
                         <span class="caret"></span>
                     </button>
@@ -128,9 +188,7 @@
     <div class="student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">
-                <span *ngIf="isExternal">3.</span>
-                <span *ngIf="!isExternal">2.</span>
-                {{ 'sitnet_calendar_phase_2' | translate }}
+                {{ getSequenceNumber('room')}}. {{ 'sitnet_calendar_phase_2' | translate }}
                 <small>
                     <button class="btn btn-sm btn-success btn-link" (click)="makeExternalReservation()"
                         *ngIf="isInteroperable && !isCollaborative && !isExternal">
@@ -145,8 +203,12 @@
         </div>
         <div class="student-exam-header-row" [hidden]="isExternal">
             <div class="calendar-accessibility-link">
-                <a (click)="showAccs = !showAccs">
-                    {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
+                <a *ngIf="sectionSelectionOk()" (click)="showAccs = !showAccs">
+                    {{'sitnet_calendar_room_accessibility_info' | translate}}
+                </a>
+                <span *ngIf="!sectionSelectionOk()" class="text text-muted">
+                    {{'sitnet_calendar_room_accessibility_info' | translate}}
+                </span>
                 <img class="arrow_icon" *ngIf="!showAccs" alt="show accessibility selection"
                     src="Images/arrow_right.png">
                 <img class="arrow_icon" *ngIf="showAccs" alt="hide accessibility selection" src="Images/arrow_down.png">
@@ -168,7 +230,7 @@
             <div class="col-1 student-exam-row-title">
                 <span ngbDropdown>
                     <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button"
-                        id="dropDownMenu1" [disabled]="isExternal && !selectedOrganisation">
+                        id="dropDownMenu1" [disabled]="(isExternal && !selectedOrganisation) || !sectionSelectionOk()">
                         {{'sitnet_room' | translate}}&nbsp;
                         <span class="caret"></span>
                     </button>
@@ -192,18 +254,18 @@
 
         </div>
 
-        <div class="student-exam-row">
+        <div class="student-exam-row" *ngIf="selectedRoom">
 
             <!-- SELECTED ROOM  -->
-            <div class="calendar-room-title" *ngIf="selectedRoom">
-                <span>{{ selectedRoom.name }}&nbsp;
-                    <small class="calendar-room-info-content">{{selectedRoom.mailAddress.street}}
-                        {{selectedRoom.mailAddress.zip}} {{selectedRoom.mailAddress.city}}
+            <div class="calendar-room-title">
+                <span>{{ $ctrl.selectedRoom.name }}&nbsp;
+                    <small class="calendar-room-info-content">{{$ctrl.selectedRoom.mailAddress.street}}
+                        {{$ctrl.selectedRoom.mailAddress.zip}} {{$ctrl.selectedRoom.mailAddress.city}}
                     </small>
                 </span>
             </div>
 
-            <div class="calendar-room-info" *ngIf="selectedRoom">
+            <div class="calendar-room-info">
                 <div class="calendar-room-info-title">{{'sitnet_room_default_working_hours' | translate }}:</div>
                 <div class="calendar-room-info-content">
                     <span *ngFor="let oh of openingHours">
@@ -256,65 +318,6 @@
         </div>
 
     </div>
-
-    <!-- Optional exam section selection (if any) -->
-    <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'"
-        *ngIf="examInfo && hasOptionalSections()">
-        <div class="student-exam-header-row">
-            <span class="calendar-phase-title">{{ getSequenceNumber('material')}}. {{
-                'sitnet_exam_materials' | translate }}</span>
-            <div class="calendar-phase-icon" [hidden]="!reservation">
-                <img class="arrow_icon" alt="exam materials" src="Images/icon-phase.png">
-            </div>
-        </div>
-        <div *ngFor="let section of examInfo.examSections" class="marb20">
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>{{ 'sitnet_exam_section' | translate}}:</strong> {{ section.name }}
-                </div>
-                <div class="col-md-6">
-                    <div *ngIf="section.optional" class="text text-success">
-                        {{ 'sitnet_optional_section' | translate | uppercase }}
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    {{ section.description }}
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check" *ngIf="section.optional">
-                        <input class="form-check-input" type="checkbox" value="" [(ngModel)]="section.selected"
-                            id="check1">
-                        <label class="form-check-label" for="check1">
-                            {{ 'sitnet_select_optional_section' | translate}}
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="section.examMaterials.length > 0">
-                <div class="row">
-                    <div class="col-md-12">
-                        <strong>{{'sitnet_exam_materials' | translate}}</strong>
-                    </div>
-                </div>
-                <div *ngFor="let material of section.examMaterials">
-                    <div class="row">
-                        <span class="col-md-12">
-                            {{'sitnet_name' | translate | uppercase}}: {{ material.name }}
-                            <span *ngIf="material.author">
-                                {{'sitnet_author' | translate | uppercase}}: {{ material.author }}
-                            </span>
-                            <span *ngIf="material.isbn">
-                                ISBN: {{ material.isbn }}
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <!-- Reservation confirmation -->
 
