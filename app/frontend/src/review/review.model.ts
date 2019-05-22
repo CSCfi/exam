@@ -1,4 +1,4 @@
-import { EssayAnswer, Question, ReverseExamSectionQuestion, Attachment } from '../exam/exam.model';
+import { Attachment, EssayAnswer, Question, ReverseExamSectionQuestion } from '../exam/exam.model';
 
 export interface ScorableEssayAnswer extends EssayAnswer {
     id: number;

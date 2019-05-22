@@ -1,6 +1,7 @@
-import { Exam, CollaborativeExam } from '../exam/exam.model';
-import { Reservation } from '../reservation/reservation.model';
 import { MomentInput } from 'moment';
+
+import { CollaborativeExam, Exam } from '../exam/exam.model';
+import { Reservation } from '../reservation/reservation.model';
 
 export interface ExamParticipation {
     id: number;

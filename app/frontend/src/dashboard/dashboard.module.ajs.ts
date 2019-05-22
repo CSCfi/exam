@@ -12,16 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
-import ReservationModule from '../reservation/reservation.module.ajs'; // TODO: make a proper exportable module
+
+import ReservationModule from '../reservation/reservation.module.ajs';
 import { DashboardComponent } from './dashboard.component';
 import { StudentDashboardComponent } from './student/studentDashboard.component';
 import { StudentDashboardService } from './student/studentDashboard.service';
 import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
-import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
+
 
 
 require('../exam/editor'); // TODO: make a proper exportable module

@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as moment from 'moment';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import * as moment from 'moment';
 import { Observable } from 'rxjs';
-import { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { map } from 'rxjs/operators';
+
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { Reservation } from '../../reservation/reservation.model';
 
 interface Occasion {

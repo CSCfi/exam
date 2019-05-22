@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { ExamService } from '../../exam/exam.service';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Exam, ExamExecutionType } from '../../exam/exam.model';
-import { ReservationService } from '../../reservation/reservation.service';
-import { Observable, forkJoin } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { Exam, ExamExecutionType } from '../../exam/exam.model';
+import { ExamService } from '../../exam/exam.service';
+import { ReservationService } from '../../reservation/reservation.service';
+
 
 export interface DraftExam extends Exam {
     ownerAggregate: string;

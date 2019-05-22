@@ -12,14 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { SessionService } from '../../session/session.service';
-import { TeacherDashboardService } from './teacherDashboard.service';
-import { Location } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { ExamExecutionType } from '../../exam/exam.model';
-import { ExamSearchPipe } from '../examSearch.pipe';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+
+import { ExamExecutionType } from '../../exam/exam.model';
+import { SessionService } from '../../session/session.service';
+import { ExamSearchPipe } from '../examSearch.pipe';
+import { TeacherDashboardService } from './teacherDashboard.service';
+
 
 interface ExtraColumn {
     text: string;

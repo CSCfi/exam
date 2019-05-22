@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { UtilityModule } from '../utility/utility.module';
 import { AssessmentService } from './assessment/assessment.service';
-import { FeedbackComponent } from './assessment/feedback/feedback.component';
 import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { FeedbackComponent } from './assessment/feedback/feedback.component';
 
 @NgModule({
     imports: [

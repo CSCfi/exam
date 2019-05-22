@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import * as moment from 'moment';
-import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { TranslateService } from '@ngx-translate/core';
 import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import * as moment from 'moment';
+import * as toast from 'toastr';
+
 import { ExamEnrolment } from '../enrolment.model';
+
 
 @Component({
     selector: 'waiting-room',

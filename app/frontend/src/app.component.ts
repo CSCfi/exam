@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
-
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 import { SessionService, User } from './session/session.service';
 
 export const AppComponent: angular.IComponentOptions = {

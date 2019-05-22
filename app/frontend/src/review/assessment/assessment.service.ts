@@ -20,7 +20,8 @@ import * as _ from 'lodash';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
-import { Feedback, Exam, ExamSectionQuestion } from '../../exam/exam.model';
+
+import { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { Examination, ExaminationQuestion } from '../../examination/examination.service';
 import { SessionService } from '../../session/session.service';

@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toastr from 'toastr';
+import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash';
+import * as toastr from 'toastr';
+
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { CollaborativeExam } from '../../exam/exam.model';
-import { EnrolmentService } from '../enrolment.service';
-import { Component, OnInit } from '@angular/core';
 import { LanguageService } from '../../utility/language/language.service';
+import { EnrolmentService } from '../enrolment.service';
+
 
 
 interface CollaborativeExamInfo extends CollaborativeExam {

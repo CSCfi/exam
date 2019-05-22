@@ -14,14 +14,15 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-
-import * as toast from 'toastr';
-import { Option } from '../../utility/select/dropDownSelect.component';
+import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { Reservation, ExamMachine } from '../reservation.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
+import * as toast from 'toastr';
+
+import { Option } from '../../utility/select/dropDownSelect.component';
+import { ExamMachine, Reservation } from '../reservation.model';
+
 
 @Component({
     selector: 'change-machine-dialog',

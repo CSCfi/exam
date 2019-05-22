@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { ReviewedExam, Scores } from '../enrolment.model';
+
 import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
     selector: 'exam-feedback',

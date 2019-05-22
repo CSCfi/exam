@@ -12,15 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import * as _ from 'lodash';
-import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { LanguageService } from '../../utility/language/language.service';
+import { Component, OnInit } from '@angular/core';
+import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ExamEnrolment, EnrolmentInfo } from '../enrolment.model';
+import * as toast from 'toastr';
+
+import { LanguageService } from '../../utility/language/language.service';
+import { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
+
 
 @Component({
     selector: 'exam-search',

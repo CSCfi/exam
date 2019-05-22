@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { Component, OnInit } from '@angular/core';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { Participation } from '../../exam/exam.model';
-import { Component, OnInit } from '@angular/core';
+
 
 interface Filter {
     ordering: string;

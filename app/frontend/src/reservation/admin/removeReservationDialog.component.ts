@@ -12,11 +12,12 @@
  *  on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toast from 'toastr';
-import { Component, Input } from '@angular/core';
-import { Reservation } from '../reservation.model';
 import { HttpClient } from '@angular/common/http';
+import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import * as toast from 'toastr';
+
+import { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'remove-reservation-dialog',

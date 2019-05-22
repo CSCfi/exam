@@ -15,16 +15,17 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { OrderModule } from 'ngx-order-pipe';
+
+import { EnrolmentModule } from '../enrolment/enrolment.module';
+import { ReservationModule } from '../reservation/reservation.module';
 import { UtilityModule } from '../utility/utility.module';
+import { DashboardComponent } from './dashboard.component';
+import { ExamSearchPipe } from './examSearch.pipe';
+import { StudentDashboardComponent } from './student/studentDashboard.component';
+import { StudentDashboardService } from './student/studentDashboard.service';
 import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
-import { ReservationModule } from '../reservation/reservation.module';
-import { ExamSearchPipe } from './examSearch.pipe';
-import { StudentDashboardComponent } from './student/studentDashboard.component';
-import { DashboardComponent } from './dashboard.component';
-import { EnrolmentModule } from '../enrolment/enrolment.module';
-import { StudentDashboardService } from './student/studentDashboard.service';
 
 @NgModule({
     imports: [

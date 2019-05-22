@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+
+import { UtilityModule } from '../utility/utility.module';
 import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
-import { UtilityModule } from '../utility/utility.module';
 
 @NgModule({
     imports: [

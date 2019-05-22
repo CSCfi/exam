@@ -12,15 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location, registerLocaleData } from '@angular/common';
+import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
-import { defer, from, iif, interval, Observable, of, Subject, Unsubscribable, throwError } from 'rxjs';
+import { defer, from, iif, interval, Observable, of, Subject, throwError, Unsubscribable } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
+
 import { WindowRef } from '../utility/window/window.service';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';

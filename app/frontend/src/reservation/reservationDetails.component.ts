@@ -14,13 +14,14 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-
-import * as toast from 'toastr';
-import { ReservationService } from './reservation.service';
-import { Component, Input } from '@angular/core';
-import { Reservation } from './reservation.model';
 import { HttpClient } from '@angular/common/http';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
+
+import { Reservation } from './reservation.model';
+import { ReservationService } from './reservation.service';
+
 
 @Component({
     selector: 'reservation-details',

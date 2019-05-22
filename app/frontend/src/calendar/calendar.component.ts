@@ -13,21 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
-import * as moment from 'moment';
-import * as toast from 'toastr';
-import { DateTimeService } from '../utility/date/date.service';
-import { CalendarService, Room, Slot } from './calendar.service';
-import { Component, OnInit, Input, Inject, OnDestroy, ViewChild } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject, forkJoin } from 'rxjs';
-import { SessionService } from '../session/session.service';
-import { takeUntil, tap, switchMap } from 'rxjs/operators';
 import { Location } from '@angular/common';
-import { BookingCalendarComponent } from './bookingCalendar.component';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, Inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import * as moment from 'moment';
+import { forkJoin, Subject } from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import * as toast from 'toastr';
+
 import { ExamSection } from '../exam/exam.model';
+import { SessionService } from '../session/session.service';
+import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
+import { BookingCalendarComponent } from './bookingCalendar.component';
+import { CalendarService, Room, Slot } from './calendar.service';
 
 interface SelectableSection extends ExamSection {
     selected: boolean;

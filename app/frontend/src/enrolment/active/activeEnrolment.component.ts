@@ -12,15 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ExamEnrolment } from '../enrolment.model';
-import { TranslateService } from '@ngx-translate/core';
 import { Location } from '@angular/common';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { EnrolmentService } from '../enrolment.service';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
+
 import { ReservationService } from '../../reservation/reservation.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { ExamEnrolment } from '../enrolment.model';
+import { EnrolmentService } from '../enrolment.service';
+
 
 @Component({
     selector: 'active-enrolment',

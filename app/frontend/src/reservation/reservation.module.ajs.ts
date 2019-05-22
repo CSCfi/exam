@@ -12,15 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
+
 import { AdminReservationComponent } from './admin/adminReservations.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-import { ReservationDetailsComponent } from './reservationDetails.component';
 import { ReservationService } from './reservation.service';
+import { ReservationDetailsComponent } from './reservationDetails.component';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
-import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
+
 
 export default angular.module('app.reservation', [])
     .service('Reservation', downgradeInjectable(ReservationService))

@@ -12,16 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as _ from 'lodash';
-import { Component, OnInit, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
-import { ExamParticipation, AssessedParticipation, ReviewedExam } from '../enrolment.model';
-import { ExamService } from '../../exam/exam.service';
-import { Exam } from '../../exam/exam.model';
-import { SessionService } from '../../session/session.service';
-import { takeUntil } from 'rxjs/operators';
+import { Component, Input, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+import { Exam } from '../../exam/exam.model';
+import { ExamService } from '../../exam/exam.service';
+import { SessionService } from '../../session/session.service';
+import { AssessedParticipation, ExamParticipation, ReviewedExam } from '../enrolment.model';
 
 interface StudentParticipation extends ExamParticipation {
 

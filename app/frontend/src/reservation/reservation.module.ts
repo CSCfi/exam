@@ -13,15 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { OrderModule } from 'ngx-order-pipe';
+
 import { UtilityModule } from '../utility/utility.module';
-import { ReservationService } from './reservation.service';
+import { AdminReservationComponent } from './admin/adminReservations.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ReservationService } from './reservation.service';
 import { ReservationDetailsComponent } from './reservationDetails.component';
-import { AdminReservationComponent } from './admin/adminReservations.component';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
-import { OrderModule } from 'ngx-order-pipe';
 
 @NgModule({
     imports: [

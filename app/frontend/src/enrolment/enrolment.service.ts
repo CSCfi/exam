@@ -12,22 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as _ from 'lodash';
-import * as toast from 'toastr';
-import { Exam } from '../exam/exam.model';
-import { User } from '../session/session.service';
-import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
-import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { LanguageService } from '../utility/language/language.service';
-import { Observable, of, throwError, forkJoin } from 'rxjs';
-import { map, tap, switchMap, catchError } from 'rxjs/operators';
-import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { TranslateService } from '@ngx-translate/core';
+import * as _ from 'lodash';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import * as toast from 'toastr';
+
+import { Exam } from '../exam/exam.model';
 import { ExamRoom } from '../reservation/reservation.model';
+import { User } from '../session/session.service';
+import { LanguageService } from '../utility/language/language.service';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
+import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
 
 @Injectable()
 export class EnrolmentService {

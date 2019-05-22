@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toast from 'toastr';
-import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ExamParticipation } from '../enrolment.model';
+import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import * as toast from 'toastr';
+
+import { ExamParticipation } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participations',

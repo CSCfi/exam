@@ -15,8 +15,10 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { OrderModule } from 'ngx-order-pipe';
+
 import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
+import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
 import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
 import { CollaborativeExamParticipationsComponent } from './finished/collaborativeExamParticipations.component';
@@ -28,7 +30,6 @@ import { ExamSearchComponent } from './search/examSearch.component';
 import { ExamSearchResultComponent } from './search/examSearchResult.component';
 import { WaitingRoomComponent } from './waiting-room/waitingRoom.component';
 import { WrongLocationComponent } from './wrong-location/wrongLocation.component';
-import { EnrolmentService } from './enrolment.service';
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({

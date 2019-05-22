@@ -12,18 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { TranslateService } from '@ngx-translate/core';
+import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { Reservation, ExamMachine } from './reservation.model';
+import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
+
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { Exam } from '../exam/exam.model';
+import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
+import { ExamMachine, Reservation } from './reservation.model';
+
 
 @Injectable()
 export class ReservationService {

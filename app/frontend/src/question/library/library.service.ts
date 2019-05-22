@@ -12,17 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
-
-// add jquery reference
-declare var $: any;
 
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;

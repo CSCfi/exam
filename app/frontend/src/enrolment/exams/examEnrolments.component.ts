@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { Component, Inject, OnInit } from '@angular/core';
 import * as toast from 'toastr';
-import { Component, OnInit, Inject } from '@angular/core';
-import { EnrolmentService } from '../enrolment.service';
+
 import { SessionService } from '../../session/session.service';
 import { EnrolmentInfo } from '../enrolment.model';
+import { EnrolmentService } from '../enrolment.service';
+
 
 @Component({
     selector: 'exam-enrolments',

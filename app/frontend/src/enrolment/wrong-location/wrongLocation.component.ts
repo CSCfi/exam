@@ -12,16 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import * as moment from 'moment';
-import { Component, OnInit, Input, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { EnrolmentService } from '../enrolment.service';
+import * as moment from 'moment';
+import * as toast from 'toastr';
+
+import { ExamMachine } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamEnrolment } from '../enrolment.model';
-import { ExamMachine } from '../../reservation/reservation.model';
+import { EnrolmentService } from '../enrolment.service';
+
 
 @Component({
     selector: 'wrong-location',

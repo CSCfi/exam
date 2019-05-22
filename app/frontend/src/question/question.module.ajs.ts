@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
-import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
-import { QuestionService } from './question.service';
+
 import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
+import { QuestionService } from './question.service';
+
 
 angular.module('app.question', [])
     .directive('librarySearch', downgradeComponent({ component: LibrarySearchComponent }))

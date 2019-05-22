@@ -13,13 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { UtilityModule } from '../utility/utility.module';
 import { DevLoginComponent } from './dev/devLogin.component';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { LogoutComponent } from './logout/logout.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { SessionService } from './session.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [

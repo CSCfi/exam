@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 import * as toast from 'toastr';
-import * as _ from 'lodash';
+
 import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuestion } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
+
 
 @Injectable()
 export class QuestionService {

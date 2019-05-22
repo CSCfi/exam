@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Pipe, PipeTransform } from '@angular/core';
+
 import { Exam } from '../exam/exam.model';
 
 @Pipe({ name: 'examSearch' })

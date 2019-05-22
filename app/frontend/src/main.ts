@@ -15,11 +15,13 @@
 // These two moduls must be imported first. Otherwise the whole app breaks.
 import 'reflect-metadata';
 import 'zone.js';
+
 import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 import { AppModule } from './app.module';
 
 registerLocaleData(localeSv);

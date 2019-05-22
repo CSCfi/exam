@@ -12,18 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { HttpClient } from '@angular/common/http';
+import { Inject, OnInit } from '@angular/core';
 import * as _ from 'lodash';
+import { OrderPipe } from 'ngx-order-pipe';
+import { of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
+
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
+import { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
-import { OrderPipe } from 'ngx-order-pipe';
-import { Inject, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Reservation, ExamRoom, ExamMachine } from './reservation.model';
-import { map, tap, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+
 
 interface Selection {
     roomId?: number;

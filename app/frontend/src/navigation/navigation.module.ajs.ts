@@ -14,6 +14,7 @@
  */
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
+
 import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 

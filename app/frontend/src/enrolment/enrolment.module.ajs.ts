@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
-import { EnrolmentService } from './enrolment.service';
-import { WrongLocationService } from './wrong-location/wrongLocation.service';
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
+
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
+import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
 import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
 import { CollaborativeExamParticipationsComponent } from './finished/collaborativeExamParticipations.component';
@@ -27,6 +27,7 @@ import { ExamSearchComponent } from './search/examSearch.component';
 import { ExamSearchResultComponent } from './search/examSearchResult.component';
 import { WaitingRoomComponent } from './waiting-room/waitingRoom.component';
 import { WrongLocationComponent } from './wrong-location/wrongLocation.component';
+import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 require('../common');
 require('../exam'); // TODO: refactor

@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
 import { Component, Input } from '@angular/core';
+
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import { EnrolmentService } from '../enrolment.service';
 import { DateTimeService } from '../../utility/date/date.service';
+import { EnrolmentService } from '../enrolment.service';
+
 
 @Component({
     selector: 'enrolment-details',

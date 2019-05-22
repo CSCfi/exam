@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { LibraryQuestion, LibraryService } from '../library.service';
-import { SessionService, User } from '../../../session/session.service';
-import { Exam, Course, Tag, ExamSection } from '../../../exam/exam.model';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
+
+import { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
+import { SessionService, User } from '../../../session/session.service';
+import { LibraryQuestion, LibraryService } from '../library.service';
 
 
 interface Filterable<T> {
