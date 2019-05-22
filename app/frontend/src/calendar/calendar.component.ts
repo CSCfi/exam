@@ -158,19 +158,26 @@ export const CalendarComponent: ng.IComponentOptions = {
         }
 
         getSequenceNumber(area: string): number {
+            const hasOptionalSections = this.hasOptionalSections();
             switch (area) {
                 case 'info':
                     return 1;
-                case 'organization':
-                    return 2;
-                case 'room':
-                    return this.isExternal ? 3 : 2;
                 case 'material':
-                    return this.isExternal ? 4 : 3;
+                    return 2;
+                case 'organization':
+                    return hasOptionalSections ? 3 : 2;
+                case 'room':
+                    if (this.isExternal && hasOptionalSections) {
+                        return 4;
+                    } else if (this.isExternal || hasOptionalSections) {
+                        return 3;
+                    } else {
+                        return 2;
+                    }
                 case 'confirmation':
-                    if (this.isExternal && this.hasOptionalSections()) {
+                    if (this.isExternal && hasOptionalSections) {
                         return 5;
-                    } else if (this.isExternal || this.hasOptionalSections()) {
+                    } else if (this.isExternal || hasOptionalSections) {
                         return 4;
                     } else {
                         return 3;
@@ -335,14 +342,24 @@ export const CalendarComponent: ng.IComponentOptions = {
             }
         }
 
+        checkSectionSelections = () => {
+            if (!this.sectionSelectionOk()) {
+                delete this.selectedOrganisation;
+                delete this.selectedRoom;
+                delete this.reservation;
+                this.render();
+            }
+        }
+
+        sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
+
         confirmReservation() {
             const room = this.selectedRoom;
             if (!room || !this.reservation || this.confirming) {
                 return;
             }
-            const requiredSections = this.examInfo.examSections.filter(es => !es.optional);
             const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
-            if (requiredSections.length === 0 && selectedSectionIds.length === 0) {
+            if (!this.sectionSelectionOk()) {
                 toast.error(this.$translate.instant('sitnet_select_at_least_one_section'));
                 return;
             }
