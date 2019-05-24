@@ -171,7 +171,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @ManyToOne
     private Grade grade;
 
-    // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Software> softwares;
 
