@@ -277,10 +277,11 @@ class EmailComposerImpl implements EmailComposer {
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
+        String hideSections = exam.getExecutionType().getType()
+                .equals(ExamExecutionType.Type.MATURITY.toString()) ? "hidden" : "visible";
         Set<String> sections = reservation.getOptionalSections().stream()
                 .map(es -> formatSection(es, lang))
                 .collect(Collectors.toSet());
-
         String sectionBlock = String.format("%s<br/>%s",
                 messaging.get(lang, "email.template.section.title"),
                 String.join("<br/>", sections));
@@ -316,6 +317,7 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
         stringValues.put("exam_sections", sectionBlock);
+        stringValues.put("hide_sections", hideSections);
         stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
         stringValues.put("cancellation_link", HOSTNAME);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
