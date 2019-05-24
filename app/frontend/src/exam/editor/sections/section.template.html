@@ -73,7 +73,7 @@
         <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
         <!-- exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials"
             on-changes="$ctrl.materialsChanged()"></exam-material-selector -->
-        <div class="row col-md-12 margin-20" ng-if="$ctrl.canBeOptional">
+        <div class="row col-md-12 margin-20" ng-if="$ctrl.canBeOptional && !$ctrl.collaborative">
             <div class="col-md-3 exam-basic-title">{{'sitnet_optional_section' | translate}}
                 <sup>
                     <img popover-placement="right" popover-trigger="'mouseenter'"
