@@ -16,6 +16,7 @@
 package backend.controllers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -119,7 +120,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result resetExamMachineSoftwareInfo(Long mid) {
+    public Result resetMachineSoftware(Long mid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
         if (machine == null) {
             return notFound();
@@ -133,44 +134,24 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateExamMachineSoftwareInfo(Long mid, Long sid) {
+    public Result updateMachineSoftware(Long mid, Long sid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
         if (machine == null) {
             return notFound();
         }
+        boolean isTurnedOn = false;
         Software software = Ebean.find(Software.class, sid);
-
-        machine.getSoftwareInfo().add(software);
-        machine.update();
-
-        return ok(machine.getSoftwareInfo());
-    }
-
-    @Restrict({@Group("ADMIN")})
-    public Result toggleExamMachineSoftwareInfo(Long mid, Long sid) {
-        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
-        if (machine == null) {
-            return notFound();
-        }
-
-        Software software = Ebean.find(Software.class, sid);
-
         if (machine.getSoftwareInfo().contains(software)) {
             machine.getSoftwareInfo().remove(software);
-            machine.update();
-            ObjectNode part = Json.newObject();
-            part.put("software", "false");
-
-            return ok(Json.toJson(part));
         } else {
             machine.getSoftwareInfo().add(software);
-            machine.update();
-
-            ObjectNode part = Json.newObject();
-            part.put("software", "true");
-
-            return ok(Json.toJson(part));
+            isTurnedOn = true;
         }
+        machine.update();
+        ObjectNode part = Json.newObject();
+        part.put("turnedOn", isTurnedOn);
+
+        return ok(Json.toJson(part));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -214,14 +195,22 @@ public class ExamMachineController extends BaseController {
         return ok(software);
     }
 
+    private Optional<Result> checkSoftwareName(String name) {
+        List<Software> sw = Ebean.find(Software.class).where().ieq("name", name).findList();
+        return sw.isEmpty() ? Optional.empty() :
+                Optional.of(badRequest("Software with that name already exists"));
+
+    }
+
     @Restrict(@Group({"ADMIN"}))
     public Result addSoftware(String name, Http.Request request) {
         Software software = bindForm(Software.class, request);
-        software.setStatus("ACTIVE");
-        software.setName(name);
-        Ebean.save(software);
+        return checkSoftwareName(name).orElseGet(() -> {
+            software.setName(name);
+            software.save();
+            return ok(software);
+        });
 
-        return ok(software);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -230,11 +219,11 @@ public class ExamMachineController extends BaseController {
         if (software == null) {
             return notFound();
         }
-        software.setName(name);
-        software.setStatus("ACTIVE");
-        software.update();
-
-        return ok(software);
+        return checkSoftwareName(name).orElseGet(() -> {
+            software.setName(name);
+            software.update();
+            return ok(software);
+        });
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -243,9 +232,7 @@ public class ExamMachineController extends BaseController {
         if (software == null) {
             return notFound();
         }
-        software.setStatus("DISABLED");
-        software.update();
-
+        software.delete();
         return ok();
     }
 

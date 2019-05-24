@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.facility')
     .component('examRoomsAdminTabs', {
@@ -38,10 +38,6 @@ angular.module('app.facility')
                             toast.error(error.data);
                         }
                     );
-                };
-
-                vm.tabChanged = function (index) {
-                    $location.path('/rooms', false).replace();
                 };
 
                 vm.switchToExamRooms = function () {
