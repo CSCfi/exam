@@ -349,7 +349,6 @@ public class StudentExamController extends BaseController {
         }
         studentExam.generateHash();
         studentExam.save();
-
         enrolment.setExam(studentExam);
         enrolment.save();
 
@@ -374,7 +373,10 @@ public class StudentExamController extends BaseController {
                 .eq("user.id", user.getId())
                 .or()
                 .eq("exam.id", prototype.getId())
+                .and()
                 .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
+                .isNull("exam.id")
+                .endAnd()
                 .endOr()
                 .le("reservation.startAt", now.toDate())
                 .gt("reservation.endAt", now.toDate())
