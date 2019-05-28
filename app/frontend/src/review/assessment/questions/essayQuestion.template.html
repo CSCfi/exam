@@ -86,7 +86,7 @@
                     <span ng-if="$ctrl.sectionQuestion.evaluationType === 'Points'">
                         <form name="essayPoints">
                             <input id="score" name="score" type="number" lang="en" class="form-control"
-                                ng-model="$ctrl.sectionQuestion.essayAnswer.evaluatedScore"
+                                ng-model="$ctrl.sectionQuestion.essayAnswer.evaluatedScore" fixed-precision
                                 ui-blur="$ctrl.insertEssayScore()" onclick="this.focus()"
                                 ng-disabled="!$ctrl.isScorable" min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
                             <small ng-show="essayPoints.$invalid" class="alert-danger">
