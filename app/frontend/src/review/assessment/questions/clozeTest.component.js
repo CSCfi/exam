@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import _ from 'lodash';
+import toast from 'toastr';
+
 
 angular.module('app.review')
     .component('rClozeTest', {
@@ -54,7 +54,7 @@ angular.module('app.review')
                 vm.displayAchievedScore = function () {
                     const max = vm.sectionQuestion.maxScore;
                     const score = vm.sectionQuestion.clozeTestAnswer.score;
-                    return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
+                    return (score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers)).toFixed(2)
                 }
 
                 vm.insertForcedScore = () => {

@@ -910,5 +910,6 @@
   "sitnet_exam_editor_materials": "Tenttimateriaalit EN",
   "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu EN",
   "sitnet_write_exam_owner_email": "Tentaattorin sähköpostiosoite EN",
-  "sitnet_exam_collaboration_supported": "Yhteistentit tuettu EN"
+  "sitnet_exam_collaboration_supported": "Yhteistentit tuettu EN",
+  "sitnet_set_forced_score": "Ohita automaattisesti lasketut pisteet EN"
 }
