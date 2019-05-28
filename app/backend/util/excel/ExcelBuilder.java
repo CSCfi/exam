@@ -20,9 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import io.ebean.Ebean;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -49,10 +52,14 @@ public class ExcelBuilder {
             headerRow.createCell(i).setCellValue(headers[i]);
         }
         for (ExamRecord record : examRecords) {
-            String[] data = record.getExamScore().asArray(record.getStudent(), record.getTeacher(), record.getExam());
+            Map<String, CellType> data = record.getExamScore().asCells(
+                    record.getStudent(), record.getTeacher(), record.getExam());
             Row dataRow = sheet.createRow(examRecords.indexOf(record) + 1);
-            for (int i = 0; i < data.length; ++i) {
-                dataRow.createCell(i).setCellValue(data[i]);
+            int index = 0;
+            for (Map.Entry<String, CellType> entry : data.entrySet()) {
+                Cell cell = dataRow.createCell(index++);
+                cell.setCellType(entry.getValue());
+                cell.setCellValue(entry.getKey());
             }
         }
         IntStream.range(0, headers.length).forEach(i -> sheet.autoSizeColumn(i, true));
