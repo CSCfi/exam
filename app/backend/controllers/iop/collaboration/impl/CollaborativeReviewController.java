@@ -259,7 +259,7 @@ public class CollaborativeReviewController extends CollaborationController {
 
     @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    @Anonymous(filteredProperties = {"user"})
+    @Anonymous(filteredProperties = {"user", "reservation"})
     public CompletionStage<Result> getAssessment(Long id, String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(id).map(ce -> {
