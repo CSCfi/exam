@@ -54,7 +54,8 @@ angular.module('app.review')
                 vm.displayAchievedScore = function () {
                     const max = vm.sectionQuestion.maxScore;
                     const score = vm.sectionQuestion.clozeTestAnswer.score;
-                    return (score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers)).toFixed(2)
+                    const value = score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers);
+                    return _.isInteger(value) ? value : value.toFixed(2);
                 }
 
                 vm.insertForcedScore = () => {

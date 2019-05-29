@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import _ from 'lodash';
+import toast from 'toastr';
+
 
 angular.module('app.review')
     .component('rMultiChoiceQuestion', {
@@ -52,6 +52,10 @@ angular.module('app.review')
                     }
                     return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
                 };
+
+                vm.displayMaxScore = () =>
+                    _.isInteger(vm.sectionQuestion.maxScore) ? vm.sectionQuestion.maxScore : vm.sectionQuestion.maxScore.toFixed(2)
+
 
                 vm.calculateMaxPoints = function () {
                     return Question.calculateMaxPoints(vm.sectionQuestion);

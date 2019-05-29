@@ -19,8 +19,7 @@
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
                         </span>
-                        / {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}
-                        {{ 'sitnet_unit_points' | translate }}
+                        / {{$ctrl.displayMaxScore()}} {{ 'sitnet_unit_points' | translate }}
                     </div>
                     <div class="review-points"
                         ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
