@@ -77,9 +77,6 @@ public class SessionController extends BaseController {
             ConfigFactory.load().getBoolean("sitnet.user.studentIds.multiple.enabled");
     private static final String MULTI_STUDENT_ID_ORGS =
             ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
-
-    private static final String URN_PREFIX = "urn:";
-
     private static final String URN_PREFIX = "urn:";
 
     @Inject
@@ -255,7 +252,7 @@ public class SessionController extends BaseController {
                     this::parseStudentIdDomain,
                     this::parseStudentIdValue,
                     (v1, v2) -> {
-                        logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
+                        Logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
                         return "null";
                     },
                     () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
