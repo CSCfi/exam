@@ -1,6 +1,7 @@
 package controllers;
 
 import base.IntegrationTestCase;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SessionControllerTest extends IntegrationTestCase {
 
     @Test
-    public void testLoginAsNewUser() throws Exception {
+    public void testLoginAsNewUser() {
         String eppn = "newuser@test.org";
         User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
@@ -30,4 +31,34 @@ public class SessionControllerTest extends IntegrationTestCase {
 
     }
 
+    @Test
+    public void testLoginWithDuplicateUserIdentifierKeys() {
+        String eppn = "newuser@test.org";
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        login(eppn, ImmutableMap.of("schacPersonalUniqueCode",
+                "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
+                "urn:schac:personalUniqueCode:int:studentID:org1.org:33333;" +
+                "urn:schac:personalUniqueCode:int:studentID:org1.org:22222;" +
+                "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"));
+
+
+        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNotNull();
+        assertThat(user.getUserIdentifier()).isEqualTo("org1.org:null org2.org:aaaaa");
+    }
+
+    @Test
+    public void testLoginWithInvalidUserIdentifierString() {
+        String eppn = "newuser@test.org";
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        login(eppn, ImmutableMap.of("schacPersonalUniqueCode", "11111"));
+
+        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNotNull();
+        assertThat(user.getUserIdentifier()).isEqualTo("11111");
+    }
 }

@@ -77,6 +77,7 @@ public class SessionController extends BaseController {
             ConfigFactory.load().getBoolean("sitnet.user.studentIds.multiple.enabled");
     private static final String MULTI_STUDENT_ID_ORGS =
             ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
+    private static final String URN_PREFIX = "urn:";
 
     @Inject
     public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
@@ -243,14 +244,16 @@ public class SessionController extends BaseController {
     }
 
     private String parseUserIdentifier(String src) {
-        if (!MULTI_STUDENT_ID_ON) {
+        if (!MULTI_STUDENT_ID_ON || !src.startsWith(URN_PREFIX)) {
+            // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
             return Arrays.stream(src.split(";")).collect(Collectors.toMap(
                     this::parseStudentIdDomain,
                     this::parseStudentIdValue,
                     (v1, v2) -> {
-                        throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
+                        Logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
+                        return "null";
                     },
                     () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
                             ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
