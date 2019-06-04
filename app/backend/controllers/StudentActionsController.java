@@ -48,6 +48,7 @@ import backend.models.ExamParticipation;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
@@ -248,6 +249,7 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("exam")
                 .fetch("collaborativeExam")
                 .fetch("exam.executionType")
+                .fetch("exam.examSections", "name, description")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
@@ -267,6 +269,13 @@ public class StudentActionsController extends CollaborationController {
                 .isNull("reservation")
                 .endJunction()
                 .findList();
+        enrolments.forEach(ee -> {
+            Exam exam = ee.getExam();
+            if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
+                // Hide section info if no optional sections exist
+                exam.getExamSections().clear();
+            }
+        });
         return ok(enrolments.stream().filter(ee -> {
             Exam exam = ee.getExam();
             if (exam != null) {
