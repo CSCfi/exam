@@ -20,12 +20,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import io.ebean.Ebean;
+import io.vavr.Tuple2;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,6 +34,18 @@ import backend.models.ExamRecord;
 import backend.models.dto.ExamScore;
 
 public class ExcelBuilder {
+
+    public enum CellType {
+        DECIMAL, STRING
+    }
+
+    private static void setValue(Cell cell, String value, CellType type) {
+        if (type == CellType.DECIMAL) {
+            cell.setCellValue(Double.parseDouble(value));
+        } else {
+            cell.setCellValue(value);
+        }
+    }
 
     public static ByteArrayOutputStream build(Long examId, Collection<Long> childIds) throws IOException {
 
@@ -52,16 +63,16 @@ public class ExcelBuilder {
             headerRow.createCell(i).setCellValue(headers[i]);
         }
         for (ExamRecord record : examRecords) {
-            Map<String, CellType> data = record.getExamScore().asCells(
+            List<Tuple2<String, CellType>> data = record.getExamScore().asCells(
                     record.getStudent(), record.getTeacher(), record.getExam());
             Row dataRow = sheet.createRow(examRecords.indexOf(record) + 1);
             int index = 0;
-            for (Map.Entry<String, CellType> entry : data.entrySet()) {
+            for (Tuple2<String, CellType> entry : data) {
                 Cell cell = dataRow.createCell(index++);
-                cell.setCellType(entry.getValue());
-                cell.setCellValue(entry.getKey());
+                setValue(cell, entry._1, entry._2);
             }
         }
+        // HOX! autosize apparently crashes OpenJDK-11 for some reason
         IntStream.range(0, headers.length).forEach(i -> sheet.autoSizeColumn(i, true));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);

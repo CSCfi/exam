@@ -15,20 +15,22 @@
 
 package backend.models.dto;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.poi.ss.usermodel.CellType;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 
 import backend.models.Exam;
 import backend.models.ExamRecord;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
+import backend.util.excel.ExcelBuilder.CellType;
 
 
 @Entity
@@ -253,40 +255,41 @@ public class ExamScore extends GeneratedIdentityModel {
     }
 
     @Transient
-    public Map<String, CellType> asCells(User student, User teacher, Exam exam) {
-        Map<String, CellType> cells = new LinkedHashMap<>();
-        cells.put(Long.toString(getId()),CellType.NUMERIC);
-        cells.put(this.student,  CellType.STRING);
-        cells.put(student.getFirstName(), CellType.STRING);
-        cells.put(student.getLastName(), CellType.STRING);
-        cells.put(student.getEmail(), CellType.STRING);
-        cells.put(studentId, CellType.STRING);
-        cells.put(identifier, CellType.STRING);
-        cells.put(courseUnitCode, CellType.STRING);
-        cells.put(exam.getCourse().getName(), CellType.STRING);
-        cells.put(courseImplementation, CellType.STRING);
-        cells.put(courseUnitLevel, CellType.STRING);
-        cells.put(institutionName, CellType.STRING);
-        cells.put(examDate, CellType.NUMERIC);
-        cells.put(creditType, CellType.STRING);
-        cells.put(credits, CellType.NUMERIC);
-        cells.put(creditLanguage, CellType.STRING);
-        cells.put(studentGrade, CellType.STRING);
-        cells.put(gradeScale, CellType.STRING);
-        cells.put(examScore, CellType.NUMERIC);
-        cells.put(lecturer, CellType.STRING);
-        cells.put(teacher.getFirstName(), CellType.STRING);
-        cells.put(teacher.getLastName(), CellType.STRING);
-        cells.put(lecturerId, CellType.STRING);
-        cells.put(lecturerEmployeeNumber, CellType.STRING);
-        cells.put(registrationDate, CellType.NUMERIC);
-        cells.put(additionalInfo, CellType.STRING);
+    public List<Tuple2<String, CellType>> asCells(User student, User teacher, Exam exam) {
+        List<Tuple2<String, CellType>> cells = new ArrayList<>();
+        cells.add(Tuple.of(Long.toString(getId()), CellType.STRING));
+        cells.add(Tuple.of(this.student,  CellType.STRING));
+        cells.add(Tuple.of(student.getFirstName(), CellType.STRING));
+        cells.add(Tuple.of(student.getLastName(), CellType.STRING));
+        cells.add(Tuple.of(student.getEmail(), CellType.STRING));
+        cells.add(Tuple.of(studentId, CellType.STRING));
+        cells.add(Tuple.of(identifier, CellType.STRING));
+        cells.add(Tuple.of(courseUnitCode, CellType.STRING));
+        cells.add(Tuple.of(exam.getCourse().getName(), CellType.STRING));
+        cells.add(Tuple.of(courseImplementation, CellType.STRING));
+        cells.add(Tuple.of(courseUnitLevel, CellType.STRING));
+        cells.add(Tuple.of(institutionName, CellType.STRING));
+        cells.add(Tuple.of(examDate, CellType.STRING));
+        cells.add(Tuple.of(creditType, CellType.STRING));
+        cells.add(Tuple.of(credits, CellType.DECIMAL));
+        cells.add(Tuple.of(creditLanguage, CellType.STRING));
+        cells.add(Tuple.of(studentGrade, CellType.STRING));
+        cells.add(Tuple.of(gradeScale, CellType.STRING));
+        cells.add(Tuple.of(examScore, CellType.DECIMAL));
+        cells.add(Tuple.of(lecturer, CellType.STRING));
+        cells.add(Tuple.of(teacher.getFirstName(), CellType.STRING));
+        cells.add(Tuple.of(teacher.getLastName(), CellType.STRING));
+        cells.add(Tuple.of(lecturerId, CellType.STRING));
+        cells.add(Tuple.of(lecturerEmployeeNumber, CellType.STRING));
+        cells.add(Tuple.of(registrationDate, CellType.STRING));
+        cells.add(Tuple.of(additionalInfo, CellType.STRING));
         return cells;
     }
 
+
     @Transient
     public String[] asArray(User student, User teacher, Exam exam) {
-        return asCells(student, teacher, exam).keySet().toArray(new String[] {});
+        return asCells(student, teacher, exam).stream().map(t -> t._1).toArray(String[]::new);
     }
 
 }
