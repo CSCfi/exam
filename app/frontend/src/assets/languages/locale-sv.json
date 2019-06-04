@@ -902,7 +902,6 @@
   "sitnet_search_by_name": "Hae nimen perusteella SV",
   "sitnet_author": "Tekijä SV",
   "sitnet_select_optional_section": "Haluan suorittaa aihealueen SV",
-  "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt SV",
   "sitnet_select_at_least_one_section": "Valitse vähintään yksi vapaavalintainen aihealue SV",
   "sitnet_confirm_external_reservation": "OBS! När du anmälar till tentamen vid en utomstående utbildningsorganisation, godkänner du användar villkor och övervaknings praktik vid denna organisation.",
   "sitnet_save_and_pre_publish": "Save and pre-publish SV",
@@ -911,5 +910,7 @@
   "sitnet_exam_saved_and_pre_published": "Tentti tallennettu ja esijulkaistu SV",
   "sitnet_write_exam_owner_email": "Tentaattorin sähköpostiosoite SV",
   "sitnet_exam_collaboration_supported": "Yhteistentit tuettu SV",
-  "sitnet_set_forced_score": "Ohita automaattisesti lasketut pisteet SV"
+  "sitnet_set_forced_score": "Ohita automaattisesti lasketut pisteet SV",
+  "sitnet_optional": "Valittu SV",
+  "sitnet_required": "Pakollinen SV"
 }

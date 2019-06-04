@@ -67,7 +67,6 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.json.CollaborativeExam;
-import backend.models.sections.ExamSection;
 import backend.util.config.ConfigUtil;
 
 class EmailComposerImpl implements EmailComposer {
@@ -252,14 +251,6 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    private String formatSection(ExamSection section, Lang lang) {
-        String name = String.format("%s: %s",
-                messaging.get(lang, "email.template.section.name"), section.getName());
-        String description = section.getDescription() == null ? "" : String.format(" - %s: %s",
-                messaging.get(lang, "email.template.section.description"), section.getDescription());
-        return String.format("%s%s", name, description);
-    }
-
     @Override
     public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Boolean isReminder) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
@@ -277,14 +268,6 @@ class EmailComposerImpl implements EmailComposer {
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
-        String hideSections = exam.getExecutionType().getType()
-                .equals(ExamExecutionType.Type.MATURITY.toString()) ? "hidden" : "visible";
-        Set<String> sections = reservation.getOptionalSections().stream()
-                .map(es -> formatSection(es, lang))
-                .collect(Collectors.toSet());
-        String sectionBlock = String.format("%s<br/>%s",
-                messaging.get(lang, "email.template.section.title"),
-                String.join("<br/>", sections));
 
         DateTime startDate = adjustDST(reservation.getStartAt());
         DateTime endDate = adjustDST(reservation.getEndAt());
@@ -316,8 +299,6 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("room_name", messaging.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
-        stringValues.put("exam_sections", sectionBlock);
-        stringValues.put("hide_sections", hideSections);
         stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
         stringValues.put("cancellation_link", HOSTNAME);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
