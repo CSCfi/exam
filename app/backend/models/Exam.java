@@ -15,11 +15,14 @@
 
 package backend.models;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -76,6 +79,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("11") DELETED,        // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
         @EnumValue("12") REJECTED        // EXAM NOT QUALIFIED FOR REGISTRATION
     }
+
+    private static final DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
 
     private boolean anonymous;
 
@@ -262,17 +267,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     private String externalRef;
 
+    private double toFixed(double val) {
+        return Double.valueOf(df.format(val));
+    }
 
     public Double getTotalScore() {
-        return examSections.stream()
+        return toFixed(examSections.stream()
                 .map(ExamSection::getTotalScore)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, (sum, x) -> sum += x));
     }
 
     public Double getMaxScore() {
-        return examSections.stream()
+        return toFixed(examSections.stream()
                 .map(ExamSection::getMaxScore)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, (sum, x) -> sum += x));
     }
 
     private int getApprovedAnswerCount() {
@@ -792,7 +800,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     esq.getOptions().forEach(o -> o.setScore(null));
                 });
     }
-
 
     @Override
     public boolean equals(Object other) {
