@@ -906,11 +906,11 @@
   "sitnet_confirm_external_reservation": "NB! When you book an exam time in another university's exam room, you agree to comply with that university's eExam guidelines and surveillance practices.",
   "sitnet_save_and_pre_publish": "Save and pre-publish",
   "sitnet_exam_owner_missing": "Examiner missing",
-  "sitnet_exam_editor_materials": "EXAM materiaL/content",
+  "sitnet_exam_editor_materials": "Exam material/content",
   "sitnet_exam_saved_and_pre_published": "Saved and pre-published",
   "sitnet_write_exam_owner_email": "Examiner's email missing",
   "sitnet_exam_collaboration_supported": "Collaborative exams supported",
   "sitnet_set_forced_score": "Skip automatic points",
-  "sitnet_optional": "Optinal",
+  "sitnet_optional": "Selected",
   "sitnet_required": "Required"
 }
