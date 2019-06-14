@@ -29,7 +29,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
     bindings: {
         sectionQuestion: '<',
         lotteryOn: '<',
-        onDelete: '&'
+        onDelete: '&',
+        onUpdate: '&'
     },
     require: {
         parentCtrl: '^^section'
@@ -39,6 +40,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         sectionQuestion: ExamSectionQuestion;
         lotteryOn: boolean;
         onDelete: (_: { sectionQuestion: ExamSectionQuestion }) => any;
+        onUpdate: () => any;
         parentCtrl: { collaborative: boolean, section: ExamSection, examId: number };
 
         constructor(
@@ -71,7 +73,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         removeQuestion = () =>
             this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
                 this.$translate.instant('sitnet_remove_question')).result.then(
-                () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
+                    () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
 
 
         getQuestionDistribution(): ng.IPromise<{ distributed: boolean }> {
@@ -83,9 +85,9 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                 .then((resp: ng.IHttpResponse<{ distributed: boolean }>) => {
                     deferred.resolve({ distributed: resp.data.distributed });
                 }).catch(resp => {
-                toast.error(resp.data);
-                deferred.reject();
-            });
+                    toast.error(resp.data);
+                    deferred.reject();
+                });
             return deferred.promise;
         }
 
@@ -140,11 +142,16 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                         } else if (attachment.removed) {
                             this.Attachment.eraseCollaborativeQuestionAttachment(this.parentCtrl.examId,
                                 this.sectionQuestion.id).then(() => {
-                                delete this.sectionQuestion.question.attachment;
-                            });
+                                    delete this.sectionQuestion.question.attachment;
+                                });
                         }
                     })
-                    .catch(resp => toast.error(resp.data));
+                    .catch(resp => toast.error(resp.data))
+                    .finally(() => {
+                        if (this.parentCtrl.collaborative) {
+                            this.onUpdate();
+                        }
+                    });
             });
         }
 
@@ -161,11 +168,11 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
             }).result.then(data => {
                 this.Question.updateDistributedExamQuestion(data.question, data.examQuestion,
                     this.parentCtrl.examId, this.parentCtrl.section.id).then(
-                    esq => {
-                        toast.info(this.$translate.instant('sitnet_question_saved'));
-                        // apply changes back to scope
-                        ng.extend(this.sectionQuestion, esq);
-                    });
+                        esq => {
+                            toast.info(this.$translate.instant('sitnet_question_saved'));
+                            // apply changes back to scope
+                            ng.extend(this.sectionQuestion, esq);
+                        });
 
             });
         }

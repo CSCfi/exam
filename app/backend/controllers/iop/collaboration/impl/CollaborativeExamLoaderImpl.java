@@ -36,6 +36,7 @@ import backend.models.json.CollaborativeExam;
 public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 
     private static final int OK = 200;
+    private static final Logger.ALogger logger = Logger.of(CollaborativeExamLoaderImpl.class);
 
     @Inject
     WSClient wsClient;
@@ -46,7 +47,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Inject
     private EmailComposer composer;
 
-    Optional<URL> parseUrl(String examRef) {
+    private Optional<URL> parseUrl(String examRef) {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
                 .append("/api/exams");
         if (examRef != null) {
@@ -55,19 +56,19 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         try {
             return Optional.of(new URL(sb.toString()));
         } catch (MalformedURLException e) {
-            Logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL {}", e);
             return Optional.empty();
         }
     }
 
-    JsonNode serializeForUpdate(Exam exam, String revision) {
+    private JsonNode serializeForUpdate(Exam exam, String revision) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String json = mapper.writeValueAsString(exam);
             JsonNode node = mapper.readTree(json);
             return ((ObjectNode) node).put("rev", revision);
         } catch (IOException e) {
-            Logger.error("unable to serialize");
+            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }
@@ -81,7 +82,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             Function<WSResponse, Optional<Exam>> onSuccess = response -> {
                 JsonNode root = response.asJson();
                 if (response.getStatus() != OK) {
-                    Logger.warn("non-ok response from XM: {}", root.get("message").asText());
+                    logger.warn("non-ok response from XM: {}", root.get("message").asText());
                     return Optional.empty();
                 }
                 ce.setRevision(root.get("_rev").asText());

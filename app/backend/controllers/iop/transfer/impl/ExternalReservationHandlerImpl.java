@@ -58,6 +58,8 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Inject
     EmailComposer emailComposer;
 
+    private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
+
 
     private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
             throws MalformedURLException {
@@ -123,8 +125,9 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             // send email asynchronously
             boolean isStudentUser = user.equals(enrolment.getUser());
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
+                emailComposer.composeReservationCancellationNotification(enrolment.getUser(),
+                        reservation, "", isStudentUser, enrolment);
+                logger.info("Reservation cancellation confirmation email sent");
             }, system.dispatcher());
 
             return Results.ok();

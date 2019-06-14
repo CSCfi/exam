@@ -16,7 +16,12 @@
 
 package backend.controllers.iop.collaboration.impl;
 
-import backend.models.User;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,30 +33,31 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 
 public class CollaborativeStudentActionController extends CollaborationController {
 
     private WSClient wsClient;
+
+    private static final Logger.ALogger logger = Logger.of(CollaborativeStudentActionController.class);
 
     @Inject
     public CollaborativeStudentActionController(WSClient wsClient) {
         this.wsClient = wsClient;
     }
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    public CompletionStage<Result> getFinishedExams() {
-        User user = getLoggedUser();
+    public CompletionStage<Result> getFinishedExams(Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         final Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
-        final WSRequest request = wsClient.url(url.get().toString() + user.getEppn());
-        return request.get().thenComposeAsync(response -> {
+        final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());
+        return wsRequest.get().thenComposeAsync(response -> {
             if (response.getStatus() != Http.Status.OK) {
                 return wrapAsPromise(Results.status(response.getStatus()));
             }
@@ -66,7 +72,7 @@ public class CollaborativeStudentActionController extends CollaborationControlle
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
-            Logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL {}", e);
             return Optional.empty();
         }
     }

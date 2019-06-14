@@ -12,12 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as _ from 'lodash';
 
 import { SessionService, User } from '../../session/session.service';
 import { Exam } from '../exam.model';
+
 
 
 export const ExamTabsComponent: angular.IComponentOptions = {
@@ -38,7 +38,6 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             private $translate: angular.translate.ITranslateService,
             private $window: angular.IWindowService,
             private $location: any, // this is the extension to angular's location service, hence any-type
-            private ExamRes: any,
             private Session: SessionService
         ) {
             'ngInject';
@@ -69,7 +68,8 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
 
         isOwner = () => {
-            return this.exam.examOwners.some(x => x.id === this.user.id || x.email == this.user.email);
+            return this.exam.examOwners.some(x => x.id === this.user.id ||
+                x.email.toLowerCase() === this.user.email.toLowerCase());
         }
 
         tabChanged = (index: number) => {
@@ -102,7 +102,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-            });
+            }, err => toastr.error(err.data));
         }
 
         private downloadCollaborativeExam = () => {
@@ -112,7 +112,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
                     this.exam = exam;
                     this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                     this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-                });
+                }, err => toastr.error(err.data));
         }
 
         private hasEffectiveEnrolments = (exam: Exam) =>

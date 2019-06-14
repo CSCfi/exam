@@ -26,6 +26,7 @@ export const SectionComponent: ng.IComponentOptions = {
     bindings: {
         section: '<',
         examId: '<',
+        canBeOptional: '<',
         materials: '<',
         onDelete: '&',
         onReloadRequired: '&', // TODO: try to live without this callback?
@@ -38,6 +39,7 @@ export const SectionComponent: ng.IComponentOptions = {
 
         section: ExamSection;
         examId: number;
+        canBeOptional: boolean;
         onDelete: (_: { section: ExamSection }) => any;
         onReloadRequired: () => any;
         onMaterialsChanged: () => any;
@@ -100,7 +102,13 @@ export const SectionComponent: ng.IComponentOptions = {
                         toast.info(this.$translate.instant('sitnet_section_updated'));
                     }
                 })
-                .catch(resp => toast.error(resp.data));
+                .catch((resp: IHttpResponse<string>) => {
+                    if (resp.status == 400) {
+                        // This is a bit of a hack to revert optionality in case rejected by server
+                        this.section.optional = !this.section.optional;
+                    }
+                    toast.error(resp.data);
+                });
         }
 
         private insertExamQuestion = (question: Question, seq: number) => {

@@ -15,33 +15,28 @@
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
             </span>
-            <a class="header-top-link" ng-click="$ctrl.editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
+            <a class="header-top-link"
+                ng-click="$ctrl.editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
         </div>
     </div>
-        <div class="tab-wrapper">
+    <div class="tab-wrapper">
         <uib-tabset active="$ctrl.activeTab">
-            <uib-tab ng-if="$ctrl.user.isAdmin" index="1" heading="{{ 'sitnet_exam_all_rooms' | translate }}"
-                     deselect="$ctrl.tabChanged($selectedIndex)">
-                <room-list
-                    room="$ctrl.room" on-next-tab-selected="$ctrl.switchToExceptionTimes()">
+            <uib-tab ng-if="$ctrl.user.isAdmin" index="1" heading="{{ 'sitnet_exam_all_rooms' | translate }}">
+                <room-list room="$ctrl.room" on-next-tab-selected="$ctrl.switchToExceptionTimes()">
                 </room-list>
             </uib-tab>
             <!--<uib-tab ng-if="$ctrl.user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"-->
-                     <!--deselect="$ctrl.tabChanged($selectedIndex)">-->
-                <!--<exception-list-all-->
-                    <!--room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExamRooms" on-next-tab-selected="$ctrl.switchToNeededSoftware">-->
-                <!--</exception-list-all>-->
+            <!--deselect="$ctrl.tabChanged($selectedIndex)">-->
+            <!--<exception-list-all-->
+            <!--room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExamRooms" on-next-tab-selected="$ctrl.switchToNeededSoftware">-->
+            <!--</exception-list-all>-->
             <!--</uib-tab>-->
-            <uib-tab ng-if="$ctrl.user.isAdmin" index="3" heading="{{ 'sitnet_exam_machine_softwares' | translate }}"
-                     deselect="$ctrl.tabChanged($selectedIndex)">
-                <software
-                    room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExceptionTimes()">
+            <uib-tab ng-if="$ctrl.user.isAdmin" index="3" heading="{{ 'sitnet_exam_machine_softwares' | translate }}">
+                <software room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExceptionTimes()">
                 </software>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.user.isAdmin" index="4" heading="{{ 'sitnet_room_accessibility_info' | translate }}"
-                     deselect="$ctrl.tabChanged($selectedIndex)">
-                <accessibility
-                    room="$ctrl.room">
+            <uib-tab ng-if="$ctrl.user.isAdmin" index="4" heading="{{ 'sitnet_room_accessibility_info' | translate }}">
+                <accessibility room="$ctrl.room">
                 </accessibility>
             </uib-tab>
         </uib-tabset>

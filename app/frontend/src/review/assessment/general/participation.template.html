@@ -1,16 +1,17 @@
 <div class="col-md-2 general-info-title ">{{$ctrl.participation.started | date:'dd.MM.yyyy' }}</div>
 <div class="col-md-2">
-    <span ng-style="$ctrl.participation.exam.state === 'ABORTED' || $ctrl.participation.noShow ? {'color':'#F35D6C'} : {'color': '#3CA34F'}">
+    <span
+        ng-style="$ctrl.participation.exam.state === 'ABORTED' || $ctrl.participation.noShow ? {'color':'#F35D6C'} : {'color': '#3CA34F'}">
         {{'sitnet_exam_status_' + $ctrl.participation.exam.state | lowercase | translate}}
     </span>
 </div>
-<div class="col-md-2 sitnet-info-text-compact">
-    {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span ng-hide="$ctrl.hideGrade()" style="color:#3CA34F;">{{ $ctrl.translateGrade() }}</span>
+<div class="col-md-2 sitnet-info-text-compact" ng-hide="$ctrl.hideGrade()">
+    {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color:#3CA34F;">{{ $ctrl.translateGrade() }}</span>
 </div>
-<div class="col-md-4 general-info-link-bold"
-     ng-if="!$ctrl.hideAnswerLink()">
+<div class="col-md-4 general-info-link-bold" ng-if="!$ctrl.hideAnswerLink()">
     <a class="pointer" ng-click="$ctrl.viewAnswers()">{{'sitnet_view_answers' | translate}}</a>
 </div>
-<div class="col-md-4 sitnet-info-text-compact" ng-show="$ctrl.participation.exam.state === 'ABORTED' || $ctrl.participation.noShow">
+<div class="col-md-4 sitnet-info-text-compact"
+    ng-show="$ctrl.participation.exam.state === 'ABORTED' || $ctrl.participation.noShow">
     &nbsp;
 </div>

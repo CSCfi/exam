@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -93,7 +93,7 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
                 new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
 
-        requestBuilder.bodyMultipart(Arrays.asList(examId, questionId, fp),
+        requestBuilder.bodyRaw(Arrays.asList(examId, questionId, fp),
                 new play.libs.Files.SingletonTemporaryFileCreator(), mat);
         Result result = Helpers.route(app, requestBuilder);
         assertThat(result.status()).isEqualTo(201);

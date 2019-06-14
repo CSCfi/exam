@@ -19,6 +19,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import org.joda.time.LocalDate;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
@@ -33,12 +34,12 @@ public class ExaminationDateController extends BaseController {
 
     @With(ExaminationDateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertExaminationDate(Long eid) {
+    public Result insertExaminationDate(Long eid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("exam not found");
         }
-        LocalDate date = request().attrs().get(Attrs.DATE);
+        LocalDate date = request.attrs().get(Attrs.DATE);
         ExaminationDate ed = new ExaminationDate();
         ed.setDate(date.toDate());
         ed.setExam(exam);

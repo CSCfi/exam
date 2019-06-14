@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+/// <reference types="angular-dialog-service" />
 
-import * as angular from 'angular';
+import * as ng from 'angular';
 import * as toast from 'toastr';
 import * as moment from 'moment';
 import { Room, Slot, CalendarService } from './calendar.service';
 import { DateTimeService } from '../utility/date/date.service';
-import { IHttpResponse } from 'angular';
 import { ExamSection } from '../exam/exam.model';
+import angular = require('angular');
 
 interface SelectableSection extends ExamSection {
     selected: boolean;
@@ -45,13 +46,18 @@ interface FilteredRoom extends Room {
     filtered: boolean;
 }
 
-export const CalendarComponent: angular.IComponentOptions = {
+interface ReservationInfo {
+    id: number;
+    optionalSections: ExamSection[];
+}
+
+export const CalendarComponent: ng.IComponentOptions = {
     template: require('./calendar.template.html'),
     bindings: {
         isExternal: '<',
         isCollaborative: '<'
     },
-    controller: class CalendarController implements angular.IComponentController {
+    controller: class CalendarController implements ng.IComponentController {
 
         isExternal: boolean;
         isCollaborative: boolean;
@@ -77,11 +83,12 @@ export const CalendarComponent: angular.IComponentOptions = {
         selectedOrganisation: { _id: string, name: string, filtered: boolean };
 
         constructor(
-            private $http: angular.IHttpService,
-            private $scope: angular.IScope,
-            private $location: angular.ILocationService,
-            private $translate: angular.translate.ITranslateService,
-            private $routeParams: angular.route.IRouteParamsService,
+            private $http: ng.IHttpService,
+            private $scope: ng.IScope,
+            private $location: ng.ILocationService,
+            private $translate: ng.translate.ITranslateService,
+            private $routeParams: ng.route.IRouteParamsService,
+            private dialogs: angular.dialogservice.IDialogService,
             private DateTime: DateTimeService,
             private Calendar: CalendarService,
             private uiCalendarConfig: any
@@ -97,22 +104,36 @@ export const CalendarComponent: angular.IComponentOptions = {
                 }
             });
 
-            this.$http.get('/app/settings/iop')
-                .then((resp: IHttpResponse<{ isInteroperable: boolean }>) => {
-                    this.isInteroperable = resp.data.isInteroperable;
+            this.$http.get('/app/settings/iop/examVisit')
+                .then((resp: ng.IHttpResponse<{ isExamVisitSupported: boolean }>) => {
+                    this.isInteroperable = resp.data.isExamVisitSupported;
                     // TODO: allow making external reservations to collaborative exams in the future
                     if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
-                        this.$http.get('/integration/iop/organisations').then((resp: IHttpResponse<any[]>) => {
-                            this.organisations = resp.data.filter(org => !org.homeOrg);
-                        });
+                        this.$http.get('/integration/iop/organisations')
+                            .then((resp: ng.IHttpResponse<any[]>) => {
+                                this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
+                            });
                     }
-                }).catch(resp => angular.noop);
+                }).catch(resp => ng.noop);
             const url = this.isCollaborative ?
                 `/integration/iop/exams/${this.$routeParams.id}/info` :
                 `/app/student/exam/${this.$routeParams.id}/info`;
-            this.$http.get(url).then((resp: IHttpResponse<ExamInfo>) => {
+            this.$http.get(url).then((resp: ng.IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
-                this.$http.get('/app/settings/reservationWindow').then((resp: IHttpResponse<{ value: number }>) => {
+                this.$http.get(`/app/calendar/enrolment/${this.$routeParams.id}/reservation`)
+                    .then((resp: ng.IHttpResponse<ReservationInfo>) => {
+                        if (resp.data.optionalSections) {
+                            this.examInfo.examSections
+                                .filter(es => es.optional)
+                                .forEach(es => {
+                                    es.selected = resp.data.optionalSections
+                                        .map(es => es.id)
+                                        .indexOf(es.id) > -1;
+                                });
+                        }
+                    });
+                // this.examInfo.examSections.forEach(es => )
+                this.$http.get('/app/settings/reservationWindow').then((resp: ng.IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
                     this.reservationWindowEndDate = moment().add(resp.data.value, 'days');
                     this.minDate = moment.max(moment(),
@@ -120,36 +141,43 @@ export const CalendarComponent: angular.IComponentOptions = {
                     this.maxDate = moment.min(this.reservationWindowEndDate,
                         moment(this.examInfo.examActiveEndDate));
 
-                    this.$http.get('/app/accessibility').then((resp: IHttpResponse<Accessibility[]>) => {
+                    this.$http.get('/app/accessibility').then((resp: ng.IHttpResponse<Accessibility[]>) => {
                         this.accessibilities = resp.data;
                     });
 
-                    this.$http.get('/app/rooms').then((resp: IHttpResponse<Room[]>) => {
-                        this.rooms = resp.data.map(r => angular.extend(r, { filtered: false }));
+                    this.$http.get('/app/rooms').then((resp: ng.IHttpResponse<Room[]>) => {
+                        this.rooms = resp.data.map(r => ng.extend(r, { filtered: false }));
                     });
 
                 });
             });
         }
 
-        hasExamMaterials(): boolean {
-            return this.examInfo.examSections.some(es => es.examMaterials.length > 0);
+        hasOptionalSections(): boolean {
+            return this.examInfo.examSections.some(es => es.optional);
         }
 
         getSequenceNumber(area: string): number {
+            const hasOptionalSections = this.hasOptionalSections();
             switch (area) {
                 case 'info':
                     return 1;
-                case 'organization':
-                    return 2;
-                case 'room':
-                    return this.isExternal ? 3 : 2;
                 case 'material':
-                    return this.isExternal ? 4 : 3;
+                    return 2;
+                case 'organization':
+                    return hasOptionalSections ? 3 : 2;
+                case 'room':
+                    if (this.isExternal && hasOptionalSections) {
+                        return 4;
+                    } else if (this.isExternal || hasOptionalSections) {
+                        return 3;
+                    } else {
+                        return 2;
+                    }
                 case 'confirmation':
-                    if (this.isExternal && this.hasExamMaterials()) {
+                    if (this.isExternal && hasOptionalSections) {
                         return 5;
-                    } else if (this.isExternal || this.hasExamMaterials()) {
+                    } else if (this.isExternal || hasOptionalSections) {
                         return 4;
                     } else {
                         return 3;
@@ -195,26 +223,27 @@ export const CalendarComponent: angular.IComponentOptions = {
             return info;
         }
 
-        getRoomAccessibility(): string {
+        getRoomAccessibility = () => {
             const room = this.selectedRoom;
-            return room ? room.accessibilities.map(a => a.name).join(', ') : '';
+            return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
         }
 
-        makeExternalReservation() {
-            this.$location.path('/iop/calendar/' + this.$routeParams.id);
+        makeExternalReservation = () => {
+            this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
+                this.$translate.instant('sitnet_confirm_external_reservation')).result.then(() => {
+                    this.$location.path('/iop/calendar/' + this.$routeParams.id);
+                });
         }
 
-        makeInternalReservation() {
-            this.$location.path('/calendar/' + this.$routeParams.id);
-        }
+        makeInternalReservation = () => this.$location.path('/calendar/' + this.$routeParams.id);
 
-        private adjust(date, tz): string {
-            let adjusted: moment.Moment = moment.tz(date, tz);
+        private adjust = (date: string, tz: string): string => {
+            const adjusted: moment.Moment = moment.tz(date, tz);
             const offset = adjusted.isDST() ? -1 : 0;
             return adjusted.add(offset, 'hour').format();
         }
 
-        private getTitle(slot: AvailableSlot): string {
+        private getTitle = (slot: AvailableSlot): string => {
             if (slot.availableMachines > 0) {
                 return `${this.$translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
             } else {
@@ -224,7 +253,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
-        private getColor(slot: AvailableSlot) {
+        private getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
                 return '#92c3e4'; // blueish
             } else if (slot.availableMachines > 0) {
@@ -234,8 +263,8 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
-        private query(success: (_: IHttpResponse<any>) => void,
-            error: (_: IHttpResponse<any>) => void, date: string, room: Room, accessibility) {
+        private query(success: (_: ng.IHttpResponse<any>) => void,
+            error: (_: ng.IHttpResponse<any>) => void, date: string, room: Room, accessibility) {
 
             if (this.isExternal) {
                 this.$http.get(`/integration/iop/calendar/${this.$routeParams.id}/${room._id}`, {
@@ -274,7 +303,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             const accessibilities = this.accessibilities.filter(i => i.filtered).map(i => i.id);
             this.loader.loading = true;
             const tz = room.localTimezone;
-            const successFn = (resp: IHttpResponse<AvailableSlot[]>) => {
+            const successFn = (resp: ng.IHttpResponse<AvailableSlot[]>) => {
                 const events = resp.data.map(slot => {
                     return {
                         title: this.getTitle(slot),
@@ -287,7 +316,7 @@ export const CalendarComponent: angular.IComponentOptions = {
                 callback(events);
                 this.loader.loading = false;
             };
-            const errorFn = (resp: IHttpResponse<any>) => {
+            const errorFn = (resp: ng.IHttpResponse<any>) => {
                 this.loader.loading = false;
                 if (resp.status === 404) {
                     toast.error(this.$translate.instant('sitnet_exam_not_active_now'));
@@ -299,17 +328,6 @@ export const CalendarComponent: angular.IComponentOptions = {
             };
             this.query(successFn, errorFn, date, room, accessibilities);
             this.exceptionHours = this.Calendar.getExceptionHours(room);
-        }
-
-        private listExternalRooms() {
-            if (this.selectedOrganisation) {
-                this.$http.get('/integration/iop/facilities', {
-                    params: {
-                        org: this.selectedOrganisation._id
-                    }
-                }).then((resp: IHttpResponse<FilteredRoom[]>) => this.rooms = resp.data)
-                    .catch(angular.noop);
-            }
         }
 
         createReservation(start: moment.Moment, end: moment.Moment) {
@@ -324,12 +342,27 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
+        checkSectionSelections = () => {
+            if (!this.sectionSelectionOk()) {
+                delete this.selectedOrganisation;
+                delete this.selectedRoom;
+                delete this.reservation;
+                this.render();
+            }
+        }
+
+        sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
+
         confirmReservation() {
             const room = this.selectedRoom;
             if (!room || !this.reservation || this.confirming) {
                 return;
             }
             const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
+            if (!this.sectionSelectionOk()) {
+                toast.error(this.$translate.instant('sitnet_select_at_least_one_section'));
+                return;
+            }
             this.confirming = true;
             this.Calendar.reserve(
                 this.reservation.start,
@@ -339,15 +372,15 @@ export const CalendarComponent: angular.IComponentOptions = {
                 { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
                 this.isCollaborative,
                 selectedSectionIds
-            ).then(() => this.confirming = false);
+            ).catch(ng.noop).finally(() => this.confirming = false);
         }
 
-        setOrganisation(org: { _id: string, name: string, filtered: boolean }) {
+        setOrganisation(org: { _id: string, name: string, facilities: FilteredRoom[], filtered: boolean }) {
             this.organisations.forEach(o => o.filtered = false);
             org.filtered = true;
             this.selectedOrganisation = org;
             this.selectedRoom = undefined;
-            this.listExternalRooms();
+            this.rooms = org.facilities;
         }
 
         selectAccessibility(accessibility) {

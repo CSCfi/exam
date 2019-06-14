@@ -24,8 +24,8 @@ angular.module('app.review')
         }, require: {
             parentCtrl: '^^assessment'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'CollaborativeAssessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, CollaborativeAssessment, Exam, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', '$routeParams', 'Assessment', 'CollaborativeAssessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
+            function ($translate, $scope, $routeParams, Assessment, CollaborativeAssessment, Exam, ExamRes, Attachment, Language) {
 
                 const vm = this;
 
@@ -82,15 +82,20 @@ angular.module('app.review')
                         toast.error($translate.instant('sitnet_email_empty'));
                         return;
                     }
-                    ExamRes.email.inspection({
-                        eid: vm.exam.id,
-                        msg: vm.message.text
-                    }, function () {
-                        toast.info($translate.instant('sitnet_email_sent'));
-                        delete vm.message.text;
-                    }, function (error) {
-                        toast.error(error.data);
-                    });
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.sendEmailMessage($routeParams.id, $routeParams.ref, vm.message.text)
+                            .then(() => delete vm.message.text);
+                    } else {
+                        ExamRes.email.inspection({
+                            eid: vm.exam.id,
+                            msg: vm.message.text
+                        }, function () {
+                            toast.info($translate.instant('sitnet_email_sent'));
+                            delete vm.message.text;
+                        }, function (error) {
+                            toast.error(error.data);
+                        });
+                    }
                 };
 
                 vm.saveAssessmentInfo = function () {

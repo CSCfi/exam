@@ -15,7 +15,6 @@
 
 package backend.controllers;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +38,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.data.DynamicForm;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
@@ -51,9 +51,12 @@ import backend.models.ExamMachine;
 import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
+import backend.models.Role;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
+import backend.sanitizers.Attrs;
 import backend.system.interceptors.Anonymous;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -65,16 +68,17 @@ public class ReservationController extends BaseController {
     @Inject
     protected CollaborativeExamLoader collaborativeExamLoader;
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result getExams() {
-        User user = getLoggedUser();
+    public Result getExams(Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties props = PathProperties.parse("(id, name)");
         Query<Exam> q = Ebean.createQuery(Exam.class);
         props.apply(q);
         ExpressionList<Exam> el = q.where()
                 .isNull("parent") // only Exam prototypes
                 .eq("state", Exam.State.PUBLISHED);
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             el = el.gt("examActiveEndDate", new Date())
                     .disjunction()
                     .eq("creator", user)
@@ -158,9 +162,9 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result removeReservation(long id) throws IOException, NotFoundException {
+    public Result removeReservation(long id, Http.Request request) throws NotFoundException {
 
-        DynamicForm df = formFactory.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         String msg = df.get("msg");
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
@@ -225,13 +229,13 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateMachine(Long reservationId) throws ExecutionException, InterruptedException {
+    public Result updateMachine(Long reservationId, Http.Request request) throws ExecutionException, InterruptedException {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
 
         if (reservation == null) {
             return notFound();
         }
-        DynamicForm df = formFactory.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         Long machineId = Long.parseLong(df.get("machineId"));
         PathProperties props = PathProperties.parse("(id, name, room(id, name))");
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
@@ -261,11 +265,13 @@ public class ReservationController extends BaseController {
                 .toCompletableFuture().get().orElse(null);
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     @Anonymous(filteredProperties = {"user", "externalUserRef"})
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
-                                  Optional<String> start, Optional<String> end, Optional<String> externalRef) {
+                                  Optional<String> start, Optional<String> end, Optional<String> externalRef,
+                                  Http.Request request) {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("enrolment.exam", "id, name, state, trialCount")
@@ -280,8 +286,8 @@ public class ReservationController extends BaseController {
                 .fetch("machine.room", "id, name, roomCode")
                 .where();
 
-        User user = getLoggedUser();
-        if (user.hasRole("TEACHER", getSession())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (user.hasRole(Role.Name.TEACHER)) {
             query = query
                     .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
                     .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
@@ -326,7 +332,7 @@ public class ReservationController extends BaseController {
         if (studentId.isPresent()) {
             query = query.eq("user.id", studentId.get());
             // Hide reservations for anonymous exams.
-            if (user.hasRole("TEACHER", getSession())) {
+            if (user.hasRole(Role.Name.TEACHER)) {
                 query.or()
                         .eq("enrolment.exam.anonymous", false)
                         .eq("enrolment.collaborativeExam.anonymous", false)
@@ -354,7 +360,7 @@ public class ReservationController extends BaseController {
                     .ne("enrolment.collaborativeExam.state", Exam.State.DELETED);
         }
 
-        if (ownerId.isPresent() && user.hasRole("ADMIN", getSession())) {
+        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
             Long userId = ownerId.get();
             query = query
                     .disjunction()
@@ -371,6 +377,6 @@ public class ReservationController extends BaseController {
                         && r.getEnrolment().getExam().isAnonymous())
                 .map(GeneratedIdentityModel::getId)
                 .collect(Collectors.toSet());
-        return writeAnonymousResult(result, anonIds);
+        return writeAnonymousResult(request, result, anonIds);
     }
 }

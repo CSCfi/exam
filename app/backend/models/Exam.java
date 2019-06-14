@@ -15,10 +15,31 @@
 
 package backend.models;
 
-import java.util.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -58,6 +79,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("11") DELETED,        // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
         @EnumValue("12") REJECTED        // EXAM NOT QUALIFIED FOR REGISTRATION
     }
+
+    private static final DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
 
     private boolean anonymous;
 
@@ -153,7 +176,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @ManyToOne
     private Grade grade;
 
-    // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Software> softwares;
 
@@ -245,17 +267,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     private String externalRef;
 
+    private double toFixed(double val) {
+        return Double.valueOf(df.format(val));
+    }
 
     public Double getTotalScore() {
-        return examSections.stream()
+        return toFixed(examSections.stream()
                 .map(ExamSection::getTotalScore)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, (sum, x) -> sum += x));
     }
 
     public Double getMaxScore() {
-        return examSections.stream()
+        return toFixed(examSections.stream()
                 .map(ExamSection::getMaxScore)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, (sum, x) -> sum += x));
     }
 
     private int getApprovedAnswerCount() {
@@ -775,7 +800,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     esq.getOptions().forEach(o -> o.setScore(null));
                 });
     }
-
 
     @Override
     public boolean equals(Object other) {
