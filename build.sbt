@@ -5,7 +5,7 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "5.1.0-RC3"
+version := "5.1.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
@@ -20,7 +20,7 @@ libraryDependencies += evolutions
 libraryDependencies += filters
 libraryDependencies += guice
 
-// JAXB (missing in JDK 11, enable if using Java > 11)
+// JAXB (missing in JDK 11, enable if using Java >= 11)
 /*
 libraryDependencies += "com.sun.xml.bind" % "jaxb-core" % "2.3.0"
 libraryDependencies += "com.sun.xml.bind" % "jaxb-impl" % "2.3.0"
