@@ -232,7 +232,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             noShowHandler.handleNoShowAndNotify(e.getReservation());
             return ok();
         }).orElseGet(() -> {
-            Logger.error("No reservation found with ref {}", ref);
+            logger.error("No reservation found with ref {}", ref);
             return notFound();
         });
     }
