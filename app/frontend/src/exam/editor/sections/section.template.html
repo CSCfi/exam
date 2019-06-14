@@ -27,8 +27,9 @@
     <div class="row col-md-12 margin-20">
         <div class="col-md-3 exam-basic-title">{{'sitnet_section_order' | translate}}
             <sup>
-                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_order_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                <img popover-placement="right" popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_exam_section_order_description' | translate}}" src="Images/icon_tooltip.svg"
+                    alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
             </sup>
         </div>
         <div class="col-md-9">
@@ -40,8 +41,10 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">{{'sitnet_section_name' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_name_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_section_name_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
                 </sup>
             </div>
             <div class="col-md-9">
@@ -53,52 +56,59 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">{{'sitnet_section_description' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_description_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_section_description_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
                 </sup>
             </div>
             <div class="col-md-9">
-                <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="$ctrl.section.description"
-                    ui-change="$ctrl.renameSection()">
+                <textarea id="sectionDescription" class="form-control" rows="4" cols="150"
+                    ng-model="$ctrl.section.description" ui-change="$ctrl.renameSection()">
                 </textarea>
             </div>
         </div>
 
         <!-- Section material resources-->
-        <!-- DISABLE FOR NOW
-        <exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials" on-changes="$ctrl.materialsChanged()"></exam-material-selector>
-        <div class="row col-md-12 margin-20">
+        <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
+        <!-- exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials"
+            on-changes="$ctrl.materialsChanged()"></exam-material-selector -->
+        <div class="row col-md-12 margin-20" ng-if="$ctrl.canBeOptional && !$ctrl.collaborative">
             <div class="col-md-3 exam-basic-title">{{'sitnet_optional_section' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_optional_section_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_optional_section_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
                 </sup>
             </div>
             <div class="col-md-9">
-                <!!-- section optional on/off --!!>
-                <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.section.examMaterials.length === 0"
-                    ng-model="$ctrl.section.optional" ui-change="$ctrl.renameSection()">
+                <!-- section optional on/off -->
+                <input type="checkbox" name="On" value="On" ng-model="$ctrl.section.optional"
+                    ui-change="$ctrl.renameSection()">
                 </input>
             </div>
         </div>
-        -->
 
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">{{'sitnet_randomize_questions' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_randomize_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_section_randomize_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
                 </sup>
             </div>
             <div class="col-md-9">
                 <!-- lottery on/off -->
-                <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()" ng-change="$ctrl.toggleLottery()"
-                    ng-model="$ctrl.section.lotteryOn">
+                <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()"
+                    ng-change="$ctrl.toggleLottery()" ng-model="$ctrl.section.lotteryOn">
                 </input>
                 <!-- lottery item count -->
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
-                    <input type="number" name="" min="1" value="1" max="{{$ctrl.section.sectionQuestions.length}}"
-                        ng-model="$ctrl.section.lotteryItemCount" ui-change="$ctrl.updateLotteryCount()" autofocus />
+                    <input type="number" lang="en" name="" min="1" value="1"
+                        max="{{$ctrl.section.sectionQuestions.length}}" ng-model="$ctrl.section.lotteryItemCount"
+                        ui-change="$ctrl.updateLotteryCount()" autofocus />
                 </span>
                 <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
                     &nbsp;/&nbsp;{{$ctrl.section.sectionQuestions.length}}
@@ -111,9 +121,12 @@
     <div class="col-md-12 mart20">
         <div class="review-list-title">{{ 'sitnet_exam_questions' | translate }}
             <a class="pointer" popover-placement="left" popover-popup-delay="1000" popover-trigger="'mouseenter'"
-                uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}" ng-click="$ctrl.section.expanded = !$ctrl.section.expanded; $ctrl.expandSection()">
-                <img ng-show="!$ctrl.section.expanded" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
-                <img ng-show="$ctrl.section.expanded" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
+                uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+                ng-click="$ctrl.section.expanded = !$ctrl.section.expanded; $ctrl.expandSection()">
+                <img ng-show="!$ctrl.section.expanded" src="Images/icon_list_show_right.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
+                <img ng-show="$ctrl.section.expanded" src="Images/icon_list_show_down.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
             </a>
         </div>
     </div>
@@ -121,16 +134,20 @@
     <div class="row">
         <div class="col-md-12 mart10" ng-show="$ctrl.section.expanded">
 
-            <ul droppable objects="$ctrl.section.sectionQuestions" identifier="$ctrl.section.id" on-move="$ctrl.moveQuestion(from, to)"
-                drop-disabled="{{$ctrl.section.lotteryOn}}" class="sortable no-padding">
-                <li class="sortable-{{$ctrl.section.id}}" ng-show="$ctrl.section.sectionQuestions" class="sectionQuestion"
+            <ul droppable objects="$ctrl.section.sectionQuestions" identifier="$ctrl.section.id"
+                on-move="$ctrl.moveQuestion(from, to)" drop-disabled="{{$ctrl.section.lotteryOn}}"
+                class="sortable no-padding">
+                <li class="sortable-{{$ctrl.section.id}}" ng-show="$ctrl.section.sectionQuestions"
+                    class="sectionQuestion"
                     ng-repeat="sectionQuestion in $ctrl.section.sectionQuestions | orderBy:sequenceNumber">
-                    <section-question section-question="sectionQuestion" lottery-on="$ctrl.section.lotteryOn" on-delete="$ctrl.removeQuestion(sectionQuestion)">
+                    <section-question section-question="sectionQuestion" lottery-on="$ctrl.section.lotteryOn"
+                        on-delete="$ctrl.removeQuestion(sectionQuestion)" on-update="$ctrl.onReloadRequired()">
                     </section-question>
                 </li>
             </ul>
 
-            <div ng-if="!$ctrl.parentCtrl.collaborative" class="review-attachment-button exam-questions-buttons marl30 mart20">
+            <div ng-if="!$ctrl.parentCtrl.collaborative"
+                class="review-attachment-button exam-questions-buttons marl30 mart20">
                 <a class="pointer" ng-click="$ctrl.openLibrary()">
                     <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_add_from_library' | translate}}
                 </a>

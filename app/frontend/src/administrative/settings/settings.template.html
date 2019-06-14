@@ -23,7 +23,7 @@
     <div class="top-row">
         <div class="col-md-2 form-group">
             <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
-            <input id="deadline" name="deadline" class="form-control" type="number" min="1"
+            <input id="deadline" name="deadline" class="form-control" type="number" lang="en" min="1"
                 ng-model="$ctrl.config.reviewDeadline" uib-popover="{{'sitnet_info_deadline' | translate}}"
                 popover-trigger="focus" />
         </div>
@@ -39,7 +39,7 @@
         <div class="col-md-2 form-group">
             <label for="reservationWindow">{{'sitnet_reservation_window' | translate}}
                 ({{'sitnet_days' | translate}})</label>
-            <input id="reservationWindow" name="reservationWindow" class="form-control" type="number" min="1"
+            <input id="reservationWindow" name="reservationWindow" class="form-control" type="number" lang="en" min="1"
                 ng-model="$ctrl.config.reservationWindowSize"
                 uib-popover="{{'sitnet_info_reservation_window' | translate}}" popover-trigger="focus" />
         </div>
@@ -56,13 +56,18 @@
             <ul>
                 <li>
                     <strong>{{'sitnet_interoperable' | translate }}:</strong>&nbsp;
-                    <span ng-if="$ctrl.config.isInteroperable">{{'DIALOGS_YES' | translate }}</span>
-                    <span ng-if="!$ctrl.config.isInteroperable">{{'DIALOGS_NO' | translate }}</span>
+                    <span ng-if="$ctrl.config.isExamVisitSupported">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.isExamVisitSupported">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_exam_collaboration_supported' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.isExamCollaborationSupported">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.isExamCollaborationSupported">{{'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{'sitnet_anonymous_review' | translate }}:</strong>&nbsp;
-                    <span ng-if="$ctrl.config.anonymousReview">{{'DIALOGS_YES' | translate }}</span>
-                    <span ng-if="!$ctrl.config.anonymousReview">{{'DIALOGS_NO' | translate }}</span>
+                    <span ng-if="$ctrl.config.anonymousReviewEnabled">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.anonymousReviewEnabled">{{'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{'sitnet_course_integration_support' | translate}}:</strong>&nbsp;

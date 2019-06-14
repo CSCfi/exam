@@ -12,13 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
-import { ReservationService } from './reservationService';
+
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
+import { ReservationService } from './reservationService';
+
 
 interface Selection {
     roomId?: number;
@@ -125,9 +126,9 @@ export class ReservationController implements angular.IComponentController {
                     // Transfer exam taken here
                     if (!r.enrolment || r.enrolment.externalExam) {
                         r.enrolment = r.enrolment || {};
-                        const externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
-                            'EXTERNAL_UNFINISHED';
-                        r.enrolment.exam = { external: true, examOwners: [], state: externalState };
+                        const state = r.enrolment.externalExam && r.enrolment.externalExam.finished
+                            ? 'EXTERNAL_FINISHED' : 'EXTERNAL_UNFINISHED';
+                        r.enrolment.exam = { external: true, examOwners: [], state: state };
                     }
                     // Transfer exam taken elsewhere
                     if (r.externalReservation) {
@@ -172,8 +173,8 @@ export class ReservationController implements angular.IComponentController {
                     return { id: s.id, value: s, label: s.name };
                 });
             }).catch(resp => toast.error(resp.data));
-        this.SettingsResource.iop.get((data) => {
-            this.isInteroperable = data.isInteroperable;
+        this.SettingsResource.examVisit.get((data) => {
+            this.isInteroperable = data.isExamVisitSupported;
             this.initExamOptions();
         });
 

@@ -1,11 +1,8 @@
 /* global __dirname */
-require('webpack');
 const path = require('path');
-console.log(__dirname);
 const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 /**
  * Base configuration object for Webpack
@@ -16,8 +13,6 @@ const config = {
     ],
     output: {
         path: buildPath,
-        filename: 'app.bundle.js',
-        sourceMapFilename: 'app.bundle.map',
         publicPath: '/bundles/'
     },
     externals: {},
@@ -45,10 +40,6 @@ const config = {
                 exclude: /node_modules/
             },
             {
-                test: /\.json$/,
-                use: 'json-loader'
-            },
-            {
                 test: /\.(jpg|png|svg)$/,
                 use: 'url-loader?limit=100000'
             },
@@ -65,15 +56,11 @@ const config = {
     },
     plugins: [
         new webpack.ProvidePlugin({
-            'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch'
-        }),
-        new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
-        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
-        new HtmlWebpackPlugin({ title: 'Production' })
+        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') })
     ],
     resolve: {
         alias: { Images: path.resolve(__dirname, '../src/assets/images') },

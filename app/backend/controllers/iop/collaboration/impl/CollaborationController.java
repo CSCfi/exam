@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
@@ -13,11 +16,13 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import io.ebean.Model;
+import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSClient;
+import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
@@ -31,6 +36,8 @@ import backend.util.json.JsonDeserializer;
 
 public class CollaborationController extends BaseController {
 
+    private static final long SAFE_NUMBER = (long) Math.pow(2, 53) - 1;
+
     @Inject
     WSClient wsClient;
 
@@ -40,18 +47,16 @@ public class CollaborationController extends BaseController {
     @Inject
     protected CollaborativeExamLoader examLoader;
 
-    @Inject
-    protected HttpExecutionContext ec;
-
     private Random random = new Random();
 
+    private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
 
     Optional<URL> parseUrl() {
         String url = String.format("%s/api/exams", ConfigFactory.load().getString("sitnet.integration.iop.host"));
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
-            Logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL {}", e);
             return Optional.empty();
         }
     }
@@ -83,24 +88,22 @@ public class CollaborationController extends BaseController {
         return examLoader.uploadExam(ce, content, isPrePublication, resultModel, sender);
     }
 
-    boolean isAuthorizedToView(Exam exam, User user, Role.Name loginRole) {
-        return loginRole == Role.Name.ADMIN || (
+    boolean isAuthorizedToView(Exam exam, User user) {
+        return user.getLoginRole() == Role.Name.ADMIN || (
                 exam.getExamOwners().stream().anyMatch(u ->
-                        u.getEmail().equals(user.getEmail()) || u.getEmail().equals(user.getEppn()))
+                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn()))
                         && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)
         );
     }
 
-    boolean isAuthorizedToAssess(Exam exam, User user, Role.Name loginRole) {
-        return loginRole == Role.Name.ADMIN || (
-                exam.getExamOwners().stream().anyMatch(u ->
-                        u.getEmail().equals(user.getEmail()) || u.getEmail().equals(user.getEppn()))
-                        && exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED)
-        );
+    boolean isUnauthorizedToAssess(Exam exam, User user) {
+        return user.getLoginRole() != Role.Name.ADMIN && (exam.getExamOwners().stream().noneMatch(u ->
+                u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn()))
+                || !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED));
     }
 
     long newId() {
-        return Math.abs(random.nextLong());
+        return ThreadLocalRandom.current().nextLong(SAFE_NUMBER);
     }
 
     void calculateScores(JsonNode root) {
@@ -117,4 +120,29 @@ public class CollaborationController extends BaseController {
     Stream<JsonNode> stream(JsonNode node) {
         return StreamSupport.stream(node.spliterator(), false);
     }
+
+    Either<Result, Map<CollaborativeExam, JsonNode>> findExamsToProcess (WSResponse response) {
+        JsonNode root = response.asJson();
+        if (response.getStatus() != OK) {
+            return Either.left(internalServerError(root.get("message").asText("Connection refused")));
+        }
+
+        Map<String, CollaborativeExam> locals = Ebean.find(CollaborativeExam.class).findSet().stream()
+                .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
+
+        updateLocalReferences(root, locals);
+
+        Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false)
+                .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
+
+        return Either.right(localToExternal);
+    }
+
+    Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(Long id) {
+        return Ebean.find(CollaborativeExam.class).where().idEq(id).findOneOrEmpty()
+                .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
+                .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+    }
+
+
 }

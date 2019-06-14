@@ -74,8 +74,12 @@ public class ConfigUtil {
         return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
     }
 
-    public static boolean isInteroperable() {
-        return ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
+    public static boolean isVisitingExaminationSupported() {
+        return ConfigFactory.load().getBoolean("sitnet.integration.iop.visit.active");
+    }
+
+    public static boolean isCollaborationExaminationSupported() {
+        return ConfigFactory.load().getBoolean("sitnet.integration.iop.collaboration.active");
     }
 
     public static boolean isCourseSearchActive() {

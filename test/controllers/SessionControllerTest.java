@@ -50,6 +50,24 @@ public class SessionControllerTest extends IntegrationTestCase {
     }
 
     @Test
+    public void testLoginWithOtherIdentifierKeys() {
+        String eppn = "newuser@test.org";
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        login(eppn, ImmutableMap.of("schacPersonalUniqueCode",
+                "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
+                        "urn:schac:personalUniqueCode:org:org1.org:dirid:33333;" +
+                        "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"));
+
+
+        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNotNull();
+        assertThat(user.getUserIdentifier()).isEqualTo("org2.org:aaaaa");
+    }
+
+
+    @Test
     public void testLoginWithInvalidUserIdentifierString() {
         String eppn = "newuser@test.org";
         User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();

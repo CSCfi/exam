@@ -28,8 +28,8 @@ angular.module('app.facility.rooms')
                 vm.$onInit = function () {
                     vm.week = Room.getWeek();
                     vm.showName = true;
-                    SettingsRes.iop.get(function (data) {
-                        vm.isInteroperable = data.isInteroperable;
+                    SettingsRes.examVisit.get(function (data) {
+                        vm.isInteroperable = data.isExamVisitSupported;
                     });
 
                     Room.rooms.get({ id: $routeParams.id },

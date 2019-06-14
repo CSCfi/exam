@@ -15,13 +15,14 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 public class Software extends GeneratedIdentityModel {
@@ -30,13 +31,11 @@ public class Software extends GeneratedIdentityModel {
     @JsonBackReference
     private List<ExamMachine> machines;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwares")
     @JsonBackReference
     private List<Exam> exams;
 
     private String name;
-
-    private String status;
 
     public String getName() {
         return name;
@@ -44,14 +43,6 @@ public class Software extends GeneratedIdentityModel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public List<Exam> getExams() {

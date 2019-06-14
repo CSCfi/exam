@@ -32,7 +32,7 @@ export interface User {
     lastName: string;
     email: string;
     lang: string;
-    loginRole: { name: string } | null;
+    loginRole: string | null;
     roles: Role[];
     token: string;
     userAgreementAccepted: boolean;
@@ -105,7 +105,7 @@ export class SessionService {
     }
 
     static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole !== null && user.loginRole.name === role;
+        return user && user.loginRole !== null && user.loginRole === role;
     }
 
     getEnv(): IPromise<'DEV' | 'PROD'> {
@@ -187,8 +187,8 @@ export class SessionService {
             }
         });
 
-        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
-        const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
+        const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
+        const isTeacher = loginRole != null && loginRole === 'TEACHER';
         this._user = {
             id: user.id,
             firstName: user.firstName,
@@ -201,8 +201,8 @@ export class SessionService {
             userAgreementAccepted: user.userAgreementAccepted,
             userIdentifier: user.userIdentifier,
             permissions: user.permissions,
-            isAdmin: loginRole != null && loginRole.name === 'ADMIN',
-            isStudent: loginRole != null && loginRole.name === 'STUDENT',
+            isAdmin: loginRole != null && loginRole === 'ADMIN',
+            isStudent: loginRole != null && loginRole === 'STUDENT',
             isTeacher: isTeacher,
             isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
         };
@@ -343,7 +343,7 @@ export class SessionService {
             }
         }).result.then((role: { name: string, icon: string, displayName: string }) => {
             this.$http.put(`/app/users/${user.id}/roles/${role.name}`, {}).then(() => {
-                user.loginRole = role;
+                user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';

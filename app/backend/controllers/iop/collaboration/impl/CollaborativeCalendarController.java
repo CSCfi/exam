@@ -13,6 +13,7 @@ import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
@@ -28,6 +29,7 @@ import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 public class CollaborativeCalendarController extends CollaborationController {
@@ -41,6 +43,7 @@ public class CollaborativeCalendarController extends CollaborationController {
     @Inject
     ActorSystem system;
 
+    private static final Logger.ALogger logger = Logger.of(CollaborativeCalendarController.class);
 
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> getExamInfo(Long id) {
@@ -77,20 +80,21 @@ public class CollaborativeCalendarController extends CollaborationController {
     }
 
 
+    @Authenticated
     @With(CalendarReservationSanitizer.class)
     @Restrict({@Group("STUDENT")})
-    public CompletionStage<Result> createReservation() {
-        Long roomId = request().attrs().get(Attrs.ROOM_ID);
-        Long examId = request().attrs().get(Attrs.EXAM_ID);
-        DateTime start = request().attrs().get(Attrs.START_DATE);
-        DateTime end = request().attrs().get(Attrs.END_DATE);
-        Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
-        Collection<Long> sectionIds = request().attrs().get(Attrs.SECTION_IDS);
+    public CompletionStage<Result> createReservation(Http.Request request) {
+        Long roomId = request.attrs().get(Attrs.ROOM_ID);
+        Long examId = request.attrs().get(Attrs.EXAM_ID);
+        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime end = request.attrs().get(Attrs.END_DATE);
+        Collection<Integer> aids = request.attrs().get(Attrs.ACCESSABILITES);
+        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
-        final User user = getLoggedUser();
+        final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
         if (ce == null) {
@@ -158,15 +162,16 @@ public class CollaborativeCalendarController extends CollaborationController {
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationNotification(user, reservation, exam, false);
-            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
 
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    public CompletionStage<Result> getSlots(Long examId, Long roomId, String day, Collection<Integer> aids) {
-        User user = getLoggedUser();
+    public CompletionStage<Result> getSlots(Long examId, Long roomId, String day, Collection<Integer> aids, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));

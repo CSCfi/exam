@@ -17,7 +17,6 @@ package backend.controllers.iop.collaboration.impl;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -25,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -44,24 +42,23 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamType;
 import backend.models.GradeScale;
 import backend.models.Language;
-import backend.models.Role;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.config.ConfigUtil;
 
 public class CollaborativeExamController extends CollaborationController {
 
-    private Exam prepareDraft() {
+    private Exam prepareDraft(User user) {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.PUBLIC.toString())
                 .findOne();
-        User user = getLoggedUser();
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
@@ -93,61 +90,44 @@ public class CollaborativeExamController extends CollaborationController {
         return exam;
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> listExams() {
+    public CompletionStage<Result> listExams(Http.Request request) {
         Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
-        User user = getLoggedUser();
-        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        WSRequest wsRequest = wsClient.url(url.get().toString());
 
-        WSRequest request = wsClient.url(url.get().toString());
-        Function<WSResponse, Result> onSuccess = response -> {
-            JsonNode root = response.asJson();
-            if (response.getStatus() != OK) {
-                return internalServerError(root.get("message").asText("Connection refused"));
-            }
-
-            Map<String, CollaborativeExam> locals = Ebean.find(CollaborativeExam.class).findSet().stream()
-                    .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
-
-            // Save references to documents that we don't have locally yet
-            updateLocalReferences(root, locals);
-
-            Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false)
-                    .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
-            List<JsonNode> exams = localToExternal.entrySet().stream()
+        Function<WSResponse, Result> onSuccess = response -> findExamsToProcess(response).map(items -> {
+            List<JsonNode> exams = items.entrySet().stream()
                     .map(e -> e.getKey().getExam(e.getValue()))
-                    .filter(e -> isAuthorizedToView(e, user, loginRole))
+                    .filter(e -> isAuthorizedToView(e, user))
                     .map(this::serialize)
                     .collect(Collectors.toList());
 
             return ok(Json.newArray().addAll(exams));
-        };
-        return request.get().thenApplyAsync(onSuccess);
+        }).getOrElseGet(Function.identity());
+
+        return wsRequest.get().thenApplyAsync(onSuccess);
     }
 
-    private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        User user = getLoggedUser();
-        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
-        return downloadExam(ce).thenApplyAsync(
+    private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
+        return findCollaborativeExam(id).map(ce -> downloadExam(ce).thenApplyAsync(
                 result -> {
                     if (!result.isPresent()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
-                    if (!isAuthorizedToView(exam, user, loginRole)) {
+                    if (!isAuthorizedToView(exam, user)) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     postProcessor.accept(exam);
                     return ok(serialize(exam));
                 }
-        );
+        )).getOrElseGet(Function.identity());
+
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -156,23 +136,27 @@ public class CollaborativeExamController extends CollaborationController {
         return ok(grades);
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> getExam(Long id) {
-        return getExam(id, exam -> {});
+    public CompletionStage<Result> getExam(Long id, Http.Request request) {
+        return getExam(id, exam -> {
+        }, request.attrs().get(Attrs.AUTHENTICATED_USER));
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> getExamPreview(Long id) {
-        return getExam(id, exam -> examUpdater.preparePreview(exam));
+    public CompletionStage<Result> getExamPreview(Long id, Http.Request request) {
+        return getExam(id, exam -> examUpdater.preparePreview(exam), request.attrs().get(Attrs.AUTHENTICATED_USER));
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN")})
-    public CompletionStage<Result> createExam() {
+    public CompletionStage<Result> createExam(Http.Request request) {
         Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
-        WSRequest request = wsClient.url(url.get().toString());
+        WSRequest wsRequest = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != CREATED) {
@@ -188,114 +172,110 @@ public class CollaborativeExamController extends CollaborationController {
             ce.save();
             return created(Json.newObject().put("id", ce.getId()));
         };
-        Exam body = prepareDraft();
-        return request.post(serialize(body)).thenApplyAsync(onSuccess);
+        Exam body = prepareDraft(request.attrs().get(Attrs.AUTHENTICATED_USER));
+        return wsRequest.post(serialize(body)).thenApplyAsync(onSuccess);
     }
 
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> deleteExam(Long id) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
-            return wrapAsPromise(forbidden("sitnet_exam_removal_not_possible"));
-        }
-        return examLoader.deleteExam(ce)
-                .thenApplyAsync(result -> {
-                    if (result.status() == Http.Status.OK) {
-                        ce.delete();
-                    }
-                    return result;
-                });
+        return findCollaborativeExam(id).map(ce -> {
+            if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
+                return wrapAsPromise(forbidden("sitnet_exam_removal_not_possible"));
+            }
+            return examLoader.deleteExam(ce)
+                    .thenApplyAsync(result -> {
+                        if (result.status() == Http.Status.OK) {
+                            ce.delete();
+                        }
+                        return result;
+                    });
+        }).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @With(ExamUpdateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public CompletionStage<Result> updateExam(Long id) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        User user = getLoggedUser();
-        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
-        return downloadExam(ce).thenComposeAsync(result -> {
-            if (result.isPresent()) {
-                Exam exam = result.get();
-                if (isAuthorizedToView(exam, user, loginRole)) {
-                    Exam.State previousState = exam.getState();
-                    Optional<Result> error = Stream.of(
-                            examUpdater.updateTemporalFieldsAndValidate(exam, user, request(), getSession()),
-                            examUpdater.updateStateAndValidate(exam, user, request()))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .findFirst();
-                    if (error.isPresent()) {
-                        return wrapAsPromise(error.get());
+    public CompletionStage<Result> updateExam(Long id, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            return downloadExam(ce).thenComposeAsync(result -> {
+                if (result.isPresent()) {
+                    Exam exam = result.get();
+                    if (isAuthorizedToView(exam, user)) {
+                        Exam.State previousState = exam.getState();
+                        Optional<Result> error = Stream.of(
+                                examUpdater.updateTemporalFieldsAndValidate(exam, user, request),
+                                examUpdater.updateStateAndValidate(exam, user, request))
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .findFirst();
+                        if (error.isPresent()) {
+                            return wrapAsPromise(error.get());
+                        }
+                        Exam.State nextState = exam.getState();
+                        boolean isPrePublication =
+                                previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
+                        examUpdater.update(exam, request, user.getLoginRole());
+                        return uploadExam(ce, exam, isPrePublication, null, user);
                     }
-                    Exam.State nextState = exam.getState();
-                    boolean isPrePublication =
-                            previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
-                    examUpdater.update(exam, request(), loginRole);
-                    return uploadExam(ce, exam, isPrePublication, null, user);
+                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
-                return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
-            }
-            return wrapAsPromise(notFound());
-        }, ec.current());
+                return wrapAsPromise(notFound());
+            });
+        }).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN")})
-    public CompletionStage<Result> updateLanguage(Long id, String code) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        return downloadExam(ce).thenComposeAsync(result -> {
-            if (result.isPresent()) {
-                Exam exam = result.get();
-                Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
-                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
-                        null, getLoggedUser());
-            }
-            return wrapAsPromise(notFound());
-        }, ec.current());
+    public CompletionStage<Result> updateLanguage(Long id, String code, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            return downloadExam(ce).thenComposeAsync(result -> {
+                if (result.isPresent()) {
+                    Exam exam = result.get();
+                    Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
+                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
+                            null, user);
+                }
+                return wrapAsPromise(notFound());
+            });
+        }).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @With(EmailSanitizer.class)
     @Restrict({@Group("ADMIN")})
-    public CompletionStage<Result> addOwner(Long id) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        return downloadExam(ce).thenComposeAsync(result -> {
-            if (result.isPresent()) {
-                Exam exam = result.get();
-                User user = createOwner(request().attrs().get(Attrs.EMAIL));
-                exam.getExamOwners().add(user);
-                return uploadExam(ce, exam, false, user, getLoggedUser());
-            }
-            return wrapAsPromise(notFound());
-        }, ec.current());
+    public CompletionStage<Result> addOwner(Long id, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            return downloadExam(ce).thenComposeAsync(result -> {
+                if (result.isPresent()) {
+                    Exam exam = result.get();
+                    User owner = createOwner(request.attrs().get(Attrs.EMAIL));
+                    exam.getExamOwners().add(owner);
+                    return uploadExam(ce, exam, false, owner, user);
+                }
+                return wrapAsPromise(notFound());
+            });
+        }).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN")})
-    public CompletionStage<Result> removeOwner(Long id, Long oid) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
-        if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-        return downloadExam(ce).thenComposeAsync(result -> {
-            if (result.isPresent()) {
-                Exam exam = result.get();
-                User user = new User();
-                user.setId(oid);
-                exam.getExamOwners().remove(user);
-                return uploadExam(ce, exam, false, null, getLoggedUser());
-            }
-            return wrapAsPromise(notFound());
-        }, ec.current());
+    public CompletionStage<Result> removeOwner(Long id, Long oid, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            return downloadExam(ce).thenComposeAsync(result -> {
+                if (result.isPresent()) {
+                    Exam exam = result.get();
+                    User owner = new User();
+                    owner.setId(oid);
+                    exam.getExamOwners().remove(owner);
+                    return uploadExam(ce, exam, false, null, user);
+                }
+                return wrapAsPromise(notFound());
+            });
+        }).getOrElseGet(Function.identity());
     }
 
     private User createOwner(String email) {

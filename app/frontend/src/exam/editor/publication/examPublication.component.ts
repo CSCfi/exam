@@ -159,7 +159,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
 
         saveAndPublishExam = () => {
 
-            const errors: string[] = this.collaborative ?
+            const errors: string[] = this.isDraftCollaborativeExam() ?
                 this.errorsPreventingPrePublication() : this.errorsPreventingPublication();
 
             if (errors.length > 0) {
@@ -178,21 +178,25 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     keyboard: true,
                     resolve: {
                         exam: () => this.exam,
-                        collaborative: () => this.collaborative
+                        prePublication: () => this.isDraftCollaborativeExam()
                     }
                 }).result.then(() => {
                     const state = {
-                        'state': this.collaborative && this.exam.state === 'DRAFT' ?
+                        'state': this.isDraftCollaborativeExam() ?
                             'PRE_PUBLISHED' : 'PUBLISHED'
                     };
                     // OK button clicked
                     this.updateExam(true, state).then(() => {
-                        toast.success(this.$translate.instant('sitnet_exam_saved_and_published'));
+                        const text = this.isDraftCollaborativeExam()
+                            ? 'sitnet_exam_saved_and_pre_published' : 'sitnet_exam_saved_and_published';
+                        toast.success(this.$translate.instant(text));
                         this.$location.path('/');
                     }).catch(angular.noop);
                 });
             }
         }
+
+        isDraftCollaborativeExam = () => this.collaborative && this.exam.state === 'DRAFT';
 
         // TODO: how should this work when it comes to private exams?
         unpublishExam = () => {
@@ -266,6 +270,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             if (!this.exam.examType) {
                 errors.push('sitnet_exam_credit_type_missing');
             }
+            if (this.exam.examOwners.length == 0) {
+                errors.push('sitnet_exam_owner_missing');
+            }
 
             return errors;
 
@@ -275,7 +282,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
 
             const errors: string[] = this.errorsPreventingPrePublication();
 
-            if (!this.exam.course) {
+            if (!this.exam.course && !this.collaborative) {
                 errors.push('sitnet_course_missing');
             }
 

@@ -5,7 +5,7 @@
                 translate}}</div>
         </div>
         <div class="modal-body">
-            <p ng-repeat="error in $ctrl.errors">{{error}}</p>
+            <p ng-repeat="error in $ctrl.errors">{{ error | translate }}</p>
         </div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
@@ -16,4 +16,3 @@
         </div>
     </div>
 </div>
-
