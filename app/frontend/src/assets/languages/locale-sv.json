@@ -907,10 +907,10 @@
   "sitnet_save_and_pre_publish": "Spara och förhandspublicera",
   "sitnet_exam_owner_missing": "Tentator saknas",
   "sitnet_exam_editor_materials": "Tentamensmaterial",
-  "sitnet_exam_saved_and_pre_published": "Tentamen är sparad och förhandsgranskad",
+  "sitnet_exam_saved_and_pre_published": "Tentamen är sparad och förhandspublicerad",
   "sitnet_write_exam_owner_email": "Tentators e-postadress",
   "sitnet_exam_collaboration_supported": "Stöd för tentamen vid utomstående organisation",
   "sitnet_set_forced_score": "Gå förbi automatiskt beräknade poäng",
-  "sitnet_optional": "Väljd",
+  "sitnet_optional": "Vald",
   "sitnet_required": "Obligatorisk"
 }
