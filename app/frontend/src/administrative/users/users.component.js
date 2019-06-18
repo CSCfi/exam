@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.administrative.users')
     .component('users', {
@@ -25,6 +25,7 @@ angular.module('app.administrative.users')
                 const vm = this;
 
                 vm.$onInit = function () {
+                    vm.users = [];
                     vm.pageSize = 30;
                     vm.filter = {};
                     vm.roles = [
