@@ -55,8 +55,8 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.sanitizers.Attrs;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.datetime.DateTimeUtils;
 
 

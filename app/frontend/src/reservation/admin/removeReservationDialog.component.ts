@@ -41,8 +41,10 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
 
         ok() {
             this.reservation = this.resolve.reservation;
-            this.$http.delete(`/app/reservations/${this.reservation.id}`, { data: { msg: this.message.text } })
-                .then(() => this.close({ $value: 'Accepted' }))
+            this.$http.delete(`/app/reservations/${this.reservation.id}`, {
+                data: { msg: this.message.text },
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => this.close({ $value: 'Accepted' }))
                 .catch(resp => toast.error(resp.data));
         }
 
