@@ -12,8 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import toast from 'toastr';
+
+
 const moment = require('moment');
 
 angular.module('app.enrolment')
@@ -50,6 +51,23 @@ angular.module('app.enrolment')
                 });
             }
         };
+
+        self.displayWrongUserAgent = (startsAtTxt) => {
+            const opts = {
+                timeOut: 10000,
+                preventDuplicates: true
+            };
+            let startsAt = moment(startsAtTxt);
+            const now = moment();
+            if (now.isDST()) {
+                startsAt.add(-1, 'hour');
+            }
+            if (startsAt.isAfter(now)) {
+                toast.warning(`${$translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`, null, opts);
+            } else {
+                toast.error($translate.instant('sitnet_seb_exam_ongoing'), null, opts);
+            }
+        }
 
     }]);
 

@@ -46,6 +46,7 @@ import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.security.SessionHandler;
+import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -144,7 +145,7 @@ public class SystemRequestHandler implements ActionCreator {
         return new Action.Simple() {
             @Override
             public CompletionStage<Result> call(Http.Request request) {
-                return  delegate.call(request).thenApply(r -> {
+                return delegate.call(request).thenApply(r -> {
                     Result result = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
                     for (Map.Entry<String, String> entry : headers.entrySet()) {
                         result = result.withHeader(entry.getKey(), entry.getValue());
@@ -169,46 +170,54 @@ public class SystemRequestHandler implements ActionCreator {
                 .isPresent();
     }
 
-    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String,
-            String> headers) {
+    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request,
+                                Map<String, String> headers) {
+        boolean requiresUserAgentAuth = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
         // Loose the checks for dev usage to facilitate for easier testing
-        if (environment.isDev()) {
+        if (environment.isDev() && !requiresUserAgentAuth) {
             return true;
         }
         ExamMachine examMachine = enrolment.getReservation().getMachine();
         ExamRoom room = examMachine.getRoom();
 
-        String machineIp = examMachine.getIpAddress();
-        String remoteIp = request.remoteAddress();
-
-        logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
-
-        if (!remoteIp.equals(machineIp)) {
-            String message;
-            String header;
-
-            // Is this a known machine?
-            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
-            if (lookedUp == null) {
-                // IP not known
-                header = "x-exam-unknown-machine";
-                message = room.getCampus() + ":::" +
-                        room.getBuildingName() + ":::" +
-                        room.getRoomCode() + ":::" +
-                        examMachine.getName() + ":::" +
-                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
-            } else if (lookedUp.getRoom().getId().equals(room.getId())) {
-                // Right room, wrong machine
-                header = "x-exam-wrong-machine";
-                message = enrolment.getId() + ":::" + lookedUp.getId();
-            } else {
-                // Wrong room
-                header = "x-exam-wrong-room";
-                message = enrolment.getId() + ":::" + lookedUp.getId();
+        if (requiresUserAgentAuth) {
+            Optional<Result> error = ConfigUtil.checkUserAgent(request);
+            if (error.isPresent()) {
+                String msg = ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                headers.put("x-exam-wrong-agent-config", msg);
+                return false;
             }
-            headers.put(header, Base64.encodeBase64String(message.getBytes()));
-            logger.debug("room and machine not ok. " + message);
-            return false;
+        } else {
+            String machineIp = examMachine.getIpAddress();
+            String remoteIp = request.remoteAddress();
+            logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
+            if (!remoteIp.equals(machineIp)) {
+                String message;
+                String header;
+
+                // Is this a known machine?
+                ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
+                if (lookedUp == null) {
+                    // IP not known
+                    header = "x-exam-unknown-machine";
+                    message = room.getCampus() + ":::" +
+                            room.getBuildingName() + ":::" +
+                            room.getRoomCode() + ":::" +
+                            examMachine.getName() + ":::" +
+                            ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                } else if (lookedUp.getRoom().getId().equals(room.getId())) {
+                    // Right room, wrong machine
+                    header = "x-exam-wrong-machine";
+                    message = enrolment.getId() + ":::" + lookedUp.getId();
+                } else {
+                    // Wrong room
+                    header = "x-exam-wrong-room";
+                    message = enrolment.getId() + ":::" + lookedUp.getId();
+                }
+                headers.put(header, Base64.encodeBase64String(message.getBytes()));
+                logger.debug("room and machine not ok. " + message);
+                return false;
+            }
         }
         logger.debug("room and machine ok");
         return true;

@@ -397,6 +397,8 @@ GET           /app/settings/anonymousReviewEnabled                     backend.c
 GET           /app/settings/maxfilesize                                backend.controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 backend.controllers.SettingsController.getAppVersion
 GET           /app/settings/maturityInstructions                       backend.controllers.SettingsController.getMaturityInstructions(lang: String)
+GET           /app/settings/examinationQuitLink                        backend.controllers.SettingsController.getExaminationQuitLink
+
 
 ################# Statistics interface ##################
 

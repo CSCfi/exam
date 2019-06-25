@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.examination')
     .component('examinationToolbar', {
@@ -55,10 +55,10 @@ angular.module('app.examination')
                     dialog.result.then(function () {
                         if (vm.activeSection) {
                             Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, false).then(function () {
-                                Examination.logout('sitnet_exam_returned', vm.exam.hash);
+                                Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
                             });
                         } else {
-                            Examination.logout('sitnet_exam_returned', vm.exam.hash);
+                            Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
                         }
                     });
                 };
@@ -69,7 +69,7 @@ angular.module('app.examination')
                         Examination.abort(vm.exam.hash).then(function () {
                             toast.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
                             window.onbeforeunload = null;
-                            $location.path('/student/logout/aborted');
+                            $location.path('/student/logout/aborted/' + vm.exam.requiresUserAgentAuth);
                         }).catch(function (err) {
                             toast.error(err.data);
                         });

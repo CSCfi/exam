@@ -92,7 +92,8 @@ export default function configs(
     $routeProvider.when('/student/participations', { template: '<exam-participations></exam-participations>' });
     $routeProvider.when('/student/participations/collaborative',
         { template: '<collaborative-exam-participations></collaborative-exam-participations>' });
-    $routeProvider.when('/student/logout/:reason?', { template: '<examination-logout></examination-logout>' });
+    $routeProvider.when('/student/logout/:reason?/:quitLinkEnabled?',
+        { template: '<examination-logout></examination-logout>' });
     $routeProvider.when('/enroll/exam/:id', { template: '<exam-enrolments></exam-enrolments>' });
 
 
@@ -152,10 +153,11 @@ export default function configs(
                     const unknownMachine = response.headers()['x-exam-unknown-machine'];
                     const wrongRoom = response.headers()['x-exam-wrong-room'];
                     const wrongMachine = response.headers()['x-exam-wrong-machine'];
+                    const wrongUserAgent = response.headers()['x-exam-wrong-agent-config'];
                     const hash = response.headers()['x-exam-start-exam'];
 
                     const enrolmentId = response.headers()['x-exam-upcoming-exam'];
-                    let parts;
+                    let parts: string[];
                     if (unknownMachine) {
                         const location = b64ToUtf8(unknownMachine).split(':::');
                         WrongLocation.display(location); // Show warning notice on screen
@@ -167,6 +169,8 @@ export default function configs(
                         parts = b64ToUtf8(wrongMachine).split(':::');
                         $location.path('/student/wrong-machine/' + parts[0] + '/' + parts[1]);
                         $rootScope.$broadcast('wrongLocation');
+                    } else if (wrongUserAgent) {
+                        WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                     } else if (enrolmentId) { // Go to waiting room
                         const id = enrolmentId === 'none' ? '' : enrolmentId;
                         $location.path(enrolmentId === 'none' ?

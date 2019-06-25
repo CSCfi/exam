@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
+import async from 'async';
 import _ from 'lodash';
 import toast from 'toastr';
-import async from 'async';
+
 
 angular.module('app.examination')
     .service('Examination', ['$q', '$location', '$http', '$translate',
@@ -190,12 +190,12 @@ angular.module('app.examination')
                 return $http.put(url);
             };
 
-            self.logout = function (msg, hash) {
+            self.logout = function (msg, hash, quitLinkEnabled) {
                 const url = getResource('/app/student/exam/' + hash);
                 $http.put(url).then(function () {
                     toast.info($translate.instant(msg), { timeOut: 5000 });
                     window.onbeforeunload = null;
-                    $location.path('/student/logout/finished');
+                    $location.path('/student/logout/finished/' + quitLinkEnabled);
                 }).catch(function (resp) {
                     toast.error($translate.instant(resp.data));
                 });

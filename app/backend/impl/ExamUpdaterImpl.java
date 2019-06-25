@@ -142,6 +142,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
+        Boolean requiresUserAgentAuth = request.attrs().getOptional(Attrs.REQUIRES_USER_AGENT_AUTH).orElse(false);
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
 
@@ -165,6 +166,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
+        exam.setRequiresUserAgentAuth(requiresUserAgentAuth);
         if (loginRole == Role.Name.ADMIN &&
                 ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
                 !hasFutureReservations(exam)) {

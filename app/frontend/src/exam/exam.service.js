@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import _ from 'lodash';
+import toast from 'toastr';
+
 
 angular.module('app.exam')
     .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session', 'dialogs',
@@ -73,7 +73,8 @@ angular.module('app.exam')
                     'internalRef': exam.internalRef,
                     'objectVersion': exam.objectVersion,
                     'attachment': exam.attachment,
-                    'anonymous': exam.anonymous
+                    'anonymous': exam.anonymous,
+                    'requiresUserAgentAuth': exam.requiresUserAgentAuth
                 };
                 for (let k in overrides) {
                     if (overrides.hasOwnProperty(k)) {
