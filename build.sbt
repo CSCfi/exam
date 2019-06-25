@@ -21,12 +21,10 @@ libraryDependencies += filters
 libraryDependencies += guice
 
 // JAXB (missing in JDK 11, enable if using Java >= 11)
-/*
 libraryDependencies += "com.sun.xml.bind" % "jaxb-core" % "2.3.0"
 libraryDependencies += "com.sun.xml.bind" % "jaxb-impl" % "2.3.0"
 libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.0"
 libraryDependencies += "javax.activation" % "activation" % "1.1.1"
-*/
 
 libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.7.0"
 libraryDependencies += "com.github.fge" % "json-schema-validator" % "2.2.6" exclude("javax.mail", "mailapi")

@@ -194,6 +194,13 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({@Group("STUDENT")})
+    public Result getExaminationQuitLink() {
+        ObjectNode node = Json.newObject();
+        node.put("quitLink", ConfigUtil.getQuitExaminationLink());
+        return ok(Json.toJson(node));
+    }
+
     @Restrict({@Group("ADMIN")})
     public Result getConfig() {
         ObjectNode node = Json.newObject();
@@ -234,6 +241,9 @@ public class SettingsController  extends BaseController {
         node.put("maxFileSize", ConfigUtil.getMaxFileSize());
         node.put("expirationPeriod", ConfigUtil.getExamExpirationPeriod());
         node.put("defaultTimeZone", ConfigUtil.getDefaultTimeZone().getID());
+        node.put("sebBrowserKey", ConfigUtil.getBrowserExamKey());
+        node.put("sebExamConfigurationKey", ConfigUtil.getExamConfigurationKey());
+        node.put("sebQuitLink", ConfigUtil.getQuitExaminationLink());
 
         return ok(Json.toJson(node));
 

@@ -912,5 +912,11 @@
   "sitnet_exam_collaboration_supported": "Collaborative exams supported",
   "sitnet_set_forced_score": "Skip automatic points",
   "sitnet_optional": "Selected",
-  "sitnet_required": "Required"
+  "sitnet_required": "Required",
+  "sitnet_seb_exam_about_to_begin": "Sinulla on Safe Exam Browser -tentti alkamassa klo EN",
+  "sitnet_seb_exam_ongoing": "Sinulla on Safe Exam Browser -tentti meneillään. Kirjaudu uudelleen sisään Safe Exam Browserin kautta aloittaaksesi tentin EN",
+  "sitnet_examination_type": "Tenttimistapa EN",
+  "sitnet_examination_type_aquarium": "Akvaario EN",
+  "sitnet_examination_type_seb": "BYOD EN",
+  "sitnet_quit_seb": "Poistu Safe Exam Browserista. Voit tämän jälkeen käyttää konettasi normaalisti.EN"
 }

@@ -226,6 +226,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private String assessmentInfo;
 
+    private Boolean requiresUserAgentAuth;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -450,7 +452,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public String generateHash() {
         String attributes = name + state + new Random().nextDouble();
-        hash = AppUtil.encodeMD5(attributes);
+        this.hash = AppUtil.encodeMD5(attributes);
         return hash;
     }
 
@@ -735,6 +737,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setAnonymous(boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public Boolean getRequiresUserAgentAuth() {
+        return requiresUserAgentAuth;
+    }
+
+    public void setRequiresUserAgentAuth(Boolean requiresUserAgentAuth) {
+        this.requiresUserAgentAuth = requiresUserAgentAuth;
     }
 
     @Transient
