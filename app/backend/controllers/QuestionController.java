@@ -35,7 +35,6 @@ import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import play.Logger;
 import play.data.DynamicForm;
-import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -161,7 +160,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         copy.getQuestionOwners().add(user);
         copy.update();
         Ebean.saveAll(copy.getOptions());
-        return ok(Json.toJson(copy));
+        return ok(copy);
     }
 
     // TODO: Move to sanitizer
@@ -240,7 +239,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 processOptions(question, user, (ArrayNode) body.get("options"));
             }
             question.save();
-            return ok(Json.toJson(question));
+            return ok(question);
         });
     }
 
@@ -269,7 +268,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
             }
             updatedQuestion.update();
-            return ok(Json.toJson(updatedQuestion));
+            return ok(updatedQuestion);
         });
     }
 
@@ -290,13 +289,10 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
 
         // Not allowed to remove if used in active exams
-        if (!question.getExamSectionQuestions().stream()
-                .filter(esq -> {
-                    Exam exam = esq.getExamSection().getExam();
-                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow();
-                })
-                .collect(Collectors.toList())
-                .isEmpty()) {
+        if (question.getExamSectionQuestions().stream().anyMatch(esq -> {
+            Exam exam = esq.getExamSection().getExam();
+            return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow();
+        })) {
             return forbidden();
         }
         question.getChildren().forEach(c -> {
