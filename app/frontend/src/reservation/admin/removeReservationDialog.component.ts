@@ -34,7 +34,8 @@ export class RemoveReservationDialogComponent {
     ) { }
 
     ok = () =>
-        this.http.delete(`/app/reservations/${this.reservation.id}`, { params: { 'msg': this.message.text } })
+        this.http.delete(`/app/reservations/${this.reservation.id}`,
+            { headers: { 'Content-Type': 'application/json' }, params: { 'msg': this.message.text } })
             .subscribe(() => this.activeModal.close(), err => toast.error(err))
 
     cancel = () => this.activeModal.dismiss();

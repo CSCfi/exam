@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -21,10 +20,16 @@ import * as _ from 'lodash';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, concatMap, map, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
+
 import {
-    ClozeTestAnswer, EssayAnswer, Exam, ExamSection, ExamSectionQuestion,
-    MultipleChoiceOption
+    ClozeTestAnswer,
+    EssayAnswer,
+    Exam,
+    ExamSection,
+    ExamSectionQuestion,
+    MultipleChoiceOption,
 } from '../exam/exam.model';
+
 
 export interface Examination extends Exam {
     cloned: boolean;
@@ -193,18 +198,18 @@ export class ExaminationService {
         }
     }
 
-    abort$ = (hash): Observable<void> => {
+    abort$ = (hash: string): Observable<void> => {
         const url = this.getResource('/app/student/exam/abort/' + hash);
         return this.http.put<void>(url, {});
     }
 
-    logout = (msg, hash) => {
+    logout = (msg: string, hash: string, quitLinkEnabled: boolean) => {
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put(url, {}).subscribe(
             () => {
                 toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
                 window.onbeforeunload = null;
-                this.Location.go('/student/logout/finished');
+                this.Location.go('/student/logout/finished/' + quitLinkEnabled);
             },
             resp => toast.error(this.translate.instant(resp.data))
         );

@@ -19,14 +19,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.Results;
 
 import backend.models.ExamExecutionType;
 import backend.models.Role;
@@ -123,5 +128,40 @@ public class ConfigUtil {
     public static boolean isAnonymousReviewEnabled() {
         return ConfigFactory.load().getBoolean("sitnet.exam.anonymousReview");
     }
+
+    public static Optional<Result> checkUserAgent(Http.RequestHeader request) {
+        Optional<String> ob = request.header("X-SafeExamBrowser-RequestHash");
+        Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
+        if (!ob.isPresent() || !oc.isPresent()) {
+            return Optional.of(Results.unauthorized("SEB headers missing"));
+        }
+        String bek =  getBrowserExamKey();
+        String eck = getExamConfigurationKey();
+        String protocol = request.secure() ? "https://" : "http://";
+        String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
+
+        String bekDigest = DigestUtils.sha256Hex(absoluteUrl + bek);
+        if (!bekDigest.equals(ob.get())) {
+            return Optional.of(Results.unauthorized("Wrong BEK digest"));
+        }
+        String eckDigest = DigestUtils.sha256Hex(absoluteUrl + eck);
+        if (!eckDigest.equals(oc.get())) {
+            return Optional.of(Results.unauthorized("Wrong ECK digest"));
+        }
+        return Optional.empty();
+    }
+
+    public static String getBrowserExamKey() {
+        return ConfigFactory.load().getString("sitnet.exam.seb.browserExamKey");
+    }
+
+    public static String getExamConfigurationKey() {
+        return ConfigFactory.load().getString("sitnet.exam.seb.examConfigurationKey");
+    }
+
+    public static String getQuitExaminationLink() {
+        return ConfigFactory.load().getString("sitnet.exam.seb.quitLink");
+    }
+
 
 }

@@ -144,7 +144,7 @@ public class ReviewController extends BaseController {
 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "creator", "modifier"})
+    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "creator", "modifier", "reservation"})
     public Result getExamReview(Long eid, Http.Request request) {
         ExpressionList<Exam> query = createQuery().where().eq("id", eid).disjunction().eq("state", Exam.State.REVIEW)
                 .eq("state", Exam.State.REVIEW_STARTED).eq("state", Exam.State.GRADED)

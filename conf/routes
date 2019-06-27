@@ -226,9 +226,8 @@ PUT           /app/machines/:id                                        backend.c
 POST          /app/machines/:id                                        backend.controllers.ExamMachineController.insertExamMachine(id: Long, request: Request)
 DELETE        /app/machines/:id                                        backend.controllers.ExamMachineController.removeExamMachine(id: Long)
 
-PUT           /app/machine/:mid/software/:sid                          backend.controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
-POST          /app/machine/:mid/software/:sid                          backend.controllers.ExamMachineController.toggleExamMachineSoftwareInfo(mid: Long, sid: Long)
-PUT           /app/software_machine/:mid                               backend.controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
+POST          /app/machine/:mid/software/:sid                          backend.controllers.ExamMachineController.updateMachineSoftware(mid: Long, sid: Long)
+PUT           /app/software_machine/:mid                               backend.controllers.ExamMachineController.resetMachineSoftware(mid: Long)
 
 GET           /app/softwares                                           backend.controllers.ExamMachineController.getSoftwares
 GET           /app/softwares/:id                                       backend.controllers.ExamMachineController.getSoftware(id: Long)
@@ -397,6 +396,8 @@ GET           /app/settings/anonymousReviewEnabled                     backend.c
 GET           /app/settings/maxfilesize                                backend.controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 backend.controllers.SettingsController.getAppVersion
 GET           /app/settings/maturityInstructions                       backend.controllers.SettingsController.getMaturityInstructions(lang: String)
+GET           /app/settings/examinationQuitLink                        backend.controllers.SettingsController.getExaminationQuitLink
+
 
 ################# Statistics interface ##################
 

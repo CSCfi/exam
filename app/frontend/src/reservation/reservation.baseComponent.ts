@@ -135,9 +135,10 @@ export class ReservationComponentBase implements OnInit {
                     // Transfer exam taken here
                     if (!r.enrolment || r.enrolment.externalExam) {
                         r.enrolment = r.enrolment || {};
-                        const externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
-                            'EXTERNAL_UNFINISHED';
-                        r.enrolment.exam = { external: true, examOwners: [], state: externalState };
+                        const state = r.enrolment.externalExam && r.enrolment.externalExam.finished
+                            ? 'EXTERNAL_FINISHED' : 'EXTERNAL_UNFINISHED';
+                        r.enrolment.exam = { external: true, examOwners: [], state: state };
+
                     }
                     // Transfer exam taken elsewhere
                     if (r.externalReservation) {

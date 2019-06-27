@@ -70,6 +70,7 @@ import backend.security.Authenticated;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
+import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
@@ -120,7 +121,6 @@ public class StudentExamController extends BaseController {
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        String clientIp = request.remoteAddress();
         Optional<CollaborativeExam> oce = getCollaborativeExam(hash);
         CollaborativeExam ce = oce.orElse(null);
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
@@ -133,7 +133,7 @@ public class StudentExamController extends BaseController {
                 // Exam not started yet, create new exam for student
                 Exam prototype = optionalPrototype.get();
                 ExamEnrolment enrolment = getEnrolment(user, prototype, ce);
-                Optional<Result> error = getEnrolmentError(enrolment, clientIp);
+                Optional<Result> error = getEnrolmentError(enrolment, request);
                 if (error.isPresent()) {
                     return error.get();
                 }
@@ -151,15 +151,17 @@ public class StudentExamController extends BaseController {
                 return ok(newExam, getPath(false));
             } else {
                 // Exam started already
-                Exam clone = possibleClone.get();
-                // sanity check
-                if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                    return forbidden();
-                }
-                clone.setCloned(false);
-                clone.setDerivedMaxScores();
-                processClozeTestQuestions(clone);
-                return ok(clone, getPath(false));
+                return getEnrolmentError(hash, request).orElseGet(() -> {
+                    Exam clone = possibleClone.get();
+                    // sanity check
+                    if (clone.getState() != Exam.State.STUDENT_STARTED) {
+                        return forbidden();
+                    }
+                    clone.setCloned(false);
+                    clone.setDerivedMaxScores();
+                    processClozeTestQuestions(clone);
+                    return ok(clone, getPath(false));
+                });
             }
         });
     }
@@ -167,72 +169,74 @@ public class StudentExamController extends BaseController {
     @Authenticated
     @Transactional
     public Result turnExam(String hash, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("examSections.sectionQuestions.question")
-                .where()
-                .eq("creator", user)
-                .eq("hash", hash)
-                .findOne();
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        Optional<ExamParticipation> oep = findParticipation(exam, user);
-
-        if (oep.isPresent()) {
-            ExamParticipation ep = oep.get();
-            setDurations(ep);
-
-            GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
-            int deadlineDays = Integer.parseInt(settings.getValue());
-            DateTime deadline = ep.getEnded().plusDays(deadlineDays);
-            ep.setDeadline(deadline);
-            ep.save();
-            exam.setState(Exam.State.REVIEW);
-            exam.update();
-            if (exam.isPrivate()) {
-                notifyTeachers(exam);
+        return getEnrolmentError(hash, request).orElseGet(() -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            Exam exam = Ebean.find(Exam.class)
+                    .fetch("examSections.sectionQuestions.question")
+                    .where()
+                    .eq("creator", user)
+                    .eq("hash", hash)
+                    .findOne();
+            if (exam == null) {
+                return notFound("sitnet_error_exam_not_found");
             }
-            autoEvaluationHandler.autoEvaluate(exam);
-            return ok("Exam sent for review");
-        } else {
-            return ok("exam already returned");
-        }
+            Optional<ExamParticipation> oep = findParticipation(exam, user);
+
+            if (oep.isPresent()) {
+                ExamParticipation ep = oep.get();
+                setDurations(ep);
+
+                GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+                int deadlineDays = Integer.parseInt(settings.getValue());
+                DateTime deadline = ep.getEnded().plusDays(deadlineDays);
+                ep.setDeadline(deadline);
+                ep.save();
+                exam.setState(Exam.State.REVIEW);
+                exam.update();
+                if (exam.isPrivate()) {
+                    notifyTeachers(exam);
+                }
+                autoEvaluationHandler.autoEvaluate(exam);
+                return ok("Exam sent for review");
+            } else {
+                return ok("exam already returned");
+            }
+        });
     }
 
     @Authenticated
     @Transactional
     public Result abortExam(String hash, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam exam = Ebean.find(Exam.class).where()
-                .eq("creator", user)
-                .eq("hash", hash)
-                .findOne();
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        Optional<ExamParticipation> oep = findParticipation(exam, user);
-
-        if (oep.isPresent()) {
-            setDurations(oep.get());
-            oep.get().save();
-            exam.setState(Exam.State.ABORTED);
-            exam.update();
-            if (exam.isPrivate()) {
-                notifyTeachers(exam);
+        return getEnrolmentError(hash, request).orElseGet(() -> {
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            Exam exam = Ebean.find(Exam.class).where()
+                    .eq("creator", user)
+                    .eq("hash", hash)
+                    .findOne();
+            if (exam == null) {
+                return notFound("sitnet_error_exam_not_found");
             }
-            return ok("Exam aborted");
-        } else {
-            return forbidden("Exam already returned");
-        }
+            Optional<ExamParticipation> oep = findParticipation(exam, user);
+
+            if (oep.isPresent()) {
+                setDurations(oep.get());
+                oep.get().save();
+                exam.setState(Exam.State.ABORTED);
+                exam.update();
+                if (exam.isPrivate()) {
+                    notifyTeachers(exam);
+                }
+                return ok("Exam aborted");
+            } else {
+                return forbidden("Exam already returned");
+            }
+        });
     }
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     public Result answerEssay(String hash, Long questionId, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
+        return getEnrolmentError(hash, request).orElseGet(() -> {
             String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
             Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
             ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
@@ -255,8 +259,7 @@ public class StudentExamController extends BaseController {
 
     @Authenticated
     public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
+        return getEnrolmentError(hash, request).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
             List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
                     .map(JsonNode::asLong)
@@ -277,8 +280,7 @@ public class StudentExamController extends BaseController {
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
+        return getEnrolmentError(hash, request).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
             if (esq == null) {
                 return forbidden();
@@ -349,7 +351,6 @@ public class StudentExamController extends BaseController {
         }
         studentExam.generateHash();
         studentExam.save();
-
         enrolment.setExam(studentExam);
         enrolment.save();
 
@@ -374,14 +375,17 @@ public class StudentExamController extends BaseController {
                 .eq("user.id", user.getId())
                 .or()
                 .eq("exam.id", prototype.getId())
+                .and()
                 .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
+                .isNull("exam.id")
+                .endAnd()
                 .endOr()
                 .le("reservation.startAt", now.toDate())
                 .gt("reservation.endAt", now.toDate())
                 .findOne();
     }
 
-    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, String clientIP) {
+    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, Http.Request request) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
@@ -392,7 +396,10 @@ public class StudentExamController extends BaseController {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         } else if (enrolment.getReservation().getMachine() == null) {
             return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
-        } else if (!environment.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+        } else if (enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth()) {
+            return ConfigUtil.checkUserAgent(request);
+        } else if (!environment.isDev() &&
+                !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
@@ -411,7 +418,8 @@ public class StudentExamController extends BaseController {
 
 
     public static PathProperties getPath(boolean includeEnrolment) {
-        String path = "(id, name, state, instruction, hash, duration, cloned, external, course(id, code, name), executionType(id, type), " + // (
+        String path = "(id, name, state, instruction, hash, duration, cloned, external, requiresUserAgentAuth, " +
+                "course(id, code, name), executionType(id, type), " + // (
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName))" +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
@@ -451,13 +459,14 @@ public class StudentExamController extends BaseController {
     }
 
 
-    private Optional<Result> getEnrolmentError(String hash, String clientIp, User user) {
+    private Optional<Result> getEnrolmentError(String hash, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
                 .eq("exam.creator", user)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .findOne();
-        return getEnrolmentError(enrolment, clientIp);
+        return getEnrolmentError(enrolment, request);
     }
 
     private void notifyTeachers(Exam exam) {

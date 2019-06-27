@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toast from 'toastr';
-import { SessionService } from '../../../session/session.service';
-import { Exam, ExamSection, ExamMaterial } from '../../exam.model';
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { ExamService } from '../../exam.service';
-import { tap, catchError } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { catchError, tap } from 'rxjs/operators';
+import * as toast from 'toastr';
+
+import { SessionService } from '../../../session/session.service';
+import { Exam, ExamMaterial, ExamSection } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'sections',
@@ -102,15 +103,18 @@ export class SectionsListComponent implements OnInit, OnChanges {
 
     removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
 
-    removeSection = (section: ExamSection) =>
-        this.Exam.removeSection(this.exam, section).pipe(
-            tap(() => {
+    removeSection = (section: ExamSection) => {
+        this.http.delete(
+            this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative)
+        ).subscribe(
+            () => {
                 toast.info(this.translate.instant('sitnet_section_removed'));
                 this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 this.updateSectionIndices();
-            }),
-            catchError(resp => toast.error(resp))
-        )
+            },
+            resp => toast.error(resp.data)
+        );
+    }
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 

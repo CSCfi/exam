@@ -12,10 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as moment from 'moment';
-import { AssessmentService } from '../assessment.service';
 
 angular.module('app.review')
     .component('rGeneralInfo', {
@@ -25,8 +23,8 @@ angular.module('app.review')
             participation: '<',
             collaborative: '<'
         },
-        controller: ['Attachment', 'Assessment', '$routeParams', '$resource',
-            function (Attachment, Assessment: AssessmentService, $routeParams, $resource) {
+        controller: ['Attachment', '$routeParams', '$resource',
+            function (Attachment, $routeParams, $resource) {
 
                 const vm = this;
 

@@ -17,8 +17,10 @@ package backend.models.sections;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -365,8 +367,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 if (correct + incorrect == 0) {
                     return 0.0;
                 }
-                DecimalFormat df = new DecimalFormat("#.##");
-                return Double.valueOf(df.format(correct * maxScore / (correct + incorrect)));
+                DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
+                double value = correct * maxScore / (correct + incorrect);
+                return Double.valueOf(df.format(value));
         }
         return 0.0;
     }

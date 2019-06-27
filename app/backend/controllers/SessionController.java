@@ -259,17 +259,19 @@ public class SessionController extends BaseController {
             // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
-            return Arrays.stream(src.split(";")).collect(Collectors.toMap(
-                    this::parseStudentIdDomain,
-                    this::parseStudentIdValue,
-                    (v1, v2) -> {
-                        logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
-                        return "null";
-                    },
-                    () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
-                            ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
-                    )
-            ).entrySet().stream()
+            return Arrays.stream(src.split(";"))
+                    .filter(s -> s.contains("studentID:"))
+                    .collect(Collectors.toMap(
+                            this::parseStudentIdDomain,
+                            this::parseStudentIdValue,
+                            (v1, v2) -> {
+                                logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
+                                return "null";
+                            },
+                            () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
+                                    ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
+                            )
+                    ).entrySet().stream()
                     .map(e -> String.format("%s:%s", e.getKey(), e.getValue()))
                     .collect(Collectors.joining(" "));
         }
@@ -395,7 +397,7 @@ public class SessionController extends BaseController {
 
     @SubjectPresent
     public Result setLoginRole(Long uid, String roleName, Http.Request request) {
-       Optional<Session> os = getSession(request);
+        Optional<Session> os = getSession(request);
         if (!os.isPresent()) {
             return unauthorized();
         }

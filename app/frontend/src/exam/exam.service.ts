@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -20,10 +19,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
+
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { Exam, ExamExecutionType, ExamSection, GradeScale } from './exam.model';
+
 
 @Injectable()
 export class ExamService {
@@ -76,13 +77,10 @@ export class ExamService {
             'internalRef': exam.internalRef,
             'objectVersion': exam.objectVersion,
             'attachment': exam.attachment,
-            'anonymous': exam.anonymous
+            'anonymous': exam.anonymous,
+            'requiresUserAgentAuth': exam.requiresUserAgentAuth
         };
-        for (let k in overrides) {
-            if (overrides.hasOwnProperty(k)) {
-                data[k] = overrides[k];
-            }
-        }
+        Object.assign(data, overrides);
         const url = collaborative ? '/integration/iop/exams' : '/app/exams';
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
     }

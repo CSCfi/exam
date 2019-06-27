@@ -225,18 +225,38 @@
         <div class="student-exam-row" *ngIf="enrolment.reservation?.optionalSections.length > 0">
             <div class="student-exam-row-infolink">
                 <a class="infolink pointer" (click)="showMaterials = !showMaterials">
-                    {{ 'sitnet_optional_materials_selected' | translate}}
+                    {{ 'sitnet_exam_materials' | translate}}
                     <img class="arrow_icon" [hidden]="showMaterials" alt="show materials"
                         src="/assets/assets/images/arrow_right.png">
                     <img class="arrow_icon" [hidden]="!showMaterials" alt="hide materials"
                         src="/assets/assets/images/arrow_down.png">
                 </a>
                 <div class="student-exam-row-infobox" *ngIf="enrolment.reservation.optionalSections.length > 0"
-                    [hidden]="!showMaterials">
+                    ng-show="$ctrl.showMaterials">
+                    <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
+                        <div *ngIf="!section.optional">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <strong>{{ 'sitnet_exam_section' | translate}}
+                                        <small
+                                            class="text text-danger">({{'sitnet_required' | translate | lowercase }})</small>:</strong>
+                                    {{ section.name }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {{ section.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div *ngFor="let section of enrolment.reservation.optionalSections" class="marb20">
                         <div class="row">
                             <div class="col-md-12">
-                                <strong>{{ 'sitnet_exam_section' | translate}}:</strong> {{ section.name }}
+                                <strong>{{ 'sitnet_exam_section' | translate}}
+                                    <small
+                                        class="text text-success">({{'sitnet_optional' | translate | lowercase }})</small>:</strong>
+                                {{ section.name }}
                             </div>
                         </div>
                         <div class="row">

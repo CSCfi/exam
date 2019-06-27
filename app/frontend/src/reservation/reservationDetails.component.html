@@ -46,11 +46,11 @@
             <td class="reservation-search">
                 <span>{{r.userAggregate}}</span>
                 <span *ngIf="r.user.userIdentifier">&nbsp;({{r.user.userIdentifier}})</span>
-                <span *ngIf="r.user">
+                <span *ngIf="r.user && !r.externalUserRef">
                     <br />
                     <a class="reservation" href="mailto:{{r.user.email}}">{{r.user.email}}</a>
                 </span>
-                <span *ngIf="r.externalUserRef">
+                <span *ngIf="r.externalUserRef && !r.user">
                     <a class="reservation" href="mailto:{{r.externalUserRef}}">{{r.externalUserRef}}</a>
                 </span>
             </td>

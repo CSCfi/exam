@@ -21,28 +21,29 @@ import * as toast from 'toastr';
 @Injectable()
 export class WrongLocationService {
 
+    opts: ToastrOptions = {
+        timeOut: 10000,
+        preventDuplicates: true
+    };
+
     constructor(
         private translate: TranslateService
     ) { }
 
     display = (data: string[]) => {
-        const opts: ToastrOptions = {
-            timeOut: 10000,
-            preventDuplicates: true
-        };
         let startsAt = moment(data[4]);
         const now = moment();
         if (now.isDST()) {
             startsAt.add(-1, 'hour');
         }
-        let parts;
+        let parts: string[];
         if (startsAt.isAfter(now)) {
             parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
             this.translate.instant(parts).then((t: any) =>
                 toast.warning(
                     `${t.sitnet_your_exam_will_start_at} ${startsAt.format('HH:mm')}
                      ${t.sitnet_at_location} ${data[0]}: ${data[1]}, ${t.sitnet_at_room} ${data[2]}
-                    ${t.sitnet_at_machine} ${data[3]}`, '', opts
+                    ${t.sitnet_at_machine} ${data[3]}`, '', this.opts
                 )
             );
         } else {
@@ -50,10 +51,28 @@ export class WrongLocationService {
             this.translate.instant(parts).then((t: any) =>
                 toast.error(
                     `${t.sitnet_you_have_ongoing_exam_at_location}: ${data[0]}, ${data[1]}
-                    ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`, '', opts
+                    ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`, '', this.opts
                 )
             );
-
         }
     }
+
+    displayWrongUserAgent = (startsAtTxt: string) => {
+        const opts = {
+            timeOut: 10000,
+            preventDuplicates: true
+        };
+        let startsAt = moment(startsAtTxt);
+        const now = moment();
+        if (now.isDST()) {
+            startsAt.add(-1, 'hour');
+        }
+        if (startsAt.isAfter(now)) {
+            toast.warning(`${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,
+                '', opts);
+        } else {
+            toast.error(this.translate.instant('sitnet_seb_exam_ongoing'), '', opts);
+        }
+    }
+
 }

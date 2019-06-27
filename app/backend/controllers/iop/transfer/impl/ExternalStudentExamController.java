@@ -88,7 +88,7 @@ public class ExternalStudentExamController extends StudentExamController {
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
         Exam newExam = externalExam.deserialize();
-        Optional<Result> error = getEnrolmentError(enrolment, request.remoteAddress());
+        Optional<Result> error = getEnrolmentError(enrolment, request);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
@@ -144,7 +144,7 @@ public class ExternalStudentExamController extends StudentExamController {
     @Override
     public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request.remoteAddress()).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
@@ -165,7 +165,7 @@ public class ExternalStudentExamController extends StudentExamController {
     @Override
     public Result answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request.remoteAddress()).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
@@ -226,7 +226,7 @@ public class ExternalStudentExamController extends StudentExamController {
     @Override
     public Result answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request.remoteAddress()).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
@@ -299,13 +299,13 @@ public class ExternalStudentExamController extends StudentExamController {
         return Optional.ofNullable(enrolment);
     }
 
-    private Optional<Result> getEnrolmentError(String hash, User user, String remoteAddress) {
+    private Optional<Result> getEnrolmentError(String hash, User user, Http.Request request) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("externalExam.hash", hash)
                 .eq("externalExam.creator", user)
                 .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .findOne();
-        return getEnrolmentError(enrolment, remoteAddress);
+        return getEnrolmentError(enrolment, request);
     }
 
     private Result terminateExam(String hash, Exam.State newState, User user) {

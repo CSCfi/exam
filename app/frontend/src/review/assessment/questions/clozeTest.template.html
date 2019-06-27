@@ -69,13 +69,12 @@
 
                 <div ng-show="$ctrl.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
-                        <span
-                            class="text text-danger">{{ 'Ohita automaattisesti lasketut pisteet' | translate | uppercase }}&nbsp;
+                        <span class="text text-danger">{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
                             <small>[0 &hellip; {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}]</small></span>
                     </div>
                     <form name="forcedPoints">
                         <input id="score" name="score" type="number" lang="en" class="form-control"
-                            ng-model="$ctrl.sectionQuestion.forcedScore"
+                            ng-model="$ctrl.sectionQuestion.forcedScore" fixed-precision
                             ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()" onclick="this.focus()"
                             ng-disabled="!$ctrl.isScorable" min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
                         <small ng-show="forcedPoints.$invalid" class="alert-danger">

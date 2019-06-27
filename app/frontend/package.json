@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "5.1.0-RC3",
+  "version": "5.1.0",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -45,7 +45,7 @@
     "file-saver": "^1.3.3",
     "font-awesome": "^4.7.0",
     "fullcalendar": "~3.1.0",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1",
     "jquery-ui-touch-punch": "^0.2.3",
     "lodash": "^4.17.11",

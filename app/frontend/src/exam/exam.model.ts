@@ -1,5 +1,5 @@
-import { User } from '../session/session.service';
 import { LanguageInspection } from '../maturity/maturity.model';
+import { User } from '../session/session.service';
 
 export interface Grade {
     id: number;
@@ -221,6 +221,7 @@ export interface ExamImpl {
     subjectToLanguageInspection: boolean | null;
     enrollInstruction: string;
     anonymous: boolean;
+    requiresUserAgentAuth: boolean;
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
