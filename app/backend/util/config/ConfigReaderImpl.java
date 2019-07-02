@@ -36,22 +36,22 @@ import play.mvc.Results;
 import backend.models.ExamExecutionType;
 import backend.models.Role;
 
-public class ConfigUtil {
+public class ConfigReaderImpl implements ConfigReader {
 
-    public static DateTimeZone getDefaultTimeZone() {
+    public DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
     }
 
-    public static String getHostName() {
+    public String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
-    public static Integer getMaxFileSize() {
+    public Integer getMaxFileSize() {
         return ConfigFactory.load().getInt("sitnet.attachment.maxsize");
     }
 
-    public static List<Integer> getExamDurations() {
+    public List<Integer> getExamDurations() {
         String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
         List<Integer> values = new ArrayList<>();
         for (String d : durations) {
@@ -60,7 +60,7 @@ public class ConfigUtil {
         return values;
     }
 
-    public static Map<Role, List<String>> getRoleMapping() {
+    public Map<Role, List<String>> getRoleMapping() {
         Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
         Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
         Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findOne();
@@ -71,49 +71,49 @@ public class ConfigUtil {
         return roles;
     }
 
-    public static Boolean isCourseGradeScaleOverridable() {
+    public boolean isCourseGradeScaleOverridable() {
         return ConfigFactory.load().getBoolean("sitnet.course.gradescale.overridable");
     }
 
-    public static Boolean isEnrolmentPermissionCheckActive() {
+    public boolean isEnrolmentPermissionCheckActive() {
         return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
     }
 
-    public static boolean isVisitingExaminationSupported() {
+    public boolean isVisitingExaminationSupported() {
         return ConfigFactory.load().getBoolean("sitnet.integration.iop.visit.active");
     }
 
-    public static boolean isCollaborationExaminationSupported() {
+    public boolean isCollaborationExaminationSupported() {
         return ConfigFactory.load().getBoolean("sitnet.integration.iop.collaboration.active");
     }
 
-    public static boolean isCourseSearchActive() {
+    public boolean isCourseSearchActive() {
         return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
     }
 
-    public static Map<String, String> getCourseIntegrationUrls() {
+    public Map<String, String> getCourseIntegrationUrls() {
         Config config = ConfigFactory.load().getConfig("sitnet.integration.courseUnitInfo.url");
         return config.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().render()));
     }
 
-    public static DateTime getExamExpirationDate(DateTime timeOfSubmission) {
+    public DateTime getExamExpirationDate(DateTime timeOfSubmission) {
         String expiresAfter = ConfigFactory.load().getString("sitnet.exam.expiration.period");
         Period period = Period.parse(expiresAfter);
         return timeOfSubmission.plus(period);
     }
 
-    public static String getExamExpirationPeriod() {
+    public String getExamExpirationPeriod() {
         return ConfigFactory.load().getString("sitnet.exam.expiration.period");
     }
 
-    public static boolean isMaturitySupported() {
+    public boolean isMaturitySupported() {
         return Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.MATURITY.toString())
                 .findCount() == 1;
     }
 
-    public static boolean isPrintoutSupported() {
+    public boolean isPrintoutSupported() {
         return Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.PRINTOUT.toString())
@@ -121,22 +121,20 @@ public class ConfigUtil {
     }
 
 
-    public static String getAppVersion() {
+    public String getAppVersion() {
         return ConfigFactory.load().getString("exam.release.version");
     }
 
-    public static boolean isAnonymousReviewEnabled() {
+    public boolean isAnonymousReviewEnabled() {
         return ConfigFactory.load().getBoolean("sitnet.exam.anonymousReview");
     }
 
-    public static Optional<Result> checkUserAgent(Http.RequestHeader request) {
+    public Optional<Result> checkUserAgent(Http.RequestHeader request) {
         Optional<String> ob = request.header("X-SafeExamBrowser-RequestHash");
-        Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
-        if (!ob.isPresent() || !oc.isPresent()) {
+        if (!ob.isPresent()) {
             return Optional.of(Results.unauthorized("SEB headers missing"));
         }
         String bek =  getBrowserExamKey();
-        String eck = getExamConfigurationKey();
         String protocol = request.secure() ? "https://" : "http://";
         String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
 
@@ -144,22 +142,27 @@ public class ConfigUtil {
         if (!bekDigest.equals(ob.get())) {
             return Optional.of(Results.unauthorized("Wrong BEK digest"));
         }
-        String eckDigest = DigestUtils.sha256Hex(absoluteUrl + eck);
-        if (!eckDigest.equals(oc.get())) {
-            return Optional.of(Results.unauthorized("Wrong ECK digest"));
+        // We don't necessarily get the config key from all SEB (Windows) clients so this is an optional check for now
+        Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
+        if (oc.isPresent()) {
+            String eck = getExamConfigurationKey();
+            String eckDigest = DigestUtils.sha256Hex(absoluteUrl + eck);
+            if (!eckDigest.equals(oc.get())) {
+                return Optional.of(Results.unauthorized("Wrong ECK digest"));
+            }
         }
         return Optional.empty();
     }
 
-    public static String getBrowserExamKey() {
+    public String getBrowserExamKey() {
         return ConfigFactory.load().getString("sitnet.exam.seb.browserExamKey");
     }
 
-    public static String getExamConfigurationKey() {
+    public String getExamConfigurationKey() {
         return ConfigFactory.load().getString("sitnet.exam.seb.examConfigurationKey");
     }
 
-    public static String getQuitExaminationLink() {
+    public String getQuitExaminationLink() {
         return ConfigFactory.load().getString("sitnet.exam.seb.quitLink");
     }
 

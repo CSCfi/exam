@@ -20,12 +20,22 @@ import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
-import backend.models.*;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamType;
+import backend.models.Grade;
+import backend.models.GradeEvaluation;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Role;
+import backend.models.User;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
@@ -37,6 +47,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Inject
     private ActorSystem actorSystem;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
 
@@ -330,7 +343,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     private void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {

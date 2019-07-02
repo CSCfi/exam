@@ -52,17 +52,21 @@ import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
 public class StudentActionsController extends CollaborationController {
 
-    private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
+    private final boolean permCheckActive;
+    private final ExternalCourseHandler externalCourseHandler;
 
     @Inject
-    private ExternalCourseHandler externalCourseHandler;
+    public StudentActionsController(ExternalCourseHandler courseHandler, ConfigReader configReader) {
+        this.externalCourseHandler = courseHandler;
+        this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
+    }
 
     @Authenticated
     public Result getExamFeedback(Long id, Http.Request request) {
@@ -306,7 +310,7 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public CompletionStage<Result> listAvailableExams(final Optional<String> filter, Http.Request request)
             throws IOException {
-        if (!PERM_CHECK_ACTIVE) {
+        if (!permCheckActive) {
             return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
         }
         return externalCourseHandler.getPermittedCourses(request.attrs().get(Attrs.AUTHENTICATED_USER))

@@ -59,6 +59,7 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
@@ -69,8 +70,10 @@ public class ExternalStudentExamController extends StudentExamController {
     public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
                                          CollaborativeExamLoader collaborativeExamLoader,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment,
-                                         ExternalAttachmentLoader externalAttachmentLoader) {
-        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment, externalAttachmentLoader);
+                                         ExternalAttachmentLoader externalAttachmentLoader,
+                                         ConfigReader configReader) {
+        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment,
+                externalAttachmentLoader, configReader);
     }
 
     @Authenticated

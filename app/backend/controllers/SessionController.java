@@ -61,7 +61,7 @@ import backend.models.User;
 import backend.models.dto.Credentials;
 import backend.security.SessionHandler;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 public class SessionController extends BaseController {
@@ -71,6 +71,8 @@ public class SessionController extends BaseController {
     private final SessionHandler sessionHandler;
 
     private final ExternalExamAPI externalExamAPI;
+
+    private final ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(SessionController.class);
 
@@ -85,10 +87,12 @@ public class SessionController extends BaseController {
     private static final String URN_PREFIX = "urn:";
 
     @Inject
-    public SessionController(Environment environment, SessionHandler sessionHandler, ExternalExamAPI externalExamAPI) {
+    public SessionController(Environment environment, SessionHandler sessionHandler, ExternalExamAPI externalExamAPI,
+                             ConfigReader configReader) {
         this.environment = environment;
         this.sessionHandler = sessionHandler;
         this.externalExamAPI = externalExamAPI;
+        this.configReader = configReader;
     }
 
     @ActionMethod
@@ -359,11 +363,10 @@ public class SessionController extends BaseController {
         return ok(node);
     }
 
-    private static Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
-        Map<Role, List<String>> roleMapping = ConfigUtil.getRoleMapping();
+    private Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
-            for (Map.Entry<Role, List<String>> entry : roleMapping.entrySet()) {
+            for (Map.Entry<Role, List<String>> entry : configReader.getRoleMapping().entrySet()) {
                 if (entry.getValue().contains(affiliation)) {
                     userRoles.add(entry.getKey());
                     break;
@@ -458,7 +461,7 @@ public class SessionController extends BaseController {
         sessionHandler.updateSession(request, session);
     }
 
-    protected String createSession(Session session, Http.Request request) {
+    private String createSession(Session session, Http.Request request) {
         return sessionHandler.createSession(request, session);
     }
 

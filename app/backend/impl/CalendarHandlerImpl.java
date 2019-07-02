@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -35,11 +37,14 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 
     private static final int LAST_HOUR = 23;
+
+    @Inject
+    private ConfigReader configReader;
 
 
     @Override
@@ -111,7 +116,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
-                ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
+                configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
 

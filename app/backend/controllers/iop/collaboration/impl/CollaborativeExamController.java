@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -50,9 +51,12 @@ import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
+
+    @Inject
+    private ConfigReader configReader;
 
     private Exam prepareDraft(User user) {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
@@ -80,7 +84,7 @@ public class CollaborativeExamController extends CollaborationController {
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         exam.setExamActiveStartDate(start);
         exam.setExamActiveEndDate(start.plusDays(1));
-        exam.setDuration(ConfigUtil.getExamDurations().get(0)); // check
+        exam.setDuration(configReader.getExamDurations().get(0)); // check
         exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0)); // check
 
         exam.setTrialCount(1);

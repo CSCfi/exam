@@ -70,7 +70,7 @@ import backend.security.Authenticated;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
@@ -83,6 +83,7 @@ public class StudentExamController extends BaseController {
     private final CollaborativeExamLoader collaborativeExamLoader;
     protected final Environment environment;
     private final ExternalAttachmentLoader externalAttachmentLoader;
+    private final ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(StudentExamController.class);
 
@@ -91,13 +92,15 @@ public class StudentExamController extends BaseController {
                                  CollaborativeExamLoader collaborativeExamLoader,
                                  AutoEvaluationHandler autoEvaluationHandler,
                                  Environment environment,
-                                 ExternalAttachmentLoader externalAttachmentLoader) {
+                                 ExternalAttachmentLoader externalAttachmentLoader,
+                                 ConfigReader configReader) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.collaborativeExamLoader = collaborativeExamLoader;
         this.autoEvaluationHandler = autoEvaluationHandler;
         this.environment = environment;
         this.externalAttachmentLoader = externalAttachmentLoader;
+        this.configReader = configReader;
     }
 
     private Optional<CollaborativeExam> getCollaborativeExam(String hash) {
@@ -397,7 +400,7 @@ public class StudentExamController extends BaseController {
         } else if (enrolment.getReservation().getMachine() == null) {
             return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
         } else if (enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth()) {
-            return ConfigUtil.checkUserAgent(request);
+            return configReader.checkUserAgent(request);
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)

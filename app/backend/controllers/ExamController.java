@@ -54,10 +54,10 @@ import backend.models.User;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 
 public class ExamController extends BaseController {
@@ -68,11 +68,15 @@ public class ExamController extends BaseController {
 
     private final ExamUpdater examUpdater;
 
+    private final ConfigReader configReader;
+
     @Inject
-    public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater) {
+    public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater,
+                          ConfigReader configReader) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.examUpdater = examUpdater;
+        this.configReader = configReader;
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
@@ -333,7 +337,7 @@ public class ExamController extends BaseController {
 
 
     private boolean didGradeChange(Exam exam, int grading) {
-        boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
@@ -420,7 +424,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_execution_type_not_found");
         }
         // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
-        if (prototype.getAutoEvaluationConfig() != null && !ConfigUtil.isCourseGradeScaleOverridable()) {
+        if (prototype.getAutoEvaluationConfig() != null && !configReader.isCourseGradeScaleOverridable()) {
             prototype.setAutoEvaluationConfig(null);
         }
         Exam copy = prototype.copy(user);
@@ -435,7 +439,7 @@ public class ExamController extends BaseController {
         copy.setExamActiveStartDate(now);
         copy.setExamActiveEndDate(now.plusDays(1));
         // Force anonymous review if globally enabled
-        if (ConfigUtil.isAnonymousReviewEnabled()) {
+        if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
         copy.save();
@@ -459,7 +463,7 @@ public class ExamController extends BaseController {
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
-            exam.setAnonymous(ConfigUtil.isAnonymousReviewEnabled());
+            exam.setAnonymous(configReader.isAnonymousReviewEnabled());
         }
         AppUtil.setCreator(exam, user);
         exam.save();
@@ -481,8 +485,8 @@ public class ExamController extends BaseController {
             exam.setExamActiveStartDate(start);
             exam.setExamActiveEndDate(start.plusDays(1));
         }
-        exam.setDuration(ConfigUtil.getExamDurations().get(0));
-        if (ConfigUtil.isCourseGradeScaleOverridable()) {
+        exam.setDuration(configReader.getExamDurations().get(0));
+        if (configReader.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
         }
 

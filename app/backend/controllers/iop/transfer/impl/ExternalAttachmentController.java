@@ -31,11 +31,14 @@ import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.json.ExternalExam;
+import backend.util.config.ConfigReader;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
 
     @Inject
     private WSClient wsClient;
+    @Inject
+    private ConfigReader configReader;
 
     @Override
     public WSClient getWsClient() {
@@ -78,6 +81,11 @@ public class ExternalAttachmentController extends BaseController implements Exte
             query.eq("creator", user);
         }
         return query.findOneOrEmpty();
+    }
+
+    @Override
+    public ConfigReader getConfigReader() {
+        return configReader;
     }
 
 }

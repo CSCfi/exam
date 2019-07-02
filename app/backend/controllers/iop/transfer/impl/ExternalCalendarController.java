@@ -73,7 +73,7 @@ import backend.models.iop.ExternalReservation;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -84,6 +84,9 @@ public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private CalendarHandler calendarHandler;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static Logger.ALogger logger = Logger.of(ExternalCalendarController.class);
 
@@ -226,7 +229,7 @@ public class ExternalCalendarController extends CalendarController {
     @Authenticated
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
-        if (!ConfigUtil.isVisitingExaminationSupported()) {
+        if (!configReader.isVisitingExaminationSupported()) {
             return wrapAsPromise(forbidden("Feature not enabled in the installation"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -470,7 +473,7 @@ public class ExternalCalendarController extends CalendarController {
         int windowSize = calendarHandler.getReservationWindowSize();
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
-                ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
+                configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser()).plusMillis(offset).toLocalDate();

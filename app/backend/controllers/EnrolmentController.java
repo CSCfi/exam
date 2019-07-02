@@ -53,13 +53,13 @@ import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import backend.sanitizers.EnrolmentInformationSanitizer;
 import backend.sanitizers.StudentEnrolmentSanitizer;
 import backend.security.Authenticated;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 import backend.validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {
 
-    private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
+    private final boolean permCheckActive;
     private static final Logger.ALogger logger = Logger.of(EnrolmentController.class);
 
     protected final EmailComposer emailComposer;
@@ -73,11 +73,12 @@ public class EnrolmentController extends BaseController {
     @Inject
     public EnrolmentController(EmailComposer emailComposer, ExternalCourseHandler externalCourseHandler,
                                ExternalReservationHandler externalReservationHandler,
-                               ActorSystem actor) {
+                               ActorSystem actor, ConfigReader configReader) {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
         this.externalReservationHandler = externalReservationHandler;
         this.actor = actor;
+        this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
@@ -323,7 +324,7 @@ public class EnrolmentController extends BaseController {
     public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) throws IOException {
         String code = request.attrs().get(Attrs.COURSE_CODE);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!PERM_CHECK_ACTIVE) {
+        if (!permCheckActive) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }
         return externalCourseHandler.getPermittedCourses(user)

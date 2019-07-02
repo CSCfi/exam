@@ -51,12 +51,16 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
+import backend.util.config.ConfigReader;
 
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
 
     @Inject
     private Environment environment;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static void removePrevious(AttachmentContainer container) {
         if (container.getAttachment() != null) {
@@ -392,6 +396,11 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(notFound());
         }
         return serveAttachment(exam.getLanguageInspection().getStatement().getAttachment());
+    }
+
+    @Override
+    public ConfigReader getConfigReader() {
+        return configReader;
     }
 
     private CompletionStage<Result> serveAttachment(Attachment attachment) {
