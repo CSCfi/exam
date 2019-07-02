@@ -12,15 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import * as ng from 'angular';
+import * as uib from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+
+import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ReviewQuestion } from '../../review/review.model';
+import { FileService } from '../file/file.service';
+
 
 /// <reference types="angular-dialog-service" />
-
-import * as ng from 'angular';
-import * as toast from 'toastr';
-import * as uib from 'angular-ui-bootstrap';
-import { FileService } from '../file/file.service';
-import { Attachment, Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { ReviewQuestion } from '../../review/review.model';
 
 interface ExamWithFeedback {
     id: number;
@@ -197,7 +198,7 @@ export class AttachmentService {
 
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
-        dialog.result.then(function (btn) {
+        dialog.result.then(() => {
             this.statementAttachmentApi.remove({ id: exam.id },
                 () => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
