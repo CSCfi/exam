@@ -21,11 +21,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
-import { AssessedParticipation, ExamParticipation, ReviewedExam } from '../enrolment.model';
-
-interface StudentParticipation extends ExamParticipation {
-
-}
+import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participation',
