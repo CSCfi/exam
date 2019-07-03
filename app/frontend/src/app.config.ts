@@ -14,8 +14,8 @@
  */
 import * as angular from 'angular';
 import * as base64 from 'base64-js';
+import * as textEncoding from 'text-encoding-polyfill';
 import * as toast from 'toastr';
-
 
 export default function configs(
     $translateProvider: angular.translate.ITranslateProvider,
@@ -145,9 +145,13 @@ export default function configs(
             return {
                 'response': function (response) {
 
-                    const b64ToUtf8 = function (str, encoding = 'utf-8') {
+                    if (!window['TextDecoder']) {
+                        window['TextDecoder'] = textEncoding.TextDecoder;
+                    }
+
+                    const b64ToUtf8 = (str: string, encoding = 'utf-8'): string => {
                         const bytes = base64.toByteArray(str);
-                        return new (TextDecoder)(encoding).decode(bytes);
+                        return new TextDecoder(encoding).decode(bytes);
                     };
 
                     const unknownMachine = response.headers()['x-exam-unknown-machine'];

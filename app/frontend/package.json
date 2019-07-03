@@ -39,6 +39,7 @@
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
     "ngstorage": "^0.3.11",
+    "text-encoding-polyfill": "^0.6.7",
     "toastr": "^2.1.4",
     "truncate-html": "^1.0.1"
   },
