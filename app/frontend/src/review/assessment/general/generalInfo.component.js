@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import moment from 'moment';
+
 
 angular.module('app.review')
     .component('rGeneralInfo', {
@@ -24,8 +24,8 @@ angular.module('app.review')
             participation: '<',
             collaborative: '<'
         },
-        controller: ['ExamRes', 'Attachment', 'Assessment', '$routeParams',
-            function (ExamRes, Attachment, Assessment, $routeParams) {
+        controller: ['Attachment', 'Assessment', '$routeParams',
+            function (Attachment, Assessment, $routeParams) {
 
                 const vm = this;
 
@@ -72,9 +72,9 @@ angular.module('app.review')
                     const previousParticipations = data.filter(function (p) {
                         return p.id !== vm.participation.id;
                     });
-                    Assessment.noShowApi.query({eid: vm.exam.id}, function (data) {
+                    Assessment.noShowApi.query({ eid: vm.exam.id }, function (data) {
                         const noShows = data.map(function (d) {
-                            return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                            return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
                         });
                         vm.previousParticipations = previousParticipations.concat(noShows);
                     });

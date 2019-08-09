@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.facility.machines')
     .component('machine', {
@@ -25,7 +25,7 @@ angular.module('app.facility.machines')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    Machines.machine.get({id: $routeParams.id},
+                    Machines.machine.get({ id: $routeParams.id },
                         function (machine) {
                             vm.machine = machine;
                             Machines.software.query(
@@ -49,7 +49,7 @@ angular.module('app.facility.machines')
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_remove_machine'));
                     dialog.result.then(function () {
-                        Machines.machine.remove({id: machine.id},
+                        Machines.machine.remove({ id: machine.id },
                             function () {
                                 toast.info($translate.instant('sitnet_machine_removed'));
                                 $location.path("/rooms/");
@@ -62,9 +62,9 @@ angular.module('app.facility.machines')
                 };
 
                 vm.toggleSoftware = function (software) {
-                    Machines.machineSoftware.toggle({mid: vm.machine.id, sid: software.id},
+                    Machines.machineSoftware.toggle({ mid: vm.machine.id, sid: software.id },
                         function (response) {
-                            software.class = response.software === 'true' ? 'btn-info' : 'btn-default';
+                            software.class = response.turnedOn === true ? 'btn-info' : 'btn-default';
                         },
                         function (error) {
                             toast.error(error.data);

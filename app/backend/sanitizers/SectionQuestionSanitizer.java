@@ -13,14 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.base;
+package backend.sanitizers;
 
-import play.mvc.Controller;
-import play.mvc.Result;
+import com.fasterxml.jackson.databind.JsonNode;
+import play.mvc.Http;
 
-public class Index extends Controller {
+public class SectionQuestionSanitizer extends BaseSanitizer {
 
-    public Result index() {
-        return ok(backend.views.html.index.render());
+    protected Http.Request sanitize(Http.Request req, JsonNode body) {
+        Http.Request request = SanitizingHelper.sanitizeOptionalHtml("answerInstructions", body, Attrs.ANSWER_INSTRUCTIONS, req);
+        request = SanitizingHelper.sanitizeOptionalHtml("evaluationCriteria", body, Attrs.EVALUATION_CRITERIA, request);
+        if (body.has("question")) {
+            request = SanitizingHelper.sanitizeOptionalHtml("question", body.get("question"), Attrs.QUESTION_TEXT, req);
+        }
+        return request;
     }
 }

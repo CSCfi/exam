@@ -31,7 +31,8 @@
                             translate }}</span>
                     </a>
                     <ul class="submenu" ng-hide="link.submenu.hidden">
-                        <li ng-repeat="subitem in link.submenu.items" ng-class="{selectedsub: $ctrl.isActive(subitem)}">
+                        <li ng-repeat="subitem in link.submenu.items" ng-class="{selectedsub: $ctrl.isActive(subitem)}"
+                            ng-if="subitem.visible">
                             <a href="{{subitem.href}}">
                                 <div>
                                     <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="" /> {{

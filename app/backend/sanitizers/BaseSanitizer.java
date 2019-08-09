@@ -11,17 +11,21 @@ import play.mvc.Results;
 
 public abstract class BaseSanitizer extends play.mvc.Action.Simple {
 
+    protected play.Logger.ALogger logger() {
+        return Logger.of(getClass());
+    }
+
     @Override
-    public CompletionStage<Result> call(Http.Context ctx) {
-        JsonNode body = ctx.request().body().asJson();
+    public CompletionStage<Result> call(Http.Request request) {
+        JsonNode body = request.body().asJson();
         try {
-            return delegate.call(ctx.withRequest(sanitize(ctx, body)));
+            return delegate.call(sanitize(request, body));
         } catch (SanitizingException e) {
-            Logger.error("Sanitizing error: " + e.getMessage(), e);
+            logger().error("Sanitizing error: " + e.getMessage(), e);
             return CompletableFuture.supplyAsync(Results::badRequest);
         }
     }
 
-    protected abstract Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException;
+    protected abstract Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException;
 
 }

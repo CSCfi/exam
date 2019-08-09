@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as base64 from 'base64-js';
 import * as toast from 'toastr';
+
 
 export default function configs(
     $translateProvider: angular.translate.ITranslateProvider,
@@ -103,6 +103,9 @@ export default function configs(
 
     $routeProvider.when('/speedreview/:id', { template: '<speed-review></speed-review>' });
     $routeProvider.when('/print/exam/:id', { template: '<printed-assessment></printed-assessment>' });
+    $routeProvider.when('/print/exam/:id/:ref',
+        { template: '<printed-assessment collaborative="true"></printed-assessment>' });
+
 
     $routeProvider.when('/assessments/:id/questions', { template: '<question-assessment></question-assessment>' });
 

@@ -73,9 +73,6 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
         removeMaterial = (material: ExamMaterial) => {
             this.$http.delete(`/app/materials/${material.id}/${this.section.id}`).then(() => {
                 this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
-                if (this.section.examMaterials.length === 0) {
-                    this.section.optional = false;
-                }
                 this.filterOutExisting();
             }).catch(err => toast.error(err));
         }

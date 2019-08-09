@@ -16,24 +16,25 @@
 package backend.controllers.integration;
 
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import backend.models.Exam;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
 
 public class ReservationAPIController extends BaseController {
 
@@ -41,13 +42,19 @@ public class ReservationAPIController extends BaseController {
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
-                "enrolment(exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))), " +
+                "enrolment( " +
+                "exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))," +
+                "collaborativeExam(name)" +
+                "), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
         Query<Reservation> query = Ebean.find(Reservation.class);
         pp.apply(query);
         ExpressionList<Reservation> el = query.where()
                 .isNotNull("enrolment")
-                .ne("enrolment.exam.state", Exam.State.DELETED);
+                .or()
+                .isNotNull("enrolment.collaborativeExam")
+                .ne("enrolment.exam.state", Exam.State.DELETED)
+                .endOr();
         if (start.isPresent()) {
             DateTime startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(start.get());
             el = el.ge("startAt", startDate.toDate());

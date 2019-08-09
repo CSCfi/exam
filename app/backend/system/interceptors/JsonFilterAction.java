@@ -16,18 +16,20 @@
 
 package backend.system.interceptors;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.validation.constraints.NotNull;
+
 import akka.stream.Materializer;
-import backend.util.json.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
 
-import javax.validation.constraints.NotNull;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.util.json.JsonFilter;
 
 abstract class JsonFilterAction<T> extends Action<T> {
 
@@ -39,7 +41,7 @@ abstract class JsonFilterAction<T> extends Action<T> {
 
     @NotNull
     CompletionStage<Result> filterJsonResponse(Result result, String... properties) {
-        return filterJsonResponse(result, null, properties);
+        return filterJsonResponse(result, Collections.emptySet(), properties);
     }
 
     @NotNull

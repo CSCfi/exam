@@ -79,6 +79,7 @@ email.template.reservation.change.message=Hi, the exam admin has changed the com
 email.template.reservation.change.previous=Previous computer
 email.template.reservation.change.current=New computer
 email.template.reservation.exam.info=Details of your exam.
-email.template.material.title=Tenttimateriaalit EN
-email.template.material.name=Nimi EN
-email.template.material.author=Tekijä EN
+email.template.section.title=Valitsemasi aihealueet EN
+email.template.section.name=Nimi EN
+email.template.section.description=Kuvaus EN
+

@@ -15,56 +15,60 @@
 
 package backend.security;
 
-import be.objectify.deadbolt.java.ConfigKeys;
-import be.objectify.deadbolt.java.DeadboltHandler;
-import be.objectify.deadbolt.java.DynamicResourceHandler;
-import be.objectify.deadbolt.java.models.Subject;
-import backend.controllers.base.BaseController;
-import io.ebean.Ebean;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-import play.cache.SyncCacheApi;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Results;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import be.objectify.deadbolt.java.DeadboltHandler;
+import be.objectify.deadbolt.java.DynamicResourceHandler;
+import be.objectify.deadbolt.java.models.Subject;
+import io.ebean.Ebean;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.Results;
+
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
 
 
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
 
-    private final SyncCacheApi cache;
+    private SessionHandler sessionHandler;
 
     @Inject
-    AuthorizationHandler(final SyncCacheApi cacheApi) {
-        this.cache = cacheApi;
+    AuthorizationHandler(final SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
 
     @Override
-    public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.Context context) {
+    public long getId() {
+        return 0;
+    }
+
+    @Override
+    public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
         return CompletableFuture.supplyAsync(Optional::empty);
     }
 
     @Override
-    public CompletionStage<Optional<? extends Subject>> getSubject(final Http.Context context) {
-        String token = BaseController.getToken(context).orElse("");
-        Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
-        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+    public CompletionStage<Optional<? extends Subject>> getSubject(final Http.RequestHeader request) {
+        Optional<Session> os = sessionHandler.getSession(request);
+        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
         // filter out roles not found in session
         if (user != null) {
-            if (session.isTemporalStudent()) {
+            if (os.get().isTemporalStudent()) {
                 user.getRoles().clear();
-                user.getRoles().add(Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne());
+                user.getRoles().add(
+                        Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne()
+                );
             } else {
                 user.setRoles(user.getRoles().stream()
-                        .filter((r) -> r.getName().equals(session.getLoginRole()))
+                        .filter((r) -> r.getName().equals(os.get().getLoginRole()))
                         .collect(Collectors.toList()));
             }
         }
@@ -72,18 +76,13 @@ class AuthorizationHandler implements DeadboltHandler {
     }
 
     @Override
-    public CompletionStage<Result> onAuthFailure(Http.Context context, Optional<String> optional) {
+    public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
         return CompletableFuture.supplyAsync(() -> Results.forbidden("Authentication failure"));
     }
 
     @Override
-    public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.Context context) {
+    public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
         return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
-    }
-
-    @Override
-    public String handlerName() {
-        return ConfigKeys.DEFAULT_HANDLER_KEY;
     }
 
 }

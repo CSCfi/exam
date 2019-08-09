@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -220,16 +219,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     @Transient
     public int getRejectedCount() {
-        return sectionQuestions.stream()
-                .filter(ExamSectionQuestion::isRejected)
-                .collect(Collectors.toList()).size();
+        return (int) sectionQuestions.stream()
+                .filter(ExamSectionQuestion::isRejected).count();
     }
 
     @Transient
     public int getApprovedCount() {
-        return sectionQuestions.stream()
-                .filter(ExamSectionQuestion::isApproved)
-                .collect(Collectors.toList()).size();
+        return (int) sectionQuestions.stream()
+                .filter(ExamSectionQuestion::isApproved).count();
     }
 
     @Transient

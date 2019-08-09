@@ -16,17 +16,18 @@
 
 package backend.util;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.libs.Json;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 import backend.util.json.JsonFilter;
 
@@ -53,7 +54,7 @@ public class JsonFilterTest {
         offers.forEach(offer -> assertThatJsonHasProperties(offer, filters));
 
         // Filter json
-        JsonFilter.filterProperties(node1, true, null, filters);
+        JsonFilter.filterProperties(node1, true, Collections.emptySet(), filters);
 
         // Check that node1 does not have properties
         assertThatJsonDoesNotHaveProperties(node1, filters);

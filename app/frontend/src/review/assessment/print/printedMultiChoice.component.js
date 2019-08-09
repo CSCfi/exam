@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import _ from 'lodash';
 
 angular.module('app.review')
     .component('printedMultiChoice', {
@@ -26,23 +27,25 @@ angular.module('app.review')
 
                 const vm = this;
 
-                vm.scoreWeightedMultipleChoiceAnswer = function () {
+                vm.scoreWeightedMultipleChoiceAnswer = function (ignoreForcedScore) {
                     if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
                         return 0;
                     }
-                    return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion);
+                    return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
                 };
 
-                vm.scoreMultipleChoiceAnswer = function () {
+                vm.scoreMultipleChoiceAnswer = function (ignoreForcedScore) {
                     if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion);
+                    return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
                 };
 
                 vm.calculateMaxPoints = function () {
                     return Question.calculateMaxPoints(vm.sectionQuestion);
                 };
+
+                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
 
             }
         ]

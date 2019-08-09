@@ -5,16 +5,16 @@
     <form>
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_minutes_on_the_hour' | translate }}:</div>
-            <input id="hourOffset" type="number" min="0" max="59" ng-model="$ctrl.examStartingHourOffset"
-                   ui-change="$ctrl.setStartingHourOffset()">
+            <input id="hourOffset" type="number" lang="en" min="0" max="59" ng-model="$ctrl.examStartingHourOffset"
+                ui-change="$ctrl.setStartingHourOffset()">
         </div>
     </form>
 </div>
 <div class="detail-row">
     <div class="col-md-6">
-            <span ng-repeat="hour in $ctrl.examStartingHours" class="label pointer"
-                  ng-class="hour.selected ? 'label-success' : 'label-default'"
-                  ng-click="hour.selected = !hour.selected" style="margin: 0.2em">{{hour.startingHour}}</span>
+        <span ng-repeat="hour in $ctrl.examStartingHours" class="label pointer"
+            ng-class="hour.selected ? 'label-success' : 'label-default'" ng-click="hour.selected = !hour.selected"
+            style="margin: 0.2em">{{hour.startingHour}}</span>
     </div>
 </div>
 <div class="bottom-row">
@@ -25,7 +25,7 @@
 <div class="bottom-row">
     <div class="col-md-12">
         <button class="btn btn-sm btn-primary" ng-click="$ctrl.updateStartingHours()"
-                ng-disabled="!$ctrl.anyStartingHoursSelected()">{{'sitnet_save' | translate}}
+            ng-disabled="!$ctrl.anyStartingHoursSelected()">{{'sitnet_save' | translate}}
         </button>
     </div>
 </div>

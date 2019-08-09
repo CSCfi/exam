@@ -27,8 +27,8 @@ import play.mvc.Http;
 public class CalendarReservationSanitizer extends BaseSanitizer {
 
     @Override
-    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
-        Http.Request request = SanitizingHelper.sanitize("roomId", body, Long.class, Attrs.ROOM_ID, ctx.request());
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        Http.Request request = SanitizingHelper.sanitize("roomId", body, Long.class, Attrs.ROOM_ID, req);
         request = SanitizingHelper.sanitize("examId", body, Long.class, Attrs.EXAM_ID, request);
 
         // Custom sanitizing ->

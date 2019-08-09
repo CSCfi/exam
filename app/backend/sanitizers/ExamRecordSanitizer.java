@@ -25,13 +25,13 @@ import play.mvc.Http;
 public class ExamRecordSanitizer extends BaseSanitizer {
 
     @Override
-    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
         if (body.has("params") && body.get("params").has("childIds")) {
             JsonNode node = body.get("params").get("childIds");
             Collection<Long> ids = StreamSupport.stream(node.spliterator(), false)
                     .map(JsonNode::asLong)
                     .collect(Collectors.toList());
-            return ctx.request().addAttr(Attrs.ID_COLLECTION, ids);
+            return req.addAttr(Attrs.ID_COLLECTION, ids);
         }
         throw new SanitizingException("no ids");
     }

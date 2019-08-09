@@ -37,7 +37,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import play.i18n.Lang;
 
+import backend.controllers.RoomLike;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.calendar.DefaultWorkingHours;
 import backend.models.calendar.ExceptionWorkingHours;
@@ -45,7 +47,7 @@ import backend.util.datetime.DateTimeUtils;
 
 
 @Entity
-public class ExamRoom extends GeneratedIdentityModel {
+public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     public enum State {ACTIVE, INACTIVE}
 
@@ -178,6 +180,7 @@ public class ExamRoom extends GeneratedIdentityModel {
         this.accessibilities = accessibilities;
     }
 
+    @Override
     public String getRoomInstruction() {
         return roomInstruction;
     }
@@ -186,6 +189,7 @@ public class ExamRoom extends GeneratedIdentityModel {
         this.roomInstruction = roomInstruction;
     }
 
+    @Override
     public String getRoomInstructionEN() {
         return roomInstructionEN;
     }
@@ -194,6 +198,7 @@ public class ExamRoom extends GeneratedIdentityModel {
         this.roomInstructionEN = roomInstructionEN;
     }
 
+    @Override
     public String getRoomInstructionSV() {
         return roomInstructionSV;
     }

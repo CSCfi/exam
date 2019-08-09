@@ -1,9 +1,11 @@
 <!-- Sections -->
 <div class="col-md-12 exam-border">
 
-    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40" ng-if="$ctrl.exam.hasEnrolmentsInEffect">
+    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40"
+        ng-if="$ctrl.exam.hasEnrolmentsInEffect">
         <div class="col-md-12">
-            <div class="col-md-1"><img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
+            <div class="col-md-1"><img src="Images/icon_warning.png" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
             </div>
             <div class="col-md-11 warning-text">
                 {{'sitnet_upcoming_reservations_exist' | translate}}
@@ -13,10 +15,12 @@
 
     <div class="col-md-12 padl0">
 
-        <div sortable objects="$ctrl.exam.examSections" selection=".section-handle" on-move="$ctrl.moveSection(object, from, to)"
-            id="exam">
-            <div ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''" ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
+        <div sortable objects="$ctrl.exam.examSections" selection=".section-handle"
+            on-move="$ctrl.moveSection(object, from, to)" id="exam">
+            <div ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''"
+                ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
                 <section ng-if="$ctrl.materials" section="section" exam-id="$ctrl.exam.id" materials="$ctrl.materials"
+                    can-be-optional="$ctrl.exam.executionType.type !== 'MATURITY'"
                     on-delete="$ctrl.removeSection(section)" on-reload-required="$ctrl.onReloadRequired()"
                     on-materials-changed="$ctrl.loadMaterials()">
                 </section>

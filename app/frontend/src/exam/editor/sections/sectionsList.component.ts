@@ -15,8 +15,8 @@
 import * as ng from 'angular';
 import * as toast from 'toastr';
 
-import { Exam, ExamSection, ExamMaterial } from '../../exam.model';
 import { SessionService } from '../../../session/session.service';
+import { Exam, ExamMaterial, ExamSection } from '../../exam.model';
 
 
 export const SectionsListComponent: ng.IComponentOptions = {
@@ -118,12 +118,13 @@ export const SectionsListComponent: ng.IComponentOptions = {
         }
 
         removeSection = (section: ExamSection) => {
-            this.$http.delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`))
-                .then(() => {
-                    toast.info(this.$translate.instant('sitnet_section_removed'));
-                    this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
-                    this.updateSectionIndices();
-                }).catch(resp => toast.error(resp.data));
+            this.$http.delete(
+                this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative)
+            ).then(() => {
+                toast.info(this.$translate.instant('sitnet_section_removed'));
+                this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
+                this.updateSectionIndices();
+            }).catch(resp => toast.error(resp.data));
         }
 
         calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);

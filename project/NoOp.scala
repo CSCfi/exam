@@ -22,7 +22,7 @@ object NoOp {
 
     object DummyScript extends PlayRunHook {
 
-      override def afterStarted(addr: InetSocketAddress): Unit = {
+      override def afterStarted(): Unit = {
 
       }
 

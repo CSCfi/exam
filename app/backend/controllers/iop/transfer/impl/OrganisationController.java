@@ -40,9 +40,8 @@ public class OrganisationController extends BaseController {
     private WSClient wsClient;
 
     private static URL parseUrl() throws MalformedURLException {
-        StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        url.append("/api/organisations");
-        return new URL(url.toString());
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") +
+                        "/api/organisations?withFacilities=true");
     }
 
     @Restrict({@Group("STUDENT")})

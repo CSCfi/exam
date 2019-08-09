@@ -43,6 +43,8 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
     private static final String HOST = ConfigFactory.load().getString("sitnet.integration.iop.host");
 
+    private static final Logger.ALogger logger = Logger.of(NoShowHandlerImpl.class);
+
     @Inject
     public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient) {
         this.composer = composer;
@@ -55,11 +57,11 @@ public class NoShowHandlerImpl implements NoShowHandler {
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 200) {
-                Logger.error("No success in sending assessment #{} to XM", reservation.getExternalRef());
+                logger.error("No success in sending assessment #{} to XM", reservation.getExternalRef());
             } else {
                 reservation.setNoShow(true);
                 reservation.update();
-                Logger.info("Successfully sent assessment #{} to XM", reservation.getExternalRef());
+                logger.info("Successfully sent assessment #{} to XM", reservation.getExternalRef());
             }
             return null;
         };
@@ -99,7 +101,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
             try {
                 send(r);
             } catch (IOException e) {
-                Logger.error("Failed in sending assessment back", e);
+                logger.error("Failed in sending assessment back", e);
             }
         });
     }
@@ -108,7 +110,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
     public void handleNoShowAndNotify(Reservation reservation) {
         reservation.setNoShow(true);
         reservation.update();
-        Logger.info("Marked reservation {} as no-show",
+        logger.info("Marked reservation {} as no-show",
                 reservation.getId());
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
@@ -125,7 +127,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
                     exam.getExamInspections().stream().map(ExamInspection::getUser)
             ).forEach(teacher -> {
                 composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
-                Logger.info("Email sent to {}", teacher.getEmail());
+                logger.info("Email sent to {}", teacher.getEmail());
             });
         }
     }

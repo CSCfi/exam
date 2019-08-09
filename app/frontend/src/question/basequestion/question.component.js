@@ -41,7 +41,7 @@ angular.module('app.question')
             '            <!-- buttons -->\n' +
             '            <div class="mart20">\n' +
             '                <div class="question-cancel">\n' +
-            '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type" ng-click="$ctrl.saveQuestion()"\n' +
+            '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type || $ctrl.hasNoCorrectOption()" ng-click="$ctrl.saveQuestion()"\n' +
             '                            type="submit" class="btn btn-success bigbutton">{{\'sitnet_save\' | translate}}\n' +
             '                    </button>\n' +
             '                </div>\n' +
@@ -96,6 +96,10 @@ angular.module('app.question')
                         );
                     }
                 };
+
+                vm.hasNoCorrectOption = () =>
+                    vm.question.type === 'MultipleChoiceQuestion' &&
+                    vm.question.options.every(o => !o.correctOption);
 
                 vm.saveQuestion = function () {
                     vm.question.questionOwners = vm.currentOwners;

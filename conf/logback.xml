@@ -35,7 +35,7 @@
     </appender>
 
     <logger name="play" level="INFO"/>
-    <logger name="application" level="DEBUG"/>
+    <logger name="backend" level="DEBUG"/>
 
     <!-- SQL logging, disabled by default. Enable by setting level to TRACE -->
     <logger name="io.ebean.SQL" level="OFF"/>

@@ -14,12 +14,13 @@
  */
 
 import angular from 'angular';
+import _ from 'lodash';
 import toast from 'toastr';
 
 angular.module('app.question')
-    .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
+    .service('Question', ['$q', '$resource', '$translate', '$sessionStorage',
         'ExamQuestion', 'Session', 'Files', 'Attachment',
-        function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
+        function ($q, $resource, $translate, $sessionStorage, ExamQuestion, Session,
             Files, Attachment) {
 
             const self = this;
@@ -128,12 +129,18 @@ angular.module('app.question')
             };
 
             self.scoreClozeTestAnswer = function (sectionQuestion) {
+                if (_.isNumber(sectionQuestion.forcedScore)) {
+                    return sectionQuestion.forcedScore;
+                }
                 const score = sectionQuestion.clozeTestAnswer.score;
                 return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
                     (score.correctAnswers + score.incorrectAnswers).toFixed(2));
             };
 
-            self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
+            self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion, ignoreForcedScore) {
+                if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+                    return sectionQuestion.forcedScore;
+                }
                 const score = sectionQuestion.options
                     .filter(o => o.answered)
                     .reduce((a, b) => a + b.score, 0);
@@ -141,7 +148,10 @@ angular.module('app.question')
             };
 
             // For non-weighted mcq
-            self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
+            self.scoreMultipleChoiceAnswer = function (sectionQuestion, ignoreForcedScore) {
+                if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+                    return sectionQuestion.forcedScore;
+                }
                 const selected = sectionQuestion.options.filter(function (o) {
                     return o.answered;
                 });

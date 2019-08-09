@@ -38,16 +38,18 @@ class EmailSenderImpl implements EmailSender {
     private Boolean USE_MOCK = ConfigFactory.load().hasPath("play.mailer.mock") &&
             ConfigFactory.load().getBoolean("play.mailer.mock");
 
+    private static final Logger.ALogger logger = Logger.of(EmailSenderImpl.class);
+
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
-        Logger.info("mock implementation, send email");
-        Logger.info("subject: {}", email.getSubject());
-        Logger.info("from: {}", email.getFromAddress());
-        Logger.info("body: {}", content);
-        email.getToAddresses().forEach(a -> Logger.info("to: {}", a));
-        email.getReplyToAddresses().forEach(a -> Logger.info("replyTo: {}", a));
-        email.getCcAddresses().forEach(a -> Logger.info("cc: {}", a));
-        Stream.of(attachments).forEach(a -> Logger.info("attachment: {}", a.getName()));
+        logger.info("mock implementation, send email");
+        logger.info("subject: {}", email.getSubject());
+        logger.info("from: {}", email.getFromAddress());
+        logger.info("body: {}", content);
+        email.getToAddresses().forEach(a -> logger.info("to: {}", a));
+        email.getReplyToAddresses().forEach(a -> logger.info("replyTo: {}", a));
+        email.getCcAddresses().forEach(a -> logger.info("cc: {}", a));
+        Stream.of(attachments).forEach(a -> logger.info("attachment: {}", a.getName()));
     }
 
     private void doSend(Set<String> recipients, String sender, Set<String> cc, String subject, String content,
@@ -83,7 +85,7 @@ class EmailSenderImpl implements EmailSender {
         try {
             doSend(Sets.newHashSet(recipient), sender, Collections.emptySet(), subject, content, attachments);
         } catch (EmailException e) {
-            Logger.error("Creating mail failed. Stacktrace follows", e);
+            logger.error("Creating mail failed. Stacktrace follows", e);
         }
     }
 
@@ -92,7 +94,7 @@ class EmailSenderImpl implements EmailSender {
         try {
             doSend(Sets.newHashSet(recipient), sender, cc, subject, content);
         } catch (EmailException e) {
-            Logger.error("Creating mail failed. Stacktrace follows", e);
+            logger.error("Creating mail failed. Stacktrace follows", e);
         }
     }
 
@@ -101,7 +103,7 @@ class EmailSenderImpl implements EmailSender {
         try {
             doSend(recipients, sender, cc, subject, content);
         } catch (EmailException e) {
-            Logger.error("Creating mail failed. Stacktrace follows", e);
+            logger.error("Creating mail failed. Stacktrace follows", e);
         }
 
     }

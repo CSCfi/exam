@@ -22,21 +22,24 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 
 public class TimeController extends BaseController {
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    public Result getExamRemainingTime(String hash) throws IOException {
-
-        User user = getLoggedUser();
+    public Result getExamRemainingTime(String hash, Http.Request request) throws IOException {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")

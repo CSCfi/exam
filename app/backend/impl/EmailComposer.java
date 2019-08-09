@@ -25,6 +25,7 @@ import backend.models.ExamMachine;
 import backend.models.LanguageInspection;
 import backend.models.Reservation;
 import backend.models.User;
+import backend.models.json.CollaborativeExam;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {
@@ -38,6 +39,7 @@ public interface EmailComposer {
      * Message sent to other inspectors when review is ready.
      */
     void composeInspectionMessage(User inspector, User sender, Exam exam, String msg);
+    void composeInspectionMessage(User inspector, User sender, CollaborativeExam ce, Exam exam, String msg);
 
     /**
      * Weekly summary report

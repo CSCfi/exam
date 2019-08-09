@@ -24,7 +24,7 @@ angular.module('app.common')
                 gradeScale: $resource('/app/settings/gradescale'),
                 enrolmentPermissions: $resource('/app/settings/enrolmentPermissionCheck'),
                 environment: $resource('/app/settings/environment'),
-                iop: $resource('/app/settings/iop'),
+                examVisit: $resource('/app/settings/iop/examVisit'),
                 anonymousReviewEnabled: $resource('/app/settings/anonymousReviewEnabled'),
                 maxFilesize: $resource('/app/settings/maxfilesize'),
                 appVersion: $resource('/app/settings/appVersion'),

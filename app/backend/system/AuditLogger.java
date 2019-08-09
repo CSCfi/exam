@@ -15,12 +15,15 @@
 
 package backend.system;
 
-import backend.models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 
+import backend.models.User;
+
 class AuditLogger {
+
+    private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
     public static void log(Http.Request request, User user) {
         String method = request.method();
@@ -35,7 +38,7 @@ class AuditLogger {
                     request.body().asJson().toString();
             logEntry.append(String.format(" data: %s", body));
         }
-        Logger.debug(logEntry.toString());
+        logger.debug(logEntry.toString());
     }
 
 }

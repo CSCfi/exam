@@ -15,30 +15,33 @@
 
 package backend.impl;
 
-import akka.actor.ActorSystem;
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.Grade;
-import backend.models.GradeEvaluation;
-import backend.models.GradeScale;
-import backend.models.User;
-import org.joda.time.DateTime;
-import play.Logger;
-import scala.concurrent.duration.Duration;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+
+import akka.actor.ActorSystem;
+import org.joda.time.DateTime;
+import play.Logger;
+import scala.concurrent.duration.Duration;
+
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.Grade;
+import backend.models.GradeEvaluation;
+import backend.models.GradeScale;
+import backend.models.User;
 
 public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
 
     private final EmailComposer composer;
 
     private final ActorSystem actor;
+
+    private static final Logger.ALogger logger = Logger.of(AutoEvaluationHandlerImpl.class);
 
     @Inject
     public AutoEvaluationHandlerImpl(EmailComposer composer, ActorSystem actor) {
@@ -60,7 +63,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
                 actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
                         () -> composer.composeInspectionReady(student, null, exam, Collections.emptySet()),
                         actor.dispatcher());
-                Logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
+                logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
             }
         }
 
@@ -104,7 +107,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
                 threshold = ge.getPercentage();
             }
             if (grade != null) {
-                Logger.info("Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
+                logger.info("Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
                         exam.getId(), totalScore, maxScore, percentage, grade.getName(), threshold);
                 break;
             }

@@ -35,6 +35,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
@@ -48,12 +49,14 @@ import backend.models.GradeScale;
 import backend.models.LanguageInspection;
 import backend.models.Organisation;
 import backend.models.Permission;
+import backend.models.Role;
 import backend.models.User;
 import backend.models.dto.ExamScore;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamRecordSanitizer;
-import backend.util.excel.ExcelBuilder;
+import backend.security.Authenticated;
 import backend.util.csv.CsvBuilder;
+import backend.util.excel.ExcelBuilder;
 import backend.util.file.FileHandler;
 
 
@@ -68,6 +71,7 @@ public class ExamRecordController extends BaseController {
     private ActorSystem actor;
 
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private static final Logger.ALogger logger = Logger.of(ExamRecordController.class);
 
     @Inject
     public ExamRecordController(EmailComposer emailComposer, CsvBuilder csvBuilder, FileHandler fileHandler,
@@ -80,9 +84,10 @@ public class ExamRecordController extends BaseController {
 
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addExamRecord() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result addExamRecord(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         final Optional<Exam> optionalExam  = Ebean.find(Exam.class)
                 .fetch("parent")
                 .fetch("parent.creator")
@@ -93,8 +98,9 @@ public class ExamRecordController extends BaseController {
         if (!optionalExam.isPresent()) {
             return notFound("sitnet_error_exam_not_found");
         }
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = optionalExam.get();
-        return validateExamState(exam, true).orElseGet(() -> {
+        return validateExamState(exam, true, user).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.update();
             ExamParticipation participation = Ebean.find(ExamParticipation.class)
@@ -111,18 +117,18 @@ public class ExamRecordController extends BaseController {
             score.save();
             record.setExamScore(score);
             record.save();
-            final User user = getLoggedUser();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composeInspectionReady(exam.getCreator(), user, exam, Collections.emptySet());
-                Logger.info("Inspection ready notification email sent to {}", user.getEmail());
+                logger.info("Inspection ready notification email sent to {}", user.getEmail());
             }, actor.dispatcher());
             return ok();
         });
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result registerExamWithoutRecord() {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result registerExamWithoutRecord(Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         final Optional<Exam> optionalExam = Ebean.find(Exam.class)
                 .fetch("languageInspection")
                 .fetch("parent")
@@ -133,7 +139,8 @@ public class ExamRecordController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         Exam exam = optionalExam.get();
-        return validateExamState(exam, false).orElseGet(() -> {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return validateExamState(exam, false, user).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);
             exam.setGradeless(true);
@@ -150,44 +157,45 @@ public class ExamRecordController extends BaseController {
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        fileHandler.setContentType(file, response());
+        String contentDisposition = fileHandler.getContentDisposition(file);
         String content = fileHandler.encode(file);
         if (!file.delete()) {
-            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
-        return ok(content);
+        return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 
     @With(ExamRecordSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result exportSelectedExamRecordsAsCsv(Long examId) {
-        Collection<Long> childIds = request().attrs().get(Attrs.ID_COLLECTION);
+    public Result exportSelectedExamRecordsAsCsv(Long examId, Http.Request request) {
+        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         File file;
         try {
             file = csvBuilder.build(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        fileHandler.setContentType(file, response());
+        String contentDisposition = fileHandler.getContentDisposition(file);
         String content = fileHandler.encode(file);
         if (!file.delete()) {
-            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
-        return ok(content);
+        return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 
     @With(ExamRecordSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result exportSelectedExamRecordsAsExcel(Long examId) {
-        Collection<Long> childIds = request().attrs().get(Attrs.ID_COLLECTION);
+    public Result exportSelectedExamRecordsAsExcel(Long examId, Http.Request request) {
+        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = ExcelBuilder.build(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
-        return ok(Base64.getEncoder().encodeToString(bos.toByteArray())).as(XLSX_MIME);
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
+                .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
+                .as(XLSX_MIME);
     }
 
     private boolean isApprovedInLanguageInspection(Exam exam, User user) {
@@ -197,15 +205,14 @@ public class ExamRecordController extends BaseController {
     }
 
     private boolean isAllowedToRegister(Exam exam, User user) {
-        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
+        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN) ||
                 isApprovedInLanguageInspection(exam, user);
     }
 
-    private Optional<Result> validateExamState(Exam exam, boolean gradeRequired) {
+    private Optional<Result> validateExamState(Exam exam, boolean gradeRequired, User user) {
         if (exam == null) {
             return Optional.of(notFound());
         }
-        User user = getLoggedUser();
         if (!isAllowedToRegister(exam, user)) {
             return Optional.of(forbidden("You are not allowed to modify this object"));
         }

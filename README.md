@@ -80,4 +80,4 @@ Using CI specific protractor configuration.
     $sbt run -Dconfig.resource=protractor.conf -Dprotractor.config=ciConf.js
 
 ## More information
-For more information see [official installation instructions](https://confluence.csc.fi/display/EXAM/Asennusohjeet) (in Finnish only)
+For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

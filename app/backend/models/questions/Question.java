@@ -21,7 +21,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -39,11 +48,11 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 import backend.models.Attachment;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.base.OwnedModel;
+import backend.models.sections.ExamSectionQuestion;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
@@ -57,7 +66,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     public enum EvaluationType {
         @EnumValue("1") Points,
-        @EnumValue("2")Selection
+        @EnumValue("2") Selection
     }
 
     @Column

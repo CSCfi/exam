@@ -31,8 +31,8 @@ import backend.models.GradeEvaluation;
 public class ExamUpdateSanitizer extends BaseSanitizer {
 
     @Override
-    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
-        Http.Request request = ctx.request();
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        Http.Request request = req;
         Optional<Long> start = SanitizingHelper.parse("examActiveStartDate", body, Long.class);
         Optional<Long> end = SanitizingHelper.parse("examActiveEndDate", body, Long.class);
         Optional<Integer> duration = SanitizingHelper.parse("duration", body, Integer.class);
@@ -66,8 +66,8 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         request = SanitizingHelper.sanitizeOptional("shared", body, Boolean.class, Attrs.SHARED, request);
         request = SanitizingHelper.sanitizeOptional("grading", body, Integer.class, Attrs.GRADE_ID, request);
         request = SanitizingHelper.sanitizeOptional("answerLanguage", body, String.class, Attrs.LANG, request);
-        request = SanitizingHelper.sanitizeOptional("instruction", body, String.class, Attrs.INSTRUCTION, request);
-        request = SanitizingHelper.sanitizeOptional("enrollInstruction", body, String.class, Attrs.ENROLMENT_INFORMATION, request);
+        request = SanitizingHelper.sanitizeOptionalHtml("instruction", body, Attrs.INSTRUCTION, request);
+        request = SanitizingHelper.sanitizeOptionalHtml("enrollInstruction", body, Attrs.ENROLMENT_INFORMATION, request);
         request = SanitizingHelper.sanitizeOptional("trialCount", body, Integer.class, Attrs.TRIAL_COUNT, request);
         request = SanitizingHelper.sanitizeOptional("expanded", body, Boolean.class, Attrs.EXPANDED, request);
         request = SanitizingHelper.sanitizeOptional("subjectToLanguageInspection", body, Boolean.class, Attrs.LANG_INSPECTION_REQUIRED, request);

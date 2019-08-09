@@ -18,10 +18,16 @@ package backend.sanitizers;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 public final class SanitizingHelper {
+
+    private static final Whitelist WHITELIST = Whitelist.relaxed()
+            .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
+            .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
 
     private SanitizingHelper() {
     }
@@ -32,6 +38,11 @@ public final class SanitizingHelper {
             return Optional.of(Enum.valueOf(type, node.get(fieldName).asText()));
         }
         return Optional.empty();
+    }
+
+    public static String parseHtml(String fieldName, JsonNode node) {
+        Optional<String> value = parse(fieldName, node, String.class);
+        return value.map(s -> Jsoup.clean(s, WHITELIST)).orElse(null);
     }
 
     public static <T> Optional<T> parse(String fieldName, JsonNode node, Class<T> type) {
@@ -53,6 +64,9 @@ public final class SanitizingHelper {
             if (field.isBoolean()) {
                 value = type.cast(field.asBoolean());
             }
+            if (field.isObject()) {
+                value = type.cast(field.toString());
+            }
         }
         return Optional.ofNullable(value);
     }
@@ -70,12 +84,26 @@ public final class SanitizingHelper {
         return request.addAttr(attr, value);
     }
 
+    // Exception thrown if value is null or not found
+    static Http.Request sanitizeHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request) throws SanitizingException {
+        String value = parse(key, node, String.class)
+                .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
+        return request.addAttr(attr, Jsoup.clean(value, WHITELIST));
+    }
+
     // If value is null or not present, it will not be added as an attribute.
     static <T> Http.Request sanitizeOptional(String key, JsonNode node, Class<T> type, TypedKey<T> attr,
                                              Http.Request request) {
         Optional<T> value = parse(key, node, type);
         return value.isPresent() ? request.addAttr(attr, value.get()) : request;
     }
+
+    // If value is null or not present, it will not be added as an attribute.
+    static Http.Request sanitizeOptionalHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request) {
+        Optional<String > value = parse(key, node, String.class);
+        return value.isPresent() ? request.addAttr(attr, Jsoup.clean(value.get(), WHITELIST)) : request;
+    }
+
 
 
 }

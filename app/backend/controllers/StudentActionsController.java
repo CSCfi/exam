@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
@@ -29,26 +30,27 @@ import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.ActionMethod;
 import backend.controllers.iop.collaboration.impl.CollaborationController;
 import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
-import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
+import backend.models.sections.ExamSection;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
@@ -62,9 +64,8 @@ public class StudentActionsController extends CollaborationController {
     @Inject
     private ExternalCourseHandler externalCourseHandler;
 
-
-    @ActionMethod
-    public Result getExamFeedback(Long id) {
+    @Authenticated
+    public Result getExamFeedback(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator", "firstName, lastName, email")
                 .fetch("course", "code, name, credits")
@@ -82,7 +83,7 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("languageInspection.statement.attachment")
                 .where()
                 .eq("id", id)
-                .eq("creator", getLoggedUser())
+                .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .disjunction()
                 .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.GRADED_LOGGED)
@@ -100,13 +101,13 @@ public class StudentActionsController extends CollaborationController {
         return ok(exam);
     }
 
-    @ActionMethod
-    public Result getExamScore(Long eid) {
+    @Authenticated
+    public Result getExamScore(Long eid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("id", eid)
-                .eq("creator", getLoggedUser())
+                .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .disjunction()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
@@ -153,9 +154,9 @@ public class StudentActionsController extends CollaborationController {
         return noShows.findSet();
     }
 
-    @ActionMethod
-    public Result getFinishedExams(Optional<String> filter) {
-        User user = getLoggedUser();
+    @Authenticated
+    public Result getFinishedExams(Optional<String> filter, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamParticipation> query = Ebean.find(ExamParticipation.class)
                 .select("ended")
                 .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
@@ -188,8 +189,8 @@ public class StudentActionsController extends CollaborationController {
         return ok(trials);
     }
 
-    @ActionMethod
-    public CompletionStage<Result> getEnrolment(Long eid) throws IOException {
+    @Authenticated
+    public CompletionStage<Result> getEnrolment(Long eid, Http.Request request) throws IOException {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("externalExam")
@@ -204,7 +205,7 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("reservation.machine.room", "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .idEq(eid)
-                .eq("user", getLoggedUser())
+                .eq("user", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .findOne();
         if (enrolment == null) {
             return wrapAsPromise(notFound());
@@ -240,20 +241,22 @@ public class StudentActionsController extends CollaborationController {
         }
     }
 
-    @ActionMethod
-    public Result getEnrolmentsForUser() {
+    @Authenticated
+    public Result getEnrolmentsForUser(Http.Request request) {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("collaborativeExam")
                 .fetch("exam.executionType")
+                .fetch("exam.examSections", "name, description")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
                 .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
+                .fetch("reservation.externalReservation.mailAddress")
                 .fetch("reservation.optionalSections")
                 .fetch("reservation.optionalSections.examMaterials")
                 .fetch("reservation.machine", "name")
@@ -266,6 +269,13 @@ public class StudentActionsController extends CollaborationController {
                 .isNull("reservation")
                 .endJunction()
                 .findList();
+        enrolments.forEach(ee -> {
+            Exam exam = ee.getExam();
+            if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
+                // Hide section info if no optional sections exist
+                exam.getExamSections().clear();
+            }
+        });
         return ok(enrolments.stream().filter(ee -> {
             Exam exam = ee.getExam();
             if (exam != null) {
@@ -276,36 +286,8 @@ public class StudentActionsController extends CollaborationController {
         }).collect(Collectors.toList()));
     }
 
-    @ActionMethod
-    public Result getReservationInstructions(Long eid) {
-        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findOne();
-        if (exam == null) {
-            return notFound();
-        }
-        ObjectNode node = Json.newObject();
-        node.put("enrollInstructions", exam.getEnrollInstruction());
-        return ok(Json.toJson(node));
-    }
-
-    @ActionMethod
-    public Result getExamInspectors(Long id) {
-        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
-                .select("id")
-                .fetch("user", "firstName, lastName")
-                .fetch("exam", "id")
-                .where()
-                .eq("exam.id", id)
-                .findList();
-
-        if (inspections == null) {
-            return notFound();
-        } else {
-            return ok(inspections);
-        }
-    }
-
-    @ActionMethod
-    public Result getExamInfo(Long eid) {
+    @Authenticated
+    public Result getExamInfo(Long eid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course", "code, name")
                 .fetch("examSections")
@@ -313,7 +295,7 @@ public class StudentActionsController extends CollaborationController {
                 .where()
                 .idEq(eid)
                 .eq("state", Exam.State.PUBLISHED)
-                .eq("examEnrolments.user", getLoggedUser())
+                .eq("examEnrolments.user", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -321,12 +303,13 @@ public class StudentActionsController extends CollaborationController {
         return ok(exam);
     }
 
-    @ActionMethod
-    public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws IOException {
+    @Authenticated
+    public CompletionStage<Result> listAvailableExams(final Optional<String> filter, Http.Request request)
+            throws IOException {
         if (!PERM_CHECK_ACTIVE) {
             return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
         }
-        return externalCourseHandler.getPermittedCourses(getLoggedUser())
+        return externalCourseHandler.getPermittedCourses(request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .thenApplyAsync(codes -> {
                     if (codes.isEmpty()) {
                         return ok(Json.toJson(Collections.<Exam>emptyList()));
@@ -359,6 +342,7 @@ public class StudentActionsController extends CollaborationController {
             query = query
                     .ilike("name", condition)
                     .ilike("course.code", condition)
+                    .ilike("course.name", condition)
                     .endJunction();
         }
         List<Exam> exams = query.orderBy("course.code").findList();

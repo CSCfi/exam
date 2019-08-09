@@ -23,7 +23,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
     template: `
         <div id="sitnet-header" class="header">
             <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{\'sitnet_collaborative_exams\' | translate}}</span>
+                <span class="header-text">{{'sitnet_collaborative_exams' | translate}}</span>
             </div>
         </div>
         <div id="dashboard">
@@ -49,8 +49,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                         <tbody>
                         <tr ng-repeat="exam in $ctrl.exams | orderBy:$ctrl.predicate:$ctrl.reverse">
                             <td>
-                                <a class="exams-info-title bold-button"
-                                    href="/exams/collaborative/{{exam.id}}/1">
+                                <a class="exams-info-title bold-button" href="/exams/collaborative/{{exam.id}}/1">
                                     <span ng-if="exam.name">{{exam.name}}</span>
                                     <span ng-if="!exam.name" class="text-danger">
                                         {{'sitnet_no_name' | translate | uppercase }}
@@ -65,7 +64,8 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                     </table>
                 </div>
             </div>
-        </div>`,
+        </div>
+        `,
     controller: class CollaborativeExamListingController implements angular.IComponentController {
 
         exams: CollaborativeExam[];

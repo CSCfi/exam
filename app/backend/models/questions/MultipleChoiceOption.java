@@ -25,8 +25,8 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.beans.BeanUtils;
 
-import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.base.GeneratedIdentityModel;
+import backend.models.sections.ExamSectionQuestionOption;
 
 
 @Entity

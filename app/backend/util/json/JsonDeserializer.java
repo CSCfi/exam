@@ -15,6 +15,11 @@
 
 package backend.util.json;
 
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,12 +29,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public final class JsonDeserializer {
+
+    private static final Logger.ALogger logger = Logger.of(JsonDeserializer.class);
 
     private JsonDeserializer() {
     }
@@ -51,7 +53,7 @@ public final class JsonDeserializer {
                 try {
                     return new Date(json.getAsLong());
                 } catch (RuntimeException e2) {
-                    Logger.warn("Failed to parse date " + json.getAsString());
+                    logger.warn("Failed to parse date " + json.getAsString());
                 }
             }
             return null;
@@ -68,7 +70,7 @@ public final class JsonDeserializer {
                 try {
                     return new DateTime(json.getAsLong());
                 } catch (RuntimeException e2) {
-                    Logger.warn("Failed to parse date " + json.getAsString());
+                    logger.warn("Failed to parse date " + json.getAsString());
                 }
             }
             return null;

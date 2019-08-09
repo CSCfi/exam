@@ -27,7 +27,7 @@ angular.module('app.question')
                 </div>
                 <div class="col-md-2 question-option-empty-radio" ng-class="$ctrl.option.defaultScore > 0 ? 'question-correct-option-radio' : ''">
                     <input id="optionScore" name="maxScore" class="question-option-input points"
-                       type="number"
+                       type="number" lang="en" 
                        ng-model="$ctrl.option.defaultScore"
                        fixed-precision
                        required="true"

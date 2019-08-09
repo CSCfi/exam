@@ -24,8 +24,8 @@ import play.mvc.Http;
 public class StudentEnrolmentSanitizer extends BaseSanitizer {
 
     @Override
-    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
-        Http.Request request = SanitizingHelper.sanitizeOptional("uid", body, Long.class, Attrs.USER_ID, ctx.request());
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        Http.Request request = SanitizingHelper.sanitizeOptional("uid", body, Long.class, Attrs.USER_ID, req);
         Optional<String> email = SanitizingHelper.parse("email", body, String.class);
         if (email.isPresent()) {
             Constraints.EmailValidator validator = new Constraints.EmailValidator();

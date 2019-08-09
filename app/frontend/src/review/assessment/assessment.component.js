@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.review')
     .component('assessment', {
@@ -60,7 +60,8 @@ angular.module('app.review')
                 };
 
                 vm.print = function () {
-                    window.open('/print/exam/' + vm.exam.id, '_blank');
+                    const url = vm.collaborative ? `/print/exam/${$routeParams.id}/${$routeParams.ref}` : `/print/exam/${vm.exam.id}`;
+                    window.open(url, '_blank');
                 };
 
                 vm.scoreSet = function (revision) {

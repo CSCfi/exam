@@ -65,6 +65,14 @@ export interface Question {
     attachment: Attachment;
 }
 
+export interface ReverseExamSection extends ExamSection {
+    exam: Exam;
+}
+
+export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
+    examSection: ReverseExamSection;
+}
+
 export interface ExamSectionQuestion {
     id: number;
     question: Question;
@@ -141,6 +149,7 @@ export interface ExamImpl {
     creditType: { type: string };
     customCredit: number;
     additionalInfo: string;
+    examInspections: { user: User, ready: boolean }[];
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object

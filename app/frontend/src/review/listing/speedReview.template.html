@@ -32,9 +32,12 @@
                 <table class="table table-striped exams-table">
                     <thead ng-init="$ctrl.reviewPredicate = 'deadline'">
                         <tr>
-                            <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
-                            <th class="with-top" sort by="started" text="sitnet_exam_duration" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
-                            <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse" class="with-space"></th>
+                            <th class="with-top" sort by="displayName" text="sitnet_student"
+                                predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
+                            <th class="with-top" sort by="started" text="sitnet_exam_duration"
+                                predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
+                            <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.reviewPredicate"
+                                reverse="$ctrl.reverse" class="with-space"></th>
                             <th class="with-space">{{'sitnet_inspection_status' | translate}}</th>
                             <th class="with-space">{{'sitnet_exam_state' | translate}}</th>
                             <th class="with-space">{{'sitnet_total_score' | translate}}</th>
@@ -44,12 +47,13 @@
                     </thead>
 
                     <tbody>
-                        <tr ng-repeat="review in $ctrl.examReviews | orderBy:$ctrl.reviewPredicate:$ctrl.reverse | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
+                        <tr
+                            ng-repeat="review in $ctrl.examReviews | orderBy:$ctrl.reviewPredicate:$ctrl.reverse | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
                             <td class="table-column-bold reservation-search">
                                 {{review.displayName}}
                                 <span ng-if="review.user.userIdentifier">
-                                    <br/>({{review.user.userIdentifier}})</span>
-                                <br/>
+                                    <br />({{review.user.userIdentifier}})</span>
+                                <br />
                                 <a class="pointer" href="/assessments/{{review.exam.id}}">
                                     {{review.user.email}}
                                 </a>
@@ -64,7 +68,8 @@
                             <td>
                                 <div ng-repeat="inspection in review.exam.examInspections">
                                     <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
-                                        <span ng-class="$ctrl.isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
+                                        <span
+                                            ng-class="$ctrl.isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
                                             {{inspection.user.firstName}} {{inspection.user.lastName}}
                                         </span>
                                     </span>
@@ -74,26 +79,32 @@
                                 {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                             </td>
                             <td>{{review.exam.totalScore}} / {{review.exam.maxScore}}
-                                <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
+                                <span
+                                    ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
                                     <br />{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
                                     <br />{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
                                 </span>
                             </td>
                             <td>
-                                <span ng-if="!$ctrl.isGradeable(review.exam)">{{'sitnet_speed_review_incomplete_info_or_no_permission' | translate}}</span>
-                                <select class="form-control" ng-disabled="!$ctrl.isGradeable(review.exam)" ng-model="review.exam.selectedGrade" required
+                                <span
+                                    ng-if="!$ctrl.isGradeable(review.exam)">{{'sitnet_speed_review_incomplete_info_or_no_permission' | translate}}</span>
+                                <select class="form-control" ng-disabled="!$ctrl.isGradeable(review.exam)"
+                                    ng-model="review.exam.selectedGrade" required
                                     ng-options="grade.name for grade in review.exam.selectableGrades | orderBy:'id'">
-                                    <option value="" ng-selected="!review.exam.selectedGrade">{{'sitnet_choose' | translate}}
+                                    <option value="" ng-selected="!review.exam.selectedGrade">
+                                        {{'sitnet_choose' | translate}}
                                     </option>
                                 </select>
                             </td>
                             <td>
-                                <button class="btn general-info-link-bold btn-link padl0" ng-disabled="!$ctrl.isAllowedToGrade(review.exam)" ng-click="$ctrl.showFeedbackEditor(review.exam)">{{ 'sitnet_edit' | translate }}
+                                <button class="btn general-info-link-bold btn-link padl0"
+                                    ng-disabled="!$ctrl.isAllowedToGrade(review.exam)"
+                                    ng-click="$ctrl.showFeedbackEditor(review.exam)">{{ 'sitnet_edit' | translate }}
                                 </button>
                             </td>
                         </tr>
                         <!--Fill if page not full-->
-                        <tr ng-repeat="r in [] | pagefill: examReviews.length:$ctrl.currentPage:pageSize">
+                        <tr ng-repeat="r in [] | pagefill: examReviews.length:$ctrl.currentPage:$ctrl.pageSize">
                             <td class="table-column-examname">&nbsp;</td>
                             <td colspan="8"></td>
                         </tr>
@@ -103,8 +114,8 @@
         </div>
         <div ng-show="$ctrl.toggleReviews">
             <div ng-show="$ctrl.examReviews.length > $ctrl.pageSize">
-                <paginator items="$ctrl.examReviews" on-select-page="$ctrl.pageSelected(page)" page-size="$ctrl.pageSize" current-page="$ctrl.currentPage"
-                />
+                <paginator items="$ctrl.examReviews" on-select-page="$ctrl.pageSelected(page)"
+                    page-size="$ctrl.pageSize" current-page="$ctrl.currentPage" />
             </div>
         </div>
 
@@ -114,9 +125,10 @@
             <div class="speed-review-csv">
                 <a class="pointer" ng-click="$ctrl.importGrades()">{{'sitnet_import_grades_from_csv' | translate}}</a>
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_grade_import_file_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
-                    />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_grade_import_file_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                 </sup>
             </div>
 
@@ -136,11 +148,13 @@
         </div>
         <div class="padl0">
             <div class="speed-review-csv mart0">
-                <a class="pointer" ng-click="$ctrl.createGradingTemplate()">{{'sitnet_create_grading_template' | translate}}</a>
+                <a class="pointer"
+                    ng-click="$ctrl.createGradingTemplate()">{{'sitnet_create_grading_template' | translate}}</a>
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_create_grading_template_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
-                    />
+                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_create_grading_template_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                 </sup>
             </div>
         </div>

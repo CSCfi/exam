@@ -2,23 +2,22 @@ package backend.controllers.iop.collaboration.impl;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
+import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.impl.EmailComposer;
@@ -27,6 +26,8 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
@@ -34,12 +35,24 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     @Inject
     private EmailComposer composer;
 
+    private static final Logger.ALogger logger = Logger.of(CollaborativeEnrolmentController.class);
+
     private boolean isEnrollable(Exam exam) {
         return exam.getState() == Exam.State.PUBLISHED &&
                 exam.getExecutionType().getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
                 exam.getExamActiveEndDate().isAfterNow();
     }
 
+    private Either<Result, Exam> checkExam(Exam exam, User user) {
+        if (exam == null || !isEnrollable(exam)) {
+            return Either.left(notFound("sitnet_error_exam_not_found"));
+        }
+        if (!isAllowedToParticipate(exam, user, composer)) {
+            return Either.left(forbidden("sitnet_no_trials_left"));
+        }
+        return Either.right(exam);
+
+    }
 
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> listExams() {
@@ -49,70 +62,50 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
 
         WSRequest request = wsClient.url(url.get().toString());
-        Function<WSResponse, Result> onSuccess = response -> {
-            JsonNode root = response.asJson();
-            if (response.getStatus() != OK) {
-                return internalServerError(root.get("message").asText("Connection refused"));
-            }
-
-            Map<String, CollaborativeExam> locals = Ebean.find(CollaborativeExam.class).findSet().stream()
-                    .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
-
-            updateLocalReferences(root, locals);
-
-            Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false)
-                    .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
-
-            List<Exam> exams = localToExternal.entrySet().stream().map(e -> e.getKey().getExam(e.getValue()))
+        Function<WSResponse, Result> onSuccess = response -> findExamsToProcess(response).map(items -> {
+            List<Exam> exams = items.entrySet().stream().map(e -> e.getKey().getExam(e.getValue()))
                     .filter(this::isEnrollable).collect(Collectors.toList());
 
             return ok(exams, PathProperties.parse(
                     "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
                             "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
                             "enrollInstruction)"));
-        };
+        }).getOrElseGet(Function.identity());
         return request.get().thenApplyAsync(onSuccess);
     }
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    public CompletionStage<Result> checkIfEnrolled(Long id) {
+    public CompletionStage<Result> checkIfEnrolled(Long id, Http.Request request) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce).thenApplyAsync(
-                result -> {
-                    if (!result.isPresent()) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    if (!isEnrollable(exam)) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    if (isAllowedToParticipate(exam, user, composer)) {
-                        DateTime now = DateTimeUtils.adjustDST(new DateTime());
-                        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                                .where()
-                                .eq("user", user)
-                                .eq("collaborativeExam.id", id)
-                                .disjunction()
-                                .gt("reservation.endAt", now.toDate())
-                                .isNull("reservation")
-                                .endJunction()
-                                .or()
-                                .isNull("exam")
-                                .eq("exam.state", Exam.State.STUDENT_STARTED)
-                                .endOr()
-                                .findList();
+                result -> checkExam(result.orElse(null), user)
+                        .map(e -> {
+                            DateTime now = DateTimeUtils.adjustDST(new DateTime());
+                            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                                    .where()
+                                    .eq("user", user)
+                                    .eq("collaborativeExam.id", id)
+                                    .disjunction()
+                                    .gt("reservation.endAt", now.toDate())
+                                    .isNull("reservation")
+                                    .endJunction()
+                                    .or()
+                                    .isNull("exam")
+                                    .eq("exam.state", Exam.State.STUDENT_STARTED)
+                                    .endOr()
+                                    .findList();
 
-                        if (enrolments.isEmpty()) {
-                            return notFound("error not found");
-                        }
-                        return ok(enrolments);
-                    }
-                    return forbidden("sitnet_no_trials_left");
-                }
+                            if (enrolments.isEmpty()) {
+                                return notFound("error not found");
+                            }
+                            return ok(enrolments);
+                        })
+                        .getOrElseGet(Function.identity())
         );
     }
 
@@ -130,7 +123,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 .filter(ee -> ee.getReservation().toInterval().isAfterNow())
                 .collect(Collectors.toList());
         if (enrolmentsWithFutureReservations.size() > 1) {
-            Logger.error("Several enrolments with future reservations found for user {} and collab exam {}",
+            logger.error("Several enrolments with future reservations found for user {} and collab exam {}",
                     user, ce.getId());
             return Optional.of(internalServerError()); // Lets fail right here
         }
@@ -176,13 +169,14 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createEnrolment(Long id) {
+    public CompletionStage<Result> createEnrolment(Long id, Http.Request request) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce).thenApplyAsync(
                 result -> {
                     if (!result.isPresent()) {

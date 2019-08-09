@@ -29,6 +29,8 @@ import backend.util.datetime.DateTimeUtils;
 
 public class ReservationPollerActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
+
     private NoShowHandler handler;
 
     @Inject
@@ -39,7 +41,7 @@ public class ReservationPollerActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
+            logger.debug("Starting no-show check ->");
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .fetch("enrolment")
@@ -53,10 +55,11 @@ public class ReservationPollerActor extends AbstractActor {
                     .findList();
 
             if (reservations.isEmpty()) {
-                Logger.debug("{}: ... none found.", getClass().getCanonicalName());
+                logger.debug("None found");
             } else {
                 handler.handleNoShows(reservations);
             }
+            logger.debug("<- done");
 
         }).build();
     }

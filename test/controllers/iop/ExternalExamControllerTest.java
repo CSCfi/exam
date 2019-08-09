@@ -62,6 +62,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ExternalExamControllerTest extends IntegrationTestCase {
 
+    private static final Logger.ALogger logger = Logger.of(ExternalExamControllerTest.class);
     private static final String RESERVATION_REF = "0e6d16c51f857a20ab578f57f105032e";
     private static final String RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f";
     private static final String ROOM_REF = "0e6d16c51f857a20ab578f57f1018456";
@@ -179,10 +180,10 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Override
     public void tearDown() {
         try {
-            Logger.info("Cleaning test upload directory: {}", testUpload.toString());
+            logger.info("Cleaning test upload directory: {}", testUpload.toString());
             FileUtils.deleteDirectory(testUpload.toFile());
         } catch (IOException e) {
-            Logger.error("Test upload directory delete failed!", e);
+            logger.error("Test upload directory delete failed!", e);
         }
         super.tearDown();
     }
@@ -242,7 +243,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
             Thread.sleep(200);
         }
         assertThat(files.size()).isEqualTo(expectedFileCount);
-        files.forEach(file -> Logger.info(file.toString()));
+        files.forEach(file -> logger.info(file.toString()));
         // Check that we can review it
         loginAsAdmin();
         result = get("/app/review/" + attainment.getId());

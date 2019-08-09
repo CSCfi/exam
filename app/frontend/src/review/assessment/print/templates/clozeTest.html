@@ -32,7 +32,7 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <cloze-test content="$ctrl.sectionQuestion.clozeTestAnswer.question"
-                        results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
+                results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
             </cloze-test>
         </div>
     </div>
@@ -53,7 +53,15 @@
             {{'sitnet_word_points' | translate}}:
         </div>
         <div class="sub-content-row col-md-9">
-            {{ $ctrl.displayClozeTestScore() }}
+            <span>
+                <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
+                    {{ $ctrl.displayAchievedScore() }}
+                </span>
+                <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
+                    {{$ctrl.sectionQuestion.forcedScore}}
+                </span>
+                / {{ $ctrl.sectionQuestion.maxScore }}
+            </span>
         </div>
     </div>
 </div>

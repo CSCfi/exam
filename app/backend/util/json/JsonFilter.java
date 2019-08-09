@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class JsonFilter {
 
     public static void filterProperties(JsonNode node, boolean isRoot, Set<Long> ids, String... properties) {
-        if (isRoot && ids != null && node.has("id")) {
+        if (isRoot && !ids.isEmpty() && node.has("id")) {
             final long id = node.get("id").asLong();
             if (!ids.contains(id)) {
                 return;
