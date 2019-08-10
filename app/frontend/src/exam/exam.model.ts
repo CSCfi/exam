@@ -143,7 +143,7 @@ export interface ExamImpl {
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
-    examFeedback: { comment: string };
+    examFeedback: { comment: string, feedbackStatus: string };
     grade: Grade;
     gradeless: boolean;
     creditType: { type: string };

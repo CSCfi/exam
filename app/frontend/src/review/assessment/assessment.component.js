@@ -86,6 +86,10 @@ angular.module('app.review')
                     return Assessment.isGraded(vm.exam);
                 };
 
+                vm.setCommentRead = function (exam) {
+                    return Assessment.setCommentRead(exam);
+                };
+
                 // Set review status as started if not already done so
                 const startReview = function () {
                     if (vm.exam.state === 'REVIEW') {

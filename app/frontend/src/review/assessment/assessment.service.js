@@ -83,12 +83,38 @@ angular.module('app.review')
                 return deferred.promise;
             };
 
+            self.setCommentRead = function (exam) {
+                if (!self.isCommentRead(exam)) {
+                    const deferred = $q.defer();
+                    const examFeedback = {
+                        'feedbackStatus': "true"
+                    };
+
+                    ExamRes.feedbackStatus.update({
+                        eid: exam.id,
+                        cid: exam.examFeedback.id
+                    }, examFeedback, function () {
+                        deferred.resolve();
+                    }, function (error) {
+                        toast.error(error.data);
+                        deferred.reject();
+                    });
+
+                    exam.examFeedback.feedbackStatus = 'true';
+                    return deferred.promise;
+                }
+            };
+
             self.isReadOnly = function (exam) {
                 return exam && ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam.state) > -1;
             };
 
             self.isGraded = function (exam) {
                 return exam && exam.state === 'GRADED';
+            };
+
+            self.isCommentRead = function (exam) {
+                return (exam.examFeedback.feedbackStatus === 'true') ? true : false;
             };
 
             self.pickExamLanguage = function (exam) {

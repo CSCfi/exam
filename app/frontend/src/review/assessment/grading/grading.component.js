@@ -66,6 +66,10 @@ angular.module('app.review')
                     return Assessment.isGraded(vm.exam);
                 };
 
+                vm.isCommentRead = function () {
+                    return Assessment.isCommentRead(vm.exam);
+                };
+
                 vm.getTeacherCount = function () {
                     // Do not add up if user exists in both groups
                     const examOwners = vm.collaborative ? vm.exam.examOwners : vm.exam.parent.examOwners;
