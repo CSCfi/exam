@@ -180,9 +180,9 @@
         <key>forceAppFolderInstall</key>
         <true/>
         <key>hashedAdminPassword</key>
-        <string>5d5e16dbf7f1323414f2e86ab449d80b7935390ba06f898b7901c8efd894cf53</string>
+        <string></string>
         <key>hashedQuitPassword</key>
-        <string>0031a24d2ee12df6f2ab72587a452d86fbc46f0f950655f425ec5e8dafb8e39b</string>
+        <string></string>
         <key>hideBrowserWindowToolbar</key>
         <false/>
         <key>hookKeys</key>

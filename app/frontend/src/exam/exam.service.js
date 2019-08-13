@@ -74,7 +74,8 @@ angular.module('app.exam')
                     'objectVersion': exam.objectVersion,
                     'attachment': exam.attachment,
                     'anonymous': exam.anonymous,
-                    'requiresUserAgentAuth': exam.requiresUserAgentAuth
+                    'requiresUserAgentAuth': exam.requiresUserAgentAuth,
+                    'settingsPassword': exam.settingsPassword
                 };
                 for (let k in overrides) {
                     if (overrides.hasOwnProperty(k)) {

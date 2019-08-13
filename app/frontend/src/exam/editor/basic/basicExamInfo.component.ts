@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Course, Exam, ExamExecutionType, GradeScale } from '../../exam.model';
-import { SessionService } from '../../../session/session.service';
+
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -40,6 +41,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         gradeScaleSetting: { overridable: boolean };
         examTypes: ExamExecutionType[];
         gradeScales: GradeScale[];
+        pwdInputType = 'password';
 
         constructor(
             private $scope: ng.IScope,
@@ -153,6 +155,8 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         toggleAnonymousDisabled = () =>
             !this.Session.getUser().isAdmin ||
             !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative)
+
+        togglePasswordInputType = () => this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text';
 
         selectAttachmentFile = () => {
             this.$uibModal.open({

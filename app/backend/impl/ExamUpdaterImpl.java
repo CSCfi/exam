@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
 import io.ebean.Ebean;
+import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
@@ -35,6 +37,7 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
+import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
 
 import static play.mvc.Results.badRequest;
@@ -50,6 +53,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Inject
     private ConfigReader configReader;
+
+    @Inject
+    private ByodConfigHandler byodConfigHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
 
@@ -96,7 +102,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         if (state.isPresent()) {
             if (state.get() == Exam.State.PRE_PUBLISHED) {
                 // Exam is pre-published or about to be pre-published
-                // Exam is published or about to be published
                 Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
                 // invalid data
                 if (err.isPresent()) {
@@ -121,9 +126,12 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
                 if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
-                    if (!request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isPresent()) {
+                    if (request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isEmpty()) {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
+                }
+                if (exam.getRequiresUserAgentAuth() && exam.getSettingsPassword() == null) {
+                    return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
@@ -141,6 +149,27 @@ public class ExamUpdaterImpl implements ExamUpdater {
         return Optional.empty();
     }
 
+    private void setSettingsPassword(Exam exam, boolean requiresUserAgentAuth, String pwd) {
+        if (requiresUserAgentAuth && pwd != null) {
+            try {
+                String oldPwd = exam.getEncryptedSettingsPassword() != null ?
+                        byodConfigHandler.getPlaintextPassword(
+                                exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt())
+                        : null;
+                if (!pwd.equals(oldPwd)) {
+                    String newSalt = UUID.randomUUID().toString();
+                    exam.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(pwd, newSalt));
+                    exam.setSettingsPasswordSalt(newSalt);
+                }
+            } catch (CryptorException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            exam.setEncryptedSettingsPassword(null);
+            exam.setSettingsPasswordSalt(null);
+        }
+    }
+
     @Override
     public void update(Exam exam, Http.Request request, Role.Name loginRole) {
         Optional<String> examName = request.attrs().getOptional(Attrs.NAME);
@@ -156,6 +185,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
         Boolean requiresUserAgentAuth = request.attrs().getOptional(Attrs.REQUIRES_USER_AGENT_AUTH).orElse(false);
+        String settingsPassword = request.attrs().getOptional(Attrs.SETTINGS_PASSWORD).orElse(null);
+
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
 
@@ -180,6 +211,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         exam.setRequiresUserAgentAuth(requiresUserAgentAuth);
+        setSettingsPassword(exam, requiresUserAgentAuth, settingsPassword);
         if (loginRole == Role.Name.ADMIN &&
                 ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
                 !hasFutureReservations(exam)) {
@@ -321,13 +353,11 @@ public class ExamUpdaterImpl implements ExamUpdater {
         if (checkPeriod) {
             Optional<DateTime> start = request.attrs().getOptional(Attrs.START_DATE);
             Optional<DateTime> end = request.attrs().getOptional(Attrs.END_DATE);
-            if (!start.isPresent()) {
+            if (start.isEmpty()) {
                 reason = "sitnet_error_start_date";
-            }
-            else if (!end.isPresent()) {
+            } else if (end.isEmpty()) {
                 reason = "sitnet_error_end_date";
-            }
-            else if (start.get().isAfter(end.get())) {
+            } else if (start.get().isAfter(end.get())) {
                 reason = "sitnet_error_end_sooner_than_start";
             } else if (end.get().isBeforeNow()) {
                 reason = "sitnet_error_end_sooner_than_now";
