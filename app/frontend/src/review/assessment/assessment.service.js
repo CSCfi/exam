@@ -114,7 +114,7 @@ angular.module('app.review')
             };
 
             self.isCommentRead = function (exam) {
-                return (exam.examFeedback.feedbackStatus === true) ? true : false;
+                return exam.examFeedback.feedbackStatus;
             };
 
             self.pickExamLanguage = function (exam) {
