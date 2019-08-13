@@ -17,9 +17,6 @@ package backend.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,6 +65,7 @@ import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.json.CollaborativeExam;
 import backend.util.config.ConfigReader;
+import backend.util.file.FileHandler;
 
 class EmailComposerImpl implements EmailComposer {
 
@@ -75,7 +73,6 @@ class EmailComposerImpl implements EmailComposer {
     private static final String TAG_CLOSE = "}}";
     private static final String BASE_SYSTEM_URL = ConfigFactory.load().getString("sitnet.baseSystemURL");
     private static final String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
-    private static final Charset ENCODING = Charset.defaultCharset();
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
     private static final DateTimeFormatter DF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
@@ -87,12 +84,15 @@ class EmailComposerImpl implements EmailComposer {
     private final DateTimeZone timeZone;
 
     private EmailSender emailSender;
+    private FileHandler fileHandler;
     private Environment env;
     private MessagesApi messaging;
 
     @Inject
-    EmailComposerImpl(EmailSender sender, Environment environment, MessagesApi messagesApi, ConfigReader configReader) {
+    EmailComposerImpl(EmailSender sender, FileHandler fileHandler, Environment environment,
+                      MessagesApi messagesApi, ConfigReader configReader) {
         emailSender = sender;
+        this.fileHandler = fileHandler;
         env = environment;
         messaging = messagesApi;
         hostName = configReader.getHostName();
@@ -109,7 +109,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeInspectionReady(User student, User reviewer, Exam exam, Set<User> cc) {
         String templatePath = getTemplatesRoot() + "reviewReady.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(student);
         String subject = messaging.get(lang, "email.inspection.ready.subject");
         String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode());
@@ -150,7 +150,7 @@ class EmailComposerImpl implements EmailComposer {
 
         //Replace template strings
         String templatePath = getTemplatesRoot() + "inspectionReady.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         template = replaceAll(template, stringValues);
 
         String subject = messaging.get(lang, "email.inspection.comment.subject");
@@ -207,8 +207,8 @@ class EmailComposerImpl implements EmailComposer {
         logger.info("Sending weekly report to: " + teacher.getEmail());
         String templatePath = getTemplatesRoot() + "weeklySummary/weeklySummary.html";
         String inspectionTemplatePath = getTemplatesRoot() + "weeklySummary/inspectionInfoSimple.html";
-        String template = readFile(templatePath);
-        String inspectionTemplate = readFile(inspectionTemplatePath);
+        String template = fileHandler.read(templatePath);
+        String inspectionTemplate = fileHandler.read(inspectionTemplatePath);
         String subject = messaging.get(lang, "email.weekly.report.subject");
 
         int totalUngradedExams = reviews.size();
@@ -257,7 +257,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Boolean isReminder) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(recipient);
         String subject = String.format("%s: \"%s\"", messaging.get(lang, isReminder ?
                 "email.machine.reservation.reminder.subject" :
@@ -353,7 +353,7 @@ class EmailComposerImpl implements EmailComposer {
     public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message) {
 
         String templatePath = getTemplatesRoot() + "reviewRequest.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(toUser);
         String subject = messaging.get(lang, "email.review.request.subject");
         String teacherName = String.format("%s %s <%s>", fromUser.getFirstName(), fromUser.getLastName(),
@@ -401,7 +401,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeReservationChangeNotification(User student, ExamMachine previous,
                                                      ExamMachine current, ExamEnrolment enrolment) {
-        String template = readFile(getTemplatesRoot() + "reservationChanged.html");
+        String template = fileHandler.read(getTemplatesRoot() + "reservationChanged.html");
         Lang lang = getLang(student);
         Exam exam = enrolment.getExam();
 
@@ -455,7 +455,7 @@ class EmailComposerImpl implements EmailComposer {
             templatePath = getTemplatesRoot() + "reservationCanceled.html";
         }
 
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(student);
         String subject;
         if (isStudentUser) {
@@ -512,7 +512,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) {
         String templatePath = getTemplatesRoot() + "participationNotification.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(student);
 
         boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
@@ -570,7 +570,7 @@ class EmailComposerImpl implements EmailComposer {
             stringValues.put("review_link_text", reviewLinkText);
         }
         stringValues.put("message", message);
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         String content = replaceAll(template, stringValues);
         emailSender.send(toUser.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
@@ -578,7 +578,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeNoShowMessage(User toUser, User student, Exam exam) {
         String templatePath = getTemplatesRoot() + "noShow.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(toUser);
         boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
         String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
@@ -595,7 +595,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeNoShowMessage(User student, String examName, String courseCode) {
         String templatePath = getTemplatesRoot() + "noShow.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(student);
         String subject = messaging.get(lang, "email.template.noshow.student.subject");
         String message = messaging.get(lang, "email.template.noshow.student.message",
@@ -609,7 +609,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeLanguageInspectionFinishedMessage(User toUser, User inspector, LanguageInspection inspection) {
         String templatePath = getTemplatesRoot() + "languageInspectionReady.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         Lang lang = getLang(inspector);
 
         Exam exam = inspection.getExam();
@@ -644,7 +644,7 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam) {
         String templatePath = getTemplatesRoot() + "collaborativeExamNotification.html";
-        String template = readFile(templatePath);
+        String template = fileHandler.read(templatePath);
         String subject = "New collaborative exam";
         Lang lang = Lang.forCode("en");
         String examInfo = exam.getName();
@@ -683,7 +683,7 @@ class EmailComposerImpl implements EmailComposer {
 
     private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
-        String enrolmentTemplate = readFile(enrolmentTemplatePath);
+        String enrolmentTemplate = fileHandler.read(enrolmentTemplatePath);
         StringBuilder enrolmentBlock = new StringBuilder();
 
         List<Exam> exams = Ebean.find(Exam.class)
@@ -750,7 +750,6 @@ class EmailComposerImpl implements EmailComposer {
         return set;
     }
 
-
     private static String replaceAll(String original, Map<String, String> stringValues) {
         String result = original;
         for (Entry<String, String> entry : stringValues.entrySet()) {
@@ -760,17 +759,6 @@ class EmailComposerImpl implements EmailComposer {
             }
         }
         return result;
-    }
-
-    private static String readFile(String path) {
-        byte[] encoded;
-        try {
-            encoded = Files.readAllBytes(Paths.get(path));
-        } catch (IOException e) {
-            logger.error("Failed to read email template from disk!");
-            throw new RuntimeException(e);
-        }
-        return new String(encoded, EmailComposerImpl.ENCODING);
     }
 
     private static String forceNotNull(String src) {

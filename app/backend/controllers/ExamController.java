@@ -31,6 +31,7 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
@@ -57,6 +58,7 @@ import backend.sanitizers.ExamUpdateSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
+import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
 
 
@@ -70,13 +72,16 @@ public class ExamController extends BaseController {
 
     private final ConfigReader configReader;
 
+    private final ByodConfigHandler byodConfigHandler;
+
     @Inject
     public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater,
-                          ConfigReader configReader) {
+                          ConfigReader configReader, ByodConfigHandler byodConfigHandler) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.examUpdater = examUpdater;
         this.configReader = configReader;
+        this.byodConfigHandler = byodConfigHandler;
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
@@ -229,10 +234,16 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user"})
-    public Result getExam(Long id, Http.Request request) {
+    public Result getExam(Long id, Http.Request request) throws CryptorException {
         Exam exam = doGetExam(id);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
+        }
+        // decipher the settings pwd if any
+        if (exam.getEncryptedSettingsPassword() != null) {
+            String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                    exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt());
+            exam.setSettingsPassword(plainTextPwd);
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {

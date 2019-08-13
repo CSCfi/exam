@@ -56,6 +56,7 @@ public enum Attrs {
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
     public static final TypedKey<Boolean> REQUIRES_USER_AGENT_AUTH = TypedKey.create("requiresUserAgentAuth");
+    public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
     public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");

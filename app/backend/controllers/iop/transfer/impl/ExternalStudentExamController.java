@@ -59,7 +59,7 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.config.ConfigReader;
+import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
@@ -71,9 +71,9 @@ public class ExternalStudentExamController extends StudentExamController {
                                          CollaborativeExamLoader collaborativeExamLoader,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment,
                                          ExternalAttachmentLoader externalAttachmentLoader,
-                                         ConfigReader configReader) {
+                                         ByodConfigHandler byodConfigHandler) {
         super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment,
-                externalAttachmentLoader, configReader);
+                externalAttachmentLoader, byodConfigHandler);
     }
 
     @Authenticated
@@ -320,7 +320,7 @@ public class ExternalStudentExamController extends StudentExamController {
             return forbidden();
         }
         Optional<ExamEnrolment> optionalEnrolment = getEnrolment(user, ee);
-        if (!optionalEnrolment.isPresent()) {
+        if (optionalEnrolment.isEmpty()) {
             return forbidden();
         }
         ExamEnrolment enrolment = optionalEnrolment.get();

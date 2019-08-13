@@ -32,9 +32,7 @@ public interface ConfigReader {
     boolean isPrintoutSupported();
     String getAppVersion();
     boolean isAnonymousReviewEnabled();
-    Optional<Result> checkUserAgent(Http.RequestHeader request);
-    String getBrowserExamKey();
-    String getExamConfigurationKey();
     String getQuitExaminationLink();
+    String getSettingsPasswordEncryptionKey();
 
 }

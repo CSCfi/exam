@@ -248,8 +248,6 @@ public class SettingsController extends BaseController {
         node.put("maxFileSize", configReader.getMaxFileSize());
         node.put("expirationPeriod", configReader.getExamExpirationPeriod());
         node.put("defaultTimeZone", configReader.getDefaultTimeZone().getID());
-        node.put("sebBrowserKey", configReader.getBrowserExamKey());
-        node.put("sebExamConfigurationKey", configReader.getExamConfigurationKey());
         node.put("sebQuitLink", configReader.getQuitExaminationLink());
 
         return ok(Json.toJson(node));
