@@ -29,8 +29,8 @@ public class Comment extends OwnedModel implements AttachmentContainer {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(columnDefinition = "TEXT")
-    private String feedbackStatus;
+    @Column(columnDefinition = "BOOLEAN")
+    private Boolean feedbackStatus;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Attachment attachment;
@@ -43,11 +43,11 @@ public class Comment extends OwnedModel implements AttachmentContainer {
         this.comment = comment;
     }
 
-    public String getFeedbackStatus() {
+    public Boolean getFeedbackStatus() {
         return feedbackStatus;
     }
 
-    public void setFeedbackStatus(String feedbackStatus) {
+    public void setFeedbackStatus(Boolean feedbackStatus) {
         this.feedbackStatus = feedbackStatus;
     }
 

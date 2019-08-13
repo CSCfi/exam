@@ -507,7 +507,7 @@ public class ReviewController extends BaseController {
         if (comment == null) {
             return notFound();
         }
-        Optional<String> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
+        Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
         if (feedbackStatus.isPresent()) {
             AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setFeedbackStatus(feedbackStatus.get());

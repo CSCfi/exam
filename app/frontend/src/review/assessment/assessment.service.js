@@ -87,7 +87,7 @@ angular.module('app.review')
                 if (!self.isCommentRead(exam)) {
                     const deferred = $q.defer();
                     const examFeedback = {
-                        'feedbackStatus': "true"
+                        'feedbackStatus': true
                     };
 
                     ExamRes.feedbackStatus.update({
@@ -100,7 +100,7 @@ angular.module('app.review')
                         deferred.reject();
                     });
 
-                    exam.examFeedback.feedbackStatus = 'true';
+                    exam.examFeedback.feedbackStatus = true;
                     return deferred.promise;
                 }
             };
@@ -114,7 +114,7 @@ angular.module('app.review')
             };
 
             self.isCommentRead = function (exam) {
-                return (exam.examFeedback.feedbackStatus === 'true') ? true : false;
+                return (exam.examFeedback.feedbackStatus === true) ? true : false;
             };
 
             self.pickExamLanguage = function (exam) {

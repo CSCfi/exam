@@ -22,7 +22,7 @@ public class CommentSanitizer extends BaseSanitizer {
 
     protected Http.Request sanitize(Http.Request req, JsonNode body) {
         Http.Request request = SanitizingHelper.sanitizeOptionalHtml("comment", body, Attrs.COMMENT, req);
-        request = SanitizingHelper.sanitizeOptionalHtml("feedbackStatus", body, Attrs.FEEDBACK_STATUS, req);
+        request = SanitizingHelper.sanitizeOptional("feedbackStatus", body, Boolean.class, Attrs.FEEDBACK_STATUS, req);
 
         return request;
     }
