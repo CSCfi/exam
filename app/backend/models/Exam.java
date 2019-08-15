@@ -230,12 +230,17 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Boolean requiresUserAgentAuth;
 
+    // SEB related ->
+
     @Lob
     @JsonIgnore
     private byte[] encryptedSettingsPassword;
 
     @JsonIgnore
     private String settingsPasswordSalt;
+
+    @JsonIgnore
+    private String configKey;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -780,6 +785,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setSettingsPasswordSalt(String settingsPasswordSalt) {
         this.settingsPasswordSalt = settingsPasswordSalt;
+    }
+
+    public String getConfigKey() {
+        return configKey;
+    }
+
+    public void setConfigKey(String configKey) {
+        this.configKey = configKey;
     }
 
     @Transient

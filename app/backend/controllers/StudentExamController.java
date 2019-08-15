@@ -73,7 +73,7 @@ import backend.util.AppUtil;
 import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
-@SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
+@SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
 @Restrict({@Group("STUDENT")})
 public class StudentExamController extends BaseController {
 
@@ -400,14 +400,7 @@ public class StudentExamController extends BaseController {
         } else if (enrolment.getReservation().getMachine() == null) {
             return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
         } else if (enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth()) {
-            String hash = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent().getHash()
-                    : enrolment.getExam().getHash();
-            try {
-                return byodConfigHandler.checkUserAgent(request, hash);
-            } catch (Exception e) {
-                logger.error("Failed to check UA-headers", e);
-                throw new RuntimeException(e);
-            }
+            return byodConfigHandler.checkUserAgent(request, enrolment.getExam().getConfigKey());
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)

@@ -15,7 +15,6 @@ import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
 import io.ebean.Ebean;
-import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
@@ -130,7 +129,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
-                if (exam.getRequiresUserAgentAuth() && exam.getSettingsPassword() == null) {
+                if (exam.getRequiresUserAgentAuth() && exam.getEncryptedSettingsPassword() == null) {
                     return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
@@ -160,13 +159,16 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     String newSalt = UUID.randomUUID().toString();
                     exam.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(pwd, newSalt));
                     exam.setSettingsPasswordSalt(newSalt);
+                    // Pre-calculate config key so we don't need to do it each time a check is needed
+                    exam.setConfigKey(byodConfigHandler.calculateConfigKey(exam.getHash()));
                 }
-            } catch (CryptorException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
             exam.setEncryptedSettingsPassword(null);
             exam.setSettingsPasswordSalt(null);
+            exam.setConfigKey(null);
         }
     }
 

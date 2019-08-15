@@ -2,13 +2,10 @@ package backend.util.config;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.google.inject.ImplementedBy;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import play.mvc.Http;
-import play.mvc.Result;
 
 import backend.models.Role;
 
@@ -34,5 +31,5 @@ public interface ConfigReader {
     boolean isAnonymousReviewEnabled();
     String getQuitExaminationLink();
     String getSettingsPasswordEncryptionKey();
-
+    String getQuitPassword();
 }
