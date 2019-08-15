@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +36,7 @@ import org.cryptonode.jncryptor.JNCryptor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import play.Environment;
 import play.mvc.Http;
@@ -46,6 +48,7 @@ import backend.util.file.FileHandler;
 public class ByodConfigHandlerImpl implements ByodConfigHandler {
 
     private static final String START_URL_PLACEHOLDER = "*** startURL ***";
+    private static final String QUIT_PWD_PLACEHOLDER = "*** quitPwd ***";
     private static final String PASSWORD_ENCRYPTION = "pswd";
     private static final String HMAC_SHA_256 = "HMACSHA256";
     private static final int KB = 1024;
@@ -84,7 +87,12 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private String getTemplate(String hash) {
         String path = String.format("%s/conf/seb.template.plist", env.rootPath().getAbsolutePath());
         String startUrl = String.format("%s?exam=%s", configReader.getHostName(), hash);
-        return fileHandler.read(path).replace(START_URL_PLACEHOLDER, startUrl);
+        String template = fileHandler.read(path).replace(START_URL_PLACEHOLDER, startUrl);
+        String quitPwd = DigestUtils.sha256Hex(configReader.getQuitPassword());
+        if (!quitPwd.isBlank()) {
+            template = template.replace(QUIT_PWD_PLACEHOLDER, quitPwd);
+        }
+        return template;
     }
 
     private byte[] compress(byte[] data) throws IOException {
@@ -150,7 +158,8 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private String jsonToSortedString(JsonNode node) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         om.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-        Map<String, Object> map = om.convertValue(node, new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> map = om.convertValue(node, new TypeReference<Map<String, Object>>() {
+        });
         Map<String, Object> tm = new TreeMap<>(Comparator.comparing(String::toLowerCase));
         tm.putAll(map);
         return om.writeValueAsString(tm);
@@ -213,8 +222,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     }
 
     @Override
-    public Optional<Result> checkUserAgent(Http.RequestHeader request, String hash) throws ParserConfigurationException,
-            NoSuchAlgorithmException, SAXException, InvalidKeyException, IOException {
+    public Optional<Result> checkUserAgent(Http.RequestHeader request, String examConfigKey) {
         String protocol = request.secure() ? "https://" : "http://";
         String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
 
@@ -222,8 +230,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         if (oc.isEmpty()) {
             return Optional.of(Results.unauthorized("SEB headers missing"));
         } else {
-            String eck = calculateConfigKey(hash);
-            String eckDigest = DigestUtils.sha256Hex(absoluteUrl + eck);
+            String eckDigest = DigestUtils.sha256Hex(absoluteUrl + examConfigKey);
             if (!eckDigest.equals(oc.get())) {
                 return Optional.of(Results.unauthorized("Wrong ECK digest"));
             }
@@ -235,11 +242,13 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     @Override
     public String calculateConfigKey(String hash) throws IOException, ParserConfigurationException, SAXException,
             InvalidKeyException, NoSuchAlgorithmException {
-        String plist = getTemplate(hash);
-
+        Document doc;
+        try (StringReader reader = new StringReader(getTemplate(hash))) {
+            InputSource src = new InputSource(reader);
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = builder.parse(src);
+        }
         // Construct a Json-like structure out of the plist for encryption, see SEB documentation for details
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document doc = builder.parse(plist);
         Node dictionary = doc.getDocumentElement().getElementsByTagName("dict").item(0);
         Optional<JsonNode> sebJson = plistDictToJson(dictionary);
 

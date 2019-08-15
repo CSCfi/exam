@@ -29,7 +29,7 @@
         <key>allowPDFPlugIn</key>
         <false/>
         <key>allowPreferencesWindow</key>
-        <true/>
+        <false/>
         <key>allowQuit</key>
         <true/>
         <key>allowScreenSharing</key>
@@ -182,7 +182,7 @@
         <key>hashedAdminPassword</key>
         <string></string>
         <key>hashedQuitPassword</key>
-        <string></string>
+        <string>*** quitPwd ***</string>
         <key>hideBrowserWindowToolbar</key>
         <false/>
         <key>hookKeys</key>

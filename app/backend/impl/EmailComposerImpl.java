@@ -16,7 +16,9 @@
 package backend.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +66,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.json.CollaborativeExam;
+import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
 import backend.util.file.FileHandler;
 
@@ -87,16 +90,18 @@ class EmailComposerImpl implements EmailComposer {
     private FileHandler fileHandler;
     private Environment env;
     private MessagesApi messaging;
+    private ByodConfigHandler byodConfigHandler;
 
     @Inject
     EmailComposerImpl(EmailSender sender, FileHandler fileHandler, Environment environment,
-                      MessagesApi messagesApi, ConfigReader configReader) {
+                      MessagesApi messagesApi, ConfigReader configReader, ByodConfigHandler byodConfigHandler) {
         emailSender = sender;
         this.fileHandler = fileHandler;
         env = environment;
         messaging = messagesApi;
         hostName = configReader.getHostName();
         timeZone = configReader.getDefaultTimeZone();
+        this.byodConfigHandler = byodConfigHandler;
     }
 
     private String getTemplatesRoot() {
@@ -307,6 +312,31 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
 
+        List<EmailAttachment> attachments = new ArrayList<>();
+
+        if (exam.getRequiresUserAgentAuth()) {
+            // Attach a SEB config file
+            File file;
+            try {
+                String name = exam.getName().replace(" ", "-");
+                file = File.createTempFile(name, ".seb");
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] data = byodConfigHandler.getExamConfig(exam.getHash(),
+                        exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt());
+                fos.write(data);
+                fos.close();
+                EmailAttachment attachment = new EmailAttachment();
+                attachment.setPath(file.getAbsolutePath());
+                logger.info("Wrote file to {}", file.getAbsolutePath());
+                attachment.setDisposition(EmailAttachment.ATTACHMENT);
+                attachment.setName(name + ".seb");
+                attachments.add(attachment);
+            } catch (Exception e) {
+                logger.error("Failed to create a temporary SEB file on disk!");
+                throw new RuntimeException(e);
+            }
+        }
+
         // Export as iCal format (local reservations only)
         if (er == null) {
             MailAddress address = machine.getRoom().getMailAddress();
@@ -325,11 +355,10 @@ class EmailComposerImpl implements EmailComposer {
             attachment.setPath(file.getAbsolutePath());
             attachment.setDisposition(EmailAttachment.ATTACHMENT);
             attachment.setName(messaging.get(lang, "ical.reservation.filename", ".ics"));
-            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
-        } else {
-            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content);
+            attachments.add(attachment);
         }
-
+        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content,
+                attachments.toArray(EmailAttachment[]::new));
     }
 
     private ICalendar createReservationEvent(Lang lang, DateTime start, DateTime end, String address, String... placeInfo) {

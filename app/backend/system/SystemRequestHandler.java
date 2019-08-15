@@ -183,19 +183,13 @@ public class SystemRequestHandler implements ActionCreator {
         ExamMachine examMachine = enrolment.getReservation().getMachine();
         ExamRoom room = examMachine.getRoom();
 
-        if (requiresUserAgentAuth) {
-            String hash = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent().getHash()
-                    : enrolment.getExam().getHash();
-            try {
-                Optional<Result> error = byodConfigHandler.checkUserAgent(request, hash);
-                if (error.isPresent()) {
-                    String msg = ISODateTimeFormat.dateTime().print(
-                            new DateTime(enrolment.getReservation().getStartAt()));
-                    headers.put("x-exam-wrong-agent-config", msg);
-                    return false;
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Failed in reading SEB config", e);
+        if (requiresUserAgentAuth && enrolment.getExam() != null) {
+            Optional<Result> error = byodConfigHandler.checkUserAgent(request, enrolment.getExam().getConfigKey());
+            if (error.isPresent()) {
+                String msg = ISODateTimeFormat.dateTime().print(
+                        new DateTime(enrolment.getReservation().getStartAt()));
+                headers.put("x-exam-wrong-agent-config", msg);
+                return false;
             }
         } else {
             String machineIp = examMachine.getIpAddress();

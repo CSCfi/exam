@@ -20,7 +20,6 @@ public interface ByodConfigHandler {
             InvalidKeyException, NoSuchAlgorithmException;
     String getPlaintextPassword(byte[] pwd, String salt) throws CryptorException;
     byte[] getEncryptedPassword(String pwd, String salt) throws CryptorException;
-    Optional<Result> checkUserAgent(Http.RequestHeader request, String hash) throws ParserConfigurationException,
-            NoSuchAlgorithmException, SAXException, InvalidKeyException, IOException;
+    Optional<Result> checkUserAgent(Http.RequestHeader request, String examConfigKey);
 
 }
