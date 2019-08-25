@@ -503,7 +503,7 @@ public class ReviewController extends BaseController {
         if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
-        Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findOne();
+        Comment comment = Ebean.find(Comment.class, cid);
         if (comment == null) {
             return notFound();
         }
