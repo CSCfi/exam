@@ -461,6 +461,7 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
+        exam.setRequiresUserAgentAuth(false);
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());
