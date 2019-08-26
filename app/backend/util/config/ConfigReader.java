@@ -2,13 +2,10 @@ package backend.util.config;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.google.inject.ImplementedBy;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import play.mvc.Http;
-import play.mvc.Result;
 
 import backend.models.Role;
 
@@ -32,9 +29,7 @@ public interface ConfigReader {
     boolean isPrintoutSupported();
     String getAppVersion();
     boolean isAnonymousReviewEnabled();
-    Optional<Result> checkUserAgent(Http.RequestHeader request);
-    String getBrowserExamKey();
-    String getExamConfigurationKey();
     String getQuitExaminationLink();
-
+    String getSettingsPasswordEncryptionKey();
+    String getQuitPassword();
 }

@@ -33,6 +33,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -42,6 +43,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.annotation.EnumValue;
@@ -228,6 +230,18 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Boolean requiresUserAgentAuth;
 
+    // SEB related ->
+
+    @Lob
+    @JsonIgnore
+    private byte[] encryptedSettingsPassword;
+
+    @JsonIgnore
+    private String settingsPasswordSalt;
+
+    @JsonIgnore
+    private String configKey;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -268,6 +282,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private boolean external;
     @Transient
     private String externalRef;
+    @Transient
+    private String settingsPassword;
 
     private double toFixed(double val) {
         return Double.valueOf(df.format(val));
@@ -745,6 +761,38 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setRequiresUserAgentAuth(Boolean requiresUserAgentAuth) {
         this.requiresUserAgentAuth = requiresUserAgentAuth;
+    }
+
+    public byte[] getEncryptedSettingsPassword() {
+        return encryptedSettingsPassword;
+    }
+
+    public void setEncryptedSettingsPassword(byte[] encryptedSettingsPassword) {
+        this.encryptedSettingsPassword = encryptedSettingsPassword;
+    }
+
+    public String getSettingsPassword() {
+        return settingsPassword;
+    }
+
+    public void setSettingsPassword(String settingsPassword) {
+        this.settingsPassword = settingsPassword;
+    }
+
+    public String getSettingsPasswordSalt() {
+        return settingsPasswordSalt;
+    }
+
+    public void setSettingsPasswordSalt(String settingsPasswordSalt) {
+        this.settingsPasswordSalt = settingsPasswordSalt;
+    }
+
+    public String getConfigKey() {
+        return configKey;
+    }
+
+    public void setConfigKey(String configKey) {
+        this.configKey = configKey;
     }
 
     @Transient

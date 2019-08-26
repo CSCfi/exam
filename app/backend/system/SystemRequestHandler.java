@@ -46,7 +46,7 @@ import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.security.SessionHandler;
-import backend.util.config.ConfigReader;
+import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -54,15 +54,16 @@ public class SystemRequestHandler implements ActionCreator {
 
     private SessionHandler sessionHandler;
     private Environment environment;
-    private ConfigReader configReader;
+    private ByodConfigHandler byodConfigHandler;
 
     private static final Logger.ALogger logger = Logger.of(SystemRequestHandler.class);
 
     @Inject
-    public SystemRequestHandler(SessionHandler sessionHandler, Environment environment, ConfigReader configReader) {
+    public SystemRequestHandler(SessionHandler sessionHandler, Environment environment,
+                                ByodConfigHandler byodConfigHandler) {
         this.sessionHandler = sessionHandler;
         this.environment = environment;
-        this.configReader = configReader;
+        this.byodConfigHandler = byodConfigHandler;
     }
 
     @Override
@@ -182,10 +183,11 @@ public class SystemRequestHandler implements ActionCreator {
         ExamMachine examMachine = enrolment.getReservation().getMachine();
         ExamRoom room = examMachine.getRoom();
 
-        if (requiresUserAgentAuth) {
-            Optional<Result> error = configReader.checkUserAgent(request);
+        if (requiresUserAgentAuth && enrolment.getExam() != null) {
+            Optional<Result> error = byodConfigHandler.checkUserAgent(request, enrolment.getExam().getConfigKey());
             if (error.isPresent()) {
-                String msg = ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                String msg = ISODateTimeFormat.dateTime().print(
+                        new DateTime(enrolment.getReservation().getStartAt()));
                 headers.put("x-exam-wrong-agent-config", msg);
                 return false;
             }

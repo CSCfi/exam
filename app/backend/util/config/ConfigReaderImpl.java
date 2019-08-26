@@ -15,51 +15,47 @@
 
 package backend.util.config;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Results;
 
 import backend.models.ExamExecutionType;
 import backend.models.Role;
 
 public class ConfigReaderImpl implements ConfigReader {
 
+    @Override
     public DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
     }
 
+    @Override
     public String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
+    @Override
     public Integer getMaxFileSize() {
         return ConfigFactory.load().getInt("sitnet.attachment.maxsize");
     }
 
+    @Override
     public List<Integer> getExamDurations() {
         String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
-        List<Integer> values = new ArrayList<>();
-        for (String d : durations) {
-            values.add(Integer.parseInt(d));
-        }
-        return values;
+        return Arrays.stream(durations).map(Integer::parseInt).collect(Collectors.toList());
     }
 
+    @Override
     public Map<Role, List<String>> getRoleMapping() {
         Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
         Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
@@ -71,41 +67,50 @@ public class ConfigReaderImpl implements ConfigReader {
         return roles;
     }
 
+    @Override
     public boolean isCourseGradeScaleOverridable() {
         return ConfigFactory.load().getBoolean("sitnet.course.gradescale.overridable");
     }
 
+    @Override
     public boolean isEnrolmentPermissionCheckActive() {
         return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
     }
 
+    @Override
     public boolean isVisitingExaminationSupported() {
         return ConfigFactory.load().getBoolean("sitnet.integration.iop.visit.active");
     }
 
+    @Override
     public boolean isCollaborationExaminationSupported() {
         return ConfigFactory.load().getBoolean("sitnet.integration.iop.collaboration.active");
     }
 
+    @Override
     public boolean isCourseSearchActive() {
         return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
     }
 
+    @Override
     public Map<String, String> getCourseIntegrationUrls() {
         Config config = ConfigFactory.load().getConfig("sitnet.integration.courseUnitInfo.url");
         return config.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().render()));
     }
 
+    @Override
     public DateTime getExamExpirationDate(DateTime timeOfSubmission) {
         String expiresAfter = ConfigFactory.load().getString("sitnet.exam.expiration.period");
         Period period = Period.parse(expiresAfter);
         return timeOfSubmission.plus(period);
     }
 
+    @Override
     public String getExamExpirationPeriod() {
         return ConfigFactory.load().getString("sitnet.exam.expiration.period");
     }
 
+    @Override
     public boolean isMaturitySupported() {
         return Ebean.find(ExamExecutionType.class)
                 .where()
@@ -113,6 +118,7 @@ public class ConfigReaderImpl implements ConfigReader {
                 .findCount() == 1;
     }
 
+    @Override
     public boolean isPrintoutSupported() {
         return Ebean.find(ExamExecutionType.class)
                 .where()
@@ -120,51 +126,29 @@ public class ConfigReaderImpl implements ConfigReader {
                 .findCount() == 1;
     }
 
-
+    @Override
     public String getAppVersion() {
         return ConfigFactory.load().getString("exam.release.version");
     }
 
+    @Override
     public boolean isAnonymousReviewEnabled() {
         return ConfigFactory.load().getBoolean("sitnet.exam.anonymousReview");
     }
 
-    public Optional<Result> checkUserAgent(Http.RequestHeader request) {
-        Optional<String> ob = request.header("X-SafeExamBrowser-RequestHash");
-        if (!ob.isPresent()) {
-            return Optional.of(Results.unauthorized("SEB headers missing"));
-        }
-        String bek =  getBrowserExamKey();
-        String protocol = request.secure() ? "https://" : "http://";
-        String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
-
-        String bekDigest = DigestUtils.sha256Hex(absoluteUrl + bek);
-        if (!bekDigest.equals(ob.get())) {
-            return Optional.of(Results.unauthorized("Wrong BEK digest"));
-        }
-        // We don't necessarily get the config key from all SEB (Windows) clients so this is an optional check for now
-        Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
-        if (oc.isPresent()) {
-            String eck = getExamConfigurationKey();
-            String eckDigest = DigestUtils.sha256Hex(absoluteUrl + eck);
-            if (!eckDigest.equals(oc.get())) {
-                return Optional.of(Results.unauthorized("Wrong ECK digest"));
-            }
-        }
-        return Optional.empty();
-    }
-
-    public String getBrowserExamKey() {
-        return ConfigFactory.load().getString("sitnet.exam.seb.browserExamKey");
-    }
-
-    public String getExamConfigurationKey() {
-        return ConfigFactory.load().getString("sitnet.exam.seb.examConfigurationKey");
-    }
-
+    @Override
     public String getQuitExaminationLink() {
         return ConfigFactory.load().getString("sitnet.exam.seb.quitLink");
     }
 
+    @Override
+    public String getSettingsPasswordEncryptionKey() {
+        return ConfigFactory.load().getString("sitnet.exam.seb.settingsPwd.encryption.key");
+    }
+
+    @Override
+    public String getQuitPassword() {
+        return ConfigFactory.load().getString("sitnet.exam.seb.quitPwd");
+    }
 
 }
