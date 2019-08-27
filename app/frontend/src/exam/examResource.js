@@ -124,6 +124,13 @@ angular.module('app.exam')
                     'insert': { method: 'POST', params: { eid: '@eid' } },
                     'update': { method: 'PUT', params: { eid: '@eid', sid: '@cid' } }
                 }),
+            feedbackStatus: $resource('/app/review/:eid/comment/:cid/feedbackstatus',
+                {
+                    id: '@eid', cid: '@cid'
+                },
+                {
+                    'update': { method: 'PUT', params: { eid: '@eid', sid: '@cid' } }
+                }),
             inspections: $resource('/app/exam/:id/inspections',
                 {
                     id: '@id'

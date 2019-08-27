@@ -494,6 +494,30 @@ public class ReviewController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
+    @Restrict({@Group("STUDENT")})
+    public Result setCommentStatusRead(Long eid, Long cid, Http.Request request) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
+            return forbidden();
+        }
+        Comment comment = Ebean.find(Comment.class, cid);
+        if (comment == null) {
+            return notFound();
+        }
+        Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
+        if (feedbackStatus.isPresent()) {
+            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setFeedbackStatus(feedbackStatus.get());
+        }
+        comment.update();
+        return ok(comment);
+    }
+
+    @Authenticated
+    @With(CommentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result addInspectionComment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);

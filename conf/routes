@@ -136,6 +136,7 @@ PUT           /app/review/examquestion/:id/score                       backend.c
 PUT           /app/review/examquestion/:id/score/force                 backend.controllers.ReviewController.forceScoreExamQuestion(id: Long, request: Request)
 POST          /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.insertComment(eid: Long, cid: Long, request: Request)
 PUT           /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.updateComment(eid: Long, cid: Long, request: Request)
+PUT           /app/review/:eid/comment/:cid/feedbackstatus             backend.controllers.ReviewController.setCommentStatusRead(eid: Long, cid: Long, request: Request)
 GET           /app/noshows/:eid                                        backend.controllers.ReviewController.listNoShows(eid: Long, request: Request)
 PUT           /app/reviews/archive                                     backend.controllers.ReviewController.archiveExams(request: Request)
 GET           /app/review/:eid                                         backend.controllers.ReviewController.getExamReview(eid: Long, request: Request)

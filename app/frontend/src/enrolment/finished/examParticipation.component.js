@@ -22,8 +22,8 @@ angular.module('app.enrolment')
             participation: '<',
             collaborative: '<'
         },
-        controller: ['$scope', '$translate', 'StudentExamRes', 'Exam',
-            function ($scope, $translate, StudentExamRes, Exam) {
+        controller: ['$scope', '$translate', 'StudentExamRes', 'Exam', 'Assessment',
+            function ($scope, $translate, StudentExamRes, Exam, Assessment) {
 
                 const vm = this;
 
@@ -38,6 +38,10 @@ angular.module('app.enrolment')
                         }
                         loadReview();
                     }
+                };
+
+                vm.setCommentRead = function (exam) {
+                    return Assessment.setCommentRead(exam);
                 };
 
                 const loadReview = function () {

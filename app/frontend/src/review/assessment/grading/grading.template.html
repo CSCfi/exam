@@ -105,7 +105,7 @@
 
 <div class="review-grade-section" ng-show="$ctrl.isReadOnly()">
     <div class="col-md-2 general-info-title">{{'sitnet_teachers_comment' | translate}}:</div>
-    <div class="col-md-8 general-info-content" mathjax ng-bind-html="$ctrl.exam.examFeedback.comment"></div>
+    <div ng-class="$ctrl.isCommentRead() ? 'col-md-8 general-info-content' : 'sitnet-text-alarm'" mathjax ng-bind-html="$ctrl.exam.examFeedback.comment"></div>
     <div ng-if="$ctrl.exam.examFeedback.attachment" class="col-md-2 general-info-content">
         <a class="pointer" ng-click="$ctrl.downloadFeedbackAttachment(exam)">
             {{$ctrl.exam.examFeedback.attachment.fileName}}
