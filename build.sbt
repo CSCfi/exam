@@ -9,7 +9,7 @@ version := "5.1.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.9"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 

@@ -89,10 +89,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         String startUrl = String.format("%s?exam=%s", configReader.getHostName(), hash);
         String template = fileHandler.read(path).replace(START_URL_PLACEHOLDER, startUrl);
         String quitPwd = DigestUtils.sha256Hex(configReader.getQuitPassword());
-        if (!quitPwd.isBlank()) {
-            template = template.replace(QUIT_PWD_PLACEHOLDER, quitPwd);
-        }
-        return template;
+        return template.replace(QUIT_PWD_PLACEHOLDER, quitPwd);
     }
 
     private byte[] compress(byte[] data) throws IOException {

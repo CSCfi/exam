@@ -220,7 +220,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public CompletionStage<Result> addQuestion(Long examId, Long sectionId, Http.Request request) {
-        Integer seq = request.body().asJson().get("sequenceNumber").asInt();
+        int seq = request.body().asJson().get("sequenceNumber").asInt();
         final Long sectionQuestionId = newId();
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             Optional<ExamSection> section = exam.getExamSections().stream()
@@ -240,7 +240,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 esq.setId(sectionQuestionId);
                 esq.setQuestion(question);
                 // Assert that the sequence number provided is within limits
-                Integer sequence = Math.min(Math.max(0, seq), es.getSectionQuestions().size());
+                int sequence = Math.min(Math.max(0, seq), es.getSectionQuestions().size());
                 updateSequences(es.getSectionQuestions(), sequence);
                 esq.setSequenceNumber(sequence);
                 if (es.getSectionQuestions().contains(esq) || es.hasQuestion(question)) {
