@@ -12,8 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -241,7 +239,7 @@ angular.module('app.review')
             };
 
             self.saveAssessmentInfo = function (exam) {
-                if (exam.state === 'GRADED_LOGGED') {
+                if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
                     self.examAssessmentApi.update({ id: exam.id, assessmentInfo: exam.assessmentInfo }, function () {
                         toast.info($translate.instant('sitnet_saved'));
                     });
