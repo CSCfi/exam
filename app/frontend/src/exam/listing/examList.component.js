@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.exam')
     .component('examList', {
@@ -46,7 +46,7 @@ angular.module('app.exam')
 
                 vm.search = function () {
                     vm.loader.loading = true;
-                    ExamRes.exams.query({filter: vm.filter.text}, function (exams) {
+                    ExamRes.exams.query({ filter: vm.filter.text }, function (exams) {
                         exams.forEach(function (e) {
                             e.ownerAggregate = e.examOwners.map(function (o) {
                                 return o.firstName + ' ' + o.lastName;
@@ -71,7 +71,7 @@ angular.module('app.exam')
                 };
 
                 vm.copyExam = function (exam, type) {
-                    ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
+                    ExamRes.exams.copy({ id: exam.id, type: type }, function (copy) {
                         toast.success($translate.instant('sitnet_exam_copied'));
                         $location.path('/exams/' + copy.id + '/1/');
                     }, function (error) {
@@ -82,7 +82,7 @@ angular.module('app.exam')
                 vm.deleteExam = function (exam) {
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
-                        ExamRes.exams.remove({id: exam.id}, function (ex) {
+                        ExamRes.exams.remove({ id: exam.id }, function (ex) {
                             toast.success($translate.instant('sitnet_exam_removed'));
                             vm.exams.splice(vm.exams.indexOf(exam), 1);
 
