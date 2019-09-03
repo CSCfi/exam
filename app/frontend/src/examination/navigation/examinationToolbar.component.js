@@ -52,15 +52,11 @@ angular.module('app.examination')
 
                 vm.turnExam = function () {
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
-                    dialog.result.then(function () {
-                        if (vm.activeSection) {
-                            Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, false).then(function () {
-                                Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
-                            });
-                        } else {
-                            Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
-                        }
-                    });
+                    dialog.result.then(() =>
+                        // Save all textual answers regardless of empty or not
+                        Examination.saveAllTextualAnswersOfExam(vm.exam).then(
+                            () => Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth))
+                    );
                 };
 
                 vm.abortExam = function () {
