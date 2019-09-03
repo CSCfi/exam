@@ -75,39 +75,40 @@ angular.module('app.examination')
                 return deferred.promise;
             };
 
-            const isTextualAnswer = function (esq, allowEmpty) {
+            const isTextualAnswer = function (esq) {
                 switch (esq.question.type) {
                     case 'EssayQuestion':
-                        return esq.essayAnswer && (allowEmpty || esq.essayAnswer.answer.length > 0);
+                        return esq.essayAnswer && esq.essayAnswer.answer.length > 0;
                     case 'ClozeTestQuestion':
-                        return esq.clozeTestAnswer && (allowEmpty || !_.isEmpty(esq.clozeTestAnswer.answer));
+                        return esq.clozeTestAnswer && !_.isEmpty(esq.clozeTestAnswer.answer);
                     default:
                         return false;
                 }
             };
 
-            self.saveAllTextualAnswersOfSection = function (section, hash, autosave, allowEmpty) {
+            self.saveAllTextualAnswersOfSection = function (section, hash, autosave, canFail) {
                 const deferred = $q.defer();
 
                 const questions = section.sectionQuestions.filter(function (esq) {
-                    return isTextualAnswer(esq, allowEmpty);
+                    return isTextualAnswer(esq);
                 });
                 const save = function (question, cb) {
-                    self.saveTextualAnswer(question, hash, autosave).then(() => cb(null), err => cb(err));
+                    self.saveTextualAnswer(question, hash, autosave).then(function () {
+                        cb(null);
+                    }, function (err) {
+                        cb(err);
+                    });
                 };
                 // Run this in an async loop to make sure we don't get version conflicts
-                async.eachSeries(questions, save, () => deferred.resolve());
+                async.eachSeries(questions, save, function (err) {
+                    if (err && canFail) {
+                        deferred.reject();
+                    } else {
+                        deferred.resolve();
+                    }
+                });
                 return deferred.promise;
             };
-
-            self.saveAllTextualAnswersOfExam = (exam) => {
-                const deferred = $q.defer();
-                const save = (section, cb) =>
-                    self.saveAllTextualAnswersOfSection(section, exam.hash, false, true)
-                        .then(() => cb(null), err => cb(err));
-                async.eachSeries(exam.examSections, save, () => deferred.resolve());
-                return deferred.promise;
-            }
 
             const stripHtml = function (text) {
                 if (text && text.indexOf('math-tex') === -1) {
