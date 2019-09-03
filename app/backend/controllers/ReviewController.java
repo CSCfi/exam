@@ -279,7 +279,7 @@ public class ReviewController extends BaseController {
                 .idEq(id)
                 .ne("question.type", Question.Type.EssayQuestion)
                 .findOneOrEmpty();
-        if (!oeq.isPresent()) {
+        if (oeq.isEmpty()) {
             return notFound("question not found");
         }
         ExamSectionQuestion question = oeq.get();
@@ -306,14 +306,15 @@ public class ReviewController extends BaseController {
         Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator")
                 .where()
                 .idEq(id)
-                .eq("state", Exam.State.GRADED_LOGGED)
+                .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
                 .findOneOrEmpty();
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam.getState() != Exam.State.GRADED_LOGGED || isDisallowedToModify(exam, user, exam.getState())) {
+        if (!exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
+                isDisallowedToModify(exam, user, exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
