@@ -59,16 +59,10 @@ angular.module('app.examination')
                     setActiveSection(page);
                 };
 
-                vm.timedOut = function () {
-                    // Loop through all essay questions in the active section
-                    if (vm.activeSection) {
-                        Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, true).then(function () {
-                            logout('sitnet_exam_time_is_up');
-                        });
-                    } else {
-                        logout('sitnet_exam_time_is_up');
-                    }
-                };
+                vm.timedOut = () =>
+                    // Save all textual answers regardless of empty or not
+                    Examination.saveAllTextualAnswersOfExam(vm.exam).then(() => logout('sitnet_exam_time_is_up'));
+
 
                 const findSection = function (sectionId) {
                     const i = vm.exam.examSections.map(function (es) {
