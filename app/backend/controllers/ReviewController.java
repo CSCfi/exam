@@ -57,6 +57,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -639,12 +640,12 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result importGrades(Http.Request request) {
-        Http.MultipartFormData<File> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
-        File file = filePart.getRef();
+        File file = filePart.getRef().path().toFile();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         try {
