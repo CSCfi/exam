@@ -67,6 +67,7 @@ public class CollaborativeExamController extends CollaborationController {
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
+        cleanUser(user);
         AppUtil.setCreator(exam, user);
 
         ExamSection examSection = new ExamSection();
@@ -98,7 +99,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -120,7 +121,7 @@ public class CollaborativeExamController extends CollaborationController {
     private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
         return findCollaborativeExam(id).map(ce -> downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
@@ -157,7 +158,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> createExam(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         WSRequest wsRequest = wsClient.url(url.get().toString());
@@ -288,4 +289,13 @@ public class CollaborativeExamController extends CollaborationController {
         user.setEmail(email);
         return user;
     }
+
+    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // serialization of exam
+    private void cleanUser(User user) {
+        user.getEnrolments().clear();
+        user.getParticipations().clear();
+        user.getInspections().clear();
+    }
+
 }
