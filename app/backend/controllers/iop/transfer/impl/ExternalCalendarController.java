@@ -454,7 +454,8 @@ public class ExternalCalendarController extends CalendarController {
         for (Interval slot : examSlots) {
             // Check machine availability
             int availableMachineCount = (int) machines.stream()
-                    .filter(m -> !isReservedDuring(m, slot)).count();
+                    .filter(m -> !isReservedDuring(m, slot))
+                    .count();
             slots.add(new CalendarHandler.TimeSlot(slot, availableMachineCount, null));
         }
         return slots;
