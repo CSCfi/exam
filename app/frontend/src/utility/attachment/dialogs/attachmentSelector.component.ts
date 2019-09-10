@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
+
 import { FileService } from '../../file/file.service';
+
 
 declare function require(name: string): any;
 
@@ -43,7 +44,6 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         attachmentFile: File;
 
         constructor(
-            private $scope: angular.IScope,
             private Files: FileService
         ) {
             'ngInject';

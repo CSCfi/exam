@@ -18,14 +18,14 @@ var compiler = webpack(webpackConfig);
 
 // We give notice in the terminal when it starts bundling and
 // set the time it started
-compiler.plugin('compile', function() {
+compiler.plugin('compile', function () {
     console.log('[Webpack] Bundling...');
     bundleStart = Date.now();
 });
 
 // We also give notice when it is done compiling, including the
 // time it took. Nice to have
-compiler.plugin('done', function() {
+compiler.plugin('done', function () {
     console.log('[Webpack] Bundled in ' + (Date.now() - bundleStart) + 'ms!');
 });
 
@@ -34,6 +34,7 @@ var server = new webpackDevServer(compiler, {
     // We need to tell Webpack to serve our bundled application
     // from the build path.
     publicPath: '/bundles/',
+    sockPort: 8080,
 
     // Configure hot replacement
     hot: true,
