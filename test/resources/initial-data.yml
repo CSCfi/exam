@@ -51,7 +51,7 @@ languages:
 
 users:
 
-    - &admin !!backend.models.User
+    - &adminUser !!backend.models.User
       email:      admin@funet.fi
       eppn:       admin@funet.fi
       firstName:  Admin
@@ -1259,22 +1259,13 @@ mail-addresses:
 
 ################################################################
 
-calendar-events:
-  - &cal-event !!backend.models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-
-################################################################
-
 exam-rooms:
   - &room-pegasus !!backend.models.ExamRoom
     name: Tenttiakvaario Pegasus
     roomCode: IT101
     buildingName: Oulun yliopiston päärakennus
     campus: Linnanmaa
-    organization: *OulunYliopisto
     mailAddress: *oulu-yo
-    transitionTime: 5
     accessible: true
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567

@@ -424,6 +424,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();
         assertThat(external.getRoomInstructionEN()).isEqualTo("information in English here");
+        assertThat(external.getMailAddress().getCity()).isEqualTo("Paris");
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();

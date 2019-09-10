@@ -17,7 +17,7 @@ package backend.models.iop;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import backend.controllers.RoomLike;
 import backend.models.MailAddress;
@@ -35,8 +35,8 @@ public class ExternalReservation extends GeneratedIdentityModel implements RoomL
 
     private String roomRef;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private MailAddress mailAddress = new MailAddress();
+    @OneToOne(cascade = CascadeType.ALL)
+    private MailAddress mailAddress;
 
     private String buildingName;
 
