@@ -18,6 +18,7 @@ before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
+  - npm i -g npm@v6.10.2
   - nvm install 8.9.1
   - nvm use 8.9.1
 
