@@ -10,7 +10,7 @@
   "scripts": {
     "test": "test",
     "build": "webpack -p --config ./webpack/webpack.prod.js",
-    "start": "node --trace-deprecation ./webpack/webpack.server --config ./webpack/webpack.dev.js"
+    "start": "webpack-dev-server --config ./webpack/webpack.dev.js"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
