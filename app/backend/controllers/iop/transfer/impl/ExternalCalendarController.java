@@ -152,7 +152,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         Optional<ExamMachine> machine =
                 calendarHandler.getRandomMachine(room, null, start, end, Collections.emptyList());
-        if (!machine.isPresent()) {
+        if (machine.isEmpty()) {
             return forbidden("sitnet_no_machines_available");
         }
         // We are good to go :)
@@ -281,7 +281,7 @@ public class ExternalCalendarController extends CalendarController {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
             return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
-                if (!err.isPresent()) {
+                if (err.isEmpty()) {
                     return created(root.get("id"));
                 }
                 return internalServerError();
@@ -368,7 +368,7 @@ public class ExternalCalendarController extends CalendarController {
         external.setRoomInstruction(roomNode.path("roomInstruction").asText(null));
         external.setRoomInstructionEN(roomNode.path("roomInstructionEN").asText(null));
         external.setRoomInstructionSV(roomNode.path("roomInstructionSV").asText(null));
-        JsonNode addressNode = node.path("mailAddress");
+        JsonNode addressNode = roomNode.path("mailAddress");
         if (addressNode.isObject()) {
             MailAddress mailAddress = new MailAddress();
             mailAddress.setStreet(addressNode.path("street").asText());
@@ -389,7 +389,7 @@ public class ExternalCalendarController extends CalendarController {
         if (oldReservation != null) {
             if (oldReservation.getExternalReservation() != null) {
                 return externalReservationHandler.removeExternalReservation(oldReservation).thenApply(err -> {
-                    if (!err.isPresent()) {
+                    if (err.isEmpty()) {
                         Ebean.delete(oldReservation);
                         postProcessRemoval(reservation, enrolment, user, machineNode);
                     }
@@ -456,10 +456,9 @@ public class ExternalCalendarController extends CalendarController {
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability
-            int availableMachineCount = machines.stream()
+            int availableMachineCount = (int) machines.stream()
                     .filter(m -> !isReservedDuring(m, slot))
-                    .collect(Collectors.toList())
-                    .size();
+                    .count();
             slots.add(new CalendarHandler.TimeSlot(slot, availableMachineCount, null));
         }
         return slots;

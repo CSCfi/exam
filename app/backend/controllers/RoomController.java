@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -137,6 +138,7 @@ public class RoomController extends BaseController {
         ExamRoom examRoom = new ExamRoom();
         examRoom.setState("SAVED");
         examRoom.setLocalTimezone(defaultTimeZoneId);
+        examRoom.setMailAddress(new MailAddress());
         examRoom.save();
         return ok(Json.toJson(examRoom));
     }
@@ -187,20 +189,20 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public CompletionStage<Result> updateExamRoomAddress(Long id, Http.Request request) throws MalformedURLException {
         MailAddress address = bindForm(MailAddress.class, request);
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        if (room == null) {
+        MailAddress existing = Ebean.find(MailAddress.class, id);
+        if (existing == null) {
             return wrapAsPromise(notFound());
         }
-        MailAddress existing = room.getMailAddress();
-        if (existing == null) {
+        Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing)
+                .findOneOrEmpty();
+        if (room.isEmpty()) {
             return wrapAsPromise(notFound());
         }
         existing.setCity(address.getCity());
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
         existing.update();
-
-        return updateRemote(room);
+        return updateRemote(room.get());
     }
 
     private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {

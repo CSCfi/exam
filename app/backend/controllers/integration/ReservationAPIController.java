@@ -73,8 +73,7 @@ public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getRooms() {
-        PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), " +
-                "organization(*), mailAddress(*), examMachines(*))");
+        PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))");
         Query<ExamRoom> query = Ebean.find(ExamRoom.class);
         pp.apply(query);
         List<ExamRoom> rooms = query.orderBy("name").findList();
