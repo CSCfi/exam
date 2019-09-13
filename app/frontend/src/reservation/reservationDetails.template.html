@@ -27,10 +27,13 @@
                 <span>{{r.userAggregate}}</span>
                 <span ng-if="r.user.userIdentifier">&nbsp;({{r.user.userIdentifier}})</span>
                 <span ng-if="r.user && !r.externalUserRef">
+                    <!-- local user, local exam -->
                     <br />
                     <a class="reservation" href="mailto:{{r.user.email}}">{{r.user.email}}</a>
                 </span>
-                <span ng-if="r.externalUserRef && !r.user">
+                <span ng-if="r.externalUserRef">
+                    <!-- external user, external exam -->
+                    <br />
                     <a class="reservation" href="mailto:{{r.externalUserRef}}">{{r.externalUserRef}}</a>
                 </span>
             </td>
