@@ -19,11 +19,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +41,7 @@ import biweekly.property.Summary;
 import com.google.common.collect.Sets;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import io.vavr.Tuple2;
 import org.apache.commons.mail.EmailAttachment;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -695,26 +694,19 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(emails, sender.getEmail(), Sets.newHashSet(sender.getEmail()), subject, template);
     }
 
-    private static List<ExamEnrolment> getEnrolments(Exam exam) {
-        List<ExamEnrolment> enrolments = exam.getExamEnrolments();
-        Collections.sort(enrolments);
-        // Discard expired ones
-        Iterator<ExamEnrolment> it = enrolments.listIterator();
-        while (it.hasNext()) {
-            ExamEnrolment enrolment = it.next();
-            Reservation reservation = enrolment.getReservation();
-            if (reservation == null || reservation.getEndAt().isBefore(DateTime.now())) {
-                it.remove();
-            }
-        }
-        return enrolments;
+    private List<ExamEnrolment> getEnrolments(Exam exam) {
+        return exam.getExamEnrolments().stream()
+                .filter(ee -> {
+                    Reservation reservation = ee.getReservation();
+                    return reservation != null && reservation.getEndAt().isBefore(DateTime.now());
+                })
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
         String enrolmentTemplate = fileHandler.read(enrolmentTemplatePath);
-        StringBuilder enrolmentBlock = new StringBuilder();
-
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examEnrolments")
@@ -729,27 +721,28 @@ class EmailComposerImpl implements EmailComposer {
                 .gt("examActiveEndDate", new Date())
                 .findList();
 
-        for (Exam exam : exams) {
-            Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/reservations/%d", hostName, exam.getId()));
-            stringValues.put("exam_name", exam.getName());
-            stringValues.put("course_code", exam.getCourse().getCode());
-            List<ExamEnrolment> enrolments = getEnrolments(exam);
-            String subTemplate;
-            if (enrolments.isEmpty()) {
-                String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
-                subTemplate = String.format(
-                        "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>", noEnrolments);
-            } else {
-                DateTime date = adjustDST(enrolments.get(0).getReservation().getStartAt());
-                stringValues.put("enrolments",
-                        messaging.get(lang, "email.template.enrolment.first", enrolments.size(), DTF.print(date)));
-                subTemplate = enrolmentTemplate;
-            }
-            String row = replaceAll(subTemplate, stringValues);
-            enrolmentBlock.append(row);
-        }
-        return enrolmentBlock.toString();
+        return exams.stream()
+                .map(e -> new Tuple2<>(e, getEnrolments(e)))
+                .filter(t -> !t._1.isPrivate() || t._2.isEmpty())
+                .map(t -> {
+                    Map<String, String> stringValues = new HashMap<>();
+                    stringValues.put("exam_link", String.format("%s/reservations/%d", hostName, t._1.getId()));
+                    stringValues.put("exam_name", t._1.getName());
+                    stringValues.put("course_code", t._1.getCourse().getCode());
+                    String subTemplate;
+                    if (t._2.isEmpty()) {
+                        String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
+                        subTemplate = String.format(
+                                "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>", noEnrolments);
+                    } else {
+                        DateTime date = adjustDST(t._2.get(0).getReservation().getStartAt());
+                        stringValues.put("enrolments",
+                                messaging.get(lang, "email.template.enrolment.first", t._2.size(), DTF.print(date)));
+                        subTemplate = enrolmentTemplate;
+                    }
+                    return replaceAll(subTemplate, stringValues);
+                })
+                .collect(Collectors.joining());
     }
 
 
