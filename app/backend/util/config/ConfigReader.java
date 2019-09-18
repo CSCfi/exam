@@ -32,4 +32,5 @@ public interface ConfigReader {
     String getQuitExaminationLink();
     String getSettingsPasswordEncryptionKey();
     String getQuitPassword();
+    String getHomeOrganisationRef();
 }

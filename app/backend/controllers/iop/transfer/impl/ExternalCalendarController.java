@@ -57,6 +57,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.CalendarController;
@@ -102,6 +103,13 @@ public class ExternalCalendarController extends CalendarController {
             throws MalformedURLException {
         return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
                 + String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
+    }
+
+    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
+            throws MalformedURLException {
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
+                + String.format("/api/organisations/%s/facilities/%s/reservations/%s/force",
+                orgRef, facilityRef, reservationRef));
     }
 
     private Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
@@ -168,6 +176,7 @@ public class ExternalCalendarController extends CalendarController {
         return created(reservation, pp);
     }
 
+    // Initiated by originator of reservation (the student)
     @SubjectNotPresent
     public Result removeProvidedReservation(String ref) {
         Reservation reservation = Ebean.find(Reservation.class)
@@ -184,6 +193,34 @@ public class ExternalCalendarController extends CalendarController {
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
+        reservation.delete();
+        return ok();
+    }
+
+    // Initiated by administrator of organisation where reservation takes place
+    @SubjectNotPresent
+    public Result removeRequestedReservation(String ref) {
+
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.externalReservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .isNotNull("reservation.machine")
+                .eq("reservation.externalRef", ref)
+                .findOne();
+        if (enrolment == null) {
+            return notFound(String.format("No reservation with ref %s.", ref));
+        }
+
+        Reservation reservation = enrolment.getReservation();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return forbidden("sitnet_reservation_in_effect");
+        }
+        enrolment.setReservation(null);
+        enrolment.update();
         reservation.delete();
         return ok();
     }
@@ -294,8 +331,50 @@ public class ExternalCalendarController extends CalendarController {
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
-        return externalReservationHandler.removeReservations(reservation, user);
+        return externalReservationHandler.removeReservation(reservation, user);
     }
+
+    @Restrict(@Group("ADMIN"))
+    public CompletionStage<Result> requestReservationCancellation(String ref, Http.Request request)
+            throws MalformedURLException {
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .isNotNull("reservation.machine")
+                .eq("reservation.externalRef", ref)
+                .findOne();
+        if (enrolment == null) {
+            return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s.", ref)));
+        }
+
+        Reservation reservation = enrolment.getReservation();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
+        }
+        String roomRef = reservation.getMachine().getRoom().getExternalRef();
+        URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
+        WSRequest wsRequest = wsClient.url(url.toString());
+
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != Http.Status.OK) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            String msg = request.body().asJson().path("msg").asText("");
+            User student = enrolment.getUser();
+            enrolment.setReservation(null);
+            enrolment.update();
+            reservation.delete();
+            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
+            return ok();
+        };
+
+        return wsRequest.delete().thenApplyAsync(onSuccess);
+    }
+
 
     @Authenticated
     @Restrict(@Group("STUDENT"))

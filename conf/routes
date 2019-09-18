@@ -286,9 +286,11 @@ GET           /integration/iop/slots                                   backend.c
 POST          /integration/iop/reservations                            backend.controllers.iop.transfer.impl.ExternalCalendarController.provideReservation(request: Request)
 + nocsrf
 DELETE        /integration/iop/reservations/:ref                       backend.controllers.iop.transfer.impl.ExternalCalendarController.removeProvidedReservation(ref: String)
++ nocsrf
+DELETE        /integration/iop/reservations/:ref/force                 backend.controllers.iop.transfer.impl.ExternalCalendarController.removeRequestedReservation(ref: String)
 POST          /integration/iop/reservations/external                   backend.controllers.iop.transfer.impl.ExternalCalendarController.requestReservation(request: Request)
 DELETE        /integration/iop/reservations/external/:ref              backend.controllers.iop.transfer.impl.ExternalCalendarController.requestReservationRemoval(ref: String, request: Request)
-
+DELETE        /integration/iop/reservations/external/:ref/force        backend.controllers.iop.transfer.impl.ExternalCalendarController.requestReservationCancellation(ref: String, request: Request)
 GET           /integration/iop/reservations/:ref                       backend.controllers.iop.transfer.impl.ExternalExamController.provideEnrolment(ref: String)
 + nocsrf
 POST          /integration/iop/exams/:ref                              backend.controllers.iop.transfer.impl.ExternalExamController.addExamForAssessment(ref: String, request: Request)

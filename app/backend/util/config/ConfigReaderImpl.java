@@ -151,4 +151,9 @@ public class ConfigReaderImpl implements ConfigReader {
         return ConfigFactory.load().getString("sitnet.exam.seb.quitPwd");
     }
 
+    @Override
+    public String getHomeOrganisationRef() {
+        return ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+    }
+
 }
