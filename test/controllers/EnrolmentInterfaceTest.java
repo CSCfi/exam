@@ -1,12 +1,16 @@
 package controllers;
 
+import java.util.List;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
-import backend.models.Exam;
+import io.ebean.Ebean;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -16,9 +20,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import backend.models.Exam;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -42,7 +44,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, "/enrolments"));
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments")));
     }
 
     @Before

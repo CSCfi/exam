@@ -178,7 +178,7 @@ public class ExternalCalendarController extends CalendarController {
 
     // Initiated by originator of reservation (the student)
     @SubjectNotPresent
-    public Result removeProvidedReservation(String ref) {
+    public Result acknowledgeReservationRemoval(String ref) {
         Reservation reservation = Ebean.find(Reservation.class)
                 .fetch("machine")
                 .fetch("machine.room")
@@ -199,7 +199,7 @@ public class ExternalCalendarController extends CalendarController {
 
     // Initiated by administrator of organisation where reservation takes place
     @SubjectNotPresent
-    public Result removeRequestedReservation(String ref) {
+    public Result acknowledgeReservationRevocation(String ref) {
 
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
@@ -207,7 +207,6 @@ public class ExternalCalendarController extends CalendarController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
-                .isNotNull("reservation.machine")
                 .eq("reservation.externalRef", ref)
                 .findOne();
         if (enrolment == null) {
@@ -335,22 +334,20 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     @Restrict(@Group("ADMIN"))
-    public CompletionStage<Result> requestReservationCancellation(String ref, Http.Request request)
+    public CompletionStage<Result> requestReservationRevocation(String ref, Http.Request request)
             throws MalformedURLException {
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
+        Optional<Reservation> or = Ebean.find(Reservation.class)
                 .where()
-                .isNotNull("reservation.machine")
-                .eq("reservation.externalRef", ref)
-                .findOne();
-        if (enrolment == null) {
+                .isNotNull("machine")
+                .eq("externalRef", ref)
+                .isNull("enrolment")
+                .findOneOrEmpty();
+        if (or.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s.", ref)));
         }
 
-        Reservation reservation = enrolment.getReservation();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        Reservation reservation = or.get();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
         }
@@ -359,16 +356,13 @@ public class ExternalCalendarController extends CalendarController {
         WSRequest wsRequest = wsClient.url(url.toString());
 
         Function<WSResponse, Result> onSuccess = response -> {
-            JsonNode root = response.asJson();
             if (response.getStatus() != Http.Status.OK) {
+                JsonNode root = response.asJson();
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             String msg = request.body().asJson().path("msg").asText("");
-            User student = enrolment.getUser();
-            enrolment.setReservation(null);
-            enrolment.update();
+            emailComposer.composeExternalReservationCancellationNotification(reservation, msg);
             reservation.delete();
-            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
             return ok();
         };
 

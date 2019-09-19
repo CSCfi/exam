@@ -474,25 +474,53 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    @Override
-    public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
-                                                           Boolean isStudentUser, ExamEnrolment enrolment) {
-        String templatePath;
-        if (isStudentUser) {
-            templatePath = getTemplatesRoot() + "reservationCanceledByStudent.html";
-        } else {
-            templatePath = getTemplatesRoot() + "reservationCanceled.html";
-        }
+    private void sendReservationCancellationNotification(Map<String, String> values, String message, String info,
+                                                         Lang lang, String email, String template, String subject ) {
+        values.put("cancellation_information",
+                message == null ? "" : String.format("%s:<br />%s", info, message));
+        values.put("regards", messaging.get(lang, "email.template.regards"));
+        values.put("admin", messaging.get(lang, "email.template.admin"));
+
+        String content = replaceAll(template, values);
+        emailSender.send(email, SYSTEM_ACCOUNT, subject, content);
+    }
+
+    private void doComposeReservationSelfCancellationNotification(String email, Lang lang, Reservation reservation,
+                                                              String message, ExamEnrolment enrolment) {
+        String templatePath = getTemplatesRoot() + "reservationCanceledByStudent.html";
+        String template = fileHandler.read(templatePath);
+        String subject = messaging.get(lang, "email.reservation.cancellation.subject");
+        String room = reservation.getMachine() != null ?
+                reservation.getMachine().getRoom().getName() :
+                reservation.getExternalReservation().getRoomName();
+        String info = messaging.get(lang, "email.reservation.cancellation.info");
+
+        Map<String, String> stringValues = new HashMap<>();
+        String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt())),
+                DTF.print(adjustDST(reservation.getEndAt())));
+        final Set<User> owners = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent().getExamOwners()
+                : enrolment.getExam().getExamOwners();
+        stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message.student"));
+
+        final String examName = enrolment.getExam() != null ?
+                enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"
+                : enrolment.getCollaborativeExam().getName();
+        stringValues.put("exam", messaging.get(lang, "email.template.reservation.exam", examName));
+        stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", getTeachersAsText(owners)));
+        stringValues.put("time", messaging.get(lang, "email.template.reservation.date", time));
+        stringValues.put("place", messaging.get(lang, "email.template.reservation.room", room));
+        stringValues.put("new_time", messaging.get(lang, "email.template.reservation.cancel.message.student.new.time"));
+        stringValues.put("link", hostName);
+        sendReservationCancellationNotification(stringValues, message, info, lang, email, template, subject);
+
+    }
+
+    private void doComposeReservationAdminCancellationNotification(String email, Lang lang, Reservation reservation,
+                                                                   String message, String examName) {
+        String templatePath = getTemplatesRoot() + "reservationCanceled.html";
 
         String template = fileHandler.read(templatePath);
-        Lang lang = getLang(student);
-        String subject;
-        if (isStudentUser) {
-            subject = messaging.get(lang, "email.reservation.cancellation.subject");
-        } else {
-            subject = messaging.get(lang, "email.reservation.cancellation.subject.forced",
-                    enrolment.getExam() != null ? enrolment.getExam().getName() : enrolment.getCollaborativeExam().getName());
-        }
+        String subject = messaging.get(lang, "email.reservation.cancellation.subject.forced", examName);
 
         String date = DF.print(adjustDST(reservation.getStartAt()));
         String room = reservation.getMachine() != null ?
@@ -501,33 +529,31 @@ class EmailComposerImpl implements EmailComposer {
         String info = messaging.get(lang, "email.reservation.cancellation.info");
 
         Map<String, String> stringValues = new HashMap<>();
+        String time = TF.print(adjustDST(reservation.getStartAt()));
+        stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message", date, time, room));
+
+        sendReservationCancellationNotification(stringValues, message, info, lang, email, template, subject);
+    }
+
+    @Override
+    public void composeExternalReservationCancellationNotification(Reservation reservation, String message) {
+        doComposeReservationAdminCancellationNotification(
+                reservation.getExternalUserRef(), Lang.forCode("en"), reservation, message, "externally managed exam"
+        );
+    }
+
+    @Override
+    public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
+                                                           Boolean isStudentUser, ExamEnrolment enrolment) {
+        String email = student.getEmail();
+        Lang lang = getLang(student);
         if (isStudentUser) {
-            String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt())),
-                    DTF.print(adjustDST(reservation.getEndAt())));
-            final Set<User> owners = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent().getExamOwners()
-                    : enrolment.getExam().getExamOwners();
-            stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message.student"));
-
-            final String examName = enrolment.getExam() != null ?
-                    enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"
-                    : enrolment.getCollaborativeExam().getName();
-            stringValues.put("exam", messaging.get(lang, "email.template.reservation.exam", examName));
-            stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", getTeachersAsText(owners)));
-            stringValues.put("time", messaging.get(lang, "email.template.reservation.date", time));
-            stringValues.put("place", messaging.get(lang, "email.template.reservation.room", room));
-            stringValues.put("new_time", messaging.get(lang, "email.template.reservation.cancel.message.student.new.time"));
-            stringValues.put("link", hostName);
+            doComposeReservationSelfCancellationNotification(email, lang, reservation, message, enrolment);
         } else {
-            String time = TF.print(adjustDST(reservation.getStartAt()));
-            stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message", date, time, room));
+            String examName = enrolment.getExam() != null ?
+                    enrolment.getExam().getName() : enrolment.getCollaborativeExam().getName();
+            doComposeReservationAdminCancellationNotification(email, lang, reservation, message, examName);
         }
-        stringValues.put("cancellation_information",
-                message == null ? "" : String.format("%s:<br />%s", info, message));
-        stringValues.put("regards", messaging.get(lang, "email.template.regards"));
-        stringValues.put("admin", messaging.get(lang, "email.template.admin"));
-
-        String content = replaceAll(template, stringValues);
-        emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
     private static String getTeachers(Exam exam) {
