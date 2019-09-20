@@ -200,8 +200,7 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by administrator of organisation where reservation takes place
     @SubjectNotPresent
     public Result acknowledgeReservationRevocation(String ref) {
-
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.externalReservation")
                 .fetch("reservation.machine")
@@ -282,7 +281,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         //TODO: See if this offset thing works as intended
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
                 .fetch("exam.examSections.examMaterials")
@@ -416,7 +415,7 @@ public class ExternalCalendarController extends CalendarController {
     private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
                                                                          User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
-        final Reservation reservation = new Reservation();
+        Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
         reservation.setUser(user);

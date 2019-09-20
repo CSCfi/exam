@@ -71,8 +71,12 @@
                 {{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}</td>
 
             <td class="reservation-search" ng-if="$ctrl.isAdminView">
-                <button ng-if="(r.enrolment.exam.state === 'PUBLISHED' || r.externalRef) && !r.noShow"
+                <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
                     ng-click="$ctrl.removeReservation(r)" class="btn btn-primary pull-left">
+                    {{'sitnet_remove_reservation' | translate}}
+                </button>
+                <button ng-if="!r.enrolment && !r.noShow && r.externalUserRef"
+                    ng-click="$ctrl.removeExternalReservation(r)" class="btn btn-primary pull-left">
                     {{'sitnet_remove_reservation' | translate}}
                 </button>
                 <button ng-if="r.enrolment.exam.state === 'ABORTED' || r.noShow" ng-click="$ctrl.permitRetrial(r)"
