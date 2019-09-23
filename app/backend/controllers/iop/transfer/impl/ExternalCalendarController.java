@@ -57,7 +57,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.CalendarController;
@@ -342,13 +341,13 @@ public class ExternalCalendarController extends CalendarController {
                 .isNull("enrolment")
                 .findOneOrEmpty();
         if (or.isEmpty()) {
-            return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s.", ref)));
+            return CompletableFuture.supplyAsync(() -> notFound(String.format("No reservation with ref %s.", ref)));
         }
 
         Reservation reservation = or.get();
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.supplyAsync(() -> forbidden("sitnet_reservation_in_effect"));
         }
         String roomRef = reservation.getMachine().getRoom().getExternalRef();
         URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
