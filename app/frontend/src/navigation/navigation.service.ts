@@ -22,7 +22,7 @@ export interface Link {
     name: string;
     iconSvg?: string;
     iconPng?: string;
-    submenu?: { hidden: boolean, items: Link[] };
+    submenu?: { hidden: boolean; items: Link[] };
 }
 
 export class NavigationService {

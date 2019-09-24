@@ -16,13 +16,13 @@
 import * as angular from 'angular';
 import { ExamLanguage } from '../exam/exam.model';
 
-export interface ISOLang {
+export interface IsoLang {
     name: string;
     nativeName: string;
 }
 
-export interface ISOLangMap {
-    [code: string]: ISOLang;
+export interface IsoLangMap {
+    [code: string]: IsoLang;
 }
 
 export class LanguageService {
@@ -33,7 +33,7 @@ export class LanguageService {
         'ngInject';
     }
 
-    private isoLangs: ISOLangMap = require('./resource/languages');
+    private isoLangs: IsoLangMap = require('./resource/languages');
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);

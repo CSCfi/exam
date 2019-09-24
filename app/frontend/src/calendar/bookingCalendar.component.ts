@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
+import * as fc from 'fullcalendar';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { CalendarService, Room } from './calendar.service';
@@ -39,8 +40,8 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
     },
     controller: class BookingCalendarController implements angular.IComponentController {
 
-        onRefresh: (_: { start: string, callback: () => void }) => void;
-        onEventSelected: (_: { start: string, end: string }) => void;
+        onRefresh: (_: { start: string; callback: () => void }) => void;
+        onEventSelected: (_: { start: string; end: string }) => void;
         room: Room;
         minDate: moment.Moment;
         maxDate: moment.Moment;
@@ -57,8 +58,11 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            const self = this;
+            // This this-assignment is ugly but I have no idea how else we can get hold of angular scope from 
+            // fullcalendar's jquery context. So disabling linting for it.
+            const self = this; // eslint-disable-line
             let selectedEvent;
+
             this.defaultDate = moment();
             this.$rootScope.$on('$localeChangeSuccess', () => {
                 this.calendarConfig.buttonText.today = this.$translate.instant('sitnet_today');
@@ -93,10 +97,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 },
                 customButtons: {
                     myCustomButton: {
-                        text: _.capitalize(moment().locale(this.$translate.use()).format('MMMM YYYY')),
-                        click: function () {
-
-                        }
+                        text: _.capitalize(moment().locale(this.$translate.use()).format('MMMM YYYY'))
                     }
                 },
                 events: (start, end, timezone, callback: () => void) => {
@@ -106,9 +107,10 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 viewRender: (view) => {
                     this.defaultDate = view.start;
                 },
-                eventClick: function (event) {
+                // Have to use old-style function to have 'this' pointing to the DOM element instead of angular context
+                eventClick: function (event: fc.EventObject) {
                     if (event.availableMachines > 0) {
-                        self.onEventSelected({ start: event.start, end: event.end });
+                        self.onEventSelected({ start: event.start as string, end: event.end as string });
                         if (selectedEvent) {
                             $(selectedEvent).css('background-color', '#A6E9B2');
                         }
@@ -118,18 +120,18 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                         $(this).css('background-color', '#92C3E4');
                     }
                 },
-                eventMouseover: function (event, jsEvent, view) {
+                eventMouseover: function (event) {
                     if (!event.selected && event.availableMachines > 0) {
                         $(this).css('cursor', 'pointer');
                         $(this).css('background-color', '#3CA34F');
                     }
                 },
-                eventMouseout: function (event, jsEvent, view) {
+                eventMouseout: function (event) {
                     if (!event.selected && event.availableMachines > 0) {
                         $(this).css('background-color', '#A6E9B2');
                     }
                 },
-                eventRender: (event, element, view) => {
+                eventRender: (event, element) => {
                     if (event.availableMachines > 0) {
                         element.attr('title', this.$translate.instant('sitnet_new_reservation') + ' ' +
                             event.start.format('HH:mm') + ' - ' + event.end.format('HH:mm'));

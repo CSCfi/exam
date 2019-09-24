@@ -41,8 +41,8 @@ export class TeacherDashboardService {
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam) {
         const dates = exam.examinationDates.map(es => es.date);
-        exam.examActiveStartDate = Math.min.apply(Math, dates);
-        exam.examActiveEndDate = Math.max.apply(Math, dates);
+        exam.examActiveStartDate = Math.min(...dates);
+        exam.examActiveEndDate = Math.max(...dates);
     }
 
     populate(scope) {

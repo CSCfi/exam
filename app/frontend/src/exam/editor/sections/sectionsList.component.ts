@@ -76,7 +76,7 @@ export const SectionsListComponent: ng.IComponentOptions = {
             if (from >= 0 && to >= 0 && from !== to) {
                 this.$http.put(this.Exam.getResource(`/app/exams/${this.exam.id}/reorder`, this.collaborative),
                     { from: from, to: to }).then(
-                        resp => {
+                        () => {
                             this.updateSectionIndices();
                             toast.info(this.$translate.instant('sitnet_sections_reordered'));
                         }).catch(resp => toast.error(resp.data));

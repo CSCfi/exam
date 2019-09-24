@@ -26,7 +26,7 @@ export const QuestionReviewComponent: angular.IComponentOptions = {
     },
     controller: class QuestionReviewControllers implements angular.IComponentController {
         review: QuestionReview;
-        onSelection: (_: { id: number, selected: boolean }) => any;
+        onSelection: (_: { id: number; selected: boolean }) => any;
 
         constructor(private $sce: angular.ISCEService,
             private QuestionReview: QuestionReviewService,

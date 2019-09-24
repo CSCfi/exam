@@ -13,10 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import * as ng from 'angular';
 
-export default function run($templateCache: angular.ITemplateCacheService) {
+export default function run($templateCache: ng.ITemplateCacheService) {
     'ngInject';
     // This is necessary because angular can't find the bundled uib-template unless added to template cache
-    $templateCache.put('uib/template/datepickerPopup/popup.html', require('./date/template/uibPopupOverride.html'));
+    $templateCache.put(
+        'uib/template/datepickerPopup/popup.html',
+        // eslint-disable-next-line
+        require('./date/template/uibPopupOverride.html')
+    );
 }

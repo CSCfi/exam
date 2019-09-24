@@ -81,7 +81,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
         private saveEvaluation = (answer: ReviewQuestion) => {
-            return new Promise<void>((resolve, _) => {
+            return new Promise<void>((resolve) => {
                 answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
                 this.Assessment.saveEssayScore(answer).then(() => {
                     toast.info(this.$translate.instant('sitnet_graded'));

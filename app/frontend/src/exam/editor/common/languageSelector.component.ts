@@ -24,7 +24,7 @@ export const LanguageSelectorComponent: angular.IComponentOptions = {
         exam: '<',
         collaborative: '<'
     },
-    controller: class LanguageSelectorController implements angular.IComponentController {
+    controller: class LanguageSelectorController implements angular.IComponentController, angular.IOnInit {
         exam: Exam;
         collaborative: boolean;
 

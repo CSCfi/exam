@@ -23,7 +23,6 @@ require('./basic/examOwnerSelector.component');
 
 require('./basic/softwareSelector.component');
 
-require('./common/coursePicker.service');
 require('./common/coursePicker.component.ts');
 require('./common/languageSelector.component.ts');
 

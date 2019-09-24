@@ -41,7 +41,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         lotteryOn: boolean;
         onDelete: (_: { sectionQuestion: ExamSectionQuestion }) => any;
         onUpdate: () => any;
-        parentCtrl: { collaborative: boolean, section: ExamSection, examId: number };
+        parentCtrl: { collaborative: boolean; section: ExamSection; examId: number };
 
         constructor(
             private $http: ng.IHttpService,

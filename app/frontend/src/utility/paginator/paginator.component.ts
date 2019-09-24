@@ -39,8 +39,6 @@ export const PaginatorComponent: angular.IComponentOptions = {
         pageCount = 0;
         onSelectPage: (_: { page: number }) => any;
 
-        constructor() { }
-
         $onChanges(props: IOnChangesObject) {
             if (props.items && _.isArray(props.items.currentValue)) {
                 this.pageCount = Math.ceil(this.items.length / this.pageSize) - 1;

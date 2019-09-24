@@ -3,6 +3,8 @@ const path = require('path');
 const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 /**
  * Base configuration object for Webpack
@@ -32,7 +34,10 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
+                use: [
+                    { loader: 'ng-annotate-loader' },
+                    { loader: 'ts-loader', options: { transpileOnly: true } }
+                ]
             },
             {
                 test: /\.js$/,
@@ -55,6 +60,10 @@ const config = {
         ]
     },
     plugins: [
+        new ForkTsCheckerWebpackPlugin({
+            eslint: true
+        }),
+        new ForkTsCheckerNotifierWebpackPlugin({ title: 'TypeScript', excludeWarnings: false }),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',

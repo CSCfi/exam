@@ -37,7 +37,7 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
     controller: class AttachmentSelectorController implements angular.IComponentController {
         close: (r: FileResult) => void;
         dismiss: (r: CancelResult) => void;
-        resolve: { isTeacherModal: boolean, title: string };
+        resolve: { isTeacherModal: boolean; title: string };
         title: string;
         isTeacherModal: boolean;
         maxFileSize: number;

@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Course, Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
 
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
@@ -35,7 +35,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         exam: Exam;
         collaborative: boolean;
         anonymousReviewEnabled: boolean;
-        onUpdate: (_: { props: { code: string | null, name: string | null, scaleChange: boolean } }) => any;
+        onUpdate: (_: { props: { code: string | null; name: string | null; scaleChange: boolean } }) => any;
         onNextTabSelected: () => any;
 
         gradeScaleSetting: { overridable: boolean };
@@ -96,7 +96,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             });
         }
 
-        onCourseChange = (course: Course) => {
+        onCourseChange = () => {
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
             this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: false } });
@@ -168,7 +168,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     isTeacherModal: () => true
                 }
             }).result.then((data) => {
-                let url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
+                const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
                 this.Files.upload(url,
                     data.attachmentFile, { examId: this.exam.id }, this.exam);
             });
