@@ -80,7 +80,7 @@ export class EnrolmentService {
         this.$http.get(this.getResource(`exam/${examId}`, collaborative)).then(
             (resp: ng.IHttpResponse<ExamEnrolment[]>) => {
                 deferred.resolve(resp.data);
-            }).catch((err: ng.IHttpResponse<any>) => deferred.reject());
+            }).catch(() => deferred.reject());
         return deferred.promise;
     }
 

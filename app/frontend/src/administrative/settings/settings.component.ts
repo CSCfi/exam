@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as toast from 'toastr';
+
 
 export interface AppConfig {
     eula: string;
@@ -29,7 +29,7 @@ export interface AppConfig {
     maxFileSize: number;
     reservationWindowSize: number;
     reviewDeadline: number;
-    roles: { ADMIN: string[], TEACHER: string[], STUDENT: string[] };
+    roles: { ADMIN: string[]; TEACHER: string[]; STUDENT: string[] };
     supportsMaturity: boolean;
     supportsPrintouts: boolean;
 }

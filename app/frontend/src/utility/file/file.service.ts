@@ -140,8 +140,8 @@ export class FileService {
         }
         const fd = new FormData();
         fd.append('file', file);
-        for (let k in params) {
-            if (params.hasOwnProperty(k)) {
+        for (const k in params) {
+            if (Object.prototype.hasOwnProperty.call(params, k)) {
                 fd.append(k, params[k]);
             }
         }

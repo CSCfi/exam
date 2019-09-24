@@ -83,7 +83,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         switchToPublishSettings = () => this.activeTab = 3;
 
-        examUpdated = (props: { code: string, name: string, scaleChange: boolean }) => {
+        examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
             this.updateTitle(props.code, props.name);
             if (props.scaleChange) {
                 // Propagate a change so that children (namely auto eval component) can act based on scale change

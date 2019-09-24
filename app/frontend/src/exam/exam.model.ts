@@ -143,13 +143,13 @@ export interface ExamImpl {
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
-    examFeedback: { comment: string, feedbackStatus: boolean };
+    examFeedback: { comment: string; feedbackStatus: boolean };
     grade: Grade;
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
     additionalInfo: string;
-    examInspections: { user: User, ready: boolean }[];
+    examInspections: { user: User; ready: boolean }[];
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object

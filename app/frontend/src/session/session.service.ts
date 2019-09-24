@@ -66,7 +66,7 @@ export class SessionService {
         private $timeout: angular.ITimeoutService,
         private $uibModal: uib.IModalService,
         private $window: angular.IWindowService,
-        private tmhDynamicLocaleCache: { get: (k: string) => any, put: (k: string, v: any) => void },
+        private tmhDynamicLocaleCache: { get: (k: string) => any; put: (k: string, v: any) => void },
         private tmhDynamicLocale: adl.tmh.IDynamicLocale) {
         'ngInject';
     }
@@ -249,7 +249,7 @@ export class SessionService {
             // Locale cache already loaded
             this.tmhDynamicLocale.set(lang);
         } else {
-            let inject = k => this.tmhDynamicLocaleCache.put(k, angular.injector(['ngLocale']).get('$locale'));
+            const inject = k => this.tmhDynamicLocaleCache.put(k, angular.injector(['ngLocale']).get('$locale'));
 
             await import('angular-i18n/angular-locale_fi');
             inject('fi');
@@ -295,17 +295,17 @@ export class SessionService {
                 if (resp.data === 'alarm') {
                     toastr.warning(this.$translate.instant('sitnet_continue_session'),
                         this.$translate.instant('sitnet_session_will_expire_soon'), {
-                            timeOut: 0,
-                            preventDuplicates: true,
-                            onclick: () => {
-                                this.$http.put('/app/extendSession', {})
-                                    .then(() => {
-                                        toastr.info(this.$translate.instant('sitnet_session_extended'),
-                                            '', { timeOut: 1000 });
-                                    })
-                                    .catch(angular.noop);
-                            }
-                        });
+                        timeOut: 0,
+                        preventDuplicates: true,
+                        onclick: () => {
+                            this.$http.put('/app/extendSession', {})
+                                .then(() => {
+                                    toastr.info(this.$translate.instant('sitnet_session_extended'),
+                                        '', { timeOut: 1000 });
+                                })
+                                .catch(angular.noop);
+                        }
+                    });
                 } else if (resp.data === 'no_session') {
                     if (this._scheduler) {
                         this.$interval.cancel(this._scheduler);
@@ -341,7 +341,7 @@ export class SessionService {
             resolve: {
                 user: () => user
             }
-        }).result.then((role: { name: string, icon: string, displayName: string }) => {
+        }).result.then((role: { name: string; icon: string; displayName: string }) => {
             this.$http.put(`/app/users/${user.id}/roles/${role.name}`, {}).then(() => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';

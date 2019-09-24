@@ -12,15 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import 'moment-timezone';
 
 import * as angular from 'angular';
 import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
 import { IQService, IHttpService, IHttpResponse } from 'angular';
 
 interface Reservation {
     machine?: {
-        room: { localTimezone: string },
+        room: { localTimezone: string };
     };
     externalReservation?: {
         roomTz: string;

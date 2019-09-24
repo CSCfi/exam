@@ -69,7 +69,7 @@ export const CalendarComponent: ng.IComponentOptions = {
         limitations = {};
         openingHours: any[];
         organisations: any[];
-        reservation: { room: string, start: moment.Moment, end: moment.Moment, time: string };
+        reservation: { room: string; start: moment.Moment; end: moment.Moment; time: string };
         rooms: FilteredRoom[] = [];
         exceptionHours: any[];
         loader = {
@@ -80,7 +80,7 @@ export const CalendarComponent: ng.IComponentOptions = {
         reservationWindowEndDate: moment.Moment;
         reservationWindowSize: number;
         selectedRoom: FilteredRoom | undefined;
-        selectedOrganisation: { _id: string, name: string, filtered: boolean };
+        selectedOrganisation: { _id: string; name: string; filtered: boolean };
 
         constructor(
             private $http: ng.IHttpService,
@@ -114,7 +114,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                                 this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
                             });
                     }
-                }).catch(resp => ng.noop);
+                }).catch(ng.noop);
             const url = this.isCollaborative ?
                 `/integration/iop/exams/${this.$routeParams.id}/info` :
                 `/app/student/exam/${this.$routeParams.id}/info`;
@@ -375,7 +375,7 @@ export const CalendarComponent: ng.IComponentOptions = {
             ).catch(ng.noop).finally(() => this.confirming = false);
         }
 
-        setOrganisation(org: { _id: string, name: string, facilities: FilteredRoom[], filtered: boolean }) {
+        setOrganisation(org: { _id: string; name: string; facilities: FilteredRoom[]; filtered: boolean }) {
             this.organisations.forEach(o => o.filtered = false);
             org.filtered = true;
             this.selectedOrganisation = org;
