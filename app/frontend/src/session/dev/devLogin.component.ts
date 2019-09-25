@@ -49,8 +49,8 @@ export const DevLoginComponent: angular.IComponentOptions = {
     controller: class DevLoginController {
         onLoggedIn: ({ user: User }) => void;
         credentials: {
-            username: string,
-            password: string
+            username: string;
+            password: string;
         } = { username: '', password: '' };
 
         constructor(private Session: SessionService) {

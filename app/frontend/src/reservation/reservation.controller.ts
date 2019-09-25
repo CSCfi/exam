@@ -93,8 +93,8 @@ export class ReservationController implements angular.IComponentController {
         const params: any = angular.copy(this.selection);
         if (this.somethingSelected(params)) {
             // have to clear empty strings completely
-            for (let k in params) {
-                if (!params.hasOwnProperty(k)) {
+            for (const k in params) {
+                if (!Object.prototype.hasOwnProperty.call(params, k)) {
                     continue;
                 }
                 if (params[k] === '' || params[k] === null) {
@@ -167,7 +167,7 @@ export class ReservationController implements angular.IComponentController {
 
     private initOptions() {
         this.$http.get('/app/reservations/students')
-            .then((resp: angular.IHttpResponse<{ id: number, name: string }[]>) => {
+            .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                 const students = this.$filter('orderBy')(resp.data, ['lastName', 'firstName']);
                 this.studentOptions = students.map(s => {
                     return { id: s.id, value: s, label: s.name };
@@ -180,7 +180,7 @@ export class ReservationController implements angular.IComponentController {
 
         if (this.isAdminView()) {
             this.$http.get('/app/reservations/teachers')
-                .then((resp: angular.IHttpResponse<{ id: number, name: string }[]>) => {
+                .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                     const teachers = this.$filter('orderBy')(resp.data, ['lastName', 'firstName']);
                     this.teacherOptions = teachers.map(t => {
                         return { id: t.id, value: t, label: t.name };
@@ -188,13 +188,13 @@ export class ReservationController implements angular.IComponentController {
                 }).catch(resp => toast.error(resp.data));
 
             this.$http.get('/app/reservations/examrooms')
-                .then((resp: angular.IHttpResponse<{ id: number, name: string }[]>) => {
+                .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                     this.rooms = this.$filter('orderBy')(resp.data, 'name');
                     this.roomOptions = this.rooms.map(r => {
                         return { id: r.id, value: r, label: r.name };
                     });
                     this.$http.get('/app/machines')
-                        .then((resp: angular.IHttpResponse<{ id: number, name: string }[]>) => {
+                        .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                             this.machines = this.$filter('orderBy')(resp.data, 'name');
                             this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                         });
@@ -206,14 +206,14 @@ export class ReservationController implements angular.IComponentController {
 
     protected initExamOptions(): void {
         this.$http.get('/app/reservations/exams')
-            .then((resp: angular.IHttpResponse<{ id: string, name: string }[]>) => {
+            .then((resp: angular.IHttpResponse<{ id: string; name: string }[]>) => {
                 return resp.data;
             })
             .then(exams => {
                 if (this.isInteroperable && this.isAdminView()) {
                     // Load also collaborative exams.
                     return this.$http.get('/integration/iop/exams')
-                        .then((resp: angular.IHttpResponse<{ id: string, name: string, externalRef: string }[]>) => {
+                        .then((resp: angular.IHttpResponse<{ id: string; name: string; externalRef: string }[]>) => {
                             return exams.concat(resp.data.map(e => {
                                 return { id: e.externalRef, name: e.name };
                             }));
@@ -273,8 +273,8 @@ export class ReservationController implements angular.IComponentController {
     }
 
     private somethingSelected(params) {
-        for (let k in params) {
-            if (!params.hasOwnProperty(k)) {
+        for (const k in params) {
+            if (!Object.prototype.hasOwnProperty.call(params, k)) {
                 continue;
             }
             if (params[k]) {

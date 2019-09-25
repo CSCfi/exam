@@ -30,8 +30,8 @@ export const CollaborativeExamParticipationsComponent: angular.IComponentOptions
         collaborative = true;
         originals: Participation[];
         participations: Participation[];
-        pageSize: Number = 10;
-        currentPage: Number = 1;
+        pageSize = 10;
+        currentPage = 1;
         filter: Filter;
 
         constructor(
@@ -48,18 +48,18 @@ export const CollaborativeExamParticipationsComponent: angular.IComponentOptions
             }).catch(angular.noop);
         }
 
-        pageSelected(page: Number) {
+        pageSelected(page: number) {
             this.currentPage = page;
         }
 
         search() {
-            let text = this.filter.text;
+            const text = this.filter.text;
             if (!text || text.length < 1) {
                 this.participations = this.originals;
                 return;
             }
             this.participations = this.originals.filter((participation: Participation) => {
-                let exam = participation.exam;
+                const exam = participation.exam;
                 return exam && exam.name && exam.name.indexOf(text) > -1;
             });
         }

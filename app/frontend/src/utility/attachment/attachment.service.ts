@@ -35,7 +35,7 @@ interface ExamWithStatement {
 
 interface AnsweredQuestion {
     id: number;
-    essayAnswer: { objectVersion: number, attachment: { fileName: string } };
+    essayAnswer: { objectVersion: number; attachment: { fileName: string } };
 }
 
 export class AttachmentService {
@@ -169,7 +169,7 @@ export class AttachmentService {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            let api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
+            const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
             api.remove({ id: exam.id },
                 () => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
@@ -222,7 +222,7 @@ export class AttachmentService {
         }
     }
 
-    downloadCollaborativeQuestionAttachment(examId: Number, sq: ExamSectionQuestion) {
+    downloadCollaborativeQuestionAttachment(examId: number, sq: ExamSectionQuestion) {
         if (sq.question.attachment.externalId) {
             this.Files.download(`/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
                 sq.question.attachment.fileName);

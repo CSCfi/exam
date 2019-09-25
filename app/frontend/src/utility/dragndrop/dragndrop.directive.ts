@@ -35,7 +35,7 @@ export class SortableDirective implements IDirective<SortableScope> {
         objects: '=',
         selection: '@selection'
     };
-    link(scope: SortableScope, element: IAugmentedJQuery, attrs: IAttributes) {
+    link(scope: SortableScope, element: IAugmentedJQuery) {
         let startIndex = -1;
         element.sortable({
             items: scope.selection,
@@ -65,7 +65,7 @@ export class SortableDirective implements IDirective<SortableScope> {
 
 export class DraggableModalDirective implements IDirective {
     restrict = 'A';
-    link = (scope: IScope, element: IAugmentedJQuery, attrs: IAttributes) => {
+    link = (scope: IScope, element: IAugmentedJQuery) => {
         element.draggable({
             revert: false,
             drag: () => element.css('height', 'auto')

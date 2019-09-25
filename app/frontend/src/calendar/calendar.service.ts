@@ -16,7 +16,6 @@ import 'moment-timezone';
 
 import * as angular from 'angular';
 import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
 import * as toastr from 'toastr';
 
 import { DateTimeService } from '../utility/date/date.service';
@@ -33,7 +32,7 @@ export interface Room {
     roomInstruction: string | null;
     roomInstructionSV: string | null;
     roomInstructionEN: string | null;
-    accessibilities: { id: number, name: string }[];
+    accessibilities: { id: number; name: string }[];
     outOfService: boolean;
     statusComment: string | null;
 }

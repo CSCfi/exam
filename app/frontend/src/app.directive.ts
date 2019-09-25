@@ -60,7 +60,7 @@ export class UniquenessValidator implements IDirective<UniquenessScope> {
             ngModel.$setValidity('uniqueness', matches.length < 2);
         };
 
-        scope.$watch('items', function (items) {
+        scope.$watch('items', function () {
             validate(ngModel.$viewValue);
         }, true);
     }
@@ -85,7 +85,7 @@ export class CkEditor implements IDirective<CkEditorScope> {
         // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
         // dysfunctional formatting gets pasted which can break the cloze test markup.
         const removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0],
+        const ck = CKEDITOR.replace(element[0] as HTMLTextAreaElement,
             { removeButtons: removals, language: this.$translate.use() });
 
         let modelValue;
@@ -144,7 +144,7 @@ export class FixedPrecision implements IDirective {
 }
 
 interface ClozeTestScope extends IScope {
-    results: Object;
+    results: Record<string, any>;
     content: any;
     editable: boolean;
 }
@@ -158,7 +158,7 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
 
     constructor(private $compile: angular.ICompileService) { }
 
-    link(scope: ClozeTestScope, element: IAugmentedJQuery, attributes: IAttributes) {
+    link(scope: ClozeTestScope, element: IAugmentedJQuery) {
         const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
         const replacement = angular.element(scope.content);
         const inputs = replacement.find('input');
@@ -335,7 +335,7 @@ export class Sort implements IDirective<SortScope> {
 
     constructor(private $timeout: angular.ITimeoutService) { }
 
-    link(scope: SortScope, element, attributes) {
+    link(scope: SortScope) {
         scope.sort = () => {
             scope.predicate = scope.by;
             scope.reverse = !scope.reverse;
@@ -360,8 +360,8 @@ export class Sort implements IDirective<SortScope> {
 // TODO: turn into a component
 interface TeacherListScope extends IScope {
     exam: {
-        examOwners: { firstName: string, lastName: string }[],
-        examInspections: { firstName: string, lastName: string }[]
+        examOwners: { firstName: string; lastName: string }[];
+        examInspections: { firstName: string; lastName: string }[];
     };
     useParent: boolean;
 }

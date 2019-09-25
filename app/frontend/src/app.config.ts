@@ -33,7 +33,10 @@ export default function configs(
     const ieHeaders = { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
     Object.assign(defaults.headers, { get: ieHeaders });
 
-    ['en', 'fi', 'sv'].forEach(l => $translateProvider.translations(l, require(`./assets/languages/locale-${l}.json`)));
+    ['en', 'fi', 'sv'].forEach(
+        // eslint-disable-next-line
+        l => $translateProvider.translations(l, require(`./assets/languages/locale-${l}.json`))
+    );
 
     $translateProvider.useSanitizeValueStrategy('');
     $translateProvider.preferredLanguage('en');
