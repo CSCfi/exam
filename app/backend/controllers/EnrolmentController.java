@@ -294,7 +294,7 @@ public class EnrolmentController extends BaseController {
             if (!enrolmentsWithFutureReservations.isEmpty()) {
                 ExamEnrolment enrolment = enrolmentsWithFutureReservations.get(0);
                 Reservation reservation = enrolment.getReservation();
-                return externalReservationHandler.removeReservations(reservation, user).thenApplyAsync(result -> {
+                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
                     enrolment.delete();
                     ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                     return ok(newEnrolment);
