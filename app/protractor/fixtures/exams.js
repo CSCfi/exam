@@ -1,13 +1,31 @@
-{
+module.exports = {
+  "exam_type": [
+    {
+      "id": 1,
+      "object_version": 1,
+      "type": "PARTIAL"
+    },
+    {
+      "id": 2,
+      "object_version": 1,
+      "type": "FINAL"
+    }
+  ],
+  "exam_execution_type": [
+    {
+      "id": 1,
+      "type": "PUBLIC"
+    }
+  ],
   "exam": [
     {
       "id": 10001,
       "created": "2017-01-01",
-      "creator_id": "app_user:0",
+      "creator_id": 10001,
       "modified": null,
       "modifier_id": null,
       "name": "Test exam 1",
-      "course_id": "course:0",
+      "course_id": 10001,
       "exam_type_id": 2,
       "instruction": null,
       "state": 1,
@@ -18,11 +36,11 @@
     {
       "id": 10002,
       "created": "2017-01-02",
-      "creator_id": "app_user:0",
+      "creator_id": 10001,
       "modified": null,
       "modifier_id": null,
       "name": "Test exam 2",
-      "course_id": "course:1",
+      "course_id": 10002,
       "exam_type_id": 2,
       "instruction": null,
       "state": 1,
@@ -33,12 +51,12 @@
   ],
   "exam_owner": [
     {
-      "exam_id": "exam:0",
-      "user_id": "app_user:0"
+      "exam_id": 10001,
+      "user_id": 10001
     },
     {
-      "exam_id": "exam:1",
-      "user_id": "app_user:0"
+      "exam_id": 10002,
+      "user_id": 10001
     }
   ]
-}
+};

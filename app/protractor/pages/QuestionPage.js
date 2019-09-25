@@ -1,10 +1,10 @@
-var QuestionPage = function () {
+class QuestionPage {
 
-
-    this.findQuestions = function (index) {
+    findQuestions(index) {
         return element.all(by.repeater('question in filteredQuestions')).get(index);
-    };
+    }
 
 
-};
+}
+
 module.exports = QuestionPage;

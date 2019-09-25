@@ -1,4 +1,38 @@
-{
+module.exports = {
+  "role": [
+    {
+      "id": 1,
+      "name": "ADMIN",
+      "object_version": 1
+    },
+    {
+      "id": 2,
+      "name": "STUDENT",
+      "object_version": 1
+    },
+    {
+      "id": 3,
+      "name": "TEACHER",
+      "object_version": 1
+    }
+  ],
+  "language": [
+    {
+      "code": "fi",
+      "name": "suomi",
+      "object_version": 1
+    },
+    {
+      "code": "sv",
+      "name": "svenska",
+      "object_version": 1
+    },
+    {
+      "code": "en",
+      "name": "English",
+      "object_version": 1
+    }
+  ],
   "app_user": [
     {
       "id": 10001,
@@ -25,16 +59,16 @@
   ],
   "app_user_role": [
     {
-      "app_user_id": "app_user:0",
-      "role_id": 3
+      "app_user_id": 10001,
+      "role_id": 3,
     },
     {
-      "app_user_id": "app_user:1",
-      "role_id": 2
+      "app_user_id": 10002,
+      "role_id": 2,
     },
     {
-      "app_user_id": "app_user:1",
-      "role_id": 3
+      "app_user_id": 10002,
+      "role_id": 3,
     }
   ]
-}
+};

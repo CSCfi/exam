@@ -1,4 +1,4 @@
-{
+module.exports = {
   "organisation": [
     {
       "id": 10001,
@@ -17,4 +17,4 @@
       "parent_id": null
     }
   ]
-}
+};
