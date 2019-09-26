@@ -221,6 +221,8 @@
   "sitnet_teacher": "Examiner",
   "sitnet_teachers": "Examiners",
   "sitnet_teachers_comment": "Exam feedback",
+  "sitnet_teachers_comment_read": "Read",
+  "sitnet_teachers_comment_notread": "Not read",
   "sitnet_today": "Today",
   "sitnet_toolbar_calendar": "Booking calendar",
   "sitnet_toolbar_essay_question": "Essay question",
