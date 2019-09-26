@@ -545,7 +545,6 @@
   "sitnet_at_least_one_role_required": "Rollen kan inte tas bort. Användaren måste ha åtminstone en roll.",
   "sitnet_copy": "Kopiera",
   "sitnet_copy_question": "Kopiera frågan?",
-  "sitnet_get_answer_attachments": "Sök efter bilagor till svar.",
   "sitnet_load_answer_attachments": "Ladda upp bilagor till tentsvar",
   "sitnet_no_attachments_to_archive": "Inga bilagor hittades.",
   "sitnet_no_name": "UTAN NAMN",
