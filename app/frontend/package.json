@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -63,6 +63,7 @@
     "@types/moment-timezone": "^0.5.9",
     "@types/node": "^8.10.42",
     "@types/toastr": "^2.1.36",
+    "acorn": "^6.3.0",
     "angular-mocks": "^1.7.7",
     "awesome-typescript-loader": "^5.2.0",
     "babel-loader": "^8.0.5",
