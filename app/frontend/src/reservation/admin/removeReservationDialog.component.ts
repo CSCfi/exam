@@ -26,11 +26,11 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
     },
     controller: class RemoveReservationDialogController implements angular.IComponentController {
 
-        resolve: { reservation: { id: number, externalUserRef: string, externalRef: string } };
+        resolve: { reservation: { id: number; externalUserRef: string; externalRef: string } };
         close: (_: { $value: string }) => void;
         dismiss: (_: { $value: string }) => void;
 
-        reservation: { id: number, externalUserRef: string, externalRef: string };
+        reservation: { id: number; externalUserRef: string; externalRef: string };
         message = { text: undefined };
 
         constructor(
