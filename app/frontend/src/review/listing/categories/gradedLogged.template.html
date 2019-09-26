@@ -70,6 +70,8 @@
                     reverse="$ctrl.data.reverse"></th>
                 <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.predicate"
                     reverse="$ctrl.data.reverse"></th>
+                <th sort by="exam.examFeedback.feedbackStatus" text="sitnet_feedback" predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"></th>
                 <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.predicate"
                     reverse="$ctrl.data.reverse"></th>
             </tr>
@@ -107,6 +109,10 @@
                 <td class="table-column-15">{{review.displayedGrade}}</td>
                 <td class="table-column-10">
                     {{ review.displayedCredit }}
+                </td>
+                <td class="table-column-10">
+                    <span ng-if="review.exam.examFeedback.feedbackStatus">{{'sitnet_teachers_comment_read' | translate}}</span>
+                    <span ng-if="!review.exam.examFeedback.feedbackStatus">{{'sitnet_teachers_comment_notread' | translate}}</span>
                 </td>
                 <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
             </tr>
