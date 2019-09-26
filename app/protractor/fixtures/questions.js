@@ -1,11 +1,11 @@
-{
+module.exports = {
   "question": [
     {
       "id": 10001,
       "created": null,
-      "creator_id": "app_user:0",
+      "creator_id": 10001,
       "modified": null,
-      "modifier_id": "app_user:0",
+      "modifier_id": 10001,
       "question": "Test multichoice question",
       "shared": false,
       "default_answer_instructions": null,
@@ -22,9 +22,9 @@
     {
       "id": 10002,
       "created": null,
-      "creator_id": "app_user:0",
+      "creator_id": 10001,
       "modified": null,
-      "modifier_id": "app_user:0",
+      "modifier_id": 10001,
       "question": "Test essee question",
       "shared": false,
       "default_answer_instructions": null,
@@ -41,9 +41,9 @@
     {
       "id": 10003,
       "created": null,
-      "creator_id": "app_user:0",
+      "creator_id": 10001,
       "modified": null,
-      "modifier_id": "app_user:0",
+      "modifier_id": 10001,
       "question": "Test weighted multichoice question",
       "shared": false,
       "default_answer_instructions": null,
@@ -64,7 +64,7 @@
       "option": "Option 1",
       "correct_option": false,
       "default_score": null,
-      "question_id": "question:0",
+      "question_id": 10001,
       "object_version": 1
     },
     {
@@ -72,7 +72,7 @@
       "option": "Option 2",
       "correct_option": false,
       "default_score": null,
-      "question_id": "question:0",
+      "question_id": 10001,
       "object_version": 1
     },
     {
@@ -80,7 +80,7 @@
       "option": "Option 3",
       "correct_option": false,
       "default_score": null,
-      "question_id": "question:0",
+      "question_id": 10001,
       "object_version": 1
     },
     {
@@ -88,7 +88,7 @@
       "option": "Option 4",
       "correct_option": true,
       "default_score": null,
-      "question_id": "question:0",
+      "question_id": 10001,
       "object_version": 1
     },
     {
@@ -96,7 +96,7 @@
       "option": "Wrong option",
       "correct_option": false,
       "default_score": -1,
-      "question_id": "question:2",
+      "question_id": 10003,
       "object_version": 1
     },
     {
@@ -104,7 +104,7 @@
       "option": "Right option 1",
       "correct_option": false,
       "default_score": 1,
-      "question_id": "question:2",
+      "question_id": 10003,
       "object_version": 1
     },
     {
@@ -112,22 +112,22 @@
       "option": "Right option 2",
       "correct_option": false,
       "default_score": 1,
-      "question_id": "question:2",
+      "question_id": 10003,
       "object_version": 1
     }
   ],
   "question_owner": [
     {
-      "user_id": "app_user:0",
-      "question_id": "question:0"
+      "user_id": 10001,
+      "question_id": 10001
     },
     {
-      "user_id": "app_user:0",
-      "question_id": "question:1"
+      "user_id": 10001,
+      "question_id": 10002
     },
     {
-      "user_id": "app_user:0",
-      "question_id": "question:2"
+      "user_id": 10001,
+      "question_id": 10003
     }
   ]
-}
+};
