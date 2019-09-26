@@ -39,9 +39,10 @@ describe('Exam teacher', function () {
 
         await examEditor.selectType(1);
         await examEditor.selectCourse('IBU2LK002');
+        await examEditor.setExamName('Test Exam');
+
         await examEditor.continueToExam();
 
-        await examEditor.setExamName('Test Exam');
         await examEditor.changeTab(1); // Questions tab
 
         let section = examEditor.findSection(0);

@@ -13,7 +13,7 @@ let fixture = new Fixture();
 module.exports = {
     baseUrl: baseUrl,
     SELENIUM_PROMISE_MANAGER: false,
-    specs: ['e2e/**/teacher-exam-spec.js'],
+    specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
     allScriptsTimeout: 50000,
     jasmineNodeOpts: {

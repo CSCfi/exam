@@ -37,20 +37,22 @@ class ExamEditor {
     }
 
     async setInstructions(instruction) {
-        element(by.model('$ctrl.exam.instruction')).sendKeys(instruction);
+        await element(by.model('$ctrl.exam.instruction')).sendKeys(instruction);
     }
 
     async setSectionName(section, name) {
-        section.element(by.model('$ctrl.section.name')).sendKeys(name);
+        await section.element(by.model('$ctrl.section.name')).sendKeys(name);
     }
 
     async selectType(type) {
-        await element(by.model('$ctrl.type'))
-            .all(by.css('option')).get(type).click();
+        const options = element.all(by.options('type.name | translate for type in $ctrl.executionTypes'));
+        const option = options.get(type);
+        await option.click();
+        expect(browser.getCurrentUrl()).toContain('/select/course');
     }
 
     async selectCourse(code) {
-        element(by.model('$ctrl.exam.course.code')).sendKeys(code);
+        await element(by.model('$ctrl.filter.code')).sendKeys(code);
         element.all(by.repeater('match in matches track by $index')).first().click();
     }
 

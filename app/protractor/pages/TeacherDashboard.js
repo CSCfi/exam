@@ -1,7 +1,7 @@
 class TeacherDashboard {
 
     checkTitle(header) {
-        const el = element(by.css('.user-name > .user-data'));
+        const el = element(by.css('.student-enroll-title'));
         expect(el.getText()).toContain(header);
     }
 

@@ -28,13 +28,10 @@ class Fixture {
                 values: Object.values(d)
             };
         });
-    };
+    }
 
-    async loadFixtures(options) {
-        const files = [courses, organisations, questions, exams];
-        if (options.userData) {
-            files.unshift(users);
-        }
+    async loadFixtures() {
+        const files = [users, courses, organisations, questions, exams];
         const data = files.reduce((a, b) => _.merge(a, b), {});
         const relations = Object.keys(data).map(k => ({ 'table': k, 'data': data[k] }));
         const queries = relations
@@ -47,14 +44,12 @@ class Fixture {
                 console.log(err.stack)
             }
         }
-    };
+    }
 
-    async clearFixtures(options) {
-        const tables = ['question_owner', 'question', 'exam_owner', 'exam', 'exam_execution_type', 'exam_type',
-            'course', 'organisation'];
-        if (options.userData) {
-            tables.push(...['app_user_role', 'role', 'app_user', 'language']);
-        }
+    async clearFixtures() {
+        const tables = ['question_owner', 'question', 'exam_owner', 'exam', 'grade', 'grade_scale',
+            'exam_execution_type', 'exam_type', 'course', 'organisation', 'app_user_role', 'role', 'app_user',
+            'language'];
         for (const t of tables) {
             try {
                 await this.pool.query(`truncate table ${t} cascade`);

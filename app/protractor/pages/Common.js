@@ -4,16 +4,15 @@ const Logs = require('protractor-browser-logs');
 
 class Common {
 
-    constructor(browser) {
-        this.browser = browser;
-        this.logs = Logs(this.browser);
+    constructor() {
+        this.logs = Logs(browser);
         this.loginPage = new LoginPage();
         this.fixture = new Fixture();
     }
 
     async beforeEach(username, password, role) {
-        await this.fixture.clearFixtures({ userData: true });
-        await this.fixture.loadFixtures({ userData: true });
+        await this.fixture.clearFixtures();
+        await this.fixture.loadFixtures();
         this.logs.ignore(entry => {
             console.log('LOG: ' + entry.message);
             return entry.message.indexOf('401 (Unauthorized)') !== -1;
@@ -38,7 +37,7 @@ class Common {
 
     async waitToasters() {
         const EC = protractor.ExpectedConditions;
-        await this.browser.wait(EC.visibilityOf(element(by.css('.toast'))), 20000);
+        await browser.wait(EC.visibilityOf(element(by.css('.toast'))), 20000);
 
         await element.all(by.css('.toast')).each(toast => {
             toast.isPresent().then(function (present) {
@@ -53,7 +52,7 @@ class Common {
         });
 
         console.log('All clicked! waiting toasters to be gone...');
-        await this.browser.wait(() => {
+        await browser.wait(() => {
             return element.all(by.css('.toast')).count()
                 .then(function (count) {
                     return count === 0;

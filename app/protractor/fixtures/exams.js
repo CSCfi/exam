@@ -14,7 +14,57 @@ module.exports = {
   "exam_execution_type": [
     {
       "id": 1,
-      "type": "PUBLIC"
+      "type": "PUBLIC",
+      "active": true
+    },
+    {
+      "id": 2,
+      "type": "PRIVATE",
+      "active": true
+    }
+  ],
+  "grade_scale": [
+    {
+      "id": 1,
+      "description": "ZERO_TO_FIVE",
+    }
+  ],
+  "grade": [
+    {
+      "id": 1,
+      "grade_scale_id": 1,
+      "name": "1",
+      "marks_rejection": false
+    },
+    {
+      "id": 2,
+      "grade_scale_id": 1,
+      "name": "2",
+      "marks_rejection": false
+    },
+    {
+      "id": 3,
+      "grade_scale_id": 1,
+      "name": "3",
+      "marks_rejection": false
+    },
+    {
+      "id": 4,
+      "grade_scale_id": 1,
+      "name": "4",
+      "marks_rejection": false
+    },
+    {
+      "id": 5,
+      "grade_scale_id": 1,
+      "name": "6",
+      "marks_rejection": false
+    },
+    {
+      "id": 6,
+      "grade_scale_id": 1,
+      "name": "0",
+      "marks_rejection": false
     }
   ],
   "exam": [

@@ -6,7 +6,7 @@ describe('Exam student login', () => {
 
     const studentDashboard = new StudentDashboard();
     const navBar = new NavBar();
-    const common = new Common(browser);
+    const common = new Common();
 
     beforeEach(async function () {
         await common.beforeEach('saulistu', 'saulistu', 'student');
