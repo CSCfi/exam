@@ -1,8 +1,7 @@
-{
+module.exports = {
   "course": [
     {
       "id": 10001,
-      "organisation_id": "organisation:0",
       "code": "810136P",
       "name": "Johdatus alkeiden perusteisiin",
       "level": null,
@@ -25,7 +24,6 @@
     },
     {
       "id": 10002,
-      "organisation_id": "organisation:0",
       "code": "811380A",
       "name": "Tietokantojen perusteet",
       "level": null,
@@ -48,7 +46,6 @@
     },
     {
       "id": 10003,
-      "organisation_id": "organisation:0",
       "code": "IBU2LK002",
       "name": "International Business",
       "level": "A",
@@ -70,4 +67,4 @@
       "end_date": null
     }
   ]
-}
+};

@@ -1,4 +1,4 @@
-let HtmlScreenshotReporter = require('../app/frontend/node_modules/protractor-jasmine2-screenshot-reporter');
+let HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
 let Fixture = require('./fixtures/Fixture');
 
 // Take screenshot for every failed test case.
@@ -9,8 +9,10 @@ let reporter = new HtmlScreenshotReporter({
 });
 let baseUrl = 'http://localhost:9000';
 let fixture = new Fixture();
+
 module.exports = {
     baseUrl: baseUrl,
+    SELENIUM_PROMISE_MANAGER: false,
     specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
     allScriptsTimeout: 50000,
@@ -29,6 +31,7 @@ module.exports = {
         // Disable animations so e2e tests run more quickly
         console.log("Node version " + process.version);
         let disableNgAnimate = function () {
+            // eslint-disable-next-line
             angular.module('disableNgAnimate', []).run(['$animate', function ($animate) {
                 $animate.enabled(false);
             }]);
