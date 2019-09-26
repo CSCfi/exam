@@ -280,7 +280,7 @@ public class ReviewController extends BaseController {
                 .idEq(id)
                 .ne("question.type", Question.Type.EssayQuestion)
                 .findOneOrEmpty();
-        if (oeq.isEmpty()) {
+        if (!oeq.isPresent()) {
             return notFound("question not found");
         }
         ExamSectionQuestion question = oeq.get();
@@ -309,7 +309,7 @@ public class ReviewController extends BaseController {
                 .idEq(id)
                 .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
                 .findOneOrEmpty();
-        if (option.isEmpty()) {
+        if (!option.isPresent()) {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();

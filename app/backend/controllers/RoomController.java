@@ -190,7 +190,7 @@ public class RoomController extends BaseController {
         }
         Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing)
                 .findOneOrEmpty();
-        if (room.isEmpty()) {
+        if (!room.isPresent()) {
             return wrapAsPromise(notFound());
         }
         existing.setCity(address.getCity());

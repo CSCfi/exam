@@ -95,7 +95,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (url.isEmpty()) {
+        if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -117,7 +117,7 @@ public class CollaborativeExamController extends CollaborationController {
     private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
         return findCollaborativeExam(id).map(ce -> downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (result.isEmpty()) {
+                    if (!result.isPresent()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
@@ -154,7 +154,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> createExam(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (url.isEmpty()) {
+        if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
         WSRequest wsRequest = wsClient.url(url.get().toString());

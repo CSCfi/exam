@@ -149,7 +149,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         Optional<ExamMachine> machine =
                 calendarHandler.getRandomMachine(room, null, start, end, Collections.emptyList());
-        if (machine.isEmpty()) {
+        if (!machine.isPresent()) {
             return forbidden("sitnet_no_machines_available");
         }
         // We are good to go :)
@@ -278,7 +278,7 @@ public class ExternalCalendarController extends CalendarController {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
             return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
-                if (err.isEmpty()) {
+                if (!err.isPresent()) {
                     return created(root.get("id"));
                 }
                 return internalServerError();
@@ -386,7 +386,7 @@ public class ExternalCalendarController extends CalendarController {
         if (oldReservation != null) {
             if (oldReservation.getExternalReservation() != null) {
                 return externalReservationHandler.removeExternalReservation(oldReservation).thenApply(err -> {
-                    if (err.isEmpty()) {
+                    if (!err.isPresent()) {
                         Ebean.delete(oldReservation);
                         postProcessRemoval(reservation, enrolment, user, machineNode);
                     }
