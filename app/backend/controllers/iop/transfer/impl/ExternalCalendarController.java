@@ -104,6 +104,13 @@ public class ExternalCalendarController extends CalendarController {
                 + String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
     }
 
+    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
+            throws MalformedURLException {
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
+                + String.format("/api/organisations/%s/facilities/%s/reservations/%s/force",
+                orgRef, facilityRef, reservationRef));
+    }
+
     private Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
         if (node.isArray()) {
@@ -168,8 +175,9 @@ public class ExternalCalendarController extends CalendarController {
         return created(reservation, pp);
     }
 
+    // Initiated by originator of reservation (the student)
     @SubjectNotPresent
-    public Result removeProvidedReservation(String ref) {
+    public Result acknowledgeReservationRemoval(String ref) {
         Reservation reservation = Ebean.find(Reservation.class)
                 .fetch("machine")
                 .fetch("machine.room")
@@ -184,6 +192,32 @@ public class ExternalCalendarController extends CalendarController {
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
+        reservation.delete();
+        return ok();
+    }
+
+    // Initiated by administrator of organisation where reservation takes place
+    @SubjectNotPresent
+    public Result acknowledgeReservationRevocation(String ref) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.externalReservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("reservation.externalRef", ref)
+                .findOne();
+        if (enrolment == null) {
+            return notFound(String.format("No reservation with ref %s.", ref));
+        }
+
+        Reservation reservation = enrolment.getReservation();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return forbidden("sitnet_reservation_in_effect");
+        }
+        enrolment.setReservation(null);
+        enrolment.update();
         reservation.delete();
         return ok();
     }
@@ -246,7 +280,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         //TODO: See if this offset thing works as intended
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
                 .fetch("exam.examSections.examMaterials")
@@ -294,8 +328,45 @@ public class ExternalCalendarController extends CalendarController {
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
-        return externalReservationHandler.removeReservations(reservation, user);
+        return externalReservationHandler.removeReservation(reservation, user);
     }
+
+    @Restrict(@Group("ADMIN"))
+    public CompletionStage<Result> requestReservationRevocation(String ref, Http.Request request)
+            throws MalformedURLException {
+        Optional<Reservation> or = Ebean.find(Reservation.class)
+                .where()
+                .isNotNull("machine")
+                .eq("externalRef", ref)
+                .isNull("enrolment")
+                .findOneOrEmpty();
+        if (or.isEmpty()) {
+            return CompletableFuture.supplyAsync(() -> notFound(String.format("No reservation with ref %s.", ref)));
+        }
+
+        Reservation reservation = or.get();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return CompletableFuture.supplyAsync(() -> forbidden("sitnet_reservation_in_effect"));
+        }
+        String roomRef = reservation.getMachine().getRoom().getExternalRef();
+        URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
+        WSRequest wsRequest = wsClient.url(url.toString());
+
+        Function<WSResponse, Result> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                JsonNode root = response.asJson();
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            String msg = request.body().asJson().path("msg").asText("");
+            emailComposer.composeExternalReservationCancellationNotification(reservation, msg);
+            reservation.delete();
+            return ok();
+        };
+
+        return wsRequest.delete().thenApplyAsync(onSuccess);
+    }
+
 
     @Authenticated
     @Restrict(@Group("STUDENT"))
@@ -343,7 +414,7 @@ public class ExternalCalendarController extends CalendarController {
     private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
                                                                          User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
-        final Reservation reservation = new Reservation();
+        Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
         reservation.setUser(user);
