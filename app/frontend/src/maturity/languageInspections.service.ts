@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+
 import { LanguageInspection } from './maturity.model';
+
 
 export interface QueryParams {
     text?: string;
@@ -70,4 +71,4 @@ export class LanguageInspectionService {
 
 }
 
-angular.module('app.maturity').service('LanguageInspections', LanguageInspectionService);
+angular.module('app.maturity').factory('LanguageInspections', LanguageInspectionService);

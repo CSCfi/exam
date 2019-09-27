@@ -41,6 +41,17 @@
                 {{'sitnet_speed_review' | translate}} ({{$ctrl.data.filtered.length}})
             </a>
         </div>
+        <div ng-if="!$ctrl.parentCtrl.collaborative" class="review-attachment-button review-list-speed-button marr20">
+            <a popover-placement="left" popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_exam_review_attachment_description' | translate}}" class="pointer"
+                ng-click="$ctrl.getAnswerAttachments()">
+                {{'sitnet_load_answer_attachments' | translate }}
+                <img src="Images/icon_attachment.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_attachment.png'" />
+            </a>
+
+        </div>
+
     </div>
 
     <table class="table table-striped exams-table">
