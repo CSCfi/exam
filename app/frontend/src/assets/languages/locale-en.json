@@ -547,7 +547,6 @@
   "sitnet_at_least_one_role_required": "You cannot remove the role. At least one role has to be admitted.",
   "sitnet_copy": "Copy",
   "sitnet_copy_question": "Do you want to make a copy of this question?",
-  "sitnet_get_answer_attachments": "Download attachments from the submitted but not graded exams",
   "sitnet_load_answer_attachments": "Download attachments of the questions",
   "sitnet_no_attachments_to_archive": "No attachments available",
   "sitnet_no_name": "NO NAME GIVEN",
