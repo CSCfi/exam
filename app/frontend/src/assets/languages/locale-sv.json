@@ -221,6 +221,8 @@
   "sitnet_teacher": "Lärare",
   "sitnet_teachers": "Lärare",
   "sitnet_teachers_comment": "Respons",
+  "sitnet_teachers_comment_read": "Läst",
+  "sitnet_teachers_comment_notread": "Inte läst",
   "sitnet_today": "Idag",
   "sitnet_toolbar_calendar": "Bokningskalender",
   "sitnet_toolbar_essay_question": "Essäfråga",

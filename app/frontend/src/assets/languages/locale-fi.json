@@ -221,6 +221,8 @@
   "sitnet_teacher": "Tentaattori",
   "sitnet_teachers": "Tentaattorit",
   "sitnet_teachers_comment": "Tentin palaute",
+  "sitnet_teachers_comment_read": "Luettu",
+  "sitnet_teachers_comment_notread": "Ei luettu",
   "sitnet_today": "Tänään",
   "sitnet_toolbar_calendar": "Varauskalenteri",
   "sitnet_toolbar_essay_question": "Esseekysymys",
