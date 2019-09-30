@@ -16,8 +16,8 @@ import * as ng from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../../session/session.service';
 import { Exam } from '../../../exam/exam.model';
+import { SessionService } from '../../../session/session.service';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
@@ -56,12 +56,11 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         $onInit = () => {
             const url = this.getResource(this.exam.id);
-            this.$http.get(url).then(
-                function (resp) {
-                    const examData = resp.data;
-                    const exam = examData[0].exam;
-                    //this.exam = exam;
-                }).catch(function (error) {
+            this.$http.get(url).then((resp: angular.IHttpResponse<any>) => {
+                const examData = resp.data;
+                const exam = examData[0].exam;
+                this.exam = exam;
+            }).catch(function (error) {
                 toast.error(error.data);
             });
 
@@ -92,10 +91,10 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         }
 
         getReadFeedback = () => {
-           /*return this.exam.children.filter(function (child) {
-                return child.examFeedback.feedbackStatus === true;
-           }).length;*/
-           return this.exam.children.length;
+            /*return this.exam.children.filter(function (child) {
+                 return child.examFeedback.feedbackStatus === true;
+            }).length;*/
+            return this.exam.children.length;
         }
 
         getTotalFeedback = () => {
@@ -146,12 +145,12 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             this.gradeClasses[4] = '0';
             this.gradeClasses[5] = '1';
 
-            this.gradeDistribution.push({'5': this.gradeClasses[5]})
-            this.gradeDistribution.push({'4': this.gradeClasses[4]})
-            this.gradeDistribution.push({'3': this.gradeClasses[3]})
-            this.gradeDistribution.push({'2': this.gradeClasses[2]})
-            this.gradeDistribution.push({'1': this.gradeClasses[1]})
-            this.gradeDistribution.push({'0': this.gradeClasses[0]})
+            this.gradeDistribution.push({ '5': this.gradeClasses[5] })
+            this.gradeDistribution.push({ '4': this.gradeClasses[4] })
+            this.gradeDistribution.push({ '3': this.gradeClasses[3] })
+            this.gradeDistribution.push({ '2': this.gradeClasses[2] })
+            this.gradeDistribution.push({ '1': this.gradeClasses[1] })
+            this.gradeDistribution.push({ '0': this.gradeClasses[0] })
 
         }
 
