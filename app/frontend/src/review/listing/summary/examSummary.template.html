@@ -44,8 +44,8 @@
                 {{'sitnet_exam_amount_reservations' | translate}} / {{'sitnet_exam_amount_participations' | translate}}
             </div>
             <div class="col-md-6" ng-if="$ctrl.participations">
-                {{$ctrl.getGradedCount()}} / {{$ctrl.getRegisteredCount()}}
-                ({{$ctrl.getGradedCount() / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
+                {{$ctrl.gradedCount}} / {{$ctrl.getRegisteredCount()}}
+                ({{$ctrl.gradedCount / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
             </div>
         </div>
     </div>
