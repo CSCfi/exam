@@ -38,6 +38,11 @@
                 index="5" heading="{{ 'sitnet_question_review' | translate }}" deselect="$ctrl.tabChanged($selectedIndex)">
                 <question-reviews exam-id="$ctrl.exam.id"></question-reviews>
             </uib-tab>
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="6" heading="{{ 'sitnet_exam_summary_tab' | translate }}"
+                     deselect="$ctrl.tabChanged($selectedIndex)">
+                <exam-summary exam="$ctrl.exam" collaborative="$ctrl.collaborative">
+                </exam-summary>
+            </uib-tab>
         </uib-tabset>
     </div>
 </div>

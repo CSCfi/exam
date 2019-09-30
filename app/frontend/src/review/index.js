@@ -75,3 +75,5 @@ require('./questions/flow/questionFlowCategory.component.ts');
 
 require('./questions/listing/questionReview.component.ts');
 require('./questions/listing/questionReviews.component.ts');
+
+require('./listing/summary/examSummary.component.ts');

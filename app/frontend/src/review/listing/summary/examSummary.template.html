@@ -1,0 +1,87 @@
+<div class="exam-border col-md-12">
+    <div class="col-md-12 mart40" ng-if="!$ctrl.collaborative">
+        <div class="review-list-title">
+            {{'sitnet_exam_basic_information' | translate}}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_name' | translate}}
+            </div>
+            <div class="col-md-6">
+                <div class="">{{$ctrl.exam.name}}</div>
+            </div>
+        </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_course_name' | translate}}
+            </div>
+            <div class="col-md-6">
+                <div class="">{{$ctrl.exam.course.name}}</div>
+            </div>
+        </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_validity' | translate}}
+            </div>
+            <div class="col-md-6">
+                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+            </div>
+        </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_amount_questions' | translate}}
+            </div>
+            <div class="col-md-6">
+                {{$ctrl.getTotalQuestions()}}
+            </div>
+        </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_amount_reservations' | translate}} / {{'sitnet_exam_amount_participations' | translate}}
+            </div>
+            <div class="col-md-6">
+                {{$ctrl.getGradedCount()}} / {{$ctrl.getRegisteredCount()}} ({{$ctrl.getGradedCount() / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 mart40" ng-if="!$ctrl.collaborative">
+        <div class="review-list-title">
+            {{'sitnet_exam_feedback' | translate}}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_feedback_messages_read' | translate}}
+            </div>
+            <div class="col-md-6">
+                {{$ctrl.getReadFeedback()}} / {{$ctrl.getTotalFeedback()}} ({{$ctrl.getFeedbackPercentage() | number : 1}}%)
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 mart40" ng-if="!$ctrl.collaborative">
+        <div class="review-list-title">
+            {{'sitnet_exam_grade_distribution' | translate}}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div ng-repeat="pair in $ctrl.getGradeDistribution()" class="row col-md-12 margin-20">
+            <span ng-repeat="(gradeClass, value) in pair">
+                <div class="col-md-3 exam-basic-title">
+                    {{ gradeClass }}
+                </div>
+                <div class="col-md-9">
+                    {{ value }} ({{value / $ctrl.getGradedCount() * 100 | number : 1}}%)
+                </div>
+            </span>
+
+        </div>
+    </div>
+</div>
