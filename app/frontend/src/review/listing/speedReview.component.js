@@ -12,76 +12,68 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
-import moment from 'moment';
-import _ from 'lodash';
-
 import FileSaver from 'file-saver';
+import _ from 'lodash';
+import moment from 'moment';
+import toast from 'toastr';
+
 
 angular.module('app.review')
     .component('speedReview', {
         template: require('./speedReview.template.html'),
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'ReviewList', 'Files', '$uibModal',
+            'ReviewList', 'Files', '$uibModal', '$location',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                Exam, ReviewList, Files, $modal) {
+                Exam, ReviewList, Files, $modal, $location) {
 
-                const vm = this;
+                const handleOngoingReviews = review => ReviewList.gradeExam(review.exam);
 
-                vm.$onInit = function () {
-                    vm.pageSize = 10;
-                    vm.eid = $routeParams.id;
+                this.$onInit = () => {
+                    this.pageSize = 10;
+                    this.eid = $routeParams.id;
 
-                    ExamRes.exams.get({ id: $routeParams.id }, function (exam) {
-                        vm.examInfo = {
+                    ExamRes.exams.get({ id: $routeParams.id }, exam => {
+                        this.examInfo = {
                             examOwners: exam.examOwners,
                             title: exam.course.code + ' ' + exam.name,
                             anonymous: exam.anonymous
                         };
                         ExamRes.examReviews.query({ eid: $routeParams.id },
-                            function (reviews) {
-                                reviews.forEach(function (r) {
+                            reviews => {
+                                reviews.forEach(r => {
                                     r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                                     r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
                                     if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                         r.isUnderLanguageInspection = true;
                                     }
                                 });
-                                vm.examReviews = reviews.filter(function (r) {
-                                    return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';
-                                });
-                                vm.examReviews.forEach(handleOngoingReviews);
-                                vm.toggleReviews = vm.examReviews.length > 0;
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
+                                this.examReviews = reviews.filter(
+                                    r => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED'
+                                );
+                                this.examReviews.forEach(handleOngoingReviews);
+                                this.toggleReviews = this.examReviews.length > 0;
+                            }, error => toast.error(error.data)
                         );
                     });
                 };
 
-                vm.showFeedbackEditor = function (exam) {
+                this.showFeedbackEditor = exam => {
                     $modal.open({
                         backdrop: 'static',
                         keyboard: true,
                         component: 'reviewFeedback',
                         resolve: {
-                            exam: function () {
-                                return exam;
-                            }
+                            exam: () => exam
                         }
                     });
                 };
 
-                vm.isAllowedToGrade = function (exam) {
-                    return Exam.isOwnerOrAdmin(exam);
-                };
+                this.isAllowedToGrade = exam => Exam.isOwnerOrAdmin(exam);
 
-                const getErrors = function (exam) {
+                const getErrors = exam => {
                     const messages = [];
-                    if (!vm.isAllowedToGrade(exam)) {
+                    if (!this.isAllowedToGrade(exam)) {
                         messages.push('sitnet_error_unauthorized');
                     }
                     if (!exam.creditType && !exam.examType) {
@@ -93,20 +85,18 @@ angular.module('app.review')
                     return messages;
                 };
 
-                const getAnswerLanguage = function (exam) {
-                    return _.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
-                }
+                const getAnswerLanguage = exam =>
+                    _.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
 
-                const gradeExam = function (review) {
+
+                const gradeExam = review => {
                     const deferred = $q.defer();
                     const exam = review.exam;
                     const messages = getErrors(exam);
                     if (!exam.selectedGrade && !exam.grade.id) {
                         messages.push('sitnet_participation_unreviewed');
                     }
-                    messages.forEach(function (msg) {
-                        toast.warning($translate.instant(msg));
-                    });
+                    messages.forEach(msg => toast.warning($translate.instant(msg)));
                     if (messages.length === 0) {
                         let grade;
                         if (exam.selectedGrade.type === 'NONE') {
@@ -125,12 +115,12 @@ angular.module('app.review')
                             'creditType': exam.creditType ? exam.creditType.type : exam.examType.type,
                             'answerLanguage': getAnswerLanguage(exam)
                         };
-                        ExamRes.review.update({ id: exam.id }, data, function () {
-                            vm.examReviews.splice(vm.examReviews.indexOf(review), 1);
+                        ExamRes.review.update({ id: exam.id }, data, () => {
+                            this.examReviews.splice(this.examReviews.indexOf(review), 1);
                             exam.gradedTime = new Date().getTime();
                             exam.grade = grade;
                             deferred.resolve();
-                        }, function (error) {
+                        }, error => {
                             toast.error(error.data);
                             deferred.reject();
                         });
@@ -140,81 +130,74 @@ angular.module('app.review')
                     return deferred.promise;
                 };
 
-                vm.isGradeable = function (exam) {
-                    return exam && getErrors(exam).length === 0;
-                };
+                this.isGradeable = exam => exam && getErrors(exam).length === 0;
 
-                vm.hasModifications = function () {
-                    if (vm.examReviews) {
-                        return vm.examReviews.filter(function (r) {
-                            return r.exam.selectedGrade &&
-                                (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
-                                vm.isGradeable(r.exam);
-                        }).length > 0;
-
+                this.hasModifications = () => {
+                    if (this.examReviews) {
+                        return this.examReviews.filter(r =>
+                            r.exam.selectedGrade &&
+                            (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
+                            this.isGradeable(r.exam)
+                        ).length > 0;
                     }
                 };
 
-                vm.pageSelected = function (page) {
-                    vm.currentPage = page;
-                }
+                this.pageSelected = page => this.currentPage = page;
 
-                vm.gradeExams = function () {
-                    const reviews = vm.examReviews.filter(function (r) {
-                        return r.exam.selectedGrade && r.exam.selectedGrade.type && vm.isGradeable(r.exam);
-                    });
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
-                    dialog.result.then(function () {
+                this.gradeExams = () => {
+                    const reviews = this.examReviews.filter(r =>
+                        r.exam.selectedGrade && r.exam.selectedGrade.type && this.isGradeable(r.exam)
+                    );
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_grade_review'));
+                    dialog.result.then(() => {
                         const promises = [];
-                        reviews.forEach(function (r) {
-                            promises.push(gradeExam(r));
-                        });
-                        $q.all(promises).then(function () {
+                        reviews.forEach(r => promises.push(gradeExam(r)));
+                        $q.all(promises).then(() => {
                             toast.info($translate.instant('sitnet_saved'));
+                            if (this.examReviews.length === 0) {
+                                $location.path(`/exams/${$routeParams.id}/4`)
+                            }
                         });
                     });
                 };
 
-                vm.isOwner = function (user, owners) {
+                this.isOwner = (user, owners) => {
                     if (owners) {
                         return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
                     }
                     return false;
                 };
 
-                vm.importGrades = function () {
-
+                this.importGrades = () => {
                     $modal.open({
                         backdrop: 'static',
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
-                        resolve: { title: function () { return 'sitnet_import_grades_from_csv'; } }
-                    }).result.then(function (data) {
-                        Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload);
-                    });
+                        resolve: { title: () => { return 'sitnet_import_grades_from_csv'; } }
+                    }).result.then(
+                        data => Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload)
+                    );
 
                 };
 
-                vm.createGradingTemplate = function () {
-                    const rows = vm.examReviews.map(function (r) {
-                        return [r.exam.id,
-                            '',
-                            '',
-                        r.exam.totalScore + ' / ' + r.exam.maxScore,
-                        r.displayName,
-                        r.user ? r.user.userIdentifier : '']
-                            .join() + '\n';
-                    }).reduce(function (a, b) {
-                        return a + b;
-                    }, '');
+                this.createGradingTemplate = () => {
+                    const rows = this.examReviews
+                        .map(r =>
+                            [r.exam.id,
+                                '',
+                                '',
+                            r.exam.totalScore + ' / ' + r.exam.maxScore,
+                            r.displayName,
+                            r.user ? r.user.userIdentifier : ''
+                            ].join() + '\n'
+                        )
+                        .reduce((a, b) => a + b, '');
+
                     const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
                     const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
                     FileSaver.saveAs(blob, 'grading.csv');
-                };
-
-                const handleOngoingReviews = function (review) {
-                    ReviewList.gradeExam(review.exam);
                 };
 
             }
