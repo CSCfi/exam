@@ -547,7 +547,6 @@
   "sitnet_at_least_one_role_required": "Roolia ei voi poistaa. Käyttäjällä täytyy olla vähintään yksi rooli.",
   "sitnet_copy": "Kopioi",
   "sitnet_copy_question": "Kopioidaanko kysymys?",
-  "sitnet_get_answer_attachments": "Lataa tenttivastausten liitetiedostot",
   "sitnet_load_answer_attachments": "Lataa tenttivastausten liitetiedostot",
   "sitnet_no_attachments_to_archive": "Palautetuista, ei arvioiduista vastauksista ei löytynyt liitetiedostoja halutulla aikavälillä.",
   "sitnet_no_name": "EI NIMEÄ",
