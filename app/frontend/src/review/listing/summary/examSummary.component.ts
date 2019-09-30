@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as ng from 'angular';
-import { IModalService } from 'angular-ui-bootstrap';
+import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
+import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
@@ -30,128 +29,62 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     controller: class ExamSummaryController implements ng.IComponentController {
 
         exam: Exam;
-        collaborative: boolean;
-        anonymousReviewEnabled: boolean;
-        onUpdate: (_: { props: { code: string | null; name: string | null; scaleChange: boolean } }) => any;
+        participations: any[];
         onNextTabSelected: () => any;
-        gradeClasses: any[];
-        gradeDistribution: any[];
-        reviewedExam: any;
+        gradeDistribution: _.Dictionary<number>;
+        gradedCount: number;
 
         constructor(
-            private $scope: ng.IScope,
-            private $translate: ng.translate.ITranslateService,
-            private $uibModal: IModalService,
-            private Exam: any,
-            private SettingsResource: any,
-            private Session: SessionService,
             private $http: angular.IHttpService
         ) {
             'ngInject';
-
-            this.$scope.$on('$localeChangeSuccess', () => {
-            });
-
         }
 
         $onInit = () => {
             const url = this.getResource(this.exam.id);
             this.$http.get(url).then((resp: angular.IHttpResponse<any>) => {
-                const examData = resp.data;
-                const exam = examData[0].exam;
-                this.exam = exam;
-            }).catch(function (error) {
-                toast.error(error.data);
-            });
+                this.participations = resp.data;
+                this.exam = this.participations[0].exam.parent;
+                this.buildGradeDistribution();
+                this.gradedCount = this.participations.filter(
+                    p => p.exam.grade).length;
+            }).catch(err => toast.error(err.data));
 
-            this.gradeDistribution = [];
-            this.gradeClasses = [];
-            this.buildGradeDistribution();
-
+            this.gradeDistribution = {};
         }
 
-        getResource = function (path) {
-            return `/app/reviews/${path}`;
-        }
+        getResource = path => `/app/reviews/${path}`;
 
         getGradeDistribution = () => {
             return this.gradeDistribution;
         }
 
-        getGradedCount = () => {
-            /*return this.exam.children.filter(function (child) {
-                return child.state === 'GRADED_LOGGED';
-            }).length;*/
+        getRegisteredCount = () => this.participations.length;
 
-            return this.exam.children.length
-        }
+        getReadFeedback = () =>
+            this.participations.filter(p =>
+                p.exam.examFeedback &&
+                p.exam.examFeedback.feedbackStatus === true).length;
 
-        getRegisteredCount = () => {
-            return this.exam.children.length;
-        }
+        getTotalFeedback = () =>
+            this.getReadFeedback() + this.participations.filter(p =>
+                p.exam.examFeedback &&
+                p.exam.examFeedback.feedbackStatus === false).length;
 
-        getReadFeedback = () => {
-            /*return this.exam.children.filter(function (child) {
-                 return child.examFeedback.feedbackStatus === true;
-            }).length;*/
-            return this.exam.children.length;
-        }
-
-        getTotalFeedback = () => {
-            /*return this.getReadFeedback() + this.exam.children.filter(function (child) {
-                return child.examFeedback.feedbackStatus === false;
-            }).length;*/
-            return this.exam.children.length;
-        }
-
-        getFeedbackPercentage = () => {
-            return this.getReadFeedback() / this.getTotalFeedback() * 100;
-        }
+        getFeedbackPercentage = () =>
+            this.getReadFeedback() / this.getTotalFeedback() * 100;
 
         nextTab = () => this.onNextTabSelected();
 
-
         getTotalQuestions = () => {
-            return this.exam.examSections.length;
+            const sections: ExamSection[] = this.participations.map(p => p.exam.examSections);
+            const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
+            return _.flatMap(questions).length;
         }
 
-
         buildGradeDistribution = () => {
-
-            /*this.gradeClasses[0] = this.exam.children.filter(function (child) {
-                return child.grade.name === '0';
-            }).length;
-
-            this.gradeClasses[1] = this.exam.children.filter(function (child) {
-                return child.grade.name === '1';
-            }).length;
-            this.gradeClasses[2] = this.exam.children.filter(function (child) {
-                return child.grade.name === '2';
-            }).length;
-            this.gradeClasses[3] = this.exam.children.filter(function (child) {
-                return child.grade.name === '3';
-            }).length;
-            this.gradeClasses[4] = this.exam.children.filter(function (child) {
-                return child.grade.name === '4';
-            }).length;
-            this.gradeClasses[5] = this.exam.children.filter(function (child) {
-                return child.grade.name === '5';
-            }).length;*/
-
-            this.gradeClasses[0] = '0';
-            this.gradeClasses[1] = '0';
-            this.gradeClasses[2] = '0';
-            this.gradeClasses[3] = '0';
-            this.gradeClasses[4] = '0';
-            this.gradeClasses[5] = '1';
-
-            this.gradeDistribution.push({ '5': this.gradeClasses[5] })
-            this.gradeDistribution.push({ '4': this.gradeClasses[4] })
-            this.gradeDistribution.push({ '3': this.gradeClasses[3] })
-            this.gradeDistribution.push({ '2': this.gradeClasses[2] })
-            this.gradeDistribution.push({ '1': this.gradeClasses[1] })
-            this.gradeDistribution.push({ '0': this.gradeClasses[0] })
-
+            const grades: string[] = this.participations.filter(p => p.exam.grade).map(p => p.exam.grade.name);
+            this.gradeDistribution = _.countBy(grades);
         }
 
     }
