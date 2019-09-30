@@ -13,15 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
+import * as toast from 'toastr';
 
 import { Exam } from '../exam/exam.model';
 import { User } from '../session/session.service';
-import { ExamEnrolment, EnrolmentInfo } from './enrolment.model';
+import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+
 
 export class EnrolmentService {
 
@@ -243,4 +243,4 @@ export class EnrolmentService {
 
 }
 
-angular.module('app.enrolment').service('Enrolment', EnrolmentService);
+angular.module('app.enrolment').factory('Enrolment', EnrolmentService);

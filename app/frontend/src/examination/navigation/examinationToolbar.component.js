@@ -15,7 +15,6 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-
 angular.module('app.examination')
     .component('examinationToolbar', {
         template: require('./examinationToolbar.template.html'),
@@ -26,22 +25,18 @@ angular.module('app.examination')
             isCollaborative: '<',
             onPageSelect: '&'
         },
-        controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
+        controller: ['$http', '$location', '$window', '$translate', 'dialogs', 'Session', 'Examination',
             'Attachment', 'Enrolment',
-            function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
+            function ($http, $location, $window, $translate, dialogs, Session, Examination, Attachment,
                 Enrolment) {
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    if (!vm.isPreview) {
-                        $http.get('/app/enrolments/room/' + vm.exam.hash).then(function (resp) {
-                            vm.room = resp.data;
-                        });
+                this.$onInit = () => {
+                    if (!this.isPreview) {
+                        $http.get('/app/enrolments/room/' + this.exam.hash).then(resp => this.room = resp.data);
                     }
                 };
 
-                vm.displayUser = function () {
+                this.displayUser = () => {
                     const user = Session.getUser();
                     if (!user) {
                         return;
@@ -50,76 +45,67 @@ angular.module('app.examination')
                     return user.firstName + ' ' + user.lastName + userId;
                 };
 
-                vm.turnExam = function () {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
+                this.turnExam = () => {
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(() =>
                         // Save all textual answers regardless of empty or not
-                        Examination.saveAllTextualAnswersOfExam(vm.exam).then(
-                            () => Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth))
+                        Examination.saveAllTextualAnswersOfExam(this.exam).then(
+                            () => Examination.logout('sitnet_exam_returned', this.exam.hash,
+                                this.exam.requiresUserAgentAuth))
                     );
                 };
 
-                vm.abortExam = function () {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
-                    dialog.result.then(function () {
-                        Examination.abort(vm.exam.hash).then(function () {
+                this.abortExam = () => {
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_abort_exam'));
+                    dialog.result.then(() =>
+                        Examination.abort(this.exam.hash).then(() => {
                             toast.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
-                            window.onbeforeunload = null;
-                            $location.path('/student/logout/aborted/' + vm.exam.requiresUserAgentAuth);
-                        }).catch(function (err) {
-                            toast.error(err.data);
-                        });
-                    });
+                            $window.onbeforeunload = null;
+                            $location.path('/student/logout/aborted/' + this.exam.requiresUserAgentAuth);
+                        }).catch(err => toast.error(err.data))
+                    );
                 };
 
-                vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam, vm.isCollaborative);
-                };
+                this.downloadExamAttachment = () =>
+                    Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 
-                vm.selectGuidePage = function () {
-                    vm.onPageSelect({ page: { type: 'guide' } });
-                };
 
-                vm.selectSection = function (section) {
-                    vm.onPageSelect({ page: { id: section.id, type: 'section' } });
-                };
+                this.selectGuidePage = () => this.onPageSelect({ page: { type: 'guide' } });
 
-                vm.getQuestionAmount = function (section, type) {
+                this.selectSection = (section) =>
+                    this.onPageSelect({ page: { id: section.id, type: 'section' } });
+
+                this.getQuestionAmount = (section, type) => {
                     if (type === 'total') {
                         return section.sectionQuestions.length;
                     } else if (type === 'answered') {
-                        return section.sectionQuestions.filter(function (sq) {
-                            return Examination.isAnswered(sq);
-                        }).length;
+                        return section.sectionQuestions.filter(Examination.isAnswered).length;
                     } else if (type === 'unanswered') {
-                        return section.sectionQuestions.length - section.sectionQuestions.filter(function (sq) {
-                            return Examination.isAnswered(sq);
-                        }).length;
+                        return section.sectionQuestions.length -
+                            section.sectionQuestions.filter(Examination.isAnswered).length;
                     }
                 };
 
-                vm.displayRoomInstructions = function () {
-                    if (vm.room) {
+                this.displayRoomInstructions = () => {
+                    if (this.room) {
                         switch ($translate.use()) {
                             case 'fi':
-                                return vm.room.roomInstruction;
+                                return this.room.roomInstruction;
                             case 'sv':
-                                return vm.room.roomInstructionSV;
+                                return this.room.roomInstructionSV;
                             case 'en':
                             /* falls through */
                             default:
-                                return vm.room.roomInstructionEN;
+                                return this.room.roomInstructionEN;
                         }
                     }
                 };
 
-                vm.showMaturityInstructions = function () {
-                    Enrolment.showMaturityInstructions({ exam: vm.exam });
-                };
+                this.showMaturityInstructions = () => Enrolment.showMaturityInstructions({ exam: this.exam });
 
-                vm.exitPreview = function () {
-                    $location.path($location.path().replace("/view/preview", ""));
-                };
+                this.exitPreview = () => $location.path($location.path().replace("/view/preview", ""));
 
             }
         ]

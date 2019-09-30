@@ -12,25 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 
-import runBlock from './utility.run';
 import { AttachmentService } from './attachment/attachment.service';
-import { DateTimeService } from './date/date.service';
-import { FileService } from './file/file.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
+import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
-import { DropDownSelectComponent } from './select/dropDownSelect.component';
-import { DroppableDirective, DraggableModalDirective, SortableDirective } from './dragndrop/dragndrop.directive';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
+import { DraggableModalDirective, DroppableDirective, SortableDirective } from './dragndrop/dragndrop.directive';
+import { FileService } from './file/file.service';
 import { PaginatorComponent } from './paginator/paginator.component';
+import { DropDownSelectComponent } from './select/dropDownSelect.component';
+import runBlock from './utility.run';
+
 
 export default angular.module('app.utility', [])
     .run(runBlock)
-    .service('Attachment', AttachmentService)
-    .service('DateTime', DateTimeService)
-    .service('Files', FileService)
+    .factory('Attachment', AttachmentService)
+    .factory('DateTime', DateTimeService)
+    .factory('Files', FileService)
     .component('attachmentSelector', AttachmentSelectorComponent)
     .component('datePicker', DatePickerComponent)
     .component('dateTimePicker', DateTimePickerComponent)

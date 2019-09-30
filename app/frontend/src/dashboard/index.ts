@@ -12,23 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 
-import ReservationModule from '../reservation'; // TODO: make a proper exportable module
+import ReservationModule from '../reservation';
+import { DashboardComponent } from './dashboard.component';
+import { StudentDashboardComponent } from './student/studentDashboard.component';
+import { StudentDashboardService } from './student/studentDashboard.service';
+import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
+import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
+import { TeacherDashboardService } from './teacher/teacherDashboard.service';
+
 
 require('../exam/editor'); // TODO: make a proper exportable module
 
-import { StudentDashboardService } from './student/studentDashboard.service';
-import { StudentDashboardComponent } from './student/studentDashboard.component';
-import { TeacherDashboardService } from './teacher/teacherDashboard.service';
-import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
-import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
-import { DashboardComponent } from './dashboard.component';
-
 export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
-    .service('StudentDashboard', StudentDashboardService)
-    .service('TeacherDashboard', TeacherDashboardService)
+    .factory('StudentDashboard', StudentDashboardService)
+    .factory('TeacherDashboard', TeacherDashboardService)
     .component('dashboard', DashboardComponent)
     .component('studentDashboard', StudentDashboardComponent)
     .component('examListCategory', ExamListCategoryComponent)

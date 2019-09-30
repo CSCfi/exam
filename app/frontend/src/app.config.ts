@@ -143,13 +143,13 @@ export default function configs(
 
     // HTTP INTERCEPTOR
     $httpProvider.interceptors.push(
-        function ($q, $rootScope, $location, $translate, WrongLocation) {
+        function ($q, $rootScope, $location, $translate, $window, WrongLocation) {
             'ngInject';
             return {
                 'response': function (response) {
 
-                    if (!window['TextDecoder']) {
-                        window['TextDecoder'] = textEncoding.TextDecoder;
+                    if (!$window['TextDecoder']) {
+                        $window['TextDecoder'] = textEncoding.TextDecoder;
                     }
 
                     const b64ToUtf8 = (str: string, encoding = 'utf-8'): string => {
