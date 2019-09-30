@@ -23,7 +23,7 @@ import { TeacherReservationComponent } from './teacher/teacherReservations.compo
 
 
 export default angular.module('app.reservation', [])
-    .factory('Reservation', ReservationService)
+    .service('Reservation', ReservationService)
     .component('adminReservations', AdminReservationComponent)
     .component('teacherReservations', TeacherReservationComponent)
     .component('reservationDetail', ReservationDetailComponent)

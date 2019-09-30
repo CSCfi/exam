@@ -363,6 +363,6 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
 }
 
 angular.module('app.question')
-    .factory('Question', ['$q', '$resource', '$translate', '$document', '$sessionStorage',
+    .service('Question', ['$q', '$resource', '$translate', '$document', '$sessionStorage',
         'ExamQuestion', 'Session', 'Files', 'Attachment', QuestionService]);
 

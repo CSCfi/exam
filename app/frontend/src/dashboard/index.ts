@@ -26,8 +26,8 @@ import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 require('../exam/editor'); // TODO: make a proper exportable module
 
 export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
-    .factory('StudentDashboard', StudentDashboardService)
-    .factory('TeacherDashboard', TeacherDashboardService)
+    .service('StudentDashboard', StudentDashboardService)
+    .service('TeacherDashboard', TeacherDashboardService)
     .component('dashboard', DashboardComponent)
     .component('studentDashboard', StudentDashboardComponent)
     .component('examListCategory', ExamListCategoryComponent)

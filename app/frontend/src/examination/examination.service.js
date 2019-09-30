@@ -200,4 +200,4 @@ function ExaminationFactory($q, $location, $http, $window, $translate) {
 
 
 angular.module('app.examination')
-    .factory('Examination', ['$q', '$location', '$http', '$window', '$translate', ExaminationFactory]);
+    .service('Examination', ['$q', '$location', '$http', '$window', '$translate', ExaminationFactory]);

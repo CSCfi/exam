@@ -243,4 +243,4 @@ export class EnrolmentService {
 
 }
 
-angular.module('app.enrolment').factory('Enrolment', EnrolmentService);
+angular.module('app.enrolment').service('Enrolment', EnrolmentService);

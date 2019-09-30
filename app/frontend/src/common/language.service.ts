@@ -61,4 +61,4 @@ export class LanguageService {
 
 }
 
-angular.module('app.common').factory('Language', LanguageService);
+angular.module('app.common').service('Language', LanguageService);

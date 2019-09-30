@@ -18,6 +18,7 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         'angular/file-name': 'off',
+        'angular/no-service-method': 'off',
         'max-len': ["error", { "code": 120 }],
         'no-tabs': ["error"]
     }

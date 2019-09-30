@@ -19,7 +19,7 @@ import { NavigationService } from './navigation.service';
 
 
 export default angular.module('app.navigation', [])
-    .factory('Navigation', NavigationService)
+    .service('Navigation', NavigationService)
     .component('navigation', NavigationComponent)
     .name;
 

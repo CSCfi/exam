@@ -28,9 +28,9 @@ import runBlock from './utility.run';
 
 export default angular.module('app.utility', [])
     .run(runBlock)
-    .factory('Attachment', AttachmentService)
-    .factory('DateTime', DateTimeService)
-    .factory('Files', FileService)
+    .service('Attachment', AttachmentService)
+    .service('DateTime', DateTimeService)
+    .service('Files', FileService)
     .component('attachmentSelector', AttachmentSelectorComponent)
     .component('datePicker', DatePickerComponent)
     .component('dateTimePicker', DateTimePickerComponent)

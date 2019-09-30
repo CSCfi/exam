@@ -188,4 +188,4 @@ export class CollaborativeAssesmentService {
     }
 }
 
-angular.module('app.review').factory('CollaborativeAssessment', CollaborativeAssesmentService);
+angular.module('app.review').service('CollaborativeAssessment', CollaborativeAssesmentService);

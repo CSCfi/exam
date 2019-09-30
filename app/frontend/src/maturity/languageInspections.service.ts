@@ -71,4 +71,4 @@ export class LanguageInspectionService {
 
 }
 
-angular.module('app.maturity').factory('LanguageInspections', LanguageInspectionService);
+angular.module('app.maturity').service('LanguageInspections', LanguageInspectionService);

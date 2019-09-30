@@ -23,7 +23,7 @@ import { CalendarService } from './calendar.service';
 
 
 export default angular.module('app.calendar', ['ui.calendar'])
-    .factory('Calendar', CalendarService)
+    .service('Calendar', CalendarService)
     .component('bookingCalendar', BookingCalendarComponent)
     .component('calendar', CalendarComponent)
     .name;

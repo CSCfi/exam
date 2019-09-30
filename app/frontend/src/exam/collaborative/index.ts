@@ -18,5 +18,5 @@ import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExamListingComponent } from './collaborativeExamListing.component';
 
 export default angular.module('app.exam.collaborative', [])
-    .factory('CollaborativeExam', CollaborativeExamService)
+    .service('CollaborativeExam', CollaborativeExamService)
     .component('collaborativeExamListing', CollaborativeExamListingComponent).name;

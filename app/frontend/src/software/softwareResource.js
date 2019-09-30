@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
+
 
 angular.module('app.software')
     .factory('SoftwareRes', ['$resource', function ($resource) {
@@ -23,7 +23,7 @@ angular.module('app.software')
                     mid: '@mid'
                 },
                 {
-                    'reset': {method: 'PUT'}
+                    'reset': { method: 'PUT' }
                 }),
 
             machine: $resource('/app/machine/:mid/software/:sid',
@@ -32,14 +32,14 @@ angular.module('app.software')
                     sid: '@sid'
                 },
                 {
-                    'add': {method: 'PUT'},
-                    'toggle': {method: 'POST'}
+                    'add': { method: 'PUT' },
+                    'toggle': { method: 'POST' }
                 }),
 
             softwares: $resource('/app/softwares',
                 {},
                 {
-                    'query': {method: 'GET', isArray: true}
+                    'query': { method: 'GET', isArray: true }
                 }),
 
             software: $resource('/app/softwares/:id',
@@ -47,8 +47,8 @@ angular.module('app.software')
                     id: '@id'
                 },
                 {
-                    'query': {method: 'GET'},
-                    'remove': {method: 'DELETE'}
+                    'query': { method: 'GET' },
+                    'remove': { method: 'DELETE' }
                 }),
 
             add: $resource('/app/softwares/add/:name',
@@ -56,7 +56,7 @@ angular.module('app.software')
                     name: '@name'
                 },
                 {
-                    'insert': {method: 'POST'}
+                    'insert': { method: 'POST' }
                 }),
 
             update: $resource('/app/softwares/update/:id/:name',
@@ -65,7 +65,7 @@ angular.module('app.software')
                     name: '@name'
                 },
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 })
         };
     }]);

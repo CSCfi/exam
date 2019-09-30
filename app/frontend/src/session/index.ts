@@ -22,7 +22,7 @@ import { SessionComponent } from './session.component';
 import { SessionService } from './session.service';
 
 export default angular.module('app.session', [])
-    .factory('Session', SessionService)
+    .service('Session', SessionService)
     .component('devLogin', DevLoginComponent)
     .component('logout', LogoutComponent)
     .component('eulaDialog', EulaDialogComponent)

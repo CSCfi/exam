@@ -73,4 +73,4 @@ export class QuestionReviewService {
 
 }
 
-angular.module('app.review').factory('QuestionReview', QuestionReviewService);
+angular.module('app.review').service('QuestionReview', QuestionReviewService);
