@@ -926,5 +926,7 @@
   "sitnet_exam_amount_questions": "Kysymysten määrä",
   "sitnet_exam_amount_reservations": "Tenttivarausten määrä",
   "sitnet_exam_amount_participations": "Toteutuneet varaukset",
-  "sitnet_exam_summary_tab": "Tentin yhteenveto"
+  "sitnet_exam_summary_tab": "Tentin yhteenveto",
+  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset",
+  "sitnet_exam_status_deleted": "Poistettu"
 }

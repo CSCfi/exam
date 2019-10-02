@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 
 import { ReservationService } from './reservationService';
 
-export const ReservationDetailComponent: angular.IComponentOptions = {
+export const ReservationDetailsComponent: angular.IComponentOptions = {
     template: require('./reservationDetails.template.html'),
     bindings: {
         reservations: '<',

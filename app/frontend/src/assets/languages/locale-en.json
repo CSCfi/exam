@@ -926,5 +926,7 @@
   "sitnet_exam_amount_questions": "Amount of exam questions EN",
   "sitnet_exam_amount_reservations": "Amount of exam reservations EN",
   "sitnet_exam_amount_participations": "Participation count EN",
-  "sitnet_exam_summary_tab": "Summary EN"
+  "sitnet_exam_summary_tab": "Summary EN",
+  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset EN",
+  "sitnet_exam_status_deleted": "Poistettu EN"
 }

@@ -17,7 +17,7 @@ import * as angular from 'angular';
 import { AdminReservationComponent } from './admin/adminReservations.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-import { ReservationDetailComponent } from './reservationDetail.component';
+import { ReservationDetailsComponent } from './reservationDetails.component';
 import { ReservationService } from './reservationService';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
@@ -26,7 +26,7 @@ export default angular.module('app.reservation', [])
     .service('Reservation', ReservationService)
     .component('adminReservations', AdminReservationComponent)
     .component('teacherReservations', TeacherReservationComponent)
-    .component('reservationDetail', ReservationDetailComponent)
+    .component('reservationDetails', ReservationDetailsComponent)
     .component('changeMachineDialog', ChangeMachineDialogComponent)
     .component('removeReservationDialog', RemoveReservationDialogComponent)
     .name;
