@@ -87,6 +87,11 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             this.gradeDistribution = _.countBy(grades);
         }
 
+        getAverageTime = () => {
+            const durations = this.participations.map(p => p.duration);
+            return durations.reduce((a,b) => a + b, 0) / durations.length / 60000;
+        }
+
     }
 };
 
