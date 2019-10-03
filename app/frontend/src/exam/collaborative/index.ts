@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
+
 import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExamListingComponent } from './collaborativeExamListing.component';
 

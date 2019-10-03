@@ -12,15 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
+import { IModalService } from 'angular-ui-bootstrap';
+import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import * as _ from 'lodash';
 
-import { IModalService } from 'angular-ui-bootstrap';
-import { Exam, ExaminationDate, AutoEvaluationConfig } from '../../exam.model';
 import { SessionService, User } from '../../../session/session.service';
+import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
+
 
 
 export const ExamPublicationComponent: angular.IComponentOptions = {
@@ -49,12 +49,13 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             private $translate: angular.translate.ITranslateService,
             private $location: angular.ILocationService,
             private $uibModal: IModalService,
+            private $window: angular.IWindowService,
             private Session: SessionService,
             private Exam: any
         ) {
             'ngInject';
 
-            this.hostName = window.location.origin;
+            this.hostName = this.$window.location.origin;
         }
 
         $onInit = () => {

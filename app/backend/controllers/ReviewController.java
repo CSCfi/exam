@@ -207,8 +207,8 @@ public class ReviewController extends BaseController {
                 "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
                 "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-                "languageInspection(*), examLanguages(*), " +
-                "parent(examOwners(firstName, lastName, email)), " +
+                "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
+                "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
                 "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
                 ")");
         Query<Exam> query = Ebean.find(Exam.class);

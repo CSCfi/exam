@@ -12,11 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as _ from 'lodash';
-import { QuestionReview, ReviewQuestion } from '../review.model';
+
 import { User } from '../../session/session.service';
+import { QuestionReview, ReviewQuestion } from '../review.model';
+
 
 export class QuestionReviewService {
 

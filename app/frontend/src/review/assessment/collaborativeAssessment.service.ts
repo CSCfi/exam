@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
 import * as toast from 'toastr';
-import { Participation, Exam, Grade } from '../../exam/exam.model';
+
+import { Exam, Grade, Participation } from '../../exam/exam.model';
+
 
 interface Payload {
     id: number;

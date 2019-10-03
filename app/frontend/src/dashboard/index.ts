@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 
-import ReservationModule from '../reservation'; // TODO: make a proper exportable module
-
-require('../exam/editor'); // TODO: make a proper exportable module
-
-import { StudentDashboardService } from './student/studentDashboard.service';
+import ReservationModule from '../reservation';
+import { DashboardComponent } from './dashboard.component';
 import { StudentDashboardComponent } from './student/studentDashboard.component';
-import { TeacherDashboardService } from './teacher/teacherDashboard.service';
+import { StudentDashboardService } from './student/studentDashboard.service';
 import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
-import { DashboardComponent } from './dashboard.component';
+import { TeacherDashboardService } from './teacher/teacherDashboard.service';
+
+
+require('../exam/editor'); // TODO: make a proper exportable module
 
 export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
     .service('StudentDashboard', StudentDashboardService)

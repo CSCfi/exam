@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
-import { CalendarService } from './calendar.service';
-import { BookingCalendarComponent } from './bookingCalendar.component';
-import { CalendarComponent } from './calendar.component';
-
 import 'angular-ui-calendar';
 import 'fullcalendar';
+
+import * as angular from 'angular';
+
+import { BookingCalendarComponent } from './bookingCalendar.component';
+import { CalendarComponent } from './calendar.component';
+import { CalendarService } from './calendar.service';
+
 
 export default angular.module('app.calendar', ['ui.calendar'])
     .service('Calendar', CalendarService)

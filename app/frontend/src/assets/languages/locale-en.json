@@ -919,5 +919,13 @@
   "sitnet_examination_type": "Tenttimistapa EN",
   "sitnet_examination_type_aquarium": "Akvaario EN",
   "sitnet_examination_type_seb": "BYOD EN",
-  "sitnet_quit_seb": "Poistu Safe Exam Browserista. Voit tämän jälkeen käyttää konettasi normaalisti.EN"
+  "sitnet_quit_seb": "Poistu Safe Exam Browserista. Voit tämän jälkeen käyttää konettasi normaalisti.EN",
+  "sitnet_feedback_summary": "Palautteet EN",
+  "sitnet_feedback_messages_read": "Feedback messages read EN",
+  "sitnet_exam_grade_distribution": "Distribution of grades EN",
+  "sitnet_exam_amount_questions": "Amount of exam questions EN",
+  "sitnet_exam_amount_reservations": "Amount of exam reservations EN",
+  "sitnet_exam_amount_participations": "Participation count EN",
+  "sitnet_exam_summary_tab": "Summary EN",
+  "sitnet_exam_average_time": "Average used for participation EN"
 }
