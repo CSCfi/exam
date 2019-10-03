@@ -911,5 +911,7 @@
   "sitnet_exam_collaboration_supported": "Stöd för tentamen vid utomstående organisation",
   "sitnet_set_forced_score": "Gå förbi automatiskt beräknade poäng",
   "sitnet_optional": "Vald",
-  "sitnet_required": "Obligatorisk"
+  "sitnet_required": "Obligatorisk",
+  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset SV",
+  "sitnet_exam_status_deleted": "Poistettu SV"
 }

@@ -12,20 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
-import { ReservationService } from './reservationService';
+
 import { AdminReservationComponent } from './admin/adminReservations.component';
-import { TeacherReservationComponent } from './teacher/teacherReservations.component';
-import { ReservationDetailComponent } from './reservationDetail.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
+import { ReservationDetailsComponent } from './reservationDetails.component';
+import { ReservationService } from './reservationService';
+import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
 export default angular.module('app.reservation', [])
     .service('Reservation', ReservationService)
     .component('adminReservations', AdminReservationComponent)
     .component('teacherReservations', TeacherReservationComponent)
-    .component('reservationDetail', ReservationDetailComponent)
+    .component('reservationDetails', ReservationDetailsComponent)
     .component('changeMachineDialog', ChangeMachineDialogComponent)
     .component('removeReservationDialog', RemoveReservationDialogComponent)
     .name;

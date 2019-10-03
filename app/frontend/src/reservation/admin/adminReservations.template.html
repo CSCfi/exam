@@ -56,10 +56,23 @@
                 <drop-down-select options="$ctrl.stateOptions" on-select="$ctrl.stateChanged(value)">
                 </drop-down-select>
             </div>
+            <div class="col-md-3">
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="" ng-model="$ctrl.externalReservationsOnly"
+                            ng-change="$ctrl.externalReservationFilterClicked()">
+                        <strong class="reservation-search-titles">
+                            {{'sitnet_external_reservations_only' | translate}}
+                        </strong>
+                    </label>
+                </div>
+            </div>
+
         </div>
 
-        <reservation-detail ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true">
-        </reservation-detail>
+        <reservation-details ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true">
+        </reservation-details>
 
     </div>
 </div>

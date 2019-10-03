@@ -911,5 +911,7 @@
   "sitnet_exam_collaboration_supported": "Collaborative exams supported",
   "sitnet_set_forced_score": "Skip automatic points",
   "sitnet_optional": "Selected",
-  "sitnet_required": "Required"
+  "sitnet_required": "Required",
+  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset EN",
+  "sitnet_exam_status_deleted": "Poistettu EN"  
 }

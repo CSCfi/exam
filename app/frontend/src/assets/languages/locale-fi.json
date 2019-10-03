@@ -911,5 +911,7 @@
   "sitnet_exam_collaboration_supported": "Yhteistentit tuettu",
   "sitnet_set_forced_score": "Ohita automaattisesti lasketut pisteet",
   "sitnet_optional": "Valittu",
-  "sitnet_required": "Pakollinen"
+  "sitnet_required": "Pakollinen",
+  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset",
+  "sitnet_exam_status_deleted": "Poistettu"
 }
