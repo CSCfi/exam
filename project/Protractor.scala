@@ -1,7 +1,6 @@
-import java.net.InetSocketAddress
-
 import play.sbt.PlayRunHook
 import sbt.File
+
 import scala.sys.process._
 
 
@@ -14,7 +13,7 @@ object Protractor {
 
       override def afterStarted(): Unit = {
         println("Starting protractor tests...")
-        val process = Seq("app/frontend/node_modules/protractor/bin/protractor", "protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
+        val process = Seq("app/protractor/node_modules/protractor/bin/protractor", "app/protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
         println(process)
         var code = 0
         sys.addShutdownHook(shutdown())

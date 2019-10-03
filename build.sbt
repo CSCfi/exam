@@ -66,6 +66,10 @@ lazy val frontendDirectory = baseDirectory {
   _ / "app/frontend"
 }
 
+lazy val protractorDirectory = baseDirectory {
+  _ / "app/protractor"
+}
+
 /**
   * Webpack dev server task
   */
@@ -81,7 +85,7 @@ def webpackTask = Def.taskDyn[PlayRunHook] {
     val webpackBuild = taskKey[Unit]("Webpack build task.")
 
     webpackBuild := {
-      Process("npm run build", frontendDirectory.value).run
+      Process("npm start", frontendDirectory.value).run
     }
 
     (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
@@ -101,12 +105,19 @@ PlayKeys.playRunHooks += webpackTask.value
 
 def skipUiTests = Properties.propOrEmpty("skipUiTests")
 
-def protractorConf = Properties.propOrEmpty("config.resource")
+def protractorConf = Properties.propOrEmpty("config.file")
 
-lazy val npmInstall = taskKey[Option[Process]]("Npm intall task")
+
+lazy val npmInstall = taskKey[Option[Process]]("Npm install task")
 npmInstall := {
   Some(Process("npm install", frontendDirectory.value).run())
 }
+
+lazy val protractorInstall = taskKey[Option[Process]]("Protractor install task")
+protractorInstall := {
+  Some(Process("npm install", protractorDirectory.value).run())
+}
+
 
 lazy val karmaTest = taskKey[Option[Process]]("Karma test task")
 karmaTest := {
@@ -115,23 +126,30 @@ karmaTest := {
 
 lazy val webDriverUpdate = taskKey[Option[Process]]("Web driver update task")
 webDriverUpdate := {
-  Some(Process("node_modules/protractor/bin/webdriver-manager update", frontendDirectory.value).run())
+  Some(Process("node_modules/protractor/bin/webdriver-manager update", protractorDirectory.value).run())
 }
 
 test in Test := {
-  if (karmaTest.value.get.exitValue() != 0 || npmInstall.value.get.exitValue() != 0)
+  if (karmaTest.value.get.exitValue() != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
 }
 
+def foo = Def.sequential(
+  protractorInstall,
+  npmInstall,
+  webDriverUpdate
+)
+
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
-  if (!skipUiTests.equals("true") && npmInstall.value.get.exitValue() == 0) {
+  if (!skipUiTests.equals("true") && npmInstall.value.get.exitValue() == 0 && protractorInstall.value.get.exitValue() == 0) {
     def bdval = baseDirectory.value
+
     def fdval = frontendDirectory.value
 
     Def.task {
-      Seq(MockCourseInfo(fdval),
-        if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
+      Seq(
+        if (protractorConf.equals("conf/protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
           Protractor(bdval,
             Properties.propOrElse("protractor.config", "conf.js"),
             Properties.propOrElse("protractor.args", " "))
