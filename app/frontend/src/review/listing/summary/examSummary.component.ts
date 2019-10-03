@@ -33,6 +33,8 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         onNextTabSelected: () => any;
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
+        data: number[];
+        labels: string[];
 
         constructor(
             private $http: angular.IHttpService
@@ -85,11 +87,13 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         buildGradeDistribution = () => {
             const grades: string[] = this.participations.filter(p => p.exam.grade).map(p => p.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
+            this.data = Object.values(this.gradeDistribution);
+            this.labels = Object.keys(this.gradeDistribution);
         }
 
         getAverageTime = () => {
             const durations = this.participations.map(p => p.duration);
-            return durations.reduce((a,b) => a + b, 0) / durations.length / 60000;
+            return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
         }
 
     }
