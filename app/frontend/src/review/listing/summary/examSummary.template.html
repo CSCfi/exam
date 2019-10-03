@@ -48,6 +48,14 @@
                 ({{$ctrl.gradedCount / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
             </div>
         </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_average_time' | translate}}
+            </div>
+            <div class="col-md-6" ng-if="$ctrl.participations">
+                {{$ctrl.getAverageTime() | number : 0}} min
+            </div>
+        </div>
     </div>
 
     <div class="col-md-12 mart40">
