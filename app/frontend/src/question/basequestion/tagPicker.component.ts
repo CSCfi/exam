@@ -34,7 +34,8 @@ export const TagPickerComponent: angular.IComponentOptions = {
                     uib-typeahead="t as t.name for t in $ctrl.getTags($viewValue)"
                     typeahead-min-length="2"/>
                 <span>
-                    <button ng-click="$ctrl.addTag()" 
+                <button ng-click="$ctrl.addTag()" 
+                    ng-disabled="!$ctrl.question.newTag || $ctrl.question.newTag.length < 2" 
                         class="btn btn-primary green border-green">{{'sitnet_add' | translate}}
                     </button>
                 </span>
