@@ -82,25 +82,19 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @Column(columnDefinition = "boolean default false")
     private boolean accessible;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstruction;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstructionEN;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstructionSV;
 
-    // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)
-    // tämä voisi olla myös Sitnet User, muuta ei välttämättä kannata
     private String contactPerson;
 
     private String videoRecordingsURL;
 
-    // ExamRoom may be out of service,
     private String statusComment;
 
     @Column(columnDefinition = "boolean default false")
