@@ -187,7 +187,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         }
         String precisionAttr = blank.attr("precision");
         double answer = Double.parseDouble(answerText);
-        Double correctAnswer = Double.parseDouble(blank.text().trim()).replaceAll("(^\\h*)|(\\h*$)",""));
+        Double correctAnswer = Double.parseDouble(blank.text().trim().replaceAll("(^\\h*)|(\\h*$)",""));
         Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
         return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
     }
