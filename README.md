@@ -52,7 +52,7 @@ EXAM Quickstart for developers
 
 You can skip running UI tests by passing the following build parameter
 
-    $ sbt -Dconfig.file=conf/dev.conf-DskipUiTests=true
+    $ sbt -Dconfig.file=conf/dev.conf -DskipUiTests=true
 
 in which case the tests will not be executed after starting the app.     
 
