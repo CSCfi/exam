@@ -1840,5 +1840,12 @@
     max-height: 400px;
     overflow-y: scroll;
   }
+
+  .participant-selector-toggle {
+    label {
+      display: block;
+      font-weight: 400;
+    }
+  }
 }
 
