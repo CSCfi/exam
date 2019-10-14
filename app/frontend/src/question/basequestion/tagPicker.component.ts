@@ -29,11 +29,15 @@ export const TagPickerComponent: angular.IComponentOptions = {
             </div>
             <div class="col-md-9 padr0">
                 <input id="newTag" name="newTag" maxlength="30" lowercase
-                    class="form-control"
+                    class="form-control wdth-30 make-inline"
                     ng-model="$ctrl.question.newTag"
                     uib-typeahead="t as t.name for t in $ctrl.getTags($viewValue)"
-                    typeahead-on-select="$ctrl.onTagSelect($item)"
                     typeahead-min-length="2"/>
+                <span>
+                    <button ng-click="$ctrl.addTag()" 
+                        class="btn btn-primary green border-green">{{'sitnet_add' | translate}}
+                    </button>
+                </span>
                 <ul class="list-inline mart10">
                     <li ng-repeat="tag in $ctrl.question.tags">{{tag.name}}
                     <button class="reviewer-remove"
@@ -56,7 +60,7 @@ export const TagPickerComponent: angular.IComponentOptions = {
         tooltipIcon: unknown;
         removalIcon: unknown;
 
-        constructor(private $http: angular.IHttpService, private $q: angular.IQService) {
+        constructor(private $http: angular.IHttpService) {
             'ngInject';
         }
 
@@ -65,30 +69,29 @@ export const TagPickerComponent: angular.IComponentOptions = {
             this.removalIcon = require('Images/icon_remove.svg');
         }
 
-        getTags = (filter: string): angular.IPromise<Tag[]> => {
-            const deferred: angular.IDeferred<Tag[]> = this.$q.defer();
-            this.$http.get('/app/tags', { params: { filter: filter } })
-                .then(
-                    (resp: angular.IHttpResponse<Tag[]>) => {
-                        const tags = resp.data;
-                        if (filter) {
-                            tags.unshift({ id: 0, name: filter });
-                        }
-                        // filter out the ones already tagged for this question and slice
-                        const filtered = tags.filter(tag =>
-                            this.question.tags.every(qt => qt.name !== tag.name)
-                        ).slice(0, 15);
-                        return deferred.resolve(filtered);
-                    })
-                .catch(error => {
-                    toast.error(error.data);
-                    return deferred.resolve([]);
-                });
-            return deferred.promise;
-        }
+        getTags = (filter: string): Promise<Tag[]> =>
+            new Promise<Tag[]>((resolve, reject) => {
+                this.$http.get('/app/tags', { params: { filter: filter } })
+                    .then(
+                        (resp: angular.IHttpResponse<Tag[]>) => {
+                            const tags = resp.data;
+                            if (filter) {
+                                tags.unshift({ id: 0, name: filter });
+                            }
+                            // filter out the ones already tagged for this question and slice
+                            const filtered = tags.filter(tag =>
+                                this.question.tags.every(qt => qt.name !== tag.name)
+                            ).slice(0, 15);
+                            resolve(filtered);
+                        })
+                    .catch(error => {
+                        toast.error(error.data);
+                        reject();
+                    });
+            })
 
-        onTagSelect = (tag: Tag) => {
-            this.question.tags.push(tag);
+        addTag = () => {
+            this.question.tags.push(this.question.newTag);
             delete this.question.newTag;
         };
 
