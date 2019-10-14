@@ -138,16 +138,17 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                         if (attachment.modified && attachment.file) {
                             this.Files.upload('/integration/iop/attachment/question', attachment.file,
                                 { examId: this.parentCtrl.examId, questionId: this.sectionQuestion.id },
-                                data.question);
+                                data.question, () => this.onUpdate());
                         } else if (attachment.removed) {
                             this.Attachment.eraseCollaborativeQuestionAttachment(this.parentCtrl.examId,
                                 this.sectionQuestion.id).then(() => {
                                     delete this.sectionQuestion.question.attachment;
+                                    this.onUpdate();
                                 });
                         }
                     })
-                    .catch(resp => toast.error(resp.data))
-                    .finally(() => {
+                    .catch(resp => {
+                        toast.error(resp.data);
                         if (this.parentCtrl.collaborative) {
                             this.onUpdate();
                         }
