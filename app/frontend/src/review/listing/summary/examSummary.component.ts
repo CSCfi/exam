@@ -22,15 +22,11 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
     bindings: {
         exam: '<',
-        collaborative: '<',
-        onUpdate: '&',
-        onNextTabSelected: '&'
     },
     controller: class ExamSummaryController implements ng.IComponentController {
 
         exam: Exam;
         participations: any[];
-        onNextTabSelected: () => any;
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
 
@@ -74,8 +70,6 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         getFeedbackPercentage = () =>
             this.getReadFeedback() / this.getTotalFeedback() * 100;
 
-        nextTab = () => this.onNextTabSelected();
-
         getTotalQuestions = () => {
             const sections: ExamSection[] = this.participations.map(p => p.exam.examSections);
             const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
@@ -89,7 +83,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         getAverageTime = () => {
             const durations = this.participations.map(p => p.duration);
-            return durations.reduce((a,b) => a + b, 0) / durations.length / 60000;
+            return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
         }
 
     }
