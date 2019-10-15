@@ -38,6 +38,10 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
         onPreviousTabSelected: () => any;
         onNextTabSelected: () => any;
 
+        // Toggles participant/pre-participant selector (default is participant)
+        // possible values: 'participant' | 'pre-participant'
+        visibleParticipantSelector = 'participant';
+
         user: User;
         hostName: string;
         autoevaluation: { enabled: boolean };
