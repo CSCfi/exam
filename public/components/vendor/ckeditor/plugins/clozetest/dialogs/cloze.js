@@ -64,13 +64,17 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                         },
                         label: editor.lang.clozetest.dialog.numeric,
                         'default': 'false',
-                        validate: CKEDITOR.dialog.validate.functions(function(val) {
-                           if (val === 'true') {
-                               var answer = CKEDITOR.dialog.getCurrent().getContentElement('tab-basic','answer').getValue();
-                               return !isNaN(answer)
-                           }
-                           return true;
-                        }, editor.lang.clozetest.dialog.errors.numeric)
+                        validate: CKEDITOR.dialog.validate.functions(
+                            function(val) {
+                                if (val === 'true') {
+                                    var answer = CKEDITOR.dialog.getCurrent().getContentElement('tab-basic','answer').getValue();
+                                    // Returns false for any non-numeric values/whitespace
+                                    return !isNaN(answer) && !/\s/.test(answer);
+                                }
+                                return true;
+                            },
+                            editor.lang.clozetest.dialog.errors.numeric
+                        )
                     },
                     {
                         // Number input field for answer accuracy value
@@ -82,6 +86,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             this.setValue(element.getAttribute('precision') || 0);
                         },
                         commit: function (element) {
+                            //var trimmedValue = this.getValue().replace(/\s/g, '');
                             element.setAttribute('precision', this.getValue() || 0);
                         },
                         validate: CKEDITOR.dialog.validate.functions(function(val) {
