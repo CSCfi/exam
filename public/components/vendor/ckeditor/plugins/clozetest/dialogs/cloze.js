@@ -86,7 +86,6 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             this.setValue(element.getAttribute('precision') || 0);
                         },
                         commit: function (element) {
-                            //var trimmedValue = this.getValue().replace(/\s/g, '');
                             element.setAttribute('precision', this.getValue() || 0);
                         },
                         validate: CKEDITOR.dialog.validate.functions(function(val) {
