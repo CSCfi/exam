@@ -43,7 +43,8 @@ public class ReservationAPIController extends BaseController {
         PathProperties pp = PathProperties.parse("(startAt, endAt, externalUserRef, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
                 "enrolment( " +
-                "exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))," +
+                "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
+                                "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
                 "collaborativeExam(name)" +
                 "), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
