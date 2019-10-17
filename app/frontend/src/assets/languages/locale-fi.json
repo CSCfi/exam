@@ -929,5 +929,8 @@
   "sitnet_exam_summary_tab": "Tentin yhteenveto",
   "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset",
   "sitnet_exam_status_deleted": "Poistettu",
-  "sitnet_exam_average_time": "Tenttisuorituksen keskimääräinen kesto"
+  "sitnet_exam_average_time": "Tenttisuorituksen keskimääräinen kesto",
+  "sitnet_exam_add_participants_title": "Lisää osallistujia",
+  "sitnet_exam_participant_selector_label": "Examiin kirjautuneet osallistujat",
+  "sitnet_exam_pre_participant_selector_label": "Kirjautumattomat osallistujat"
 }

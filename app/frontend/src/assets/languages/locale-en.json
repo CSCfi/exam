@@ -929,5 +929,8 @@
   "sitnet_exam_summary_tab": "Summary EN",
   "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset EN",
   "sitnet_exam_status_deleted": "Poistettu EN",
-  "sitnet_exam_average_time": "Average used for participation EN"
+  "sitnet_exam_average_time": "Average used for participation EN",
+  "sitnet_exam_add_participants_title": "Add participants EN",
+  "sitnet_exam_participant_selector_label": "Existing Exam users EN",
+  "sitnet_exam_pre_participant_selector_label": "Users not logged in to Exam EN"
 }
