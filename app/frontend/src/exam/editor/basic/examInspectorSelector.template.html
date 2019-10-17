@@ -8,7 +8,7 @@
     <div class="col-md-9">
         <input type="text" class="form-control wdth-30 make-inline"
                ng-model="$ctrl.newInspector.user.name"
-               uib-typeahead="t.name for t in $ctrl.allInspectors('name', $viewValue)"
+               uib-typeahead="t.name  + ' (' + t.email + ')' for t in $ctrl.allInspectors('name', $viewValue)"
                typeahead-editable="false"
                typeahead-min-length="2"
                typeahead-on-select="$ctrl.setInspector($item, $model, $label)"
@@ -34,7 +34,7 @@
         <div class="col-md-9">
             <ul class="list-inline mart10">
                 <li ng-repeat="inspection in $ctrl.examInspections">{{inspection.user.firstName }} {{
-                    inspection.user.lastName }}
+                    inspection.user.lastName }} ({{ inspection.user.email }})
                     <button class="reviewer-remove"
                             ng-click="$ctrl.removeInspector(inspection.id)"
                             title="{{'sitnet_remove' | translate}}">
