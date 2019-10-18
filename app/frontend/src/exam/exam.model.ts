@@ -146,12 +146,14 @@ export interface ExamImpl {
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
     subjectToLanguageInspection: boolean | null;
+    languageInspection: { finishedAt: string };
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
     examFeedback: { comment: string; feedbackStatus: boolean };
     grade: Grade;
     gradeless: boolean;
+    gradedTime: string;
     creditType: { type: string };
     customCredit: number;
     additionalInfo: string;
@@ -161,5 +163,10 @@ export interface ExamImpl {
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object
 export interface Exam extends ExamImpl {
     answerLanguage?: ExamLanguage;
+}
+
+export interface ExamParticipation {
+    id: number;
+    exam: Exam;
 }
 

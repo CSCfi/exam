@@ -35,7 +35,7 @@
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_amount_questions' | translate}}
             </div>
-            <div class="col-md-6" ng-if="$ctrl.participations">
+            <div class="col-md-6" ng-if="$ctrl.reviews">
                 {{$ctrl.getTotalQuestions()}}
             </div>
         </div>
@@ -43,7 +43,7 @@
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_amount_reservations' | translate}} / {{'sitnet_exam_amount_participations' | translate}}
             </div>
-            <div class="col-md-6" ng-if="$ctrl.participations">
+            <div class="col-md-6" ng-if="$ctrl.reviews">
                 {{$ctrl.gradedCount}} / {{$ctrl.getRegisteredCount()}}
                 ({{$ctrl.gradedCount / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
             </div>
@@ -52,7 +52,7 @@
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_average_time' | translate}}
             </div>
-            <div class="col-md-6" ng-if="$ctrl.participations">
+            <div class="col-md-6" ng-if="$ctrl.reviews.length > 0">
                 {{$ctrl.getAverageTime() | number : 0}} min
             </div>
         </div>
@@ -69,7 +69,7 @@
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_feedback_messages_read' | translate}}
             </div>
-            <div class="col-md-6" ng-if="$ctrl.participations">
+            <div class="col-md-6" ng-if="$ctrl.reviews">
                 {{$ctrl.getReadFeedback()}} / {{$ctrl.getTotalFeedback()}}
                 ({{$ctrl.getFeedbackPercentage() | number : 1}}%)
             </div>
