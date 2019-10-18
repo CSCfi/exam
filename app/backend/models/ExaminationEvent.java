@@ -15,7 +15,6 @@
 
 package backend.models;
 
-import java.util.Date;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -25,6 +24,7 @@ import javax.persistence.TemporalType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
 
 import backend.models.base.GeneratedIdentityModel;
 
@@ -32,7 +32,7 @@ import backend.models.base.GeneratedIdentityModel;
 public class ExaminationEvent extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date start;
+    private DateTime start;
 
     private String description;
 
@@ -40,11 +40,11 @@ public class ExaminationEvent extends GeneratedIdentityModel {
     @JsonBackReference
     private Set<ExaminationEventConfiguration> examinationEventConfigurations;
 
-    public Date getStart() {
+    public DateTime getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(DateTime start) {
         this.start = start;
     }
 

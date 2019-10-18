@@ -64,4 +64,5 @@ public enum Attrs {
     public static final TypedKey<String> ESSAY_ANSWER = TypedKey.create("essayAnswer");
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
+    public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
 }

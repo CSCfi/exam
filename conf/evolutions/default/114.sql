@@ -15,9 +15,11 @@ CREATE TABLE examination_event_configuration (
     encrypted_settings_password BYTEA NOT NULL,
     settings_password_salt VARCHAR(36) NOT NULL,
     config_key VARCHAR(64),
+    hash VARCHAR(36) NOT NULL,
     object_version BIGINT NOT NULL,
     CONSTRAINT PK_EXAMINATION_EVENT_EXAM PRIMARY KEY (id)
 );
+CREATE SEQUENCE examination_event_configuration_seq;
 ALTER TABLE examination_event_configuration ADD CONSTRAINT FK_EXAMINATION_EVENT_CONFIGURATION_EXAM
     FOREIGN KEY (exam_id) REFERENCES exam(id);
 ALTER TABLE examination_event_configuration ADD CONSTRAINT FK_EXAMINATION_EVENT_CONFIGURATION_EXAMINATION_EVENT
@@ -34,4 +36,5 @@ CREATE INDEX ix_exam_enrolment_examination_event ON exam_enrolment (examination_
 ALTER TABLE exam_enrolment DROP examination_event_id CASCADE;
 DROP TABLE examination_event_configuration CASCADE;
 DROP TABLE examination_event CASCADE;
+DROP SEQUENCE IF EXISTS examination_event_configuration_seq;
 DROP SEQUENCE IF EXISTS examination_event_seq;

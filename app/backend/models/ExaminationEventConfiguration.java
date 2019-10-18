@@ -51,6 +51,9 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @JsonIgnore
     private String configKey;
 
+    @JsonIgnore
+    private String hash;
+
     @Transient
     private String settingsPassword;
 
@@ -93,6 +96,14 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
     public void setConfigKey(String configKey) {
         this.configKey = configKey;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public String getSettingsPassword() {

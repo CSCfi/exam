@@ -406,5 +406,32 @@ angular.module('app.exam')
                 return self.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
             }
 
+            self.addExaminationEvent = (examId, config) => {
+                const deferred = $q.defer();
+                $http.post(`/app/exam/${examId}/examinationevents`, config).then(resp => {
+                    toast.info($translate.instant('sitnet_saved'));
+                    deferred.resolve(resp.data);
+                }).catch(deferred.reject);
+                return deferred.promise;
+            }
+
+            self.updateExaminationEvent = (examId, config) => {
+                const deferred = $q.defer();
+                $http.put(`/app/exam/${examId}/examinationevents/${config.id}`, config).then(resp => {
+                    toast.info($translate.instant('sitnet_saved'));
+                    deferred.resolve(resp.data);
+                }).catch(deferred.reject);
+                return deferred.promise;
+            }
+
+            self.removeExaminationEvent = (examId, config) => {
+                const deferred = $q.defer();
+                $http.delete(`/app/exam/${examId}/examinationevents/${config.id}`).then(resp => {
+                    toast.info($translate.instant('sitnet_saved'));
+                    deferred.resolve(resp.data);
+                }).catch(deferred.reject);
+                return deferred.promise;
+            }
+
         }]);
 
