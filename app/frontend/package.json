@@ -123,13 +123,12 @@
     }
   },
   "lint-staged": {
-    "*.{js,html}": [
+    "*.{js,ts,html}": [
       "prettier --write",
       "git add"
     ],
-    "*.ts": [
-      "prettier --write",
-      "eslint \"src/**/*.ts\" --fix",
+    "*.{ts,js}": [
+      "eslint --fix",
       "git add"
     ]
   },
