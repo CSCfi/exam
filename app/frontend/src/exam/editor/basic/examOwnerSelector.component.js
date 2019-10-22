@@ -18,7 +18,7 @@ import toast from 'toastr';
 angular.module('app.exam.editor').component('examOwnerSelector', {
     template: require('./examOwnerSelector.template.html'),
     bindings: {
-        exam: '<'
+        exam: '<',
     },
     controller: [
         '$translate',
@@ -28,11 +28,11 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
         function($translate, limitToFilter, ExamRes, UserRes) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.newOwner = {
-                    "id": null,
-                    "name": null,
-                    "email": null
+                    id: null,
+                    name: null,
+                    email: null,
                 };
                 vm.examOwners = getExamOwners();
             };
@@ -43,7 +43,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                     .query({
                         role: 'TEACHER',
                         eid: vm.exam.id,
-                        q: criteria
+                        q: criteria,
                     })
                     .$promise.then(
                         function(names) {
@@ -51,7 +51,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                         },
                         function(error) {
                             toast.error(error.data);
-                        }
+                        },
                     );
             };
 
@@ -64,7 +64,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                     ExamRes.examowner.insert(
                         {
                             eid: vm.exam.id,
-                            uid: vm.newOwner.id
+                            uid: vm.newOwner.id,
                         },
                         function() {
                             getExamOwners();
@@ -75,7 +75,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                         },
                         function(error) {
                             toast.error(error.data);
-                        }
+                        },
                     );
                 } else {
                     toast.error($translate.instant('sitnet_teacher_not_found'));
@@ -90,7 +90,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                     },
                     function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             };
 
@@ -102,9 +102,9 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                     },
                     function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             }
-        }
-    ]
+        },
+    ],
 });

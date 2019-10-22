@@ -3,8 +3,8 @@ module.exports = {
     parserOptions: {
         project: './tsconfig.json',
         ecmaVersion: 2018,
-        sourceType: "module",
-        createDefaultProgram: true // https://github.com/typescript-eslint/typescript-eslint/issues/864
+        sourceType: 'module',
+        createDefaultProgram: true, // https://github.com/typescript-eslint/typescript-eslint/issues/864
     },
     plugins: ['@typescript-eslint'],
     extends: [
@@ -13,11 +13,11 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
         'plugin:angular/johnpapa',
         'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-        'plugin:prettier/recommended'
+        'plugin:prettier/recommended',
     ],
     env: {
-        'browser': true,
-        'node': true
+        browser: true,
+        node: true,
     },
     rules: {
         '@typescript-eslint/explicit-function-return-type': 'off',
@@ -30,7 +30,6 @@ module.exports = {
         'no-bitwise': 'error',
         'no-new': 'error',
         'no-var': 'error',
-        'camelcase': 'error',
-    }
-
-}
+        camelcase: 'error',
+    },
+};

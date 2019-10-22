@@ -9,6 +9,10 @@
   "license": "EUPL-1.1",
   "scripts": {
     "test": "test",
+    "lint": "eslint \"src/**/*.?s\"; exit 0",
+    "lint-fix": "eslint \"src/**/*.?s\" --fix; exit 0",
+    "prettier": "prettier --check \"src/**/*.?s\"; exit 0",
+    "prettier-fix": "prettier --write \"src/**/*.?s\"; exit 0",
     "build": "webpack --progress --color -p --config ./webpack/webpack.prod.js",
     "start": "webpack-dev-server --progress --color --config ./webpack/webpack.dev.js"
   },

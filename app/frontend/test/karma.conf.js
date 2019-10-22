@@ -15,12 +15,12 @@
  */
 const webpackConf = require('../webpack/webpack.dev');
 
-module.exports = function (config) {
+module.exports = function(config) {
     config.set({
         basePath: '',
         files: [
             'unit/test.bundle.js',
-            { pattern: 'unit/fixtures/**/*.json', watched: true, served: true, included: false }
+            { pattern: 'unit/fixtures/**/*.json', watched: true, served: true, included: false },
         ],
         singleRun: false,
         autoWatch: true,
@@ -31,16 +31,16 @@ module.exports = function (config) {
             'karma-phantomjs-launcher',
             'karma-sourcemap-loader',
             'karma-jasmine',
-            'karma-webpack'
+            'karma-webpack',
         ],
         reporters: ['dots'],
         logLevel: config.LOG_INFO,
         preprocessors: {
-            'unit/test.bundle.js': ['webpack', 'sourcemap']
+            'unit/test.bundle.js': ['webpack', 'sourcemap'],
         },
         webpack: webpackConf,
         webpackMiddleware: {
-            stats: 'errors-only'
-        }
+            stats: 'errors-only',
+        },
     });
 };

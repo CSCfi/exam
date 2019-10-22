@@ -18,7 +18,7 @@ import toast from 'toastr';
 angular.module('app.exam.editor').component('examInspectorSelector', {
     template: require('./examInspectorSelector.template.html'),
     bindings: {
-        exam: '<'
+        exam: '<',
     },
     controller: [
         '$translate',
@@ -28,13 +28,13 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
         function($translate, limitToFilter, ExamRes, UserRes) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.newInspector = {
                     id: null,
                     name: null,
                     sendMessage: false,
                     comment: '',
-                    email: null
+                    email: null,
                 };
                 getInspectors();
             };
@@ -46,7 +46,7 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                     .query({
                         role: 'TEACHER',
                         eid: vm.exam.id,
-                        q: criteria
+                        q: criteria,
                     })
                     .$promise.then(
                         function(names) {
@@ -54,7 +54,7 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                         },
                         function(error) {
                             toast.error(error.data);
-                        }
+                        },
                     );
             };
 
@@ -69,7 +69,7 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                         {
                             eid: vm.exam.id,
                             uid: vm.newInspector.id,
-                            comment: vm.newInspector.comment || ''
+                            comment: vm.newInspector.comment || '',
                         },
                         function() {
                             // reload the list
@@ -79,7 +79,7 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                         },
                         function(error) {
                             toast.error(error.data);
-                        }
+                        },
                     );
                 } else {
                     toast.error($translate.instant('sitnet_teacher_not_found'));
@@ -95,7 +95,7 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                     },
                     function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             };
 
@@ -108,9 +108,9 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
                     },
                     function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             }
-        }
-    ]
+        },
+    ],
 });

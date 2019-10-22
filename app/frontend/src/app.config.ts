@@ -35,7 +35,7 @@ export default function configs(
 
     ['en', 'fi', 'sv'].forEach(
         // eslint-disable-next-line
-        l => $translateProvider.translations(l, require(`./assets/languages/locale-${l}.json`))
+        l => $translateProvider.translations(l, require(`./assets/languages/locale-${l}.json`)),
     );
 
     $translateProvider.useSanitizeValueStrategy('');

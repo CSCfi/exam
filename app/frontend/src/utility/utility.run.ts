@@ -20,6 +20,6 @@ export default function run($templateCache: ng.ITemplateCacheService) {
     $templateCache.put(
         'uib/template/datepickerPopup/popup.html',
         // eslint-disable-next-line
-        require('./date/template/uibPopupOverride.html')
+        require('./date/template/uibPopupOverride.html'),
     );
 }

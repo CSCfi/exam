@@ -18,7 +18,7 @@ import toast from 'toastr';
 angular.module('app.exam.editor').component('softwareSelector', {
     template: require('./softwareSelector.template.html'),
     bindings: {
-        exam: '<'
+        exam: '<',
     },
     controller: [
         '$translate',
@@ -69,9 +69,9 @@ angular.module('app.exam.editor').component('softwareSelector', {
                     },
                     function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             };
-        }
-    ]
+        },
+    ],
 });
