@@ -1,7 +1,6 @@
 <div class="exam-border col-md-12">
     <div class="col-md-12 mart40" ng-if="!$ctrl.collaborative">
-        <div class="review-list-title">{{ 'sitnet_course_info' | translate }}
-        </div>
+        <div class="review-list-title">{{ 'sitnet_course_info' | translate }}</div>
     </div>
     <!-- General info section container -->
     <div class="col-md-12">
@@ -14,22 +13,28 @@
 
         <!-- Exam name and language -->
         <div class="col-md-12 margin-20">
-            <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}
-            </div>
+            <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}</div>
         </div>
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_name' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_name' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
-                        uib-popover="{{'sitnet_exam_title_description' | translate}}" src="Images/icon_tooltip.svg"
-                        alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_title_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
-
             </div>
             <div class="col-md-9">
-                <input class="form-control ng-pristine ng-valid wdth-30" ng-model="$ctrl.exam.name"
-                    ui-change="$ctrl.updateExam()" />
-
+                <input
+                    class="form-control ng-pristine ng-valid wdth-30"
+                    ng-model="$ctrl.exam.name"
+                    ui-change="$ctrl.updateExam()"
+                />
             </div>
         </div>
 
@@ -37,18 +42,22 @@
 
         <!-- EXECUTION TYPE -->
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_new_exam_type' | translate}}
-            </div>
+            <div class="col-md-3 exam-basic-title">{{'sitnet_new_exam_type' | translate}}</div>
             <div class="col-md-9">{{ $ctrl.getExecutionTypeTranslation() | translate}}</div>
         </div>
 
         <!-- ANONYMOUS REVIEW -->
         <div class="row col-md-12 margin-20" ng-show="$ctrl.showAnonymousReview()">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_anonymous_review' | translate}}
-            </div>
+            <div class="col-md-3 exam-basic-title">{{'sitnet_anonymous_review' | translate}}</div>
             <div class="col-md-9">
-                <input type="checkbox" title="anonymous" name="anonymous" ng-change="$ctrl.toggleAnonymous()"
-                    ng-model="$ctrl.exam.anonymous" ng-disabled="$ctrl.toggleAnonymousDisabled()" />
+                <input
+                    type="checkbox"
+                    title="anonymous"
+                    name="anonymous"
+                    ng-change="$ctrl.toggleAnonymous()"
+                    ng-model="$ctrl.exam.anonymous"
+                    ng-disabled="$ctrl.toggleAnonymousDisabled()"
+                />
             </div>
         </div>
 
@@ -60,50 +69,66 @@
             </div>
         </div>
 
-
         <!-- Exam review data below -->
         <div class="col-md-12 margin-20">
-            <div class="review-list-title">{{ 'sitnet_exam_review_settings' | translate }}
-            </div>
+            <div class="review-list-title">{{ 'sitnet_exam_review_settings' | translate }}</div>
         </div>
 
         <!-- EXAM TYPE PICKER -->
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_credit_type' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_credit_type' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_exam_credit_type_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-9">
                 <span ng-repeat="examType in $ctrl.examTypes">
-                    <button ng-disabled="$ctrl.examTypes.length < 2" class="btn btn-review"
+                    <button
+                        ng-disabled="$ctrl.examTypes.length < 2"
+                        class="btn btn-review"
                         ng-class="$ctrl.checkExamType(examType.type)"
-                        ng-click="$ctrl.setExamType(examType.type)">{{examType.name}}
-                    </button>&nbsp;
+                        ng-click="$ctrl.setExamType(examType.type)"
+                    >
+                        {{examType.name}}</button
+                    >&nbsp;
                 </span>
-
             </div>
         </div>
 
         <!-- GRADE SCALE PICKER -->
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_grade_scale' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_grade_scale' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_exam_grade_scale_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-9">
                 <span ng-repeat="gradeScale in $ctrl.getSelectableScales()">
-                    <button class="btn btn-review" ng-class="$ctrl.checkScale(gradeScale)"
+                    <button
+                        class="btn btn-review"
+                        ng-class="$ctrl.checkScale(gradeScale)"
                         ng-click="$ctrl.setScale(gradeScale)"
-                        ng-disabled="$ctrl.checkScaleDisabled(gradeScale)">{{gradeScale.name}}
-                    </button>&nbsp;</span>
+                        ng-disabled="$ctrl.checkScaleDisabled(gradeScale)"
+                    >
+                        {{gradeScale.name}}</button
+                    >&nbsp;</span
+                >
             </div>
         </div>
 
@@ -114,25 +139,30 @@
         <div class="row col-md-12 margin-20" ng-show="$ctrl.exam.executionType.type==='MATURITY'">
             <div class="col-md-3 exam-basic-title">{{'sitnet_subject_to_language_inspection' | translate}}</div>
             <div class="col-md-9">
-                <button class="btn btn-review"
+                <button
+                    class="btn btn-review"
                     ng-class="$ctrl.exam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
                     ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                    ng-click="$ctrl.exam.subjectToLanguageInspection = true; $ctrl.updateExam()">{{'DIALOGS_YES'
-                    | translate }}
-                </button>&nbsp;
-                <button class="btn btn-review"
+                    ng-click="$ctrl.exam.subjectToLanguageInspection = true; $ctrl.updateExam()"
+                >
+                    {{'DIALOGS_YES' | translate }}</button
+                >&nbsp;
+                <button
+                    class="btn btn-review"
                     ng-class="$ctrl.exam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
                     ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                    ng-click="$ctrl.exam.subjectToLanguageInspection = false; $ctrl.updateExam()">{{'DIALOGS_NO'
-                    | translate }}
+                    ng-click="$ctrl.exam.subjectToLanguageInspection = false; $ctrl.updateExam()"
+                >
+                    {{'DIALOGS_NO' | translate }}
                 </button>
-
             </div>
         </div>
 
         <!-- Exam inspectors -->
-        <exam-inspector-selector exam="$ctrl.exam"
-            ng-if="$ctrl.exam.executionType.type!=='MATURITY' && !$ctrl.collaborative">
+        <exam-inspector-selector
+            exam="$ctrl.exam"
+            ng-if="$ctrl.exam.executionType.type!=='MATURITY' && !$ctrl.collaborative"
+        >
         </exam-inspector-selector>
 
         <!-- Space requirements and attachments -->
@@ -140,48 +170,72 @@
 
         <!-- EXAMINATION TYPE PICKER -->
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_examination_type' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_examination_type' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_examination_type_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-9">
-                <button class="btn btn-review" ng-class="$ctrl.exam.requiresUserAgentAuth ? '' : 'btn-primary'"
-                    ng-click="$ctrl.exam.requiresUserAgentAuth = false; $ctrl.updateExam(false)">
-                    {{'sitnet_examination_type_aquarium' | translate }}
-                </button>&nbsp;
-                <button class="btn btn-review" ng-class="$ctrl.exam.requiresUserAgentAuth ? 'btn-primary' : ''"
-                    ng-click="$ctrl.exam.requiresUserAgentAuth = true; $ctrl.updateExam(false)">
+                <button
+                    class="btn btn-review"
+                    ng-class="$ctrl.exam.requiresUserAgentAuth ? '' : 'btn-primary'"
+                    ng-click="$ctrl.exam.requiresUserAgentAuth = false; $ctrl.updateExam(false)"
+                >
+                    {{'sitnet_examination_type_aquarium' | translate }}</button
+                >&nbsp;
+                <button
+                    class="btn btn-review"
+                    ng-class="$ctrl.exam.requiresUserAgentAuth ? 'btn-primary' : ''"
+                    ng-click="$ctrl.exam.requiresUserAgentAuth = true; $ctrl.updateExam(false)"
+                >
                     {{'sitnet_examination_type_seb' | translate }}
                 </button>
             </div>
         </div>
 
         <div class="row col-md-12 margin-20" ng-show="$ctrl.exam.requiresUserAgentAuth">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_examination_events' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_examination_events' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_examination_events_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-3">
-                <button type="button" ng-click="$ctrl.addExaminationEvent()"
-                    class="btn btn-primary green border-green">{{'sitnet_add_examination_event' | translate}}</button>
+                <button type="button" ng-click="$ctrl.addExaminationEvent()" class="btn btn-primary green border-green">
+                    {{'sitnet_add_examination_event' | translate}}
+                </button>
             </div>
             <div class="col-md-6">
                 <ul class="list-inline">
                     <li ng-repeat="config in $ctrl.exam.examinationEventConfigurations" class="pointer">
-                        <span
-                            ng-click="$ctrl.modifyExaminationEvent(config)">{{ config.examinationEvent.start | date }}</span>
-                        <button class="reviewer-remove" ng-click="$ctrl.removeExaminationEvent(config)"
-                            title="{{'sitnet_remove' | translate}}">
-                            <img src="Images/icon_remove.svg" alt="exam"
-                                onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                        <span ng-click="$ctrl.modifyExaminationEvent(config)"
+                            >{{ config.examinationEvent.start | date }}</span
+                        >
+                        <button
+                            class="reviewer-remove"
+                            ng-click="$ctrl.removeExaminationEvent(config)"
+                            title="{{'sitnet_remove' | translate}}"
+                        >
+                            <img
+                                src="Images/icon_remove.svg"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='Images/icon_remove.png'"
+                            />
                         </button>
                     </li>
                 </ul>
@@ -190,24 +244,37 @@
 
         <!-- EXAM ATTACHMENT -->
         <div class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_attachment' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_attachment' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
-                        uib-popover="{{'sitnet_attachment_description' | translate}}" src="Images/icon_tooltip.svg"
-                        alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_attachment_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-9">
-                <button type="button" class="btn btn-primary green border-green"
-                    ng-click="$ctrl.selectAttachmentFile()">{{'sitnet_attach_file'
-                    | translate}}
+                <button
+                    type="button"
+                    class="btn btn-primary green border-green"
+                    ng-click="$ctrl.selectAttachmentFile()"
+                >
+                    {{'sitnet_attach_file' | translate}}
                 </button>
                 <div ng-show="$ctrl.exam.attachment" class="make-inline student-enrolment-exam">
                     <a class="pointer" ng-click="$ctrl.downloadExamAttachment()">
-                        <i class="fa fa-paperclip padl10"></i> {{$ctrl.exam.attachment.fileName}} </a>
+                        <i class="fa fa-paperclip padl10"></i> {{$ctrl.exam.attachment.fileName}}
+                    </a>
                     <span class="sitnet-red pointer" ng-click="$ctrl.removeExamAttachment()">
-                        <img src="Images/icon_remove.svg" alt="exam"
-                            onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                        <img
+                            src="Images/icon_remove.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_remove.png'"
+                        />
                     </span>
                 </div>
             </div>
@@ -215,32 +282,46 @@
 
         <!-- INSTRUCTIONS -->
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="col-md-12 margin-20">
-            <div class="review-list-title">{{ 'sitnet_instruction' | translate }}
-            </div>
+            <div class="review-list-title">{{ 'sitnet_instruction' | translate }}</div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_instruction' | translate}}
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_exam_instruction' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_exam_instruction_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <div class="col-md-9">
-                <textarea class="form-control" rows="4" cols="150" ng-model="$ctrl.exam.instruction"
-                    ui-change="$ctrl.updateExam()" placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                        </textarea>
+                <textarea
+                    class="form-control"
+                    rows="4"
+                    cols="150"
+                    ng-model="$ctrl.exam.instruction"
+                    ui-change="$ctrl.updateExam()"
+                    placeholder="{{'sitnet_placeholder_write_instruction' | translate}}"
+                >
+                </textarea>
             </div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
             <div ng-if="$ctrl.exam.executionType.type!=='PRINTOUT'" class="col-md-3 exam-basic-title">
                 {{'sitnet_enroll_instruction' | translate}}
                 <sup>
-                    <img popover-placement="right" popover-trigger="'mouseenter'"
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
                         uib-popover="{{'sitnet_exam_enroll_instruction_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam"
-                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
                 </sup>
             </div>
             <!-- Map these instructions to allowed tools in case of printout -->
@@ -248,12 +329,17 @@
                 {{'sitnet_allowed_tools' | translate}}
             </div>
             <div class="col-md-9">
-                <textarea class="form-control" rows="4" cols="150" ng-model="$ctrl.exam.enrollInstruction"
-                    ui-change="$ctrl.updateExam()" placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                        </textarea>
+                <textarea
+                    class="form-control"
+                    rows="4"
+                    cols="150"
+                    ng-model="$ctrl.exam.enrollInstruction"
+                    ui-change="$ctrl.updateExam()"
+                    placeholder="{{'sitnet_placeholder_write_instruction' | translate}}"
+                >
+                </textarea>
             </div>
         </div>
-
     </div>
 </div>
 <!-- Buttons -->
@@ -266,8 +352,7 @@
             </a>
         </div>
         <div ng-show="$ctrl.showDelete()" class="review-attachment-button exam-questions-buttons marl10">
-            <a class="pointer warning" ng-click="$ctrl.removeExam()">
-                {{'sitnet_exam_remove' | translate}}</a>
+            <a class="pointer warning" ng-click="$ctrl.removeExam()"> {{'sitnet_exam_remove' | translate}}</a>
         </div>
     </span>
 </div>
@@ -275,8 +360,7 @@
 <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" ng-click="$ctrl.nextTab()">
-                {{'sitnet_questions' | translate}} &#187;</a>
+            <a class="pointer preview" ng-click="$ctrl.nextTab()"> {{'sitnet_questions' | translate}} &#187;</a>
         </div>
     </span>
 </div>

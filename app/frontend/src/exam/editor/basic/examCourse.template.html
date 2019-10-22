@@ -1,13 +1,10 @@
 <div class="col-md-12">
     <div class="row margin-20">
-
         <course-picker course="$ctrl.exam.course" on-update="$ctrl.setCourse(course)"></course-picker>
-
     </div>
     <!-- Course scope and organization name elements -> 3 rows -->
     <div class="row margin-20">
-        <div class="col-md-3">
-        </div>
+        <div class="col-md-3"></div>
         <div class="col-md-3">
             <div class="">{{'sitnet_course_scope' | translate}}</div>
         </div>
@@ -16,8 +13,7 @@
         </div>
     </div>
     <div class="row margin-20">
-        <div class="col-md-3">
-        </div>
+        <div class="col-md-3"></div>
         <div class="col-md-3">
             <div class="">{{'sitnet_faculty_name' | translate}}</div>
         </div>
@@ -26,8 +22,7 @@
         </div>
     </div>
     <div class="row margin-20" ng-show="$ctrl.exam.course.gradeScale">
-        <div class="col-md-3">
-        </div>
+        <div class="col-md-3"></div>
         <div class="col-md-3">
             <div class="">{{'sitnet_grade_scale' | translate}}</div>
         </div>
@@ -35,5 +30,4 @@
             <div class="">{{$ctrl.displayGradeScale()}}</div>
         </div>
     </div>
-
 </div>

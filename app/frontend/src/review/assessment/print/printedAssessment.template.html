@@ -1,7 +1,8 @@
 <div id="exam-print" ng-if="$ctrl.exam">
     <div class="row">
         <div class="col-md-12">
-            <h3>{{$ctrl.exam.course.code}} - {{$ctrl.exam.name}},
+            <h3>
+                {{$ctrl.exam.course.code}} - {{$ctrl.exam.name}},
                 <small>{{$ctrl.exam.course.credits}} op</small>
             </h3>
         </div>
@@ -23,8 +24,9 @@
     </div>
     <div class="row">
         <div class="col-md-2"><strong>{{'sitnet_time_of_exam_participation' | translate}}:</strong></div>
-        <div class="col-md-4">{{$ctrl.participation.started | adjustdst | date:'dd.MM.yyyy HH:mm'}} -
-            {{$ctrl.participation.ended | adjustdst | date:'dd.MM.yyyy HH:mm'}}
+        <div class="col-md-4">
+            {{$ctrl.participation.started | adjustdst | date:'dd.MM.yyyy HH:mm'}} - {{$ctrl.participation.ended |
+            adjustdst | date:'dd.MM.yyyy HH:mm'}}
         </div>
         <div class="col-md-2"><strong>{{'sitnet_exam_duration' | translate}}:</strong></div>
         <div class="col-md-4">{{$ctrl.participation.duration}}</div>
@@ -35,8 +37,8 @@
     </div>
     <div class="row">
         <div class="col-md-2"><strong>{{'sitnet_examination_location' | translate}}:</strong></div>
-        <div class="col-md-4" ng-if="$ctrl.reservation.machine.room">{{$ctrl.reservation.machine.room.name}}
-            ({{$ctrl.reservation.machine.room.roomCode}})
+        <div class="col-md-4" ng-if="$ctrl.reservation.machine.room">
+            {{$ctrl.reservation.machine.room.name}} ({{$ctrl.reservation.machine.room.roomCode}})
         </div>
         <div class="col-md-4" ng-if="!$ctrl.reservation.machine.room">N/A</div>
         <div class="col-md-2"><strong>{{'sitnet_exam_machine' | translate}}:</strong></div>
@@ -53,8 +55,9 @@
     </div>
     <div class="row" ng-repeat="participation in $ctrl.previousParticipations">
         <div class="col-md-2">{{participation.started | adjustdst | date:'dd.MM.yyyy' }}</div>
-        <div class="col-md-4"><strong>{{'sitnet_exam_state' | translate}}:</strong>&nbsp;&nbsp;&nbsp;
-            {{'sitnet_exam_status_' + participation.exam.state | lowercase | translate}}
+        <div class="col-md-4">
+            <strong>{{'sitnet_exam_state' | translate}}:</strong>&nbsp;&nbsp;&nbsp; {{'sitnet_exam_status_' +
+            participation.exam.state | lowercase | translate}}
         </div>
         <div class="col-md-6">
             {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{ $ctrl.translateGrade(participation) }}
@@ -105,7 +108,6 @@
         <printed-section section="section"></printed-section>
     </div>
 
-
     <!-- Grading -->
     <div class="row">
         <div class="col-md-12">
@@ -121,7 +123,6 @@
             {{$ctrl.getExamTotalScore()}} / {{$ctrl.getExamMaxPossibleScore() }}
         </div>
     </div>
-
 
     <div class="row" ng-show="$ctrl.questionSummary.accepted > 0">
         <div class="col-md-3"><strong>{{ 'sitnet_approved' | translate }}:</strong></div>
@@ -148,23 +149,22 @@
         <div class="row">
             <div class="col-md-3"><strong>{{ 'sitnet_exam_owners' | translate }}:</strong></div>
             <div class="col-md-9">
-                    <span ng-repeat="teacher in exam.parent.examOwners">
-                        {{teacher.firstName}} {{teacher.lastName}} {{ $last ? '' : ', ';}}
-                    </span>
+                <span ng-repeat="teacher in exam.parent.examOwners">
+                    {{teacher.firstName}} {{teacher.lastName}} {{ $last ? '' : ', ';}}
+                </span>
             </div>
         </div>
         <div class="row">
             <div class="col-md-3">
-                <strong>{{'sitnet_exam_instructor' | translate}} ({{'sitnet_inspection_status' |
-                    translate}}):</strong>
+                <strong>{{'sitnet_exam_instructor' | translate}} ({{'sitnet_inspection_status' | translate}}):</strong>
             </div>
             <div class="col-md-9">
-                    <span ng-repeat="inspection in $ctrl.exam.examInspections">
-                        <span>{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
-                        <span ng-if="inspection.ready">({{'sitnet_ready' | translate}})</span>
-                        <span ng-if="!inspection.ready">({{'sitnet_in_progress' | translate }})</span>
-                        <span>{{ $last ? '' : ', ';}}</span>
-                    </span>
+                <span ng-repeat="inspection in $ctrl.exam.examInspections">
+                    <span>{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                    <span ng-if="inspection.ready">({{'sitnet_ready' | translate}})</span>
+                    <span ng-if="!inspection.ready">({{'sitnet_in_progress' | translate }})</span>
+                    <span>{{ $last ? '' : ', ';}}</span>
+                </span>
             </div>
         </div>
     </div>
@@ -193,5 +193,4 @@
             {{$ctrl.exam.customCredit || $ctrl.exam.course.credits}}
         </div>
     </div>
-
 </div>

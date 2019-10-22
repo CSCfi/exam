@@ -8,50 +8,81 @@
     </div>
 
     <div class="row mart40 padl30" ng-show="$ctrl.noShows.length === 0">
-        <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
-            {{ 'sitnet_exam_no_shows' | translate }}</div>
+        <div class="review-no-results">
+            <i class="fa fa-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_shows' | translate }}
+        </div>
     </div>
 
     <div class="row review-no-show" ng-show="$ctrl.noShows.length > 0">
         <table class="table table-striped exams-table">
             <thead ng-init="$ctrl.noShowPredicate = 'reservation.startAt'">
-            <tr>
-                <th sort by="displayName" text="sitnet_student" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
-                <th sort by="user.email" text="sitnet_email" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
-                <th sort by="reservation.startAt" text="sitnet_reservation" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
-                <th>{{'sitnet_exam_state' | translate}}</th>
-                <th sort by="reservation.trialCount" text="sitnet_trial" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse">{{'sitnet_trial' | translate}}</th>
-            </tr>
+                <tr>
+                    <th
+                        sort
+                        by="displayName"
+                        text="sitnet_student"
+                        predicate="$ctrl.noShowPredicate"
+                        reverse="$ctrl.reverse"
+                    ></th>
+                    <th
+                        sort
+                        by="user.email"
+                        text="sitnet_email"
+                        predicate="$ctrl.noShowPredicate"
+                        reverse="$ctrl.reverse"
+                    ></th>
+                    <th
+                        sort
+                        by="reservation.startAt"
+                        text="sitnet_reservation"
+                        predicate="$ctrl.noShowPredicate"
+                        reverse="$ctrl.reverse"
+                    ></th>
+                    <th>{{'sitnet_exam_state' | translate}}</th>
+                    <th
+                        sort
+                        by="reservation.trialCount"
+                        text="sitnet_trial"
+                        predicate="$ctrl.noShowPredicate"
+                        reverse="$ctrl.reverse"
+                    >
+                        {{'sitnet_trial' | translate}}
+                    </th>
+                </tr>
             </thead>
 
             <tbody>
-            <tr ng-repeat="review in $ctrl.noShows | orderBy:$ctrl.noShowPredicate:$ctrl.reverse">
-                <td class="table-column-examname">
-                    {{review.displayName}}
-                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
-                </td>
-                <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
-                    {{review.user.email}}</a></td>
-                <td class="table-column-25">{{review.reservation.startAt | adjustdst | date: 'dd.MM.yyyy'}}
-                    {{'sitnet_clock_short' |
-                    translate}} {{review.reservation.startAt | adjustdst | date: 'HH:mm'}} -
-                    {{review.reservation.endAt | adjustdst | date:'HH:mm'}}
-                </td>
-                <td class="table-column-15" class="sitnet-text-aborted">
-                    {{'sitnet_exam_status_no_show' | translate}}
-                </td>
-                <td class="table-column-10">
-                    <div ng-show="review.exam.trialCount && review.reservation">
-                        <button ng-disabled="review.reservation.retrialPermitted"
-                                ng-click="$ctrl.permitRetrial(review.reservation)" class="btn btn-sm btn-primary">
-                            {{'sitnet_permit_retrial' | translate}}
-                        </button>
-                    </div>
-                    <div ng-show="!review.exam.trialCount" class="text-muted">
-                        {{'sitnet_unrestricted' | translate }}
-                    </div>
-                </td>
-            </tr>
+                <tr ng-repeat="review in $ctrl.noShows | orderBy:$ctrl.noShowPredicate:$ctrl.reverse">
+                    <td class="table-column-examname">
+                        {{review.displayName}}
+                        <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                    </td>
+                    <td class="table-column-25">
+                        <a class="pointer" href="mailto:{{review.user.email}}"> {{review.user.email}}</a>
+                    </td>
+                    <td class="table-column-25">
+                        {{review.reservation.startAt | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
+                        translate}} {{review.reservation.startAt | adjustdst | date: 'HH:mm'}} -
+                        {{review.reservation.endAt | adjustdst | date:'HH:mm'}}
+                    </td>
+                    <td class="table-column-15" class="sitnet-text-aborted">
+                        {{'sitnet_exam_status_no_show' | translate}}
+                    </td>
+                    <td class="table-column-10">
+                        <div ng-show="review.exam.trialCount && review.reservation">
+                            <button
+                                ng-disabled="review.reservation.retrialPermitted"
+                                ng-click="$ctrl.permitRetrial(review.reservation)"
+                                class="btn btn-sm btn-primary"
+                            >
+                                {{'sitnet_permit_retrial' | translate}}
+                            </button>
+                        </div>
+                        <div ng-show="!review.exam.trialCount" class="text-muted">
+                            {{'sitnet_unrestricted' | translate }}
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -59,10 +90,11 @@
     <!-- Buttons -->
     <div class="row padl0 padr0 marb20 marr30 mart20">
         <span class="pull-right">
-            <div class="review-attachment-button make-inline"><a class="pointer preview"
-                    ng-click="$ctrl.cancel()">
-                {{'sitnet_button_cancel' | translate}}
-            </a></div>
+            <div class="review-attachment-button make-inline">
+                <a class="pointer preview" ng-click="$ctrl.cancel()">
+                    {{'sitnet_button_cancel' | translate}}
+                </a>
+            </div>
         </span>
     </div>
 </div>

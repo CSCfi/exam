@@ -21,8 +21,8 @@ describe('AssessmentController', function() {
     let ctrl;
     let scope;
     let mockHttp;
-    let mockUser = { id: 1, isAdmin: true };
-    let mockExam = { id: 1, state: 'REVIEW', examParticipation: {}, examSections: [] };
+    const mockUser = { id: 1, isAdmin: true };
+    const mockExam = { id: 1, state: 'REVIEW', examParticipation: {}, examSections: [] };
 
     beforeEach(inject(function($rootScope, $componentController, $httpBackend) {
         scope = $rootScope.$new();
@@ -77,7 +77,7 @@ describe('AssessmentController', function() {
     }
 
     function createMockAssessment() {
-        let mock = jasmine.createSpyObj('Assessment', ['getPayload']);
+        const mock = jasmine.createSpyObj('Assessment', ['getPayload']);
         mock.getPayload.and.callFake(function(exam, state) {
             return { id: 1, state: state };
         });
@@ -85,13 +85,13 @@ describe('AssessmentController', function() {
     }
 
     function createMockSession() {
-        let mock = jasmine.createSpyObj('Session', ['getUser']);
+        const mock = jasmine.createSpyObj('Session', ['getUser']);
         mock.getUser.and.returnValue(mockUser);
         return mock;
     }
 
     function createMockQuestion() {
-        let mock = jasmine.createSpyObj('Question', ['getQuestionAmounts']);
+        const mock = jasmine.createSpyObj('Question', ['getQuestionAmounts']);
         mock.getQuestionAmounts.and.returnValue({ accepted: 0, rejected: 0, hasEssays: false });
         return mock;
     }

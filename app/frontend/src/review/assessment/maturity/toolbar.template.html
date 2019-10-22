@@ -1,43 +1,53 @@
 <!-- kielentarkistuksen painikkeet  -->
-<div class="review-toolbar-wrapper padl0 padr0 marb20" ng-show="$ctrl.isOwnerOrAdmin() || $ctrl.isUnderLanguageInspection()">
-   <span class="pull-right">
-
+<div
+    class="review-toolbar-wrapper padl0 padr0 marb20"
+    ng-show="$ctrl.isOwnerOrAdmin() || $ctrl.isUnderLanguageInspection()"
+>
+    <span class="pull-right">
         <span ng-hide="$ctrl.isUnderLanguageInspection()">
             <div ng-if="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
                 <button ng-click="$ctrl.saveAssessment()" ng-disabled="!$ctrl.valid" class="btn inspection-button">
                     {{'sitnet_save' | translate}}
                 </button>
             </div>
-            <div ng-show="$ctrl.isReadOnly()"
-                 class="review-attachment-button exam-questions-buttons marl15">
-                <a class="pointer preview" href="/exams/{{$ctrl.exam.parent.id}}/4">
-                    {{'sitnet_close' | translate}}</a>
+            <div ng-show="$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
+                <a class="pointer preview" href="/exams/{{$ctrl.exam.parent.id}}/4"> {{'sitnet_close' | translate}}</a>
             </div>
         </span>
 
         <div ng-show="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <button class="btn inspection-button"
-                    ng-class="$ctrl.getNextState().warn ? 'cancel' : ''"
-                    ng-disabled="!$ctrl.getNextState().canProceed || !$ctrl.valid ||
+            <button
+                class="btn inspection-button"
+                ng-class="$ctrl.getNextState().warn ? 'cancel' : ''"
+                ng-disabled="!$ctrl.getNextState().canProceed || !$ctrl.valid ||
                         ($ctrl.getNextState().validate && !$ctrl.getNextState().validate($ctrl.exam))"
-                    ng-click="$ctrl.proceed()">{{ $ctrl.getNextState().text | translate}}
+                ng-click="$ctrl.proceed()"
+            >
+                {{ $ctrl.getNextState().text | translate}}
             </button>
         </div>
-        <div ng-show="!$ctrl.isReadOnly() && $ctrl.getNextState().alternateState"
-             class="review-attachment-button exam-questions-buttons marl10">
-            <button class="btn inspection-button cancel"
-                    ng-class="$ctrl.getNextState().alternateState.warn ? 'btn-danger' : 'btn-primary'"
-                    ng-disabled="!$ctrl.getNextState().alternateState.canProceed || !$ctrl.valid ||
+        <div
+            ng-show="!$ctrl.isReadOnly() && $ctrl.getNextState().alternateState"
+            class="review-attachment-button exam-questions-buttons marl10"
+        >
+            <button
+                class="btn inspection-button cancel"
+                ng-class="$ctrl.getNextState().alternateState.warn ? 'btn-danger' : 'btn-primary'"
+                ng-disabled="!$ctrl.getNextState().alternateState.canProceed || !$ctrl.valid ||
                         ($ctrl.getNextState().alternateState.validate &&
                         !$ctrl.getNextState().alternateState.validate($ctrl.exam))"
-                    ng-click="$ctrl.proceed(true)">{{ $ctrl.getNextState().alternateState.text | translate}}
+                ng-click="$ctrl.proceed(true)"
+            >
+                {{ $ctrl.getNextState().alternateState.text | translate}}
             </button>
         </div>
-        <div ng-show="!$ctrl.isReadOnly() && $ctrl.getNextState().alternateState"
-             class="review-attachment-button exam-questions-buttons">
-             <span ng-show="$ctrl.isMissingStatement()" class="text-danger">&nbsp;
-                <i class="fa fa-exclamation-circle"></i>&nbsp;{{ $ctrl.getNextState().hint | translate }}</span>
+        <div
+            ng-show="!$ctrl.isReadOnly() && $ctrl.getNextState().alternateState"
+            class="review-attachment-button exam-questions-buttons"
+        >
+            <span ng-show="$ctrl.isMissingStatement()" class="text-danger"
+                >&nbsp; <i class="fa fa-exclamation-circle"></i>&nbsp;{{ $ctrl.getNextState().hint | translate }}</span
+            >
         </div>
-
-   </span>
+    </span>
 </div>

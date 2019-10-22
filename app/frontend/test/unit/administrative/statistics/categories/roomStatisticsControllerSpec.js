@@ -53,8 +53,8 @@ describe('RoomStatisticsComponent', function() {
 
         // Check months
         expect(ctrl.months.length).toEqual(4);
-        let months = ctrl.months.map(function(month) {
-            let date = new Date(month);
+        const months = ctrl.months.map(function(month) {
+            const date = new Date(month);
             console.info(date + ', ' + date.getTime());
             return { year: date.getYear(), month: date.getMonth() };
         });

@@ -7,8 +7,10 @@
     <div>
         <div class="student-details-title-wrap padleft">
             <span class="form-group">
-                <img class="nopad" src="Images/icon_info.png" alt="info-icon"> &nbsp;
-                <span ng-if="$ctrl.permissionCheck.active===false">{{ 'sitnet_exam_search_description' | translate }}</span>
+                <img class="nopad" src="Images/icon_info.png" alt="info-icon" /> &nbsp;
+                <span ng-if="$ctrl.permissionCheck.active===false"
+                    >{{ 'sitnet_exam_search_description' | translate }}</span
+                >
                 <span ng-if="$ctrl.permissionCheck.active===true">{{ 'sitnet_search_restricted' | translate }}</span>
             </span>
         </div>
@@ -17,23 +19,29 @@
     <div ng-show="$ctrl.permissionCheck.active===false">
         <div class="student-details-title-wrap padleft" style="width: 80%;">
             <div class="form-group input-group search">
-                <input aria-label="exam-search" ng-change="$ctrl.search()" ng-model="$ctrl.filter.text"
-                    ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
-                    class="form-control search" placeholder="{{'sitnet_search' | translate }}">
+                <input
+                    aria-label="exam-search"
+                    ng-change="$ctrl.search()"
+                    ng-model="$ctrl.filter.text"
+                    ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                    type="text"
+                    class="form-control search"
+                    placeholder="{{'sitnet_search' | translate }}"
+                />
                 <div class="input-group-addon search">
-                    <img class="nopad" src="Images/icon_search.png" alt="search-icon" width="49" height="40">
+                    <img class="nopad" src="Images/icon_search.png" alt="search-icon" width="49" height="40" />
                 </div>
             </div>
         </div>
     </div>
     <div ng-if="$ctrl.exams.length > 0" class="student-details-title-wrap padleft">
         {{'sitnet_student_exam_search_result' | translate}} {{$ctrl.exams.length}}
-        {{'sitnet_student_exam_search_result_continues'
-        | translate}}
+        {{'sitnet_student_exam_search_result_continues' | translate}}
         <b>"{{$ctrl.filter.text}}"</b>
     </div>
     <div class="student-details-title-wrap padleft">
-        <button ng-show="$ctrl.loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+        <button ng-show="$ctrl.loader.loading" class="btn btn-success">
+            {{'sitnet_searching' | translate }}...
             <i class="fa fa-spinner fa-spin"></i>
         </button>
     </div>
@@ -41,5 +49,4 @@
     <div class="exams-list list-item" ng-repeat="exam in $ctrl.exams">
         <exam-search-result exam="exam"></exam-search-result>
     </div>
-
 </div>

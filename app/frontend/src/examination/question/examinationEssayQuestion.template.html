@@ -1,15 +1,20 @@
 <div class="row" ng-hide="!$ctrl.sq.expectedWordCount">
     <div class="col-md-12">
-        <small>{{ 'sitnet_essay_length_recommendation' | translate }}:&nbsp;
-            {{ $ctrl.sq.expectedWordCount }}
-            ({{ 'sitnet_approximately' | translate}} {{$ctrl.sq.expectedWordCount * 8}}
-            {{'sitnet_characters' | translate}})
+        <small
+            >{{ 'sitnet_essay_length_recommendation' | translate }}:&nbsp; {{ $ctrl.sq.expectedWordCount }} ({{
+            'sitnet_approximately' | translate}} {{$ctrl.sq.expectedWordCount * 8}} {{'sitnet_characters' | translate}})
         </small>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        <textarea aria-label="answer editor" ck-editor rows="10" cols="80" ng-model="$ctrl.sq.essayAnswer.answer"></textarea>
+        <textarea
+            aria-label="answer editor"
+            ck-editor
+            rows="10"
+            cols="80"
+            ng-model="$ctrl.sq.essayAnswer.answer"
+        ></textarea>
     </div>
 </div>
 <div class="row">
@@ -34,13 +39,19 @@
     </div>
 
     <div class="col-md-8 pull-right">
-
         <div class="row mart10" ng-show="$ctrl.sq.essayAnswer.attachment.fileName">
             <span class="pull-right">
                 <span class="padr10 filename-text">{{$ctrl.sq.essayAnswer.attachment.fileName | uppercase}}</span>
-                <a class="pointer green_button right-for-section marr15" ng-click="$ctrl.removeQuestionAnswerAttachment()">
+                <a
+                    class="pointer green_button right-for-section marr15"
+                    ng-click="$ctrl.removeQuestionAnswerAttachment()"
+                >
                     {{'sitnet_remove_answer_attachment' | translate }}
-                    <img src="Images/icon_attachment.svg" alt="attachment" onerror="this.onerror=null;this.src='Images/icon_attachment.png';" />
+                    <img
+                        src="Images/icon_attachment.svg"
+                        alt="attachment"
+                        onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
+                    />
                 </a>
             </span>
         </div>
@@ -53,12 +64,14 @@
             </span>
             <a class="pointer green_button right-for-section marr30" ng-click="$ctrl.selectFile()">
                 {{'sitnet_upload_answer_attachment' | translate }}
-                <img src="Images/icon_attachment.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_attachment.png';" />
+                <img
+                    src="Images/icon_attachment.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
+                />
             </a>
         </div>
     </div>
-
-
 </div>
 <div class="mart20">
     <button ng-disabled="$ctrl.isPreview" ng-click="$ctrl.saveAnswer()" class="green_button pull-right">

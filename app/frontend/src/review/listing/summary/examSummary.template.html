@@ -27,8 +27,8 @@
                 {{'sitnet_exam_validity' | translate}}
             </div>
             <div class="col-md-6">
-                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} -
-                {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate |
+                date:'dd.MM.yyyy'}}
             </div>
         </div>
         <div class="row col-md-12 margin-20">
@@ -44,8 +44,8 @@
                 {{'sitnet_exam_amount_reservations' | translate}} / {{'sitnet_exam_amount_participations' | translate}}
             </div>
             <div class="col-md-6" ng-if="$ctrl.reviews">
-                {{$ctrl.gradedCount}} / {{$ctrl.getRegisteredCount()}}
-                ({{$ctrl.gradedCount / $ctrl.getRegisteredCount() * 100 | number : 1}}%)
+                {{$ctrl.gradedCount}} / {{$ctrl.getRegisteredCount()}} ({{$ctrl.gradedCount / $ctrl.getRegisteredCount()
+                * 100 | number : 1}}%)
             </div>
         </div>
         <div class="row col-md-12 margin-20">
@@ -70,8 +70,8 @@
                 {{'sitnet_feedback_messages_read' | translate}}
             </div>
             <div class="col-md-6" ng-if="$ctrl.reviews">
-                {{$ctrl.getReadFeedback()}} / {{$ctrl.getTotalFeedback()}}
-                ({{$ctrl.getFeedbackPercentage() | number : 1}}%)
+                {{$ctrl.getReadFeedback()}} / {{$ctrl.getTotalFeedback()}} ({{$ctrl.getFeedbackPercentage() | number :
+                1}}%)
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
                 {{ grade }}
             </div>
             <div class="col-md-9">
-                {{ amount }} ({{amount / $ctrl.gradedCount * 100 | number: 2}} &percnt;)
+                {{ amount }} ({{amount / $ctrl.gradedCount * 100 | number: 2}} %)
             </div>
         </div>
     </div>

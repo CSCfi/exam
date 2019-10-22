@@ -7,8 +7,7 @@
     </div>
     <!-- question attachment -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:
-        </div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span ng-hide="$ctrl.sectionQuestion.question.attachment">N/A</span>
             <span ng-show="$ctrl.sectionQuestion.question.attachment">
@@ -31,8 +30,11 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <cloze-test content="$ctrl.sectionQuestion.clozeTestAnswer.question"
-                results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
+            <cloze-test
+                content="$ctrl.sectionQuestion.clozeTestAnswer.question"
+                results="$ctrl.sectionQuestion.clozeTestAnswer.answer"
+                editable="false"
+            >
             </cloze-test>
         </div>
     </div>

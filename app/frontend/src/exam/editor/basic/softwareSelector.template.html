@@ -1,26 +1,44 @@
 <div class="col-md-12 margin-20">
-    <div class="review-list-title">{{ 'sitnet_exam_requirements' | translate }}
-    </div>
+    <div class="review-list-title">{{ 'sitnet_exam_requirements' | translate }}</div>
 </div>
 
 <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
-    <div class="col-md-3 exam-basic-title">{{'sitnet_machine_softwares' | translate}}
-        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                  uib-popover="{{'sitnet_exam_software_description' | translate}}" src="Images/icon_tooltip.svg" alt="exam"
-                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
+    <div class="col-md-3 exam-basic-title">
+        {{'sitnet_machine_softwares' | translate}}
+        <sup
+            ><img
+                popover-placement="right"
+                popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_exam_software_description' | translate}}"
+                src="Images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+        /></sup>
     </div>
     <div class="col-md-9">
         <span class="dropdown" uib-dropdown>
-            <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                    data-toggle="dropdown" aria-expanded="true">
+            <button
+                uib-dropdown-toggle
+                class="btn btn-default dropdown-toggle"
+                type="button"
+                id="dropDownMenu1"
+                data-toggle="dropdown"
+                aria-expanded="true"
+            >
                 {{$ctrl.selectedSoftware()}}&nbsp;<span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
-                aria-labelledby="dropDownMenu1">
-                <li ng-repeat="sw in $ctrl.software"
+            <ul
+                class="dropdown-menu"
+                style="padding-left: 0; min-width: 17em"
+                role="menu"
+                aria-labelledby="dropDownMenu1"
+            >
+                <li
+                    ng-repeat="sw in $ctrl.software"
                     role="presentation"
                     ng-class="$ctrl.isSelected(sw) ? 'active': ''"
-                    ng-click="$ctrl.updateExamSoftware(sw)">
+                    ng-click="$ctrl.updateExamSoftware(sw)"
+                >
                     <a role="menuitem" class="pointer" title="{{sw.name}}">{{sw.name}}</a>
                 </li>
             </ul>
