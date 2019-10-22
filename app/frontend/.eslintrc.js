@@ -24,6 +24,7 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'off',
         'angular/file-name': 'off',
         'angular/no-service-method': 'off',
+        'angular/service-name': 'off',
         'no-redeclare': 'error',
         'no-eval': 'error',
         'no-caller': 'error',
