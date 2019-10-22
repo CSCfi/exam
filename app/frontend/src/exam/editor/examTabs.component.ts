@@ -22,7 +22,7 @@ import { Exam } from '../exam.model';
 export const ExamTabsComponent: angular.IComponentOptions = {
     template: require('./examTabs.template.html'),
     bindings: {
-        collaborative: '<'
+        collaborative: '<',
     },
     controller: class ExamTabsController implements angular.IComponentController {
         collaborative: boolean;
@@ -40,7 +40,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             private $filter: angular.FilterFactory,
             private $location: any, // this is the extension to angular's location service, hence any-type
             private Session: SessionService,
-            private ReviewList: any
+            private ReviewList: any,
         ) {
             'ngInject';
 
@@ -56,7 +56,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             }
             this.getReviews(this.$routeParams.id);
             this.activeTab = parseInt(this.$routeParams.tab);
-        }
+        };
 
         updateTitle = (code: string | null, name: string | null) => {
             if (code && name) {
@@ -66,27 +66,28 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             } else {
                 this.examInfo.title = name;
             }
-        }
+        };
 
-        reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
+        reload = () => (this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam());
 
         isOwner = () => {
-            return this.exam.examOwners.some(x => x.id === this.user.id ||
-                x.email.toLowerCase() === this.user.email.toLowerCase());
-        }
+            return this.exam.examOwners.some(
+                x => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
+            );
+        };
 
-        onReviewsLoaded = (data: { reviews: unknown[] }) => this.reviews = data.reviews;
+        onReviewsLoaded = (data: { reviews: unknown[] }) => (this.reviews = data.reviews);
 
         tabChanged = (index: number) => {
             const path = this.collaborative ? '/exams/collaborative' : '/exams';
             this.$location.path(`${path}/${this.exam.id}/${index + 1}`, false).replace();
-        }
+        };
 
-        switchToBasicInfo = () => this.activeTab = 1;
+        switchToBasicInfo = () => (this.activeTab = 1);
 
-        switchToQuestions = () => this.activeTab = 2;
+        switchToQuestions = () => (this.activeTab = 2);
 
-        switchToPublishSettings = () => this.activeTab = 3;
+        switchToPublishSettings = () => (this.activeTab = 3);
 
         examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
             this.updateTitle(props.code, props.name);
@@ -94,31 +95,36 @@ export const ExamTabsComponent: angular.IComponentOptions = {
                 // Propagate a change so that children (namely auto eval component) can act based on scale change
                 this.exam = angular.copy(this.exam);
             }
-        }
+        };
 
-        goBack = (event) => {
+        goBack = event => {
             event.preventDefault();
             this.$window.history.back();
-        }
+        };
 
         private downloadExam = () => {
-            this.$http.get(`/app/exams/${this.$routeParams.id}`).then((response: angular.IHttpResponse<Exam>) => {
-                const exam = response.data;
-                this.exam = exam;
-                this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
-                this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-            }, err => toastr.error(err.data));
-        }
-
-        private downloadCollaborativeExam = () => {
-            this.$http.get(`/integration/iop/exams/${this.$routeParams.id}`)
-                .then((response: angular.IHttpResponse<Exam>) => {
+            this.$http.get(`/app/exams/${this.$routeParams.id}`).then(
+                (response: angular.IHttpResponse<Exam>) => {
                     const exam = response.data;
                     this.exam = exam;
                     this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                     this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-                }, err => toastr.error(err.data));
-        }
+                },
+                err => toastr.error(err.data),
+            );
+        };
+
+        private downloadCollaborativeExam = () => {
+            this.$http.get(`/integration/iop/exams/${this.$routeParams.id}`).then(
+                (response: angular.IHttpResponse<Exam>) => {
+                    const exam = response.data;
+                    this.exam = exam;
+                    this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
+                    this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
+                },
+                err => toastr.error(err.data),
+            );
+        };
 
         private getReviews = (examId: number) => {
             this.$http.get(this.getResource(examId)).then((response: angular.IHttpResponse<any[]>) => {
@@ -131,19 +137,16 @@ export const ExamTabsComponent: angular.IComponentOptions = {
                     }
                 });
                 this.reviews = reviews;
-            })
-        }
+            });
+        };
 
         private getResource = (examId: number) => {
             return this.collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
-        }
+        };
 
         private hasEffectiveEnrolments = (exam: Exam) =>
-            exam.examEnrolments.some(ee =>
-                !_.isNil(ee.reservation) && ee.reservation.endAt > new Date().getTime())
-
-    }
+            exam.examEnrolments.some(ee => !_.isNil(ee.reservation) && ee.reservation.endAt > new Date().getTime());
+    },
 };
-
 
 angular.module('app.exam.editor').component('examTabs', ExamTabsComponent);

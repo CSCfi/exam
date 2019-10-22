@@ -41,7 +41,8 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
             private QuestionReview: QuestionReviewService,
             private Assessment: any, // TODO
             private Session: SessionService,
-            private Attachment: AttachmentService) {
+            private Attachment: AttachmentService,
+        ) {
             'ngInject';
         }
 
@@ -50,7 +51,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
             this.examId = this.$routeParams.id;
             const ids = this.$routeParams.q || [];
             this.QuestionReview.getReviews(this.examId, ids).then(reviews => {
-                reviews.forEach((r, i) => r.selected = i === 0); // select the first in the list
+                reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
                 this.reviews = reviews;
                 if (this.reviews.length > 0) {
                     this.setSelectedReview(this.reviews[0]);
@@ -63,14 +64,14 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
                 return;
             }
             return this.$sce.trustAsHtml(this.selectedReview.question.question);
-        }
+        };
 
         getAssessedAnswerCount = (includeLocked: boolean) => {
             if (includeLocked) {
                 return this.assessedAnswers.length + this.lockedAnswers.length;
             }
             return this.assessedAnswers.length;
-        }
+        };
 
         getUnassessedAnswerCount = () => this.unassessedAnswers.length;
 
@@ -81,39 +82,43 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
         private saveEvaluation = (answer: ReviewQuestion) => {
-            return new Promise<void>((resolve) => {
+            return new Promise<void>(resolve => {
                 answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                this.Assessment.saveEssayScore(answer).then(() => {
-                    toast.info(this.$translate.instant('sitnet_graded'));
-                    if (this.assessedAnswers.indexOf(answer) === -1) {
-                        this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
-                        this.assessedAnswers.push(answer);
-                    }
-                    resolve();
-                }).catch(err => {
-                    // Roll back
-                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                    toast.error(err.data);
-                    resolve();
-                });
+                this.Assessment.saveEssayScore(answer)
+                    .then(() => {
+                        toast.info(this.$translate.instant('sitnet_graded'));
+                        if (this.assessedAnswers.indexOf(answer) === -1) {
+                            this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
+                            this.assessedAnswers.push(answer);
+                        }
+                        resolve();
+                    })
+                    .catch(err => {
+                        // Roll back
+                        answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+                        toast.error(err.data);
+                        resolve();
+                    });
             });
-        }
+        };
 
         saveAssessments = (answers: ReviewQuestion[]) => {
             const promises: Promise<void>[] = answers.map(this.saveEvaluation);
-            this.$q.when(Promise.all(promises)).then(() => this.reviews = angular.copy(this.reviews));
-        }
+            this.$q.when(Promise.all(promises)).then(() => (this.reviews = angular.copy(this.reviews)));
+        };
 
         downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
         setSelectedReview = (review: QuestionReview) => {
             this.selectedReview = review;
-            this.assessedAnswers = this.selectedReview.answers
-                .filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a));
-            this.unassessedAnswers = this.selectedReview.answers
-                .filter(a => !a.essayAnswer || !_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a));
+            this.assessedAnswers = this.selectedReview.answers.filter(
+                a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+            );
+            this.unassessedAnswers = this.selectedReview.answers.filter(
+                a => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+            );
             this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
-        }
+        };
 
         private isLocked = (answer: ReviewQuestion) => {
             const states = ['REVIEW', 'REVIEW_STARTED'];
@@ -123,8 +128,8 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
                 states.push('GRADED');
             }
             return states.indexOf(exam.state) === -1;
-        }
-    }
+        };
+    },
 };
 
 angular.module('app.review').component('questionAssessment', QuestionAssessmentComponent);

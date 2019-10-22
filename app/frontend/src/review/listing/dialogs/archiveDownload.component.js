@@ -17,30 +17,30 @@ import angular from 'angular';
 import moment from 'moment';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .component('archiveDownload', {
-        template: require('./archiveDownload.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&'
-        },
-        controller: ['$translate', function ($translate) {
-
+angular.module('app.review').component('archiveDownload', {
+    template: require('./archiveDownload.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+    },
+    controller: [
+        '$translate',
+        function($translate) {
             const vm = this;
 
-            vm.$onInit = function () {
-                vm.params = {startDate: new Date(), endDate: new Date()};
+            vm.$onInit = function() {
+                vm.params = { startDate: new Date(), endDate: new Date() };
             };
 
-            vm.startDateChanged = function (date) {
+            vm.startDateChanged = function(date) {
                 vm.params.startDate = date;
             };
 
-            vm.endDateChanged = function (date) {
+            vm.endDateChanged = function(date) {
                 vm.params.endDate = date;
             };
 
-            vm.ok = function () {
+            vm.ok = function() {
                 let start, end;
                 if (vm.params.startDate) {
                     start = moment(vm.params.startDate);
@@ -54,14 +54,15 @@ angular.module('app.review')
                     vm.close({
                         $value: {
                             start: start.format('DD.MM.YYYY'),
-                            end: end.format('DD.MM.YYYY')
-                        }
+                            end: end.format('DD.MM.YYYY'),
+                        },
                     });
                 }
             };
 
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
-        }]
-    });
+        },
+    ],
+});

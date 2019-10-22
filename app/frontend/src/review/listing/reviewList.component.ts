@@ -23,11 +23,10 @@ export const ReviewListComponent: angular.IComponentOptions = {
     bindings: {
         exam: '<',
         collaborative: '<',
-        reviews: '<'
+        reviews: '<',
     },
-    controller: class ReviewListController implements angular.IComponentController,
-        angular.IOnInit, angular.IOnChanges {
-
+    controller: class ReviewListController
+        implements angular.IComponentController, angular.IOnInit, angular.IOnChanges {
         private exam: Exam;
         private collaborative: boolean;
         private reviews: ExamParticipation[];
@@ -41,11 +40,7 @@ export const ReviewListComponent: angular.IComponentOptions = {
         private languageInspectedReviews: ExamParticipation[];
         private rejectedReviews: ExamParticipation[];
 
-        constructor(
-            private $uibModal: IModalService,
-            private $http: angular.IHttpService,
-            private Files: FileService
-        ) {
+        constructor(private $uibModal: IModalService, private $http: angular.IHttpService, private Files: FileService) {
             'ngInject';
         }
 
@@ -55,24 +50,25 @@ export const ReviewListComponent: angular.IComponentOptions = {
                 //TODO: Fetch collaborative no-shows from xm.
                 this.noShows = [];
             } else {
-                this.$http.get(`/app/noshows/${this.exam.id}`).then((resp: angular.IHttpResponse<unknown[]>) => {
-                    this.noShows = resp.data;
-                }).catch(angular.noop);
+                this.$http
+                    .get(`/app/noshows/${this.exam.id}`)
+                    .then((resp: angular.IHttpResponse<unknown[]>) => {
+                        this.noShows = resp.data;
+                    })
+                    .catch(angular.noop);
             }
         }
 
-        $onChanges = function () {
+        $onChanges = function() {
             this.abortedExams = this.filterByState(['ABORTED']);
             this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED']);
             this.gradedReviews = this.reviews.filter(
-                r => r.exam.state === 'GRADED' &&
-                    (!r.exam.languageInspection || r.exam.languageInspection.finishedAt)
+                r => r.exam.state === 'GRADED' && (!r.exam.languageInspection || r.exam.languageInspection.finishedAt),
             );
             this.gradedLoggedReviews = this.filterByState(['GRADED_LOGGED']);
             this.archivedReviews = this.filterByState(['ARCHIVED']);
             this.languageInspectedReviews = this.reviews.filter(
-                r => r.exam.state === 'GRADED' && r.exam.languageInspection &&
-                    !r.exam.languageInspection.finishedAt
+                r => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
             );
             this.rejectedReviews = this.filterByState(['REJECTED']);
         };
@@ -91,8 +87,9 @@ export const ReviewListComponent: angular.IComponentOptions = {
                 const index = this.gradedReviews.map(gr => gr.id).indexOf(r.id);
                 this.gradedReviews.splice(index, 1);
                 r.selected = false;
-                r.displayedGradingTime = r.exam.languageInspection ?
-                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
+                r.displayedGradingTime = r.exam.languageInspection
+                    ? r.exam.languageInspection.finishedAt
+                    : r.exam.gradedTime;
                 this.gradedLoggedReviews.push(r);
             });
             this.gradedReviews = angular.copy(this.gradedReviews);
@@ -100,16 +97,17 @@ export const ReviewListComponent: angular.IComponentOptions = {
         };
 
         getAnswerAttachments = () =>
-            this.$uibModal.open({
-                backdrop: 'static',
-                keyboard: true,
-                animation: true,
-                component: 'archiveDownload'
-            }).result.then(
-                params => this.Files.download(
-                    `/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params)
-            ).catch(angular.noop);
-
+            this.$uibModal
+                .open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    animation: true,
+                    component: 'archiveDownload',
+                })
+                .result.then(params =>
+                    this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
+                )
+                .catch(angular.noop);
 
         openAborted = () =>
             this.$uibModal.open({
@@ -119,8 +117,8 @@ export const ReviewListComponent: angular.IComponentOptions = {
                 component: 'abortedExams',
                 resolve: {
                     exam: this.exam,
-                    abortedExams: () => this.abortedExams
-                }
+                    abortedExams: () => this.abortedExams,
+                },
             });
 
         openNoShows = () =>
@@ -130,11 +128,10 @@ export const ReviewListComponent: angular.IComponentOptions = {
                 windowClass: 'question-editor-modal',
                 component: 'noShows',
                 resolve: {
-                    noShows: () => this.noShows
-                }
+                    noShows: () => this.noShows,
+                },
             });
-
-    }
-}
+    },
+};
 
 angular.module('app.review').component('reviewList', ReviewListComponent);

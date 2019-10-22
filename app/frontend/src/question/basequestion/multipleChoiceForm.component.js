@@ -16,9 +16,8 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('multipleChoiceForm', {
-        template: `
+angular.module('app.question').component('multipleChoiceForm', {
+    template: `
             <div class="col-md-12 mart20 marb10" ng-show="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">
                 <div class="col-md-6 padl0">
                     <span class="question-option-title">{{'sitnet_option' | translate}}</span>
@@ -73,34 +72,35 @@ angular.module('app.question')
                 </div>
             </div>
         `,
-        bindings: {
-            question: '<',
-            showWarning: '<',
-            lotteryOn: '<',
-            allowOptionRemoval: '<'
-        },
-        controller: ['$translate', 'Question', function ($translate, Question) {
-
+    bindings: {
+        question: '<',
+        showWarning: '<',
+        lotteryOn: '<',
+        allowOptionRemoval: '<',
+    },
+    controller: [
+        '$translate',
+        'Question',
+        function($translate, Question) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 if (vm.question.type === 'WeightedMultipleChoiceQuestion') {
                     delete vm.question.defaultMaxScore;
                 }
             };
 
-            vm.addNewOption = function () {
+            vm.addNewOption = function() {
                 if (vm.lotteryOn) {
                     toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
                     return;
                 }
-                vm.question.options.push({correctOption: false});
+                vm.question.options.push({ correctOption: false });
             };
 
-            vm.calculateDefaultMaxPoints = function () {
+            vm.calculateDefaultMaxPoints = function() {
                 return Question.calculateDefaultMaxPoints(vm.question);
             };
-
-        }]
-    });
-
+        },
+    ],
+});

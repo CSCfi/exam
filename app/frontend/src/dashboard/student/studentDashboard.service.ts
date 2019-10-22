@@ -34,7 +34,6 @@ interface Reservation {
 }
 
 export class StudentDashboardService {
-
     constructor(private $q: IQService, private $http: IHttpService) {
         'ngInject';
     }
@@ -42,17 +41,20 @@ export class StudentDashboardService {
     listEnrolments(): angular.IPromise<{ result: any[] }> {
         const deferred: angular.IDeferred<{ result: any[] }> = this.$q.defer();
 
-        this.$http.get('/app/student/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
-            const enrolments = resp.data;
-            enrolments.forEach((e) => {
-                if (e.reservation) {
-                    this.setOccasion(e.reservation);
-                }
+        this.$http
+            .get('/app/student/enrolments')
+            .then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
+                const enrolments = resp.data;
+                enrolments.forEach(e => {
+                    if (e.reservation) {
+                        this.setOccasion(e.reservation);
+                    }
+                });
+                deferred.resolve({ result: enrolments });
+            })
+            .catch(resp => {
+                deferred.reject(resp);
             });
-            deferred.resolve({ result: enrolments });
-        }).catch((resp) => {
-            deferred.reject(resp);
-        });
         return deferred.promise;
     }
 
@@ -76,8 +78,7 @@ export class StudentDashboardService {
         }
         reservation.occasion = {
             startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm')
+            endAt: end.format('HH:mm'),
         };
     }
-
 }

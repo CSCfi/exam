@@ -16,7 +16,7 @@
 require('./review.module');
 
 require('./assessment/assessment.service');
-require('./assessment/collaborativeAssessment.service.ts')
+require('./assessment/collaborativeAssessment.service.ts');
 require('./assessment/assessment.component');
 
 require('./assessment/feedback/feedback.component');

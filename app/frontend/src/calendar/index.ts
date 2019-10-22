@@ -21,9 +21,8 @@ import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
 
-
-export default angular.module('app.calendar', ['ui.calendar'])
+export default angular
+    .module('app.calendar', ['ui.calendar'])
     .service('Calendar', CalendarService)
     .component('bookingCalendar', BookingCalendarComponent)
-    .component('calendar', CalendarComponent)
-    .name;
+    .component('calendar', CalendarComponent).name;

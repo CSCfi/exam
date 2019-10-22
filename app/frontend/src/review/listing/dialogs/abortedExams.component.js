@@ -16,43 +16,46 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .component('abortedExams', {
-        template: require('./abortedExams.template.html'),
-        bindings: {
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$translate', '$scope', 'ExamRes', 'Session', function ($translate, $scope, ExamRes, Session) {
-
+angular.module('app.review').component('abortedExams', {
+    template: require('./abortedExams.template.html'),
+    bindings: {
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$translate',
+        '$scope',
+        'ExamRes',
+        'Session',
+        function($translate, $scope, ExamRes, Session) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.abortedExams = vm.resolve.abortedExams;
                 vm.exam = vm.resolve.exam;
             };
 
-            vm.showId = function () {
+            vm.showId = function() {
                 return Session.getUser().isAdmin && vm.exam.anonymous;
             };
 
-            vm.permitRetrial = function (reservation) {
-                ExamRes.reservation.update({id: reservation.id}, function () {
+            vm.permitRetrial = function(reservation) {
+                ExamRes.reservation.update({ id: reservation.id }, function() {
                     reservation.retrialPermitted = true;
                     toast.info($translate.instant('sitnet_retrial_permitted'));
                 });
             };
 
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
 
             // Close modal if user clicked the back button and no changes made
-            $scope.$on('$routeChangeStart', function () {
+            $scope.$on('$routeChangeStart', function() {
                 if (!window.onbeforeunload) {
                     vm.cancel();
                 }
             });
-
-        }]
-    });
+        },
+    ],
+});

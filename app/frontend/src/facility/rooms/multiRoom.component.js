@@ -16,62 +16,65 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.rooms')
-    .component('multiRoom', {
-        template: require('./multiRoom.template.html'),
-        controller: ['Room', function (Room) {
+angular.module('app.facility.rooms').component('multiRoom', {
+    template: require('./multiRoom.template.html'),
+    controller: [
+        'Room',
+        function(Room) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.week = Room.getWeek();
                 loadRooms();
             };
 
-            vm.addException = function (exception) {
-                Room.addException(getRoomIds(), exception.exception).then(function () {
+            vm.addException = function(exception) {
+                Room.addException(getRoomIds(), exception.exception).then(function() {
                     loadRooms();
                 });
             };
 
-            vm.deleteException = function (exception) {
-                Room.deleteException(vm.rooms[0].id, exception.id).then(function () {
+            vm.deleteException = function(exception) {
+                Room.deleteException(vm.rooms[0].id, exception.id).then(function() {
                     loadRooms();
                 });
             };
 
-            vm.addMultiRoomException = function () {
+            vm.addMultiRoomException = function() {
                 Room.openExceptionDialog(vm.addException);
             };
 
-            vm.updateWorkingHours = function () {
+            vm.updateWorkingHours = function() {
                 Room.updateWorkingHours(vm.week, getRoomIds());
             };
 
-            vm.massEditedRoomFilter = function (room) {
-                return room.calendarExceptionEvents.some(function (e) {
+            vm.massEditedRoomFilter = function(room) {
+                return room.calendarExceptionEvents.some(function(e) {
                     return e.massEdited;
                 });
             };
 
-            vm.massEditedExceptionFilter = function (exception) {
+            vm.massEditedExceptionFilter = function(exception) {
                 return exception.massEdited;
             };
 
             function loadRooms() {
                 Room.rooms.query(
-                    function (rooms) {
+                    function(rooms) {
                         vm.rooms = rooms;
                         vm.roomIds = getRoomIds();
-                    }, function (error) {
+                    },
+                    function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             }
 
             function getRoomIds() {
-                return vm.rooms.map(function (room) {
+                return vm.rooms.map(function(room) {
                     return room.id;
                 });
             }
-        }]
-    });
+        },
+    ],
+});

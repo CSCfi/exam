@@ -12,13 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.administrative.reports')
-    .component('teachersReport', {
-        template: `
+angular.module('app.administrative.reports').component('teachersReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_all_teacher_exams' | translate}}
@@ -54,37 +52,40 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        bindings: {
-            teachers: '<'
-        },
-        controller: ['$filter', '$translate', 'Files', function ($filter, $translate, Files) {
-
+    bindings: {
+        teachers: '<',
+    },
+    controller: [
+        '$filter',
+        '$translate',
+        'Files',
+        function($filter, $translate, Files) {
             const vm = this;
 
-            vm.getTeacherExamsByDate = function () {
+            vm.getTeacherExamsByDate = function() {
                 const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
                 const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
                 if (vm.teacher) {
-                    Files.download(`/app/statistics/teacherexamsbydate/${vm.teacher.id}/${f}/${t}`,
-                        `teacherexams_${f}_${t}.xlsx`);
+                    Files.download(
+                        `/app/statistics/teacherexamsbydate/${vm.teacher.id}/${f}/${t}`,
+                        `teacherexams_${f}_${t}.xlsx`,
+                    );
                 } else {
                     toast.error($translate.instant('sitnet_choose_teacher'));
                 }
             };
 
-            vm.teacherSelected = function (value) {
+            vm.teacherSelected = function(value) {
                 vm.teacher = value;
             };
 
-            vm.answerStartDateChanged = function (date) {
+            vm.answerStartDateChanged = function(date) {
                 vm.answerStartDate = date;
             };
 
-            vm.answerEndDateChanged = function (date) {
+            vm.answerEndDateChanged = function(date) {
                 vm.answerEndDate = date;
             };
-
-        }
-        ]
-    });
-
+        },
+    ],
+});

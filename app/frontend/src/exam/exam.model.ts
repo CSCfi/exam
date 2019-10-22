@@ -183,4 +183,3 @@ export interface ExamParticipation {
     id: number;
     exam: Exam;
 }
-

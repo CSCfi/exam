@@ -38,30 +38,31 @@ import './maturity'; // TODO: make a proper exportable module
 import './administrative';
 import './exam/printout';
 
-
 import 'toastr/toastr.scss';
 import 'font-awesome/css/font-awesome.min.css';
 import './assets/styles/main.scss';
 
-angular.module('app', [
-    'ngAnimate',
-    'ngResource',
-    'ngRoute',
-    'ngStorage',
-    'ui.bootstrap',
-    'pascalprecht.translate',
-    'tmh.dynamicLocale',
-    'dialogs.services',
-    'dialogs.controllers',
-    SessionModule,
-    NavigationModule,
-    UtilityModule,
-    DashboardModule,
-    CollaborativeExamModule,
-    'app.enrolment',
-    'app.maturity',
-    'app.administrative'
-]).config(configs)
+angular
+    .module('app', [
+        'ngAnimate',
+        'ngResource',
+        'ngRoute',
+        'ngStorage',
+        'ui.bootstrap',
+        'pascalprecht.translate',
+        'tmh.dynamicLocale',
+        'dialogs.services',
+        'dialogs.controllers',
+        SessionModule,
+        NavigationModule,
+        UtilityModule,
+        DashboardModule,
+        CollaborativeExamModule,
+        'app.enrolment',
+        'app.maturity',
+        'app.administrative',
+    ])
+    .config(configs)
     .run(runBlock)
     .filter('truncate', filters.TruncateFilter.factory())
     .filter('diffInMinutesTo', filters.DiffInMinutesFilter.factory())

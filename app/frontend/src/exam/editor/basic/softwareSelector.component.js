@@ -12,53 +12,66 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.exam.editor')
-    .component('softwareSelector', {
-        template: require('./softwareSelector.template.html'),
-        bindings: {
-            exam: '<'
-        },
-        controller: ['$translate', 'SoftwareRes', 'ExamRes',
-            function ($translate, SoftwareRes, ExamRes) {
+angular.module('app.exam.editor').component('softwareSelector', {
+    template: require('./softwareSelector.template.html'),
+    bindings: {
+        exam: '<'
+    },
+    controller: [
+        '$translate',
+        'SoftwareRes',
+        'ExamRes',
+        function($translate, SoftwareRes, ExamRes) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.software = SoftwareRes.softwares.query();
+            };
 
-                vm.$onInit = function () {
-                    vm.software = SoftwareRes.softwares.query();
-                };
+            vm.selectedSoftware = function() {
+                return vm.exam.softwares.length === 0
+                    ? $translate.instant('sitnet_select')
+                    : vm.exam.softwares
+                          .map(function(software) {
+                              return software.name;
+                          })
+                          .join(', ');
+            };
 
-                vm.selectedSoftware = function () {
-                    return vm.exam.softwares.length === 0 ? $translate.instant('sitnet_select') :
-                        vm.exam.softwares.map(function (software) {
-                            return software.name;
-                        }).join(", ");
-                };
-
-                vm.isSelected = function (sw) {
-                    return vm.exam.softwares.map(function (es) {
+            vm.isSelected = function(sw) {
+                return (
+                    vm.exam.softwares
+                        .map(function(es) {
                             return es.id;
-                        }).indexOf(sw.id) > -1;
-                };
+                        })
+                        .indexOf(sw.id) > -1
+                );
+            };
 
-                vm.updateExamSoftware = function (sw) {
-                    ExamRes.software.update({eid: vm.exam.id, sid: sw.id}, function (){
+            vm.updateExamSoftware = function(sw) {
+                ExamRes.software.update(
+                    { eid: vm.exam.id, sid: sw.id },
+                    function() {
                         if (vm.isSelected(sw)) {
-                            const index = vm.exam.softwares.map(function (es) {
-                                return es.id;
-                            }).indexOf(sw.id);
+                            const index = vm.exam.softwares
+                                .map(function(es) {
+                                    return es.id;
+                                })
+                                .indexOf(sw.id);
                             vm.exam.softwares.splice(index, 1);
                         } else {
                             vm.exam.softwares.push(sw);
                         }
                         toast.info($translate.instant('sitnet_exam_software_updated'));
-                    }, function (error) {
+                    },
+                    function(error) {
                         toast.error(error.data);
-                    });
-                };
-
-            }]
-    });
+                    }
+                );
+            };
+        }
+    ]
+});

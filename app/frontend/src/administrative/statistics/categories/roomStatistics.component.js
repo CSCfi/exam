@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.statistics')
-    .component('roomStatistics', {
-        template: `
+angular.module('app.administrative.statistics').component('roomStatistics', {
+    template: `
         <div class="detail-row">
             <div class="col-md-12">
                 <button class="btn btn-primary" ng-click="$ctrl.listParticipations()">{{'sitnet_search' | translate}}</button>
@@ -52,21 +50,22 @@ angular.module('app.administrative.statistics')
             </div>
         </div>
         `,
-        bindings: {
-            queryParams: '<'
-        },
-        controller: ['Statistics', function (Statistics) {
-
+    bindings: {
+        queryParams: '<',
+    },
+    controller: [
+        'Statistics',
+        function(Statistics) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.listParticipations();
             };
 
-            vm.totalParticipations = function (month, room) {
+            vm.totalParticipations = function(month, room) {
                 let total = 0;
 
-                const isWithinBounds = function (p) {
+                const isWithinBounds = function(p) {
                     const date = new Date(p.exam.created);
                     const current = new Date(month);
                     const min = new Date(current.getFullYear(), current.getMonth(), 1);
@@ -74,7 +73,7 @@ angular.module('app.administrative.statistics')
                     return date > min && date < max;
                 };
 
-                for (let k in vm.participations) {
+                for (const k in vm.participations) {
                     if (vm.participations.hasOwnProperty(k)) {
                         if (room && k !== room) {
                             continue;
@@ -89,11 +88,11 @@ angular.module('app.administrative.statistics')
                 return total;
             };
 
-            const isBefore = function (a, b) {
+            const isBefore = function(a, b) {
                 return a.getYear() < b.getYear() || (a.getYear() === b.getYear() && a.getMonth() < b.getMonth());
             };
 
-            const groupByMonths = function () {
+            const groupByMonths = function() {
                 if (vm.participations.length === 0) {
                     return [];
                 }
@@ -112,13 +111,15 @@ angular.module('app.administrative.statistics')
                 vm.months = months;
             };
 
-            const getMinAndMaxDates = function () {
+            const getMinAndMaxDates = function() {
                 let dates = [];
-                for (let k in vm.participations) {
+                for (const k in vm.participations) {
                     if (vm.participations.hasOwnProperty(k)) {
-                        dates = dates.concat(vm.participations[k].map(function (p) {
-                            return p.exam.created;
-                        }));
+                        dates = dates.concat(
+                            vm.participations[k].map(function(p) {
+                                return p.exam.created;
+                            }),
+                        );
                     }
                 }
                 const minDate = Math.min.apply(null, dates);
@@ -129,18 +130,16 @@ angular.module('app.administrative.statistics')
                     dates.push(new Date().getTime());
                 }
                 const maxDate = Math.max.apply(null, dates);
-                return {min: minDate, max: maxDate};
+                return { min: minDate, max: maxDate };
             };
 
-            vm.listParticipations = function () {
-                Statistics.participations.find(vm.queryParams).$promise.then(function (data) {
+            vm.listParticipations = function() {
+                Statistics.participations.find(vm.queryParams).$promise.then(function(data) {
                     vm.participations = data;
                     vm.rooms = Object.keys(data);
                     groupByMonths();
                 });
             };
-
-
-        }]
-    });
-
+        },
+    ],
+});

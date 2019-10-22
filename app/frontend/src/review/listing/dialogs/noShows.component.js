@@ -16,43 +16,45 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .component('noShows', {
-        template: require('./noShows.template.html'),
-        bindings: {
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$translate', '$scope', 'ExamRes', function ($translate, $scope, ExamRes) {
-
+angular.module('app.review').component('noShows', {
+    template: require('./noShows.template.html'),
+    bindings: {
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$translate',
+        '$scope',
+        'ExamRes',
+        function($translate, $scope, ExamRes) {
             //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
 
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.noShows = vm.resolve.noShows;
-                vm.noShows.forEach(function (r) {
-                   r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
+                vm.noShows.forEach(function(r) {
+                    r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                 });
             };
 
-            vm.permitRetrial = function (reservation) {
-                ExamRes.reservation.update({id: reservation.id}, function () {
+            vm.permitRetrial = function(reservation) {
+                ExamRes.reservation.update({ id: reservation.id }, function() {
                     reservation.retrialPermitted = true;
                     toast.info($translate.instant('sitnet_retrial_permitted'));
                 });
             };
 
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
 
             // Close modal if user clicked the back button and no changes made
-            $scope.$on('$routeChangeStart', function () {
+            $scope.$on('$routeChangeStart', function() {
                 if (!window.onbeforeunload) {
                     vm.cancel();
                 }
             });
-
-        }]
-    });
+        },
+    ],
+});

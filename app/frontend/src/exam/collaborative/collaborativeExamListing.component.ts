@@ -67,7 +67,6 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
         </div>
         `,
     controller: class CollaborativeExamListingController implements angular.IComponentController {
-
         exams: CollaborativeExam[];
         user: User;
 
@@ -75,23 +74,27 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
             private $location: angular.ILocationService,
             private $translate: angular.translate.ITranslateService,
             private Session: SessionService,
-            private CollaborativeExam: CollaborativeExamService) {
+            private CollaborativeExam: CollaborativeExamService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
             this.user = this.Session.getUser();
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams;
-            }).catch(angular.noop);
+            this.CollaborativeExam.listExams()
+                .then((exams: CollaborativeExam[]) => {
+                    this.exams = exams;
+                })
+                .catch(angular.noop);
         }
 
         createExam() {
-            this.CollaborativeExam.createExam().then((exam: CollaborativeExam) => {
-                toast.info(this.$translate.instant('sitnet_exam_created'));
-                this.$location.path(`/exams/collaborative/${exam.id}/1`);
-            }).catch(resp => toast.error(resp.data));
+            this.CollaborativeExam.createExam()
+                .then((exam: CollaborativeExam) => {
+                    toast.info(this.$translate.instant('sitnet_exam_created'));
+                    this.$location.path(`/exams/collaborative/${exam.id}/1`);
+                })
+                .catch(resp => toast.error(resp.data));
         }
-
-    }
+    },
 };

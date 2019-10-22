@@ -17,8 +17,6 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-declare function require(name: string): any;
-
 export const DatePickerComponent: angular.IComponentOptions = {
     template: require('./datePicker.template.html'),
     bindings: {
@@ -28,10 +26,9 @@ export const DatePickerComponent: angular.IComponentOptions = {
         extraText: '@',
         onExtraAction: '&',
         modelOptions: '<?',
-        optional: '<?'
+        optional: '<?',
     },
     controller: class DatePickerController implements angular.IComponentController {
-
         onUpdate: ({ date: Date }) => any;
         onExtraAction: ({ date: Date }) => any;
         date: Date | null;
@@ -42,7 +39,7 @@ export const DatePickerComponent: angular.IComponentOptions = {
 
         opened: boolean;
         options = {
-            startingDay: 1
+            startingDay: 1,
         };
         format = 'dd.MM.yyyy';
 
@@ -70,6 +67,5 @@ export const DatePickerComponent: angular.IComponentOptions = {
         extraClicked() {
             this.onExtraAction({ date: this.date });
         }
-
-    }
+    },
 };

@@ -29,10 +29,9 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         onUpdate: '&',
         hourStep: '<?',
         minuteStep: '<?',
-        initialTime: '<?'
+        initialTime: '<?',
     },
     controller: class DateTimePickerController implements angular.IComponentController {
-
         onUpdate: ({ date: Date }) => unknown;
         date: Date;
         hourStep: number;
@@ -48,7 +47,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.time.setMinutes(dt.getMinutes());
             this.time.setSeconds(0);
             this.time.setMilliseconds(0);
-        }
+        };
 
         $onInit() {
             this.time = new Date();
@@ -76,5 +75,5 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.date.setMilliseconds(0);
             this.onUpdate({ date: this.date });
         }
-    }
+    },
 };

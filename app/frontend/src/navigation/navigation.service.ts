@@ -26,11 +26,11 @@ export interface Link {
 }
 
 export class NavigationService {
-
     constructor(
         private $http: angular.IHttpService,
         private $location: angular.ILocationService,
-        private Session: SessionService) {
+        private Session: SessionService,
+    ) {
         'ngInject';
     }
 
@@ -63,9 +63,9 @@ export class NavigationService {
                     href: student ? '/student/exams/collaborative' : '/exams/collaborative',
                     visible: true,
                     name: 'sitnet_collaborative_exams',
-                    iconPng: 'icon_admin_exams.png'
-                }
-            ]
+                    iconPng: 'icon_admin_exams.png',
+                },
+            ],
         };
 
         const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : undefined;
@@ -77,13 +77,13 @@ export class NavigationService {
                 visible: !hideDashboard,
                 name: nameForDashboard,
                 iconPng: 'icon_enrols.svg',
-                submenu: teacherCollaborativeExamsSubmenu
+                submenu: teacherCollaborativeExamsSubmenu,
             },
             {
                 href: '/inspections',
                 visible: languageInspector,
                 name: 'sitnet_language_inspections',
-                iconPng: 'icon_admin_lang_inspection.png'
+                iconPng: 'icon_admin_lang_inspection.png',
             },
             {
                 href: '/exams',
@@ -97,28 +97,28 @@ export class NavigationService {
                             href: '/inspections',
                             visible: true,
                             name: 'sitnet_language_inspections',
-                            iconPng: 'icon_admin_lang_inspection.png'
+                            iconPng: 'icon_admin_lang_inspection.png',
                         },
                         {
                             href: '/printouts',
                             visible: true,
                             name: 'sitnet_printout_exams',
-                            iconPng: 'icon_printouts.png'
+                            iconPng: 'icon_printouts.png',
                         },
                         {
                             href: '/exams/collaborative',
                             visible: interoperable,
                             name: 'sitnet_collaborative_exams',
-                            iconPng: 'icon_admin_exams.png'
+                            iconPng: 'icon_admin_exams.png',
                         },
                         {
                             href: '/questions',
                             visible: true,
                             name: 'sitnet_library_new',
-                            iconPng: 'icon_questions.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_questions.png',
+                        },
+                    ],
+                },
             },
             {
                 href: '/rooms',
@@ -132,48 +132,48 @@ export class NavigationService {
                             href: '/reports',
                             visible: true,
                             name: 'sitnet_reports',
-                            iconPng: 'icon_reports.png'
+                            iconPng: 'icon_reports.png',
                         },
                         {
                             href: '/statistics',
                             visible: true,
                             name: 'sitnet_statistics',
-                            iconPng: 'icon_statistics.png'
+                            iconPng: 'icon_statistics.png',
                         },
                         {
                             href: '/settings',
                             visible: true,
                             name: 'sitnet_settings',
-                            iconPng: 'icon_settings.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_settings.png',
+                        },
+                    ],
+                },
             },
             {
                 href: '/users',
                 visible: admin,
                 name: 'sitnet_users',
-                iconPng: 'icon_users.png'
+                iconPng: 'icon_users.png',
             },
             {
                 href: '/questions',
                 visible: teacher,
                 name: 'sitnet_library_new',
-                iconPng: 'icon_questions.png'
+                iconPng: 'icon_questions.png',
             },
             {
                 href: '/reservations',
                 visible: teacher,
                 name: 'sitnet_reservations_new',
                 iconSvg: 'icon_reservations.svg',
-                iconPng: 'icon_reservations.png'
+                iconPng: 'icon_reservations.png',
             },
             {
                 href: '/student/exams',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exams',
                 iconPng: 'icon_exams.png',
-                submenu: studentCollaborativeExamsSubmenu
+                submenu: studentCollaborativeExamsSubmenu,
             },
             {
                 href: '/student/participations',
@@ -187,17 +187,17 @@ export class NavigationService {
                             href: '/student/participations/collaborative',
                             visible: true,
                             name: 'sitnet_collaborative_exam_responses',
-                            iconPng: 'icon_finished.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_finished.png',
+                        },
+                    ],
+                },
             },
             {
                 href: '/logout',
                 visible: true,
                 name: 'sitnet_logout',
-                iconPng: 'icon_admin_logout.png'
-            }
+                iconPng: 'icon_admin_logout.png',
+            },
         ];
     }
 }

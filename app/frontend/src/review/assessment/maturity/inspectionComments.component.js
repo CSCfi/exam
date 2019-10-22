@@ -15,36 +15,39 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rInspectionComments', {
-        template: require('./inspectionComments.template.html'),
-        bindings: {
-            exam: '<',
-            addingDisabled: '<',
-            addingVisible: '<'
-        },
-        controller: ['$uibModal', 'ExamRes',
-            function ($modal, ExamRes) {
+angular.module('app.review').component('rInspectionComments', {
+    template: require('./inspectionComments.template.html'),
+    bindings: {
+        exam: '<',
+        addingDisabled: '<',
+        addingVisible: '<',
+    },
+    controller: [
+        '$uibModal',
+        'ExamRes',
+        function($modal, ExamRes) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.addInspectionComment = function () {
-                    $modal.open({
+            vm.addInspectionComment = function() {
+                $modal
+                    .open({
                         backdrop: 'static',
                         keyboard: true,
                         animation: true,
-                        component: 'rInspectionComment'
-                    }).result.then(function (params) {
-                        ExamRes.inspectionComment.create({
-                            id: vm.exam.id,
-                            comment: params.comment
-                        }, function (comment) {
-                            vm.exam.inspectionComments.unshift(comment);
-                        });
+                        component: 'rInspectionComment',
+                    })
+                    .result.then(function(params) {
+                        ExamRes.inspectionComment.create(
+                            {
+                                id: vm.exam.id,
+                                comment: params.comment,
+                            },
+                            function(comment) {
+                                vm.exam.inspectionComments.unshift(comment);
+                            },
+                        );
                     });
-                };
-
-            }
-
-        ]
-    });
+            };
+        },
+    ],
+});

@@ -22,7 +22,7 @@ export const LanguageSelectorComponent: angular.IComponentOptions = {
     template: require('./languageSelector.template.html'),
     bindings: {
         exam: '<',
-        collaborative: '<'
+        collaborative: '<',
     },
     controller: class LanguageSelectorController implements angular.IComponentController, angular.IOnInit {
         exam: Exam;
@@ -32,34 +32,34 @@ export const LanguageSelectorComponent: angular.IComponentOptions = {
 
         constructor(
             private $http: angular.IHttpService,
-            private $q: angular.IQService,
             private $translate: angular.translate.ITranslateService,
-            private Language: LanguageService
+            private Language: LanguageService,
         ) {
             'ngInject';
         }
 
         $onInit = () =>
             this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
-                this.examLanguages = languages.map((language) => {
+                this.examLanguages = languages.map(language => {
                     language.name = this.Language.getLanguageNativeName(language.code) || '';
                     return language;
                 });
-            })
+            });
 
         selectedLanguages = () =>
-            this.exam.examLanguages.length === 0 ? this.$translate.instant('sitnet_select') :
-                this.exam.examLanguages.map((language) =>
-                    this.Language.getLanguageNativeName(language.code))
-                    .join(', ')
+            this.exam.examLanguages.length === 0
+                ? this.$translate.instant('sitnet_select')
+                : this.exam.examLanguages
+                      .map(language => this.Language.getLanguageNativeName(language.code))
+                      .join(', ');
 
-        isSelected = (lang: ExamLanguage) =>
-            this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1
+        isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1;
 
         updateExamLanguage = (lang: ExamLanguage) => {
             const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
-            this.$http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).then(
-                () => {
+            this.$http
+                .put(`${resource}/${this.exam.id}/language/${lang.code}`, {})
+                .then(() => {
                     if (this.isSelected(lang)) {
                         const index = this.exam.examLanguages.map(el => el.code).indexOf(lang.code);
                         this.exam.examLanguages.splice(index, 1);
@@ -67,10 +67,10 @@ export const LanguageSelectorComponent: angular.IComponentOptions = {
                         this.exam.examLanguages.push(lang);
                     }
                     toast.info(this.$translate.instant('sitnet_exam_language_updated'));
-                }
-            ).catch(resp => toast.error(resp.data));
-        }
-    }
+                })
+                .catch(resp => toast.error(resp.data));
+        };
+    },
 };
 
 angular.module('app.exam.editor').component('languageSelector', LanguageSelectorComponent);
