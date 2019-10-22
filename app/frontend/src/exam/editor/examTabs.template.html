@@ -34,7 +34,8 @@
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4"
                 heading="{{ 'sitnet_exam_responses' | translate }}" deselect="$ctrl.tabChanged($selectedIndex)">
-                <review-list exam="$ctrl.exam" collaborative="$ctrl.collaborative"></review-list>
+                <review-list ng-if="$ctrl.reviews" exam="$ctrl.exam" collaborative="$ctrl.collaborative"
+                    reviews="$ctrl.reviews" on-loaded="$ctrl.reviewsLoaded(reviews)"></review-list>
             </uib-tab>
             <!-- TODO: CHECK THE VISIBILITY WITH COLLABORATIVE EXAMS -->
             <uib-tab
@@ -45,8 +46,7 @@
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && !$ctrl.collaborative && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="6"
                 heading="{{ 'sitnet_exam_summary_tab' | translate }}" deselect="$ctrl.tabChanged($selectedIndex)">
-                <exam-summary exam="$ctrl.exam">
-                </exam-summary>
+                <exam-summary ng-if="$ctrl.reviews" exam="$ctrl.exam" reviews="$ctrl.reviews"></exam-summary>
             </uib-tab>
         </uib-tabset>
     </div>

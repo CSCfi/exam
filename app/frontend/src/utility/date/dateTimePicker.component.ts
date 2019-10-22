@@ -15,30 +15,48 @@
 
 import * as angular from 'angular';
 
-declare function require(name: string): any;
-
 export const DateTimePickerComponent: angular.IComponentOptions = {
     template: `
         <div id="datetimepicker" class="datetimepicker-wrapper">
-            <date-picker on-update="$ctrl.onDateUpdate(date)"><date-picker/>
+            <date-picker initial-date="$ctrl.initialTime" on-update="$ctrl.onDateUpdate(date)"><date-picker/>
         </div>
-        <div id="datetimepicker" class="datetimepicker-wrapper"
-            ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" style="display:inline-block">
-            <div uib-timepicker show-meridian="false" hour-step="$ctrl.hourStep", minute-step="$ctrl.minuteStep">
+        <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+            <div uib-timepicker ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" 
+                show-meridian="false" hour-step="$ctrl.hourStep" minute-step="$ctrl.minuteStep">
         </div>
         `,
     bindings: {
         onUpdate: '&',
         hourStep: '<?',
-        minuteStep: '<?'
+        minuteStep: '<?',
+        initialTime: '<?'
     },
     controller: class DateTimePickerController implements angular.IComponentController {
 
-        onUpdate: ({ date: Date }) => any;
-        date: Date = new Date();
+        onUpdate: ({ date: Date }) => unknown;
+        date: Date;
         hourStep: number;
         minuteStep: number;
-        time: Date = new Date();
+        time: Date;
+        initialTime: Date;
+
+        private setDateTime = (dt: Date) => {
+            this.date.setFullYear(dt.getFullYear());
+            this.date.setMonth(dt.getMonth());
+            this.date.setDate(dt.getDate());
+            this.time.setHours(dt.getHours());
+            this.time.setMinutes(dt.getMinutes());
+            this.time.setSeconds(0);
+            this.time.setMilliseconds(0);
+        }
+
+        $onInit() {
+            this.time = new Date();
+            this.date = new Date();
+            if (this.initialTime) {
+                this.setDateTime(this.initialTime);
+            }
+        }
 
         onTimeUpdate() {
             this.date.setHours(this.time.getHours());

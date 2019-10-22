@@ -295,9 +295,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 errors.push('sitnet_exam_has_no_questions');
             }
 
-            const allSectionsNamed = this.exam.examSections.every((section) => {
-                return !_.isEmpty(section.name);
-            });
+            const allSectionsNamed = this.exam.examSections.every(section => !_.isEmpty(section.name));
             if (!allSectionsNamed) {
                 errors.push('sitnet_exam_contains_unnamed_sections');
             }
@@ -316,6 +314,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 errors.push('sitnet_autoevaluation_percentages_not_unique');
             }
 
+            if (this.exam.requiresUserAgentAuth && this.exam.examinationEventConfigurations.length === 0) {
+                errors.push('sitnet_missing_examination_event_configurations');
+            }
             return errors.map(e => this.$translate.instant(e));
         }
 

@@ -932,5 +932,11 @@
   "sitnet_exam_average_time": "Average used for participation EN",
   "sitnet_exam_add_participants_title": "Add participants EN",
   "sitnet_exam_participant_selector_label": "Existing Exam users EN",
-  "sitnet_exam_pre_participant_selector_label": "Users not logged in to Exam EN"
+  "sitnet_exam_pre_participant_selector_label": "Users not logged in to Exam EN",
+  "sitnet_settings_password": "Tenttitilaisuuden salasana EN",
+  "sitnet_examination_events": "Tenttitilaisuudet EN",
+  "sitnet_examination_events_description": "Tenttitilaisuudessa on mahdollista suorittaa BYOD-tenttejä EN",
+  "sitnet_add_examination_event": "Lisää tenttitilaisuus EN",
+  "sitnet_update_examination_event": "Muokkaa tenttitilaisuutta EN",
+  "sitnet_examination_type_description": "Akvaariotentti = hallinnoidussa tenttitilassa suoritettu tentti. BYOD = Bring Your Own Device eli tentti suoritetaan omalla koneella luentosalissa tai vastaavassa EN"
 }

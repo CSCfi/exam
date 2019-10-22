@@ -29,6 +29,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         user: User;
         examInfo: { title: string | null };
         exam: Exam;
+        reviews: any[];
         activeTab: number;
 
         constructor(
@@ -36,8 +37,10 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             private $routeParams: angular.route.IRouteParamsService,
             private $translate: angular.translate.ITranslateService,
             private $window: angular.IWindowService,
+            private $filter: angular.FilterFactory,
             private $location: any, // this is the extension to angular's location service, hence any-type
-            private Session: SessionService
+            private Session: SessionService,
+            private ReviewList: any
         ) {
             'ngInject';
 
@@ -51,6 +54,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             } else {
                 this.downloadExam();
             }
+            this.getReviews(this.$routeParams.id);
             this.activeTab = parseInt(this.$routeParams.tab);
         }
 
@@ -70,6 +74,8 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             return this.exam.examOwners.some(x => x.id === this.user.id ||
                 x.email.toLowerCase() === this.user.email.toLowerCase());
         }
+
+        onReviewsLoaded = (data: { reviews: unknown[] }) => this.reviews = data.reviews;
 
         tabChanged = (index: number) => {
             const path = this.collaborative ? '/exams/collaborative' : '/exams';
@@ -112,6 +118,24 @@ export const ExamTabsComponent: angular.IComponentOptions = {
                     this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                     this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
                 }, err => toastr.error(err.data));
+        }
+
+        private getReviews = (examId: number) => {
+            this.$http.get(this.getResource(examId)).then((response: angular.IHttpResponse<any[]>) => {
+                const reviews = response.data;
+                reviews.forEach(r => {
+                    r.displayName = this.ReviewList.getDisplayName(r, this.collaborative);
+                    r.duration = this.$filter('diffInMinutesTo')(r.started, r.ended);
+                    if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
+                        r.isUnderLanguageInspection = true;
+                    }
+                });
+                this.reviews = reviews;
+            })
+        }
+
+        private getResource = (examId: number) => {
+            return this.collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
         }
 
         private hasEffectiveEnrolments = (exam: Exam) =>

@@ -161,24 +161,31 @@
         </div>
 
         <div class="row col-md-12 margin-20" ng-show="$ctrl.exam.requiresUserAgentAuth">
-            <div class="col-md-3 exam-basic-title">{{'sitnet_settings_password' | translate}}
+            <div class="col-md-3 exam-basic-title">{{'sitnet_examination_events' | translate}}
                 <sup>
                     <img popover-placement="right" popover-trigger="'mouseenter'"
-                        uib-popover="{{'sitnet_examination_type_description' | translate}}"
+                        uib-popover="{{'sitnet_examination_events_description' | translate}}"
                         src="Images/icon_tooltip.svg" alt="exam"
                         onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                 </sup>
             </div>
-            <form class="col-md-9">
-                <div class="input-group wdth-30">
-                    <input type="{{$ctrl.pwdInputType}}" name="password" class="form-control"
-                        ng-model="$ctrl.exam.settingsPassword" required ui-change="$ctrl.updateExam(false)" />
-                    <span class="input-group-addon">
-                        <span ng-class="$ctrl.pwdInputType === 'text' ? 'fa fa-lock' : 'fa fa-unlock'"
-                            ng-click="$ctrl.togglePasswordInputType()"></span>
-                    </span>
-                </div>
-            </form>
+            <div class="col-md-3">
+                <button type="button" ng-click="$ctrl.addExaminationEvent()"
+                    class="btn btn-primary green border-green">{{'sitnet_add_examination_event' | translate}}</button>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-inline">
+                    <li ng-repeat="config in $ctrl.exam.examinationEventConfigurations" class="pointer">
+                        <span
+                            ng-click="$ctrl.modifyExaminationEvent(config)">{{ config.examinationEvent.start | date }}</span>
+                        <button class="reviewer-remove" ng-click="$ctrl.removeExaminationEvent(config)"
+                            title="{{'sitnet_remove' | translate}}">
+                            <img src="Images/icon_remove.svg" alt="exam"
+                                onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <!-- EXAM ATTACHMENT -->

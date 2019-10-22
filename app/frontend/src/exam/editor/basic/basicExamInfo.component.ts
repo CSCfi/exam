@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { Exam, ExamExecutionType, GradeScale, ExaminationEventConfiguration } from '../../exam.model';
 
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
@@ -47,6 +47,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             private $scope: ng.IScope,
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
+            private dialogs: angular.dialogservice.IDialogService,
             private Exam: any,
             private SettingsResource: any,
             private Attachment: AttachmentService,
@@ -113,7 +114,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         getSelectableScales = () => {
-            if (!this.gradeScales || !this.exam || angular.isUndefined(this.gradeScaleSetting)) {
+            if (!this.gradeScales || !this.exam || ng.isUndefined(this.gradeScaleSetting)) {
                 return [];
             }
 
@@ -174,6 +175,49 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             });
         }
 
+        addExaminationEvent = () => {
+            this.$uibModal.open({
+                backdrop: 'static',
+                keyboard: true,
+                animation: true,
+                component: 'examinationEventDialog'
+            }).result.then((data: ExaminationEventConfiguration) => {
+                this.Exam.addExaminationEvent(this.exam.id, data).then((config: ExaminationEventConfiguration) => {
+                    this.exam.examinationEventConfigurations.push(config);
+                })
+            });
+        }
+
+        modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+            this.$uibModal.open({
+                backdrop: 'static',
+                keyboard: true,
+                animation: true,
+                component: 'examinationEventDialog',
+                resolve: {
+                    config: () => configuration
+                }
+            }).result.then((data: ExaminationEventConfiguration) => {
+                this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id }))
+                    .then((config: ExaminationEventConfiguration) => {
+                        const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                        console.log(index);
+                        this.exam.examinationEventConfigurations.splice(index, 1, config);
+                        console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
+                    });
+            });
+        }
+
+        removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+            this.dialogs.confirm(this.$translate.instant('sitnet_remove_examination_event'),
+                this.$translate.instant('sitnet_are_you_sure')).result.then(() =>
+                    this.Exam.removeExaminationEvent(this.exam.id, configuration).then(() => {
+                        this.exam.examinationEventConfigurations.splice(
+                            this.exam.examinationEventConfigurations.indexOf(configuration), 1);
+                    })
+                );
+        }
+
         downloadExamAttachment = () =>
             this.Attachment.downloadExamAttachment(this.exam, this.collaborative)
 
@@ -218,4 +262,4 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
     }
 };
 
-angular.module('app.exam.editor').component('basicExamInfo', BasicExamInfoComponent);
+ng.module('app.exam.editor').component('basicExamInfo', BasicExamInfoComponent);
