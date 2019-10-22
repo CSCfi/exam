@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as ng from 'angular';
 
 export default function run($templateCache: ng.ITemplateCacheService) {
@@ -21,6 +20,6 @@ export default function run($templateCache: ng.ITemplateCacheService) {
     $templateCache.put(
         'uib/template/datepickerPopup/popup.html',
         // eslint-disable-next-line
-        require('./date/template/uibPopupOverride.html')
+        require('./date/template/uibPopupOverride.html'),
     );
 }

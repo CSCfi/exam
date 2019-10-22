@@ -15,52 +15,52 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationSection', {
-        template: require('./examinationSection.template.html'),
-        bindings: {
-            exam: '<',
-            isPreview: '<',
-            section: '<',
-            isCollaborative: '<'
-        },
-        controller: ['$interval', 'Examination',
-            function ($interval, Examination) {
+angular.module('app.examination').component('examinationSection', {
+    template: require('./examinationSection.template.html'),
+    bindings: {
+        exam: '<',
+        isPreview: '<',
+        section: '<',
+        isCollaborative: '<',
+    },
+    controller: [
+        '$interval',
+        'Examination',
+        function($interval, Examination) {
+            const vm = this;
+            let _autosaver = null;
 
-                const vm = this;
-                let _autosaver = null;
+            vm.$onInit = function() {
+                resetAutosaver();
+            };
 
-                vm.$onInit = function () {
+            vm.$onChanges = function(props) {
+                if (props.section) {
+                    // Section changed
                     resetAutosaver();
-                };
+                }
+            };
 
-                vm.$onChanges = function (props) {
-                    if (props.section) {
-                        // Section changed
-                        resetAutosaver();
-                    }
-                };
+            vm.$onDestroy = function() {
+                // No section currently active
+                cancelAutosaver();
+            };
 
-                vm.$onDestroy = function () {
-                    // No section currently active
-                    cancelAutosaver();
-                };
+            const resetAutosaver = function() {
+                cancelAutosaver();
+                if (vm.section) {
+                    _autosaver = $interval(function() {
+                        Examination.saveAllTextualAnswersOfSection(vm.section, vm.exam.hash, true);
+                    }, 1000 * 60);
+                }
+            };
 
-                const resetAutosaver = function () {
-                    cancelAutosaver();
-                    if (vm.section) {
-                        _autosaver = $interval(function () {
-                            Examination.saveAllTextualAnswersOfSection(vm.section, vm.exam.hash, true);
-                        }, 1000 * 60);
-                    }
-                };
-
-                const cancelAutosaver = function () {
-                    if (_autosaver) {
-                        $interval.cancel(_autosaver);
-                        _autosaver = null;
-                    }
-                };
-            }
-        ]
-    });
+            const cancelAutosaver = function() {
+                if (_autosaver) {
+                    $interval.cancel(_autosaver);
+                    _autosaver = null;
+                }
+            };
+        },
+    ],
+});

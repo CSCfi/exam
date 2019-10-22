@@ -15,6 +15,7 @@
  */
 import * as angular from 'angular';
 import * as toast from 'toastr';
+
 import { ExaminationEventConfiguration } from '../../exam.model';
 
 export const ExaminationEventDialogComponent: angular.IComponentOptions = {
@@ -79,10 +80,9 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
     bindings: {
         resolve: '<',
         close: '&',
-        dismiss: '&'
+        dismiss: '&',
     },
     controller: class ExaminationEventDialogController implements angular.IComponentController {
-
         resolve: { config: ExaminationEventConfiguration };
         close: (_: { $value: { config: ExaminationEventConfiguration } }) => any;
         dismiss: () => any;
@@ -106,30 +106,30 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
             }
         }
 
-        togglePasswordInputType = () => this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text';
-        onStartDateChange = (date: Date) => this.start = date;
+        togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
+        onStartDateChange = (date: Date) => (this.start = date);
 
         ok() {
             if (!this.start) {
-                toast.error(this.$translate.instant('sitnet_no_examination_start_date_picked'))
+                toast.error(this.$translate.instant('sitnet_no_examination_start_date_picked'));
             }
             this.close({
                 $value: {
                     config: {
                         examinationEvent: {
                             start: this.start,
-                            description: this.description
+                            description: this.description,
                         },
-                        settingsPassword: this.password
-                    }
-                }
+                        settingsPassword: this.password,
+                    },
+                },
             });
         }
 
         cancel() {
             this.dismiss();
         }
-    }
+    },
 };
 
 angular.module('app.exam.editor').component('examinationEventDialog', ExaminationEventDialogComponent);

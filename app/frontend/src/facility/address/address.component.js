@@ -16,25 +16,28 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.address')
-    .component('examAddress', {
-        template: require('./address.template.html'),
-        bindings: {
-            address: '<'
-        },
-        controller: ['Room', '$translate', function (Room, $translate) {
-
+angular.module('app.facility.address').component('examAddress', {
+    template: require('./address.template.html'),
+    bindings: {
+        address: '<',
+    },
+    controller: [
+        'Room',
+        '$translate',
+        function(Room, $translate) {
             const vm = this;
 
-            vm.updateAddress = function () {
-                Room.addresses.update(vm.address,
-                    function () {
-                        toast.info($translate.instant("sitnet_room_address_updated"));
+            vm.updateAddress = function() {
+                Room.addresses.update(
+                    vm.address,
+                    function() {
+                        toast.info($translate.instant('sitnet_room_address_updated'));
                     },
-                    function (error) {
+                    function(error) {
                         toast.error(error.data);
-                    }
+                    },
                 );
             };
-        }]
-    });
+        },
+    ],
+});

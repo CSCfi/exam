@@ -18,8 +18,7 @@ import * as _ from 'lodash';
 import { IOnChangesObject } from 'angular';
 
 export const PaginatorComponent: angular.IComponentOptions = {
-    template:
-        `<ul class="pagination pagination-sm">
+    template: `<ul class="pagination pagination-sm">
             <li ng-class="$ctrl.previousPageDisabled()"><a href="" ng-click="$ctrl.previousPage()">&#60;</a></li>
             <li ng-repeat="n in $ctrl.range()" ng-class="{active: $ctrl.isCurrent(n)}" ng-click="$ctrl.setPage(n)">
                 <a href="">{{ $ctrl.printRange(n) }}</a>
@@ -30,7 +29,7 @@ export const PaginatorComponent: angular.IComponentOptions = {
         items: '<',
         pageSize: '<',
         currentPage: '<',
-        onSelectPage: '&'
+        onSelectPage: '&',
     },
     controller: class PaginatorController implements angular.IComponentController {
         items: any[] = [];
@@ -55,27 +54,26 @@ export const PaginatorComponent: angular.IComponentOptions = {
                 this.currentPage--;
                 this.onSelectPage({ page: this.currentPage });
             }
-        }
+        };
 
         isCurrent = (n: number) => n === this.currentPage;
 
-        previousPageDisabled = () => this.currentPage === 0 ? 'disabled' : '';
+        previousPageDisabled = () => (this.currentPage === 0 ? 'disabled' : '');
 
         nextPage = () => {
             if (this.currentPage < this.pageCount) {
                 this.currentPage++;
                 this.onSelectPage({ page: this.currentPage });
             }
-        }
+        };
 
-        nextPageDisabled = () => this.currentPage === this.pageCount ? 'disabled' : '';
+        nextPageDisabled = () => (this.currentPage === this.pageCount ? 'disabled' : '');
 
         range = () => _.range(0, this.pageCount + 1);
 
-        setPage = (n) => {
+        setPage = n => {
             this.currentPage = n;
             this.onSelectPage({ page: n });
-        }
-
-    }
+        };
+    },
 };

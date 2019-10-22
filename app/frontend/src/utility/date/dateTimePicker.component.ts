@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 
 export const DateTimePickerComponent: angular.IComponentOptions = {
@@ -29,10 +28,9 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         onUpdate: '&',
         hourStep: '<?',
         minuteStep: '<?',
-        initialTime: '<?'
+        initialTime: '<?',
     },
     controller: class DateTimePickerController implements angular.IComponentController {
-
         onUpdate: ({ date: Date }) => unknown;
         date: Date;
         hourStep: number;
@@ -48,7 +46,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.time.setMinutes(dt.getMinutes());
             this.time.setSeconds(0);
             this.time.setMilliseconds(0);
-        }
+        };
 
         $onInit() {
             this.time = new Date();
@@ -76,5 +74,5 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.date.setMilliseconds(0);
             this.onUpdate({ date: this.date });
         }
-    }
+    },
 };

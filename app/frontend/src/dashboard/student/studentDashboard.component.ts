@@ -19,11 +19,9 @@ import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { StudentDashboardService } from './studentDashboard.service';
 
-
 export const StudentDashboardComponent: angular.IComponentOptions = {
     template: require('./studentDashboard.template.html'),
     controller: class StudentDashboardController implements angular.IComponentController {
-
         userEnrolments: any[];
 
         constructor(
@@ -31,16 +29,17 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
             private Reservation: ReservationService,
             private DateTime: DateTimeService,
             private Enrolment: EnrolmentService,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
-            this.StudentDashboard.listEnrolments().then(data =>
-                this.userEnrolments = data.result
-            ).catch(function (e) {
-                console.error(e);
-            });
+            this.StudentDashboard.listEnrolments()
+                .then(data => (this.userEnrolments = data.result))
+                .catch(function(e) {
+                    console.error(e);
+                });
         }
 
         printExamDuration(exam) {
@@ -66,6 +65,5 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
         removeEnrolment(enrolment: ExamEnrolment) {
             this.Enrolment.removeEnrolment(enrolment);
         }
-    }
+    },
 };
-

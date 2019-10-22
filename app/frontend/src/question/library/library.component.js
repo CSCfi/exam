@@ -16,30 +16,30 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('library', {
-        template: require('./library.template.html'),
-        controller: ['$location', '$translate', function ($location, $translate) {
-
+angular.module('app.question').component('library', {
+    template: require('./library.template.html'),
+    controller: [
+        '$location',
+        '$translate',
+        function($location, $translate) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.questions = [];
             };
 
-            vm.resultsUpdated = function (results) {
+            vm.resultsUpdated = function(results) {
                 vm.questions = results;
             };
 
-            vm.questionSelected = function (selections) {
+            vm.questionSelected = function(selections) {
                 vm.selections = selections;
             };
 
-            vm.questionCopied = function (copy) {
+            vm.questionCopied = function(copy) {
                 toast.info($translate.instant('sitnet_question_copied'));
                 $location.path('/questions/' + copy.id);
             };
-
-        }]
-    });
-
+        },
+    ],
+});

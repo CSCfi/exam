@@ -15,26 +15,25 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationHeader', {
-        template: require('./examinationHeader.template.html'),
-        bindings: {
-            exam: '<',
-            onTimeout: '&',
-            isPreview: '<'
+angular.module('app.examination').component('examinationHeader', {
+    template: require('./examinationHeader.template.html'),
+    bindings: {
+        exam: '<',
+        onTimeout: '&',
+        isPreview: '<',
+    },
+    controller: [
+        'Session',
+        function(Session) {
+            const vm = this;
+
+            vm.informTimeout = function() {
+                vm.onTimeout();
+            };
+
+            vm.switchLanguage = function(key) {
+                Session.switchLanguage(key);
+            };
         },
-        controller: ['Session',
-            function (Session) {
-
-                const vm = this;
-
-                vm.informTimeout = function () {
-                    vm.onTimeout();
-                };
-
-                vm.switchLanguage = function (key) {
-                    Session.switchLanguage(key);
-                };
-            }
-        ]
-    });
+    ],
+});

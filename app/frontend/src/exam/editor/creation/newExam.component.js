@@ -12,28 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.exam.editor')
-    .component('newExam', {
-        template: require('./newExam.template.html'),
-        controller: ['Exam',
-            function (Exam) {
+angular.module('app.exam.editor').component('newExam', {
+    template: require('./newExam.template.html'),
+    controller: [
+        'Exam',
+        function(Exam) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                Exam.listExecutionTypes().then(function(types) {
+                    vm.executionTypes = types;
+                });
+            };
 
-                vm.$onInit = function () {
-                    Exam.listExecutionTypes().then(function (types) {
-                        vm.executionTypes = types;
-                    });
-                };
-
-                vm.createExam = function () {
-                    if (vm.type) {
-                        Exam.createExam(vm.type.type);
-                    }
-                };
-            }
-        ]
-    });
+            vm.createExam = function() {
+                if (vm.type) {
+                    Exam.createExam(vm.type.type);
+                }
+            };
+        },
+    ],
+});

@@ -31,7 +31,6 @@ export const SessionComponent: angular.IComponentOptions = {
     </div>
     `,
     controller: class SessionController implements angular.IComponentController {
-
         hideNavBar: boolean;
         user: User;
         devLoginRequired: boolean;
@@ -41,16 +40,16 @@ export const SessionComponent: angular.IComponentOptions = {
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private $sessionStorage: any,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
 
-            this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
-            this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
+            this.$rootScope.$on('examStarted', () => (this.hideNavBar = true));
+            this.$rootScope.$on('examEnded', () => (this.hideNavBar = false));
             this.$rootScope.$on('devLogout', () => {
                 this.$location.url(this.$location.path());
                 this.user = Session.getUser();
             });
-
         }
 
         $onInit() {
@@ -68,20 +67,21 @@ export const SessionComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
-                this.Session.getEnv().then((value: 'DEV' | 'PROD') => {
-                    if (value === 'PROD') {
-                        this.Session.login('', '')
-                            .then((user: User) => this.user = user)
-                            .catch(angular.noop);
-                    }
-                    this.devLoginRequired = value === 'DEV';
-                }).catch(angular.noop);
+                this.Session.getEnv()
+                    .then((value: 'DEV' | 'PROD') => {
+                        if (value === 'PROD') {
+                            this.Session.login('', '')
+                                .then((user: User) => (this.user = user))
+                                .catch(angular.noop);
+                        }
+                        this.devLoginRequired = value === 'DEV';
+                    })
+                    .catch(angular.noop);
             }
         }
 
-        setUser = function (user: User) {
+        setUser = function(user: User) {
             this.user = user;
         };
-
-    }
+    },
 };

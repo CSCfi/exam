@@ -16,71 +16,74 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .component('rEssayQuestion', {
-        template: require('./essayQuestion.template.html'),
-        bindings: {
-            sectionQuestion: '<',
-            onScore: '&'
+angular.module('app.review').component('rEssayQuestion', {
+    template: require('./essayQuestion.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+        onScore: '&',
+    },
+    require: {
+        parentCtrl: '^^rExamSection',
+    },
+    controller: [
+        '$sce',
+        '$routeParams',
+        '$translate',
+        'Assessment',
+        'Attachment',
+        function($sce, $routeParams, $translate, Assessment, Attachment) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                vm.participation = vm.parentCtrl.participation;
+                vm.exam = vm.parentCtrl.exam;
+                vm.isScorable = vm.parentCtrl.isScorable;
+            };
+
+            vm.displayQuestionText = function() {
+                return $sce.trustAsHtml(vm.sectionQuestion.question.question);
+            };
+
+            vm.downloadQuestionAttachment = function() {
+                if (vm.parentCtrl.collaborative) {
+                    const attachment = vm.sectionQuestion.question.attachment;
+                    return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                }
+                return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
+            };
+
+            vm.downloadQuestionAnswerAttachment = function() {
+                if (vm.parentCtrl.collaborative) {
+                    const attachment = vm.sectionQuestion.essayAnswer.attachment;
+                    return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                }
+                return Attachment.downloadQuestionAnswerAttachment(vm.sectionQuestion);
+            };
+
+            vm.insertEssayScore = function() {
+                Assessment.saveEssayScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                    .then(function(resp) {
+                        toast.info($translate.instant('sitnet_graded'));
+                        vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
+                    })
+                    .catch(function(error) {
+                        toast.error($translate.instant(error.data));
+                    });
+            };
+
+            vm.getWordCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
+            };
+
+            vm.getCharacterCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
+            };
         },
-        require: {
-            parentCtrl: '^^rExamSection'
-        },
-        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment',
-            function ($sce, $routeParams, $translate, Assessment, Attachment) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.participation = vm.parentCtrl.participation;
-                    vm.exam = vm.parentCtrl.exam;
-                    vm.isScorable = vm.parentCtrl.isScorable;
-                };
-
-                vm.displayQuestionText = function () {
-                    return $sce.trustAsHtml(vm.sectionQuestion.question.question);
-                };
-
-                vm.downloadQuestionAttachment = function () {
-                    if (vm.parentCtrl.collaborative) {
-                        const attachment = vm.sectionQuestion.question.attachment;
-                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-                    }
-                    return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
-                };
-
-                vm.downloadQuestionAnswerAttachment = function () {
-                    if (vm.parentCtrl.collaborative) {
-                        const attachment = vm.sectionQuestion.essayAnswer.attachment;
-                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-                    }
-                    return Attachment.downloadQuestionAnswerAttachment(vm.sectionQuestion);
-                };
-
-                vm.insertEssayScore = function () {
-                    Assessment.saveEssayScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
-                        .then(function (resp) {
-                            toast.info($translate.instant('sitnet_graded'));
-                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
-                        }).catch(function (error) {
-                            toast.error($translate.instant(error.data));
-                        });
-                };
-
-                vm.getWordCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
-                };
-
-                vm.getCharacterCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
-                };
-
-            }
-        ]
-    });
+    ],
+});

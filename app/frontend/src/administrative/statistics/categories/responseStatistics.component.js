@@ -12,56 +12,53 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.statistics')
-    .component('responseStatistics', {
-        template: `
+angular.module('app.administrative.statistics').component('responseStatistics', {
+    template: `
             <div class="bottom-row">
                 <div class="col-md-12">
                     <button class="btn btn-primary" ng-click="$ctrl.listResponses()">{{'sitnet_search' | translate}}</button>
                 </div>
             </div>
             <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_assessed_exams' | translate}}:</strong></div>
+                <div class="col-md-2"><strong>{{'sitnet_assessed_exams' | translate}}:</strong></div>
                 <div class="col-md-10">{{$ctrl.assessedExams.length}}</div>
             </div>
             <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_unassessed_exams' | translate}}:</strong></div>
+                <div class="col-md-2"><strong>{{'sitnet_unassessed_exams' | translate}}:</strong></div>
                 <div class="col-md-10">{{$ctrl.unassessedExams.length}}</div>
             </div>
             <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_aborted_exams' | translate}}:</strong></div>
+                <div class="col-md-2"><strong>{{'sitnet_aborted_exams' | translate}}:</strong></div>
                 <div class="col-md-10">{{$ctrl.abortedExams.length}}</div>
             </div>
         `,
-        bindings: {
-            queryParams: '<'
-        },
-        controller: ['$translate', 'Statistics',
-            function ($translate, Statistics) {
+    bindings: {
+        queryParams: '<',
+    },
+    controller: [
+        'Statistics',
+        function(Statistics) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.listResponses();
+            };
 
-                vm.$onInit = function () {
-                    vm.listResponses();
-                };
-
-                vm.listResponses = function () {
-                    Statistics.responses.query(vm.queryParams, function (exams) {
-                        vm.assessedExams = exams.filter(function (e) {
-                            return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1;
-                        });
-                        vm.unassessedExams = exams.filter(function (e) {
-                            return ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1;
-                        });
-                        vm.abortedExams = exams.filter(function (e) {
-                            return e.state === 'ABORTED';
-                        });
+            vm.listResponses = function() {
+                Statistics.responses.query(vm.queryParams, function(exams) {
+                    vm.assessedExams = exams.filter(function(e) {
+                        return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1;
                     });
-                };
-
-            }]
-    });
-
+                    vm.unassessedExams = exams.filter(function(e) {
+                        return ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1;
+                    });
+                    vm.abortedExams = exams.filter(function(e) {
+                        return e.state === 'ABORTED';
+                    });
+                });
+            };
+        },
+    ],
+});

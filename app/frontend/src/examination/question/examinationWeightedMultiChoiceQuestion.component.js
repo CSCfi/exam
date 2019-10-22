@@ -15,37 +15,35 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationWeightedMultiChoiceQuestion', {
-        template: '' +
-            '<div class="bottom-padding-2">' +
-            '    <fieldset>' +
-            '        <legend style="visibility: hidden;">answer options for multiple choice question</legend>' +
-            '        <div ng-repeat="sqo in $ctrl.sq.options | orderBy: \'id\'" class="exam-answer-options">' +
-            '            <input type="checkbox" aria-label="option" name="selectedOption"' +
-            '                ng-checked="sqo.answered" ng-model="sqo.answered"' +
-            '                ng-change="$ctrl.saveOption()"/>' +
-            '            {{sqo.option.option}}' +
-            '        </div>' +
-            '    </fieldset>' +
-            '</div>' +
-            '<div class="padl0 question-type-text">' +
-            '    {{$ctrl.sq.derivedMaxScore}} {{\'sitnet_unit_points\' | translate}}' +
-            '</div>',
-        bindings: {
-            sq: '<',
-            examHash: '<',
-            isPreview: '<'
+angular.module('app.examination').component('examinationWeightedMultiChoiceQuestion', {
+    template:
+        '<div class="bottom-padding-2">' +
+        '    <fieldset>' +
+        '        <legend style="visibility: hidden;">answer options for multiple choice question</legend>' +
+        '        <div ng-repeat="sqo in $ctrl.sq.options | orderBy: \'id\'" class="exam-answer-options">' +
+        '            <input type="checkbox" aria-label="option" name="selectedOption"' +
+        '                ng-checked="sqo.answered" ng-model="sqo.answered"' +
+        '                ng-change="$ctrl.saveOption()"/>' +
+        '            {{sqo.option.option}}' +
+        '        </div>' +
+        '    </fieldset>' +
+        '</div>' +
+        '<div class="padl0 question-type-text">' +
+        "    {{$ctrl.sq.derivedMaxScore}} {{'sitnet_unit_points' | translate}}" +
+        '</div>',
+    bindings: {
+        sq: '<',
+        examHash: '<',
+        isPreview: '<',
+    },
+    controller: [
+        'Examination',
+        function(Examination) {
+            const vm = this;
+
+            vm.saveOption = function() {
+                Examination.saveOption(vm.examHash, vm.sq, vm.isPreview);
+            };
         },
-        controller: ['Examination',
-            function (Examination) {
-
-                const vm = this;
-
-                vm.saveOption = function () {
-                    Examination.saveOption(vm.examHash, vm.sq, vm.isPreview);
-                };
-
-            }
-        ]
-    });
+    ],
+});

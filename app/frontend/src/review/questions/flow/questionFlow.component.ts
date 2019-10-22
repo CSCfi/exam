@@ -22,10 +22,9 @@ export const QuestionFlowComponent: angular.IComponentOptions = {
     template: require('./questionFlow.template.html'),
     bindings: {
         reviews: '<',
-        onSelection: '&'
+        onSelection: '&',
     },
     controller: class QuestionFlowComponentController implements angular.IComponentController {
-
         reviews: QuestionReview[];
         onSelection: (_: { index: number }) => any;
         unfinished: QuestionReview[];
@@ -38,11 +37,10 @@ export const QuestionFlowComponent: angular.IComponentOptions = {
         private init = () => {
             this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
             this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
-        }
+        };
 
         getAssessedAnswerCount = (review: QuestionReview) =>
-            this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
-
+            this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
 
         $onInit() {
             this.init();
@@ -55,12 +53,10 @@ export const QuestionFlowComponent: angular.IComponentOptions = {
         }
 
         questionSelected = (review: QuestionReview) => {
-            this.unfinished.concat(this.finished)
-                .forEach(r => r.selected = r.question.id === review.question.id);
+            this.unfinished.concat(this.finished).forEach(r => (r.selected = r.question.id === review.question.id));
             this.onSelection({ index: this.reviews.indexOf(review) });
-        }
-
-    }
+        };
+    },
 };
 
 angular.module('app.review').component('questionFlow', QuestionFlowComponent);

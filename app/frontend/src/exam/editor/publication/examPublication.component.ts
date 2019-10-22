@@ -21,18 +21,15 @@ import * as toast from 'toastr';
 import { SessionService, User } from '../../../session/session.service';
 import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
 
-
-
 export const ExamPublicationComponent: angular.IComponentOptions = {
     template: require('./examPublication.template.html'),
     bindings: {
         exam: '<',
         collaborative: '<',
         onPreviousTabSelected: '&',
-        onNextTabSelected: '&?'
+        onNextTabSelected: '&?',
     },
     controller: class ExamPublicationController implements angular.IComponentController {
-
         exam: Exam;
         collaborative: boolean;
         onPreviousTabSelected: () => any;
@@ -55,7 +52,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             private $uibModal: IModalService,
             private $window: angular.IWindowService,
             private Session: SessionService,
-            private Exam: any
+            private Exam: any,
         ) {
             'ngInject';
 
@@ -63,15 +60,17 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
         }
 
         $onInit = () => {
-            this.$http.get('/app/settings/durations').then(
-                (response: angular.IHttpResponse<{ examDurations: number[] }>) => {
+            this.$http
+                .get('/app/settings/durations')
+                .then((response: angular.IHttpResponse<{ examDurations: number[] }>) => {
                     this.examDurations = response.data.examDurations;
-                }).catch(angular.noop);
+                })
+                .catch(angular.noop);
             this.user = this.Session.getUser();
             this.autoevaluation = {
-                enabled: !!this.exam.autoEvaluationConfig
+                enabled: !!this.exam.autoEvaluationConfig,
             };
-        }
+        };
 
         addExaminationDate = (date: Date) => {
             const fmt = 'DD/MM/YYYY';
@@ -80,63 +79,68 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 .map((ed: { date: Date }) => moment(ed.date).format(fmt))
                 .some((d: string) => d === formattedDate);
             if (!alreadyExists) {
-                this.$http.post(`/app/exam/${this.exam.id}/examinationdate`, { date: formattedDate }).then(
-                    (resp: angular.IHttpResponse<ExaminationDate>) =>
-                        this.exam.examinationDates.push(resp.data)
-                );
+                this.$http
+                    .post(`/app/exam/${this.exam.id}/examinationdate`, { date: formattedDate })
+                    .then((resp: angular.IHttpResponse<ExaminationDate>) => this.exam.examinationDates.push(resp.data));
             }
-        }
+        };
 
         removeExaminationDate = (date: ExaminationDate) => {
-            this.$http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).then(
-                () => {
-                    const i = this.exam.examinationDates.indexOf(date);
-                    this.exam.examinationDates.splice(i, 1);
-                }
-            );
-        }
+            this.$http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).then(() => {
+                const i = this.exam.examinationDates.indexOf(date);
+                this.exam.examinationDates.splice(i, 1);
+            });
+        };
 
-        startDateChanged = (date: VarDate) => this.exam.examActiveStartDate = date;
-        endDateChanged = (date: VarDate) => this.exam.examActiveEndDate = date;
+        startDateChanged = (date: VarDate) => (this.exam.examActiveStartDate = date);
+        endDateChanged = (date: VarDate) => (this.exam.examActiveEndDate = date);
 
         autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
-            angular.extend(this.exam.autoEvaluationConfig, config)
+            angular.extend(this.exam.autoEvaluationConfig, config);
 
         canBeAutoEvaluated = () =>
-            this.Exam.hasQuestions(this.exam) && !this.Exam.hasEssayQuestions(this.exam) &&
-            this.exam.gradeScale && this.exam.executionType.type !== 'MATURITY'
-
+            this.Exam.hasQuestions(this.exam) &&
+            !this.Exam.hasEssayQuestions(this.exam) &&
+            this.exam.gradeScale &&
+            this.exam.executionType.type !== 'MATURITY';
 
         updateExam = (silent?: boolean, overrides?: any) => {
             const deferred = this.$q.defer();
             const config = {
-                'evaluationConfig': this.autoevaluation.enabled && this.canBeAutoEvaluated() ? {
-                    releaseType: this.exam.autoEvaluationConfig.releaseType.name,
-                    releaseDate: this.exam.autoEvaluationConfig.releaseDate ?
-                        new Date(this.exam.autoEvaluationConfig.releaseDate).getTime() : null,
-                    amountDays: this.exam.autoEvaluationConfig.amountDays,
-                    gradeEvaluations: this.exam.autoEvaluationConfig.gradeEvaluations
-                } : null
+                evaluationConfig:
+                    this.autoevaluation.enabled && this.canBeAutoEvaluated()
+                        ? {
+                              releaseType: this.exam.autoEvaluationConfig.releaseType.name,
+                              releaseDate: this.exam.autoEvaluationConfig.releaseDate
+                                  ? new Date(this.exam.autoEvaluationConfig.releaseDate).getTime()
+                                  : null,
+                              amountDays: this.exam.autoEvaluationConfig.amountDays,
+                              gradeEvaluations: this.exam.autoEvaluationConfig.gradeEvaluations,
+                          }
+                        : null,
             };
             angular.extend(config, overrides);
-            this.Exam.updateExam(this.exam, config, this.collaborative).then(() => {
-                if (!silent) {
-                    toast.info(this.$translate.instant('sitnet_exam_saved'));
-                }
-                deferred.resolve();
-            }, (err: string) => {
-                toast.error(err);
-                deferred.reject(err);
-            });
+            this.Exam.updateExam(this.exam, config, this.collaborative).then(
+                () => {
+                    if (!silent) {
+                        toast.info(this.$translate.instant('sitnet_exam_saved'));
+                    }
+                    deferred.resolve();
+                },
+                (err: string) => {
+                    toast.error(err);
+                    deferred.reject(err);
+                },
+            );
             return deferred.promise;
-        }
+        };
 
         setExamDuration = (duration: number) => {
             this.exam.duration = duration;
             this.updateExam();
-        }
+        };
 
-        checkDuration = (duration: number) => this.exam.duration === duration ? 'btn-primary' : '';
+        checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
 
         range = (min: number, max: number, step = 1) => {
             const input: number[] = [];
@@ -144,28 +148,28 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 input.push(i);
             }
             return input;
-        }
+        };
 
         checkTrialCount = (x: number) => {
             return this.exam.trialCount === x ? 'btn-primary' : '';
-        }
+        };
 
         setTrialCount = (x: number) => {
             this.exam.trialCount = x;
             this.updateExam();
-        }
+        };
 
         previewExam = (fromTab: number) => {
             this.Exam.previewExam(this.exam, fromTab, this.collaborative);
-        }
+        };
 
         nextTab = () => this.onNextTabSelected();
         previousTab = () => this.onPreviousTabSelected();
 
         saveAndPublishExam = () => {
-
-            const errors: string[] = this.isDraftCollaborativeExam() ?
-                this.errorsPreventingPrePublication() : this.errorsPreventingPublication();
+            const errors: string[] = this.isDraftCollaborativeExam()
+                ? this.errorsPreventingPrePublication()
+                : this.errorsPreventingPublication();
 
             if (errors.length > 0) {
                 this.$uibModal.open({
@@ -173,64 +177,69 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     backdrop: 'static',
                     keyboard: true,
                     resolve: {
-                        errors: () => errors
-                    }
+                        errors: () => errors,
+                    },
                 });
             } else {
-                this.$uibModal.open({
-                    component: 'publicationDialog',
-                    backdrop: 'static',
-                    keyboard: true,
-                    resolve: {
-                        exam: () => this.exam,
-                        prePublication: () => this.isDraftCollaborativeExam()
-                    }
-                }).result.then(() => {
-                    const state = {
-                        'state': this.isDraftCollaborativeExam() ?
-                            'PRE_PUBLISHED' : 'PUBLISHED'
-                    };
-                    // OK button clicked
-                    this.updateExam(true, state).then(() => {
-                        const text = this.isDraftCollaborativeExam()
-                            ? 'sitnet_exam_saved_and_pre_published' : 'sitnet_exam_saved_and_published';
-                        toast.success(this.$translate.instant(text));
-                        this.$location.path('/');
-                    }).catch(angular.noop);
-                });
+                this.$uibModal
+                    .open({
+                        component: 'publicationDialog',
+                        backdrop: 'static',
+                        keyboard: true,
+                        resolve: {
+                            exam: () => this.exam,
+                            prePublication: () => this.isDraftCollaborativeExam(),
+                        },
+                    })
+                    .result.then(() => {
+                        const state = {
+                            state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
+                        };
+                        // OK button clicked
+                        this.updateExam(true, state)
+                            .then(() => {
+                                const text = this.isDraftCollaborativeExam()
+                                    ? 'sitnet_exam_saved_and_pre_published'
+                                    : 'sitnet_exam_saved_and_published';
+                                toast.success(this.$translate.instant(text));
+                                this.$location.path('/');
+                            })
+                            .catch(angular.noop);
+                    });
             }
-        }
+        };
 
         isDraftCollaborativeExam = () => this.collaborative && this.exam.state === 'DRAFT';
 
         // TODO: how should this work when it comes to private exams?
         unpublishExam = () => {
             if (this.isAllowedToUnpublishOrRemove()) {
-                this.$uibModal.open({
-                    component: 'publicationRevokeDialog',
-                    backdrop: 'static',
-                    keyboard: true
-                }).result.then(() => {
-                    this.updateExam(true, { 'state': this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT' }).then(() => {
-                        toast.success(this.$translate.instant('sitnet_exam_unpublished'));
-                        this.exam.state = 'DRAFT';
-                    });
-                }).catch(angular.noop);
+                this.$uibModal
+                    .open({
+                        component: 'publicationRevokeDialog',
+                        backdrop: 'static',
+                        keyboard: true,
+                    })
+                    .result.then(() => {
+                        this.updateExam(true, { state: this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT' }).then(() => {
+                            toast.success(this.$translate.instant('sitnet_exam_unpublished'));
+                            this.exam.state = 'DRAFT';
+                        });
+                    })
+                    .catch(angular.noop);
             } else {
                 toast.warning(this.$translate.instant('sitnet_unpublish_not_possible'));
             }
-        }
+        };
 
-        autoEvaluationDisabled = () => this.autoevaluation.enabled = false;
-        autoEvaluationEnabled = () => this.autoevaluation.enabled = true;
+        autoEvaluationDisabled = () => (this.autoevaluation.enabled = false);
+        autoEvaluationEnabled = () => (this.autoevaluation.enabled = true);
 
         private isAllowedToUnpublishOrRemove = () =>
             // allowed if no upcoming reservations and if no one has taken this yet
-            !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0
+            !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0;
 
-
-        private countQuestions = () =>
-            this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0)
+        private countQuestions = () => this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
 
         private hasDuplicatePercentages = () => {
             const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map(e => e.percentage).sort();
@@ -240,7 +249,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 }
             }
             return false;
-        }
+        };
 
         private errorsPreventingPrePublication(): string[] {
             const errors: string[] = [];
@@ -280,11 +289,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             }
 
             return errors;
-
         }
 
         private errorsPreventingPublication(): string[] {
-
             const errors: string[] = this.errorsPreventingPrePublication();
 
             if (!this.exam.course && !this.collaborative) {
@@ -300,13 +307,14 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 errors.push('sitnet_exam_contains_unnamed_sections');
             }
 
-            if (['PRIVATE', 'MATURITY'].indexOf(this.exam.executionType.type) > -1 &&
-                this.exam.examEnrolments.length < 1) {
+            if (
+                ['PRIVATE', 'MATURITY'].indexOf(this.exam.executionType.type) > -1 &&
+                this.exam.examEnrolments.length < 1
+            ) {
                 errors.push('sitnet_no_participants');
             }
 
-            if (this.exam.executionType.type === 'MATURITY' &&
-                !_.isBoolean(this.exam.subjectToLanguageInspection)) {
+            if (this.exam.executionType.type === 'MATURITY' && !_.isBoolean(this.exam.subjectToLanguageInspection)) {
                 errors.push('sitnet_language_inspection_setting_not_chosen');
             }
 
@@ -319,9 +327,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             }
             return errors.map(e => this.$translate.instant(e));
         }
-
-    }
+    },
 };
-
 
 angular.module('app.exam.editor').component('examPublication', ExamPublicationComponent);

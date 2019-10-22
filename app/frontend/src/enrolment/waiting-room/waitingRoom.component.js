@@ -17,70 +17,74 @@ import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
 
-angular.module('app.enrolment')
-    .component('waitingRoom', {
-        template: require('./waitingRoom.template.html'),
-        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes',
-            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes) {
+angular.module('app.enrolment').component('waitingRoom', {
+    template: require('./waitingRoom.template.html'),
+    controller: [
+        '$routeParams',
+        '$timeout',
+        '$translate',
+        '$location',
+        'StudentExamRes',
+        function($routeParams, $timeout, $translate, $location, StudentExamRes) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                if ($routeParams.id) {
+                    vm.upcoming = true;
+                    StudentExamRes.enrolment.get(
+                        { eid: $routeParams.id },
+                        function(enrolment) {
+                            setOccasion(enrolment.reservation);
+                            vm.enrolment = enrolment;
+                            const offset = calculateOffset();
+                            vm.timeout = $timeout(function() {
+                                $location.path('/student/exam/' + vm.enrolment.exam.hash);
+                            }, offset);
 
-                vm.$onInit = function () {
-                    if ($routeParams.id) {
-                        vm.upcoming = true;
-                        StudentExamRes.enrolment.get({eid: $routeParams.id},
-                            function (enrolment) {
-                                setOccasion(enrolment.reservation);
-                                vm.enrolment = enrolment;
-                                const offset = calculateOffset();
-                                vm.timeout = $timeout(function () {
-                                    $location.path('/student/exam/' + vm.enrolment.exam.hash);
-                                }, offset);
+                            $timeout(() => {
+                                const room = vm.enrolment.reservation.machine.room;
+                                const code = $translate.use().toUpperCase();
+                                vm.roomInstructions =
+                                    code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                            }, 1000);
+                        },
+                        function(error) {
+                            toast.error(error.data);
+                        },
+                    );
+                }
+            };
 
-                                $timeout(() => {
-                                    const room = vm.enrolment.reservation.machine.room;
-                                    const code = $translate.use().toUpperCase();
-                                    vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                                }, 1000);
+            vm.$onDestroy = function() {
+                if (vm.timeout) {
+                    $timeout.cancel(vm.timeout);
+                }
+            };
 
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
-                        );
-                    }
+            const calculateOffset = function() {
+                const startsAt = moment(vm.enrolment.reservation.startAt);
+                const now = moment();
+                if (now.isDST()) {
+                    startsAt.add(-1, 'hour');
+                }
+                return Date.parse(startsAt.format()) - new Date().getTime();
+            };
+
+            const setOccasion = function(reservation) {
+                const tz = reservation.machine.room.localTimezone;
+                const start = moment.tz(reservation.startAt, tz);
+                const end = moment.tz(reservation.endAt, tz);
+                if (start.isDST()) {
+                    start.add(-1, 'hour');
+                }
+                if (end.isDST()) {
+                    end.add(-1, 'hour');
+                }
+                reservation.occasion = {
+                    startAt: start.format('HH:mm'),
+                    endAt: end.format('HH:mm'),
                 };
-
-                vm.$onDestroy = function () {
-                    if (vm.timeout) {
-                        $timeout.cancel(vm.timeout);
-                    }
-                };
-
-                const calculateOffset = function () {
-                    const startsAt = moment(vm.enrolment.reservation.startAt);
-                    const now = moment();
-                    if (now.isDST()) {
-                        startsAt.add(-1, 'hour');
-                    }
-                    return Date.parse(startsAt.format()) - new Date().getTime();
-                };
-
-                const setOccasion = function (reservation) {
-                    const tz = reservation.machine.room.localTimezone;
-                    const start = moment.tz(reservation.startAt, tz);
-                    const end = moment.tz(reservation.endAt, tz);
-                    if (start.isDST()) {
-                        start.add(-1, 'hour');
-                    }
-                    if (end.isDST()) {
-                        end.add(-1, 'hour');
-                    }
-                    reservation.occasion = {
-                        startAt: start.format('HH:mm'),
-                        endAt: end.format('HH:mm')
-                    };
-                };
-
-            }]
-    });
+            };
+        },
+    ],
+});

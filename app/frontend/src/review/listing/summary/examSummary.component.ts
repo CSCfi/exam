@@ -21,10 +21,9 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
     bindings: {
         exam: '<',
-        reviews: '<'
+        reviews: '<',
     },
     controller: class ExamSummaryController implements ng.IComponentController, ng.IOnInit, ng.IOnChanges {
-
         exam: Exam;
         reviews: any[];
         gradeDistribution: _.Dictionary<number>;
@@ -34,9 +33,9 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             this.buildGradeDistribution();
             this.gradedCount = this.reviews.filter(r => r.exam.grade).length;
             this.gradeDistribution = {};
-        }
+        };
 
-        $onInit = () => this.refresh()
+        $onInit = () => this.refresh();
 
         $onChanges = () => this.refresh();
 
@@ -45,36 +44,30 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         getRegisteredCount = () => this.reviews.length;
 
         getReadFeedback = () =>
-            this.reviews.filter(r =>
-                r.exam.examFeedback &&
-                r.exam.examFeedback.feedbackStatus === true).length;
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
 
         getTotalFeedback = () =>
-            this.getReadFeedback() + this.reviews.filter(r =>
-                r.exam.examFeedback &&
-                r.exam.examFeedback.feedbackStatus === false).length;
+            this.getReadFeedback() +
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === false).length;
 
-        getFeedbackPercentage = () =>
-            this.getReadFeedback() / this.getTotalFeedback() * 100;
+        getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;
 
         getTotalQuestions = () => {
             const sections: ExamSection[] = this.reviews.map(r => r.exam.examSections);
             const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
             return _.flatMap(questions).length;
-        }
+        };
 
         buildGradeDistribution = () => {
             const grades: string[] = this.reviews.filter(r => r.exam.grade).map(r => r.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
-        }
+        };
 
         getAverageTime = () => {
             const durations = this.reviews.map(r => r.duration);
             return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
-        }
-
-    }
+        };
+    },
 };
 
 angular.module('app.review').component('examSummary', ExamSummaryComponent);
-

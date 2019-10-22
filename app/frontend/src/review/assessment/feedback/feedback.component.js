@@ -15,65 +15,78 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rFeedback', {
-        template: require('./feedback.template.html'),
-        bindings: {
-            exam: '<'
-        },
-        require: {
-            parentCtrl: '^^assessment'
-        },
-        controller: ['$uibModal', '$routeParams', 'Assessment', 'CollaborativeAssessment', 'Attachment', 'Files',
-            function ($modal, $routeParams, Assessment, CollaborativeAssessment, Attachment, Files) {
+angular.module('app.review').component('rFeedback', {
+    template: require('./feedback.template.html'),
+    bindings: {
+        exam: '<',
+    },
+    require: {
+        parentCtrl: '^^assessment',
+    },
+    controller: [
+        '$uibModal',
+        '$routeParams',
+        'Assessment',
+        'CollaborativeAssessment',
+        'Attachment',
+        'Files',
+        function($modal, $routeParams, Assessment, CollaborativeAssessment, Attachment, Files) {
+            const vm = this;
 
-                const vm = this;
+            vm.toggleFeedbackVisibility = function() {
+                const selector = $('.body');
+                if (vm.hideEditor) {
+                    selector.show();
+                } else {
+                    selector.hide();
+                }
+                vm.hideEditor = !vm.hideEditor;
+            };
 
-                vm.toggleFeedbackVisibility = function () {
-                    const selector = $('.body');
-                    if (vm.hideEditor) {
-                        selector.show();
-                    } else {
-                        selector.hide();
-                    }
-                    vm.hideEditor = !vm.hideEditor;
-                };
+            vm.saveFeedback = function() {
+                if (vm.parentCtrl.collaborative) {
+                    CollaborativeAssessment.saveFeedback(
+                        $routeParams.id,
+                        $routeParams.ref,
+                        vm.parentCtrl.participation,
+                    );
+                } else {
+                    Assessment.saveFeedback(vm.exam);
+                }
+            };
 
-                vm.saveFeedback = function () {
-                    if (vm.parentCtrl.collaborative) {
-                        CollaborativeAssessment.saveFeedback($routeParams.id, $routeParams.ref, vm.parentCtrl.participation);
-                    } else {
-                        Assessment.saveFeedback(vm.exam);
-                    }
-                };
+            vm.downloadFeedbackAttachment = function() {
+                Attachment.downloadFeedbackAttachment(vm.exam);
+            };
 
-                vm.downloadFeedbackAttachment = function () {
-                    Attachment.downloadFeedbackAttachment(vm.exam);
-                };
+            vm.removeFeedbackAttachment = function() {
+                Attachment.removeFeedbackAttachment(vm.exam);
+            };
 
-                vm.removeFeedbackAttachment = function () {
-                    Attachment.removeFeedbackAttachment(vm.exam);
-                };
-
-                vm.selectFile = function () {
-                    $modal.open({
+            vm.selectFile = function() {
+                $modal
+                    .open({
                         backdrop: 'static',
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
                         resolve: {
-                            isTeacherModal: function () {
+                            isTeacherModal: function() {
                                 return true;
-                            }
-                        }
-                    }).result.then(function (data) {
-                        Assessment.saveFeedback(vm.exam).then(function () {
-                            Files.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
-                                data.attachmentFile, { examId: vm.exam.id }, vm.exam.examFeedback);
-                        })
+                            },
+                        },
+                    })
+                    .result.then(function(data) {
+                        Assessment.saveFeedback(vm.exam).then(function() {
+                            Files.upload(
+                                '/app/attachment/exam/' + vm.exam.id + '/feedback',
+                                data.attachmentFile,
+                                { examId: vm.exam.id },
+                                vm.exam.examFeedback,
+                            );
+                        });
                     });
-                };
-            }
-
-        ]
-    });
+            };
+        },
+    ],
+});

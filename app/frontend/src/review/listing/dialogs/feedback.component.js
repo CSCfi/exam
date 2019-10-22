@@ -15,39 +15,40 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('reviewFeedback', {
-        template: require('./feedback.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$scope', 'Assessment', function ($scope, Assessment) {
-
+angular.module('app.review').component('reviewFeedback', {
+    template: require('./feedback.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$scope',
+        'Assessment',
+        function($scope, Assessment) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.exam = vm.resolve.exam;
             };
 
-            vm.ok = function () {
+            vm.ok = function() {
                 if (!vm.exam.examFeedback) {
                     vm.exam.examFeedback = {};
                 }
                 Assessment.saveFeedback(vm.exam);
                 vm.close();
             };
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
 
             // Close modal if user clicked the back button and no changes made
-            $scope.$on('$routeChangeStart', function () {
+            $scope.$on('$routeChangeStart', function() {
                 if (!window.onbeforeunload) {
                     vm.cancel();
                 }
             });
-
-        }]
-    });
+        },
+    ],
+});

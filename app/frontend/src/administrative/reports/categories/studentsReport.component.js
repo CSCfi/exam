@@ -12,13 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.administrative.reports')
-    .component('studentsReport', {
-        template: ` 
+angular.module('app.administrative.reports').component('studentsReport', {
+    template: ` 
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_all_student_activities' | translate}}
@@ -55,14 +53,17 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        bindings: {
-            students: '<'
-        },
-        controller: ['$filter', '$translate', 'Files', function ($filter, $translate, Files) {
-
+    bindings: {
+        students: '<',
+    },
+    controller: [
+        '$filter',
+        '$translate',
+        'Files',
+        function($filter, $translate, Files) {
             const vm = this;
 
-            vm.getStudentReport = function () {
+            vm.getStudentReport = function() {
                 if (vm.student) {
                     const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
                     const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
@@ -72,19 +73,17 @@ angular.module('app.administrative.reports')
                 }
             };
 
-            vm.studentSelected = function (value) {
+            vm.studentSelected = function(value) {
                 vm.student = value;
             };
 
-            vm.startDateChanged = function (date) {
+            vm.startDateChanged = function(date) {
                 vm.startDate = date;
             };
 
-            vm.endDateChanged = function (date) {
+            vm.endDateChanged = function(date) {
                 vm.endDate = date;
             };
-
-        }
-        ]
-    });
-
+        },
+    ],
+});
