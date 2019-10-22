@@ -28,15 +28,17 @@ angular.module('app.exam.editor').component('examInspectorSelector', {
         function($translate, limitToFilter, ExamRes, UserRes) {
             const vm = this;
 
-            vm.$onInit = function() {
+            vm.$onInit = function () {
                 vm.newInspector = {
                     id: null,
                     name: null,
                     sendMessage: false,
-                    comment: ''
+                    comment: '',
+                    email: null
                 };
                 getInspectors();
             };
+
             // TODO: collaborative exam case, need to be able to add by email, check the pre-enrolment case?
 
             vm.allInspectors = function(filter, criteria) {

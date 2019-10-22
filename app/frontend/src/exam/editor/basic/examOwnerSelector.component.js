@@ -28,13 +28,15 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
         function($translate, limitToFilter, ExamRes, UserRes) {
             const vm = this;
 
-            vm.$onInit = function() {
+            vm.$onInit = function () {
                 vm.newOwner = {
-                    id: null,
-                    name: null
+                    "id": null,
+                    "name": null,
+                    "email": null
                 };
                 vm.examOwners = getExamOwners();
             };
+
             // TODO: collaborative exam case, need to be able to add by email, check the pre-enrolment case?
             vm.allExamOwners = function(filter, criteria) {
                 return UserRes.filterOwnersByExam
@@ -67,6 +69,7 @@ angular.module('app.exam.editor').component('examOwnerSelector', {
                         function() {
                             getExamOwners();
                             // clear input field
+                            delete vm.newOwner.email;
                             delete vm.newOwner.name;
                             delete vm.newOwner.id;
                         },
