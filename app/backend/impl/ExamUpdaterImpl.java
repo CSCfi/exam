@@ -129,7 +129,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
-                if (exam.getRequiresUserAgentAuth() && exam.getEncryptedSettingsPassword() == null) {
+                if (exam.getRequiresUserAgentAuth() && exam.getExaminationEventConfigurations().stream()
+                        .anyMatch(eec ->  eec.getEncryptedSettingsPassword() == null)) {
                     return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {

@@ -15,96 +15,100 @@
 
 import angular from 'angular';
 
-angular.module('app.exam')
-    .component('printout', {
-        template: require('./printout.template.html'),
-        controller: ['$http', '$routeParams', '$location', '$sce', 'Files',
-            function ($http, $routeParams, $location, $sce, Files) {
+angular.module('app.exam').component('printout', {
+    template: require('./printout.template.html'),
+    controller: [
+        '$http',
+        '$routeParams',
+        '$location',
+        '$sce',
+        'Files',
+        function($http, $routeParams, $location, $sce, Files) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    $http.get('/app/exams/' + $routeParams.id + '/preview').then(function (resp) {
-                        resp.data.examSections.sort(function (a, b) {
-                            return a.sequenceNumber - b.sequenceNumber;
-                        });
-                        resp.data.examSections.forEach(function (es) {
-                            es.sectionQuestions.filter(function (esq) {
+            vm.$onInit = function() {
+                $http.get('/app/exams/' + $routeParams.id + '/preview').then(function(resp) {
+                    resp.data.examSections.sort(function(a, b) {
+                        return a.sequenceNumber - b.sequenceNumber;
+                    });
+                    resp.data.examSections.forEach(function(es) {
+                        es.sectionQuestions
+                            .filter(function(esq) {
                                 return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
-                            }).forEach(function (esq) {
+                            })
+                            .forEach(function(esq) {
                                 esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
                             });
-                        });
-                        resp.data.examLanguages.forEach(function (l) {
-                            l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code); // TODO: fixed languages?
-                        });
-                        // set sections and question numbering
-                        angular.forEach(resp.data.examSections, function (section, index) {
-                            section.index = index + 1;
-                        });
-
-                        vm.exam = resp.data;
-
                     });
-                };
+                    resp.data.examLanguages.forEach(function(l) {
+                        l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code); // TODO: fixed languages?
+                    });
+                    // set sections and question numbering
+                    angular.forEach(resp.data.examSections, function(section, index) {
+                        section.index = index + 1;
+                    });
 
+                    vm.exam = resp.data;
+                });
+            };
 
-                vm.getLanguageName = function (lang) { // TODO: fixed languages?
-                    let name;
-                    switch (lang.code) {
-                        case 'fi':
-                            name = 'suomeksi';
-                            break;
-                        case 'sv':
-                            name = 'på svenska';
-                            break;
-                        case 'en':
-                            name = 'in English';
-                            break;
-                        case 'de':
-                            name = 'auf Deutsch';
-                            break;
-                    }
-                    return name;
-                };
+            vm.getLanguageName = function(lang) {
+                // TODO: fixed languages?
+                let name;
+                switch (lang.code) {
+                    case 'fi':
+                        name = 'suomeksi';
+                        break;
+                    case 'sv':
+                        name = 'på svenska';
+                        break;
+                    case 'en':
+                        name = 'in English';
+                        break;
+                    case 'de':
+                        name = 'auf Deutsch';
+                        break;
+                }
+                return name;
+            };
 
-                vm.getQuestionTypeName = function (esq) {
-                    let name;
-                    switch (esq.question.type) {
-                        case 'WeightedMultipleChoiceQuestion':
-                            name = 'Monivalintakysymys (voit valita monta) / Flervalsfråga (du kan välja många) / Multiple choice question (you can pick multiple)';
-                            break;
-                        case 'MultipleChoiceQuestion':
-                            name = 'Monivalintakysymys (valitse yksi) / Flervalsfråga (välj en) / Multiple choice question (pick one)';
-                            break;
-                        case 'EssayQuestion':
-                            name = 'Esseekysymys / Essefråga / Essay question';
-                            break;
-                        case 'ClozeTestQuestion':
-                            name = 'Aukkotehtävä / Fyll i det som saknas / Cloze test question';
-                            break;
-                    }
-                    return name;
-                };
+            vm.getQuestionTypeName = function(esq) {
+                let name;
+                switch (esq.question.type) {
+                    case 'WeightedMultipleChoiceQuestion':
+                        name =
+                            'Monivalintakysymys (voit valita monta) / Flervalsfråga (du kan välja många) / Multiple choice question (you can pick multiple)';
+                        break;
+                    case 'MultipleChoiceQuestion':
+                        name =
+                            'Monivalintakysymys (valitse yksi) / Flervalsfråga (välj en) / Multiple choice question (pick one)';
+                        break;
+                    case 'EssayQuestion':
+                        name = 'Esseekysymys / Essefråga / Essay question';
+                        break;
+                    case 'ClozeTestQuestion':
+                        name = 'Aukkotehtävä / Fyll i det som saknas / Cloze test question';
+                        break;
+                }
+                return name;
+            };
 
-                vm.exitPreview = function () {
-                    const path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
-                    $location.path(path);
-                };
+            vm.exitPreview = function() {
+                const path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
+                $location.path(path);
+            };
 
-                vm.print = function () {
-                    window.print();
-                };
+            vm.print = function() {
+                window.print();
+            };
 
-                vm.printAttachment = function () {
-                    Files.download('/app/attachment/exam/' + $routeParams.id, vm.exam.attachment.fileName);
-                };
+            vm.printAttachment = function() {
+                Files.download('/app/attachment/exam/' + $routeParams.id, vm.exam.attachment.fileName);
+            };
 
-                vm.trustAsHtml = function (content) {
-                    return $sce.trustAsHtml(content);
-                };
-
-
-            }]
-    });
-
+            vm.trustAsHtml = function(content) {
+                return $sce.trustAsHtml(content);
+            };
+        },
+    ],
+});

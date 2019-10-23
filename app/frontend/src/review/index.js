@@ -16,7 +16,7 @@
 require('./review.module');
 
 require('./assessment/assessment.service');
-require('./assessment/collaborativeAssessment.service.ts')
+require('./assessment/collaborativeAssessment.service.ts');
 require('./assessment/assessment.component');
 
 require('./assessment/feedback/feedback.component');
@@ -50,7 +50,7 @@ require('./assessment/questions/weightedMultiChoiceAnswer.component');
 require('./assessment/sections/examSection.component');
 
 require('./listing/reviewList.service');
-require('./listing/reviewList.component');
+require('./listing/reviewList.component.ts');
 require('./listing/speedReview.component');
 require('./listing/dialogs/abortedExams.component');
 require('./listing/dialogs/archiveDownload.component');

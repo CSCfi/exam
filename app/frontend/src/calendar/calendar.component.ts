@@ -13,14 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
-import * as toast from 'toastr';
-import * as moment from 'moment';
-import { Room, Slot, CalendarService } from './calendar.service';
-import { DateTimeService } from '../utility/date/date.service';
-import { ExamSection } from '../exam/exam.model';
 import angular = require('angular');
+import * as moment from 'moment';
+import * as toast from 'toastr';
+
+import { ExamSection } from '../exam/exam.model';
+import { DateTimeService } from '../utility/date/date.service';
+import { CalendarService, Room, Slot } from './calendar.service';
 
 interface SelectableSection extends ExamSection {
     selected: boolean;
@@ -55,10 +55,9 @@ export const CalendarComponent: ng.IComponentOptions = {
     template: require('./calendar.template.html'),
     bindings: {
         isExternal: '<',
-        isCollaborative: '<'
+        isCollaborative: '<',
     },
     controller: class CalendarController implements ng.IComponentController {
-
         isExternal: boolean;
         isCollaborative: boolean;
 
@@ -73,7 +72,7 @@ export const CalendarComponent: ng.IComponentOptions = {
         rooms: FilteredRoom[] = [];
         exceptionHours: any[];
         loader = {
-            loading: false
+            loading: false,
         };
         minDate: moment.Moment;
         maxDate: moment.Moment;
@@ -91,7 +90,7 @@ export const CalendarComponent: ng.IComponentOptions = {
             private dialogs: angular.dialogservice.IDialogService,
             private DateTime: DateTimeService,
             private Calendar: CalendarService,
-            private uiCalendarConfig: any
+            private uiCalendarConfig: any,
         ) {
             'ngInject';
         }
@@ -104,31 +103,31 @@ export const CalendarComponent: ng.IComponentOptions = {
                 }
             });
 
-            this.$http.get('/app/settings/iop/examVisit')
+            this.$http
+                .get('/app/settings/iop/examVisit')
                 .then((resp: ng.IHttpResponse<{ isExamVisitSupported: boolean }>) => {
                     this.isInteroperable = resp.data.isExamVisitSupported;
                     // TODO: allow making external reservations to collaborative exams in the future
                     if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
-                        this.$http.get('/integration/iop/organisations')
-                            .then((resp: ng.IHttpResponse<any[]>) => {
-                                this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
-                            });
+                        this.$http.get('/integration/iop/organisations').then((resp: ng.IHttpResponse<any[]>) => {
+                            this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
+                        });
                     }
-                }).catch(ng.noop);
-            const url = this.isCollaborative ?
-                `/integration/iop/exams/${this.$routeParams.id}/info` :
-                `/app/student/exam/${this.$routeParams.id}/info`;
+                })
+                .catch(ng.noop);
+            const url = this.isCollaborative
+                ? `/integration/iop/exams/${this.$routeParams.id}/info`
+                : `/app/student/exam/${this.$routeParams.id}/info`;
             this.$http.get(url).then((resp: ng.IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
-                this.$http.get(`/app/calendar/enrolment/${this.$routeParams.id}/reservation`)
+                this.$http
+                    .get(`/app/calendar/enrolment/${this.$routeParams.id}/reservation`)
                     .then((resp: ng.IHttpResponse<ReservationInfo>) => {
                         if (resp.data.optionalSections) {
                             this.examInfo.examSections
                                 .filter(es => es.optional)
                                 .forEach(es => {
-                                    es.selected = resp.data.optionalSections
-                                        .map(es => es.id)
-                                        .indexOf(es.id) > -1;
+                                    es.selected = resp.data.optionalSections.map(es => es.id).indexOf(es.id) > -1;
                                 });
                         }
                     });
@@ -136,10 +135,8 @@ export const CalendarComponent: ng.IComponentOptions = {
                 this.$http.get('/app/settings/reservationWindow').then((resp: ng.IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
                     this.reservationWindowEndDate = moment().add(resp.data.value, 'days');
-                    this.minDate = moment.max(moment(),
-                        moment(this.examInfo.examActiveStartDate));
-                    this.maxDate = moment.min(this.reservationWindowEndDate,
-                        moment(this.examInfo.examActiveEndDate));
+                    this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate));
+                    this.maxDate = moment.min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate));
 
                     this.$http.get('/app/accessibility').then((resp: ng.IHttpResponse<Accessibility[]>) => {
                         this.accessibilities = resp.data;
@@ -148,7 +145,6 @@ export const CalendarComponent: ng.IComponentOptions = {
                     this.$http.get('/app/rooms').then((resp: ng.IHttpResponse<Room[]>) => {
                         this.rooms = resp.data.map(r => ng.extend(r, { filtered: false }));
                     });
-
                 });
             });
         }
@@ -191,7 +187,8 @@ export const CalendarComponent: ng.IComponentOptions = {
         }
 
         getReservationWindowDescription(): string {
-            const text = this.$translate.instant('sitnet_description_reservation_window')
+            const text = this.$translate
+                .instant('sitnet_description_reservation_window')
                 .replace('{}', this.reservationWindowSize.toString());
             return `${text} ( ${this.reservationWindowEndDate.format('DD.MM.YYYY')} )`;
         }
@@ -226,14 +223,18 @@ export const CalendarComponent: ng.IComponentOptions = {
         getRoomAccessibility = () => {
             const room = this.selectedRoom;
             return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
-        }
+        };
 
         makeExternalReservation = () => {
-            this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_confirm_external_reservation')).result.then(() => {
+            this.dialogs
+                .confirm(
+                    this.$translate.instant('sitnet_confirm'),
+                    this.$translate.instant('sitnet_confirm_external_reservation'),
+                )
+                .result.then(() => {
                     this.$location.path('/iop/calendar/' + this.$routeParams.id);
                 });
-        }
+        };
 
         makeInternalReservation = () => this.$location.path('/calendar/' + this.$routeParams.id);
 
@@ -241,17 +242,17 @@ export const CalendarComponent: ng.IComponentOptions = {
             const adjusted: moment.Moment = moment.tz(date, tz);
             const offset = adjusted.isDST() ? -1 : 0;
             return adjusted.add(offset, 'hour').format();
-        }
+        };
 
         private getTitle = (slot: AvailableSlot): string => {
             if (slot.availableMachines > 0) {
                 return `${this.$translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
             } else {
-                return slot.conflictingExam ?
-                    this.$translate.instant('sitnet_own_reservation') :
-                    this.$translate.instant('sitnet_reserved');
+                return slot.conflictingExam
+                    ? this.$translate.instant('sitnet_own_reservation')
+                    : this.$translate.instant('sitnet_reserved');
             }
-        }
+        };
 
         private getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
@@ -261,28 +262,38 @@ export const CalendarComponent: ng.IComponentOptions = {
             } else {
                 return '#D8D8D8'; // grey
             }
-        }
+        };
 
-        private query(success: (_: ng.IHttpResponse<any>) => void,
-            error: (_: ng.IHttpResponse<any>) => void, date: string, room: Room, accessibility) {
-
+        private query(
+            success: (_: ng.IHttpResponse<any>) => void,
+            error: (_: ng.IHttpResponse<any>) => void,
+            date: string,
+            room: Room,
+            accessibility,
+        ) {
             if (this.isExternal) {
-                this.$http.get(`/integration/iop/calendar/${this.$routeParams.id}/${room._id}`, {
-                    params: {
-                        org: this.selectedOrganisation._id,
-                        date: date
-                    }
-                }).then(success).catch(error);
+                this.$http
+                    .get(`/integration/iop/calendar/${this.$routeParams.id}/${room._id}`, {
+                        params: {
+                            org: this.selectedOrganisation._id,
+                            date: date,
+                        },
+                    })
+                    .then(success)
+                    .catch(error);
             } else {
-                const url = this.isCollaborative ?
-                    `/integration/iop/exams/${this.$routeParams.id}/calendar/${room.id}` :
-                    `/app/calendar/${this.$routeParams.id}/${room.id}`;
-                this.$http.get(url, {
-                    params: {
-                        day: date,
-                        aids: accessibility
-                    }
-                }).then(success).catch(error);
+                const url = this.isCollaborative
+                    ? `/integration/iop/exams/${this.$routeParams.id}/calendar/${room.id}`
+                    : `/app/calendar/${this.$routeParams.id}/${room.id}`;
+                this.$http
+                    .get(url, {
+                        params: {
+                            day: date,
+                            aids: accessibility,
+                        },
+                    })
+                    .then(success)
+                    .catch(error);
             }
         }
 
@@ -310,7 +321,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                         color: this.getColor(slot),
                         start: this.adjust(slot.start, tz),
                         end: this.adjust(slot.end, tz),
-                        availableMachines: slot.availableMachines
+                        availableMachines: slot.availableMachines,
                     };
                 });
                 callback(events);
@@ -337,7 +348,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                     room: room.name,
                     time: start.format('DD.MM.YYYY HH:mm') + ' - ' + end.format('HH:mm'),
                     start: start,
-                    end: end
+                    end: end,
                 };
             }
         }
@@ -349,7 +360,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                 delete this.reservation;
                 this.render();
             }
-        }
+        };
 
         sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
 
@@ -371,12 +382,14 @@ export const CalendarComponent: ng.IComponentOptions = {
                 this.accessibilities,
                 { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
                 this.isCollaborative,
-                selectedSectionIds
-            ).catch(ng.noop).finally(() => this.confirming = false);
+                selectedSectionIds,
+            )
+                .catch(ng.noop)
+                .finally(() => (this.confirming = false));
         }
 
         setOrganisation(org: { _id: string; name: string; facilities: FilteredRoom[]; filtered: boolean }) {
-            this.organisations.forEach(o => o.filtered = false);
+            this.organisations.forEach(o => (o.filtered = false));
             org.filtered = true;
             this.selectedOrganisation = org;
             this.selectedRoom = undefined;
@@ -404,7 +417,7 @@ export const CalendarComponent: ng.IComponentOptions = {
 
         selectRoom(room: FilteredRoom) {
             if (!room.outOfService) {
-                this.rooms.forEach(r => r.filtered = false);
+                this.rooms.forEach(r => (r.filtered = false));
                 room.filtered = true;
                 this.selectedRoom = room;
                 this.openingHours = this.Calendar.processOpeningHours(room);
@@ -412,5 +425,5 @@ export const CalendarComponent: ng.IComponentOptions = {
                 this.render();
             }
         }
-    }
+    },
 };

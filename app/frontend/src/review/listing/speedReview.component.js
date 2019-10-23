@@ -18,189 +18,211 @@ import _ from 'lodash';
 import moment from 'moment';
 import toast from 'toastr';
 
+angular.module('app.review').component('speedReview', {
+    template: require('./speedReview.template.html'),
+    controller: [
+        'dialogs',
+        '$q',
+        '$route',
+        '$routeParams',
+        '$translate',
+        'ExamRes',
+        'Exam',
+        'ReviewList',
+        'Files',
+        '$uibModal',
+        '$location',
+        function(dialogs, $q, $route, $routeParams, $translate, ExamRes, Exam, ReviewList, Files, $modal, $location) {
+            const handleOngoingReviews = review => ReviewList.gradeExam(review.exam);
 
-angular.module('app.review')
-    .component('speedReview', {
-        template: require('./speedReview.template.html'),
-        controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'ReviewList', 'Files', '$uibModal', '$location',
-            function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                Exam, ReviewList, Files, $modal, $location) {
+            this.$onInit = () => {
+                this.pageSize = 10;
+                this.eid = $routeParams.id;
 
-                const handleOngoingReviews = review => ReviewList.gradeExam(review.exam);
+                ExamRes.exams.get({ id: $routeParams.id }, exam => {
+                    this.examInfo = {
+                        examOwners: exam.examOwners,
+                        title: exam.course.code + ' ' + exam.name,
+                        anonymous: exam.anonymous,
+                    };
+                    ExamRes.examReviews.query(
+                        { eid: $routeParams.id },
+                        reviews => {
+                            reviews.forEach(r => {
+                                r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
+                                r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
+                                if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
+                                    r.isUnderLanguageInspection = true;
+                                }
+                            });
+                            this.examReviews = reviews.filter(
+                                r => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED',
+                            );
+                            this.examReviews.forEach(handleOngoingReviews);
+                            this.toggleReviews = this.examReviews.length > 0;
+                        },
+                        error => toast.error(error.data),
+                    );
+                });
+            };
 
-                this.$onInit = () => {
-                    this.pageSize = 10;
-                    this.eid = $routeParams.id;
+            this.showFeedbackEditor = exam => {
+                $modal.open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    component: 'reviewFeedback',
+                    resolve: {
+                        exam: () => exam,
+                    },
+                });
+            };
 
-                    ExamRes.exams.get({ id: $routeParams.id }, exam => {
-                        this.examInfo = {
-                            examOwners: exam.examOwners,
-                            title: exam.course.code + ' ' + exam.name,
-                            anonymous: exam.anonymous
-                        };
-                        ExamRes.examReviews.query({ eid: $routeParams.id },
-                            reviews => {
-                                reviews.forEach(r => {
-                                    r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
-                                    r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
-                                    if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
-                                        r.isUnderLanguageInspection = true;
-                                    }
-                                });
-                                this.examReviews = reviews.filter(
-                                    r => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED'
-                                );
-                                this.examReviews.forEach(handleOngoingReviews);
-                                this.toggleReviews = this.examReviews.length > 0;
-                            }, error => toast.error(error.data)
-                        );
-                    });
-                };
+            this.isAllowedToGrade = exam => Exam.isOwnerOrAdmin(exam);
 
-                this.showFeedbackEditor = exam => {
-                    $modal.open({
-                        backdrop: 'static',
-                        keyboard: true,
-                        component: 'reviewFeedback',
-                        resolve: {
-                            exam: () => exam
-                        }
-                    });
-                };
+            const getErrors = exam => {
+                const messages = [];
+                if (!this.isAllowedToGrade(exam)) {
+                    messages.push('sitnet_error_unauthorized');
+                }
+                if (!exam.creditType && !exam.examType) {
+                    messages.push('sitnet_exam_choose_credit_type');
+                }
+                if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
+                    messages.push('sitnet_exam_choose_response_language');
+                }
+                return messages;
+            };
 
-                this.isAllowedToGrade = exam => Exam.isOwnerOrAdmin(exam);
+            const getAnswerLanguage = exam =>
+                _.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
 
-                const getErrors = exam => {
-                    const messages = [];
-                    if (!this.isAllowedToGrade(exam)) {
-                        messages.push('sitnet_error_unauthorized');
+            const gradeExam = review => {
+                const deferred = $q.defer();
+                const exam = review.exam;
+                const messages = getErrors(exam);
+                if (!exam.selectedGrade && !exam.grade.id) {
+                    messages.push('sitnet_participation_unreviewed');
+                }
+                messages.forEach(msg => toast.warning($translate.instant(msg)));
+                if (messages.length === 0) {
+                    let grade;
+                    if (exam.selectedGrade.type === 'NONE') {
+                        grade = undefined;
+                        exam.gradeless = true;
+                    } else {
+                        grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
+                        exam.gradeless = false;
                     }
-                    if (!exam.creditType && !exam.examType) {
-                        messages.push('sitnet_exam_choose_credit_type');
-                    }
-                    if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
-                        messages.push('sitnet_exam_choose_response_language');
-                    }
-                    return messages;
-                };
-
-                const getAnswerLanguage = exam =>
-                    _.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
-
-
-                const gradeExam = review => {
-                    const deferred = $q.defer();
-                    const exam = review.exam;
-                    const messages = getErrors(exam);
-                    if (!exam.selectedGrade && !exam.grade.id) {
-                        messages.push('sitnet_participation_unreviewed');
-                    }
-                    messages.forEach(msg => toast.warning($translate.instant(msg)));
-                    if (messages.length === 0) {
-                        let grade;
-                        if (exam.selectedGrade.type === 'NONE') {
-                            grade = undefined;
-                            exam.gradeless = true;
-                        } else {
-                            grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
-                            exam.gradeless = false;
-                        }
-                        const data = {
-                            'id': exam.id,
-                            'state': 'GRADED',
-                            'gradeless': exam.gradeless,
-                            'grade': grade ? grade.id : undefined,
-                            'customCredit': exam.customCredit,
-                            'creditType': exam.creditType ? exam.creditType.type : exam.examType.type,
-                            'answerLanguage': getAnswerLanguage(exam)
-                        };
-                        ExamRes.review.update({ id: exam.id }, data, () => {
+                    const data = {
+                        id: exam.id,
+                        state: 'GRADED',
+                        gradeless: exam.gradeless,
+                        grade: grade ? grade.id : undefined,
+                        customCredit: exam.customCredit,
+                        creditType: exam.creditType ? exam.creditType.type : exam.examType.type,
+                        answerLanguage: getAnswerLanguage(exam),
+                    };
+                    ExamRes.review.update(
+                        { id: exam.id },
+                        data,
+                        () => {
                             this.examReviews.splice(this.examReviews.indexOf(review), 1);
                             exam.gradedTime = new Date().getTime();
                             exam.grade = grade;
                             deferred.resolve();
-                        }, error => {
+                        },
+                        error => {
                             toast.error(error.data);
                             deferred.reject();
-                        });
-                    } else {
-                        deferred.reject();
-                    }
-                    return deferred.promise;
-                };
-
-                this.isGradeable = exam => exam && getErrors(exam).length === 0;
-
-                this.hasModifications = () => {
-                    if (this.examReviews) {
-                        return this.examReviews.filter(r =>
-                            r.exam.selectedGrade &&
-                            (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
-                            this.isGradeable(r.exam)
-                        ).length > 0;
-                    }
-                };
-
-                this.pageSelected = page => this.currentPage = page;
-
-                this.gradeExams = () => {
-                    const reviews = this.examReviews.filter(r =>
-                        r.exam.selectedGrade && r.exam.selectedGrade.type && this.isGradeable(r.exam)
+                        },
                     );
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                        $translate.instant('sitnet_confirm_grade_review'));
-                    dialog.result.then(() => {
-                        const promises = [];
-                        reviews.forEach(r => promises.push(gradeExam(r)));
-                        $q.all(promises).then(() => {
-                            toast.info($translate.instant('sitnet_saved'));
-                            if (this.examReviews.length === 0) {
-                                $location.path(`/exams/${$routeParams.id}/4`)
-                            }
-                        });
+                } else {
+                    deferred.reject();
+                }
+                return deferred.promise;
+            };
+
+            this.isGradeable = exam => exam && getErrors(exam).length === 0;
+
+            this.hasModifications = () => {
+                if (this.examReviews) {
+                    return (
+                        this.examReviews.filter(
+                            r =>
+                                r.exam.selectedGrade &&
+                                (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
+                                this.isGradeable(r.exam),
+                        ).length > 0
+                    );
+                }
+            };
+
+            this.pageSelected = page => (this.currentPage = page);
+
+            this.gradeExams = () => {
+                const reviews = this.examReviews.filter(
+                    r => r.exam.selectedGrade && r.exam.selectedGrade.type && this.isGradeable(r.exam),
+                );
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_confirm_grade_review'),
+                );
+                dialog.result.then(() => {
+                    const promises = [];
+                    reviews.forEach(r => promises.push(gradeExam(r)));
+                    $q.all(promises).then(() => {
+                        toast.info($translate.instant('sitnet_saved'));
+                        if (this.examReviews.length === 0) {
+                            $location.path(`/exams/${$routeParams.id}/4`);
+                        }
                     });
-                };
+                });
+            };
 
-                this.isOwner = (user, owners) => {
-                    if (owners) {
-                        return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
-                    }
-                    return false;
-                };
+            this.isOwner = (user, owners) => {
+                if (owners) {
+                    return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
+                }
+                return false;
+            };
 
-                this.importGrades = () => {
-                    $modal.open({
+            this.importGrades = () => {
+                $modal
+                    .open({
                         backdrop: 'static',
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
-                        resolve: { title: () => { return 'sitnet_import_grades_from_csv'; } }
-                    }).result.then(
-                        data => Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload)
+                        resolve: {
+                            title: () => {
+                                return 'sitnet_import_grades_from_csv';
+                            },
+                        },
+                    })
+                    .result.then(data =>
+                        Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload),
                     );
+            };
 
-                };
-
-                this.createGradingTemplate = () => {
-                    const rows = this.examReviews
-                        .map(r =>
-                            [r.exam.id,
+            this.createGradingTemplate = () => {
+                const rows = this.examReviews
+                    .map(
+                        r =>
+                            [
+                                r.exam.id,
                                 '',
                                 '',
-                            r.exam.totalScore + ' / ' + r.exam.maxScore,
-                            r.displayName,
-                            r.user ? r.user.userIdentifier : ''
-                            ].join() + '\n'
-                        )
-                        .reduce((a, b) => a + b, '');
+                                r.exam.totalScore + ' / ' + r.exam.maxScore,
+                                r.displayName,
+                                r.user ? r.user.userIdentifier : '',
+                            ].join() + '\n',
+                    )
+                    .reduce((a, b) => a + b, '');
 
-                    const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
-                    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-                    FileSaver.saveAs(blob, 'grading.csv');
-                };
-
-            }
-        ]
-    });
-
+                const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
+                const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+                FileSaver.saveAs(blob, 'grading.csv');
+            };
+        },
+    ],
+});

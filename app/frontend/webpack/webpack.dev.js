@@ -11,7 +11,5 @@ module.exports = merge(common, {
         sourceMapFilename: 'app.bundle.map',
     },
     optimization: {},
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ]
+    plugins: [new webpack.HotModuleReplacementPlugin()],
 });

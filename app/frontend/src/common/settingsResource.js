@@ -14,21 +14,20 @@
  */
 import angular from 'angular';
 
-
-angular.module('app.common')
-    .factory('SettingsResource', ['$resource',
-        function ($resource) {
-            return {
-                hostname: $resource('/app/settings/hostname'),
-                examDurations: $resource('/app/settings/durations'),
-                gradeScale: $resource('/app/settings/gradescale'),
-                enrolmentPermissions: $resource('/app/settings/enrolmentPermissionCheck'),
-                environment: $resource('/app/settings/environment'),
-                examVisit: $resource('/app/settings/iop/examVisit'),
-                anonymousReviewEnabled: $resource('/app/settings/anonymousReviewEnabled'),
-                maxFilesize: $resource('/app/settings/maxfilesize'),
-                appVersion: $resource('/app/settings/appVersion'),
-                maturityInstructions: $resource('/app/settings/maturityInstructions')
-            };
-        }
-    ]);
+angular.module('app.common').factory('SettingsResource', [
+    '$resource',
+    function($resource) {
+        return {
+            hostname: $resource('/app/settings/hostname'),
+            examDurations: $resource('/app/settings/durations'),
+            gradeScale: $resource('/app/settings/gradescale'),
+            enrolmentPermissions: $resource('/app/settings/enrolmentPermissionCheck'),
+            environment: $resource('/app/settings/environment'),
+            examVisit: $resource('/app/settings/iop/examVisit'),
+            anonymousReviewEnabled: $resource('/app/settings/anonymousReviewEnabled'),
+            maxFilesize: $resource('/app/settings/maxfilesize'),
+            appVersion: $resource('/app/settings/appVersion'),
+            maturityInstructions: $resource('/app/settings/maturityInstructions'),
+        };
+    },
+]);

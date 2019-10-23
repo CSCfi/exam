@@ -16,53 +16,62 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.accessibility')
-    .component('accessibilitySelector', {
-        template: require('./accessibilitySelector.template.html'),
-        bindings: {
-            room: '<'
-        },
-        controller: ['$translate', '$http', function ($translate, $http) {
+angular.module('app.facility.accessibility').component('accessibilitySelector', {
+    template: require('./accessibilitySelector.template.html'),
+    bindings: {
+        room: '<',
+    },
+    controller: [
+        '$translate',
+        '$http',
+        function($translate, $http) {
             const vm = this;
 
-            vm.$onInit = function () {
-                $http.get('/app/accessibility').then(function (resp) {
+            vm.$onInit = function() {
+                $http.get('/app/accessibility').then(function(resp) {
                     vm.accessibilities = resp.data;
                 });
             };
 
-            vm.selectedAccessibilities = function () {
-                return vm.room.accessibilities.length === 0 ? $translate.instant('sitnet_select') :
-                    vm.room.accessibilities.map(function (ac) {
-                        return ac.name;
-                    }).join(", ");
+            vm.selectedAccessibilities = function() {
+                return vm.room.accessibilities.length === 0
+                    ? $translate.instant('sitnet_select')
+                    : vm.room.accessibilities
+                          .map(function(ac) {
+                              return ac.name;
+                          })
+                          .join(', ');
             };
 
-            vm.isSelected = function (ac) {
+            vm.isSelected = function(ac) {
                 return getIndexOf(ac) > -1;
             };
 
-            vm.updateAccessibility = function (ac) {
+            vm.updateAccessibility = function(ac) {
                 const index = getIndexOf(ac);
                 if (index > -1) {
                     vm.room.accessibilities.splice(index, 1);
                 } else {
                     vm.room.accessibilities.push(ac);
                 }
-                const ids = vm.room.accessibilities.map(function (item) {
-                    return item.id;
-                }).join(", ");
+                const ids = vm.room.accessibilities
+                    .map(function(item) {
+                        return item.id;
+                    })
+                    .join(', ');
 
-                $http.post('/app/room/' + vm.room.id + '/accessibility', { ids: ids })
-                    .then(function () {
-                        toast.info($translate.instant("sitnet_room_updated"));
-                    });
+                $http.post('/app/room/' + vm.room.id + '/accessibility', { ids: ids }).then(function() {
+                    toast.info($translate.instant('sitnet_room_updated'));
+                });
             };
 
             function getIndexOf(ac) {
-                return vm.room.accessibilities.map(function (a) {
-                    return a.id;
-                }).indexOf(ac.id);
+                return vm.room.accessibilities
+                    .map(function(a) {
+                        return a.id;
+                    })
+                    .indexOf(ac.id);
             }
-        }]
-    });
+        },
+    ],
+});

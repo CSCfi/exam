@@ -19,7 +19,6 @@ import * as toast from 'toastr';
 import * as FileSaver from 'file-saver';
 
 export class FileService {
-
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
@@ -28,16 +27,16 @@ export class FileService {
         private $http: angular.IHttpService,
         private $translate: angular.translate.ITranslateService,
         private $timeout: angular.ITimeoutService,
-        private $window: angular.IWindowService) {
+        private $window: angular.IWindowService,
+    ) {
         'ngInject';
 
-        const svg = new Blob(
-            ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
-            { type: 'image/svg+xml;charset=utf-8' }
-        );
+        const svg = new Blob([`<svg xmlns='http://www.w3.org/2000/svg'></svg>`], {
+            type: 'image/svg+xml;charset=utf-8',
+        });
         const img = new Image();
-        img.onload = () => this._supportsBlobUrls = true;
-        img.onerror = () => this._supportsBlobUrls = false;
+        img.onload = () => (this._supportsBlobUrls = true);
+        img.onerror = () => (this._supportsBlobUrls = false);
         img.src = URL.createObjectURL(svg);
     }
 
@@ -63,13 +62,15 @@ export class FileService {
     getMaxFilesize(): IPromise<{ filesize: number }> {
         const deferred: IDeferred<{ filesize: number }> = this.$q.defer();
         if (this._maxFileSize) {
-            this.$timeout(() => deferred.resolve({ 'filesize': this._maxFileSize }), 10);
+            this.$timeout(() => deferred.resolve({ filesize: this._maxFileSize }), 10);
         }
-        this.$http.get('/app/settings/maxfilesize')
+        this.$http
+            .get('/app/settings/maxfilesize')
             .then((resp: IHttpResponse<{ filesize: number }>) => {
                 this._maxFileSize = resp.data.filesize;
                 return deferred.resolve(resp.data);
-            }).catch(e => deferred.reject(e));
+            })
+            .catch(e => deferred.reject(e));
         return deferred.promise;
     }
 
@@ -82,9 +83,8 @@ export class FileService {
                 if (callback) {
                     callback();
                 }
-            }).catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
-            );
+            })
+            .catch(resp => toast.error(this.$translate.instant(resp.data)));
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
@@ -93,9 +93,7 @@ export class FileService {
                 parent.objectVersion = resp.data.objectVersion;
                 parent.attachment = resp.data.attachment ? resp.data.attachment : resp.data;
             })
-            .catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
-            );
+            .catch(resp => toast.error(this.$translate.instant(resp.data)));
     }
 
     private _saveFile(data: string, fileName: string, contentType: string) {
@@ -146,12 +144,13 @@ export class FileService {
             }
         }
 
-        this.$http.post(url, fd, {
-            transformRequest: angular.identity,
-            headers: { 'Content-Type': undefined }
-        }).then(resp => deferred.resolve(resp))
+        this.$http
+            .post(url, fd, {
+                transformRequest: angular.identity,
+                headers: { 'Content-Type': undefined },
+            })
+            .then(resp => deferred.resolve(resp))
             .catch(resp => deferred.reject(resp));
         return deferred.promise;
     }
-
 }

@@ -1,15 +1,22 @@
 <div class="col-md-12 padl0 margin-20" ng-hide="$ctrl.exam.executionType.type==='PUBLIC'">
-
     <div class="col-md-9 col-md-offset-3">
-        <input type="text" class="form-control wdth-30 make-inline"
-               placeholder="{{'sitnet_write_participant_name' | translate}}"
-               ng-model="$ctrl.newParticipant.name"
-               uib-typeahead="s.name for s in $ctrl.allStudents('name', $viewValue)"
-               typeahead-editable="false"
-               typeahead-min-length="2"
-               typeahead-on-select="$ctrl.setExamParticipant($item, $model, $label)">
-        <button ng-disabled="!$ctrl.newParticipant.id" ng-click="$ctrl.addParticipant()"
-                class="btn btn-primary green border-green">{{'sitnet_add' | translate}}</button>
+        <input
+            type="text"
+            class="form-control wdth-30 make-inline"
+            placeholder="{{'sitnet_write_participant_name' | translate}}"
+            ng-model="$ctrl.newParticipant.name"
+            uib-typeahead="s.name for s in $ctrl.allStudents('name', $viewValue)"
+            typeahead-editable="false"
+            typeahead-min-length="2"
+            typeahead-on-select="$ctrl.setExamParticipant($item, $model, $label)"
+        />
+        <button
+            ng-disabled="!$ctrl.newParticipant.id"
+            ng-click="$ctrl.addParticipant()"
+            class="btn btn-primary green border-green"
+        >
+            {{'sitnet_add' | translate}}
+        </button>
     </div>
 
     <div class="row col-md-12">
@@ -20,12 +27,18 @@
                 <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments | filter:$ctrl.isActualEnrolment">
                     {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
                     <span ng-if="enrolment.user.userIdentifier">({{enrolment.user.userIdentifier}})</span>
-                    <button class="reviewer-remove"
-                            ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                            ng-click="$ctrl.removeParticipant(enrolment.id)"
-                            title="{{'sitnet_remove' | translate}}">
-                        <img ng-hide="$ctrl.exam.state === 'PUBLISHED'" src="Images/icon_remove.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                    <button
+                        class="reviewer-remove"
+                        ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
+                        ng-click="$ctrl.removeParticipant(enrolment.id)"
+                        title="{{'sitnet_remove' | translate}}"
+                    >
+                        <img
+                            ng-hide="$ctrl.exam.state === 'PUBLISHED'"
+                            src="Images/icon_remove.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_remove.png'"
+                        />
                     </button>
                 </li>
                 <!-- Students that have finished the exam -->
@@ -36,5 +49,4 @@
             </ul>
         </div>
     </div>
-
 </div>

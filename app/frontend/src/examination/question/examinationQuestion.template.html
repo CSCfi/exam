@@ -1,28 +1,54 @@
-<div class="{{$ctrl.sq.selectedAnsweredState}} col-md-12 info-row guide-wrapper" ng-class="$ctrl.sq.answered ? '' : 'notactive'"
-    ng-init="$ctrl.sq.expanded = true;">
-
+<div
+    class="{{$ctrl.sq.selectedAnsweredState}} col-md-12 info-row guide-wrapper"
+    ng-class="$ctrl.sq.answered ? '' : 'notactive'"
+    ng-init="$ctrl.sq.expanded = true;"
+>
     <div class="wrap-title">
-
         <!-- question text -->
         <div class="section-header-left">
             <div ng-if="$ctrl.isAnswered()">
-                <img class="mart05" src="Images/icon_question_type_ready_grey.png" alt="question answered" onerror="this.onerror=null;this.src='Images/icon_question_type_ready_grey.png';" />
+                <img
+                    class="mart05"
+                    src="Images/icon_question_type_ready_grey.png"
+                    alt="question answered"
+                    onerror="this.onerror=null;this.src='Images/icon_question_type_ready_grey.png';"
+                />
             </div>
             <div ng-if="!$ctrl.isAnswered()">
-                <img class="mart05" src="Images/icon_question_type_waiting.svg" alt="question not answered" onerror="this.onerror=null;this.src='Images/icon_question_type_waiting.png';" />
+                <img
+                    class="mart05"
+                    src="Images/icon_question_type_waiting.svg"
+                    alt="question not answered"
+                    onerror="this.onerror=null;this.src='Images/icon_question_type_waiting.png';"
+                />
             </div>
         </div>
 
         <!-- chevron -->
-        <div class="section-header-right fa-stack fa-lg pointer section-box-title arrow" ng-click="$ctrl.sq.expanded = !$ctrl.sq.expanded">
-            <i ng-class="$ctrl.sq.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
-                class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
+        <div
+            class="section-header-right fa-stack fa-lg pointer section-box-title arrow"
+            ng-click="$ctrl.sq.expanded = !$ctrl.sq.expanded"
+        >
+            <i
+                ng-class="$ctrl.sq.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                class="sitnet-text-medium fa fa-chevron-left fa-stack-1x"
+            >
             </i>
         </div>
 
         <div class="section-header-middle" ng-if="$ctrl.sq.question.type !== 'ClozeTestQuestion'">
-            <div class="section-box-title" ng-if="$ctrl.sq.expanded" mathjax ng-bind-html="$ctrl.displayQuestionText()"></div>
-            <div class="section-box-title" ng-if="!$ctrl.sq.expanded" mathjax ng-bind-html="$ctrl.displayQuestionText(true)"></div>
+            <div
+                class="section-box-title"
+                ng-if="$ctrl.sq.expanded"
+                mathjax
+                ng-bind-html="$ctrl.displayQuestionText()"
+            ></div>
+            <div
+                class="section-box-title"
+                ng-if="!$ctrl.sq.expanded"
+                mathjax
+                ng-bind-html="$ctrl.displayQuestionText(true)"
+            ></div>
         </div>
         <div class="section-header-middle" ng-if="$ctrl.sq.question.type === 'ClozeTestQuestion'">
             <div class="section-box-title" mathjax>
@@ -30,15 +56,20 @@
                 <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
             </div>
         </div>
-
     </div>
 
     <!-- instruction -->
     <div class="row mart10" ng-show="$ctrl.sq.answerInstructions && $ctrl.sq.expanded">
         <div class="col-md-12">
             <p class="question-text question-type-text info">
-                <img class="marr20" src="Images/icon_info.svg" alt="info icon" onerror="this.onerror=null;this.src='Images/icon_info.png';" />
-                {{'sitnet_instructions' | translate }}:&nbsp;{{$ctrl.sq.answerInstructions}}</p>
+                <img
+                    class="marr20"
+                    src="Images/icon_info.svg"
+                    alt="info icon"
+                    onerror="this.onerror=null;this.src='Images/icon_info.png';"
+                />
+                {{'sitnet_instructions' | translate }}:&nbsp;{{$ctrl.sq.answerInstructions}}
+            </p>
         </div>
     </div>
 
@@ -47,27 +78,44 @@
         <div class="col-md-12">
             <a class="pointer green_button left-floater-for-section" ng-click="$ctrl.downloadQuestionAttachment()">
                 {{'sitnet_download_section_question_attachment' | translate }}
-                <img src="Images/icon_attachment.svg" alt="attachment" onerror="this.onerror=null;this.src='Images/icon_attachment.png';" /></a>
+                <img
+                    src="Images/icon_attachment.svg"
+                    alt="attachment"
+                    onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
+            /></a>
             <div class="attachment-name">{{$ctrl.sq.question.attachment.fileName | uppercase}}</div>
         </div>
     </div>
 
     <!-- answer -->
     <div class="exam-question-container" ng-show="$ctrl.sq.expanded">
-        <hr class="info-question-separator" ng-show="$ctrl.sq.expanded">
+        <hr class="info-question-separator" ng-show="$ctrl.sq.expanded" />
         <div class="question" ng-switch="$ctrl.sq.question.type">
-            <examination-essay-question ng-switch-when="EssayQuestion" sq="$ctrl.sq" exam="$ctrl.exam" is-preview="$ctrl.isPreview">
+            <examination-essay-question
+                ng-switch-when="EssayQuestion"
+                sq="$ctrl.sq"
+                exam="$ctrl.exam"
+                is-preview="$ctrl.isPreview"
+            >
             </examination-essay-question>
 
             <examination-cloze-test ng-switch-when="ClozeTestQuestion" sq="$ctrl.sq" exam-hash="$ctrl.exam.hash">
             </examination-cloze-test>
 
-            <examination-multi-choice-question ng-switch-when="MultipleChoiceQuestion" sq="$ctrl.sq" exam-hash="$ctrl.exam.hash"
-                is-preview="$ctrl.isPreview">
+            <examination-multi-choice-question
+                ng-switch-when="MultipleChoiceQuestion"
+                sq="$ctrl.sq"
+                exam-hash="$ctrl.exam.hash"
+                is-preview="$ctrl.isPreview"
+            >
             </examination-multi-choice-question>
 
-            <examination-weighted-multi-choice-question ng-switch-when="WeightedMultipleChoiceQuestion" sq="$ctrl.sq"
-                exam-hash="$ctrl.exam.hash" is-preview="$ctrl.isPreview">
+            <examination-weighted-multi-choice-question
+                ng-switch-when="WeightedMultipleChoiceQuestion"
+                sq="$ctrl.sq"
+                exam-hash="$ctrl.exam.hash"
+                is-preview="$ctrl.isPreview"
+            >
             </examination-weighted-multi-choice-question>
         </div>
     </div>

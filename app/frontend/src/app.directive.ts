@@ -18,9 +18,7 @@
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import {
-    IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope
-} from 'angular';
+import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
@@ -50,19 +48,22 @@ export class UniquenessValidator implements IDirective<UniquenessScope> {
     require = 'ngModel';
     scope = {
         items: '=',
-        property: '@property'
+        property: '@property',
     };
 
     link(scope: UniquenessScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
         const validate = (value: any): void => {
-            const matches = !scope.items ? [] :
-                scope.items.map(i => i[scope.property]).filter(i => i === value);
+            const matches = !scope.items ? [] : scope.items.map(i => i[scope.property]).filter(i => i === value);
             ngModel.$setValidity('uniqueness', matches.length < 2);
         };
 
-        scope.$watch('items', function () {
-            validate(ngModel.$viewValue);
-        }, true);
+        scope.$watch(
+            'items',
+            function() {
+                validate(ngModel.$viewValue);
+            },
+            true,
+        );
     }
 
     static factory(): IDirectiveFactory {
@@ -76,25 +77,26 @@ interface CkEditorScope extends IScope {
 export class CkEditor implements IDirective<CkEditorScope> {
     require = 'ngModel';
     scope = {
-        enableClozeTest: '=?'
+        enableClozeTest: '=?',
     };
 
-    constructor(private $translate: angular.translate.ITranslateService) { }
+    constructor(private $translate: angular.translate.ITranslateService) {}
 
     link(scope: CkEditorScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
         // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
         // dysfunctional formatting gets pasted which can break the cloze test markup.
         const removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-        const ck = CKEDITOR.replace(element[0] as HTMLTextAreaElement,
-            { removeButtons: removals, language: this.$translate.use() });
+        const ck = CKEDITOR.replace(element[0] as HTMLTextAreaElement, {
+            removeButtons: removals,
+            language: this.$translate.use(),
+        });
 
         let modelValue;
         ck.on('instanceReady', () => {
             ck.setData(modelValue);
         });
 
-        const updateModel = () =>
-            _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
+        const updateModel = () => _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
 
         // These events can bring down the UI if not debounced
         ck.on('change', _.debounce(updateModel, 500));
@@ -106,13 +108,10 @@ export class CkEditor implements IDirective<CkEditorScope> {
             modelValue = ngModel.$modelValue;
             ck.setData(ngModel.$viewValue);
         };
-
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $translate: angular.translate.ITranslateService
-        ) => new CkEditor($translate);
+        const directive = ($translate: angular.translate.ITranslateService) => new CkEditor($translate);
         directive.$inject = ['$translate'];
         return directive;
     }
@@ -153,10 +152,10 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
     scope = {
         results: '=',
         content: '=',
-        editable: '=?'
+        editable: '=?',
     };
 
-    constructor(private $compile: angular.ICompileService) { }
+    constructor(private $compile: angular.ICompileService) {}
 
     link(scope: ClozeTestScope, element: IAugmentedJQuery) {
         const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
@@ -180,9 +179,7 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $compile: angular.ICompileService,
-        ) => new ClozeTest($compile);
+        const directive = ($compile: angular.ICompileService) => new ClozeTest($compile);
         directive.$inject = ['$compile'];
         return directive;
     }
@@ -191,7 +188,7 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
 export class UiBlur implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiBlur);
@@ -199,9 +196,7 @@ export class UiBlur implements IDirective {
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new UiBlur($parse);
+        const directive = ($parse: angular.IParseService) => new UiBlur($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -210,7 +205,7 @@ export class UiBlur implements IDirective {
 export class UiChange implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiChange);
@@ -218,9 +213,7 @@ export class UiChange implements IDirective {
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new UiChange($parse);
+        const directive = ($parse: angular.IParseService) => new UiChange($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -229,19 +222,15 @@ export class UiChange implements IDirective {
 export class FileModel implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const modelSetter = this.$parse(attributes.fileModel).assign;
-        element.bind('change', () =>
-            scope.$apply(() => modelSetter(scope.$parent, element[0].files[0]))
-        );
+        element.bind('change', () => scope.$apply(() => modelSetter(scope.$parent, element[0].files[0])));
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new FileModel($parse);
+        const directive = ($parse: angular.IParseService) => new FileModel($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -251,16 +240,14 @@ export class FileSelector implements IDirective {
     restrict = 'A';
     require = 'ngModel';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes, ngModel) {
         element.bind('change', () => ngModel.$setViewValue(element[0].files[0]));
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new FileSelector($parse);
+        const directive = ($parse: angular.IParseService) => new FileSelector($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -321,8 +308,7 @@ interface SortScope extends IScope {
 }
 export class Sort implements IDirective<SortScope> {
     restrict = 'A';
-    template =
-        `<span class="pointer" ng-click="sort()">{{ text | translate }}&nbsp;
+    template = `<span class="pointer" ng-click="sort()">{{ text | translate }}&nbsp;
             <i class="fa" ng-class="getSortClass()"></i>
         </span>`;
     scope = {
@@ -330,10 +316,10 @@ export class Sort implements IDirective<SortScope> {
         by: '@by',
         text: '@text',
         reverse: '=',
-        onSort: '&?'
+        onSort: '&?',
     };
 
-    constructor(private $timeout: angular.ITimeoutService) { }
+    constructor(private $timeout: angular.ITimeoutService) {}
 
     link(scope: SortScope) {
         scope.sort = () => {
@@ -344,14 +330,11 @@ export class Sort implements IDirective<SortScope> {
             }
         };
         scope.getSortClass = () =>
-            scope.predicate === scope.by ?
-                (scope.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort';
+            scope.predicate === scope.by ? (scope.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort';
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $timeout: angular.ITimeoutService,
-        ) => new Sort($timeout);
+        const directive = ($timeout: angular.ITimeoutService) => new Sort($timeout);
         directive.$inject = ['$timeout'];
         return directive;
     }
@@ -371,7 +354,7 @@ export class TeacherList implements IDirective<TeacherListScope> {
     transclude = false;
     scope = {
         exam: '=exam',
-        useParent: '<?'
+        useParent: '<?',
     };
     template = `
     <div>
@@ -389,5 +372,4 @@ export class TeacherList implements IDirective<TeacherListScope> {
     static factory(): IDirectiveFactory {
         return () => new TeacherList();
     }
-
 }

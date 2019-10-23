@@ -18,44 +18,44 @@ import * as _ from 'lodash';
 import { User } from '../../session/session.service';
 import { QuestionReview, ReviewQuestion } from '../review.model';
 
-
 export class QuestionReviewService {
-
-    constructor(
-        private $q: angular.IQService,
-        private $http: angular.IHttpService) {
+    constructor(private $q: angular.IQService, private $http: angular.IHttpService) {
         'ngInject';
     }
 
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 
     isFinalized = (review: QuestionReview) =>
-        !review ? false : review.answers.length === this.getAssessedAnswerCount(review)
+        !review ? false : review.answers.length === this.getAssessedAnswerCount(review);
 
     isAssessed = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.temporaryScore)
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.temporaryScore);
 
     isEvaluated = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.evaluatedScore)
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.evaluatedScore);
 
     isLocked = (answer: ReviewQuestion, user: User) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
         const exam = answer.examSection.exam;
-        const isInspector = exam.examInspections.map(ei => {
-            return ei.user.id;
-        }).indexOf(user.id) > -1;
+        const isInspector =
+            exam.examInspections
+                .map(ei => {
+                    return ei.user.id;
+                })
+                .indexOf(user.id) > -1;
         if (!isInspector) {
             states.push('GRADED');
         }
         return states.indexOf(exam.state) === -1;
-    }
+    };
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length
+        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
 
     getReviews(examId: number, ids = []): angular.IPromise<QuestionReview[]> {
         const deferred: angular.IDeferred<QuestionReview[]> = this.$q.defer();
-        this.$http.get(`/app/exam/${examId}/questions`, { params: { ids: ids } })
+        this.$http
+            .get(`/app/exam/${examId}/questions`, { params: { ids: ids } })
             .then((resp: angular.IHttpResponse<QuestionReview[]>) => {
                 deferred.resolve(resp.data);
             })
@@ -68,9 +68,9 @@ export class QuestionReviewService {
             return 0;
         }
         return review.answers.filter(
-            a => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore))).length;
-    }
-
+            a => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)),
+        ).length;
+    };
 }
 
 angular.module('app.review').service('QuestionReview', QuestionReviewService);

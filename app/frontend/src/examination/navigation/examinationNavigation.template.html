@@ -3,13 +3,13 @@
     <span class="col-md-12">
         <!-- PREVIOUS SECTION BUTTON -->
         <a class="green_button previous" ng-show="$ctrl.prev.valid" ng-click="$ctrl.previousPage()">
-            <img class="arrow_icon" alt="previous page" src="Images/icon_left_white.png"> {{ $ctrl.prev.text |
+            <img class="arrow_icon" alt="previous page" src="Images/icon_left_white.png" /> {{ $ctrl.prev.text |
             translate }}
         </a>
         <!-- NEXT SECTION BUTTON -->
-        <a class="green_button" ng-show="$ctrl.next.valid" ng-click="$ctrl.nextPage()">{{ $ctrl.next.text | translate
-            }}
-            <img class="arrow_icon" alt="next page" src="Images/icon_right_white.png">
+        <a class="green_button" ng-show="$ctrl.next.valid" ng-click="$ctrl.nextPage()"
+            >{{ $ctrl.next.text | translate }}
+            <img class="arrow_icon" alt="next page" src="Images/icon_right_white.png" />
         </a>
     </span>
 </div>

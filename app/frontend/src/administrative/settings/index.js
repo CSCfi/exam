@@ -14,7 +14,5 @@
  *
  */
 
-
 require('./settings.module');
 require('./settings.component.ts');
-

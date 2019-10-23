@@ -1,18 +1,15 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4>
-            <i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' | translate}}
-            </i>
-        </h4>
+        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' | translate}}</h4>
     </div>
 
-    <div class='modal-body'>
-
+    <div class="modal-body">
         <div class="row">
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-model="$ctrl.exception.outOfService"> {{'sitnet_room_out_of_service' | translate}}
+                        <input type="checkbox" ng-model="$ctrl.exception.outOfService" /> {{'sitnet_room_out_of_service'
+                        | translate}}
                     </label>
                 </div>
             </div>
@@ -40,7 +37,8 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">
+                {{'sitnet_button_cancel' | translate}}
             </button>
         </div>
         <div class="col-md-6">
@@ -49,5 +47,4 @@
             </button>
         </div>
     </div>
-
 </div>

@@ -18,7 +18,8 @@ import * as angular from 'angular';
 export default function run(
     $route: angular.route.IRouteService,
     $location: any,
-    $rootScope: angular.IRootScopeService) {
+    $rootScope: angular.IRootScopeService,
+) {
     'ngInject';
 
     // Add location reload flag to original $location service.
@@ -26,7 +27,7 @@ export default function run(
     $location.path = (path, reload) => {
         if (reload === false) {
             const lastRoute = $route.current;
-            const un = $rootScope.$on('$locationChangeSuccess', function () {
+            const un = $rootScope.$on('$locationChangeSuccess', function() {
                 $route.current = lastRoute;
                 un();
             });

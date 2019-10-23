@@ -22,14 +22,13 @@ import { ExamListCategoryComponent } from './teacher/categories/examListCategory
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 
-
 require('../exam/editor'); // TODO: make a proper exportable module
 
-export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
+export default angular
+    .module('app.dashboard', [ReservationModule, 'app.exam'])
     .service('StudentDashboard', StudentDashboardService)
     .service('TeacherDashboard', TeacherDashboardService)
     .component('dashboard', DashboardComponent)
     .component('studentDashboard', StudentDashboardComponent)
     .component('examListCategory', ExamListCategoryComponent)
-    .component('teacherDashboard', TeacherDashboardComponent)
-    .name;
+    .component('teacherDashboard', TeacherDashboardComponent).name;
