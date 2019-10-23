@@ -8,6 +8,10 @@
     width: 130px;
 }
 
+.btn.green {
+    background-color: #3CA34F;
+}
+
 .datetimepicker-wrapper [ng-model=hours],
 .datetimepicker-wrapper [ng-model=minutes] {
     width: 46px !important;

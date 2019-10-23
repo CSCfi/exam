@@ -14,7 +14,6 @@
  */
 import * as ng from 'angular';
 import * as _ from 'lodash';
-import * as toast from 'toastr';
 
 import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
 
@@ -22,72 +21,53 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
     bindings: {
         exam: '<',
+        reviews: '<',
     },
-    controller: class ExamSummaryController implements ng.IComponentController {
-
+    controller: class ExamSummaryController implements ng.IComponentController, ng.IOnInit, ng.IOnChanges {
         exam: Exam;
-        participations: any[];
+        reviews: any[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
 
-        constructor(
-            private $http: angular.IHttpService
-        ) {
-            'ngInject';
-        }
-
-        $onInit = () => {
-            const url = this.getResource(this.exam.id);
-            this.$http.get(url).then((resp: angular.IHttpResponse<any>) => {
-                this.participations = resp.data;
-                this.exam = this.participations[0].exam.parent;
-                this.buildGradeDistribution();
-                this.gradedCount = this.participations.filter(
-                    p => p.exam.grade).length;
-            }).catch(err => toast.error(err.data));
-
+        private refresh = () => {
+            this.buildGradeDistribution();
+            this.gradedCount = this.reviews.filter(r => r.exam.grade).length;
             this.gradeDistribution = {};
-        }
+        };
 
-        getResource = path => `/app/reviews/${path}`;
+        $onInit = () => this.refresh();
 
-        getGradeDistribution = () => {
-            return this.gradeDistribution;
-        }
+        $onChanges = () => this.refresh();
 
-        getRegisteredCount = () => this.participations.length;
+        getGradeDistribution = () => this.gradeDistribution;
+
+        getRegisteredCount = () => this.reviews.length;
 
         getReadFeedback = () =>
-            this.participations.filter(p =>
-                p.exam.examFeedback &&
-                p.exam.examFeedback.feedbackStatus === true).length;
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
 
         getTotalFeedback = () =>
-            this.getReadFeedback() + this.participations.filter(p =>
-                p.exam.examFeedback &&
-                p.exam.examFeedback.feedbackStatus === false).length;
+            this.getReadFeedback() +
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === false).length;
 
-        getFeedbackPercentage = () =>
-            this.getReadFeedback() / this.getTotalFeedback() * 100;
+        getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;
 
         getTotalQuestions = () => {
-            const sections: ExamSection[] = this.participations.map(p => p.exam.examSections);
+            const sections: ExamSection[] = this.reviews.map(r => r.exam.examSections);
             const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
             return _.flatMap(questions).length;
-        }
+        };
 
         buildGradeDistribution = () => {
-            const grades: string[] = this.participations.filter(p => p.exam.grade).map(p => p.exam.grade.name);
+            const grades: string[] = this.reviews.filter(r => r.exam.grade).map(r => r.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
-        }
+        };
 
         getAverageTime = () => {
-            const durations = this.participations.map(p => p.duration);
+            const durations = this.reviews.map(r => r.duration);
             return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
-        }
-
-    }
+        };
+    },
 };
 
 angular.module('app.review').component('examSummary', ExamSummaryComponent);
-

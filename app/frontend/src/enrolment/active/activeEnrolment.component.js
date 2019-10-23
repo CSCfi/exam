@@ -16,63 +16,63 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.enrolment')
-    .component('activeEnrolment', {
-        template: require('./activeEnrolment.template.html'),
-        bindings: {
-            enrolment: '<',
-            onRemoval: '&'
+angular.module('app.enrolment').component('activeEnrolment', {
+    template: require('./activeEnrolment.template.html'),
+    bindings: {
+        enrolment: '<',
+        onRemoval: '&',
+    },
+    controller: [
+        '$translate',
+        '$location',
+        'dialogs',
+        'Enrolment',
+        'Reservation',
+        function($translate, $location, dialogs, Enrolment, Reservation) {
+            const vm = this;
+
+            vm.removeReservation = function() {
+                Reservation.removeReservation(vm.enrolment);
+            };
+
+            vm.removeEnrolment = function() {
+                if (vm.enrolment.reservation) {
+                    toast.error($translate.instant('sitnet_cancel_reservation_first'));
+                } else {
+                    dialogs
+                        .confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'))
+                        .result.then(function() {
+                            Enrolment.removeEnrolment(vm.enrolment).then(function() {
+                                vm.onRemoval({ data: vm.enrolment });
+                            });
+                        });
+                }
+            };
+
+            vm.getLinkToCalendar = function() {
+                return vm.enrolment.collaborativeExam
+                    ? '/calendar/collaborative/' + vm.enrolment.collaborativeExam.id
+                    : '/calendar/' + vm.enrolment.exam.id;
+            };
+
+            vm.addEnrolmentInformation = function() {
+                Enrolment.addEnrolmentInformation(vm.enrolment);
+            };
+
+            vm.getRoomInstruction = function() {
+                const reservation = vm.enrolment.reservation;
+                let o;
+                if (reservation.externalReservation) {
+                    o = reservation.externalReservation;
+                } else if (reservation.machine) {
+                    o = reservation.machine.room;
+                }
+                return o['roomInstruction' + $translate.use().toUpperCase()] || o.roomInstruction;
+            };
+
+            vm.goToCalendar = function() {
+                $location.path(vm.getLinkToCalendar());
+            };
         },
-        controller: ['$translate', '$location', 'dialogs', 'Enrolment', 'Reservation',
-            function ($translate, $location, dialogs, Enrolment, Reservation) {
-
-                const vm = this;
-
-                vm.removeReservation = function () {
-                    Reservation.removeReservation(vm.enrolment);
-                };
-
-                vm.removeEnrolment = function () {
-                    if (vm.enrolment.reservation) {
-                        toast.error($translate.instant('sitnet_cancel_reservation_first'));
-                    } else {
-                        dialogs.confirm($translate.instant('sitnet_confirm'),
-                            $translate.instant('sitnet_are_you_sure')).result.then(
-                                function () {
-                                    Enrolment.removeEnrolment(vm.enrolment).then(function () {
-                                        vm.onRemoval({ data: vm.enrolment });
-                                    }
-                                    );
-                                });
-                    }
-
-                };
-
-                vm.getLinkToCalendar = function () {
-                    return vm.enrolment.collaborativeExam ?
-                        '/calendar/collaborative/' + vm.enrolment.collaborativeExam.id :
-                        '/calendar/' + vm.enrolment.exam.id;
-                }
-
-                vm.addEnrolmentInformation = function () {
-                    Enrolment.addEnrolmentInformation(vm.enrolment);
-                };
-
-                vm.getRoomInstruction = function () {
-                    const reservation = vm.enrolment.reservation;
-                    let o;
-                    if (reservation.externalReservation) {
-                        o = reservation.externalReservation;
-                    } else if (reservation.machine) {
-                        o = reservation.machine.room;
-                    }
-                    return o['roomInstruction' + $translate.use().toUpperCase()] || o.roomInstruction;
-                };
-
-                vm.goToCalendar = function () {
-                    $location.path(vm.getLinkToCalendar());
-                }
-
-            }
-        ]
-    });
+    ],
+});

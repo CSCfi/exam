@@ -15,56 +15,58 @@
 import angular from 'angular';
 import toast from 'toastr';
 
+angular.module('app.facility').component('examRoomsAdminTabs', {
+    template: require('./examRoomsAdminTabs.template.html'),
+    controller: [
+        '$translate',
+        'Session',
+        '$window',
+        '$location',
+        'Room',
+        function($translate, Session, $window, $location, Room) {
+            const vm = this;
 
-angular.module('app.facility')
-    .component('examRoomsAdminTabs', {
-        template: require('./examRoomsAdminTabs.template.html'),
-        controller: ['$routeParams', '$translate', 'Session', '$window', '$location', 'Room',
-            function ($routeParams, $translate, Session, $window, $location, Room) {
+            vm.$onInit = function() {
+                vm.user = Session.getUser();
+                vm.activeTab = 1;
+            };
 
-                const vm = this;
+            vm.createExamRoom = function() {
+                Room.draft.get(
+                    function(room) {
+                        toast.info($translate.instant('sitnet_room_draft_created'));
+                        $location.path('/rooms/' + room.id);
+                    },
+                    function(error) {
+                        toast.error(error.data);
+                    },
+                );
+            };
 
-                vm.$onInit = function () {
-                    vm.user = Session.getUser();
-                    vm.activeTab = 1;
-                };
+            vm.switchToExamRooms = function() {
+                vm.activeTab = 1;
+            };
 
-                vm.createExamRoom = function () {
-                    Room.draft.get(
-                        function (room) {
-                            toast.info($translate.instant("sitnet_room_draft_created"));
-                            $location.path("/rooms/" + room.id);
-                        }, function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                };
+            vm.switchToExceptionTimes = function() {
+                vm.activeTab = 2;
+            };
 
-                vm.switchToExamRooms = function () {
-                    vm.activeTab = 1;
-                };
+            vm.switchToNeededSoftware = function() {
+                vm.activeTab = 3;
+            };
 
-                vm.switchToExceptionTimes = function () {
-                    vm.activeTab = 2;
-                };
+            vm.switchToAccessibility = function() {
+                vm.activeTab = 4;
+            };
 
-                vm.switchToNeededSoftware = function () {
-                    vm.activeTab = 3;
-                };
+            vm.editMultipleRooms = function() {
+                $location.path('/rooms_edit/edit_multiple');
+            };
 
-                vm.switchToAccessibility = function () {
-                    vm.activeTab = 4;
-                };
-
-                vm.editMultipleRooms = function () {
-                    $location.path("/rooms_edit/edit_multiple");
-                };
-
-                vm.goBack = function (event) {
-                    event.preventDefault();
-                    $window.history.back();
-                };
-
-            }
-        ]
-    });
+            vm.goBack = function(event) {
+                event.preventDefault();
+                $window.history.back();
+            };
+        },
+    ],
+});

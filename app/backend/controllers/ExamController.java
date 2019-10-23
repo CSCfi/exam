@@ -234,16 +234,23 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user"})
-    public Result getExam(Long id, Http.Request request) throws CryptorException {
+    public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        // decipher the settings pwd if any
-        if (exam.getEncryptedSettingsPassword() != null) {
-            String plainTextPwd = byodConfigHandler.getPlaintextPassword(
-                    exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt());
-            exam.setSettingsPassword(plainTextPwd);
+        // decipher the settings passwords if any
+        if (exam.getRequiresUserAgentAuth()) {
+            exam.getExaminationEventConfigurations().forEach(eec -> {
+                String plainTextPwd;
+                try {
+                    plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                            eec.getEncryptedSettingsPassword(), eec.getSettingsPasswordSalt());
+                } catch (CryptorException e) {
+                    throw new RuntimeException(e);
+                }
+                eec.setSettingsPassword(plainTextPwd);
+            });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
@@ -557,6 +564,8 @@ public class ExamController extends BaseController {
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examinationDates")
+                .fetch("examinationEventConfigurations")
+                .fetch("examinationEventConfigurations.examinationEvent")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")

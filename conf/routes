@@ -58,9 +58,14 @@ DELETE        /app/exams/inspector/:id                                 backend.c
 PUT           /app/exams/inspection/:id                                backend.controllers.ExamInspectionController.setInspectionOutcome(id: Long, request: Request)
 
 ############### Printout exam interface ###############
-POST          /app/exam/:id/examinationdate                            backend.controllers.ExaminationDateController.insertExaminationDate(id: Long, request: Request)
-DELETE        /app/exam/:id/examinationdate/:edid                      backend.controllers.ExaminationDateController.removeExaminationDate(id: Long, edid: Long)
+POST          /app/exam/:id/examinationdate                            backend.controllers.ExaminationEventController.insertExaminationDate(id: Long, request: Request)
+DELETE        /app/exam/:id/examinationdate/:edid                      backend.controllers.ExaminationEventController.removeExaminationDate(id: Long, edid: Long)
 GET           /app/exam/printouts                                      backend.controllers.ExamController.listPrintouts
+
+############### Examination events interface ############
+POST          /app/exam/:eid/examinationevents                          backend.controllers.ExaminationEventController.insertExaminationEvent(eid: Long, request: Request)
+PUT           /app/exam/:eid/examinationevents/:eecid                   backend.controllers.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long, request: Request)
+DELETE        /app/exam/:eid/examinationevents/:eecid                   backend.controllers.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
 
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                  backend.controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)

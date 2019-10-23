@@ -43,7 +43,7 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
             private $http: angular.IHttpService,
             private $routeParams: angular.route.IRouteParamsService,
             private $location: angular.ILocationService,
-            private $timeout: angular.ITimeoutService
+            private $timeout: angular.ITimeoutService,
         ) {
             'ngInject';
         }
@@ -53,10 +53,12 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
             this.quitLinkEnabled = this.$routeParams.quitLinkEnabled === 'true';
 
             if (this.quitLinkEnabled) {
-                this.$http.get('/app/settings/examinationQuitLink').then(
-                    (resp: angular.IHttpResponse<{ quitLink: string }>) => {
+                this.$http
+                    .get('/app/settings/examinationQuitLink')
+                    .then((resp: angular.IHttpResponse<{ quitLink: string }>) => {
                         this.quitLink = resp.data.quitLink;
-                    }).catch(() => {
+                    })
+                    .catch(() => {
                         // Fetching quit link failed for some reason, just log out
                         this.$timeout(() => {
                             this.$rootScope.$broadcast('examEnded');
@@ -69,9 +71,8 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
                     this.$location.path('/logout');
                 }, 8000);
             }
-        }
-
-    }
+        };
+    },
 };
 
 angular.module('app.examination').component('examinationLogout', ExaminationLogoutComponent);

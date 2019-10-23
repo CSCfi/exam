@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.reports')
-    .component('reports', {
-        template: `
+angular.module('app.administrative.reports').component('reports', {
+    template: `
         <div>
             <div id="sitnet-header" class="header">
                 <div class="col-md-12 header-wrapper">
@@ -38,31 +36,37 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        controller: ['Reports', 'Room', 'UserRes',
-            function (Reports, Room, UserRes) {
+    controller: [
+        'Reports',
+        'Room',
+        'UserRes',
+        function(Reports, Room, UserRes) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                Room.rooms.query(
+                    resp =>
+                        (vm.rooms = resp.map(d =>
+                            Object.assign({}, { id: d.id, label: `${d.buildingName} - ${d.name}`, value: d }),
+                        )),
+                );
+                Reports.examNames.query(
+                    resp =>
+                        (vm.examNames = resp.map(d =>
+                            Object.assign({}, { id: d.id, label: `${d.course.code} - ${d.name}`, value: d }),
+                        )),
+                );
 
-                vm.$onInit = function () {
-                    Room.rooms.query(resp =>
-                        vm.rooms = resp.map(d => Object.assign({},
-                            {id: d.id, label: `${d.buildingName} - ${d.name}`, value: d}))
+                UserRes.usersByRole.query(
+                    { role: 'TEACHER' },
+                    resp => (vm.teachers = resp.map(d => Object.assign({}, { id: d.id, label: d.name, value: d }))),
+                );
 
-                    );
-                    Reports.examNames.query(resp =>
-                        vm.examNames = resp.map(d => Object.assign({},
-                            {id: d.id, label: `${d.course.code} - ${d.name}`, value: d}))
-                    );
-
-                    UserRes.usersByRole.query({role: 'TEACHER'},resp =>
-                        vm.teachers = resp.map(d => Object.assign({}, {id: d.id, label: d.name, value: d}))
-                    );
-
-                    UserRes.usersByRole.query({role: 'STUDENT'},resp =>
-                        vm.students = resp.map(d => Object.assign({}, {id: d.id, label: d.name, value: d}))
-                    );
-
-                };
-            }]
-    });
-
+                UserRes.usersByRole.query(
+                    { role: 'STUDENT' },
+                    resp => (vm.students = resp.map(d => Object.assign({}, { id: d.id, label: d.name, value: d }))),
+                );
+            };
+        },
+    ],
+});

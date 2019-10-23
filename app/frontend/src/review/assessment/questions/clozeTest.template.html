@@ -4,22 +4,33 @@
             <!-- question text -->
             <div>
                 <div class="pull-right">
-                    <a class="pull-right"
-                        ng-click="$ctrl.sectionQuestion.reviewExpanded = !$ctrl.sectionQuestion.reviewExpanded">
-                        <img ng-show="!$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_right.svg"
-                            alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'" />
-                        <img ng-show="$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_down.svg"
-                            alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'" />
+                    <a
+                        class="pull-right"
+                        ng-click="$ctrl.sectionQuestion.reviewExpanded = !$ctrl.sectionQuestion.reviewExpanded"
+                    >
+                        <img
+                            ng-show="!$ctrl.sectionQuestion.reviewExpanded"
+                            src="Images/icon_list_show_right.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
+                        />
+                        <img
+                            ng-show="$ctrl.sectionQuestion.reviewExpanded"
+                            src="Images/icon_list_show_down.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
+                        />
                     </a>
                     <!-- grade -->
                     <div class="review-points">
                         <!-- grade -->
                         <div>
                             <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
-                            {{$ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers}} /
-                            {{ $ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers +
-                            $ctrl.sectionQuestion.clozeTestAnswer.score.incorrectAnswers }}
-                            &nbsp;<strong>{{ 'sitnet_word_points' | translate }}:</strong>
+                            {{$ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers}} / {{
+                            $ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers +
+                            $ctrl.sectionQuestion.clozeTestAnswer.score.incorrectAnswers }} &nbsp;<strong
+                                >{{ 'sitnet_word_points' | translate }}:</strong
+                            >
                             <span>
                                 <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
                                     {{ $ctrl.displayAchievedScore() }}
@@ -34,52 +45,73 @@
                 </div>
 
                 <div class="review-question-title marr110" mathjax ng-bind-html="$ctrl.displayQuestionText()"></div>
-
             </div>
 
             <!-- question attachment -->
-            <div class="padl0 mart20 marb20 notice-text"
-                ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.question.attachment">
+            <div
+                class="padl0 mart20 marb20 notice-text"
+                ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.question.attachment"
+            >
                 {{ 'sitnet_question_attachment' | translate}}:
                 <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
-                    {{$ctrl.sectionQuestion.question.attachment.fileName}}</a>
+                    {{$ctrl.sectionQuestion.question.attachment.fileName}}</a
+                >
             </div>
 
             <!-- question instructions -->
-            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.answerInstructions"
-                class="padl0 mart20 marb20 notice-text">
-                <img src="Images/icon_info.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_info.png'" />
+            <div
+                ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.answerInstructions"
+                class="padl0 mart20 marb20 notice-text"
+            >
+                <img
+                    src="Images/icon_info.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_info.png'"
+                />
                 <span class="padl10">{{ 'sitnet_instructions' | translate}}:</span>
                 <span ng-bind-html="$ctrl.sectionQuestion.answerInstructions" />
             </div>
 
             <!-- answer -->
             <div class="mart20" ng-show="$ctrl.sectionQuestion.reviewExpanded">
-                <hr>
+                <hr />
             </div>
 
             <div ng-show="$ctrl.sectionQuestion.reviewExpanded" class="marb10">
                 <div class="points-title">
                     <span>{{'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <cloze-test content="$ctrl.sectionQuestion.clozeTestAnswer.question"
-                    results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
+                <cloze-test
+                    content="$ctrl.sectionQuestion.clozeTestAnswer.question"
+                    results="$ctrl.sectionQuestion.clozeTestAnswer.answer"
+                    editable="false"
+                >
                 </cloze-test>
 
                 <div ng-show="$ctrl.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
-                        <span class="text text-danger">{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
-                            <small>[0 &hellip; {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}]</small></span>
+                        <span class="text text-danger"
+                            >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
+                            <small>[0 &hellip; {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}]</small></span
+                        >
                     </div>
                     <form name="forcedPoints">
-                        <input id="score" name="score" type="number" lang="en" class="form-control"
-                            ng-model="$ctrl.sectionQuestion.forcedScore" fixed-precision
-                            ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()" onclick="this.focus()"
-                            ng-disabled="!$ctrl.isScorable" min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
+                        <input
+                            id="score"
+                            name="score"
+                            type="number"
+                            lang="en"
+                            class="form-control"
+                            ng-model="$ctrl.sectionQuestion.forcedScore"
+                            fixed-precision
+                            ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()"
+                            onclick="this.focus()"
+                            ng-disabled="!$ctrl.isScorable"
+                            min="0"
+                            max="{{$ctrl.sectionQuestion.maxScore}}"
+                        />
                         <small ng-show="forcedPoints.$invalid" class="alert-danger">
-                            <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate
-                                    }}
+                            <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
                         </small>
                     </form>
                 </div>

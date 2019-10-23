@@ -15,87 +15,89 @@
 
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('examParticipation', {
-        template: require('./examParticipation.template.html'),
-        bindings: {
-            participation: '<',
-            collaborative: '<'
-        },
-        controller: ['$scope', '$translate', 'StudentExamRes', 'Exam', 'Assessment',
-            function ($scope, $translate, StudentExamRes, Exam, Assessment) {
+angular.module('app.enrolment').component('examParticipation', {
+    template: require('./examParticipation.template.html'),
+    bindings: {
+        participation: '<',
+        collaborative: '<',
+    },
+    controller: [
+        '$scope',
+        '$translate',
+        'StudentExamRes',
+        'Exam',
+        'Assessment',
+        function($scope, $translate, StudentExamRes, Exam, Assessment) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    const state = vm.participation.exam.state;
-                    if (state === 'GRADED_LOGGED' || state === 'REJECTED' || state === 'ARCHIVED'
-                        || (state === 'GRADED' && vm.participation.exam.autoEvaluationNotified)) {
-                        if (vm.collaborative) {
-                            // No need to load anything, because we have already everything.
-                            prepareReview(vm.participation.exam);
-                            return;
-                        }
-                        loadReview();
-                    }
-                };
-
-                vm.setCommentRead = function (exam) {
-                    return Assessment.setCommentRead(exam);
-                };
-
-                const loadReview = function () {
-                    StudentExamRes.feedback.get({eid: vm.participation.exam.id},
-                        prepareReview
-                    );
-                };
-
-                $scope.$on('$localeChangeSuccess', function () {
-                    if (vm.participation.reviewedExam) {
-                        vm.participation.reviewedExam.grade.displayName =
-                            Exam.getExamGradeDisplayName(vm.participation.reviewedExam.grade.name);
-                    }
-                });
-
-                const prepareReview = function (exam) {
-                    if (!exam.grade) {
-                        exam.grade = {name: 'NONE'};
-                    }
-                    if (exam.languageInspection) {
-                        exam.grade.displayName = $translate.instant(
-                            exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected');
-                        exam.contentGrade = Exam.getExamGradeDisplayName(exam.grade.name);
-                        exam.gradedTime = exam.languageInspection.finishedAt;
-                    } else {
-                        exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
-                    }
-                    Exam.setCredit(exam);
-                    if (exam.creditType) {
-                        exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
-                    }
-                    vm.participation.reviewedExam = exam;
+            vm.$onInit = function() {
+                const state = vm.participation.exam.state;
+                if (
+                    state === 'GRADED_LOGGED' ||
+                    state === 'REJECTED' ||
+                    state === 'ARCHIVED' ||
+                    (state === 'GRADED' && vm.participation.exam.autoEvaluationNotified)
+                ) {
                     if (vm.collaborative) {
-                        // No need to load separate scores.
-                        prepareScores(exam);
+                        // No need to load anything, because we have already everything.
+                        prepareReview(vm.participation.exam);
                         return;
                     }
-                    StudentExamRes.scores.get({eid: vm.participation.exam.id},
-                        prepareScores);
+                    loadReview();
                 }
+            };
 
-                const prepareScores = function (data) {
-                    vm.participation.scores = {
-                        maxScore: data.maxScore,
-                        totalScore: data.totalScore,
-                        approvedAnswerCount: data.approvedAnswerCount,
-                        rejectedAnswerCount: data.rejectedAnswerCount,
-                        hasApprovedRejectedAnswers: data.approvedAnswerCount + data.rejectedAnswerCount > 0
-                    };
+            vm.setCommentRead = function(exam) {
+                return Assessment.setCommentRead(exam);
+            };
+
+            const loadReview = function() {
+                StudentExamRes.feedback.get({ eid: vm.participation.exam.id }, prepareReview);
+            };
+
+            $scope.$on('$localeChangeSuccess', function() {
+                if (vm.participation.reviewedExam) {
+                    vm.participation.reviewedExam.grade.displayName = Exam.getExamGradeDisplayName(
+                        vm.participation.reviewedExam.grade.name,
+                    );
                 }
-            }
-        ]
-    });
+            });
 
+            const prepareReview = function(exam) {
+                if (!exam.grade) {
+                    exam.grade = { name: 'NONE' };
+                }
+                if (exam.languageInspection) {
+                    exam.grade.displayName = $translate.instant(
+                        exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected',
+                    );
+                    exam.contentGrade = Exam.getExamGradeDisplayName(exam.grade.name);
+                    exam.gradedTime = exam.languageInspection.finishedAt;
+                } else {
+                    exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
+                }
+                Exam.setCredit(exam);
+                if (exam.creditType) {
+                    exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
+                }
+                vm.participation.reviewedExam = exam;
+                if (vm.collaborative) {
+                    // No need to load separate scores.
+                    prepareScores(exam);
+                    return;
+                }
+                StudentExamRes.scores.get({ eid: vm.participation.exam.id }, prepareScores);
+            };
 
-
-
+            const prepareScores = function(data) {
+                vm.participation.scores = {
+                    maxScore: data.maxScore,
+                    totalScore: data.totalScore,
+                    approvedAnswerCount: data.approvedAnswerCount,
+                    rejectedAnswerCount: data.rejectedAnswerCount,
+                    hasApprovedRejectedAnswers: data.approvedAnswerCount + data.rejectedAnswerCount > 0,
+                };
+            };
+        },
+    ],
+});

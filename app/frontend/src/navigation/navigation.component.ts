@@ -21,7 +21,6 @@ import { Link, NavigationService } from './navigation.service';
 export const NavigationComponent: angular.IComponentOptions = {
     template: require('./navigation.template.html'),
     controller: class NavigationController implements angular.IComponentController {
-
         appVersion: string;
         links: Link[];
         mobileMenuOpen: boolean;
@@ -33,7 +32,8 @@ export const NavigationComponent: angular.IComponentOptions = {
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private Navigation: NavigationService,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
 
             this.$rootScope.$on('userUpdated', () => {
@@ -48,7 +48,7 @@ export const NavigationComponent: angular.IComponentOptions = {
             this.user = this.Session.getUser();
             if (this.user && this.user.isAdmin) {
                 this.Navigation.getAppVersion()
-                    .then(resp => this.appVersion = resp.data.appVersion)
+                    .then(resp => (this.appVersion = resp.data.appVersion))
                     .catch(e => toastr.error(e.data));
                 this.getLinks(true);
             } else if (this.user) {
@@ -60,13 +60,14 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         isActive = (link: Link): boolean => link.href === this.$location.path();
 
-        openMenu = () => this.mobileMenuOpen = !this.mobileMenuOpen;
+        openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 
         switchLanguage = (key: string) => this.Session.switchLanguage(key);
 
         private getLinks = (checkInteroperability: boolean) => {
             if (checkInteroperability) {
-                this.$http.get('/app/settings/iop/examCollaboration')
+                this.$http
+                    .get('/app/settings/iop/examCollaboration')
                     .then((resp: angular.IHttpResponse<{ isExamCollaborationSupported: boolean }>) => {
                         this.isInteroperable = resp.data.isExamCollaborationSupported;
                         this.links = this.Navigation.getLinks(this.isInteroperable);
@@ -75,7 +76,6 @@ export const NavigationComponent: angular.IComponentOptions = {
             } else {
                 this.links = this.Navigation.getLinks(false);
             }
-        }
-
-    }
+        };
+    },
 };

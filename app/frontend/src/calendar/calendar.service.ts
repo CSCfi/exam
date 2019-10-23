@@ -57,16 +57,14 @@ export interface OpeningHours {
 }
 
 export class CalendarService {
-
     constructor(
         private $q: angular.IQService,
         private $http: angular.IHttpService,
         private $routeParams: angular.route.IRouteParamsService,
-        private $translate: angular.translate.ITranslateService,
         private $location: angular.ILocationService,
         private DateTime: DateTimeService,
         private Session: SessionService,
-        private uiCalendarConfig: any
+        private uiCalendarConfig: any,
     ) {
         'ngInject';
     }
@@ -77,40 +75,54 @@ export class CalendarService {
         return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
-    private reserveInternal(slot: Slot, accs: { filtered: boolean; id: number }[], promise: IDeferred<any>,
-        collaborative: boolean) {
-
-        slot.aids = accs.filter(
-            function (item) {
+    private reserveInternal(
+        slot: Slot,
+        accs: { filtered: boolean; id: number }[],
+        promise: IDeferred<any>,
+        collaborative: boolean,
+    ) {
+        slot.aids = accs
+            .filter(function(item) {
                 return item.filtered;
             })
-            .map(function (item) {
+            .map(function(item) {
                 return item.id;
             });
         const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
-        this.$http.post(url, slot).then(() => {
-            this.$location.path('/');
-            promise.resolve();
-        }).catch((resp) => {
-            toastr.error(resp.data);
-            promise.reject(resp);
-        });
+        this.$http
+            .post(url, slot)
+            .then(() => {
+                this.$location.path('/');
+                promise.resolve();
+            })
+            .catch(resp => {
+                toastr.error(resp.data);
+                promise.reject(resp);
+            });
     }
 
     private reserveExternal(slot: Slot, promise: IDeferred<any>) {
-        this.$http.post('/integration/iop/reservations/external', slot).then(() => {
-            this.$location.path('/');
-            promise.resolve();
-        }).catch((resp) => {
-            toastr.error(resp.data);
-            promise.reject(resp);
-        });
+        this.$http
+            .post('/integration/iop/reservations/external', slot)
+            .then(() => {
+                this.$location.path('/');
+                promise.resolve();
+            })
+            .catch(resp => {
+                toastr.error(resp.data);
+                promise.reject(resp);
+            });
     }
 
-    reserve(start: moment.Moment, end: moment.Moment, room: Room,
-        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false,
-        sectionIds: number[] = []) {
-
+    reserve(
+        start: moment.Moment,
+        end: moment.Moment,
+        room: Room,
+        accs: { filtered: boolean; id: number }[],
+        org: { _id: string | null },
+        collaborative = false,
+        sectionIds: number[] = [],
+    ) {
         const deferred = this.$q.defer();
         const tz = room.localTimezone;
         const slot: Slot = {
@@ -119,7 +131,7 @@ export class CalendarService {
             examId: parseInt(this.$routeParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id,
-            sectionIds: sectionIds
+            sectionIds: sectionIds,
         };
         if (org._id !== null) {
             this.reserveExternal(slot, deferred);
@@ -135,10 +147,13 @@ export class CalendarService {
         const title = selector.text();
         const separator = ' — ';
         const endPart = title.split(separator)[1];
-        const startFragments: string[] = title.split(separator)[0].split('.').filter(function (x) {
-            // ignore empty fragments (introduced if title already correctly formatted)
-            return x;
-        });
+        const startFragments: string[] = title
+            .split(separator)[0]
+            .split('.')
+            .filter(function(x) {
+                // ignore empty fragments (introduced if title already correctly formatted)
+                return x;
+            });
         let newTitle = '';
         if (startFragments.length < 3) {
             startFragments.forEach(f => {
@@ -168,10 +183,9 @@ export class CalendarService {
             WEDNESDAY: { ord: 3, name: weekday(3).toLocaleDateString(locale, options) },
             THURSDAY: { ord: 4, name: weekday(4).toLocaleDateString(locale, options) },
             FRIDAY: { ord: 5, name: weekday(5).toLocaleDateString(locale, options) },
-            SATURDAY: { ord: 6, name: weekday(6).toLocaleDateString(locale, options) }
+            SATURDAY: { ord: 6, name: weekday(6).toLocaleDateString(locale, options) },
         };
     }
-
 
     processOpeningHours(room: Room): OpeningHours[] {
         const weekdayNames = this.getWeekdayNames();
@@ -184,14 +198,14 @@ export class CalendarService {
                     name: weekdayNames[dwh.weekday].name,
                     ref: dwh.weekday,
                     ord: weekdayNames[dwh.weekday].ord,
-                    periods: []
+                    periods: [],
                 };
                 openingHours.push(obj);
             }
             const hours = this.findOpeningHours(dwh, openingHours);
             hours.periods.push(
-                moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' +
-                moment.tz(dwh.endTime, tz).format('HH:mm'));
+                moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' + moment.tz(dwh.endTime, tz).format('HH:mm'),
+            );
         });
         openingHours.forEach(oh => {
             oh.periodText = oh.periods.sort().join(', ');
@@ -215,8 +229,8 @@ export class CalendarService {
         }
         const start = moment.max(moment(), view.start);
         const end = view.end;
-        const events = room.calendarExceptionEvents.filter(function (e) {
-            return (moment(e.startDate) > start && moment(e.endDate) < end);
+        const events = room.calendarExceptionEvents.filter(function(e) {
+            return moment(e.startDate) > start && moment(e.endDate) < end;
         });
         return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
@@ -227,31 +241,35 @@ export class CalendarService {
 
     getEarliestOpening(room: Room): moment.Moment {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map(function (dwh) {
+        const openings = room.defaultWorkingHours.map(function(dwh) {
             const start = moment.tz(dwh.startTime, tz);
-            return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
+            return moment()
+                .hours(start.hours())
+                .minutes(start.minutes())
+                .seconds(start.seconds());
         });
         return moment.min(...openings);
     }
 
     getLatestClosing(room: Room): moment.Moment {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map(function (dwh) {
+        const closings = room.defaultWorkingHours.map(function(dwh) {
             const end = moment.tz(dwh.endTime, tz);
-            return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
+            return moment()
+                .hours(end.hours())
+                .minutes(end.minutes())
+                .seconds(end.seconds());
         });
         return moment.max(...closings);
     }
 
     getClosedWeekdays(room: Room): number[] {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-        const openedDays = room.defaultWorkingHours.map(function (dwh) {
+        const openedDays = room.defaultWorkingHours.map(function(dwh) {
             return weekdays.indexOf(dwh.weekday);
         });
-        return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
+        return [0, 1, 2, 3, 4, 5, 6].filter(function(x) {
             return openedDays.indexOf(x) === -1;
         });
     }
-
 }
-

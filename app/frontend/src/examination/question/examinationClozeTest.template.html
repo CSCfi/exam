@@ -10,7 +10,7 @@
 </div>
 <div class="padl0 question-type-text">
     <span ng-if="$ctrl.sq.evaluationType === 'Selection'">
-         {{'sitnet_evaluation_select' | translate}}
+        {{'sitnet_evaluation_select' | translate}}
     </span>
     <span ng-if="$ctrl.sq.evaluationType !== 'Selection'">
         {{$ctrl.sq.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
@@ -18,8 +18,6 @@
 </div>
 <div class="row top-margin-1">
     <div class="col-md-12">
-        <button ng-click="$ctrl.saveAnswer()"
-                class="green_button">{{'sitnet_save' | translate }}
-        </button>
+        <button ng-click="$ctrl.saveAnswer()" class="green_button">{{'sitnet_save' | translate }}</button>
     </div>
 </div>

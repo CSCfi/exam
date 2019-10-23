@@ -16,8 +16,6 @@
  */
 import * as angular from 'angular';
 
-declare function require(name: string): any;
-
 interface Selection {
     value: any;
 }
@@ -35,7 +33,7 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         options: '<',
         limitTo: '<',
         placeholder: '@',
-        onSelect: '&'
+        onSelect: '&',
     },
     controller: class DropDownSelectController implements angular.IComponentController {
         options: Option[]; // everything
@@ -49,8 +47,7 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
 
         constructor() {
             this.labelFilter = (option: Option): boolean => {
-                return option.label != null &&
-                    option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+                return option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
             };
         }
 
@@ -92,6 +89,6 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         clearSelection = () => {
             delete this.selected;
             this.onSelect();
-        }
-    }
+        };
+    },
 };

@@ -17,10 +17,8 @@ import * as toast from 'toastr';
 
 import { Question, Tag } from '../../exam/exam.model';
 
-
 export const TagPickerComponent: angular.IComponentOptions = {
-    template:
-        `<div class="col-md-12 margin-20 padl0 padr0">
+    template: `<div class="col-md-12 margin-20 padl0 padr0">
             <div class="col-md-3 exam-basic-title padl0">
                 {{ 'sitnet_tag_question' | translate}}
                 <sup><img popover-placement="right" popover-trigger="'mouseenter'"
@@ -54,7 +52,7 @@ export const TagPickerComponent: angular.IComponentOptions = {
             </div>
         </div>`,
     bindings: {
-        question: '<'
+        question: '<',
     },
     controller: class TagPickerController implements angular.IComponentController, angular.IOnInit {
         question: Question & { newTag: Tag };
@@ -72,34 +70,32 @@ export const TagPickerComponent: angular.IComponentOptions = {
 
         getTags = (filter: string): Promise<Tag[]> =>
             new Promise<Tag[]>((resolve, reject) => {
-                this.$http.get('/app/tags', { params: { filter: filter } })
-                    .then(
-                        (resp: angular.IHttpResponse<Tag[]>) => {
-                            const tags = resp.data;
-                            if (filter) {
-                                tags.unshift({ id: 0, name: filter });
-                            }
-                            // filter out the ones already tagged for this question and slice
-                            const filtered = tags.filter(tag =>
-                                this.question.tags.every(qt => qt.name !== tag.name)
-                            ).slice(0, 15);
-                            resolve(filtered);
-                        })
+                this.$http
+                    .get('/app/tags', { params: { filter: filter } })
+                    .then((resp: angular.IHttpResponse<Tag[]>) => {
+                        const tags = resp.data;
+                        if (filter) {
+                            tags.unshift({ id: 0, name: filter });
+                        }
+                        // filter out the ones already tagged for this question and slice
+                        const filtered = tags
+                            .filter(tag => this.question.tags.every(qt => qt.name !== tag.name))
+                            .slice(0, 15);
+                        resolve(filtered);
+                    })
                     .catch(error => {
                         toast.error(error.data);
                         reject();
                     });
-            })
+            });
 
         addTag = () => {
             this.question.tags.push(this.question.newTag);
             delete this.question.newTag;
         };
 
-        removeTag = (tag: Tag) =>
-            this.question.tags.splice(this.question.tags.indexOf(tag), 1);
-
-    }
-}
+        removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+    },
+};
 
 angular.module('app.question').component('tagPicker', TagPickerComponent);

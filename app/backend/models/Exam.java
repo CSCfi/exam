@@ -95,7 +95,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> examOwners;
 
     // Instruction written by teacher, shown during exam
@@ -116,12 +117,16 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @JsonManagedReference
     private Set<ExaminationDate> examinationDates;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private Set<ExaminationEventConfiguration> examinationEventConfigurations;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<Exam> children;
+    private List<Exam> children;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
@@ -230,7 +235,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Boolean requiresUserAgentAuth;
 
-    // SEB related ->
+    // SEB related -> TODO: REMOVE & REWRITE
 
     @Lob
     @JsonIgnore
@@ -264,6 +269,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setExaminationDates(Set<ExaminationDate> examinationDates) {
         this.examinationDates = examinationDates;
+    }
+
+    public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
+        return examinationEventConfigurations;
+    }
+
+    public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
+        this.examinationEventConfigurations = examinationEventConfigurations;
     }
 
     // Aggregate properties, required as fields by Ebean

@@ -21,12 +21,11 @@ import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { SessionComponent } from './session.component';
 import { SessionService } from './session.service';
 
-export default angular.module('app.session', [])
+export default angular
+    .module('app.session', [])
     .service('Session', SessionService)
     .component('devLogin', DevLoginComponent)
     .component('logout', LogoutComponent)
     .component('eulaDialog', EulaDialogComponent)
     .component('selectRoleDialog', SelectRoleDialogComponent)
-    .component('session', SessionComponent)
-    .name;
-
+    .component('session', SessionComponent).name;

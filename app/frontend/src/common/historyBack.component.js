@@ -16,15 +16,17 @@
 
 import angular from 'angular';
 
-angular.module('app.common')
-    .component('historyBack', {
-        template: require('./historyBack.template.html'),
-        controller: ['$window', function ($window) {
+angular.module('app.common').component('historyBack', {
+    template: require('./historyBack.template.html'),
+    controller: [
+        '$window',
+        function($window) {
             const vm = this;
 
-            vm.goBack = function (event) {
+            vm.goBack = function(event) {
                 event.preventDefault();
                 $window.history.back();
-            }
-        }]
-    });
+            };
+        },
+    ],
+});

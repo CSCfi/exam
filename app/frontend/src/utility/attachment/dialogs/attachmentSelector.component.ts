@@ -16,7 +16,6 @@ import * as angular from 'angular';
 
 import { FileService } from '../../file/file.service';
 
-
 declare function require(name: string): any;
 
 export interface FileResult {
@@ -32,7 +31,7 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
     bindings: {
         close: '&',
         dismiss: '&',
-        resolve: '<'
+        resolve: '<',
     },
     controller: class AttachmentSelectorController implements angular.IComponentController {
         close: (r: FileResult) => void;
@@ -43,27 +42,24 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         maxFileSize: number;
         attachmentFile: File;
 
-        constructor(
-            private Files: FileService
-        ) {
+        constructor(private Files: FileService) {
             'ngInject';
         }
 
         $onInit() {
             this.title = this.resolve.title || 'sitnet_attachment_selection';
             this.isTeacherModal = this.resolve.isTeacherModal;
-            this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
+            this.Files.getMaxFilesize().then(data => (this.maxFileSize = data.filesize));
         }
 
         ok() {
             this.close({
-                $value: { 'attachmentFile': this.attachmentFile }
+                $value: { attachmentFile: this.attachmentFile },
             });
         }
 
         cancel() {
             this.dismiss({ $value: 'cancel' });
         }
-
-    }
+    },
 };

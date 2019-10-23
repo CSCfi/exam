@@ -40,34 +40,38 @@ export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
     </div>
     `,
     controller: class CollaborativeExamSearchController implements angular.IComponentController {
-
         exams: CollaborativeExamInfo[];
 
         constructor(
             private Enrolment: EnrolmentService,
             private Language: any,
-            private CollaborativeExam: CollaborativeExamService) {
+            private CollaborativeExam: CollaborativeExamService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams.map(e =>
-                    _.assign(e, {
-                        reservationMade: false,
-                        enrolled: false,
-                        languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
-                    }));
-                this.exams.forEach(e => {
-                    this.Enrolment.getEnrolments(e.id, true).then(enrolments => {
-                        e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
-                        e.enrolled = enrolments.length > 0;
-                    }).catch(angular.noop);
-                });
-            }).catch(angular.noop);
+            this.CollaborativeExam.listExams()
+                .then((exams: CollaborativeExam[]) => {
+                    this.exams = exams.map(e =>
+                        _.assign(e, {
+                            reservationMade: false,
+                            enrolled: false,
+                            languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
+                        }),
+                    );
+                    this.exams.forEach(e => {
+                        this.Enrolment.getEnrolments(e.id, true)
+                            .then(enrolments => {
+                                e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+                                e.enrolled = enrolments.length > 0;
+                            })
+                            .catch(angular.noop);
+                    });
+                })
+                .catch(angular.noop);
         }
-
-    }
+    },
 };
 
 angular.module('app.enrolment').component('collaborativeExamSearch', CollaborativeExamSearchComponent);

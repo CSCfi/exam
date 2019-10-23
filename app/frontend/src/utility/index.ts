@@ -25,8 +25,8 @@ import { PaginatorComponent } from './paginator/paginator.component';
 import { DropDownSelectComponent } from './select/dropDownSelect.component';
 import runBlock from './utility.run';
 
-
-export default angular.module('app.utility', [])
+export default angular
+    .module('app.utility', [])
     .run(runBlock)
     .service('Attachment', AttachmentService)
     .service('DateTime', DateTimeService)
@@ -38,6 +38,4 @@ export default angular.module('app.utility', [])
     .component('paginator', PaginatorComponent)
     .directive('droppable', DroppableDirective.factory())
     .directive('draggableModal', DraggableModalDirective.factory())
-    .directive('sortable', SortableDirective.factory())
-    .name;
-
+    .directive('sortable', SortableDirective.factory()).name;

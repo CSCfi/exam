@@ -15,66 +15,72 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rStatement', {
-        template: require('./statement.template.html'),
-        bindings: {
-            exam: '<'
-        },
-        controller: ['$uibModal', 'Maturity', 'Attachment', 'Files',
-            function ($modal, Maturity, Attachment, Files) {
+angular.module('app.review').component('rStatement', {
+    template: require('./statement.template.html'),
+    bindings: {
+        exam: '<',
+    },
+    controller: [
+        '$uibModal',
+        'Maturity',
+        'Attachment',
+        'Files',
+        function($modal, Maturity, Attachment, Files) {
+            const vm = this;
 
-                const vm = this;
+            vm.hasGoneThroughLanguageInspection = function() {
+                return vm.exam.languageInspection && vm.exam.languageInspection.finishedAt;
+            };
 
-                vm.hasGoneThroughLanguageInspection = function () {
-                    return vm.exam.languageInspection && vm.exam.languageInspection.finishedAt;
-                };
+            vm.toggleEditorVisibility = function() {
+                const selector = $('.body');
+                if (vm.hideEditor) {
+                    selector.show();
+                } else {
+                    selector.hide();
+                }
+                vm.hideEditor = !vm.hideEditor;
+            };
 
-                vm.toggleEditorVisibility = function () {
-                    const selector = $('.body');
-                    if (vm.hideEditor) {
-                        selector.show();
-                    } else {
-                        selector.hide();
-                    }
-                    vm.hideEditor = !vm.hideEditor;
-                };
+            vm.saveInspectionStatement = function() {
+                Maturity.saveInspectionStatement(vm.exam).then(function(data) {
+                    angular.extend(vm.exam.languageInspection.statement, data);
+                });
+            };
 
-                vm.saveInspectionStatement = function () {
-                    Maturity.saveInspectionStatement(vm.exam).then(function (data) {
-                        angular.extend(vm.exam.languageInspection.statement, data);
-                    });
-                };
+            vm.downloadStatementAttachment = function() {
+                Attachment.downloadStatementAttachment(vm.exam);
+            };
 
-                vm.downloadStatementAttachment = function () {
-                    Attachment.downloadStatementAttachment(vm.exam);
-                };
+            vm.removeStatementAttachment = function() {
+                Attachment.removeStatementAttachment(vm.exam);
+            };
 
-                vm.removeStatementAttachment = function () {
-                    Attachment.removeStatementAttachment(vm.exam);
-                };
-
-                vm.selectFile = function () {
-                    $modal.open({
+            vm.selectFile = function() {
+                $modal
+                    .open({
                         backdrop: 'static',
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
                         resolve: {
-                            isTeacherModal: function () {
+                            isTeacherModal: function() {
                                 return true;
-                            }
-                        }
-                    }).result.then(function (fileData) {
-                        Maturity.saveInspectionStatement(vm.exam).then(function (data) {
+                            },
+                        },
+                    })
+                    .result.then(function(fileData) {
+                        Maturity.saveInspectionStatement(vm.exam).then(function(data) {
                             angular.extend(vm.exam.languageInspection.statement, data);
-                            Files.upload('/app/attachment/exam/' + vm.exam.id + '/statement',
-                                fileData.attachmentFile, {examId: vm.exam.id}, vm.exam.languageInspection.statement);
+                            Files.upload(
+                                '/app/attachment/exam/' + vm.exam.id + '/statement',
+                                fileData.attachmentFile,
+                                { examId: vm.exam.id },
+                                vm.exam.languageInspection.statement,
+                            );
                         });
                     });
-                };
-
-            }
-
-        ]
-    });
+            };
+        },
+    ],
+});

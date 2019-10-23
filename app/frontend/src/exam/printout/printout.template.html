@@ -4,15 +4,16 @@
     </div>
 
     <span class="toolbar">
-        <button class="btn btn-cancel" ng-click="$ctrl.exitPreview()">{{'sitnet_exit_preview' | translate}}</button>&nbsp;
-        <button class="btn btn-primary" ng-click="$ctrl.print()">{{'sitnet_print' | translate}}</button>&nbsp;
-        <button class="btn btn-primary" ng-if="$ctrl.exam.attachment" ng-click="$ctrl.printAttachment()">{{'sitnet_print_attachment'
-            | translate}}</button>
+        <button class="btn btn-cancel" ng-click="$ctrl.exitPreview()">{{'sitnet_exit_preview' | translate}}</button
+        >&nbsp; <button class="btn btn-primary" ng-click="$ctrl.print()">{{'sitnet_print' | translate}}</button>&nbsp;
+        <button class="btn btn-primary" ng-if="$ctrl.exam.attachment" ng-click="$ctrl.printAttachment()">
+            {{'sitnet_print_attachment' | translate}}
+        </button>
     </span>
 
     <div class="prow">
         <div class="col-md-12 center instruction">
-            <h3>TENTTI &dash; TENTAMEN &dash; EXAM</h3>
+            <h3>TENTTI &ndash; TENTAMEN &ndash; EXAM</h3>
         </div>
     </div>
     <div class="prow pbreak">
@@ -20,8 +21,10 @@
             <table class="infotable">
                 <tr>
                     <td colspan="2">
-                        <strong>Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
-                            course:</strong><br />
+                        <strong
+                            >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
+                            course:</strong
+                        ><br />
                         <h4>{{$ctrl.exam.course.code}}</h4>
                         <h4>{{$ctrl.exam.course.name}}</h4>
                     </td>
@@ -34,14 +37,17 @@
                 </tr>
                 <tr>
                     <td>
-                        <strong>Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong>
+                        <strong
+                            >Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong
+                        >
                         &nbsp;
                         <span ng-repeat="ed in $ctrl.exam.examinationDates | orderBy: 'date'">
                             {{ed.date |date:'dd.MM.yyyy'}}&nbsp;
                         </span>
                     </td>
                     <td>
-                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{$ctrl.exam.duration}}&nbsp;min.
+                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong
+                        >&nbsp;{{$ctrl.exam.duration}}&nbsp;min.
                     </td>
                 </tr>
                 <tr>
@@ -71,24 +77,25 @@
                     <td colspan="2">
                         <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
                         <label ng-repeat="l in $ctrl.exam.examLanguages | orderBy:'ord'" class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="true">{{ $ctrl.getLanguageName(l)
-                            }}
+                            <input type="checkbox" onclick="return false;" ng-checked="true" />{{
+                            $ctrl.getLanguageName(l) }}
                         </label>
                         <div>
                             <p>
-                                Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää arvioitavassa opintosuorituksessa suomen kieltä,
-                                vaikka opintojakson opetuskieli olisi englanti. Tämä ei koske vieraan kielen opintoja. (Kts.
-                                Koulutuksen johtosääntö 18 §)
+                                Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää
+                                arvioitavassa opintosuorituksessa suomen kieltä, vaikka opintojakson opetuskieli olisi
+                                englanti. Tämä ei koske vieraan kielen opintoja. (Kts. Koulutuksen johtosääntö 18 §)
                             </p>
                             <p>
-                                En student i det finska utbildningsprogrammet har rätt att använda finska i sin studieprestation, trots att studiekursens
-                                språk är engelska. Denna rätt berör inte studiekurser på främmande språk. (Se utbildningsinstruktioner
-                                18 §)
+                                En student i det finska utbildningsprogrammet har rätt att använda finska i sin
+                                studieprestation, trots att studiekursens språk är engelska. Denna rätt berör inte
+                                studiekurser på främmande språk. (Se utbildningsinstruktioner 18 §)
                             </p>
                             <p>
-                                In a Finnish degree programme a student has a right to use Finnish language for their study attainment, even though the language
-                                of instruction is English, (excluding language studies) even when the language of instruction
-                                is other than Finnish. (See the Education Regulations 18 §)
+                                In a Finnish degree programme a student has a right to use Finnish language for their
+                                study attainment, even though the language of instruction is English, (excluding
+                                language studies) even when the language of instruction is other than Finnish. (See the
+                                Education Regulations 18 §)
                             </p>
                         </div>
                     </td>
@@ -121,24 +128,41 @@
             </div>
         </div>
         <div ng-repeat="esq in es.sectionQuestions | orderBy:'sequenceNumber'" class="prow question">
-            <span class="col-md-8"><strong>{{ esq.sequenceNumber + 1}}.&nbsp;{{ $ctrl.getQuestionTypeName(esq) }}</strong></span>
-            <span class="col-md-4"><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span>
-            <span class="col-md-12 question" ng-if="esq.answerInstructions.length > 0"><strong>Ohjeet / Anvisning / Instructions:</strong><br
-                /> {{esq.answerInstructions}}
+            <span class="col-md-8"
+                ><strong>{{ esq.sequenceNumber + 1}}.&nbsp;{{ $ctrl.getQuestionTypeName(esq) }}</strong></span
+            >
+            <span class="col-md-4"
+                ><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
+            >
+            <span class="col-md-12 question" ng-if="esq.answerInstructions.length > 0"
+                ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
+                {{esq.answerInstructions}}
             </span>
-            <span class="col-md-12 question" ng-if="esq.question.type !== 'ClozeTestQuestion'" mathjax ng-bind-html="$ctrl.trustAsHtml(esq.question.question)"></span>
-            <span class="col-md-12 question" ng-if="esq.question.type === 'ClozeTestQuestion'" mathjax ng-bind-html="$ctrl.trustAsHtml(esq.clozeTestAnswer.question)"></span>
-            <span ng-if="esq.question.type === 'MultipleChoiceQuestion' || esq.question.type === 'WeightedMultipleChoiceQuestion'" class="col-md-12">
+            <span
+                class="col-md-12 question"
+                ng-if="esq.question.type !== 'ClozeTestQuestion'"
+                mathjax
+                ng-bind-html="$ctrl.trustAsHtml(esq.question.question)"
+            ></span>
+            <span
+                class="col-md-12 question"
+                ng-if="esq.question.type === 'ClozeTestQuestion'"
+                mathjax
+                ng-bind-html="$ctrl.trustAsHtml(esq.clozeTestAnswer.question)"
+            ></span>
+            <span
+                ng-if="esq.question.type === 'MultipleChoiceQuestion' || esq.question.type === 'WeightedMultipleChoiceQuestion'"
+                class="col-md-12"
+            >
                 <div ng-repeat="o in esq.options">
                     <div ng-if="esq.question.type === 'WeightedMultipleChoiceQuestion'" class="checkbox">
-                        <label><input type="checkbox" onclick="return false;" value="">{{o.option.option}}</label>
+                        <label><input type="checkbox" onclick="return false;" value="" />{{o.option.option}}</label>
                     </div>
                     <div ng-if="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
-                        <label><input type="radio" onclick="return false;" name="">{{o.option.option}}</label>
+                        <label><input type="radio" onclick="return false;" name="" />{{o.option.option}}</label>
                     </div>
                 </div>
             </span>
         </div>
     </div>
-
 </div>

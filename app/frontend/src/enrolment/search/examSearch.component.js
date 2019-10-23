@@ -16,65 +16,71 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.enrolment')
-    .component('examSearch', {
-        template: require('./examSearch.template.html'),
-        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language',
-            function (StudentExamRes, EnrollRes, SettingsResource, Language) {
+angular.module('app.enrolment').component('examSearch', {
+    template: require('./examSearch.template.html'),
+    controller: [
+        'StudentExamRes',
+        'EnrollRes',
+        'SettingsResource',
+        'Language',
+        function(StudentExamRes, EnrollRes, SettingsResource, Language) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.filter = {};
-                    vm.loader = { loading: false };
-                    SettingsResource.enrolmentPermissions.get(function (setting) {
-                        vm.permissionCheck = setting;
-                        if (setting.active === true) {
-                            vm.loader.loading = true;
-                            search();
-                        }
-                    });
-                };
-
-                vm.search = function () {
-                    if (vm.permissionCheck.active === false) {
-                        if (vm.filter.text) {
-                            vm.loader.loading = true;
-                            search();
-                        } else {
-                            delete vm.exams;
-                        }
+            vm.$onInit = function() {
+                vm.filter = {};
+                vm.loader = { loading: false };
+                SettingsResource.enrolmentPermissions.get(function(setting) {
+                    vm.permissionCheck = setting;
+                    if (setting.active === true) {
+                        vm.loader.loading = true;
+                        search();
                     }
-                };
+                });
+            };
 
-                const search = function () {
-                    StudentExamRes.exams.query({ filter: vm.filter.text }, function (exams) {
-                        exams.forEach(function (exam) {
+            vm.search = function() {
+                if (vm.permissionCheck.active === false) {
+                    if (vm.filter.text) {
+                        vm.loader.loading = true;
+                        search();
+                    } else {
+                        delete vm.exams;
+                    }
+                }
+            };
+
+            const search = function() {
+                StudentExamRes.exams.query(
+                    { filter: vm.filter.text },
+                    function(exams) {
+                        exams.forEach(function(exam) {
                             if (!exam.examLanguages) {
                                 console.warn('No languages for exam #' + exam.id);
                                 exam.examLanguages = [];
                             }
-                            exam.languages = exam.examLanguages.map(function (lang) {
+                            exam.languages = exam.examLanguages.map(function(lang) {
                                 return Language.getLanguageNativeName(lang.code);
                             });
-
                         });
 
                         vm.exams = exams;
                         checkEnrolment();
                         vm.loader.loading = false;
-                    }, function (err) {
+                    },
+                    function(err) {
                         vm.loader.loading = false;
                         toast.error(err.data);
-                    });
+                    },
+                );
+            };
 
-                };
-
-                const checkEnrolment = function () {
-                    vm.exams.forEach(function (exam) {
-                        EnrollRes.check.get({ id: exam.id }, function (enrolments) {
+            const checkEnrolment = function() {
+                vm.exams.forEach(function(exam) {
+                    EnrollRes.check.get(
+                        { id: exam.id },
+                        function(enrolments) {
                             // check if student has reserved aquarium
-                            enrolments.forEach(function (enrolment) {
+                            enrolments.forEach(function(enrolment) {
                                 if (enrolment.reservation) {
                                     exam.reservationMade = true;
                                 }
@@ -82,16 +88,15 @@ angular.module('app.enrolment')
 
                             // enrolled to exam
                             exam.enrolled = true;
-                        }, function (err) {
+                        },
+                        function(err) {
                             // not enrolled or made reservations
                             exam.enrolled = false;
                             exam.reservationMade = false;
-                        });
-                    });
-
-                };
-
-            }
-        ]
-    });
-
+                        },
+                    );
+                });
+            };
+        },
+    ],
+});

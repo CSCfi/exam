@@ -12,13 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.administrative.reports')
-    .component('roomsReport', {
-        template: `
+angular.module('app.administrative.reports').component('roomsReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_all_reservations_from_room' | translate }}
@@ -55,38 +53,37 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        bindings: {
-            rooms: '<'
+    bindings: {
+        rooms: '<',
+    },
+    controller: [
+        '$translate',
+        '$filter',
+        'Files',
+        function($translate, $filter, Files) {
+            const vm = this;
+
+            vm.roomSelected = function(value) {
+                vm.room = value;
+            };
+
+            vm.getRoomReservationsByDate = function() {
+                const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
+                const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
+                if (vm.room) {
+                    Files.download(`/app/statistics/resbydate/${vm.room.id}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
+                } else {
+                    toast.error($translate.instant('sitnet_choose_room'));
+                }
+            };
+
+            vm.startDateChanged = function(date) {
+                vm.startDate = date;
+            };
+
+            vm.endDateChanged = function(date) {
+                vm.endDate = date;
+            };
         },
-        controller: ['$translate', '$filter', 'Files',
-            function ($translate, $filter, Files) {
-
-                const vm = this;
-
-                vm.roomSelected = function (value) {
-                    vm.room = value;
-                };
-
-                vm.getRoomReservationsByDate = function () {
-                    const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
-                    const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
-                    if (vm.room) {
-                        Files.download(`/app/statistics/resbydate/${vm.room.id}/${f}/${t}`,
-                            `reservations_${f}_${t}.xlsx`);
-                    } else {
-                        toast.error($translate.instant('sitnet_choose_room'));
-                    }
-                };
-
-                vm.startDateChanged = function (date) {
-                    vm.startDate = date;
-                };
-
-                vm.endDateChanged = function (date) {
-                    vm.endDate = date;
-                };
-
-            }
-        ]
-    });
-
+    ],
+});

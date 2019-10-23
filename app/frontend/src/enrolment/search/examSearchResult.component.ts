@@ -21,16 +21,14 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
     template: require('./examSearchResult.template.html'),
     bindings: {
         exam: '<',
-        collaborative: '<'
+        collaborative: '<',
     },
     controller: class ExamSearchResultController implements angular.IComponentController {
         exam: Exam;
         collaborative: boolean;
         enrolling: boolean;
 
-        constructor(
-            private $location: angular.ILocationService,
-            private Enrolment: EnrolmentService) {
+        constructor(private $location: angular.ILocationService, private Enrolment: EnrolmentService) {
             'ngInject';
         }
 
@@ -40,15 +38,13 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
             }
             this.enrolling = true;
             this.Enrolment.checkAndEnroll(this.exam, this.collaborative)
-                .then(() => this.enrolling = false)
+                .then(() => (this.enrolling = false))
                 .catch(angular.noop);
-        }
+        };
 
         makeReservation = () =>
-            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id)
-
-
-    }
+            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id);
+    },
 };
 
 angular.module('app.enrolment').component('examSearchResult', ExamSearchResultComponent);
