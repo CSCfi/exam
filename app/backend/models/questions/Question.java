@@ -61,7 +61,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
         @EnumValue("1") MultipleChoiceQuestion,
         @EnumValue("2") EssayQuestion,
         @EnumValue("3") WeightedMultipleChoiceQuestion,
-        @EnumValue("4") ClozeTestQuestion
+        @EnumValue("4") ClozeTestQuestion,
+        @EnumValue("5") ClaimChoiceQuestion
     }
 
     public enum EvaluationType {

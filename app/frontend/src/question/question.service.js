@@ -70,6 +70,8 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             case 'cloze':
                 questionType = 'ClozeTestQuestion';
                 break;
+            case 'claim':
+                questionType = 'ClaimChoiceQuestion';
         }
         return questionType;
     };
@@ -195,6 +197,7 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             case 'WeightedMultipleChoiceQuestion':
             case 'EssayQuestion':
             case 'ClozeTestQuestion':
+            case 'ClaimQuestion':
                 _filter = filter;
                 break;
             default:
