@@ -58,7 +58,9 @@
             >
                 {{ 'sitnet_calendar_instructions' | translate}}:
             </div>
-            <div class="student-exam-row-infobox">{{$ctrl.examInfo.enrollInstruction}}</div>
+            <div class="student-exam-row-infobox">
+                <div ng-bind-html="$ctrl.examInfo.enrollInstruction"></div>
+            </div>
         </div>
         <div class="student-exam-row">
             <span ng-if="$ctrl.showReservationWindowInfo()" class="text-info">

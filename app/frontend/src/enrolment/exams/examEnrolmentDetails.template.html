@@ -121,7 +121,9 @@
         <div class="student-exam-row-infolink infotitle" ng-show="$ctrl.exam.executionType.type !== 'MATURITY'">
             {{ 'sitnet_view_instructions' | translate}}
         </div>
-        <div class="student-exam-row-infobox">{{$ctrl.exam.enrollInstruction}}</div>
+        <div class="student-exam-row-infobox">
+            <div ng-bind-html="$ctrl.exam.enrollInstruction"></div>
+        </div>
     </div>
 
     <div class="row margin-10 pad-15" ng-show="$ctrl.exam.executionType.type == 'MATURITY'">

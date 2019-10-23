@@ -68,8 +68,9 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong><br />
-                        {{ $ctrl.exam.enrollInstruction }}
+                        <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
+                        <br /> 
+                        <div ng-bind-html="$ctrl.exam.enrollInstruction"></div>
                     </td>
                 </tr>
                 <tr>
@@ -110,8 +111,9 @@
     </div>
     <div class="prow answer-instructions" ng-if="$ctrl.exam.instruction">
         <div class="col-md-12">
-            <strong>Ohjeet / Anvisning / Instructions:</strong><br />
-            {{$ctrl.exam.instruction}}
+            <strong>Ohjeet / Anvisning / Instructions:</strong>
+            <br />
+            <div ng-bind-html="$ctrl.exam.instruction"></div>
         </div>
     </div>
     <div ng-repeat="es in $ctrl.exam.examSections | orderBy:'index'">

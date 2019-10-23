@@ -94,7 +94,7 @@
                 <div class="student-exam-row-infolink">
                     <b>{{ 'sitnet_view_instructions' | translate}}:</b>
                 </div>
-                <div class="student-exam-row-infobox">{{$ctrl.enrolment.exam.enrollInstruction}}</div>
+                <div class="student-exam-row-infobox" ng-bind-html="$ctrl.enrolment.exam.enrollInstruction"></div>
             </div>
         </div>
     </div>
