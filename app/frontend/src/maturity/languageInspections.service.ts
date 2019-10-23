@@ -18,6 +18,7 @@ import * as uib from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
 
 import { LanguageInspection } from './maturity.model';
+import { StateService } from '@uirouter/core';
 
 export interface QueryParams {
     text?: string;
@@ -28,7 +29,7 @@ export interface QueryParams {
 export class LanguageInspectionService {
     constructor(
         private $http: ng.IHttpService,
-        private $location: ng.ILocationService,
+        private $state: StateService,
         private $uibModal: uib.IModalService,
         private $translate: ng.translate.ITranslateService,
         private dialogs: angular.dialogservice.IDialogService,
@@ -67,7 +68,7 @@ export class LanguageInspectionService {
         dialog.result.then(() => {
             this.$http
                 .put(`/app/inspection/${inspection.id}`, {})
-                .then(() => this.$location.path(`assessments/${inspection.exam.id}`))
+                .then(() => this.$state.go('assessment', { id: inspection.exam.id }))
                 .catch(err => toast.error(err.data));
         });
     };

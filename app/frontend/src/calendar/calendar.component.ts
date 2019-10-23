@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
+import { StateParams, StateService } from '@uirouter/core';
 import * as ng from 'angular';
 import angular = require('angular');
 import * as moment from 'moment';
@@ -84,9 +85,9 @@ export const CalendarComponent: ng.IComponentOptions = {
         constructor(
             private $http: ng.IHttpService,
             private $scope: ng.IScope,
-            private $location: ng.ILocationService,
+            private $state: StateService,
             private $translate: ng.translate.ITranslateService,
-            private $routeParams: ng.route.IRouteParamsService,
+            private $stateParams: StateParams,
             private dialogs: angular.dialogservice.IDialogService,
             private DateTime: DateTimeService,
             private Calendar: CalendarService,
@@ -116,12 +117,12 @@ export const CalendarComponent: ng.IComponentOptions = {
                 })
                 .catch(ng.noop);
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.$routeParams.id}/info`
-                : `/app/student/exam/${this.$routeParams.id}/info`;
+                ? `/integration/iop/exams/${this.$stateParams.id}/info`
+                : `/app/student/exam/${this.$stateParams.id}/info`;
             this.$http.get(url).then((resp: ng.IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
                 this.$http
-                    .get(`/app/calendar/enrolment/${this.$routeParams.id}/reservation`)
+                    .get(`/app/calendar/enrolment/${this.$stateParams.id}/reservation`)
                     .then((resp: ng.IHttpResponse<ReservationInfo>) => {
                         if (resp.data.optionalSections) {
                             this.examInfo.examSections
@@ -232,11 +233,11 @@ export const CalendarComponent: ng.IComponentOptions = {
                     this.$translate.instant('sitnet_confirm_external_reservation'),
                 )
                 .result.then(() => {
-                    this.$location.path('/iop/calendar/' + this.$routeParams.id);
+                    this.$state.go('externalCalendar', { id: this.$stateParams.id });
                 });
         };
 
-        makeInternalReservation = () => this.$location.path('/calendar/' + this.$routeParams.id);
+        makeInternalReservation = () => this.$state.go('calendar', { id: this.$stateParams.id });
 
         private adjust = (date: string, tz: string): string => {
             const adjusted: moment.Moment = moment.tz(date, tz);
@@ -273,7 +274,7 @@ export const CalendarComponent: ng.IComponentOptions = {
         ) {
             if (this.isExternal) {
                 this.$http
-                    .get(`/integration/iop/calendar/${this.$routeParams.id}/${room._id}`, {
+                    .get(`/integration/iop/calendar/${this.$stateParams.id}/${room._id}`, {
                         params: {
                             org: this.selectedOrganisation._id,
                             date: date,
@@ -283,8 +284,8 @@ export const CalendarComponent: ng.IComponentOptions = {
                     .catch(error);
             } else {
                 const url = this.isCollaborative
-                    ? `/integration/iop/exams/${this.$routeParams.id}/calendar/${room.id}`
-                    : `/app/calendar/${this.$routeParams.id}/${room.id}`;
+                    ? `/integration/iop/exams/${this.$stateParams.id}/calendar/${room.id}`
+                    : `/app/calendar/${this.$stateParams.id}/${room.id}`;
                 this.$http
                     .get(url, {
                         params: {

@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
-import * as toast from 'toastr';
 import * as _ from 'lodash';
-import { QuestionReviewService } from '../questionReview.service';
+import * as toast from 'toastr';
+
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { QuestionReview, ReviewQuestion } from '../../review.model';
+import { QuestionReviewService } from '../questionReview.service';
 
 export const QuestionAssessmentComponent: angular.IComponentOptions = {
     template: require('./questionAssessment.template.html'),
@@ -34,7 +35,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
         lockedAnswers: ReviewQuestion[] = [];
 
         constructor(
-            private $routeParams: angular.route.IRouteParamsService,
+            private $stateParams: StateParams,
             private $sce: angular.ISCEService,
             private $q: angular.IQService,
             private $translate: angular.translate.ITranslateService,
@@ -48,8 +49,8 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
 
         $onInit() {
             this.user = this.Session.getUser();
-            this.examId = this.$routeParams.id;
-            const ids = this.$routeParams.q || [];
+            this.examId = this.$stateParams.id;
+            const ids = this.$stateParams.q || [];
             this.QuestionReview.getReviews(this.examId, ids).then(reviews => {
                 reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
                 this.reviews = reviews;

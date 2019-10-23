@@ -56,13 +56,14 @@
                                     <a
                                         ng-if="$ctrl.enrolment.reservation.machine"
                                         class="text-info"
-                                        href="{{$ctrl.getLinkToCalendar()}}"
-                                        >{{'sitnet_student_change_reservation' | translate}}
+                                        ui-sref="{{$ctrl.getNextState()}}({ id: {{$ctrl.getNextStateParams()}} })"
+                                    >
+                                        {{'sitnet_student_change_reservation' | translate}}
                                     </a>
                                     <a
                                         ng-if="$ctrl.enrolment.reservation.externalReservation"
                                         class="text-info"
-                                        href="/iop/calendar/{{ $ctrl.enrolment.exam.id }}"
+                                        ui-sref="externalCalendar({ id: {{$ctrl.enrolment.exam.id}} })"
                                         >{{'sitnet_student_change_reservation' | translate}}
                                     </a>
                                 </span>
@@ -272,7 +273,9 @@
             </div>
 
             <div class="student-exam-row-infobox" ng-show="$ctrl.showInstructions">
-                <div ng-bind-html="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"></div>
+                <div
+                    ng-bind-html="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"
+                ></div>
             </div>
         </div>
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0">

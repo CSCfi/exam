@@ -34,7 +34,7 @@ class NoShowsController {
             this.dismiss({ $value: 'cancel' });
         };
         // Close modal if user clicked the back button and no changes made
-        $scope.$on('$routeChangeStart', () => {
+        $scope.$on('$stateChangeStart', () => {
             if (!$window.onbeforeunload) {
                 this.cancel();
             }

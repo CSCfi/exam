@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -27,7 +26,7 @@ angular.module('app.review').component('rGrading', {
     controller: [
         '$translate',
         '$scope',
-        '$routeParams',
+        '$stateParams',
         'Assessment',
         'CollaborativeAssessment',
         'Exam',
@@ -37,7 +36,7 @@ angular.module('app.review').component('rGrading', {
         function(
             $translate,
             $scope,
-            $routeParams,
+            $stateParams,
             Assessment,
             CollaborativeAssessment,
             Exam,
@@ -109,7 +108,7 @@ angular.module('app.review').component('rGrading', {
                     return;
                 }
                 if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.sendEmailMessage($routeParams.id, $routeParams.ref, vm.message.text).then(
+                    CollaborativeAssessment.sendEmailMessage($stateParams.id, $stateParams.ref, vm.message.text).then(
                         () => delete vm.message.text,
                     );
                 } else {
@@ -131,7 +130,7 @@ angular.module('app.review').component('rGrading', {
 
             vm.saveAssessmentInfo = function() {
                 if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.saveAssessmentInfo($routeParams.id, $routeParams.ref, vm.participation);
+                    CollaborativeAssessment.saveAssessmentInfo($stateParams.id, $stateParams.ref, vm.participation);
                 } else {
                     Assessment.saveAssessmentInfo(vm.exam);
                 }

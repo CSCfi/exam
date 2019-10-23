@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as _ from 'lodash';
+
 import { SessionService, User } from './session.service';
 
 export const SessionComponent: angular.IComponentOptions = {
@@ -26,7 +26,7 @@ export const SessionComponent: angular.IComponentOptions = {
         <navigation ng-hide="$ctrl.hideNavBar"></navigation>
         <div id="mainView" class="container-fluid"
              ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
-            <div ng-view/>
+            <div ui-view/>
         </div>
     </div>
     `,

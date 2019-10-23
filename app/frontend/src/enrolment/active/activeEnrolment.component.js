@@ -24,11 +24,11 @@ angular.module('app.enrolment').component('activeEnrolment', {
     },
     controller: [
         '$translate',
-        '$location',
+        '$state',
         'dialogs',
         'Enrolment',
         'Reservation',
-        function($translate, $location, dialogs, Enrolment, Reservation) {
+        function($translate, $state, dialogs, Enrolment, Reservation) {
             const vm = this;
 
             vm.removeReservation = function() {
@@ -49,10 +49,12 @@ angular.module('app.enrolment').component('activeEnrolment', {
                 }
             };
 
-            vm.getLinkToCalendar = function() {
-                return vm.enrolment.collaborativeExam
-                    ? '/calendar/collaborative/' + vm.enrolment.collaborativeExam.id
-                    : '/calendar/' + vm.enrolment.exam.id;
+            vm.getNextState = function() {
+                return vm.enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar';
+            };
+
+            vm.getNextStateParams = function() {
+                return vm.enrolment.collaborativeExam ? vm.enrolment.collaborativeExam.id : vm.enrolment.exam.id;
             };
 
             vm.addEnrolmentInformation = function() {
@@ -71,7 +73,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.goToCalendar = function() {
-                $location.path(vm.getLinkToCalendar());
+                $state.go(vm.getNextState(), { id: vm.getNextStateParams() });
             };
         },
     ],

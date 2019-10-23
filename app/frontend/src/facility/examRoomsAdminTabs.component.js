@@ -21,9 +21,9 @@ angular.module('app.facility').component('examRoomsAdminTabs', {
         '$translate',
         'Session',
         '$window',
-        '$location',
+        '$state',
         'Room',
-        function($translate, Session, $window, $location, Room) {
+        function($translate, Session, $window, $state, Room) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -35,7 +35,7 @@ angular.module('app.facility').component('examRoomsAdminTabs', {
                 Room.draft.get(
                     function(room) {
                         toast.info($translate.instant('sitnet_room_draft_created'));
-                        $location.path('/rooms/' + room.id);
+                        $state.go('room', { id: room.id });
                     },
                     function(error) {
                         toast.error(error.data);
@@ -60,7 +60,7 @@ angular.module('app.facility').component('examRoomsAdminTabs', {
             };
 
             vm.editMultipleRooms = function() {
-                $location.path('/rooms_edit/edit_multiple');
+                $state.go('multiRoom');
             };
 
             vm.goBack = function(event) {

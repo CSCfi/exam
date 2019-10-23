@@ -32,7 +32,7 @@ export const FeedbackComponent: angular.IComponentOptions = {
         constructor(private $scope: angular.IScope, private $window: angular.IWindowService, private Assessment: any) {
             'ngInject';
             // Close modal if user clicked the back button and no changes made
-            this.$scope.$on('$routeChangeStart', () => {
+            this.$scope.$on('$stateChangeStart', () => {
                 if (!this.$window.onbeforeunload) {
                     this.cancel();
                 }

@@ -25,8 +25,8 @@ angular.module('app.review').component('rGeneralInfo', {
     controller: [
         'Attachment',
         'Assessment',
-        '$routeParams',
-        function(Attachment, Assessment, $routeParams) {
+        '$stateParams',
+        function(Attachment, Assessment, $stateParams) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -50,8 +50,8 @@ angular.module('app.review').component('rGeneralInfo', {
                 let participationsApi = Assessment.participationsApi;
                 if (vm.collaborative) {
                     participationsApi = Assessment.collaborativeParticipationsApi;
-                    params.eid = $routeParams.id;
-                    params.aid = $routeParams.ref;
+                    params.eid = $stateParams.id;
+                    params.aid = $stateParams.ref;
                 }
                 participationsApi.query(params, handleParticipations);
             };

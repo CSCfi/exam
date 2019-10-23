@@ -12,24 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
 
-export default function run(
-    $route: angular.route.IRouteService,
-    $location: any,
-    $rootScope: angular.IRootScopeService,
-) {
+export default function run($state: StateService, $location: any, $rootScope: angular.IRootScopeService) {
     'ngInject';
 
     // Add location reload flag to original $location service.
+    // TODO: maybe try this with $state.go?
     const original = $location.path;
     $location.path = (path, reload) => {
         if (reload === false) {
-            const lastRoute = $route.current;
-            const un = $rootScope.$on('$locationChangeSuccess', function() {
-                $route.current = lastRoute;
-                un();
+            const lastRoute = $state.current;
+            const undo = $rootScope.$on('$locationChangeSuccess', () => {
+                $state.current = lastRoute;
+                undo();
             });
         }
         return original.apply($location, [path]);

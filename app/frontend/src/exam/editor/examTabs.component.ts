@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams, StateService } from '@uirouter/core';
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as toastr from 'toastr';
@@ -34,11 +35,11 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         constructor(
             private $http: angular.IHttpService,
-            private $routeParams: angular.route.IRouteParamsService,
+            private $stateParams: StateParams,
             private $translate: angular.translate.ITranslateService,
             private $window: angular.IWindowService,
             private $filter: angular.FilterFactory,
-            private $location: any, // this is the extension to angular's location service, hence any-type
+            private $state: StateService,
             private Session: SessionService,
             private ReviewList: any,
         ) {
@@ -54,8 +55,8 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             } else {
                 this.downloadExam();
             }
-            this.getReviews(this.$routeParams.id);
-            this.activeTab = parseInt(this.$routeParams.tab);
+            this.getReviews(this.$stateParams.id);
+            this.activeTab = parseInt(this.$stateParams.tab);
         };
 
         updateTitle = (code: string | null, name: string | null) => {
@@ -79,8 +80,8 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         onReviewsLoaded = (data: { reviews: unknown[] }) => (this.reviews = data.reviews);
 
         tabChanged = (index: number) => {
-            const path = this.collaborative ? '/exams/collaborative' : '/exams';
-            this.$location.path(`${path}/${this.exam.id}/${index + 1}`, false).replace();
+            const params = { id: this.exam.id, tab: index + 1 };
+            this.$state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params);
         };
 
         switchToBasicInfo = () => (this.activeTab = 1);
@@ -103,7 +104,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         };
 
         private downloadExam = () => {
-            this.$http.get(`/app/exams/${this.$routeParams.id}`).then(
+            this.$http.get(`/app/exams/${this.$stateParams.id}`).then(
                 (response: angular.IHttpResponse<Exam>) => {
                     const exam = response.data;
                     this.exam = exam;
@@ -115,7 +116,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         };
 
         private downloadCollaborativeExam = () => {
-            this.$http.get(`/integration/iop/exams/${this.$routeParams.id}`).then(
+            this.$http.get(`/integration/iop/exams/${this.$stateParams.id}`).then(
                 (response: angular.IHttpResponse<Exam>) => {
                     const exam = response.data;
                     this.exam = exam;

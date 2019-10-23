@@ -16,6 +16,7 @@
 import * as angular from 'angular';
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
+import { StateService } from '@uirouter/core';
 
 export const ExamSearchResultComponent: angular.IComponentOptions = {
     template: require('./examSearchResult.template.html'),
@@ -28,7 +29,7 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
         collaborative: boolean;
         enrolling: boolean;
 
-        constructor(private $location: angular.ILocationService, private Enrolment: EnrolmentService) {
+        constructor(private $state: StateService, private Enrolment: EnrolmentService) {
             'ngInject';
         }
 
@@ -43,7 +44,7 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
         };
 
         makeReservation = () =>
-            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id);
+            this.$state.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
     },
 };
 

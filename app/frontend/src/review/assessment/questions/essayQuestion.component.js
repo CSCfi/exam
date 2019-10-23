@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -27,11 +26,11 @@ angular.module('app.review').component('rEssayQuestion', {
     },
     controller: [
         '$sce',
-        '$routeParams',
+        '$stateParams',
         '$translate',
         'Assessment',
         'Attachment',
-        function($sce, $routeParams, $translate, Assessment, Attachment) {
+        function($sce, $stateParams, $translate, Assessment, Attachment) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -61,7 +60,7 @@ angular.module('app.review').component('rEssayQuestion', {
             };
 
             vm.insertEssayScore = function() {
-                Assessment.saveEssayScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                Assessment.saveEssayScore(vm.sectionQuestion, $stateParams.id, $stateParams.ref, vm.participation._rev)
                     .then(function(resp) {
                         toast.info($translate.instant('sitnet_graded'));
                         vm.onScore({ revision: resp.data ? resp.data.rev : undefined });

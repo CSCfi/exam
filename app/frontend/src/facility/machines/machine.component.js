@@ -20,16 +20,16 @@ angular.module('app.facility.machines').component('machine', {
     controller: [
         '$q',
         'dialogs',
-        '$routeParams',
-        '$location',
+        '$stateParams',
+        '$state',
         'Machines',
         '$translate',
-        function($q, dialogs, $routeParams, $location, Machines, $translate) {
+        function($q, dialogs, $stateParams, $state, Machines, $translate) {
             const vm = this;
 
             vm.$onInit = function() {
                 Machines.machine.get(
-                    { id: $routeParams.id },
+                    { id: $stateParams.id },
                     function(machine) {
                         vm.machine = machine;
                         Machines.software.query(function(data) {
@@ -62,7 +62,7 @@ angular.module('app.facility.machines').component('machine', {
                         { id: machine.id },
                         function() {
                             toast.info($translate.instant('sitnet_machine_removed'));
-                            $location.path('/rooms/');
+                            $state.go('rooms');
                         },
                         function(error) {
                             toast.error(error.data);
@@ -101,7 +101,7 @@ angular.module('app.facility.machines').component('machine', {
 
             vm.updateMachineAndExit = function() {
                 vm.updateMachine(vm.machine).then(function() {
-                    $location.path('/rooms/');
+                    $state.go('rooms');
                 });
             };
         },

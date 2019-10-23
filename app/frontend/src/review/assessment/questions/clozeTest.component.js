@@ -27,11 +27,11 @@ angular.module('app.review').component('rClozeTest', {
     },
     controller: [
         '$sce',
-        '$routeParams',
+        '$stateParams',
         '$translate',
         'Assessment',
         'Attachment',
-        function($sce, $routeParams, $translate, Assessment, Attachment) {
+        function($sce, $stateParams, $translate, Assessment, Attachment) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -61,7 +61,7 @@ angular.module('app.review').component('rClozeTest', {
             };
 
             vm.insertForcedScore = () => {
-                Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                Assessment.saveForcedScore(vm.sectionQuestion, $stateParams.id, $stateParams.ref, vm.participation._rev)
                     .then(resp => {
                         toast.info($translate.instant('sitnet_graded'));
                         vm.onScore({ revision: resp.data ? resp.data.rev : undefined });

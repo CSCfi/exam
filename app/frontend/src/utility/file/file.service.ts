@@ -31,7 +31,7 @@ export class FileService {
     ) {
         'ngInject';
 
-        const svg = new Blob([`<svg xmlns='http://www.w3.org/2000/svg'></svg>`], {
+        const svg = new Blob(["<svg xmlns='http://www.w3.org/2000/svg'></svg>"], {
             type: 'image/svg+xml;charset=utf-8',
         });
         const img = new Image();

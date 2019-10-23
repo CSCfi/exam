@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -33,10 +32,10 @@ angular.module('app.enrolment').component('examEnrolments', {
         '    </div>\n' +
         '</div>\n',
     controller: [
-        '$routeParams',
+        '$stateParams',
         'Enrolment',
         'Session',
-        function($routeParams, Enrolment, Session) {
+        function($stateParams, Enrolment, Session) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -45,7 +44,7 @@ angular.module('app.enrolment').component('examEnrolments', {
                     // We can not load resources before role is known.
                     return;
                 }
-                Enrolment.getEnrolmentInfo($routeParams.code, parseInt($routeParams.id)).then(
+                Enrolment.getEnrolmentInfo($stateParams.code, parseInt($stateParams.id)).then(
                     function(data) {
                         vm.exam = data;
                     },
@@ -53,7 +52,7 @@ angular.module('app.enrolment').component('examEnrolments', {
                         toast.error(err.data);
                     },
                 );
-                Enrolment.listEnrolments($routeParams.code, parseInt($routeParams.id)).then(function(data) {
+                Enrolment.listEnrolments($stateParams.code, parseInt($stateParams.id)).then(function(data) {
                     vm.exams = data;
                 });
             };

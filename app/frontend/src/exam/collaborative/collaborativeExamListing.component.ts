@@ -18,6 +18,7 @@ import * as toast from 'toastr';
 import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExam } from '../exam.model';
 import { User, SessionService } from '../../session/session.service';
+import { StateService } from '@uirouter/core';
 
 export const CollaborativeExamListingComponent: angular.IComponentOptions = {
     template: `
@@ -71,7 +72,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
         user: User;
 
         constructor(
-            private $location: angular.ILocationService,
+            private $state: StateService,
             private $translate: angular.translate.ITranslateService,
             private Session: SessionService,
             private CollaborativeExam: CollaborativeExamService,
@@ -92,7 +93,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
             this.CollaborativeExam.createExam()
                 .then((exam: CollaborativeExam) => {
                     toast.info(this.$translate.instant('sitnet_exam_created'));
-                    this.$location.path(`/exams/collaborative/${exam.id}/1`);
+                    this.$state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
                 })
                 .catch(resp => toast.error(resp.data));
         }

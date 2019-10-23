@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.review').component('rFeedback', {
@@ -25,12 +24,12 @@ angular.module('app.review').component('rFeedback', {
     },
     controller: [
         '$uibModal',
-        '$routeParams',
+        '$stateParams',
         'Assessment',
         'CollaborativeAssessment',
         'Attachment',
         'Files',
-        function($modal, $routeParams, Assessment, CollaborativeAssessment, Attachment, Files) {
+        function($modal, $stateParams, Assessment, CollaborativeAssessment, Attachment, Files) {
             const vm = this;
 
             vm.toggleFeedbackVisibility = function() {
@@ -46,8 +45,8 @@ angular.module('app.review').component('rFeedback', {
             vm.saveFeedback = function() {
                 if (vm.parentCtrl.collaborative) {
                     CollaborativeAssessment.saveFeedback(
-                        $routeParams.id,
-                        $routeParams.ref,
+                        $stateParams.id,
+                        $stateParams.ref,
                         vm.parentCtrl.participation,
                     );
                 } else {

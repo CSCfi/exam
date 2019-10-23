@@ -40,7 +40,7 @@ export const AbortedExamsComponent: angular.IComponentOptions = {
             'ngInject';
 
             // Close modal if user clicked the back button and no changes made
-            this.$scope.$on('$routeChangeStart', () => {
+            this.$scope.$on('$stateChangeStart', () => {
                 if (!this.$window.onbeforeunload) {
                     this.cancel();
                 }

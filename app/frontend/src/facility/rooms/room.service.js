@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
+import toast from 'toastr';
 
 angular.module('app.facility.rooms').service('Room', [
     '$resource',
     '$translate',
-    '$route',
+    '$state',
     'dialogs',
     '$q',
     '$uibModal',
-    function($resource, $translate, $route, dialogs, $q, $modal) {
+    function($resource, $translate, $state, dialogs, $q, $modal) {
         const self = this;
 
         const week = {
@@ -162,7 +161,7 @@ angular.module('app.facility.rooms').service('Room', [
                     { id: room.id },
                     function() {
                         toast.info($translate.instant('sitnet_room_inactivated'));
-                        $route.reload();
+                        $state.reload();
                     },
                     function(error) {
                         toast.error(error.data);
@@ -176,7 +175,7 @@ angular.module('app.facility.rooms').service('Room', [
                 { id: room.id },
                 function() {
                     toast.info($translate.instant('sitnet_room_activated'));
-                    $route.reload();
+                    $state.reload();
                 },
                 function(error) {
                     toast.error(error.data);
