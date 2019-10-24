@@ -30,7 +30,7 @@ describe('AssessmentController', function() {
         mockHttpCalls();
         ctrl = $componentController('assessment', {
             $scope: scope,
-            $routeParams: { id: 1 },
+            $stateParams: { id: 1 },
             Assessment: createMockAssessment(),
             CollaborativeAssessment: {},
             Question: createMockQuestion(),
