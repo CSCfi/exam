@@ -14,7 +14,7 @@
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
+import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

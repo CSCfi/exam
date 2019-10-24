@@ -12,11 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import moment from 'moment';
 
-angular.module('app.exam').component('printoutListing', {
+
+angular.module('app.printout')
+    .component('printoutListing', {
     template:
         '<div id="sitnet-header" class="header">\n' +
         '    <div class="col-md-12 header-wrapper">\n' +

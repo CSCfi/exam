@@ -46,7 +46,7 @@ export class DroppableDirective implements IDirective {
 
         const initDroppable = (scope: DroppableScope, element: IAugmentedJQuery, dropDisabled: boolean) => {
             element.droppable({
-                drop: (event: Event, ui: JQueryUI.DroppableEventUIParam) => {
+                drop: (event: unknown, ui: JQueryUI.DroppableEventUIParam) => {
                     if (dropDisabled) {
                         toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
                     } else if (

@@ -16,6 +16,7 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
@@ -33,15 +34,15 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        @Inject('$routeParams') private RouteParams: any,
+        @Inject('$stateParams') private StateParams: StateParams,
         private translate: TranslateService,
         private location: Location,
     ) {}
 
     ngOnInit() {
-        if (this.RouteParams.id) {
+        if (this.StateParams.id) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.RouteParams.id}`).subscribe(
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.StateParams.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');

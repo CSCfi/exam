@@ -20,9 +20,9 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
+import { AssessmentService } from '../../review/assessment/assessment.service';
 import { SessionService } from '../../session/session.service';
 import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
-import { AssessmentService } from '../../review/assessment/assessment.service';
 
 @Component({
     selector: 'exam-participation',

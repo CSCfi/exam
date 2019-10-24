@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Inject, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Options } from 'fullcalendar';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { CalendarComponent } from 'ng-fullcalendar';
+
 import { CalendarService, Room } from './calendar.service';
 
 declare let $: any;
@@ -39,14 +40,15 @@ export class BookingCalendarComponent implements OnInit {
 
     @ViewChild(CalendarComponent) bookingCalendar: CalendarComponent;
 
-    calendarOptions: Options;
+    calendarOptions: Options & {locale: string};
     defaultDate: moment.Moment;
 
     constructor(
-        @Inject('$routeParams') private RouteParams: any,
         private translate: TranslateService,
         private Calendar: CalendarService,
-    ) {}
+    ) {
+        
+    }
 
     ngOnInit(): void {
         this.defaultDate = moment();

@@ -17,6 +17,7 @@ import { Location } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import { forkJoin, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -94,7 +95,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private location: Location,
         private translate: TranslateService,
-        @Inject('$routeParams') private RouteParams: any,
+        @Inject('$stateParams') private StateParams: StateParams,
         private DateTime: DateTimeService,
         private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
@@ -110,8 +111,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         });
 
         const url = this.isCollaborative
-            ? `/integration/iop/exams/${this.RouteParams.id}/info`
-            : `/app/student/exam/${this.RouteParams.id}/info`;
+            ? `/integration/iop/exams/${this.StateParams.id}/info`
+            : `/app/student/exam/${this.StateParams.id}/info`;
         this.http
             .get<ExamInfo>(url)
             .pipe(
@@ -128,7 +129,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
                         this.http.get<Accessibility[]>('/app/accessibility'),
                         this.http.get<Room[]>('/app/rooms'),
                         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop'),
-                        this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.RouteParams.id}/reservation`),
+                        this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.StateParams.id}/reservation`),
                     ).subscribe(resp => {
                         this.accessibilities = resp[0];
                         this.rooms = resp[1].map(r => Object.assign(r, { filtered: false }));
@@ -242,11 +243,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.Dialog.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_external_reservation'),
-        ).result.then(() => this.location.go('/iop/calendar/' + this.RouteParams.id));
+        ).result.then(() => this.location.go('/iop/calendar/' + this.StateParams.id));
     }
 
     makeInternalReservation() {
-        this.location.go('/calendar/' + this.RouteParams.id);
+        this.location.go('/calendar/' + this.StateParams.id);
     }
 
     private adjust(date, tz): string {
@@ -284,7 +285,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     ) {
         if (this.isExternal) {
             this.http
-                .get<AvailableSlot[]>(`/integration/iop/calendar/${this.RouteParams.id}/${room._id}`, {
+                .get<AvailableSlot[]>(`/integration/iop/calendar/${this.StateParams.id}/${room._id}`, {
                     params: {
                         org: this.selectedOrganisation._id,
                         date: date,
@@ -293,8 +294,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 .subscribe(success, error);
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.RouteParams.id}/calendar/${room.id}`
-                : `/app/calendar/${this.RouteParams.id}/${room.id}`;
+                ? `/integration/iop/exams/${this.StateParams.id}/calendar/${room.id}`
+                : `/app/calendar/${this.StateParams.id}/${room.id}`;
             this.http
                 .get(url, {
                     params: {

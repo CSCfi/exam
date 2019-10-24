@@ -32,7 +32,7 @@ angular.module('app.review').component('rGrading', {
     controller: [
         '$translate',
         '$scope',
-        '$routeParams',
+        '$stateParams',
         'Assessment',
         'CollaborativeAssessment',
         'Exam',
@@ -42,7 +42,7 @@ angular.module('app.review').component('rGrading', {
         function(
             $translate,
             $scope,
-            $routeParams,
+            $stateParams,
             Assessment: AssessmentService,
             CollaborativeAssessment: CollaborativeAssesmentService,
             Exam: ExamService,
@@ -111,8 +111,8 @@ angular.module('app.review').component('rGrading', {
                 }
                 if (vm.parentCtrl.collaborative) {
                     CollaborativeAssessment.sendEmailMessage(
-                        $routeParams.id,
-                        $routeParams.ref,
+                        $stateParams.id,
+                        $stateParams.ref,
                         vm.message.text,
                     ).subscribe(
                         () => {
@@ -140,7 +140,7 @@ angular.module('app.review').component('rGrading', {
 
             vm.saveAssessmentInfo = function() {
                 if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.saveAssessmentInfo($routeParams.id, $routeParams.ref, vm.participation);
+                    CollaborativeAssessment.saveAssessmentInfo($stateParams.id, $stateParams.ref, vm.participation);
                 } else {
                     Assessment.saveAssessmentInfo(vm.exam);
                 }

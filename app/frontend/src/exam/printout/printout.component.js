@@ -14,7 +14,8 @@
  */
 import angular from 'angular';
 
-angular.module('app.exam').component('printout', {
+angular.module('app.printout')
+    .component('printout', {
     template: require('./printout.template.html'),
     controller: [
         '$http',

@@ -14,6 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Inject, OnInit } from '@angular/core';
+import { StateParams } from '@uirouter/core';
 import * as _ from 'lodash';
 import { OrderPipe } from 'ngx-order-pipe';
 import { of } from 'rxjs';
@@ -72,12 +73,12 @@ export class ReservationComponentBase implements OnInit {
 
     constructor(
         private http: HttpClient,
-        @Inject('$routeParams') private RouteParams: any,
+        @Inject('$stateParams') private StateParams: StateParams,
         private orderPipe: OrderPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = RouteParams.eid;
+        this.examId = this.StateParams.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {

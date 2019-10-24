@@ -12,11 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import 'moment-timezone';
+
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
-import 'moment-timezone';
 import { Observable } from 'rxjs';
+
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
@@ -58,7 +61,7 @@ export interface OpeningHours {
 export class CalendarService {
     constructor(
         private http: HttpClient,
-        @Inject('$routeParams') private RouteParams: any,
+        @Inject('$stateParams') private StateParams: StateParams,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {}
@@ -94,7 +97,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.RouteParams.id),
+            examId: parseInt(this.StateParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,

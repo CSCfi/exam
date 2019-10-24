@@ -43,7 +43,7 @@ export class ExamEnrolmentsComponent implements OnInit {
     exams: EnrolmentInfo[];
 
     constructor(
-        @Inject('$routeParams') private RouteParams: any,
+        @Inject('$stateParams') private StateParams: any,
         private Enrolment: EnrolmentService,
         private Session: SessionService,
     ) {}
@@ -54,11 +54,11 @@ export class ExamEnrolmentsComponent implements OnInit {
             // We can not load resources before role is known.
             return;
         }
-        this.Enrolment.getEnrolmentInfo(this.RouteParams.code, parseInt(this.RouteParams.id)).subscribe(
+        this.Enrolment.getEnrolmentInfo(this.StateParams.code, parseInt(this.StateParams.id)).subscribe(
             exam => (this.exam = exam),
             err => toast.error(err.data),
         );
-        this.Enrolment.listEnrolments(this.RouteParams.code, parseInt(this.RouteParams.id)).subscribe(
+        this.Enrolment.listEnrolments(this.StateParams.code, parseInt(this.StateParams.id)).subscribe(
             exams => (this.exams = exams),
             err => toast.error(err.data),
         );

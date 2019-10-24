@@ -24,9 +24,9 @@ angular.module('app.review').component('rGeneralInfo', {
     },
     controller: [
         'Attachment',
-        '$routeParams',
+        '$stateParams',
         '$resource',
-        function(Attachment, $routeParams, $resource) {
+        function(Attachment, $stateParams, $resource) {
             const vm = this;
 
             const noShowApi = $resource('/app/usernoshows/:eid', {
@@ -64,8 +64,8 @@ angular.module('app.review').component('rGeneralInfo', {
                 let api = participationsApi;
                 if (vm.collaborative) {
                     api = collaborativeParticipationsApi;
-                    params.eid = $routeParams.id;
-                    params.aid = $routeParams.ref;
+                    params.eid = $stateParams.id;
+                    params.aid = $stateParams.ref;
                 }
                 api.query(params, handleParticipations);
             };

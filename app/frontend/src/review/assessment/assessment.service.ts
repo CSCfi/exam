@@ -163,9 +163,9 @@ export class AssessmentService {
         }
     };
 
-    isCommentRead = (exam: Examination) => exam.examFeedback.feedbackStatus;
+    isCommentRead = (exam: Exam | Examination) => exam.examFeedback.feedbackStatus;
 
-    setCommentRead = (exam: Examination) => {
+    setCommentRead = (exam: Exam | Examination) => {
         if (!this.isCommentRead(exam)) {
             const examFeedback = {
                 feedbackStatus: true,

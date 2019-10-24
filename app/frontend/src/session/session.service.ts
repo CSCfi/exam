@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
+import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import { defer, from, iif, interval, Observable, of, Subject, throwError, Unsubscribable } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';

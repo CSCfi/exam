@@ -74,13 +74,13 @@ angular.module('app.question').component('question', {
         onCancel: '&?',
     },
     controller: [
-        '$routeParams',
+        '$stateParams',
         '$scope',
         '$location',
         '$translate',
         'dialogs',
         'Question',
-        function($routeParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
+        function($stateParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -96,7 +96,7 @@ angular.module('app.question').component('question', {
                         return $translate.instant('sitnet_unsaved_data_may_be_lost');
                     };
                 } else {
-                    Question.getQuestion(vm.questionId || $routeParams.id).subscribe(
+                    Question.getQuestion(vm.questionId || $stateParams.id).subscribe(
                         (question: Question) => {
                             vm.question = question;
                             vm.currentOwners = angular.copy(vm.question.questionOwners);

@@ -13,23 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 // NOTE! AngularJS needs to be imported before Angular. Do not change this order of imports.
-import * as angularJS from 'angular';
-import 'angular-translate';
-import 'angular-animate';
-import 'angular-dialog-service';
-import 'angular-dynamic-locale';
-import 'angular-resource';
-import 'angular-route';
-import 'bootstrap';
-import 'angular-ui-bootstrap';
-import 'font-awesome/css/font-awesome.min.css';
-import 'ngstorage';
-import 'toastr/toastr.scss';
-
 import './administrative';
 import './assets/styles/main.scss';
 import './exam/printout';
 import './maturity';
+import 'angular-animate';
+import 'angular-dialog-service';
+import 'angular-dynamic-locale';
+import 'angular-resource';
+import 'angular-translate';
+import 'angular-ui-bootstrap';
+import 'angular-ui-router';
+import 'bootstrap';
+import 'font-awesome/css/font-awesome.min.css';
+import 'ngstorage';
+import 'toastr/toastr.scss';
+
+import * as angularJS from 'angular';
 
 import { AppComponent } from './app.component';
 import configs from './app.config';
@@ -43,11 +43,12 @@ import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
 import UtilityModule from './utility/utility.module.ajs';
 
-angularJS
+export const ajsApp = angularJS
     .module('app', [
         'ngAnimate',
         'ngResource',
-        'ngRoute',
+        'ui.router',
+        'ui.router.upgrade',
         'ngStorage',
         'ui.bootstrap',
         'pascalprecht.translate',
@@ -63,8 +64,9 @@ angularJS
         'app.enrolment',
         'app.maturity',
         'app.administrative',
-    ])
-    .config(configs)
+    ]);
+
+    ajsApp.config(configs)
     .run(runBlock)
     .component('examApp', AppComponent)
     .filter('truncate', filters.TruncateFilter.factory())

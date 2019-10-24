@@ -82,7 +82,7 @@ export const ReviewListComponent: angular.IComponentOptions = {
             this.gradedLoggedReviews = this.gradedLoggedReviews.filter(glr => ids.indexOf(glr.id) === -1);
         };
 
-        onRegistration = (reviews: (ExamParticipation & { selected: boolean; displayedGradingTime: string })[]) => {
+        onRegistration = (reviews: (ExamParticipation & { selected: boolean; displayedGradingTime: Date | undefined })[]) => {
             reviews.forEach(r => {
                 const index = this.gradedReviews.map(gr => gr.id).indexOf(r.id);
                 this.gradedReviews.splice(index, 1);
