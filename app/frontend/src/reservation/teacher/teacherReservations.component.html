@@ -1,43 +1,39 @@
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{'sitnet_reservations_new' | translate}}</div>
+                <div class="student-enroll-title">{{ 'sitnet_reservations_new' | translate }}</div>
             </div>
         </div>
     </div>
 
     <div class="reservation-border">
-
         <div class="pad30">
             <div class="col-md-2 reservation-search-titles">
-                <strong>{{'sitnet_begin' | translate}}</strong>
+                <strong>{{ 'sitnet_begin' | translate }}</strong>
                 <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
             </div>
             <div class="col-md-2 reservation-search-titles">
-                <strong>{{'sitnet_end' | translate}}</strong>
+                <strong>{{ 'sitnet_end' | translate }}</strong>
                 <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
             </div>
             <div class="col-md-2">
-                <strong class="reservation-search-titles">{{'sitnet_student' | translate}}</strong>
+                <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
                 <dropdown-select *ngIf="studentOptions" [options]="studentOptions" (onSelect)="studentChanged($event)">
                 </dropdown-select>
             </div>
             <div class="col-md-3">
-                <strong class="reservation-search-titles">{{'sitnet_exam' | translate}}</strong>
+                <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
                 <dropdown-select *ngIf="examOptions" [options]="examOptions" (onSelect)="examChanged($event)">
                 </dropdown-select>
             </div>
             <div class="col-md-3">
-                <strong class="reservation-search-titles">{{'sitnet_exam_state' | translate}}</strong>
+                <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
                 <dropdown-select *ngIf="stateOptions" [options]="stateOptions" (onSelect)="stateChanged($event)">
                 </dropdown-select>
             </div>
         </div>
 
-
         <reservation-details *ngIf="reservations" reservations="reservations"></reservation-details>
-
     </div>
 </div>

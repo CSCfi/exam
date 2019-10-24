@@ -21,7 +21,7 @@ import { QuestionReview } from '../../review.model';
 export const QuestionReviewListComponent: angular.IComponentOptions = {
     template: require('./questionReviews.template.html'),
     bindings: {
-        examId: '<'
+        examId: '<',
     },
     controller: class QuestionReviewListComponentController implements angular.IComponentController {
         examId: number;
@@ -34,10 +34,11 @@ export const QuestionReviewListComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.QuestionReview.getReviews(this.examId).then(resp => {
-                this.reviews = resp;
-            }).catch(err =>
-                toast.error(err));
+            this.QuestionReview.getReviews(this.examId)
+                .then(resp => {
+                    this.reviews = resp;
+                })
+                .catch(err => toast.error(err));
         }
 
         onReviewSelection = (id: number, selected: boolean) => {
@@ -47,26 +48,25 @@ export const QuestionReviewListComponent: angular.IComponentOptions = {
             } else if (index > -1) {
                 this.selectedReviews.splice(index, 1);
             }
-        }
+        };
 
         removeSelections = () => {
-            this.reviews.forEach(r => r.selected = false);
+            this.reviews.forEach(r => (r.selected = false));
             this.selectedReviews = [];
-        }
+        };
 
         addSelections = () => {
-            this.reviews.forEach(r => r.selected = true);
+            this.reviews.forEach(r => (r.selected = true));
             this.selectedReviews = this.reviews.map(r => r.question.id);
-        }
+        };
 
-        selectAll = () => this.selectionToggle ? this.addSelections() : this.removeSelections();
+        selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
         startReview = () =>
-            this.$location.path(`/assessments/${this.examId}/questions`)
-                .search('q', this.selectedReviews.map(i => i.toString()))
-
-    }
-
+            this.$location
+                .path(`/assessments/${this.examId}/questions`)
+                .search('q', this.selectedReviews.map(i => i.toString()));
+    },
 };
 
 angular.module('app.review').component('questionReviews', QuestionReviewListComponent);

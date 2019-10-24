@@ -12,25 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
+
+import { SessionService } from '../../../session/session.service';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
-import { SessionService } from '../../../session/session.service';
 
 export const QuestionReviewComponent: angular.IComponentOptions = {
     template: require('./questionReview.template.html'),
     bindings: {
         review: '<',
-        onSelection: '&'
+        onSelection: '&',
     },
     controller: class QuestionReviewControllers implements angular.IComponentController {
         review: QuestionReview;
-        onSelection: (_: { id: number | undefined, selected: boolean }) => any;
+        onSelection: (_: { id: number; selected: boolean }) => any;
 
-        constructor(private $sce: angular.ISCEService,
+        constructor(
+            private $sce: angular.ISCEService,
             private QuestionReview: QuestionReviewService,
-            private Session: SessionService
+            private Session: SessionService,
         ) {
             'ngInject';
         }
@@ -40,7 +41,7 @@ export const QuestionReviewComponent: angular.IComponentOptions = {
         sanitizeQuestion = () => this.$sce.trustAsHtml(this.review.question.question);
 
         reviewSelected = () => this.onSelection({ id: this.review.question.id, selected: this.review.selected });
-    }
+    },
 };
 
 angular.module('app.review').component('questionReview', QuestionReviewComponent);

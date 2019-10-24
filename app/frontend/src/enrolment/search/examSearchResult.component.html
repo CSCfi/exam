@@ -1,31 +1,35 @@
-<div class="student-enrolment-wrapper details-view row"
-    [ngClass]="(exam.enrolled && exam.reservationMade) ? '' : 'notactive'">
+<div
+    class="student-enrolment-wrapper details-view row"
+    [ngClass]="exam.enrolled && exam.reservationMade ? '' : 'notactive'"
+>
     <div class="col-xs-12 col-sm-12 col-md-10">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 pad5">
                 <span class="student-exam-row-title-blue">
-                    <a *ngIf="!collaborative" href="/enroll/exam/{{exam.id}}?code={{exam.course?.code}}">
-                        {{exam.name}}
+                    <a *ngIf="!collaborative" href="/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}">
+                        {{ exam.name }}
                     </a>
-                    <span *ngIf="collaborative">{{exam.name}}</span>
+                    <span *ngIf="collaborative">{{ exam.name }}</span>
                 </span>
                 <br />
                 <span *ngIf="exam.enrolled && !exam.reservationMade" class="student-exam-needs-reservation">
-                    {{'sitnet_state_needs_reservation_title' | translate}}
+                    {{ 'sitnet_state_needs_reservation_title' | translate }}
                 </span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
                 <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
-                <span *ngIf="!collaborative">{{exam.course.code}} {{ exam.course.name }}</span>
+                <span *ngIf="!collaborative">{{ exam.course.code }} {{ exam.course.name }}</span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
-                <span>{{'sitnet_exam_validity' | translate}}:</span>
+                <span>{{ 'sitnet_exam_validity' | translate }}:</span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
-                <span>{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} &ndash;
-                    {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span>
+                <span
+                    >{{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} &ndash;
+                    {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}</span
+                >
             </div>
         </div>
         <div class="row">
@@ -39,24 +43,26 @@
                 </span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
-                <span>{{'sitnet_exam_language' | translate}}:</span>
+                <span>{{ 'sitnet_exam_language' | translate }}:</span>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
-                <span>{{exam.languages.join(', ')}}</span>
+                <span>{{ exam.languages.join(', ') }}</span>
             </div>
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
         <div class="student-message-dialog-button-save" *ngIf="!exam.enrolled">
-            <button class="btn btn-success nowdt" (click)="enrollForExam()"
-                [disabled]="enrolling">{{'sitnet_enroll_to_exam' | translate}}</button>
+            <button class="btn btn-success nowdt" (click)="enrollForExam()" [disabled]="enrolling">
+                {{ 'sitnet_enroll_to_exam' | translate }}
+            </button>
         </div>
         <div class="student-message-dialog-button-save" *ngIf="exam.enrolled && !exam.reservationMade">
-            <button class="btn btn-success nowdt"
-                (click)="makeReservation()">{{'sitnet_student_new_reservation' | translate}}</button>
+            <button class="btn btn-success nowdt" (click)="makeReservation()">
+                {{ 'sitnet_student_new_reservation' | translate }}
+            </button>
         </div>
         <div class="student-message-dialog-button-save" *ngIf="exam.enrolled && exam.reservationMade">
-            <span class="student-exam-all-required">{{'sitnet_enrolled_to_exam' | translate}}</span>
+            <span class="student-exam-all-required">{{ 'sitnet_enrolled_to_exam' | translate }}</span>
         </div>
     </div>
 </div>

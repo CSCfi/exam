@@ -21,13 +21,11 @@ import * as toast from 'toastr';
 
 import { ExamEnrolment } from '../enrolment.model';
 
-
 @Component({
     selector: 'waiting-room',
-    template: require('./waitingRoom.component.html')
+    template: require('./waitingRoom.component.html'),
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-
     enrolment: any;
     isUpcoming: boolean;
     timeoutId: number;
@@ -37,8 +35,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         @Inject('$routeParams') private RouteParams: any,
         private translate: TranslateService,
-        private location: Location
-    ) { }
+        private location: Location,
+    ) {}
 
     ngOnInit() {
         if (this.RouteParams.id) {
@@ -52,7 +50,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
                     this.timeoutId = window.setTimeout(
-                        () => this.location.go(`/student/exam/${this.enrolment.exam.hash}`), offset);
+                        () => this.location.go(`/student/exam/${this.enrolment.exam.hash}`),
+                        offset,
+                    );
 
                     window.setTimeout(() => {
                         const room = this.enrolment.reservation.machine.room;
@@ -60,7 +60,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
                     }, 1000);
                 },
-                err => toast.error(err.data)
+                err => toast.error(err.data),
             );
         }
     }
@@ -69,7 +69,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         window.clearTimeout(this.timeoutId);
     }
 
-    private setOccasion = (reservation) => {
+    private setOccasion = reservation => {
         const tz = reservation.machine.room.localTimezone;
         const start = moment.tz(reservation.startAt, tz);
         const end = moment.tz(reservation.endAt, tz);
@@ -81,9 +81,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         }
         reservation.occasion = {
             startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm')
+            endAt: end.format('HH:mm'),
         };
-    }
+    };
 
     private calculateOffset = () => {
         const startsAt = moment(this.enrolment.reservation.startAt);
@@ -92,6 +92,5 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             startsAt.add(-1, 'hour');
         }
         return Date.parse(startsAt.format()) - new Date().getTime();
-    }
-
+    };
 }

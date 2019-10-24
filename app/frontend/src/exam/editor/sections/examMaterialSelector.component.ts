@@ -23,7 +23,7 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
     bindings: {
         section: '<',
         allMaterials: '<',
-        onChanges: '&'
+        onChanges: '&',
     },
     controller: class ExamMaterialSelectorController implements angular.IComponentController {
         section: ExamSection;
@@ -39,8 +39,9 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
 
         private filterOutExisting = () => {
             this.materials = this.allMaterials.filter(
-                m => this.section.examMaterials.map(em => em.id).indexOf(m.id) == -1);
-        }
+                m => this.section.examMaterials.map(em => em.id).indexOf(m.id) == -1,
+            );
+        };
 
         $onInit() {
             this.filterOutExisting();
@@ -50,7 +51,7 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
             if (changes.allMaterials) {
                 this.filterOutExisting();
             }
-        }
+        };
 
         selectMaterial(material: ExamMaterial) {
             this.selectedMaterial = material;
@@ -59,37 +60,44 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
         filterMaterials = () => {
             const re = new RegExp(this.filter, 'i');
             return this.materials.filter(m => m.name.match(re));
-        }
+        };
 
         addMaterial = () => {
-            this.$http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).then(() => {
-                this.section.examMaterials.push(angular.copy(this.selectedMaterial));
-                delete this.selectedMaterial;
-                this.filterOutExisting();
-                delete this.filter;
-            }).catch(err => toast.error(err));
-        }
+            this.$http
+                .post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {})
+                .then(() => {
+                    this.section.examMaterials.push(angular.copy(this.selectedMaterial));
+                    delete this.selectedMaterial;
+                    this.filterOutExisting();
+                    delete this.filter;
+                })
+                .catch(err => toast.error(err));
+        };
 
         removeMaterial = (material: ExamMaterial) => {
-            this.$http.delete(`/app/materials/${material.id}/${this.section.id}`).then(() => {
-                this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
-                this.filterOutExisting();
-            }).catch(err => toast.error(err));
-        }
+            this.$http
+                .delete(`/app/materials/${material.id}/${this.section.id}`)
+                .then(() => {
+                    this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
+                    this.filterOutExisting();
+                })
+                .catch(err => toast.error(err));
+        };
 
         openMaterialEditor = () => {
-            this.$uibModal.open({
-                component: 'examMaterial',
-                backdrop: 'static',
-                keyboard: true,
-                windowClass: 'question-editor-modal'
-            }).result.then(() => {
-                // this.filterOutExisting();
-                this.onChanges();
-            });
-        }
-
-    }
+            this.$uibModal
+                .open({
+                    component: 'examMaterial',
+                    backdrop: 'static',
+                    keyboard: true,
+                    windowClass: 'question-editor-modal',
+                })
+                .result.then(() => {
+                    // this.filterOutExisting();
+                    this.onChanges();
+                });
+        };
+    },
 };
 
 angular.module('app.exam.editor').component('examMaterialSelector', ExamMaterialSelectorComponent);

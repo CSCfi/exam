@@ -82,6 +82,11 @@ export interface ReverseQuestion extends Question {
     examSectionQuestions: ReverseExamSectionQuestion[];
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+}
+
 export interface Question {
     id: number;
     question: string;
@@ -122,7 +127,7 @@ export interface ExamSectionQuestionOption {
 
 export interface ClozeTestAnswer {
     id: number;
-    score: { correctAnswers: number, incorrectAnswers: number };
+    score: { correctAnswers: number; incorrectAnswers: number };
     maxScore: number;
     answer: string;
     objectVersion: number;
@@ -188,6 +193,19 @@ export interface Feedback {
     comment: string;
     id?: number;
     attachment?: Attachment;
+    feedbackStatus: boolean;
+}
+
+export interface ExaminationEvent {
+    id?: number;
+    start: Date;
+    description: string;
+}
+
+export interface ExaminationEventConfiguration {
+    id?: number;
+    settingsPassword: string;
+    examinationEvent: ExaminationEvent;
 }
 
 export interface ExamImpl {
@@ -204,7 +222,7 @@ export interface ExamImpl {
     hash: string;
     examOwners: User[];
     creator: User;
-    examType: { type: string, name?: string };
+    examType: { type: string; name?: string };
     executionType: ExamExecutionType;
     examEnrolments: { reservation?: { endAt: number } }[];
     gradeScale: GradeScale | null;
@@ -231,7 +249,7 @@ export interface ExamImpl {
     contentGrade?: string;
     gradeless: boolean;
     credit: number;
-    creditType: { type: string, displayName: string };
+    creditType: { type: string; displayName: string };
     customCredit: number;
     maxScore: number;
     totalScore: number;
@@ -241,7 +259,8 @@ export interface ExamImpl {
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection?: LanguageInspection;
-    examInspections: { user: User, ready: boolean }[];
+    examInspections: { user: User; ready: boolean }[];
+    examinationEventConfigurations: ExaminationEventConfiguration[];
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object
@@ -249,3 +268,7 @@ export interface Exam extends ExamImpl {
     answerLanguage?: ExamLanguage;
 }
 
+export interface ExamParticipation {
+    id: number;
+    exam: Exam;
+}

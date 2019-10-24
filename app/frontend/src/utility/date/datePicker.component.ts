@@ -12,18 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import * as _ from 'lodash';
-import * as moment from 'moment';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import * as moment from 'moment';
 
 @Component({
     selector: 'date-picker',
-    template: require('./datePicker.component.html')
+    template: require('./datePicker.component.html'),
 })
 export class DatePickerComponent implements OnInit {
-
     @Input() initialDate: Date | string | null = null;
     @Input() extra: boolean;
     @Input() extraText: string;
@@ -55,6 +52,4 @@ export class DatePickerComponent implements OnInit {
     extraClicked() {
         this.onExtraAction.emit({ date: this.transform(this.date) });
     }
-
 }
-

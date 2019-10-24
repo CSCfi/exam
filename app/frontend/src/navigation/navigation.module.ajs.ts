@@ -18,9 +18,7 @@ import * as angular from 'angular';
 import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 
-export default angular.module('app.navigation', [])
+export default angular
+    .module('app.navigation', [])
     .service('Navigation', downgradeInjectable(NavigationService))
-    .directive('navigation', downgradeComponent({ component: NavigationComponent }))
-    .name;
-
-
+    .directive('navigation', downgradeComponent({ component: NavigationComponent })).name;

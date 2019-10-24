@@ -17,5 +17,3 @@ angular.module('app.printout', []);
 
 require('./printout.component');
 require('./printoutListing.component');
-
-

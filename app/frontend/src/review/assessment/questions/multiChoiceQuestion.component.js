@@ -16,71 +16,75 @@ import angular from 'angular';
 import _ from 'lodash';
 import toast from 'toastr';
 
+angular.module('app.review').component('rMultiChoiceQuestion', {
+    template: require('./multiChoiceQuestion.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+        onScore: '&',
+    },
+    require: {
+        parentCtrl: '^^rExamSection',
+    },
+    controller: [
+        '$sce',
+        '$stateParams',
+        '$translate',
+        'Assessment',
+        'Attachment',
+        'Question',
+        function($sce, $stateParams, $translate, Assessment, Attachment, Question) {
+            const vm = this;
 
-angular.module('app.review')
-    .component('rMultiChoiceQuestion', {
-        template: require('./multiChoiceQuestion.template.html'),
-        bindings: {
-            sectionQuestion: '<',
-            onScore: '&'
-        },
-        require: {
-            parentCtrl: '^^rExamSection'
-        },
-        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment', 'Question',
-            function ($sce, $routeParams, $translate, Assessment, Attachment, Question) {
+            vm.$onInit = function() {
+                vm.participation = vm.parentCtrl.participation;
+                vm.isScorable = vm.parentCtrl.isScorable;
+            };
 
-                const vm = this;
+            vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
 
-                vm.$onInit = function () {
-                    vm.participation = vm.parentCtrl.participation;
-                    vm.isScorable = vm.parentCtrl.isScorable;
+            vm.scoreWeightedMultipleChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
+                    return 0;
                 }
+                return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
 
-                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
-
-                vm.scoreWeightedMultipleChoiceAnswer = function (ignoreForcedScore) {
-                    if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
-                };
-
-                vm.scoreMultipleChoiceAnswer = function (ignoreForcedScore) {
-                    if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
-                };
-
-                vm.displayMaxScore = () =>
-                    _.isInteger(vm.sectionQuestion.maxScore) ? vm.sectionQuestion.maxScore : vm.sectionQuestion.maxScore.toFixed(2)
-
-
-                vm.calculateMaxPoints = function () {
-                    return Question.calculateMaxPoints(vm.sectionQuestion);
-                };
-
-                vm.displayQuestionText = function () {
-                    return $sce.trustAsHtml(vm.sectionQuestion.question.question);
-                };
-
-                vm.insertForcedScore = () => {
-                    Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
-                        .then(resp => {
-                            toast.info($translate.instant('sitnet_graded'));
-                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
-                        })
-                        .catch(err => toast.error(err.data));
+            vm.scoreMultipleChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
+                    return 0;
                 }
+                return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
 
-                vm.downloadQuestionAttachment = function () {
-                    if (vm.parentCtrl.collaborative) {
-                        const attachment = vm.sectionQuestion.question.attachment;
-                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-                    }
-                    return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
-                };
-            }
-        ]
-    });
+            vm.displayMaxScore = () =>
+                _.isInteger(vm.sectionQuestion.maxScore)
+                    ? vm.sectionQuestion.maxScore
+                    : vm.sectionQuestion.maxScore.toFixed(2);
+
+            vm.calculateMaxPoints = function() {
+                return Question.calculateMaxPoints(vm.sectionQuestion);
+            };
+
+            vm.displayQuestionText = function() {
+                return $sce.trustAsHtml(vm.sectionQuestion.question.question);
+            };
+
+            vm.insertForcedScore = () => {
+                Assessment.saveForcedScore(vm.sectionQuestion, $stateParams.id, $stateParams.ref, vm.participation._rev)
+                    .then(resp => {
+                        toast.info($translate.instant('sitnet_graded'));
+                        vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
+                    })
+                    .catch(err => toast.error(err.data));
+            };
+
+            vm.downloadQuestionAttachment = function() {
+                if (vm.parentCtrl.collaborative) {
+                    const attachment = vm.sectionQuestion.question.attachment;
+                    return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                }
+                return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
+            };
+        },
+    ],
+});

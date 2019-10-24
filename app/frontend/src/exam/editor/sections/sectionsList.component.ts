@@ -38,22 +38,22 @@ export class SectionsListComponent implements OnInit, OnChanges {
         private http: HttpClient,
         private translate: TranslateService,
         private Exam: ExamService,
-        private Session: SessionService
-    ) { }
+        private Session: SessionService,
+    ) {}
 
     loadMaterials = () => {
-        this.http.get<ExamMaterial[]>('/app/materials').subscribe(resp => this.materials = resp);
-    }
+        this.http.get<ExamMaterial[]>('/app/materials').subscribe(resp => (this.materials = resp));
+    };
 
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
         this.loadMaterials();
         this.updateSectionIndices();
-    }
+    };
 
     private updateSectionIndices = () =>
         // set sections and question numbering
-        this.exam.examSections.forEach((section, index) => section.index = index + 1)
+        this.exam.examSections.forEach((section, index) => (section.index = index + 1));
 
     ngOnInit() {
         this.init();
@@ -72,10 +72,10 @@ export class SectionsListComponent implements OnInit, OnChanges {
                     this.updateSectionIndices();
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
-                err => toast.error(err)
+                err => toast.error(err),
             );
         }
-    }
+    };
 
     addNewSection = () =>
         this.Exam.addSection(this.exam, this.collaborative).pipe(
@@ -84,8 +84,8 @@ export class SectionsListComponent implements OnInit, OnChanges {
                 this.exam.examSections.push(es);
                 this.updateSectionIndices();
             }),
-            catchError(resp => toast.error(resp))
-        )
+            catchError(resp => toast.error(resp)),
+        );
 
     updateExam = (silent: boolean) =>
         this.Exam.updateExam(this.exam, {}, this.collaborative).pipe(
@@ -94,27 +94,25 @@ export class SectionsListComponent implements OnInit, OnChanges {
                     toast.info(this.translate.instant('sitnet_exam_saved'));
                 }
             }),
-            catchError(resp =>
-                toast.error(this.translate.instant(resp))
-            )
-        )
+            catchError(resp => toast.error(this.translate.instant(resp))),
+        );
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
     removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
 
     removeSection = (section: ExamSection) => {
-        this.http.delete(
-            this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative)
-        ).subscribe(
-            () => {
-                toast.info(this.translate.instant('sitnet_section_removed'));
-                this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
-                this.updateSectionIndices();
-            },
-            resp => toast.error(resp.data)
-        );
-    }
+        this.http
+            .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
+            .subscribe(
+                () => {
+                    toast.info(this.translate.instant('sitnet_section_removed'));
+                    this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
+                    this.updateSectionIndices();
+                },
+                resp => toast.error(resp.data),
+            );
+    };
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
@@ -127,8 +125,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
             return this.Session.getUser().isAdmin;
         }
         return this.exam.executionType.type === 'PUBLIC';
-    }
+    };
 
     onReloadRequired = () => this.onNewLibraryQuestion.emit();
-
 }

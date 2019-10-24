@@ -22,11 +22,11 @@ import { Examination } from '../../../examination/examination.service';
 import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 
 // add jquery reference
-declare var $: any;
+declare let $: any;
 
 @Component({
     selector: 'r-feedback',
-    template: require('./feedback.component.html')
+    template: require('./feedback.component.html'),
 })
 export class FeedbackComponent {
     @Input() exam: Examination;
@@ -39,7 +39,8 @@ export class FeedbackComponent {
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
-        private Files: FileService) { }
+        private Files: FileService,
+    ) {}
 
     toggleFeedbackVisibility = () => {
         const selector = $('.body');
@@ -49,7 +50,7 @@ export class FeedbackComponent {
             selector.hide();
         }
         this.hideEditor = !this.hideEditor;
-    }
+    };
 
     saveFeedback = (id?: number, ref?: string) => {
         if (this.collaborative && id && ref) {
@@ -57,21 +58,22 @@ export class FeedbackComponent {
         } else {
             this.Assessment.saveFeedback$(this.exam).subscribe();
         }
-    }
+    };
 
     selectFile = () => {
         this.Attachment.selectFile(true, {}).then((res: FileResult) =>
-            this.Assessment.saveFeedback$(this.exam).subscribe(
-                () => {
-                    this.Files.upload(`/app/attachment/exam/${this.exam.id}/feedback`,
-                        res.$value.attachmentFile, { examId: this.exam.id }, this.exam.examFeedback);
-                }
-            )
+            this.Assessment.saveFeedback$(this.exam).subscribe(() => {
+                this.Files.upload(
+                    `/app/attachment/exam/${this.exam.id}/feedback`,
+                    res.$value.attachmentFile,
+                    { examId: this.exam.id },
+                    this.exam.examFeedback,
+                );
+            }),
         );
-    }
+    };
 
     downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
 
     removeFeedbackAttachment = () => this.Attachment.removeFeedbackAttachment(this.exam);
-
 }

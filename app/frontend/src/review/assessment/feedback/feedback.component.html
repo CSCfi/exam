@@ -1,38 +1,55 @@
 <div id="feedback">
     <div appDraggableModal id="draggable" class="wrapper">
         <div class="row">
-            <div class="col-md-1" ngbPopover="{{hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}" placement="right"
-                delay="500" triggers="mouseenter">
-                <i (click)="toggleFeedbackVisibility()" class="pointer fa fa-2x vcenter" [ngClass]="hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'">
+            <div
+                class="col-md-1"
+                ngbPopover="{{ hideEditor ? 'sitnet_show' : ('sitnet_hide' | translate) }}"
+                placement="right"
+                delay="500"
+                triggers="mouseenter"
+            >
+                <i
+                    (click)="toggleFeedbackVisibility()"
+                    class="pointer fa fa-2x vcenter"
+                    [ngClass]="
+                        hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'
+                    "
+                >
                 </i>
             </div>
             <div class="col-md-11">
                 <div class="vcenter">
-                    {{'sitnet_give_feedback' | translate}}
+                    {{ 'sitnet_give_feedback' | translate }}
                 </div>
             </div>
         </div>
         <div class="body">
             <div class="row editor">
                 <div class="col-md-12" *ngIf="exam.examFeedback">
-                    <ckeditor [enableClozeTest]="false" [(ngModel)]="exam.examFeedback.comment" #ck="ngModel" name="ck"></ckeditor>
+                    <ckeditor
+                        [enableClozeTest]="false"
+                        [(ngModel)]="exam.examFeedback.comment"
+                        #ck="ngModel"
+                        name="ck"
+                    ></ckeditor>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-2">
-                    <button class="btn btn-default" (click)="saveFeedback()">{{'sitnet_save' | translate}}</button>
+                    <button class="btn btn-default" (click)="saveFeedback()">{{ 'sitnet_save' | translate }}</button>
                 </div>
                 <div class="col-md-10">
                     <div class="pull-right">
                         <span [hidden]="!exam.examFeedback.attachment">
-                            <a class="pointer" (click)="downloadFeedbackAttachment()">{{exam.examFeedback.attachment?.fileName}}</a>
+                            <a class="pointer" (click)="downloadFeedbackAttachment()">{{
+                                exam.examFeedback.attachment?.fileName
+                            }}</a>
                             <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                                <i class="fa fa-times" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
                             </span>
                         </span>
-                        <button type="button" class="btn btn-default" (click)="selectFile()">{{'sitnet_attach_file'
-                            |
-                            translate}}
+                        <button type="button" class="btn btn-default" (click)="selectFile()">
+                            {{ 'sitnet_attach_file' | translate }}
                         </button>
                     </div>
                 </div>

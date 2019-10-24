@@ -26,6 +26,7 @@ import play.mvc.Http;
 public final class SanitizingHelper {
 
     private static final Whitelist WHITELIST = Whitelist.relaxed()
+            .addAttributes("a", "target")
             .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
             .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
 

@@ -57,6 +57,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -181,13 +182,14 @@ public class ReviewController extends BaseController {
     @Anonymous(filteredProperties = {"user", "creator", "modifier"})
     public Result getExamReviews(Long eid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        PathProperties pp = PathProperties.parse("("
-                + "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, "
-                + "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), "
-                + "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), "
-                + "languageInspection(*), examLanguages(*), " + "parent(examOwners(firstName, lastName, email)), "
-                + "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))"
-                + ")");
+        PathProperties pp = PathProperties.parse("(" +
+                "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
+                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
+                "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
+                "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
+                "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
+                "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
+                ")");
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
         query.fetchQuery("course", "code, credits").fetch("course.gradeScale.grades")
@@ -245,9 +247,12 @@ public class ReviewController extends BaseController {
     public Result forceScoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Optional<ExamSectionQuestion> oeq = Ebean.find(ExamSectionQuestion.class)
-                .fetch("examSection.exam.parent.examOwners").where().idEq(id)
-                .ne("question.type", Question.Type.EssayQuestion).findOneOrEmpty();
-        if (!oeq.isPresent()) {
+                .fetch("examSection.exam.parent.examOwners")
+                .where()
+                .idEq(id)
+                .ne("question.type", Question.Type.EssayQuestion)
+                .findOneOrEmpty();
+        if (oeq.isEmpty()) {
             return notFound("question not found");
         }
         ExamSectionQuestion question = oeq.get();
@@ -271,14 +276,18 @@ public class ReviewController extends BaseController {
     @Restrict({@Group("TEACHER")})
     public Result updateAssessmentInfo(Long id, Http.Request request) {
         String info = request.body().asJson().get("assessmentInfo").asText();
-        Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator").where().idEq(id)
-                .eq("state", Exam.State.GRADED_LOGGED).findOneOrEmpty();
-        if (!option.isPresent()) {
+        Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator")
+                .where()
+                .idEq(id)
+                .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+                .findOneOrEmpty();
+        if (option.isEmpty()) {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam.getState() != Exam.State.GRADED_LOGGED || isDisallowedToModify(exam, user, exam.getState())) {
+        if (!exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
+                isDisallowedToModify(exam, user, exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
@@ -437,6 +446,30 @@ public class ReviewController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
+    @Restrict({@Group("STUDENT")})
+    public Result setCommentStatusRead(Long eid, Long cid, Http.Request request) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
+            return forbidden();
+        }
+        Comment comment = Ebean.find(Comment.class, cid);
+        if (comment == null) {
+            return notFound();
+        }
+        Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
+        if (feedbackStatus.isPresent()) {
+            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setFeedbackStatus(feedbackStatus.get());
+        }
+        comment.update();
+        return ok(comment);
+    }
+
+    @Authenticated
+    @With(CommentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result addInspectionComment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -557,12 +590,12 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result importGrades(Http.Request request) {
-        Http.MultipartFormData<File> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
-        File file = filePart.getRef();
+        File file = filePart.getRef().path().toFile();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         try {

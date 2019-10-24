@@ -16,48 +16,54 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.machines')
-    .component('machineList', {
-        template: require('./machineList.template.html'),
-        bindings: {
-            room: '<'
-        },
-        controller: ['Machines', '$translate', function (Machines, $translate) {
-
+angular.module('app.facility.machines').component('machineList', {
+    template: require('./machineList.template.html'),
+    bindings: {
+        room: '<',
+    },
+    controller: [
+        'Machines',
+        '$translate',
+        function(Machines, $translate) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.showMachines = true;
             };
 
-            vm.toggleShow = function () {
-                vm.showMachines = !vm.showMachines
+            vm.toggleShow = function() {
+                vm.showMachines = !vm.showMachines;
             };
 
-            vm.countMachineAlerts = function () {
+            vm.countMachineAlerts = function() {
                 if (!vm.room) return 0;
-                return vm.room.examMachines.filter(function (m) {
+                return vm.room.examMachines.filter(function(m) {
                     return m.outOfService;
                 }).length;
             };
 
-            vm.countMachineNotices = function () {
+            vm.countMachineNotices = function() {
                 if (!vm.room) return 0;
-                return vm.room.examMachines.filter(function (m) {
+                return vm.room.examMachines.filter(function(m) {
                     return !m.outOfService && m.statusComment;
                 }).length;
             };
 
-            vm.addNewMachine = function () {
+            vm.addNewMachine = function() {
                 const newMachine = {};
 
-                Machines.machine.insert({id: vm.room.id}, newMachine, function (machine) {
-                    toast.info($translate.instant("sitnet_machine_added"));
-                    vm.room.examMachines.push(machine);
-                }, function (error) {
-                    toast.error(error.data);
-                });
+                Machines.machine.insert(
+                    { id: vm.room.id },
+                    newMachine,
+                    function(machine) {
+                        toast.info($translate.instant('sitnet_machine_added'));
+                        vm.room.examMachines.push(machine);
+                    },
+                    function(error) {
+                        toast.error(error.data);
+                    },
+                );
             };
-
-        }]
-    });
+        },
+    ],
+});

@@ -23,6 +23,6 @@ require('../review/review.module.ajs.ts');
 require('../examination/examination.module.ts');
 require('../question');
 
-angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question'])
+angular
+    .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question'])
     .service('Exam', downgradeInjectable(ExamService));
-

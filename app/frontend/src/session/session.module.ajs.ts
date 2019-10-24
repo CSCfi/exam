@@ -21,11 +21,10 @@ import { LogoutComponent } from './logout/logout.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { SessionService } from './session.service';
 
-export default angular.module('app.session', [])
+export default angular
+    .module('app.session', [])
     .service('Session', downgradeInjectable(SessionService))
     .directive('devLogin', downgradeComponent({ component: DevLoginComponent }))
     .directive('logout', downgradeComponent({ component: LogoutComponent }))
     .component('eulaDialog', downgradeComponent({ component: EulaDialogComponent }))
-    .component('selectRoleDialog', downgradeComponent({ component: SelectRoleDialogComponent }))
-    .name;
-
+    .component('selectRoleDialog', downgradeComponent({ component: SelectRoleDialogComponent })).name;

@@ -14,6 +14,7 @@
  */
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
+
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
 import { DateTimeService } from './date/date.service';
@@ -27,7 +28,8 @@ import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import runBlock from './utility.run';
 
-export default angular.module('app.utility', [])
+export default angular
+    .module('app.utility', [])
     .run(runBlock)
     .service('Attachment', downgradeInjectable(AttachmentService))
     .service('DateTime', downgradeInjectable(DateTimeService))
@@ -39,6 +41,4 @@ export default angular.module('app.utility', [])
     .directive('dateTimePicker', downgradeComponent({ component: DateTimePickerComponent }))
     .directive('dropDownSelect', downgradeComponent({ component: DropdownSelectComponent }))
     .directive('paginator', downgradeComponent({ component: PaginatorComponent }))
-    .directive('droppable', DroppableDirective.factory())
-    .name;
-
+    .directive('droppable', DroppableDirective.factory()).name;

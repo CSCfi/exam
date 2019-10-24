@@ -20,15 +20,13 @@ import { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
     selector: 'add-enrolment-information-dialog',
-    template: require('./addEnrolmentInformationDialog.component.html')
+    template: require('./addEnrolmentInformationDialog.component.html'),
 })
 export class AddEnrolmentInformationDialogComponent {
-
     @Input() information: EnrolmentInfo;
 
-    constructor(public activeModal: NgbActiveModal) { }
+    constructor(public activeModal: NgbActiveModal) {}
 
     ok = () => this.activeModal.close(this.information);
     cancel = () => this.activeModal.dismiss();
-
 }

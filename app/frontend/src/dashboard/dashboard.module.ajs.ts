@@ -23,16 +23,13 @@ import { ExamListCategoryComponent } from './teacher/categories/examListCategory
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 
-
-
 require('../exam/editor'); // TODO: make a proper exportable module
 
-
-export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
+export default angular
+    .module('app.dashboard', [ReservationModule, 'app.exam'])
     .service('StudentDashboard', downgradeInjectable(StudentDashboardService))
     .service('TeacherDashboard', downgradeInjectable(TeacherDashboardService))
     .directive('dashboard', downgradeComponent({ component: DashboardComponent }))
     .directive('studentDashboard', downgradeComponent({ component: StudentDashboardComponent }))
     .directive('examListCategory', downgradeComponent({ component: ExamListCategoryComponent }))
-    .directive('teacherDashboard', downgradeComponent({ component: TeacherDashboardComponent }))
-    .name;
+    .directive('teacherDashboard', downgradeComponent({ component: TeacherDashboardComponent })).name;

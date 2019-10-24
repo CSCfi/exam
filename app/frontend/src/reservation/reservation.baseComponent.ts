@@ -25,7 +25,6 @@ import { Option } from '../utility/select/dropDownSelect.component';
 import { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
-
 interface Selection {
     roomId?: number;
     examId?: string;
@@ -39,12 +38,9 @@ interface ReservationDisplay extends Reservation {
     userAggregate: string;
     teacherAggregate: string;
     org: string;
-
-
 }
 
 export class ReservationComponentBase implements OnInit {
-
     examId: string | undefined;
     user: User;
     startDate: Date = new Date();
@@ -59,7 +55,7 @@ export class ReservationComponentBase implements OnInit {
         'STUDENT_STARTED',
         'PUBLISHED',
         'ABORTED',
-        'NO_SHOW'
+        'NO_SHOW',
     ];
     selection: Selection;
     stateOptions: Option[];
@@ -72,13 +68,14 @@ export class ReservationComponentBase implements OnInit {
     machines: any[];
     reservations: any[];
     isInteroperable: boolean;
+    externalReservationsOnly: boolean;
 
     constructor(
         private http: HttpClient,
         @Inject('$routeParams') private RouteParams: any,
         private orderPipe: OrderPipe,
         private Session: SessionService,
-        private Reservation: ReservationService
+        private Reservation: ReservationService,
     ) {
         this.examId = RouteParams.eid;
         this.user = this.Session.getUser();
@@ -87,7 +84,6 @@ export class ReservationComponentBase implements OnInit {
             this.examStates.push('EXTERNAL_UNFINISHED');
             this.examStates.push('EXTERNAL_FINISHED');
         }
-
     }
 
     ngOnInit() {
@@ -103,8 +99,8 @@ export class ReservationComponentBase implements OnInit {
         const params: any = { ...this.selection }; // copy
         if (this.somethingSelected(params)) {
             // have to clear empty strings completely
-            for (let k in params) {
-                if (!params.hasOwnProperty(k)) {
+            for (const k in params) {
+                if (!Object.prototype.hasOwnProperty.call(params, k)) {
                     continue;
                 }
                 if (params[k] === '' || params[k] === null) {
@@ -128,94 +124,114 @@ export class ReservationComponentBase implements OnInit {
                 params.end = this.endDate;
             }
 
-            this.http.get<any[]>('/app/reservations', { params: params }).subscribe(reservations => {
-                reservations.forEach(r => {
-                    r.userAggregate = r.user ? `${r.user.lastName}  ${r.user.firstName}`
-                        : r.externalUserRef ? r.externalUserRef : r.enrolment.exam.id.toString();
-                    // Transfer exam taken here
-                    if (!r.enrolment || r.enrolment.externalExam) {
-                        r.enrolment = r.enrolment || {};
-                        const state = r.enrolment.externalExam && r.enrolment.externalExam.finished
-                            ? 'EXTERNAL_FINISHED' : 'EXTERNAL_UNFINISHED';
-                        r.enrolment.exam = { external: true, examOwners: [], state: state };
-
-                    }
-                    // Transfer exam taken elsewhere
-                    if (r.externalReservation) {
-                        r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
-                        r.machine = {
-                            name: r.externalReservation.machineName,
-                            room: { name: r.externalReservation.roomName },
-                        };
-                    }
-                    // Collaborative exam
-                    if (r.enrolment.collaborativeExam) {
-                        r.enrolment.exam = r.enrolment.collaborativeExam;
-                        r.enrolment.exam.examOwners = [];
-                    }
-                    if (!r.enrolment.exam) {
-                        console.warn('no exam for enrolment ' + r.enrolment.id);
-                    } else {
-                        const exam = r.enrolment.exam.parent || r.enrolment.exam;
-                        r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
-                            return o.lastName + o.firstName;
-                        }).join();
-                        const state = this.Reservation.printExamState(r);
-                        r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                            'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
-                            'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
-                    }
-                });
-                this.reservations = reservations;
-            }, resp => toast.error(resp));
+            this.http.get<any[]>('/app/reservations', { params: params }).subscribe(
+                reservations => {
+                    reservations.forEach(r => {
+                        r.userAggregate = r.user
+                            ? `${r.user.lastName}  ${r.user.firstName}`
+                            : r.externalUserRef
+                            ? r.externalUserRef
+                            : r.enrolment.exam.id.toString();
+                        // Transfer exam taken here
+                        if (!r.enrolment || r.enrolment.externalExam) {
+                            r.enrolment = r.enrolment || {};
+                            const state =
+                                r.enrolment.externalExam && r.enrolment.externalExam.finished
+                                    ? 'EXTERNAL_FINISHED'
+                                    : 'EXTERNAL_UNFINISHED';
+                            r.enrolment.exam = { external: true, examOwners: [], state: state };
+                        }
+                        // Transfer exam taken elsewhere
+                        if (r.externalReservation) {
+                            r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
+                            r.machine = {
+                                name: r.externalReservation.machineName,
+                                room: { name: r.externalReservation.roomName },
+                            };
+                        }
+                        // Collaborative exam
+                        if (r.enrolment.collaborativeExam) {
+                            if (!r.enrolment.exam) {
+                                r.enrolment.exam = r.enrolment.collaborativeExam;
+                            }
+                            r.enrolment.exam.examOwners = [];
+                        }
+                        if (!r.enrolment.exam) {
+                            console.warn('no exam for enrolment ' + r.enrolment.id);
+                        } else {
+                            const exam = r.enrolment.exam.parent || r.enrolment.exam;
+                            r.enrolment.teacherAggregate = exam.examOwners
+                                .map(function(o) {
+                                    return o.lastName + o.firstName;
+                                })
+                                .join();
+                            const state = this.Reservation.printExamState(r);
+                            r.stateOrd = [
+                                'PUBLISHED',
+                                'NO_SHOW',
+                                'STUDENT_STARTED',
+                                'ABORTED',
+                                'REVIEW',
+                                'REVIEW_STARTED',
+                                'GRADED',
+                                'GRADED_LOGGED',
+                                'REJECTED',
+                                'ARCHIVED',
+                                'EXTERNAL_UNFINISHED',
+                                'EXTERNAL_FINISHED',
+                            ].indexOf(state);
+                        }
+                    });
+                    this.reservations = reservations.filter(
+                        r => r.externalReservation || !this.externalReservationsOnly,
+                    );
+                },
+                resp => toast.error(resp),
+            );
         }
     }
 
     isAdminView = () => this.user.isAdmin;
 
     private initOptions() {
-        this.http.get<{ id: number, name: string }[]>('/app/reservations/students')
-            .subscribe(
-                resp => {
-                    const students = this.orderPipe.transform(resp, ['lastName', 'firstName']);
-                    this.studentOptions = students.map(s => {
-                        return { id: s.id, value: s, label: s.name };
-                    });
-                },
-                resp => toast.error(resp.data)
-            );
+        this.http.get<{ id: number; name: string }[]>('/app/reservations/students').subscribe(
+            resp => {
+                const students = this.orderPipe.transform(resp, ['lastName', 'firstName']);
+                this.studentOptions = students.map(s => {
+                    return { id: s.id, value: s, label: s.name };
+                });
+            },
+            resp => toast.error(resp.data),
+        );
         this.http.get<{ isExamVisitSupported: boolean }>('/settings/iop/examVisit').subscribe(resp => {
             this.isInteroperable = resp.isExamVisitSupported;
             this.initExamOptions();
         });
 
         if (this.isAdminView()) {
-            this.http.get<{ id: number, name: string }[]>('/app/reservations/teachers')
-                .subscribe(
-                    resp => {
-                        const teachers = this.orderPipe.transform(resp, ['lastName', 'firstName']);
-                        this.teacherOptions = teachers.map(t => {
-                            return { id: t.id, value: t, label: t.name };
-                        });
-                    },
-                    resp => toast.error(resp.data)
-                );
+            this.http.get<{ id: number; name: string }[]>('/app/reservations/teachers').subscribe(
+                resp => {
+                    const teachers = this.orderPipe.transform(resp, ['lastName', 'firstName']);
+                    this.teacherOptions = teachers.map(t => {
+                        return { id: t.id, value: t, label: t.name };
+                    });
+                },
+                resp => toast.error(resp.data),
+            );
 
-            this.http.get<ExamRoom>('/app/reservations/examrooms')
-                .subscribe(
-                    resp => {
-                        this.rooms = this.orderPipe.transform(resp, 'name');
-                        this.roomOptions = this.rooms.map(r => {
-                            return { id: r.id, value: r, label: r.name };
-                        });
-                        this.http.get<ExamMachine>('/app/machines')
-                            .subscribe(resp => {
-                                this.machines = this.orderPipe.transform(resp, 'name');
-                                this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
-                            });
-                    },
-                    err => toast.error(err.data)
-                );
+            this.http.get<ExamRoom>('/app/reservations/examrooms').subscribe(
+                resp => {
+                    this.rooms = this.orderPipe.transform(resp, 'name');
+                    this.roomOptions = this.rooms.map(r => {
+                        return { id: r.id, value: r, label: r.name };
+                    });
+                    this.http.get<ExamMachine>('/app/machines').subscribe(resp => {
+                        this.machines = this.orderPipe.transform(resp, 'name');
+                        this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
+                    });
+                },
+                err => toast.error(err.data),
+            );
         }
     }
 
@@ -226,10 +242,12 @@ export class ReservationComponentBase implements OnInit {
                     // Load also collaborative exams.
                     return this.http.get<any[]>('/integration/iop/exams').pipe(
                         map(ee => {
-                            return exams.concat(ee.map(e => {
-                                return { id: e.externalRef, name: e.name };
-                            }));
-                        })
+                            return exams.concat(
+                                ee.map(e => {
+                                    return { id: e.externalRef, name: e.name };
+                                }),
+                            );
+                        }),
                     );
                 }
                 return of(exams);
@@ -239,7 +257,7 @@ export class ReservationComponentBase implements OnInit {
                 this.examOptions = filteredExams.map(e => {
                     return { id: e.id, value: e, label: e.name };
                 });
-            })
+            }),
         );
     }
 
@@ -252,17 +270,19 @@ export class ReservationComponentBase implements OnInit {
         const data = {
             id: undefined,
             label: room.name,
-            isHeader: true
+            isHeader: true,
         };
         return [data].concat(
-            machines.filter(m => this.roomContains(room, m)).map(m => {
-                return { id: m.id, value: m, label: m.name == null ? '' : m.name };
-            }));
+            machines
+                .filter(m => this.roomContains(room, m))
+                .map(m => {
+                    return { id: m.id, value: m, label: m.name == null ? '' : m.name };
+                }),
+        );
     }
 
     private machinesForRooms = (rooms: any[], machines): Option[] =>
-        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), [])
-
+        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
     roomChanged(room: Option | undefined) {
         if (room === undefined) {
@@ -285,9 +305,13 @@ export class ReservationComponentBase implements OnInit {
         this.query();
     }
 
+    externalReservationFilterClicked() {
+        this.query();
+    }
+
     private somethingSelected(params) {
-        for (let k in params) {
-            if (!params.hasOwnProperty(k)) {
+        for (const k in params) {
+            if (!Object.prototype.hasOwnProperty.call(params, k)) {
                 continue;
             }
             if (params[k]) {
@@ -321,5 +345,4 @@ export class ReservationComponentBase implements OnInit {
         this.selection.examId = exam ? exam.id : undefined;
         this.query();
     }
-
 }

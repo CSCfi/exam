@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Pipe, PipeTransform } from '@angular/core';
+
 const truncate = require('truncate-html').default;
 
 @Pipe({ name: 'truncate' })
 export class TruncatingPipe implements PipeTransform {
-
     transform = (value: string, after: number): string => truncate(value, after);
-
 }

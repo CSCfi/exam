@@ -1,19 +1,20 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4><i class="fa fa-info-circle"></i>&nbsp;&nbsp;{{'sitnet_change_reservation_machine' | translate}}</h4>
+        <h4><i class="fa fa-info-circle"></i>&nbsp;&nbsp;{{ 'sitnet_change_reservation_machine' | translate }}</h4>
     </div>
     <div class="modal-body">
-        <strong>{{'sitnet_exam_machine' | translate}}</strong>
+        <strong>{{ 'sitnet_exam_machine' | translate }}</strong>
         <dropdown-select [options]="availableMachineOptions" (on-select)="machineChanged(value)"></dropdown-select>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
+                {{ 'sitnet_button_cancel' | translate }}
             </button>
         </div>
         <div class="col-md-6">
             <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!selection.id">
-                {{'sitnet_button_save' | translate}}
+                {{ 'sitnet_button_save' | translate }}
             </button>
         </div>
     </div>

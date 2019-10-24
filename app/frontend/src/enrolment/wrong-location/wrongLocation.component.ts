@@ -23,13 +23,11 @@ import { DateTimeService } from '../../utility/date/date.service';
 import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-
 @Component({
     selector: 'wrong-location',
-    template: require('./wrongLocation.component.html')
+    template: require('./wrongLocation.component.html'),
 })
 export class WrongLocationComponent implements OnInit {
-
     @Input() cause: string;
 
     enrolment: ExamEnrolment;
@@ -42,8 +40,8 @@ export class WrongLocationComponent implements OnInit {
         @Inject('$routeParams') private RouteParams: any,
         private translate: TranslateService,
         private Enrolment: EnrolmentService,
-        private DateTime: DateTimeService
-    ) { }
+        private DateTime: DateTimeService,
+    ) {}
 
     ngOnInit() {
         if (this.RouteParams.eid) {
@@ -58,9 +56,11 @@ export class WrongLocationComponent implements OnInit {
                     const room = enrolment.reservation.machine.room;
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                    this.http.get<ExamMachine>(`/app/machines/${this.RouteParams.mid}`)
-                        .subscribe(machine => this.currentMachine = machine);
-                }, err => toast.error(err.data)
+                    this.http
+                        .get<ExamMachine>(`/app/machines/${this.RouteParams.mid}`)
+                        .subscribe(machine => (this.currentMachine = machine));
+                },
+                err => toast.error(err.data),
             );
         }
     }
@@ -79,10 +79,9 @@ export class WrongLocationComponent implements OnInit {
         }
         reservation.occasion = {
             startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm')
+            endAt: end.format('HH:mm'),
         };
-    }
+    };
 
     showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
-
 }

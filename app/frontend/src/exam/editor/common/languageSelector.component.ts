@@ -22,7 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'language-selector',
-    template: require('./languageSelector.component.html')
+    template: require('./languageSelector.component.html'),
 })
 export class LanguageSelectorComponent implements OnInit {
     @Input() exam: Exam;
@@ -30,15 +30,11 @@ export class LanguageSelectorComponent implements OnInit {
 
     examLanguages: ExamLanguage[];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private Language: LanguageService
-    ) { }
+    constructor(private http: HttpClient, private translate: TranslateService, private Language: LanguageService) {}
 
     ngOnInit() {
         this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
-            this.examLanguages = languages.map((language) => {
+            this.examLanguages = languages.map(language => {
                 language.name = this.Language.getLanguageNativeName(language.code) || '';
                 return language;
             });
@@ -46,13 +42,11 @@ export class LanguageSelectorComponent implements OnInit {
     }
 
     selectedLanguages = () =>
-        this.exam.examLanguages.length === 0 ? this.translate.instant('sitnet_select') :
-            this.exam.examLanguages.map((language) =>
-                this.Language.getLanguageNativeName(language.code))
-                .join(', ')
+        this.exam.examLanguages.length === 0
+            ? this.translate.instant('sitnet_select')
+            : this.exam.examLanguages.map(language => this.Language.getLanguageNativeName(language.code)).join(', ');
 
-    isSelected = (lang: ExamLanguage) =>
-        this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1
+    isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1;
 
     updateExamLanguage = (lang: ExamLanguage) => {
         const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
@@ -65,6 +59,8 @@ export class LanguageSelectorComponent implements OnInit {
                     this.exam.examLanguages.push(lang);
                 }
                 toast.info(this.translate.instant('sitnet_exam_language_updated'));
-            }, resp => toast.error(resp.data));
-    }
+            },
+            resp => toast.error(resp.data),
+        );
+    };
 }

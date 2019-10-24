@@ -18,15 +18,18 @@ import { Exam } from '../exam/exam.model';
 
 @Pipe({ name: 'examSearch' })
 export class ExamSearchPipe implements PipeTransform {
-
     private getAggregate = (exam: Exam) => {
         const code = exam.course ? exam.course.code : '';
         const owners = exam.examOwners.map(eo => `${eo.firstName} ${eo.lastName}`).join(' ');
         return `${code} ${owners} ${exam.name}`;
-    }
+    };
 
     transform = (exams: Exam[], filter: string): Exam[] =>
-        !filter ? exams : exams.filter(e => this.getAggregate(e).toLowerCase().includes(filter.toLowerCase()))
-
-
+        !filter
+            ? exams
+            : exams.filter(e =>
+                  this.getAggregate(e)
+                      .toLowerCase()
+                      .includes(filter.toLowerCase()),
+              );
 }

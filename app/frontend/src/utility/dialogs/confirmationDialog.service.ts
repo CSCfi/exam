@@ -4,17 +4,15 @@ import { ConfirmationDialogComponent } from './confirmationDialog.component';
 
 @Injectable()
 export class ConfirmationDialogService {
-
-    constructor(private modal: NgbModal) { }
+    constructor(private modal: NgbModal) {}
 
     open(title: string, description?: string): NgbModalRef {
         const modalRef = this.modal.open(ConfirmationDialogComponent, {
             backdrop: 'static',
-            keyboard: false
+            keyboard: false,
         });
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.description = description;
         return modalRef;
     }
-
 }

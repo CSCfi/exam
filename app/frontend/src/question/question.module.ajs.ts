@@ -19,9 +19,8 @@ import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
 
-
-angular.module('app.question', [])
+angular
+    .module('app.question', [])
     .directive('librarySearch', downgradeComponent({ component: LibrarySearchComponent }))
     .service('Question', downgradeInjectable(QuestionService))
     .service('Library', downgradeInjectable(LibraryService));
-

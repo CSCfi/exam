@@ -23,24 +23,9 @@ import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { SessionService } from './session.service';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        UtilityModule
-    ],
-    declarations: [
-        DevLoginComponent,
-        EulaDialogComponent,
-        SelectRoleDialogComponent,
-        LogoutComponent
-    ],
-    entryComponents: [
-        DevLoginComponent,
-        SelectRoleDialogComponent,
-        EulaDialogComponent,
-        LogoutComponent
-    ],
-    providers: [
-        SessionService
-    ]
+    imports: [NgbModule, UtilityModule],
+    declarations: [DevLoginComponent, EulaDialogComponent, SelectRoleDialogComponent, LogoutComponent],
+    entryComponents: [DevLoginComponent, SelectRoleDialogComponent, EulaDialogComponent, LogoutComponent],
+    providers: [SessionService],
 })
-export class SessionModule { }
+export class SessionModule {}

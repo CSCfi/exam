@@ -29,34 +29,31 @@ interface CourseFilter {
 
 @Component({
     selector: 'course-picker',
-    template: require('./coursePicker.component.html')
+    template: require('./coursePicker.component.html'),
 })
 export class CoursePickerComponent implements OnInit {
-
     @Input() course: Course;
     @Output() onUpdate = new EventEmitter<Course>();
 
     public filter: CourseFilter;
-    loader: { name: { isOn: boolean }, code: { isOn: boolean } };
+    loader: { name: { isOn: boolean }; code: { isOn: boolean } };
 
-    constructor(private translate: TranslateService, private Course: CoursePickerService) { }
+    constructor(private translate: TranslateService, private Course: CoursePickerService) {}
 
     ngOnInit() {
         this.filter = {
             name: this.course ? this.course.name : '',
-            code: this.course ? this.course.code : ''
+            code: this.course ? this.course.code : '',
         };
         this.loader = {
-            name: { isOn: false }, code: { isOn: false }
+            name: { isOn: false },
+            code: { isOn: false },
         };
     }
 
-    private showError = (term) =>
-        toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`)
-
+    private showError = term => toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
 
     private getCourses$ = (category: string, text$: Observable<string>): Observable<Course[]> =>
-
         text$.pipe(
             tap(term => {
                 this.setInputValue(category, term);
@@ -64,14 +61,14 @@ export class CoursePickerComponent implements OnInit {
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap(term => term.length < 2 ? from([]) : this.Course.getCourses$(category, term)),
+            exhaustMap(term => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
             tap(courses => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
                     this.showError(this.filter.code);
                 }
-            })
-        )
+            }),
+        );
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
@@ -82,15 +79,14 @@ export class CoursePickerComponent implements OnInit {
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
         this.filter = { name: event.item.name, code: event.item.code };
         this.onUpdate.emit(event.item);
-    }
+    };
 
-    private toggleLoadingIcon = (filter: string, isOn: boolean) => this.loader[filter].isOn = isOn;
+    private toggleLoadingIcon = (filter: string, isOn: boolean) => (this.loader[filter].isOn = isOn);
     private setInputValue = (filter: string, value: string) => {
         if (filter === 'code') {
             this.filter = { code: value };
         } else if (filter === 'name') {
             this.filter = { name: value };
         }
-    }
-
+    };
 }

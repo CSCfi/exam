@@ -12,12 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
-import { AssessmentService } from './assessment/assessment.service';
-import { FeedbackComponent } from './assessment/feedback/feedback.component';
-import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 
-angular.module('app.review', [])
+import { AssessmentService } from './assessment/assessment.service';
+import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
+import { FeedbackComponent } from './assessment/feedback/feedback.component';
+
+angular
+    .module('app.review', [])
     .service('Assessment', downgradeInjectable(AssessmentService))
     .service('CollaborativeAssessment', downgradeInjectable(CollaborativeAssesmentService))
     .directive('rFeedback', downgradeComponent({ component: FeedbackComponent }));

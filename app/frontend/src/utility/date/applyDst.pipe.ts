@@ -17,12 +17,12 @@ import * as moment from 'moment';
 
 @Pipe({ name: 'applyDst' })
 export class ApplyDstPipe implements PipeTransform {
-
     transform = (input: moment.MomentInput): string => {
         if (moment(input).isDST()) {
-            return moment(input).add(-1, 'hour').format();
+            return moment(input)
+                .add(-1, 'hour')
+                .format();
         }
         return moment(input).format();
-    }
-
+    };
 }

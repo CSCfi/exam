@@ -13,13 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
+import { StateProvider, UrlRouterProvider } from 'angular-ui-router';
 import * as base64 from 'base64-js';
+import * as textEncoding from 'text-encoding-polyfill';
 import * as toast from 'toastr';
-
 
 export default function configs(
     $translateProvider: angular.translate.ITranslateProvider,
-    $routeProvider: angular.route.IRouteProvider,
+    $urlRouterProvider: UrlRouterProvider,
+    $stateProvider: StateProvider,
     $httpProvider: angular.IHttpProvider,
     $locationProvider: angular.ILocationProvider,
     $compileProvider: angular.ICompileProvider,
@@ -30,10 +32,13 @@ export default function configs(
 
     // IE caches each and every GET unless the following is applied:
     const defaults: angular.IHttpProviderDefaults = $httpProvider.defaults;
-    const ieHeaders = { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
+    const ieHeaders = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
     Object.assign(defaults.headers, { get: ieHeaders });
 
-    ['en', 'fi', 'sv'].forEach(l => $translateProvider.translations(l, require(`./assets/i18n/${l}.json`)));
+    ['en', 'fi', 'sv'].forEach(
+        // eslint-disable-next-line
+        l => $translateProvider.translations(l, require(`./assets/i18n/${l}.json`)),
+    );
 
     $translateProvider.useSanitizeValueStrategy('');
     $translateProvider.preferredLanguage('en');
@@ -43,176 +48,233 @@ export default function configs(
 
     // ROUTING -->
 
-    /* index */
-    $routeProvider.when('/', { template: '<dashboard></dashboard>', reloadOnSearch: false });
+    $stateProvider
+        .state('dashboard', { url: '/', component: 'dashboard', reloadOnSearch: false })
+        .state('library', { url: '/questions', component: 'library' })
+        .state('question', {
+            url: '/questions/{id}',
+            component: 'question',
+            resolve: {
+                newQuestion: () => false,
+            },
+        })
+        .state('newQuestion', {
+            url: '/questions/newQuestion',
+            component: 'question',
+            resolve: {
+                newQuestion: () => true,
+            },
+        })
+        .state('newExam', { url: '/exams/new', component: 'newExam' })
+        .state('examEditor', { url: '/exams/{id}/{tab}', component: 'examTabs' })
+        .state('courseSelector', { url: '/exams/{id}/select/course', component: 'courseSelection' })
+        .state('examPreview', {
+            url: '/exams/{id}/view/preview?tab',
+            component: 'examination',
+            resolve: { isPreview: () => true },
+        })
+        .state('collaborativePreview', {
+            url: '/exams/collaborative/{id}/view/preview?tab',
+            component: 'examination',
+            resolve: {
+                isPreview: () => true,
+                isCollaborative: () => true,
+            },
+        })
+        .state('printout', { url: '/exams/{id}/view/printout?tab', component: 'printout' })
+        .state('printouts', { url: '/printouts', component: 'printoutListing' })
+        .state('collaborativeExams', { url: '/exams/collaborative', component: 'collaborativeExamListing' })
+        .state('collaborativeExamEditor', {
+            url: '/exams/collaborative/{id}/{tab}',
+            component: 'examTabs',
+            resolve: {
+                collaborative: () => true,
+            },
+        })
+        .state('calendar', {
+            url: '/calendar/{id}',
+            component: 'calendar',
+            resolve: {
+                isExternal: () => false,
+                isCollaborative: () => false,
+            },
+        })
+        .state('externalCalendar', {
+            url: '/iop/calendar/{id}',
+            component: 'calendar',
+            resolve: {
+                isExternal: () => true,
+                isCollaborative: () => false,
+            },
+        })
+        .state('collaborativeCalendar', {
+            url: '/calendar/collaborative/{id}',
+            component: 'calendar',
+            resolve: {
+                isExternal: () => false,
+                isCollaborative: () => true,
+            },
+        })
+        .state('logout', { url: '/logout', component: 'logout' })
+        .state('examination', {
+            url: '/student/exam/{hash}',
+            component: 'examination',
+            resolve: {
+                isPreview: () => false,
+            },
+        })
+        .state('waitingRoom', { url: '/student/waiting-room/{id}', component: 'waitingRoom' })
+        .state('waitingRoomNoExam', { url: '/student/waiting-room', component: 'waitingRoom' })
+        .state('wrongRoom', {
+            url: '/student/wrong-room/{eid}/{mid}',
+            component: 'wrongLocation',
+            resolve: {
+                cause: () => 'room',
+            },
+        })
+        .state('wrongMachine', {
+            url: '/student/wrong-machine/{eid}/{mid}',
+            component: 'wrongLocation',
+            resolve: {
+                cause: () => 'machine',
+            },
+        })
+        .state('examSearch', { url: '/student/exams', component: 'examSearch' })
+        .state('collaborativeExamSearch', {
+            url: '/student/exams/collaborative',
+            component: 'collaborativeExamSearch',
+        })
+        .state('participations', { url: '/student/participations', component: 'examParticipations' })
+        .state('collaborativeParticipations', {
+            url: '/student/participations/collaborative',
+            component: 'collaborativeExamParticipations',
+        })
+        .state('examinationLogout', { url: '/student/logout?reason&quitLinkEnabled', component: 'examinationLogout' })
+        .state('enrolments', { url: '/enroll/exam/{id}?{code}', component: 'examEnrolments' })
+        .state('assessment', {
+            url: '/assessments/{id}',
+            component: 'assessment',
+            resolve: {
+                collaborative: () => false,
+            },
+        })
+        .state('collaborativeAssessment', {
+            url: '/assessments/collaborative/{id}/{ref}',
+            component: 'assessment',
+            resolve: {
+                collaborative: () => true,
+            },
+        })
+        .state('speedReview', { url: '/speedreview/{id}', component: 'speedReview' })
+        .state('printedAssessment', {
+            url: '/print/exam/{id}',
+            component: 'printedAssessment',
+            resolve: {
+                collaborative: () => false,
+            },
+        })
+        .state('collaborativePrintedAssessment', {
+            url: '/print/exam/{id}/{ref}',
+            component: 'printedAssessment',
+            resolve: {
+                collaborative: () => true,
+            },
+        })
+        .state('questionAssessment', { url: '/assessments/{id}/questions', component: 'questionAssessment' })
+        .state('reservations', { url: '/reservations', component: 'teacherReservations' })
+        .state('examReservations', { url: '/reservations/{eid}', component: 'teacherReservations' })
+        .state('exams', { url: '/exams', component: 'examList' })
+        .state('rooms', { url: '/rooms', component: 'examRoomsAdminTabs' })
+        .state('room', { url: '/rooms/{id}', component: 'room' })
+        .state('availability', { url: '/rooms/{id}/availability', component: 'availability' })
+        .state('multiRoom', { url: '/rooms_edit/edit_multiple', component: 'multiRoom' })
+        .state('software', { url: '/softwares', component: 'software' })
+        .state('accessibility', { url: '/accessibility', component: 'accessibility' })
+        .state('machine', { url: '/machines/{id}', component: 'machine' })
+        .state('reports', { url: '/reports', component: 'reports' })
+        .state('statistics', { url: '/statistics', component: 'statistics' })
+        .state('settings', { url: '/settins', component: 'settings' })
+        .state('users', { url: '/users', component: 'users' })
+        .state('languageInspections', { url: '/inspections', component: 'languageInspections' })
+        .state('languageInspectionReports', { url: '/inspections/reports', component: 'maturityReporting' });
 
-    // questions
-    $routeProvider.when('/questions', { template: '<library></library>' });
-    $routeProvider.when('/questions/:id', { template: '<question new-question="false"></question>' });
-    $routeProvider.when('/questions/newQuestion/:create', { template: '<question new-question="true"></question>' });
-
-    /* exams */
-    $routeProvider.when('/exams/new', { template: '<new-exam></new-exam>' });
-
-    $routeProvider.when('/exams/:id/:tab', { template: '<exam-tabs></exam-tabs>' });
-    $routeProvider.when('/exams/:id/select/course', { template: '<course-selection></course-selection>' });
-    $routeProvider.when('/exams/:id/view/preview/:tab?', { template: '<examination is-preview="true"><examination>' });
-    $routeProvider.when('/exams/collaborative/:id/view/preview/:tab?',
-        { template: '<examination is-preview="true" is-collaborative="true"><examination>' });
-
-    $routeProvider.when('/exams/:id/view/printout/:tab?', { template: '<printout></printout>' });
-    $routeProvider.when('/printouts', { template: '<printout-listing></printout-listing>' });
-
-    /* collaborative exams */
-    $routeProvider.when('/exams/collaborative',
-        { template: '<collaborative-exam-listing>></collaborative-exam-listing>' });
-    $routeProvider.when('/exams/collaborative/:id/:tab', { template: '<exam-tabs collaborative="true"></exam-tabs>' });
-
-    /* calendar */
-    $routeProvider.when('/calendar/:id', { template: '<calendar [isExternal]="false"></calendar>' });
-    $routeProvider.when('/iop/calendar/:id', { template: '<calendar [isExterna]l="true"></calendar>' });
-    $routeProvider.when('/calendar/collaborative/:id',
-        { template: '<calendar [isExternal]="false" [isCollaborative]="true"></calendar>' });
-
-
-    /* logout */
-    $routeProvider.when('/logout', { template: '<logout></logout>' });
-
-    /* Student */
-    $routeProvider.when('/student/exam/:hash', { template: '<examination is-preview="false"><examination>' });
-    $routeProvider.when('/student/waiting-room/:id?', { template: '<waiting-room></waiting-room>' });
-    $routeProvider.when('/student/wrong-room/:eid/:mid',
-        { template: '<wrong-location cause="room"></wrong-location>' });
-    $routeProvider.when('/student/wrong-machine/:eid/:mid',
-        { template: '<wrong-location cause="machine"></wrong-location>' });
-
-    $routeProvider.when('/student/exams', { template: '<exam-search></exam-search>' });
-    $routeProvider.when('/student/exams/collaborative',
-        { template: '<collaborative-exam-search></collaborative-exam-search>' });
-    $routeProvider.when('/student/participations', { template: '<exam-participations></exam-participations>' });
-    $routeProvider.when('/student/participations/collaborative',
-        { template: '<collaborative-exam-participations></collaborative-exam-participations>' });
-    $routeProvider.when('/student/logout/:reason?/:quitLinkEnabled?',
-        { template: '<examination-logout></examination-logout>' });
-    $routeProvider.when('/enroll/exam/:id', { template: '<exam-enrolments></exam-enrolments>' });
-
-
-    /* review */
-    $routeProvider.when('/assessments/:id', { template: '<assessment></assessment>' });
-    $routeProvider.when('/assessments/collaborative/:id/:ref',
-        { template: '<assessment collaborative="true"></assessment>' });
-
-    $routeProvider.when('/speedreview/:id', { template: '<speed-review></speed-review>' });
-    $routeProvider.when('/print/exam/:id', { template: '<printed-assessment></printed-assessment>' });
-    $routeProvider.when('/print/exam/:id/:ref',
-        { template: '<printed-assessment collaborative="true"></printed-assessment>' });
-
-
-    $routeProvider.when('/assessments/:id/questions', { template: '<question-assessment></question-assessment>' });
-
-
-    /* reservations */
-    $routeProvider.when('/reservations', { template: '<teacher-reservations></teacher-reservations>' });
-    $routeProvider.when('/reservations/:eid', { template: '<teacher-reservations></teacher-reservations>' });
-
-    /* Admin */
-    $routeProvider.when('/exams', { template: '<exam-list></exam-list>' });
-    $routeProvider.when('/rooms', { template: '<exam-rooms-admin-tabs></exam-rooms-admin-tabs>' });
-    $routeProvider.when('/rooms/:id', { template: '<room></room>' });
-    $routeProvider.when('/rooms/:id/availability', { template: '<availability></availability>' });
-    $routeProvider.when('/rooms_edit/edit_multiple', { template: '<multi-room></multi-room>' });
-
-    $routeProvider.when('/softwares', { template: '<software></software>' });
-    $routeProvider.when('/accessibility', { template: '<accessibility></accessibility>' });
-    $routeProvider.when('/machines/:id', { template: '<machine></machine>' });
-
-    $routeProvider.when('/reports', { template: '<reports></reports>' });
-    $routeProvider.when('/statistics', { template: '<statistics></statistics>' });
-    $routeProvider.when('/settings', { template: '<settings></settings>' });
-    $routeProvider.when('/users', { template: '<users></users>' });
-
-    /* Language inspectors */
-    $routeProvider.when('/inspections', { template: '<language-inspections></language-inspections>' });
-    $routeProvider.when('/inspections/reports', { template: '<maturity-reporting></maturity-reporting>' });
-
-    $routeProvider.otherwise({ redirectTo: '/' });
-
+    $urlRouterProvider.otherwise('/');
 
     // HTTP INTERCEPTOR
-    $httpProvider.interceptors.push(
-        function ($q, $rootScope, $location, $translate, WrongLocation, Session) {
-            'ngInject';
-            return {
-                'request': function (request) {
-                    if (Session.getUser()) {
-                        request.headers = Object.assign(request.headers,
-                            { 'x-exam-authentication': Session.getUser().token });
-                    }
-                    return request;
-                },
-                'response': function (response) {
-
-                    const b64ToUtf8 = function (str, encoding = 'utf-8') {
-                        const bytes = base64.toByteArray(str);
-                        return new (TextDecoder)(encoding).decode(bytes);
-                    };
-
-                    const unknownMachine = response.headers()['x-exam-unknown-machine'];
-                    const wrongRoom = response.headers()['x-exam-wrong-room'];
-                    const wrongMachine = response.headers()['x-exam-wrong-machine'];
-                    const wrongUserAgent = response.headers()['x-exam-wrong-agent-config'];
-                    const hash = response.headers()['x-exam-start-exam'];
-
-                    const enrolmentId = response.headers()['x-exam-upcoming-exam'];
-                    let parts: string[];
-                    if (unknownMachine) {
-                        const location = b64ToUtf8(unknownMachine).split(':::');
-                        WrongLocation.display(location); // Show warning notice on screen
-                    } else if (wrongRoom) {
-                        parts = b64ToUtf8(wrongRoom).split(':::');
-                        $location.path('/student/wrong-room/' + parts[0] + '/' + parts[1]);
-                        $rootScope.$broadcast('wrongLocation');
-                    } else if (wrongMachine) {
-                        parts = b64ToUtf8(wrongMachine).split(':::');
-                        $location.path('/student/wrong-machine/' + parts[0] + '/' + parts[1]);
-                        $rootScope.$broadcast('wrongLocation');
-                    } else if (wrongUserAgent) {
-                        WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
-                    } else if (enrolmentId) { // Go to waiting room
-                        const id = enrolmentId === 'none' ? '' : enrolmentId;
-                        $location.path(enrolmentId === 'none' ?
-                            '/student/waiting-room' : '/student/waiting-room/' + id);
-                        $rootScope.$broadcast('upcomingExam');
-                    } else if (hash) { // Start/continue exam
-                        $location.path('/student/exam/' + hash);
-                        $rootScope.$broadcast('examStarted');
-                    }
-                    return response;
-                },
-                'responseError': function (response) {
-                    if (response.status === -1) {
-                        // connection failure
-                        toast.error($translate.instant('sitnet_connection_refused'));
-                    } else if (typeof response.data === 'string' || response.data instanceof String) {
-                        const deferred = $q.defer();
-                        if (response.data.match(/^".*"$/g)) {
-                            response.data = response.data.slice(1, response.data.length - 1);
-                        }
-                        const parts = response.data.split(' ');
-                        $translate(parts).then((t: string[]) => {
-                            for (let i = 0; i < parts.length; i++) {
-                                if (parts[i].substring(0, 7) === 'sitnet_') {
-                                    parts[i] = t[parts[i]];
-                                }
-                            }
-                            response.data = parts.join(' ');
-                            return deferred.reject(response);
-                        });
-                        return deferred.promise;
-                    }
-                    return $q.reject(response);
+    $httpProvider.interceptors.push(function($q, $rootScope, $state, $translate, $window, WrongLocation) {
+        'ngInject';
+        return {
+            response: function(response) {
+                if (!$window['TextDecoder']) {
+                    $window['TextDecoder'] = textEncoding.TextDecoder;
                 }
-            };
-        }
-    );
+
+                const b64ToUtf8 = (str: string, encoding = 'utf-8'): string => {
+                    const bytes = base64.toByteArray(str);
+                    return new TextDecoder(encoding).decode(bytes);
+                };
+
+                const unknownMachine = response.headers()['x-exam-unknown-machine'];
+                const wrongRoom = response.headers()['x-exam-wrong-room'];
+                const wrongMachine = response.headers()['x-exam-wrong-machine'];
+                const wrongUserAgent = response.headers()['x-exam-wrong-agent-config'];
+                const hash = response.headers()['x-exam-start-exam'];
+
+                const enrolmentId = response.headers()['x-exam-upcoming-exam'];
+                let parts: string[];
+                if (unknownMachine) {
+                    const location = b64ToUtf8(unknownMachine).split(':::');
+                    WrongLocation.display(location); // Show warning notice on screen
+                } else if (wrongRoom) {
+                    parts = b64ToUtf8(wrongRoom).split(':::');
+                    $state.go('wrongRoom', { eid: parts[0], mid: parts[1] });
+                    $rootScope.$broadcast('wrongLocation');
+                } else if (wrongMachine) {
+                    parts = b64ToUtf8(wrongMachine).split(':::');
+                    $state.go('wrongMachine', { eid: parts[0], mid: parts[1] });
+                    $rootScope.$broadcast('wrongLocation');
+                } else if (wrongUserAgent) {
+                    WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
+                } else if (enrolmentId) {
+                    // Go to waiting room
+                    const id = enrolmentId === 'none' ? '' : enrolmentId;
+                    if (enrolmentId === 'none') {
+                        // No upcoming exams
+                        $state.go('waitingRoomNoExam');
+                    } else {
+                        $state.go('waitingRoom', { id: id });
+                    }
+                    $rootScope.$broadcast('upcomingExam');
+                } else if (hash) {
+                    // Start/continue exam
+                    $state.go('examination', { hash: hash });
+                    $rootScope.$broadcast('examStarted');
+                }
+                return response;
+            },
+            responseError: function(response) {
+                if (response.status === -1) {
+                    // connection failure
+                    toast.error($translate.instant('sitnet_connection_refused'));
+                } else if (typeof response.data === 'string' || response.data instanceof String) {
+                    const deferred = $q.defer();
+                    if (response.data.match(/^".*"$/g)) {
+                        response.data = response.data.slice(1, response.data.length - 1);
+                    }
+                    const parts = response.data.split(' ');
+                    $translate(parts).then((t: string[]) => {
+                        for (let i = 0; i < parts.length; i++) {
+                            if (parts[i].substring(0, 7) === 'sitnet_') {
+                                parts[i] = t[parts[i]];
+                            }
+                        }
+                        response.data = parts.join(' ');
+                        return deferred.reject(response);
+                    });
+                    return deferred.promise;
+                }
+                return $q.reject(response);
+            },
+        };
+    });
 }

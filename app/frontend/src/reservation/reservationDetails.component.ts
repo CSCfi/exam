@@ -22,13 +22,11 @@ import * as toast from 'toastr';
 import { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
-
 @Component({
     selector: 'reservation-details',
-    template: require('./reservationDetails.component.html')
+    template: require('./reservationDetails.component.html'),
 })
 export class ReservationDetailsComponent {
-
     @Input() reservations: Reservation[];
     @Input() isAdminView: boolean;
 
@@ -38,19 +36,21 @@ export class ReservationDetailsComponent {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private Reservation: ReservationService
-    ) { }
+        private Reservation: ReservationService,
+    ) {}
 
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
     getStateClass = (reservation: Reservation) =>
-        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase()
+        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
 
     removeReservation(reservation: Reservation) {
-        this.Reservation.cancelReservation(reservation).then(() => {
-            this.reservations.splice(this.reservations.indexOf(reservation), 1);
-            toast.info(this.translate.instant('sitnet_reservation_removed'));
-        }).catch(err => toast.error(err));
+        this.Reservation.cancelReservation(reservation)
+            .then(() => {
+                this.reservations.splice(this.reservations.indexOf(reservation), 1);
+                toast.info(this.translate.instant('sitnet_reservation_removed'));
+            })
+            .catch(err => toast.error(err));
     }
 
     permitRetrial(reservation) {
@@ -59,9 +59,9 @@ export class ReservationDetailsComponent {
                 reservation.retrialPermitted = true;
                 toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
-            err => toast.error(err));
+            err => toast.error(err),
+        );
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
-
 }

@@ -25,30 +25,22 @@ import { ReservationDetailsComponent } from './reservationDetails.component';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        UtilityModule,
-        OrderModule,
-    ],
-    exports: [
-        AdminReservationComponent
-    ],
+    imports: [NgbModule, UtilityModule, OrderModule],
+    exports: [AdminReservationComponent],
     declarations: [
         ChangeMachineDialogComponent,
         RemoveReservationDialogComponent,
         ReservationDetailsComponent,
         AdminReservationComponent,
-        TeacherReservationComponent
+        TeacherReservationComponent,
     ],
     entryComponents: [
         ChangeMachineDialogComponent,
         RemoveReservationDialogComponent,
         ReservationDetailsComponent,
         AdminReservationComponent,
-        TeacherReservationComponent
+        TeacherReservationComponent,
     ],
-    providers: [
-        ReservationService,
-    ]
+    providers: [ReservationService],
 })
-export class ReservationModule { }
+export class ReservationModule {}

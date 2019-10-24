@@ -14,14 +14,20 @@
  */
 /// <reference types="ckeditor" />
 import {
-    AfterViewChecked, AfterViewInit, Component, forwardRef, Input, NgZone, OnDestroy,
-    ViewChild
+    AfterViewChecked,
+    AfterViewInit,
+    Component,
+    forwardRef,
+    Input,
+    NgZone,
+    OnDestroy,
+    ViewChild,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 
-declare var CKEDITOR: any;
+declare let CKEDITOR: any;
 
 @Component({
     selector: 'ckeditor',
@@ -32,10 +38,11 @@ declare var CKEDITOR: any;
             multi: true,
         },
     ],
-    template: `<textarea #host></textarea>`,
+    template: `
+        <textarea #host></textarea>
+    `,
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
-
     @Input() enableClozeTest: boolean;
     @Input()
     set value(v) {
@@ -52,10 +59,10 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
 
     instance: any;
     _value: any;
-    onChange(_: any) { }
-    onTouched() { }
+    onChange(_: any) {}
+    onTouched() {}
 
-    constructor(private zone: NgZone, private translate: TranslateService) { }
+    constructor(private zone: NgZone, private translate: TranslateService) {}
 
     updateValue(value: any) {
         this.zone.run(() => {
@@ -65,7 +72,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         });
     }
 
-    private documentContains = (n: Node) => document.contains ? document.contains(n) : document.body.contains(n);
+    private documentContains = (n: Node) => (document.contains ? document.contains(n) : document.body.contains(n));
 
     editorInit() {
         if (typeof CKEDITOR === 'undefined') {
@@ -132,5 +139,4 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     registerOnTouched(fn: any): void {
         this.onTouched = fn;
     }
-
 }

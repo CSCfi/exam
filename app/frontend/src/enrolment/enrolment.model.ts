@@ -18,7 +18,7 @@ export interface Scores {
     rejectedAnswerCount: number;
 }
 
-export interface ReviewedExam extends Exam, Scores { }
+export interface ReviewedExam extends Exam, Scores {}
 
 export interface AssessedParticipation extends ExamParticipation {
     reviewedExam: Exam;

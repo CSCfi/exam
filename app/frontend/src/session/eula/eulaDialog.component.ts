@@ -16,46 +16,41 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-
 @Component({
     selector: 'eula-dialog',
     template: `
-    <div id="sitnet-dialog">
-        <div class="modal-header">
-            <div class="student-enroll-dialog-wrap">
-                <h1 class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</h1>
+        <div id="sitnet-dialog">
+            <div class="modal-header">
+                <div class="student-enroll-dialog-wrap">
+                    <h1 class="student-enroll-title">{{ 'sitnet_accept_useragreement' | translate }}</h1>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div [innerHtml]="settings.eula.value"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="student-message-dialog-button-save">
+                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                        {{ 'sitnet_button_accept' | translate }}
+                    </button>
+                </div>
+                <div class="student-message-dialog-button-cancel">
+                    <button class="btn btn-sm btn-danger pull-left" (click)="activeModal.dismiss()">
+                        {{ 'sitnet_button_decline' | translate }}
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="modal-body">
-            <div [innerHtml]="settings.eula.value">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
-                    {{'sitnet_button_accept' | translate}}
-                </button>
-            </div>
-            <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-sm btn-danger pull-left" (click)="activeModal.dismiss()">
-                    {{'sitnet_button_decline' | translate}}
-                </button>
-            </div>
-        </div>
-    </div>
-    `
+    `,
 })
 export class EulaDialogComponent implements OnInit {
     settings = { eula: { value: '' } };
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient) { }
+    constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}
 
     ngOnInit() {
-        this.http.get<{ value: string }>('/app/settings/agreement').subscribe(
-            resp => this.settings = { eula: { value: resp.value } }
-        );
+        this.http
+            .get<{ value: string }>('/app/settings/agreement')
+            .subscribe(resp => (this.settings = { eula: { value: resp.value } }));
     }
-
 }

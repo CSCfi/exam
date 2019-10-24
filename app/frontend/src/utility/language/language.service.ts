@@ -12,48 +12,48 @@
  * on an 'AS IS' basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
 import { ExamLanguage } from '../../exam/exam.model';
 
-export interface ISOLang {
+export interface IsoLang {
     name: string;
     nativeName: string;
 }
 
-export interface ISOLangMap {
-    [code: string]: ISOLang;
+export interface IsoLangMap {
+    [code: string]: IsoLang;
 }
 
 @Injectable()
 export class LanguageService {
+    constructor(private http: HttpClient) {}
 
-    constructor(private http: HttpClient) { }
-
-    private isoLangs: ISOLangMap = require('./languages');
+    private isoLangs: IsoLangMap = require('./languages');
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang.name;
-    }
+    };
 
     getLanguageNativeName = (code: string) => {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang.nativeName;
-    }
+    };
 
     getExamLanguages(): Promise<ExamLanguage[]> {
-
         return new Promise((resolve, reject) => {
-            this.http.get<ExamLanguage[]>('/app/languages').subscribe(resp => {
-                resolve(resp);
-            }, err => reject(err));
+            this.http.get<ExamLanguage[]>('/app/languages').subscribe(
+                resp => {
+                    resolve(resp);
+                },
+                err => reject(err),
+            );
         });
     }
 
     getLanguages = () => Object.keys(this.isoLangs).map(k => this.isoLangs[k]);
-
 }

@@ -3,42 +3,88 @@
         <div class="col-md-12">
             <span class="student-details-title-wrap">
                 <history-back></history-back>
-                <span class="student-exam-details-title">{{$ctrl.examInfo.title}}</span>
+                <div class="student-exam-details-title">{{$ctrl.examInfo.title}}</div>
             </span>
-            <span ng-show="$ctrl.exam.state" class="exam-status">{{'sitnet_' + $ctrl.exam.state | lowercase |
-                translate}}
+            <span ng-show="$ctrl.exam.state" class="exam-status"
+                >{{'sitnet_' + $ctrl.exam.state | lowercase | translate}}
             </span>
         </div>
     </div>
 
     <div class="tab-wrapper-exams">
         <uib-tabset active="$ctrl.activeTab">
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="1" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}"
-                deselect="$ctrl.tabChanged($selectedIndex)">
-                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.examUpdated(props)"
-                    collaborative="$ctrl.collaborative">
+            <uib-tab
+                ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)"
+                index="1"
+                heading="{{ 'sitnet_exam_basic_information_tab' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
+                <basic-exam-info
+                    exam="$ctrl.exam"
+                    on-next-tab-selected="$ctrl.switchToQuestions()"
+                    on-update="$ctrl.examUpdated(props)"
+                    collaborative="$ctrl.collaborative"
+                >
                 </basic-exam-info>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="2" heading="{{ 'sitnet_exam_question_tab' | translate }}"
-                deselect="$ctrl.tabChanged($selectedIndex)">
-                <sections [exam]="$ctrl.exam" (on-previous-tab-selected)="$ctrl.switchToBasicInfo()"
-                    (on-next-tab-selected)="$ctrl.switchToPublishSettings()" [collaborative]="$ctrl.collaborative"
-                    (on-new-library-question)="$ctrl.reload()">
+            <uib-tab
+                ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)"
+                index="2"
+                heading="{{ 'sitnet_exam_question_tab' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
+                <sections
+                    exam="$ctrl.exam"
+                    on-previous-tab-selected="$ctrl.switchToBasicInfo()"
+                    on-next-tab-selected="$ctrl.switchToPublishSettings()"
+                    collaborative="$ctrl.collaborative"
+                    on-new-library-question="$ctrl.reload()"
+                >
                 </sections>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="3" heading="{{ 'sitnet_exam_publish_tab' | translate }}"
-                deselect="$ctrl.tabChanged($selectedIndex)">
-                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()" collaborative="$ctrl.collaborative">
+            <uib-tab
+                ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)"
+                index="3"
+                heading="{{ 'sitnet_exam_publish_tab' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
+                <exam-publication
+                    exam="$ctrl.exam"
+                    on-previous-tab-selected="$ctrl.switchToQuestions()"
+                    collaborative="$ctrl.collaborative"
+                >
                 </exam-publication>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4" heading="{{ 'sitnet_exam_responses' | translate }}"
-                deselect="$ctrl.tabChanged($selectedIndex)">
-                <review-list exam="$ctrl.exam" collaborative="$ctrl.collaborative"></review-list>
+            <uib-tab
+                ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'"
+                index="4"
+                heading="{{ 'sitnet_exam_responses' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
+                <review-list
+                    ng-if="$ctrl.reviews"
+                    exam="$ctrl.exam"
+                    collaborative="$ctrl.collaborative"
+                    reviews="$ctrl.reviews"
+                    on-loaded="$ctrl.reviewsLoaded(reviews)"
+                ></review-list>
             </uib-tab>
             <!-- TODO: CHECK THE VISIBILITY WITH COLLABORATIVE EXAMS -->
-            <uib-tab ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT' && !$ctrl.collaborative"
-                index="5" heading="{{ 'sitnet_question_review' | translate }}" deselect="$ctrl.tabChanged($selectedIndex)">
+            <uib-tab
+                ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT' && !$ctrl.collaborative"
+                index="5"
+                heading="{{ 'sitnet_question_review' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
                 <question-reviews exam-id="$ctrl.exam.id"></question-reviews>
+            </uib-tab>
+            <uib-tab
+                ng-if="$ctrl.exam && !$ctrl.collaborative && ($ctrl.isOwner() || $ctrl.user.isAdmin)"
+                index="6"
+                heading="{{ 'sitnet_exam_summary_tab' | translate }}"
+                deselect="$ctrl.tabChanged($selectedIndex)"
+            >
+                <exam-summary ng-if="$ctrl.reviews" exam="$ctrl.exam" reviews="$ctrl.reviews"></exam-summary>
             </uib-tab>
         </uib-tabset>
     </div>

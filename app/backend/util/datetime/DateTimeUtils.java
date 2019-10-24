@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.typesafe.config.ConfigFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -30,7 +31,6 @@ import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.calendar.ExceptionWorkingHours;
 import backend.models.iop.ExternalReservation;
-import backend.util.config.ConfigUtil;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
@@ -178,11 +178,16 @@ public class DateTimeUtils {
         return doAdjustDST(dateTime, room);
     }
 
+    private static DateTimeZone getDefaultTimeZone() {
+        String config = ConfigFactory.load().getString("sitnet.application.timezone");
+        return DateTimeZone.forID(config);
+    }
+
     private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
         DateTimeZone dtz;
         DateTime result = dateTime;
         if (room == null) {
-            dtz = ConfigUtil.getDefaultTimeZone();
+            dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
         }
@@ -193,12 +198,12 @@ public class DateTimeUtils {
     }
 
     public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = ConfigUtil.getDefaultTimeZone();
+        DateTimeZone dtz = getDefaultTimeZone();
         return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 
     public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = ConfigUtil.getDefaultTimeZone();
+        DateTimeZone dtz = getDefaultTimeZone();
         return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 

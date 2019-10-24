@@ -16,52 +16,59 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.exam.editor')
-    .component('examPreParticipantSelector', {
-        template: require('./examPreParticipantSelector.template.html'),
-        bindings: {
-            exam: '<'
+angular.module('app.exam.editor').component('examPreParticipantSelector', {
+    template: require('./examPreParticipantSelector.template.html'),
+    bindings: {
+        exam: '<',
+    },
+    controller: [
+        '$translate',
+        '$http',
+        'Enrolment',
+        function($translate, $http, Enrolment) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                vm.newPreParticipant = {
+                    email: null,
+                };
+            };
+
+            vm.addPreParticipant = function() {
+                const exists =
+                    vm.exam.examEnrolments
+                        .map(function(e) {
+                            return e.preEnrolledUserEmail;
+                        })
+                        .indexOf(vm.newPreParticipant.email) > -1;
+                if (!exists) {
+                    Enrolment.enrollStudent(vm.exam, vm.newPreParticipant).then(
+                        function(enrolment) {
+                            vm.exam.examEnrolments.push(enrolment);
+                            delete vm.newPreParticipant.email;
+                        },
+                        function(error) {
+                            toast.error(error.data);
+                        },
+                    );
+                }
+            };
+
+            vm.removeParticipant = function(id) {
+                $http
+                    .delete(`/app/enrolments/student/${id}`)
+                    .then(function() {
+                        vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function(ee) {
+                            return ee.id !== id;
+                        });
+                        toast.info($translate.instant('sitnet_participant_removed'));
+                    })
+                    .catch(err => toast.error(err.data));
+            };
+
+            vm.isPreEnrolment = function(enrolment) {
+                return enrolment.preEnrolledUserEmail;
+            };
         },
-        controller: ['$translate', '$http', 'Enrolment',
-            function ($translate, $http, Enrolment) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.newPreParticipant = {
-                        'email': null
-                    };
-                };
-
-                vm.addPreParticipant = function () {
-                    const exists = vm.exam.examEnrolments.map(function (e) {
-                        return e.preEnrolledUserEmail;
-                    }).indexOf(vm.newPreParticipant.email) > -1;
-                    if (!exists) {
-                        Enrolment.enrollStudent(vm.exam, vm.newPreParticipant).then(
-                            function (enrolment) {
-                                vm.exam.examEnrolments.push(enrolment);
-                                delete vm.newPreParticipant.email;
-                            }, function (error) {
-                                toast.error(error.data);
-
-                            });
-                    }
-                };
-
-                vm.removeParticipant = function (id) {
-                    $http.delete(`/app/enrolments/student/${id}`).then(
-                        function () {
-                            vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
-                                return ee.id !== id;
-                            });
-                            toast.info($translate.instant('sitnet_participant_removed'));
-                        }).catch(err => toast.error(err.data));
-                };
-
-                vm.isPreEnrolment = function (enrolment) {
-                    return enrolment.preEnrolledUserEmail;
-                };
-
-            }]
-    });
+    ],
+});

@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -57,22 +58,27 @@ import backend.models.calendar.DefaultWorkingHours;
 import backend.models.calendar.ExceptionWorkingHours;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 public class RoomController extends BaseController {
 
-    private static final boolean EXAM_VISIT_ACTIVATED = ConfigUtil.isVisitingExaminationSupported();
+    private final boolean examVisitActivated;
+    private final String defaultTimeZoneId;
+    private ExternalFacilityAPI externalApi;
+    protected ActorSystem system;
     private static final Logger.ALogger logger = Logger.of(RoomController.class);
 
     @Inject
-    private ExternalFacilityAPI externalApi;
-
-    @Inject
-    protected ActorSystem system;
+    public RoomController(ExternalFacilityAPI externalFacilityAPI, ActorSystem actorSystem, ConfigReader configReader) {
+        this.externalApi = externalFacilityAPI;
+        this.system = actorSystem;
+        this.examVisitActivated = configReader.isVisitingExaminationSupported();
+        this.defaultTimeZoneId = configReader.getDefaultTimeZone().getID();
+    }
 
     private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
-        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
+        if (room.getExternalRef() != null && examVisitActivated) {
             return externalApi.updateFacility(room)
                     .thenApplyAsync(x -> ok("updated"))
                     .exceptionally(throwable -> internalServerError(throwable.getMessage()));
@@ -83,7 +89,7 @@ public class RoomController extends BaseController {
 
     private void asyncUpdateRemote(ExamRoom room) {
         // Handle remote updates in dedicated threads
-        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
+        if (room.getExternalRef() != null && examVisitActivated) {
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 try {
                     externalApi.updateFacility(room);
@@ -131,7 +137,8 @@ public class RoomController extends BaseController {
     public Result createExamRoomDraft() {
         ExamRoom examRoom = new ExamRoom();
         examRoom.setState("SAVED");
-        examRoom.setLocalTimezone(ConfigUtil.getDefaultTimeZone().getID());
+        examRoom.setLocalTimezone(defaultTimeZoneId);
+        examRoom.setMailAddress(new MailAddress());
         examRoom.save();
         return ok(Json.toJson(examRoom));
     }
@@ -182,20 +189,20 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public CompletionStage<Result> updateExamRoomAddress(Long id, Http.Request request) throws MalformedURLException {
         MailAddress address = bindForm(MailAddress.class, request);
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        if (room == null) {
+        MailAddress existing = Ebean.find(MailAddress.class, id);
+        if (existing == null) {
             return wrapAsPromise(notFound());
         }
-        MailAddress existing = room.getMailAddress();
-        if (existing == null) {
+        Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing)
+                .findOneOrEmpty();
+        if (room.isEmpty()) {
             return wrapAsPromise(notFound());
         }
         existing.setCity(address.getCity());
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
         existing.update();
-
-        return updateRemote(room);
+        return updateRemote(room.get());
     }
 
     private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
@@ -377,7 +384,7 @@ public class RoomController extends BaseController {
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
 
-        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
+        if (room.getExternalRef() != null && examVisitActivated) {
             return externalApi.inactivateFacility(room.getId())
                     .thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {
@@ -395,7 +402,7 @@ public class RoomController extends BaseController {
         room.setState(ExamRoom.State.ACTIVE.toString());
         room.update();
 
-        if (room.getExternalRef() != null && EXAM_VISIT_ACTIVATED) {
+        if (room.getExternalRef() != null && examVisitActivated) {
             return externalApi.activateFacility(room.getId())
                     .thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {

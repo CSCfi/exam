@@ -22,36 +22,33 @@ import * as toast from 'toastr';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
-
 @Component({
     selector: 'exam-search',
     template: require('./examSearch.component.html'),
 })
 export class ExamSearchComponent implements OnInit {
-
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
     filter: { text: string };
     loader: { loading: boolean };
     permissionCheck: { active: boolean };
 
-    constructor(
-        private http: HttpClient,
-        private Language: LanguageService
-    ) {
-        this.filterChanged.pipe(
-            debounceTime(500),
-            distinctUntilChanged()
-        ).subscribe(txt => {
-            if (this.permissionCheck.active === false) {
-                if (txt) {
-                    this.loader.loading = true;
-                    this.doSearch();
-                } else {
-                    this.exams = [];
+    constructor(private http: HttpClient, private Language: LanguageService) {
+        this.filterChanged
+            .pipe(
+                debounceTime(500),
+                distinctUntilChanged(),
+            )
+            .subscribe(txt => {
+                if (this.permissionCheck.active === false) {
+                    if (txt) {
+                        this.loader.loading = true;
+                        this.doSearch();
+                    } else {
+                        this.exams = [];
+                    }
                 }
-            }
-        });
+            });
     }
 
     ngOnInit() {
@@ -83,28 +80,24 @@ export class ExamSearchComponent implements OnInit {
             },
             err => {
                 toast.error(err.data);
-            }, () => {
+            },
+            () => {
                 this.loader.loading = false;
-            }
-        )
-
+            },
+        );
 
     private checkEnrolment = () => {
         this.exams.forEach(exam => {
             // TODO: optimize
-            this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${exam.id}`).subscribe(
-                enrolments => {
-                    if (enrolments.length === 0) {
-                        exam.alreadyEnrolled = false;
-                        exam.reservationMade = false;
-                    } else {
-                        exam.alreadyEnrolled = true;
-                        exam.reservationMade = enrolments.some(e => _.isObject(e.reservation));
-                    }
+            this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${exam.id}`).subscribe(enrolments => {
+                if (enrolments.length === 0) {
+                    exam.alreadyEnrolled = false;
+                    exam.reservationMade = false;
+                } else {
+                    exam.alreadyEnrolled = true;
+                    exam.reservationMade = enrolments.some(e => _.isObject(e.reservation));
                 }
-            );
+            });
         });
-    }
-
+    };
 }
-

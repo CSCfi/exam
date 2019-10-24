@@ -17,48 +17,41 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
-import { WindowRef } from '../window/window.service';
-import { Attachment } from '../../exam/exam.model';
 
+import { Attachment } from '../../exam/exam.model';
+import { WindowRef } from '../window/window.service';
 
 @Injectable()
 export class FileService {
-
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private windowRef: WindowRef) {
-
-        const svg = new Blob(
-            ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
-            { type: 'image/svg+xml;charset=utf-8' }
-        );
+    constructor(private http: HttpClient, private translate: TranslateService, private windowRef: WindowRef) {
+        const svg = new Blob(["<svg xmlns='http://www.w3.org/2000/svg'></svg>"], {
+            type: 'image/svg+xml;charset=utf-8',
+        });
         const img = new Image();
-        img.onload = () => this._supportsBlobUrls = true;
-        img.onerror = () => this._supportsBlobUrls = false;
+        img.onload = () => (this._supportsBlobUrls = true);
+        img.onerror = () => (this._supportsBlobUrls = false);
         img.src = URL.createObjectURL(svg);
     }
 
     download(url: string, filename: string, params?: any, post?: boolean) {
         const method = post ? 'POST' : 'GET';
-        this.http.request(method, url,
-            { responseType: 'text', observe: 'response', params: params })
-            .subscribe(
-                (resp: HttpResponse<string>) => {
-                    if (resp.body) {
-                        const contentType = resp.headers.get('Content-Type');
-                        if (contentType) {
-                            this._saveFile(resp.body, filename, contentType.split(';')[0]);
-                        }
+        this.http.request(method, url, { responseType: 'text', observe: 'response', params: params }).subscribe(
+            (resp: HttpResponse<string>) => {
+                if (resp.body) {
+                    const contentType = resp.headers.get('Content-Type');
+                    if (contentType) {
+                        this._saveFile(resp.body, filename, contentType.split(';')[0]);
                     }
-                },
-                resp => {
-                    console.log('error ' + JSON.stringify(resp));
-                    toast.error(resp.body || resp);
-                });
+                }
+            },
+            resp => {
+                console.log('error ' + JSON.stringify(resp));
+                toast.error(resp.body || resp);
+            },
+        );
     }
 
     open(file: Blob) {
@@ -73,13 +66,15 @@ export class FileService {
     getMaxFilesize(): Promise<{ filesize: number }> {
         return new Promise((resolve, reject) => {
             if (this._maxFileSize) {
-                resolve({ 'filesize': this._maxFileSize });
+                resolve({ filesize: this._maxFileSize });
             } else {
-                this.http.get<{ filesize: number }>('/app/settings/maxfilesize')
-                    .subscribe(resp => {
+                this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe(
+                    resp => {
                         this._maxFileSize = resp.filesize;
                         resolve(resp);
-                    }, e => reject(e));
+                    },
+                    e => reject(e),
+                );
             }
         });
     }
@@ -93,9 +88,8 @@ export class FileService {
                 if (callback) {
                     callback();
                 }
-            }).catch(resp =>
-                toast.error(this.translate.instant(resp.data))
-            );
+            })
+            .catch(resp => toast.error(this.translate.instant(resp.data)));
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
@@ -104,9 +98,7 @@ export class FileService {
                 parent.objectVersion = resp.objectVersion; // FIXME: CSCEXAM-266 fixed in master, won't work here (ts)
                 parent.attachment = resp;
             })
-            .catch(resp =>
-                toast.error(this.translate.instant(resp.data))
-            );
+            .catch(resp => toast.error(this.translate.instant(resp.data)));
     }
 
     private _saveFile(data: string, fileName: string, contentType: string) {
@@ -151,17 +143,13 @@ export class FileService {
             } else {
                 const fd = new FormData();
                 fd.append('file', file);
-                for (let k in params) {
+                for (const k in params) {
                     if (params.hasOwnProperty(k)) {
                         fd.append(k, params[k]);
                     }
                 }
-                this.http.post<Attachment>(url, fd).subscribe(
-                    resp => resolve(resp),
-                    resp => reject(resp)
-                );
+                this.http.post<Attachment>(url, fd).subscribe(resp => resolve(resp), resp => reject(resp));
             }
         });
     }
-
 }

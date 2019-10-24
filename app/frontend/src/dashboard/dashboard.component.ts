@@ -16,16 +16,14 @@ import { Component, OnInit } from '@angular/core';
 
 import { SessionService, User } from '../session/session.service';
 
-
 @Component({
     selector: 'dashboard',
-    template: require('./dashboard.component.html')
+    template: require('./dashboard.component.html'),
 })
 export class DashboardComponent implements OnInit {
-
     user: User;
 
-    constructor(private Session: SessionService) { }
+    constructor(private Session: SessionService) {}
 
     ngOnInit() {
         this.user = this.Session.getUser();

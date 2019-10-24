@@ -18,7 +18,7 @@ import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static
 import { LanguageService } from '../utility/language/language.service';
 import { HistoryBackComponent } from '../utility/history/historyBack.component';
 
-angular.module('app.common', [])
+angular
+    .module('app.common', [])
     .service('Language', downgradeInjectable(LanguageService))
     .directive('historyBack', downgradeComponent({ component: HistoryBackComponent }));
-

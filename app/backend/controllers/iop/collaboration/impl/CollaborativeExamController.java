@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -50,9 +51,12 @@ import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
+
+    @Inject
+    private ConfigReader configReader;
 
     private Exam prepareDraft(User user) {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
@@ -63,6 +67,7 @@ public class CollaborativeExamController extends CollaborationController {
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
+        cleanUser(user);
         AppUtil.setCreator(exam, user);
 
         ExamSection examSection = new ExamSection();
@@ -80,7 +85,7 @@ public class CollaborativeExamController extends CollaborationController {
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         exam.setExamActiveStartDate(start);
         exam.setExamActiveEndDate(start.plusDays(1));
-        exam.setDuration(ConfigUtil.getExamDurations().get(0)); // check
+        exam.setDuration(configReader.getExamDurations().get(0)); // check
         exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0)); // check
 
         exam.setTrialCount(1);
@@ -94,7 +99,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -116,7 +121,7 @@ public class CollaborativeExamController extends CollaborationController {
     private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
         return findCollaborativeExam(id).map(ce -> downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
@@ -153,7 +158,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> createExam(Http.Request request) {
         Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         WSRequest wsRequest = wsClient.url(url.get().toString());
@@ -284,4 +289,13 @@ public class CollaborativeExamController extends CollaborationController {
         user.setEmail(email);
         return user;
     }
+
+    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // serialization of exam
+    private void cleanUser(User user) {
+        user.getEnrolments().clear();
+        user.getParticipations().clear();
+        user.getInspections().clear();
+    }
+
 }

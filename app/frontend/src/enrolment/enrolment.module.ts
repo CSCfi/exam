@@ -33,14 +33,8 @@ import { WrongLocationComponent } from './wrong-location/wrongLocation.component
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        OrderModule,
-        UtilityModule,
-    ],
-    exports: [
-        ActiveEnrolmentComponent
-    ],
+    imports: [NgbModule, OrderModule, UtilityModule],
+    exports: [ActiveEnrolmentComponent],
     declarations: [
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
@@ -53,7 +47,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchComponent,
         ExamSearchResultComponent,
         WaitingRoomComponent,
-        WrongLocationComponent
+        WrongLocationComponent,
     ],
     entryComponents: [
         ActiveEnrolmentComponent,
@@ -67,11 +61,8 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchComponent,
         ExamSearchResultComponent,
         WaitingRoomComponent,
-        WrongLocationComponent
+        WrongLocationComponent,
     ],
-    providers: [
-        EnrolmentService,
-        WrongLocationService
-    ]
+    providers: [EnrolmentService, WrongLocationService],
 })
-export class EnrolmentModule { }
+export class EnrolmentModule {}

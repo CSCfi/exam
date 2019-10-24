@@ -19,34 +19,29 @@ import * as toast from 'toastr';
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
 
-
 @Component({
     selector: 'exam-search-result',
-    template: require('./examSearchResult.component.html')
+    template: require('./examSearchResult.component.html'),
 })
 export class ExamSearchResultComponent {
-
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 
     enrolling: boolean;
 
-    constructor(
-        private location: Location,
-        private Enrolment: EnrolmentService
-    ) { }
+    constructor(private location: Location, private Enrolment: EnrolmentService) {}
 
     enrollForExam = () => {
         if (this.enrolling) {
             return;
         }
         this.enrolling = true;
-        this.Enrolment.checkAndEnroll(this.exam, this.collaborative)
-            .subscribe(() => this.enrolling = false, err => toast.error(err.data));
-    }
+        this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(
+            () => (this.enrolling = false),
+            err => toast.error(err.data),
+        );
+    };
 
-    makeReservation = () => this.location.go(
-        (this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id
-    )
-
+    makeReservation = () =>
+        this.location.go((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id);
 }

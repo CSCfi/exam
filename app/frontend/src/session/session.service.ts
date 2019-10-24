@@ -57,7 +57,6 @@ interface Env {
 
 @Injectable()
 export class SessionService {
-
     private PING_INTERVAL: number = 60 * 1000;
     private user: User;
     private token: string;
@@ -71,14 +70,15 @@ export class SessionService {
     public devLogoutChange$: Observable<void>;
     public languageChange$: Observable<void>;
 
-    constructor(private http: HttpClient,
+    constructor(
+        private http: HttpClient,
         private i18n: TranslateService,
         @Inject('$translate') private $ajsTranslate: any,
         private location: Location,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
-        private windowRef: WindowRef) {
-
+        private windowRef: WindowRef,
+    ) {
         // TODO: Move to app.component.ts
         i18n.addLangs(['fi', 'sv', 'en']);
         i18n.setDefaultLang('en');
@@ -93,7 +93,7 @@ export class SessionService {
 
     getUser = () => this.user;
 
-    getUserName = () => this.user ? this.user.firstName + ' ' + this.user.lastName : '';
+    getUserName = () => (this.user ? this.user.firstName + ' ' + this.user.lastName : '');
 
     getToken = () => this.token;
 
@@ -102,7 +102,7 @@ export class SessionService {
         this.token = user.token;
     }
 
-    setEnv = () => this.init().subscribe(e => this.env = e);
+    setEnv = () => this.init().subscribe(e => (this.env = e));
 
     private init(): Observable<Env> {
         if (this.env) {
@@ -124,8 +124,9 @@ export class SessionService {
 
     getEnv$(): Observable<'DEV' | 'PROD'> {
         return this.init().pipe(
-            tap(env => this.env = env),
-            map(env => env.isProd ? 'PROD' : 'DEV'));
+            tap(env => (this.env = env)),
+            map(env => (env.isProd ? 'PROD' : 'DEV')),
+        );
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
@@ -136,7 +137,7 @@ export class SessionService {
         const location = this.windowRef.nativeWindow.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         if (data && data.logoutUrl) {
-            location.href = `${data.logoutUrl}?return=${localLogout}`;
+            location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!this.env || this.env.isProd) {
             // redirect to SP-logout directly
             location.href = localLogout;
@@ -164,10 +165,11 @@ export class SessionService {
                 delete this.token;
                 this.onLogoutSuccess(resp);
             },
-            error => toastr.error(error.data));
+            error => toastr.error(error.data),
+        );
     }
 
-    getLocale = () => this.user ? this.user.lang : 'en';
+    getLocale = () => (this.user ? this.user.lang : 'en');
 
     translate(lang: string) {
         this.i18n.use(lang);
@@ -179,13 +181,14 @@ export class SessionService {
         if (!this.user) {
             this.translate(lang);
         } else {
-            this.http.put('/app/user/lang', { lang: lang })
-                .subscribe(() => {
+            this.http.put('/app/user/lang', { lang: lang }).subscribe(
+                () => {
                     this.user.lang = lang;
                     this.webStorageService.set('EXAM_USER', this.user);
                     this.translate(lang);
                 },
-                    () => toastr.error('failed to switch language'));
+                () => toastr.error('failed to switch language'),
+            );
         }
     }
 
@@ -201,32 +204,39 @@ export class SessionService {
         this.http.get('/app/checkSession', { responseType: 'text' }).subscribe(
             resp => {
                 if (resp === 'alarm') {
-                    toastr.warning(this.i18n.instant('sitnet_continue_session'),
-                        this.i18n.instant('sitnet_session_will_expire_soon'), {
+                    toastr.warning(
+                        this.i18n.instant('sitnet_continue_session'),
+                        this.i18n.instant('sitnet_session_will_expire_soon'),
+                        {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: () => {
                                 this.http.put('/app/extendSession', {}).subscribe(
                                     () => {
-                                        toastr.info(this.i18n.instant('sitnet_session_extended'),
-                                            '', { timeOut: 1000 });
+                                        toastr.info(this.i18n.instant('sitnet_session_extended'), '', {
+                                            timeOut: 1000,
+                                        });
                                     },
-                                    (resp) => toastr.error(resp));
-                            }
-                        });
+                                    resp => toastr.error(resp),
+                                );
+                            },
+                        },
+                    );
                 } else if (resp === 'no_session') {
                     if (this.sessionCheckSubscription) {
                         this.sessionCheckSubscription.unsubscribe();
                     }
                     this.logout();
                 }
-            }, resp => toastr.error(resp));
-    }
+            },
+            resp => toastr.error(resp),
+        );
+    };
 
     private openUserAgreementModal$(user: User): Observable<User> {
         const modalRef = this.modal.open(EulaDialogComponent, {
             backdrop: 'static',
-            keyboard: true
+            keyboard: true,
         });
         return from(modalRef.result).pipe(
             tap(() => this.http.put('/app/users/agreement', {}).subscribe()),
@@ -240,7 +250,7 @@ export class SessionService {
     private openRoleSelectModal$(user: User): Observable<User> {
         const modalRef = this.modal.open(SelectRoleDialogComponent, {
             backdrop: 'static',
-            keyboard: false
+            keyboard: false,
         });
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
@@ -250,8 +260,7 @@ export class SessionService {
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
-                user.isLanguageInspector =
-                    user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                user.isLanguageInspector = user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 return user;
             }),
         );
@@ -283,7 +292,7 @@ export class SessionService {
             isTeacher: isTeacher,
             isAdmin: loginRole != null && loginRole === 'ADMIN',
             isStudent: loginRole != null && loginRole === 'STUDENT',
-            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
+            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
         });
         return user;
     }
@@ -291,7 +300,7 @@ export class SessionService {
     login$(username: string, password: string): Observable<User> {
         const credentials = {
             username: username,
-            password: password
+            password: password,
         };
         return this.http.post<User>('/app/login', credentials).pipe(
             map(u => this.prepareUser(u)),
@@ -305,7 +314,7 @@ export class SessionService {
                 const welcome = () => {
                     if (this.user) {
                         toastr.success(
-                            `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`
+                            `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`,
                         );
                     }
                 };
@@ -317,21 +326,16 @@ export class SessionService {
                     toastr.error(this.i18n.instant(resp.error));
                 }
                 return throwError(resp);
-            })
+            }),
         );
     }
 
     private processLogin$(user: User): Observable<User> {
         this.token = user.token;
-        const userAgreementConfirmation$ = (u: User): Observable<User> => iif(
-            () => u.isStudent && !u.userAgreementAccepted,
-            defer(() => this.openUserAgreementModal$(u)),
-            of(u)
-        );
-        return user.loginRole ? userAgreementConfirmation$(user) :
-            this.openRoleSelectModal$(user).pipe(
-                switchMap(u => userAgreementConfirmation$(u))
-            );
+        const userAgreementConfirmation$ = (u: User): Observable<User> =>
+            iif(() => u.isStudent && !u.userAgreementAccepted, defer(() => this.openUserAgreementModal$(u)), of(u));
+        return user.loginRole
+            ? userAgreementConfirmation$(user)
+            : this.openRoleSelectModal$(user).pipe(switchMap(u => userAgreementConfirmation$(u)));
     }
-
 }

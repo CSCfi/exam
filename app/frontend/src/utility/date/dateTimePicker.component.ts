@@ -12,53 +12,69 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Output, Input, EventEmitter } from '@angular/core';
-
-interface Time {
-    hour: number;
-    minute: number;
-}
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'date-time-picker',
     template: `
-    <div>
-        <div id="datetimepicker" class="datetimepicker-wrapper">
-            <date-picker (onUpdate)="onDateUpdate($event)"></date-picker>
+        <div>
+            <div id="datetimepicker" class="datetimepicker-wrapper">
+                <date-picker [initialDate]="initialTime" (onUpdate)="onDateUpdate($event)"></date-picker>
+            </div>
+            <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+                <ngb-timepicker
+                    [(ngModel)]="time"
+                    (ngModelChange)="onTimeUpdate($event)"
+                    [minuteStep]="minuteStep"
+                    [hourStep]="hourStep"
+                ></ngb-timepicker>
+            </div>
         </div>
-        <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
-            <ngb-timepicker [(ngModel)]="time" (ngModelChange)="onTimeUpdate($event)"
-                [minuteStep]="minuteStep" [hourStep]="hourStep"></ngb-timepicker>
-        </div>
-    </div>
-    `
+    `,
 })
 export class DateTimePickerComponent {
-
+    @Input() initialTime: Date;
     @Input() hourStep: number;
     @Input() minuteStep: number;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
-    date: Date = new Date();
-    time: Time;
+    date: Date;
+    time: Date;
 
-    onTimeUpdate($event: Time) {
-        this.date.setHours(this.time.hour);
-        this.date.setMinutes(this.time.minute);
+    private setDateTime = (dt: Date) => {
+        this.date.setFullYear(dt.getFullYear());
+        this.date.setMonth(dt.getMonth());
+        this.date.setDate(dt.getDate());
+        this.time.setHours(dt.getHours());
+        this.time.setMinutes(dt.getMinutes());
+        this.time.setSeconds(0);
+        this.time.setMilliseconds(0);
+    };
+
+    ngOnInit() {
+        this.time = new Date();
+        this.date = new Date();
+        if (this.initialTime) {
+            this.setDateTime(this.initialTime);
+        }
+    }
+
+    onTimeUpdate() {
+        this.date.setHours(this.time.getHours());
+        this.date.setMinutes(this.time.getMinutes());
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });
     }
 
-    onDateUpdate($event: { date: Date }) {
+    onDateUpdate() {
         this.date.setFullYear(this.date.getFullYear());
         this.date.setMonth(this.date.getMonth());
         this.date.setDate(this.date.getDate());
-        this.date.setHours(this.time.hour);
-        this.date.setMinutes(this.time.minute);
+        this.date.setHours(this.time.getHours());
+        this.date.setMinutes(this.time.getMinutes());
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });
     }
 }
-

@@ -22,12 +22,11 @@ import { ReservationService } from './reservation.service';
 import { ReservationDetailsComponent } from './reservationDetails.component';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
-
-export default angular.module('app.reservation', [])
+export default angular
+    .module('app.reservation', [])
     .service('Reservation', downgradeInjectable(ReservationService))
     .directive('adminReservations', downgradeComponent({ component: AdminReservationComponent }))
     .directive('teacherReservations', downgradeComponent({ component: TeacherReservationComponent }))
     .directive('reservationDetail', downgradeComponent({ component: ReservationDetailsComponent }))
     .directive('changeMachineDialog', downgradeComponent({ component: ChangeMachineDialogComponent }))
-    .directive('removeReservationDialog', downgradeComponent({ component: RemoveReservationDialogComponent }))
-    .name;
+    .directive('removeReservationDialog', downgradeComponent({ component: RemoveReservationDialogComponent })).name;

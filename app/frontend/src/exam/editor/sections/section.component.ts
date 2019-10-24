@@ -30,10 +30,9 @@ export const SectionComponent: ng.IComponentOptions = {
         materials: '<',
         onDelete: '&',
         onReloadRequired: '&', // TODO: try to live without this callback?
-        onMaterialsChanged: '&'
+        onMaterialsChanged: '&',
     },
     controller: class SectionComponentController implements ng.IComponentController {
-
         section: ExamSection;
         examId: number;
         canBeOptional: boolean;
@@ -50,13 +49,13 @@ export const SectionComponent: ng.IComponentOptions = {
             private $uibModal: IModalService,
             private dialogs: angular.dialogservice.IDialogService,
             private Question: any,
-            private Files: FileService
+            private Files: FileService,
         ) {
             'ngInject';
         }
 
-        private getResource = (url: string) => this.collaborative ?
-            url.replace('/app/exams/', '/integration/iop/exams/') : url
+        private getResource = (url: string) =>
+            this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
 
         private getSectionPayload = () => ({
             id: this.section.id,
@@ -65,8 +64,8 @@ export const SectionComponent: ng.IComponentOptions = {
             lotteryItemCount: this.section.lotteryItemCount,
             description: this.section.description,
             expanded: this.section.expanded,
-            optional: this.section.optional
-        })
+            optional: this.section.optional,
+        });
 
         private getQuestionScore = (question: ExamSectionQuestion) => {
             const evaluationType = question.evaluationType;
@@ -78,7 +77,7 @@ export const SectionComponent: ng.IComponentOptions = {
                 return this.Question.calculateMaxPoints(question);
             }
             return null;
-        }
+        };
 
         private questionPointsMatch = () => {
             const sectionQuestions = this.section.sectionQuestions;
@@ -87,11 +86,14 @@ export const SectionComponent: ng.IComponentOptions = {
             }
             const score = this.getQuestionScore(sectionQuestions[0]);
             return sectionQuestions.every(sq => score === this.getQuestionScore(sq));
-        }
+        };
 
         private updateSection = (silent: boolean) => {
-            this.$http.put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
-                this.getSectionPayload())
+            this.$http
+                .put(
+                    this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
+                    this.getSectionPayload(),
+                )
                 .then(() => {
                     if (!silent) {
                         toast.info(this.$translate.instant('sitnet_section_updated'));
@@ -104,23 +106,25 @@ export const SectionComponent: ng.IComponentOptions = {
                     }
                     toast.error(resp.data);
                 });
-        }
+        };
 
         private insertExamQuestion = (question: Question, seq: number) => {
             // TODO: see if we could live without reloading the whole exam from back?
-            const resource = this.collaborative ?
-                `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions` :
-                `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
+            const resource = this.collaborative
+                ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
+                : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
             const data: any = { sequenceNumber: seq };
             if (this.parentCtrl.collaborative) {
                 data.question = question;
             }
-            this.$http.post(resource, data)
+            this.$http
+                .post(resource, data)
                 .then((resp: IHttpResponse<ExamSectionQuestion>) => {
                     // Collaborative exam question handling.
                     this.addAttachment(resp.data, question, this.onReloadRequired);
-                }).catch(resp => toast.error(resp.data));
-        }
+                })
+                .catch(resp => toast.error(resp.data));
+        };
 
         private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
             if (!this.collaborative) {
@@ -133,46 +137,54 @@ export const SectionComponent: ng.IComponentOptions = {
                 return;
             }
             if (attachment.modified && attachment.file) {
-                this.Files.upload('/integration/iop/attachment/question', attachment.file,
+                this.Files.upload(
+                    '/integration/iop/attachment/question',
+                    attachment.file,
                     { examId: this.examId, questionId: data.id },
-                    question, callback);
+                    question,
+                    callback,
+                );
             }
-        }
+        };
 
         private openBaseQuestionEditor = () =>
-
-            this.$uibModal.open({
-                component: 'baseQuestionEditor',
-                backdrop: 'static',
-                keyboard: true,
-                windowClass: 'question-editor-modal',
-                resolve: { newQuestion: true, collaborative: this.collaborative }
-            }).result.then((data: { question: Question }) => {
-                // Now that new base question was created we make an exam section question out of it
-                this.insertExamQuestion(
-                    data.question,
-                    this.section.sectionQuestions.length
-                );
-            })
+            this.$uibModal
+                .open({
+                    component: 'baseQuestionEditor',
+                    backdrop: 'static',
+                    keyboard: true,
+                    windowClass: 'question-editor-modal',
+                    resolve: { newQuestion: true, collaborative: this.collaborative },
+                })
+                .result.then((data: { question: Question }) => {
+                    // Now that new base question was created we make an exam section question out of it
+                    this.insertExamQuestion(data.question, this.section.sectionQuestions.length);
+                });
 
         clearAllQuestions = () => {
-            const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_remove_all_questions'));
+            const dialog = this.dialogs.confirm(
+                this.$translate.instant('sitnet_confirm'),
+                this.$translate.instant('sitnet_remove_all_questions'),
+            );
             dialog.result.then(() => {
-                this.$http.delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
+                this.$http
+                    .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
                     .then(() => {
                         this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
                         this.section.lotteryOn = false;
                         toast.info(this.$translate.instant('sitnet_all_questions_removed'));
-                    }).catch(resp => toast.error(resp.data));
+                    })
+                    .catch(resp => toast.error(resp.data));
             });
-        }
+        };
 
         removeSection = () => {
-            const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_remove_section'));
+            const dialog = this.dialogs.confirm(
+                this.$translate.instant('sitnet_confirm'),
+                this.$translate.instant('sitnet_remove_section'),
+            );
             dialog.result.then(() => this.onDelete({ section: this.section }));
-        }
+        };
 
         renameSection = () => this.updateSection(false);
         expandSection = () => this.updateSection(true);
@@ -192,8 +204,11 @@ export const SectionComponent: ng.IComponentOptions = {
                 this.section.lotteryOn = false;
                 return;
             }
-            this.$http.put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
-                this.getSectionPayload())
+            this.$http
+                .put(
+                    this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
+                    this.getSectionPayload(),
+                )
                 .then(() => {
                     if (ng.isUndefined(this.section.lotteryItemCount)) {
                         this.section.lotteryItemCount = 1;
@@ -201,7 +216,7 @@ export const SectionComponent: ng.IComponentOptions = {
                     toast.info(this.$translate.instant('sitnet_section_updated'));
                 })
                 .catch(resp => toast.error(resp.data));
-        }
+        };
 
         updateLotteryCount = () => {
             if (!this.section.lotteryItemCount) {
@@ -210,17 +225,18 @@ export const SectionComponent: ng.IComponentOptions = {
             } else {
                 this.updateSection(false);
             }
-        }
+        };
 
         moveQuestion = (from: number, to: number) => {
             if (from >= 0 && to >= 0 && from !== to) {
-                this.$http.put(
-                    this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`),
-                    { from: from, to: to })
-                    .then(() => toast.info(this.$translate.instant('sitnet_questions_reordered'))
-                    );
+                this.$http
+                    .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
+                        from: from,
+                        to: to,
+                    })
+                    .then(() => toast.info(this.$translate.instant('sitnet_questions_reordered')));
             }
-        }
+        };
 
         addNewQuestion = () => {
             if (this.section.lotteryOn) {
@@ -228,45 +244,51 @@ export const SectionComponent: ng.IComponentOptions = {
                 return;
             }
             this.openBaseQuestionEditor();
-        }
+        };
 
         removeQuestion = (sq: ExamSectionQuestion) => {
-            this.$http.delete(this.getResource(
-                `/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`
-            )).then(() => {
-                this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
-                toast.info(this.$translate.instant('sitnet_question_removed'));
-                if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
-                    // turn off lottery
-                    this.section.lotteryOn = false;
-                    this.section.lotteryItemCount = 1;
-                    this.updateSection(true);
-                }
-            }).catch(resp => toast.error(resp.data));
-        }
+            this.$http
+                .delete(
+                    this.getResource(
+                        `/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`,
+                    ),
+                )
+                .then(() => {
+                    this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
+                    toast.info(this.$translate.instant('sitnet_question_removed'));
+                    if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
+                        // turn off lottery
+                        this.section.lotteryOn = false;
+                        this.section.lotteryItemCount = 1;
+                        this.updateSection(true);
+                    }
+                })
+                .catch(resp => toast.error(resp.data));
+        };
 
         openLibrary = () => {
             if (this.section.lotteryOn) {
                 toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
                 return;
             }
-            this.$uibModal.open({
-                component: 'questionSelector',
-                backdrop: 'static',
-                keyboard: true,
-                windowClass: 'question-editor-modal',
-                resolve: {
-                    examId: this.examId,
-                    sectionId: this.section.id,
-                    questionCount: this.section.sectionQuestions.length
-                }
-            }).result.then(() => {
-                // TODO: see if we could live without reloading the whole exam from back?
-                this.onReloadRequired();
-            });
-        }
-
-    }
+            this.$uibModal
+                .open({
+                    component: 'questionSelector',
+                    backdrop: 'static',
+                    keyboard: true,
+                    windowClass: 'question-editor-modal',
+                    resolve: {
+                        examId: this.examId,
+                        sectionId: this.section.id,
+                        questionCount: this.section.sectionQuestions.length,
+                    },
+                })
+                .result.then(() => {
+                    // TODO: see if we could live without reloading the whole exam from back?
+                    this.onReloadRequired();
+                });
+        };
+    },
 };
 
 angular.module('app.exam.editor').component('section', SectionComponent);

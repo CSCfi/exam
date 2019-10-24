@@ -16,16 +16,14 @@ import { Component, OnInit } from '@angular/core';
 
 import { SessionService } from '../session.service';
 
-
 @Component({
     selector: 'logout',
-    template: '<div>logging out</div>'
+    template: '<div>logging out</div>',
 })
 export class LogoutComponent implements OnInit {
-    constructor(private Session: SessionService) { }
+    constructor(private Session: SessionService) {}
 
     ngOnInit() {
         this.Session.logout();
     }
-
 }

@@ -18,6 +18,6 @@ import { ReservationComponentBase } from '../reservation.baseComponent';
 
 @Component({
     selector: 'teacher-reservations',
-    template: require('./teacherReservations.component.html')
+    template: require('./teacherReservations.component.html'),
 })
-export class TeacherReservationComponent extends ReservationComponentBase { }
+export class TeacherReservationComponent extends ReservationComponentBase {}

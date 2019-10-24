@@ -16,51 +16,58 @@ import { Component, EventEmitter, Output } from '@angular/core';
 
 import { SessionService, User } from '../session.service';
 
-
 @Component({
     selector: 'dev-login',
     template: `
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap padtop noleft">
-                <div class="student-exam-details-title">{{'sitnet_login' | translate}}</div>
+        <div class="top-row">
+            <div class="col-md-12">
+                <div class="student-details-title-wrap padtop noleft">
+                    <div class="student-exam-details-title">{{ 'sitnet_login' | translate }}</div>
+                </div>
             </div>
         </div>
-    </div>
-    <div id="login">
-        <form (ngSubmit)="login()">
-            <p>
-                <label class="control-label">{{'sitnet_username' | translate}}</label>
-                <input class="form-control login" name="uname" type="text"
-                placeholder="{{'sitnet_username' | translate}}" [(ngModel)]="credentials.username"/>
-            </p>
+        <div id="login">
+            <form (ngSubmit)="login()">
                 <p>
-                <label class="control-label">{{'sitnet_password' | translate}}</label>
-                <input class="form-control login" type="password" name="pwd"
-                placeholder="{{'sitnet_password' | translate}}" [(ngModel)]="credentials.password"/><br/>
-            </p>
-            <p>
-                <button type="submit" class="btn btn-primary" id="submit">{{'sitnet_login' | translate}}</button>
-            </p>
-        </form>
-    </div>
-    `
+                    <label class="control-label">{{ 'sitnet_username' | translate }}</label>
+                    <input
+                        class="form-control login"
+                        name="uname"
+                        type="text"
+                        placeholder="{{ 'sitnet_username' | translate }}"
+                        [(ngModel)]="credentials.username"
+                    />
+                </p>
+                <p>
+                    <label class="control-label">{{ 'sitnet_password' | translate }}</label>
+                    <input
+                        class="form-control login"
+                        type="password"
+                        name="pwd"
+                        placeholder="{{ 'sitnet_password' | translate }}"
+                        [(ngModel)]="credentials.password"
+                    /><br />
+                </p>
+                <p>
+                    <button type="submit" class="btn btn-primary" id="submit">{{ 'sitnet_login' | translate }}</button>
+                </p>
+            </form>
+        </div>
+    `,
 })
 export class DevLoginComponent {
     @Output() onLoggedIn = new EventEmitter<User>();
 
     credentials = { username: '', password: '' };
 
-    constructor(private Session: SessionService) { }
+    constructor(private Session: SessionService) {}
 
     login() {
-        this.Session.login$(this.credentials.username, this.credentials.password)
-            .subscribe(
-                (user: User) => {
-                    this.onLoggedIn.emit(user);
-                },
-                err => console.log(JSON.stringify(err))
-            );
+        this.Session.login$(this.credentials.username, this.credentials.password).subscribe(
+            (user: User) => {
+                this.onLoggedIn.emit(user);
+            },
+            err => console.log(JSON.stringify(err)),
+        );
     }
-
 }

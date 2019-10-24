@@ -14,7 +14,7 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 interface Selection {
     value: any;
@@ -52,12 +52,12 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
         }
     }
 
-    filterOptions = () => this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+    filterOptions = () => (this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo));
 
     selectOption = (option: Option) => {
         this.selected = option;
         this.onSelect.emit({ value: option.value || option.id });
-    }
+    };
 
     getClasses = (option: Option): string[] => {
         const classes: string[] = [];
@@ -68,10 +68,10 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
             classes.push('dropdown-header');
         }
         return classes;
-    }
+    };
 
     clearSelection = () => {
         delete this.selected;
         this.onSelect.emit();
-    }
+    };
 }

@@ -1,10 +1,9 @@
 <div id="dashboard">
-
     <!-- Enrolled exams list -->
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <h1 class="student-enroll-title">{{'sitnet_user_enrolled_exams_title' | translate}}</h1>
+                <h1 class="student-enroll-title">{{ 'sitnet_user_enrolled_exams_title' | translate }}</h1>
             </div>
         </div>
     </div>
@@ -15,7 +14,7 @@
         </div>
         <div *ngIf="userEnrolments?.length === 0" style="padding-left:30px;">
             <span class="form-group">
-                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="">&nbsp;
+                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="" />&nbsp;
                 <span>{{ 'sitnet_no_enrolments' | translate }}</span>
             </span>
         </div>

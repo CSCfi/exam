@@ -6,26 +6,44 @@
             <i ng-show="!$ctrl.showMachines" class="fa fa-chevron-right fa-stack-1x"></i>
         </a>
         {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
-        <span popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
-            uib-popover="{{ 'sitnet_status_machine_available' | translate }}">
+        <span
+            popover-placement="top"
+            popover-popup-delay="500"
+            popover-trigger="'mouseenter'"
+            uib-popover="{{ 'sitnet_status_machine_available' | translate }}"
+        >
             <button class="btn btn-success btn-xs">
                 {{ $ctrl.room.examMachines.length - $ctrl.countMachineAlerts() - $ctrl.countMachineNotices() }}
             </button>
         </span>
-        <span popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
-            uib-popover="{{ 'sitnet_status_notice' | translate }}">
+        <span
+            popover-placement="top"
+            popover-popup-delay="500"
+            popover-trigger="'mouseenter'"
+            uib-popover="{{ 'sitnet_status_notice' | translate }}"
+        >
             <button class="btn btn-warning btn-xs">
                 {{ $ctrl.countMachineNotices() }}
             </button>
         </span>
-        <span popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
-            uib-popover="{{ 'sitnet_status_inservice' | translate }}">
+        <span
+            popover-placement="top"
+            popover-popup-delay="500"
+            popover-trigger="'mouseenter'"
+            uib-popover="{{ 'sitnet_status_inservice' | translate }}"
+        >
             <button class="btn btn-danger btn-xs">
                 {{ $ctrl.countMachineAlerts() }}
             </button>
         </span>
-        <a class="fa-stack fa-lg" ng-click="$ctrl.addNewMachine()" popover-placement="right" popover-popup-delay="500"
-            popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_add' | translate }}">
+        <a
+            class="fa-stack fa-lg"
+            ng-click="$ctrl.addNewMachine()"
+            popover-placement="right"
+            popover-popup-delay="500"
+            popover-trigger="'mouseenter'"
+            uib-popover="{{ 'sitnet_add' | translate }}"
+        >
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
             <i class="fa fa-plus text-success fa-stack-1x"></i>
         </a>
@@ -45,8 +63,11 @@
         <tbody>
             <tr ng-repeat="machine in $ctrl.room.examMachines">
                 <td>
-                    <a ng-class="{'text-danger': !machine.name}" class="exams-info-title bold-button"
-                        href="/machines/{{machine.id}}">
+                    <a
+                        ng-class="{'text-danger': !machine.name}"
+                        class="exams-info-title bold-button"
+                        href="/machines/{{machine.id}}"
+                    >
                         {{!machine.name ? ('sitnet_no_name' | translate) : machine.name}}
                     </a>
                 </td>
@@ -54,19 +75,25 @@
                 <td>{{ machine.accessibilityInfo }}</td>
                 <td>
                     <ul>
-                        <li ng-repeat="software in machine.softwareInfo" ng-if="software.status == 'ACTIVE'"
-                            class="pull-left">{{ software.name
-                        }}{{$last ? '' : ',&nbsp;'}}
+                        <li
+                            ng-repeat="software in machine.softwareInfo"
+                            ng-if="software.status == 'ACTIVE'"
+                            class="pull-left"
+                        >
+                            {{ software.name }}{{$last ? '' : ',&nbsp;'}}
                         </li>
                     </ul>
                 </td>
                 <td>
-                    <span class="status_red"
-                        ng-show="machine.outOfService">{{ 'sitnet_status_inactive' | translate }}</span>
-                    <span class="status_green"
-                        ng-show="!machine.outOfService && !machine.statusComment">{{ 'sitnet_status_active' | translate }}</span>
-                    <span class="status_orange"
-                        ng-show="!machine.outOfService && machine.statusComment">{{ 'sitnet_status_notice' | translate }}</span>
+                    <span class="status_red" ng-show="machine.outOfService"
+                        >{{ 'sitnet_status_inactive' | translate }}</span
+                    >
+                    <span class="status_green" ng-show="!machine.outOfService && !machine.statusComment"
+                        >{{ 'sitnet_status_active' | translate }}</span
+                    >
+                    <span class="status_orange" ng-show="!machine.outOfService && machine.statusComment"
+                        >{{ 'sitnet_status_notice' | translate }}</span
+                    >
                     <span class="status_comment col-md-12">{{ machine.statusComment }}</span>
                 </td>
             </tr>

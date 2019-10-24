@@ -24,21 +24,9 @@ import { CalendarService } from './calendar.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
-    imports: [
-        FullCalendarModule,
-        NgbModule,
-        UtilityModule,
-    ],
-    declarations: [
-        BookingCalendarComponent,
-        CalendarComponent,
-    ],
-    entryComponents: [
-        CalendarComponent,
-        BookingCalendarComponent
-    ],
-    providers: [
-        CalendarService
-    ]
+    imports: [FullCalendarModule, NgbModule, UtilityModule],
+    declarations: [BookingCalendarComponent, CalendarComponent],
+    entryComponents: [CalendarComponent, BookingCalendarComponent],
+    providers: [CalendarService],
 })
-export class CalendarModule { }
+export class CalendarModule {}

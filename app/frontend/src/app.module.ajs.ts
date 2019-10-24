@@ -43,26 +43,28 @@ import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
 import UtilityModule from './utility/utility.module.ajs';
 
-angularJS.module('app', [
-    'ngAnimate',
-    'ngResource',
-    'ngRoute',
-    'ngStorage',
-    'ui.bootstrap',
-    'pascalprecht.translate',
-    'tmh.dynamicLocale',
-    'dialogs.services',
-    'dialogs.controllers',
-    SessionModuleAjs,
-    NavigationModuleAjs,
-    UtilityModule,
-    EnrolmentModule,
-    DashboardModule,
-    CollaborativeExamModule,
-    'app.enrolment',
-    'app.maturity',
-    'app.administrative'
-]).config(configs)
+angularJS
+    .module('app', [
+        'ngAnimate',
+        'ngResource',
+        'ngRoute',
+        'ngStorage',
+        'ui.bootstrap',
+        'pascalprecht.translate',
+        'tmh.dynamicLocale',
+        'dialogs.services',
+        'dialogs.controllers',
+        SessionModuleAjs,
+        NavigationModuleAjs,
+        UtilityModule,
+        EnrolmentModule,
+        DashboardModule,
+        CollaborativeExamModule,
+        'app.enrolment',
+        'app.maturity',
+        'app.administrative',
+    ])
+    .config(configs)
     .run(runBlock)
     .component('examApp', AppComponent)
     .filter('truncate', filters.TruncateFilter.factory())

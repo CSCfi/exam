@@ -12,41 +12,38 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import _ from 'lodash';
 
-angular.module('app.review')
-    .component('printedMultiChoice', {
-        template: require('./templates/multiChoice.template.html'),
-        bindings: {
-            sectionQuestion: '<'
+angular.module('app.review').component('printedMultiChoice', {
+    template: require('./templates/multiChoice.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+    controller: [
+        'Question',
+        function(Question) {
+            const vm = this;
+
+            vm.scoreWeightedMultipleChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
+                    return 0;
+                }
+                return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
+
+            vm.scoreMultipleChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
+                    return 0;
+                }
+                return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
+
+            vm.calculateMaxPoints = function() {
+                return Question.calculateMaxPoints(vm.sectionQuestion);
+            };
+
+            vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
         },
-        controller: ['Question',
-            function (Question) {
-
-                const vm = this;
-
-                vm.scoreWeightedMultipleChoiceAnswer = function (ignoreForcedScore) {
-                    if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
-                };
-
-                vm.scoreMultipleChoiceAnswer = function (ignoreForcedScore) {
-                    if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
-                };
-
-                vm.calculateMaxPoints = function () {
-                    return Question.calculateMaxPoints(vm.sectionQuestion);
-                };
-
-                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
-
-            }
-        ]
-    });
+    ],
+});

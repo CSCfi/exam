@@ -12,20 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash';
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     selector: 'paginator',
     template: `
-    <ul class="pagination pagination-sm">
-        <li [ngClass]="previousPageDisabled()"><a href="" (click)="previousPage()">&#60;</a></li>
-        <li *ngFor="let n of range()" [ngClass]="{'active': isCurrent(n)}" (click)="setPage(n)">
-            <a href="">{{ printRange(n) }}</a>
-        </li>
-        <li [ngClass]="nextPageDisabled()"><a target="_blank" (click)="nextPage()">&#62;</a></li>
-    </ul>
-    `
+        <ul class="pagination pagination-sm">
+            <li [ngClass]="previousPageDisabled()"><a href="" (click)="previousPage()">&#60;</a></li>
+            <li *ngFor="let n of range()" [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)">
+                <a href="">{{ printRange(n) }}</a>
+            </li>
+            <li [ngClass]="nextPageDisabled()"><a target="_blank" (click)="nextPage()">&#62;</a></li>
+        </ul>
+    `,
 })
 export class PaginatorComponent implements OnChanges {
     @Input() items: any[] = [];
@@ -51,26 +51,25 @@ export class PaginatorComponent implements OnChanges {
             this.currentPage--;
             this.onSelectPage.emit({ page: this.currentPage });
         }
-    }
+    };
 
     isCurrent = (n: number) => n === this.currentPage;
 
-    previousPageDisabled = () => this.currentPage === 0 ? 'disabled' : '';
+    previousPageDisabled = () => (this.currentPage === 0 ? 'disabled' : '');
 
     nextPage = () => {
         if (this.currentPage < this.pageCount) {
             this.currentPage++;
             this.onSelectPage.emit({ page: this.currentPage });
         }
-    }
+    };
 
-    nextPageDisabled = () => this.currentPage === this.pageCount ? 'disabled' : '';
+    nextPageDisabled = () => (this.currentPage === this.pageCount ? 'disabled' : '');
 
     range = () => _.range(0, this.pageCount + 1);
 
-    setPage = (n) => {
+    setPage = n => {
         this.currentPage = n;
         this.onSelectPage.emit({ page: n });
-    }
-
+    };
 }

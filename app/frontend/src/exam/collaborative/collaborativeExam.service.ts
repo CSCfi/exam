@@ -21,23 +21,17 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class CollaborativeExamService {
-
     exams: CollaborativeExam[];
 
-    constructor(
-        private http: HttpClient,
-        private Session: SessionService
-    ) { }
+    constructor(private http: HttpClient, private Session: SessionService) {}
 
     listStudentParticipations = (): Observable<Participation[]> =>
-        this.http.get<Participation[]>('/integration/iop/student/finishedExams')
+        this.http.get<Participation[]>('/integration/iop/student/finishedExams');
 
     listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
         return this.http.get<CollaborativeExam[]>(path);
-    }
+    };
 
-    createExam = (): Observable<CollaborativeExam> =>
-        this.http.post<CollaborativeExam>('/integration/iop/exams', {})
-
+    createExam = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/integration/iop/exams', {});
 }

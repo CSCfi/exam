@@ -12,40 +12,38 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('printedEssay', {
-        template: require('./templates/essay.template.html'),
-        bindings: {
-            sectionQuestion: '<'
+angular.module('app.review').component('printedEssay', {
+    template: require('./templates/essay.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+    controller: [
+        'Assessment',
+        function(Assessment) {
+            const vm = this;
+
+            vm.getScore = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return vm.sectionQuestion.essayAnswer.evaluatedScore || 0;
+            };
+
+            vm.getWordCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
+            };
+
+            vm.getCharacterCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
+            };
         },
-        controller: ['Assessment',
-            function (Assessment) {
-
-                const vm = this;
-
-                vm.getScore = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return vm.sectionQuestion.essayAnswer.evaluatedScore || 0;
-                };
-
-                vm.getWordCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
-                };
-
-                vm.getCharacterCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
-                };
-            }
-        ]
-    });
+    ],
+});

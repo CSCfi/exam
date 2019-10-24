@@ -54,13 +54,16 @@ public enum Attrs {
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
     public static final TypedKey<Long> COMMENT_ID = TypedKey.create("commentId");
+    public static final TypedKey<Boolean> FEEDBACK_STATUS = TypedKey.create("feedbackStatus");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
     public static final TypedKey<Boolean> REQUIRES_USER_AGENT_AUTH = TypedKey.create("requiresUserAgentAuth");
+    public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
     public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");
     public static final TypedKey<String> ESSAY_ANSWER = TypedKey.create("essayAnswer");
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
+    public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
 }

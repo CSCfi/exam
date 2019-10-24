@@ -20,18 +20,9 @@ import { LibrarySearchComponent } from './library/search/librarySearch.component
 import { QuestionService } from './question.service';
 
 @NgModule({
-    imports: [
-        UtilityModule,
-    ],
-    declarations: [
-        LibrarySearchComponent
-    ],
-    entryComponents: [
-        LibrarySearchComponent
-    ],
-    providers: [
-        LibraryService,
-        QuestionService
-    ]
+    imports: [UtilityModule],
+    declarations: [LibrarySearchComponent],
+    entryComponents: [LibrarySearchComponent],
+    providers: [LibraryService, QuestionService],
 })
-export class QuestionModule { }
+export class QuestionModule {}

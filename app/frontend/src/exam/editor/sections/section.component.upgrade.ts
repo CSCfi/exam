@@ -17,7 +17,7 @@ import { UpgradeComponent } from '@angular/upgrade/static';
 import { ExamSection } from '../../exam.model';
 
 @Directive({
-    selector: 'section'
+    selector: 'section',
 })
 export class SectionComponent extends UpgradeComponent {
     @Input() section: ExamSection;

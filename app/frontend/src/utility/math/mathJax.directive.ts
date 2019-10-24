@@ -1,12 +1,11 @@
 import { Directive, ElementRef, Input } from '@angular/core';
 @Directive({
-    selector: '[MathJax]'
+    selector: '[MathJax]',
 })
 export class MathJaxDirective {
     @Input('MathJax') src: string;
 
-    constructor(private el: ElementRef) {
-    }
+    constructor(private el: ElementRef) {}
 
     ngOnChanges() {
         this.el.nativeElement.innerHTML = this.src;

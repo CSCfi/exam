@@ -26,7 +26,7 @@ CKEDITOR.plugins.setLang('clozetest', 'fi',
             answer: 'Oikea vastaus',
             errors: {
                 nonEmpty: 'Vastaus ei voi olla tyhjä.',
-                numeric: 'Vastauksen pitää olla numeerinen',
+                numeric: 'Vastauksen pitää olla numeerinen, eikä se saa sisältää tyhjää tilaa.',
                 nonNegative: 'Arvo ei voi olla negatiivinen'
             },
             caseSensitive: 'Onko pienillä ja isoilla kirjaimilla eroa (tekstimuotoisen vastauksen osalta)',

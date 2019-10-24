@@ -33,8 +33,7 @@ export interface DashboardEnrolment extends ExamEnrolment {
 
 @Injectable()
 export class StudentDashboardService {
-
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {}
 
     listEnrolments = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(
@@ -45,11 +44,11 @@ export class StudentDashboardService {
                     return {
                         ...e,
                         occasion,
-                        startAtAggregate: startAt
+                        startAtAggregate: startAt,
                     };
-                })
-            )
-        )
+                }),
+            ),
+        );
 
     private getOccasion(reservation: Reservation): Occasion {
         const machine = reservation.machine;
@@ -71,9 +70,7 @@ export class StudentDashboardService {
         }
         return {
             startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm')
+            endAt: end.format('HH:mm'),
         };
-
     }
-
 }

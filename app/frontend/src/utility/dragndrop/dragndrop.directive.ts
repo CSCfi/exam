@@ -29,19 +29,17 @@ interface DroppableScope extends IScope {
 }
 
 export class DroppableDirective implements IDirective {
-
     restrict = 'A';
     scope = {
         objects: '=',
         identifier: '=',
         onMove: '&',
-        onCreate: '&'
+        onCreate: '&',
     };
 
-    constructor(
-        private $parse: angular.IParseService,
-        private $translate: angular.translate.ITranslateService
-    ) { 'ngInject'; }
+    constructor(private $parse: angular.IParseService, private $translate: angular.translate.ITranslateService) {
+        'ngInject';
+    }
 
     link = (scope: DroppableScope, element: IAugmentedJQuery, attrs: IAttributes) => {
         let startIndex = -1;
@@ -51,11 +49,13 @@ export class DroppableDirective implements IDirective {
                 drop: (event: Event, ui: JQueryUI.DroppableEventUIParam) => {
                     if (dropDisabled) {
                         toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
-                    } else if (!ui.draggable.hasClass('draggable') &&
-                        !ui.draggable.hasClass('sortable-' + scope.identifier)) {
+                    } else if (
+                        !ui.draggable.hasClass('draggable') &&
+                        !ui.draggable.hasClass('sortable-' + scope.identifier)
+                    ) {
                         toast.warning(this.$translate.instant('sitnet_move_between_sections_disabled'));
                     }
-                }
+                },
             });
 
             element.sortable({
@@ -63,10 +63,10 @@ export class DroppableDirective implements IDirective {
                 items: '.sortable-' + scope.identifier,
                 axis: 'y',
                 start: (event, ui) => {
-                    startIndex = ($(ui.item).index());
+                    startIndex = $(ui.item).index();
                 },
-                stop: function (event: JQueryEventObject, ui) {
-                    const newIndex = ($(ui.item).index());
+                stop: function(event: JQueryEventObject, ui) {
+                    const newIndex = $(ui.item).index();
                     const toMove = scope.objects[startIndex];
                     if (!toMove) {
                         return;
@@ -81,21 +81,17 @@ export class DroppableDirective implements IDirective {
             });
 
             element.disableSelection();
-
         };
 
         attrs.$observe('dropDisabled', () => {
             const dropDisabled = this.$parse(attrs.dropDisabled)(scope);
             initDroppable(scope, element, dropDisabled);
         });
-
-    }
+    };
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-            $translate: angular.translate.ITranslateService
-        ) => new DroppableDirective($parse, $translate);
+        const directive = ($parse: angular.IParseService, $translate: angular.translate.ITranslateService) =>
+            new DroppableDirective($parse, $translate);
         directive.$inject = ['$parse', '$translate'];
         return directive;
     }

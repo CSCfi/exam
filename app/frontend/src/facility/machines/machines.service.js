@@ -12,34 +12,35 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular
-    .module('app.facility.machines')
-    .factory('Machines', ['$resource',
-        function ($resource) {
-            return {
-                software: $resource("/app/softwares"),
-                machineSoftware: $resource("/app/machine/:mid/software/:sid",
-                    {
-                        mid: "@mid",
-                        sid: "@sid"
-                    },
-                    {
-                        "toggle": {method: "POST"}
-                    }),
-                machine: $resource("/app/machines/:id",
-                    {
-                        id: "@id"
-                    },
-                    {
-                        "get": {method: "GET"},
-                        "update": {method: "PUT"},
-                        "insert": {method: "POST"},
-                        "remove": {method: "DELETE"}
-                    })
-            };
-        }
-    ]);
-
+angular.module('app.facility.machines').factory('Machines', [
+    '$resource',
+    function($resource) {
+        return {
+            software: $resource('/app/softwares'),
+            machineSoftware: $resource(
+                '/app/machine/:mid/software/:sid',
+                {
+                    mid: '@mid',
+                    sid: '@sid',
+                },
+                {
+                    toggle: { method: 'POST' },
+                },
+            ),
+            machine: $resource(
+                '/app/machines/:id',
+                {
+                    id: '@id',
+                },
+                {
+                    get: { method: 'GET' },
+                    update: { method: 'PUT' },
+                    insert: { method: 'POST' },
+                    remove: { method: 'DELETE' },
+                },
+            ),
+        };
+    },
+]);

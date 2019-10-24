@@ -18,7 +18,6 @@ import { Component, OnInit } from '@angular/core';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { Participation } from '../../exam/exam.model';
 
-
 interface Filter {
     ordering: string;
     text: string;
@@ -26,20 +25,17 @@ interface Filter {
 
 @Component({
     selector: 'collaborative-exam-participations',
-    template: require('./examParticipations.component.html')
+    template: require('./examParticipations.component.html'),
 })
 export class CollaborativeExamParticipationsComponent implements OnInit {
-
     collaborative = true;
     originals: Participation[];
     participations: Participation[] = [];
-    pageSize: Number = 10;
-    currentPage: Number = 1;
+    pageSize = 10;
+    currentPage = 1;
     filter: Filter;
 
-    constructor(
-        private CollaborativeExam: CollaborativeExamService
-    ) { }
+    constructor(private CollaborativeExam: CollaborativeExamService) {}
 
     ngOnInit() {
         this.filter = { ordering: '-ended', text: '' };
@@ -47,24 +43,24 @@ export class CollaborativeExamParticipationsComponent implements OnInit {
             (participations: Participation[]) => {
                 this.originals = Array.from(participations);
                 this.participations = Array.from(participations);
-            }, err => toastr.error(err.data)
+            },
+            err => toastr.error(err.data),
         );
     }
 
-    pageSelected(page: Number) {
+    pageSelected(page: number) {
         this.currentPage = page;
     }
 
     search() {
-        let text = this.filter.text;
+        const text = this.filter.text;
         if (!text || text.length < 1) {
             this.participations = this.originals;
             return;
         }
         this.participations = this.originals.filter((participation: Participation) => {
-            let exam = participation.exam;
+            const exam = participation.exam;
             return exam && exam.name && exam.name.indexOf(text) > -1;
         });
     }
-
 }

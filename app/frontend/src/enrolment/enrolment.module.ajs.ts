@@ -33,14 +33,17 @@ require('../common');
 require('../exam'); // TODO: refactor
 require('../calendar/calendar.module.ajs.ts');
 
-export default angular.module('app.enrolment', ['app.common', 'app.exam', 'app.calendar'])
+export default angular
+    .module('app.enrolment', ['app.common', 'app.exam', 'app.calendar'])
     .service('Enrolment', downgradeInjectable(EnrolmentService))
     .service('WrongLocation', downgradeInjectable(WrongLocationService))
     .directive('activeEnrolment', downgradeComponent({ component: ActiveEnrolmentComponent }))
     .directive('enrolmentDetails', downgradeComponent({ component: EnrolmentDetailsComponent }))
     .directive('examEnrolments', downgradeComponent({ component: ExamEnrolmentsComponent }))
-    .directive('collaborativeExamParticipations',
-        downgradeComponent({ component: CollaborativeExamParticipationsComponent }))
+    .directive(
+        'collaborativeExamParticipations',
+        downgradeComponent({ component: CollaborativeExamParticipationsComponent }),
+    )
     .directive('examFeedback', downgradeComponent({ component: ExamFeedbackComponent }))
     .directive('examParticipation', downgradeComponent({ component: ExamParticipationComponent }))
     .directive('examParticipations', downgradeComponent({ component: ExamParticipationsComponent }))
@@ -48,7 +51,4 @@ export default angular.module('app.enrolment', ['app.common', 'app.exam', 'app.c
     .directive('examSearch', downgradeComponent({ component: ExamSearchComponent }))
     .directive('examSearchResult', downgradeComponent({ component: ExamSearchResultComponent }))
     .directive('waitingRoom', downgradeComponent({ component: WaitingRoomComponent }))
-    .directive('wrongLocation', downgradeComponent({ component: WrongLocationComponent }))
-    .name;
-
-
+    .directive('wrongLocation', downgradeComponent({ component: WrongLocationComponent })).name;

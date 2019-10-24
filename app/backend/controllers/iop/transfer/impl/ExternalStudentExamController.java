@@ -59,9 +59,10 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
-@SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
+@SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
 @Restrict({@Group("STUDENT")})
 public class ExternalStudentExamController extends StudentExamController {
 
@@ -69,8 +70,10 @@ public class ExternalStudentExamController extends StudentExamController {
     public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
                                          CollaborativeExamLoader collaborativeExamLoader,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment,
-                                         ExternalAttachmentLoader externalAttachmentLoader) {
-        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment, externalAttachmentLoader);
+                                         ExternalAttachmentLoader externalAttachmentLoader,
+                                         ByodConfigHandler byodConfigHandler) {
+        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment,
+                externalAttachmentLoader, byodConfigHandler);
     }
 
     @Authenticated
@@ -78,12 +81,12 @@ public class ExternalStudentExamController extends StudentExamController {
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Optional<ExternalExam> optional = getExternalExam(hash, user);
-        if (!optional.isPresent()) {
+        if (optional.isEmpty()) {
             return wrapAsPromise(forbidden());
         }
         ExternalExam externalExam = optional.get();
         Optional<ExamEnrolment> optionalEnrolment = getEnrolment(user, externalExam);
-        if (!optionalEnrolment.isPresent()) {
+        if (optionalEnrolment.isEmpty()) {
             return wrapAsPromise(forbidden());
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
@@ -146,7 +149,7 @@ public class ExternalStudentExamController extends StudentExamController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (!optional.isPresent()) {
+            if (optional.isEmpty()) {
                 return forbidden();
             }
             ExternalExam ee = optional.get();
@@ -167,7 +170,7 @@ public class ExternalStudentExamController extends StudentExamController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (!optional.isPresent()) {
+            if (optional.isEmpty()) {
                 return forbidden();
             }
             ExternalExam ee = optional.get();
@@ -181,7 +184,7 @@ public class ExternalStudentExamController extends StudentExamController {
             } catch (IOException e) {
                 return internalServerError();
             }
-            if (!optionalQuestion.isPresent()) {
+            if (optionalQuestion.isEmpty()) {
                 return forbidden();
             }
             ExamSectionQuestion question = optionalQuestion.get();
@@ -228,7 +231,7 @@ public class ExternalStudentExamController extends StudentExamController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getEnrolmentError(hash, user, request).orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (!optional.isPresent()) {
+            if (optional.isEmpty()) {
                 return forbidden();
             }
             ExternalExam ee = optional.get();
@@ -317,7 +320,7 @@ public class ExternalStudentExamController extends StudentExamController {
             return forbidden();
         }
         Optional<ExamEnrolment> optionalEnrolment = getEnrolment(user, ee);
-        if (!optionalEnrolment.isPresent()) {
+        if (optionalEnrolment.isEmpty()) {
             return forbidden();
         }
         ExamEnrolment enrolment = optionalEnrolment.get();

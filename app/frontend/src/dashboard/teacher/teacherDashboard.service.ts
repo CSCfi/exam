@@ -21,7 +21,6 @@ import { Exam, ExamExecutionType } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { ReservationService } from '../../reservation/reservation.service';
 
-
 export interface DraftExam extends Exam {
     ownerAggregate: string;
 }
@@ -46,22 +45,14 @@ export class Dashboard {
 
 @Injectable()
 export class TeacherDashboardService {
-
-    constructor(
-        private http: HttpClient,
-        private Exam: ExamService,
-        private Reservation: ReservationService
-    ) { }
+    constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
 
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>
-        exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0
-
+        exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
 
     private hasUpcomingExaminationDates = (exam: Exam) =>
-        exam.examinationDates.some(ed =>
-            Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999)
-        )
+        exam.examinationDates.some(ed => Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999));
 
     // Printout exams do not have an activity period but have examination dates.
     // Produce a fake period for information purposes by selecting first and last examination dates.
@@ -72,32 +63,30 @@ export class TeacherDashboardService {
     }
 
     populate = (): Observable<Dashboard> =>
-        forkJoin(
-            this.Exam.listExecutionTypes(),
-            this.http.get<Exam[]>('/app/reviewerexams')
-        ).pipe(
+        forkJoin(this.Exam.listExecutionTypes(), this.http.get<Exam[]>('/app/reviewerexams')).pipe(
             map(resp => {
                 const dashboard = new Dashboard();
                 dashboard.executionTypes = resp[0];
                 const reviews = resp[1];
-                const draftExams = reviews.filter(r =>
-                    (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r)
+                const draftExams = reviews.filter(
+                    r => (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r),
                 );
                 dashboard.draftExams = draftExams.map(de => {
                     return {
                         ...de,
-                        ownerAggregate: de.examOwners.map(o => `${o.firstName} ${o.lastName}`).join()
+                        ownerAggregate: de.examOwners.map(o => `${o.firstName} ${o.lastName}`).join(),
                     };
                 });
                 const activeExams = reviews.filter(r => {
                     if (r.state !== 'PUBLISHED') {
                         return false;
                     }
-                    const periodOk = r.executionType.type !== 'PRINTOUT' &&
+                    const periodOk =
+                        r.executionType.type !== 'PRINTOUT' &&
                         new Date() <= new Date(r.examActiveEndDate) &&
                         this.participationsInFuture(r);
-                    const examinationDatesOk = r.executionType.type === 'PRINTOUT' &&
-                        this.hasUpcomingExaminationDates(r);
+                    const examinationDatesOk =
+                        r.executionType.type === 'PRINTOUT' && this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
                 });
                 dashboard.activeExams = activeExams.map(ae => {
@@ -109,17 +98,18 @@ export class TeacherDashboardService {
                         unassessedCount: this.Exam.getReviewablesCount(ae),
                         unfinishedCount: this.Exam.getGradedCount(ae),
                         reservationCount: this.Reservation.getReservationCount(ae),
-                        ownerAggregate: ae.examOwners.map(o => `${o.firstName} ${o.lastName}`).join()
+                        ownerAggregate: ae.examOwners.map(o => `${o.firstName} ${o.lastName}`).join(),
                     };
                 });
                 const endedExams = reviews.filter(r => {
                     if (r.state !== 'PUBLISHED') {
                         return false;
                     }
-                    const periodOk = r.executionType.type !== 'PRINTOUT' &&
+                    const periodOk =
+                        r.executionType.type !== 'PRINTOUT' &&
                         (new Date() > new Date(r.examActiveEndDate) || !this.participationsInFuture(r));
-                    const examinationDatesOk = r.executionType.type === 'PRINTOUT' &&
-                        !this.hasUpcomingExaminationDates(r);
+                    const examinationDatesOk =
+                        r.executionType.type === 'PRINTOUT' && !this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
                 });
 
@@ -132,7 +122,7 @@ export class TeacherDashboardService {
                             ...ee,
                             ownerAggregate: ownerAggregate,
                             unassessedCount: unassessedCount,
-                            unfinishedCount: unfinishedCount
+                            unfinishedCount: unfinishedCount,
                         });
                     } else {
                         if (ee.executionType.type === 'PRINTOUT') {
@@ -141,19 +131,19 @@ export class TeacherDashboardService {
                         dashboard.archivedExams.push({
                             ...ee,
                             ownerAggregate: ownerAggregate,
-                            assessedCount: this.Exam.getProcessedCount(ee)
+                            assessedCount: this.Exam.getProcessedCount(ee),
                         });
                     }
                 });
                 return dashboard;
-            })
-        )
+            }),
+        );
 
     getQueryParams(url: string): { [k: string]: string } {
-        let hashes = url.slice(url.indexOf('?') + 1).split('&');
-        let params: { [k: string]: string } = {};
+        const hashes = url.slice(url.indexOf('?') + 1).split('&');
+        const params: { [k: string]: string } = {};
         hashes.map(hash => {
-            let [key, val] = hash.split('=');
+            const [key, val] = hash.split('=');
             params[key] = decodeURIComponent(val);
         });
         return params;

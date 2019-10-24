@@ -29,12 +29,15 @@ import backend.controllers.iop.collaboration.api.CollaborativeAttachmentInterfac
 import backend.models.Exam;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.util.config.ConfigReader;
 
 public class CollaborativeAttachmentController extends CollaborationController
         implements CollaborativeAttachmentInterface<Long, CollaborativeExam> {
 
     @Inject
     private WSClient wsClient;
+    @Inject
+    private ConfigReader configReader;
 
     @Override
     public Optional<CollaborativeExam> getExternalExam(Long eid, Http.Request request) {
@@ -73,6 +76,11 @@ public class CollaborativeAttachmentController extends CollaborationController
     @Override
     public Long parseId(String id) {
         return Long.parseLong(id);
+    }
+
+    @Override
+    public ConfigReader getConfigReader() {
+        return configReader;
     }
 
 }

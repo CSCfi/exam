@@ -18,44 +18,46 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { User } from '../session.service';
 
-
 @Component({
     selector: 'role-selector-dialog',
     template: `
-    <div id="sitnet-dialog">
-
-        <div class="modal-header">
-            <h1 class="sitnet-black"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</h1>
-        </div>
-        <div class="modal-body">
-            <div ngbDropdown>
-                <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
-                    {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
-                </button>
-                <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                    <li *ngFor="let role of user.roles">
-                        <a class="dropdown-item pointer" title="{{role.displayName | translate}}"
-                            (click)="activeModal.close(role)">
-                            <i class="fa pull-right" [ngClass]="role.icon"></i>
-                            {{role.displayName | translate}}
-                        </a>
-                    </li>
-                </ul>
+        <div id="sitnet-dialog">
+            <div class="modal-header">
+                <h1 class="sitnet-black">
+                    <i class="fa fa-user"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
+                </h1>
+            </div>
+            <div class="modal-body">
+                <div ngbDropdown>
+                    <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
+                        {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
+                        <li *ngFor="let role of user.roles">
+                            <a
+                                class="dropdown-item pointer"
+                                title="{{ role.displayName | translate }}"
+                                (click)="activeModal.close(role)"
+                            >
+                                <i class="fa pull-right" [ngClass]="role.icon"></i>
+                                {{ role.displayName | translate }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
+                        {{ 'sitnet_button_decline' | translate }}
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <div class="col-md-12">
-                <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
-                    {{'sitnet_button_decline' | translate}}
-                </button>
-            </div>
-        </div>
-    </div>
-    `
+    `,
 })
 export class SelectRoleDialogComponent {
     @Input() user: User;
 
-    constructor(public activeModal: NgbActiveModal) { }
-
+    constructor(public activeModal: NgbActiveModal) {}
 }

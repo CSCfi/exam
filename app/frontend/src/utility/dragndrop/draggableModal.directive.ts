@@ -16,21 +16,20 @@ import 'jquery-ui/ui/widgets/draggable';
 import { Directive, ElementRef, NgZone, OnInit } from '@angular/core';
 
 // add jquery reference
-declare var $: any;
+declare let $: any;
 
 @Directive({
-    selector: '[appDraggableModal]'
+    selector: '[appDraggableModal]',
 })
 export class DraggableModalDirective implements OnInit {
-
-    constructor(private el: ElementRef, private zone: NgZone) { }
+    constructor(private el: ElementRef, private zone: NgZone) {}
 
     ngOnInit() {
         this.zone.runOutsideAngular(() =>
             $(this.el.nativeElement).draggable({
                 revert: false,
-                drag: (_, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto')
-            })
+                drag: (_, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto'),
+            }),
         );
     }
 }

@@ -20,18 +20,9 @@ import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        TranslateModule
-    ],
-    declarations: [
-        NavigationComponent,
-    ],
-    entryComponents: [
-        NavigationComponent,
-    ],
-    providers: [
-        NavigationService,
-    ]
+    imports: [CommonModule, TranslateModule],
+    declarations: [NavigationComponent],
+    entryComponents: [NavigationComponent],
+    providers: [NavigationService],
 })
-export class NavigationModule { }
+export class NavigationModule {}

@@ -23,47 +23,42 @@ import * as toast from 'toastr';
 import { Option } from '../../utility/select/dropDownSelect.component';
 import { ExamMachine, Reservation } from '../reservation.model';
 
-
 @Component({
     selector: 'change-machine-dialog',
-    template: require('./changeMachineDialog.component.html')
+    template: require('./changeMachineDialog.component.html'),
 })
 export class ChangeMachineDialogComponent implements OnInit {
-
     @Input() reservation: Reservation;
     selection: ExamMachine;
     availableMachineOptions: Option[];
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private translate: TranslateService
-    ) { }
+    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/machines`).subscribe(resp =>
-            this.availableMachineOptions = resp.map(o => {
-                return {
-                    id: o.id,
-                    label: o.name,
-                    value: o
-                };
-            })
+        this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/machines`).subscribe(
+            resp =>
+                (this.availableMachineOptions = resp.map(o => {
+                    return {
+                        id: o.id,
+                        label: o.name,
+                        value: o,
+                    };
+                })),
         );
     }
 
-    machineChanged = (machine: ExamMachine) => this.selection = machine;
+    machineChanged = (machine: ExamMachine) => (this.selection = machine);
 
     ok = () =>
-        this.http.put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
+        this.http
+            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
             .subscribe(
                 resp => {
                     toast.info(this.translate.instant('sitnet_updated'));
                     this.activeModal.close(resp);
                 },
-                err => toast.error(err.data))
-
+                err => toast.error(err.data),
+            );
 
     cancel = () => this.activeModal.dismiss();
-
 }

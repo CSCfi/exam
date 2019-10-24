@@ -30,6 +30,8 @@ require('./common/languageSelector.component.ts');
 require('./creation/courseSelection.component');
 require('./creation/newExam.component');
 
+require('./events/examinationEventDialog.component.ts');
+
 require('./publication/autoEvaluation.component');
 require('./publication/examParticipantSelector.component');
 require('./publication/examPreParticipantSelector.component');

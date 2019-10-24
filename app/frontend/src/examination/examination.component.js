@@ -14,83 +14,86 @@
  */
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examination', {
-        template: require('./examination.template.html'),
-        bindings: {
-            isPreview: '<',
-            isCollaborative: '<' // Collaborative preview
-        },
-        controller: ['$location', '$routeParams', '$translate', 'Examination', 'Enrolment',
-            function ($location, $routeParams, $translate, Examination, Enrolment) {
+angular.module('app.examination').component('examination', {
+    template: require('./examination.template.html'),
+    bindings: {
+        isPreview: '<',
+        isCollaborative: '<', // Collaborative preview
+    },
+    controller: [
+        '$state',
+        '$window',
+        '$stateParams',
+        '$translate',
+        'Examination',
+        'Enrolment',
+        function($state, $window, $stateParams, $translate, Examination, Enrolment) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    if (!vm.isPreview) {
-                        window.onbeforeunload = function () {
-                            return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                        };
-                    }
-                    Examination.startExam($routeParams.hash, vm.isPreview, vm.isCollaborative, $routeParams.id)
-                        .then(function (exam) {
-                            exam.examSections.sort(function (a, b) {
-                                return a.sequenceNumber - b.sequenceNumber;
-                            });
-                            // set section indices
-                            angular.forEach(exam.examSections, function (section, index) {
-                                section.index = index + 1;
-                            });
-
-                            vm.exam = exam;
-                            setActiveSection({ type: 'guide' });
-                            if (!vm.isPreview && !vm.exam.cloned && vm.exam.executionType.type === 'MATURITY') {
-                                Enrolment.showMaturityInstructions({ exam: vm.exam });
-                            }
-                        }, function (err) {
-                            console.log(JSON.stringify(err));
-                            $location.path('/');
+            vm.$onInit = function() {
+                if (!vm.isPreview) {
+                    $window.onbeforeunload = function() {
+                        return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                    };
+                }
+                Examination.startExam($stateParams.hash, vm.isPreview, vm.isCollaborative, $stateParams.id).then(
+                    function(exam) {
+                        exam.examSections.sort(function(a, b) {
+                            return a.sequenceNumber - b.sequenceNumber;
                         });
-                };
-
-                vm.selectNewPage = function (page) {
-                    setActiveSection(page);
-                };
-
-                vm.timedOut = function () {
-                    // Loop through all essay questions in the active section
-                    if (vm.activeSection) {
-                        Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, true).then(function () {
-                            logout('sitnet_exam_time_is_up');
+                        // set section indices
+                        angular.forEach(exam.examSections, function(section, index) {
+                            section.index = index + 1;
                         });
-                    } else {
-                        logout('sitnet_exam_time_is_up');
-                    }
-                };
 
-                const findSection = function (sectionId) {
-                    const i = vm.exam.examSections.map(function (es) {
+                        vm.exam = exam;
+                        setActiveSection({ type: 'guide' });
+                        if (!vm.isPreview && !vm.exam.cloned && vm.exam.executionType.type === 'MATURITY') {
+                            Enrolment.showMaturityInstructions({
+                                exam: vm.exam,
+                            });
+                        }
+                    },
+                    function(err) {
+                        console.log(JSON.stringify(err));
+                        $state.go('dashboard');
+                    },
+                );
+            };
+
+            vm.selectNewPage = function(page) {
+                setActiveSection(page);
+            };
+
+            vm.timedOut = () =>
+                // Save all textual answers regardless of empty or not
+                Examination.saveAllTextualAnswersOfExam(vm.exam).subscribe(() => logout('sitnet_exam_time_is_up'));
+
+            const findSection = function(sectionId) {
+                const i = vm.exam.examSections
+                    .map(function(es) {
                         return es.id;
-                    }).indexOf(sectionId);
-                    if (i >= 0) {
-                        return vm.exam.examSections[i];
-                    }
-                };
+                    })
+                    .indexOf(sectionId);
+                if (i >= 0) {
+                    return vm.exam.examSections[i];
+                }
+            };
 
-                const setActiveSection = function (page) {
-                    if (vm.activeSection) {
-                        Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, true);
-                    }
-                    delete vm.activeSection;
-                    if (page.type === 'section') {
-                        vm.activeSection = findSection(page.id);
-                    }
-                    window.scrollTo(0, 0);
-                };
+            const setActiveSection = function(page) {
+                if (vm.activeSection) {
+                    Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, true);
+                }
+                delete vm.activeSection;
+                if (page.type === 'section') {
+                    vm.activeSection = findSection(page.id);
+                }
+                $window.scrollTo(0, 0);
+            };
 
-                const logout = function (msg) {
-                    Examination.logout(msg, vm.exam.hash, vm.exam.requiresUserAgentAuth);
-                };
-
-            }]
-    });
+            const logout = function(msg) {
+                Examination.logout(msg, vm.exam.hash, vm.exam.requiresUserAgentAuth);
+            };
+        },
+    ],
+});

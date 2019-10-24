@@ -19,28 +19,21 @@ import { ExamService } from '../../exam/exam.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { EnrolmentService } from '../enrolment.service';
 
-
 @Component({
     selector: 'enrolment-details',
-    template: require('./examEnrolmentDetails.component.html')
+    template: require('./examEnrolmentDetails.component.html'),
 })
 export class EnrolmentDetailsComponent {
-
     @Input() exam: Exam;
 
-    constructor(
-        private Exam: ExamService,
-        private Enrolment: EnrolmentService,
-        private DateTime: DateTimeService
-    ) { }
+    constructor(private Exam: ExamService, private Enrolment: EnrolmentService, private DateTime: DateTimeService) {}
 
     enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam);
 
     translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
 
     translateGradeScale = () =>
-        this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null))
+        this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null));
 
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
-
 }

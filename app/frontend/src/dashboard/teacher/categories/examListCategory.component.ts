@@ -26,7 +26,6 @@ import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 
-
 export interface ExtraColumn {
     text: string;
     property: string;
@@ -36,10 +35,9 @@ export interface ExtraColumn {
 
 @Component({
     selector: 'exam-list-category',
-    template: require('./examListCategory.component.html')
+    template: require('./examListCategory.component.html'),
 })
 export class ExamListCategoryComponent implements OnInit {
-
     @Input() items: Exam[];
     @Input() examTypes: ExamExecutionType[];
     @Input() extraColumns: ExtraColumn[];
@@ -66,21 +64,23 @@ export class ExamListCategoryComponent implements OnInit {
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
-        this.filterChanged.pipe(
-            debounceTime(500),
-            distinctUntilChanged()
-        ).subscribe(text => {
-            this.filterText = text;
-            this.$location.search('filter', this.filterText);
-            this.onFilterChange.emit(this.filterText);
-        });
+        this.filterChanged
+            .pipe(
+                debounceTime(500),
+                distinctUntilChanged(),
+            )
+            .subscribe(text => {
+                this.filterText = text;
+                this.$location.search('filter', this.filterText);
+                this.onFilterChange.emit(this.filterText);
+            });
     }
 
     ngOnInit() {
         this.userId = this.Session.getUser().id;
         this.sorting = {
             predicate: this.defaultPredicate,
-            reverse: this.defaultReverse
+            reverse: this.defaultReverse,
         };
         this.filterText = this.$location.search().filter;
         if (this.filterText) {
@@ -93,7 +93,7 @@ export class ExamListCategoryComponent implements OnInit {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
-    }
+    };
 
     search = (text: string) => this.filterChanged.next(text);
 
@@ -109,22 +109,25 @@ export class ExamListCategoryComponent implements OnInit {
                 toast.success(this.translate.instant('sitnet_exam_copied'));
                 this.location.go(`/exams/${resp.id}/1`);
             },
-            resp => toast.error(resp.data));
-    }
+            resp => toast.error(resp.data),
+        );
+    };
 
     deleteExam = (exam: Exam) => {
-        const dialog = this.dialog.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_exam'));
+        const dialog = this.dialog.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_exam'),
+        );
         dialog.result.then(() => {
             this.http.delete(`/app/exams/${exam.id}`).subscribe(
                 () => {
                     toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
-                resp => toast.error(resp.data));
+                resp => toast.error(resp.data),
+            );
         });
-    }
+    };
 
     isOwner = (exam: Exam) => exam.examOwners.some(eo => eo.id === this.userId);
-
 }

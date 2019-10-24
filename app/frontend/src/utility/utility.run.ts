@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import * as ng from 'angular';
 
-import * as angular from 'angular';
-
-export default function run($templateCache: angular.ITemplateCacheService) {
+export default function run($templateCache: ng.ITemplateCacheService) {
     'ngInject';
     // This is necessary because angular can't find the bundled uib-template unless added to template cache
-    $templateCache.put('uib/template/datepickerPopup/popup.html',
-        require('./date/template/uibPopupOverride.template.html'));
+    $templateCache.put(
+        'uib/template/datepickerPopup/popup.html',
+        require('./date/template/uibPopupOverride.template.html'),
+    );
 }

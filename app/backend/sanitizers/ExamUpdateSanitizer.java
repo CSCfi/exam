@@ -76,6 +76,8 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         request = SanitizingHelper.sanitizeOptional("anonymous", body, Boolean.class, Attrs.ANONYMOUS, request);
         request = SanitizingHelper.sanitizeOptional("requiresUserAgentAuth", body, Boolean.class,
                 Attrs.REQUIRES_USER_AGENT_AUTH, request);
+        request = SanitizingHelper.sanitizeOptional("settingsPassword", body, String.class,
+                Attrs.SETTINGS_PASSWORD, request);
         if (body.has("examType")) {
             final JsonNode examTypeNode = body.get("examType");
             request = SanitizingHelper.sanitizeOptional("type", examTypeNode, String.class, Attrs.TYPE, request);

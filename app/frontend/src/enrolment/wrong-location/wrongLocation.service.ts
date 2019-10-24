@@ -17,21 +17,17 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-
 @Injectable()
 export class WrongLocationService {
-
     opts: ToastrOptions = {
         timeOut: 10000,
-        preventDuplicates: true
+        preventDuplicates: true,
     };
 
-    constructor(
-        private translate: TranslateService
-    ) { }
+    constructor(private translate: TranslateService) {}
 
     display = (data: string[]) => {
-        let startsAt = moment(data[4]);
+        const startsAt = moment(data[4]);
         const now = moment();
         if (now.isDST()) {
             startsAt.add(-1, 'hour');
@@ -43,36 +39,42 @@ export class WrongLocationService {
                 toast.warning(
                     `${t.sitnet_your_exam_will_start_at} ${startsAt.format('HH:mm')}
                      ${t.sitnet_at_location} ${data[0]}: ${data[1]}, ${t.sitnet_at_room} ${data[2]}
-                    ${t.sitnet_at_machine} ${data[3]}`, '', this.opts
-                )
+                    ${t.sitnet_at_machine} ${data[3]}`,
+                    '',
+                    this.opts,
+                ),
             );
         } else {
             parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
             this.translate.instant(parts).then((t: any) =>
                 toast.error(
                     `${t.sitnet_you_have_ongoing_exam_at_location}: ${data[0]}, ${data[1]}
-                    ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`, '', this.opts
-                )
+                    ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`,
+                    '',
+                    this.opts,
+                ),
             );
         }
-    }
+    };
 
     displayWrongUserAgent = (startsAtTxt: string) => {
         const opts = {
             timeOut: 10000,
-            preventDuplicates: true
+            preventDuplicates: true,
         };
-        let startsAt = moment(startsAtTxt);
+        const startsAt = moment(startsAtTxt);
         const now = moment();
         if (now.isDST()) {
             startsAt.add(-1, 'hour');
         }
         if (startsAt.isAfter(now)) {
-            toast.warning(`${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,
-                '', opts);
+            toast.warning(
+                `${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,
+                '',
+                opts,
+            );
         } else {
             toast.error(this.translate.instant('sitnet_seb_exam_ongoing'), '', opts);
         }
-    }
-
+    };
 }

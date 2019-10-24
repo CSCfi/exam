@@ -12,40 +12,40 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rInspectionComment', {
-        template: require('./inspectionComment.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&'
-        },
-        controller: ['$scope', 'Files', function ($scope) {
-
+angular.module('app.review').component('rInspectionComment', {
+    template: require('./inspectionComment.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+    },
+    controller: [
+        '$scope',
+        'Files',
+        function($scope) {
             const vm = this;
 
-            vm.$onInit = function () {
-                vm.data = {comment: null};
+            vm.$onInit = function() {
+                vm.data = { comment: null };
             };
 
-            vm.ok = function () {
+            vm.ok = function() {
                 vm.close({
-                    $value: {'comment': vm.data.comment}
+                    $value: { comment: vm.data.comment },
                 });
             };
 
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
 
             // Close modal if user clicked the back button and no changes made
-            $scope.$on('$routeChangeStart', function () {
+            $scope.$on('$stateChangeStart', function() {
                 if (!window.onbeforeunload) {
                     vm.cancel();
                 }
             });
-
-        }]
-    });
+        },
+    ],
+});

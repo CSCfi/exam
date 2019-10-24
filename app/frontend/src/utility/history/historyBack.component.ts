@@ -19,17 +19,16 @@ import { WindowRef } from '../window/window.service';
 @Component({
     selector: 'history-back',
     template: `
-    <a (click)="goBack($event)">
-        <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back">
-    </a>
-    `
+        <a (click)="goBack($event)">
+            <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
+        </a>
+    `,
 })
 export class HistoryBackComponent {
-
-    constructor(private Window: WindowRef) { }
+    constructor(private Window: WindowRef) {}
 
     goBack = (event: Event) => {
         event.preventDefault();
         this.Window.nativeWindow.history.back();
-    }
+    };
 }

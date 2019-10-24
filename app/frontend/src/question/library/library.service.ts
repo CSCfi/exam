@@ -31,12 +31,11 @@ export interface LibraryQuestion extends ReverseQuestion {
 
 @Injectable()
 export class LibraryService {
-
     constructor(
         private http: HttpClient,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        private Question: QuestionService
-    ) { }
+        private Question: QuestionService,
+    ) {}
 
     private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
         const params = new HttpParams();
@@ -53,36 +52,28 @@ export class LibraryService {
             params.set('examIds', examIds.join());
         }
         return params;
-    }
-
+    };
 
     listExams = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
-        this.http.get<Exam[]>('/app/examsearch',
-            { params: this.getQueryParams(courseIds, sectionIds, tagIds) }
-        )
-
+        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
 
     listCourses = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Course[]> =>
-        this.http.get<Course[]>('/app/courses/user',
-            { params: this.getQueryParams(courseIds, sectionIds, tagIds) }
-        )
+        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
 
     listTags = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Tag[]> =>
-        this.http.get<Course[]>('/app/tags',
-            { params: this.getQueryParams(courseIds, sectionIds, tagIds) }
-        )
+        this.http.get<Course[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
 
     loadFilters = (category: string) => {
         const entry = this.webStorageService.get('questionFilters');
-        return (entry && entry[category]) ? JSON.parse(entry[category]) : {};
-    }
+        return entry && entry[category] ? JSON.parse(entry[category]) : {};
+    };
 
     storeFilters = (filters: any, category: string) => {
         const data = { filters: filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('questionFilters', filter);
-    }
+    };
 
     applyFreeSearchFilter = (text: string | undefined, questions: LibraryQuestion[]) => {
         if (text) {
@@ -94,15 +85,18 @@ export class LibraryService {
                     return true;
                 }
                 // match course code
-                return question.examSectionQuestions.filter(esq =>
-                    // Course can be empty in case of a copied exam
-                    esq.examSection.exam.course && esq.examSection.exam.course.code.match(re)
-                ).length > 0;
+                return (
+                    question.examSectionQuestions.filter(
+                        esq =>
+                            // Course can be empty in case of a copied exam
+                            esq.examSection.exam.course && esq.examSection.exam.course.code.match(re),
+                    ).length > 0
+                );
             });
         } else {
             return questions;
         }
-    }
+    };
 
     applyOwnerSearchFilter = (text: string, questions: LibraryQuestion[]) => {
         if (text) {
@@ -114,7 +108,7 @@ export class LibraryService {
         } else {
             return questions;
         }
-    }
+    };
 
     private getIcon = (question: LibraryQuestion) => {
         switch (question.type) {
@@ -129,12 +123,14 @@ export class LibraryService {
             default:
                 return '';
         }
-    }
+    };
 
     private getDisplayedMaxScore = (q: LibraryQuestion): number | string => {
-        if (q.defaultEvaluationType === 'Points' ||
+        if (
+            q.defaultEvaluationType === 'Points' ||
             q.type === 'ClozeTestQuestion' ||
-            q.type === 'MultipleChoiceQuestion') {
+            q.type === 'MultipleChoiceQuestion'
+        ) {
             return q.defaultMaxScore || 0;
         } else if (q.defaultEvaluationType === 'Selection') {
             return 'sitnet_evaluation_select';
@@ -142,35 +138,48 @@ export class LibraryService {
             return this.Question.calculateDefaultMaxPoints(q);
         }
         return '';
-    }
+    };
 
     private getOwnerAggregate = (q: LibraryQuestion): string =>
-        q.questionOwners.reduce((acc, owner) => acc + owner.lastName + owner.firstName, '')
+        q.questionOwners.reduce((acc, owner) => acc + owner.lastName + owner.firstName, '');
 
-    search = (examIds: number[], courseIds: number[], tagIds: number[],
-        sectionIds: number[]): Observable<LibraryQuestion[]> =>
-
-        this.http.get<LibraryQuestion[]>('/app/questions',
-            { params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds) }).pipe(
+    search = (
+        examIds: number[],
+        courseIds: number[],
+        tagIds: number[],
+        sectionIds: number[],
+    ): Observable<LibraryQuestion[]> =>
+        this.http
+            .get<LibraryQuestion[]>('/app/questions', {
+                params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
+            })
+            .pipe(
                 map(questions => {
                     questions.map(question => Object.assign(question, { icon: this.getIcon(question) }));
                     questions.forEach(q => {
                         q.displayedMaxScore = this.getDisplayedMaxScore(q);
-                        q.typeOrd = ['EssayQuestion',
+                        q.typeOrd = [
+                            'EssayQuestion',
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
-                            'WeightedMultipleChoiceQuestion'].indexOf(q.type);
+                            'WeightedMultipleChoiceQuestion',
+                        ].indexOf(q.type);
                         q.ownerAggregate = this.getOwnerAggregate(q);
-                        q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
-                            const exam = esq.examSection.exam;
-                            return exam.state === 'PUBLISHED' &&
-                                new Date(exam.examActiveEndDate).getTime() > new Date().getTime();
-                        }).length === 0;
+                        q.allowedToRemove =
+                            q.examSectionQuestions.filter(function(esq) {
+                                const exam = esq.examSection.exam;
+                                return (
+                                    exam.state === 'PUBLISHED' &&
+                                    new Date(exam.examActiveEndDate).getTime() > new Date().getTime()
+                                );
+                            }).length === 0;
                     });
                     return questions;
-                })
-            )
+                }),
+            );
 
-    private htmlDecode = (text: string) => $('<div/>').html(text).text();
-
+    private htmlDecode = (text: string) =>
+        $('<div/>')
+            .html(text)
+            .text();
 }

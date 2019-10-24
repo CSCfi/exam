@@ -15,10 +15,9 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rWeightedMultiChoiceAnswer', {
-        template: require('./weightedMultiChoiceAnswer.template.html'),
-        bindings: {
-            sectionQuestion: '<'
-        }
-    });
+angular.module('app.review').component('rWeightedMultiChoiceAnswer', {
+    template: require('./weightedMultiChoiceAnswer.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+});

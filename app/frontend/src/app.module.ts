@@ -56,14 +56,14 @@ import { EnrolmentModule } from './enrolment/enrolment.module';
         QuestionModule,
         UtilityModule,
         ReviewModule,
-        CalendarModule
+        CalendarModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         {
             provide: LOCALE_ID,
             deps: [SessionService],
-            useFactory: (srv) => srv.getLocale()
+            useFactory: srv => srv.getLocale(),
         },
         Location,
         { provide: LocationStrategy, useClass: PathLocationStrategy },
@@ -71,29 +71,28 @@ import { EnrolmentModule } from './enrolment/enrolment.module';
         {
             provide: '$translate',
             useFactory: ($injector: any) => $injector.get('$translate'),
-            deps: ['$injector']
+            deps: ['$injector'],
         },
         // Provider for AJS RouteParams, needed until having switched to new router
         {
             provide: '$routeParams',
             useFactory: ($injector: any) => $injector.get('$routeParams'),
-            deps: ['$injector']
+            deps: ['$injector'],
         },
         // Provider for AJS Location service, needed until having switched to new router
         {
             provide: '$location',
             useFactory: ($injector: any) => $injector.get('$location'),
-            deps: ['$injector']
+            deps: ['$injector'],
         },
-    ]
+    ],
 })
 export class AppModule {
     /*
         Bootstrap the AngularJS app
     */
-    constructor(private upgrade: UpgradeModule) { }
+    constructor(private upgrade: UpgradeModule) {}
     ngDoBootstrap() {
         this.upgrade.bootstrap(document.body, ['app'], { strictDi: true });
     }
 }
-

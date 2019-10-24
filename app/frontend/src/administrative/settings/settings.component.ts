@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as toast from 'toastr';
 
@@ -29,7 +28,7 @@ export interface AppConfig {
     maxFileSize: number;
     reservationWindowSize: number;
     reviewDeadline: number;
-    roles: { ADMIN: string[], TEACHER: string[], STUDENT: string[] };
+    roles: { ADMIN: string[]; TEACHER: string[]; STUDENT: string[] };
     supportsMaturity: boolean;
     supportsPrintouts: boolean;
 }
@@ -37,47 +36,47 @@ export interface AppConfig {
 export const SettingsComponent: angular.IComponentOptions = {
     template: require('./settings.template.html'),
     controller: class SettingsController implements angular.IComponentController {
-
         config: AppConfig;
         attributes: string[];
 
-        constructor(private $translate: angular.translate.ITranslateService,
-            private $http: angular.IHttpService,
-        ) {
+        constructor(private $translate: angular.translate.ITranslateService, private $http: angular.IHttpService) {
             'ngInject';
         }
 
         private onSuccess = () =>
-            toast.info(this.$translate.instant('sitnet_settings') + ' ' +
-                this.$translate.instant('sitnet_updated'))
+            toast.info(this.$translate.instant('sitnet_settings') + ' ' + this.$translate.instant('sitnet_updated'));
 
-        private onError = (error) => toast.error(error.data);
+        private onError = error => toast.error(error.data);
 
         $onInit = () => {
             this.$http.get('/app/config').then((resp: angular.IHttpResponse<AppConfig>) => {
                 this.config = resp.data;
             });
-        }
+        };
 
         updateAgreement = () =>
-            this.$http.put('/app/settings/agreement', { value: this.config.eula })
+            this.$http
+                .put('/app/settings/agreement', { value: this.config.eula })
                 .then(this.onSuccess)
-                .catch(this.onError)
+                .catch(this.onError);
 
         updateDeadline = () =>
-            this.$http.put('/app/settings/deadline', { value: this.config.reviewDeadline })
+            this.$http
+                .put('/app/settings/deadline', { value: this.config.reviewDeadline })
                 .then(this.onSuccess)
-                .catch(this.onError)
+                .catch(this.onError);
 
         updateReservationWindow = () =>
-            this.$http.put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
+            this.$http
+                .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
                 .then(this.onSuccess)
-                .catch(this.onError)
+                .catch(this.onError);
 
-        showAttributes = () => this.$http.get('/attributes').then((resp: angular.IHttpResponse<string[]>) =>
-            this.attributes = resp.data
-        )
-    }
+        showAttributes = () =>
+            this.$http
+                .get('/attributes')
+                .then((resp: angular.IHttpResponse<string[]>) => (this.attributes = resp.data));
+    },
 };
 
 angular.module('app.administrative.settings').component('settings', SettingsComponent);

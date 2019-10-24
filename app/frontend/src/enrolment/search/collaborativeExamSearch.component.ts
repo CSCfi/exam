@@ -21,8 +21,6 @@ import { CollaborativeExam } from '../../exam/exam.model';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentService } from '../enrolment.service';
 
-
-
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
     reservationMade: boolean;
@@ -32,27 +30,26 @@ interface CollaborativeExamInfo extends CollaborativeExam {
 @Component({
     selector: 'collaborative-exam-search',
     template: `
-    <div id="dashboard">
-        <div>
-            <div class="student-details-title-wrap padtop padleft">
-                <div class="student-exam-search-title">{{'sitnet_collaborative_exams' | translate}}</div>
+        <div id="dashboard">
+            <div>
+                <div class="student-details-title-wrap padtop padleft">
+                    <div class="student-exam-search-title">{{ 'sitnet_collaborative_exams' | translate }}</div>
+                </div>
+            </div>
+            <div class="exams-list marr30 list-item" *ngFor="let exam of exams">
+                <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
             </div>
         </div>
-        <div class="exams-list marr30 list-item" *ngFor="let exam of exams">
-            <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
-        </div>
-    </div>
-    `
+    `,
 })
 export class CollaborativeExamSearchComponent implements OnInit {
-
     exams: CollaborativeExamInfo[];
 
     constructor(
         private Enrolment: EnrolmentService,
         private Language: LanguageService,
-        private CollaborativeExam: CollaborativeExamService
-    ) { }
+        private CollaborativeExam: CollaborativeExamService,
+    ) {}
 
     ngOnInit() {
         this.CollaborativeExam.listExams().subscribe((exams: CollaborativeExam[]) => {
@@ -60,18 +57,18 @@ export class CollaborativeExamSearchComponent implements OnInit {
                 _.assign(e, {
                     reservationMade: false,
                     enrolled: false,
-                    languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
-                }));
+                    languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
+                }),
+            );
             this.exams.forEach(e => {
                 this.Enrolment.getEnrolments(e.id, true).subscribe(
                     enrolments => {
                         e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
                         e.enrolled = enrolments.length > 0;
                     },
-                    err => toastr.error(err.data)
+                    err => toastr.error(err.data),
                 );
             });
         });
-
     }
 }

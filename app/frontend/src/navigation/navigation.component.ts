@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
+import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
@@ -22,13 +22,11 @@ import * as toastr from 'toastr';
 import { SessionService, User } from '../session/session.service';
 import { Link, NavigationService } from './navigation.service';
 
-
 @Component({
     selector: 'navigation',
-    template: require('./navigation.component.html')
+    template: require('./navigation.component.html'),
 })
 export class NavigationComponent implements OnInit, OnDestroy {
-
     appVersion: string;
     links: Link[];
     mobileMenuOpen: boolean;
@@ -36,11 +34,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     isInteroperable: boolean;
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private location: Location,
-        private Navigation: NavigationService,
-        private Session: SessionService) {
-
+    constructor(private state: StateService, private Navigation: NavigationService, private Session: SessionService) {
         // TODO: make these observables in other components
         /*
         this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
@@ -49,19 +43,16 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.Session.userChange$.pipe(
-            takeUntil(this.ngUnsubscribe))
-            .subscribe((user: User) => {
-                this.user = user;
-                this.getLinks(true);
-            }
-            );
+        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User) => {
+            this.user = user;
+            this.getLinks(true);
+        });
 
         this.user = this.Session.getUser();
         if (this.user && this.user.isAdmin) {
             this.Navigation.getAppVersion().subscribe(
-                resp => this.appVersion = resp.appVersion,
-                e => toastr.error(e)
+                resp => (this.appVersion = resp.appVersion),
+                e => toastr.error(e),
             );
             this.getLinks(true);
         } else if (this.user) {
@@ -77,7 +68,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     isActive(link: Link): boolean {
-        return link.href === this.location.path();
+        return link.state === this.state.current.name; // CHECK THESE OUT!
     }
 
     openMenu(): void {
@@ -94,12 +85,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
                 resp => {
                     this.isInteroperable = resp.isExamCollaborationSupported;
                     this.links = this.Navigation.getLinks(this.isInteroperable);
-                }, e => toastr.error(e));
+                },
+                e => toastr.error(e),
+            );
         } else {
             this.links = this.Navigation.getLinks(false);
         }
-    }
-
+    };
 }
-
-

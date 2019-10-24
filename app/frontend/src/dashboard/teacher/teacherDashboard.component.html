@@ -2,20 +2,20 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title marl20">{{'sitnet_dashboard' | translate}}</div>
+                <div class="student-enroll-title marl20">{{ 'sitnet_dashboard' | translate }}</div>
             </div>
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
                         <a href="/exams/new" class="pointer">
-                            {{'sitnet_toolbar_new_exam' | translate}}
+                            {{ 'sitnet_toolbar_new_exam' | translate }}
                         </a>
                     </div>
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
                         <a href="/questions/newQuestion/1" class="pointer">
-                            {{'sitnet_toolbar_new_question' | translate}}
+                            {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>
                 </div>
@@ -33,9 +33,13 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category [items]="filteredActive" default-predicate="examActiveEndDate"
-                        [examTypes]="executionTypes" [extraColumns]="activeExtraColumns"
-                        (onFilterChange)="search($event)">
+                    <exam-list-category
+                        [items]="filteredActive"
+                        default-predicate="examActiveEndDate"
+                        [examTypes]="executionTypes"
+                        [extraColumns]="activeExtraColumns"
+                        (onFilterChange)="search($event)"
+                    >
                     </exam-list-category>
                 </ng-template>
             </ngb-tab>
@@ -47,9 +51,14 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category [items]="filteredFinished" default-predicate="unassessedCount"
-                        default-reverse="true" [extraColumns]="finishedExtraColumns" [examTypes]="executionTypes"
-                        (onFilterChange)="search($event)">
+                    <exam-list-category
+                        [items]="filteredFinished"
+                        default-predicate="unassessedCount"
+                        default-reverse="true"
+                        [extraColumns]="finishedExtraColumns"
+                        [examTypes]="executionTypes"
+                        (onFilterChange)="search($event)"
+                    >
                     </exam-list-category>
                 </ng-template>
             </ngb-tab>
@@ -61,9 +70,14 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category [items]="filteredArchived" default-predicate="examActiveEndDate"
-                        default-reverse="true" [extraColumns]="archivedExtraColumns" [examTypes]="executionTypes"
-                        (onFilterChange)="search($event)">
+                    <exam-list-category
+                        [items]="filteredArchived"
+                        default-predicate="examActiveEndDate"
+                        default-reverse="true"
+                        [extraColumns]="archivedExtraColumns"
+                        [examTypes]="executionTypes"
+                        (onFilterChange)="search($event)"
+                    >
                     </exam-list-category>
                 </ng-template>
             </ngb-tab>
@@ -75,12 +89,16 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category [items]="filteredDrafts" default-predicate="examActiveEndDate"
-                        default-reverse="true" [examTypes]="executionTypes" (onFilterChange)="search($event)">
+                    <exam-list-category
+                        [items]="filteredDrafts"
+                        default-predicate="examActiveEndDate"
+                        default-reverse="true"
+                        [examTypes]="executionTypes"
+                        (onFilterChange)="search($event)"
+                    >
                     </exam-list-category>
                 </ng-template>
             </ngb-tab>
         </ngb-tabset>
     </div>
-
 </div>

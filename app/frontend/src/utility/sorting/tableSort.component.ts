@@ -17,10 +17,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'table-sort',
-    template:
-        `<span class="pointer">{{ text | translate }}&nbsp;
+    template: `
+        <span class="pointer"
+            >{{ text | translate }}&nbsp;
             <i class="fa" [ngClass]="getSortClass()"></i>
-        </span>`
+        </span>
+    `,
 })
 export class TableSortComponent {
     @Input() by: string;
@@ -31,6 +33,5 @@ export class TableSortComponent {
 
     sort = () => this.onSort.emit(this.by);
 
-    getSortClass = () => this.by === this.predicate
-        ? (this.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort'
+    getSortClass = () => (this.by === this.predicate ? (this.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort');
 }

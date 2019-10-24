@@ -16,17 +16,17 @@ import 'jquery-ui/ui/widgets/sortable';
 import { Directive, ElementRef, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
 
 // add jquery reference
-declare var $: any;
+declare let $: any;
 
 @Directive({
-    selector: '[appSortable]'
+    selector: '[appSortable]',
 })
 export class SortableDirective implements OnInit {
     @Input('appSortable') objects: any[];
     @Input() selection: string;
     @Output() onMove = new EventEmitter<any>();
 
-    constructor(private el: ElementRef, private zone: NgZone) { }
+    constructor(private el: ElementRef, private zone: NgZone) {}
 
     ngOnInit() {
         let startIndex = -1;
@@ -36,12 +36,12 @@ export class SortableDirective implements OnInit {
                 items: this.selection,
                 start: (event, ui) => {
                     // on start we define where the item is dragged from
-                    startIndex = ($(ui.item).index());
+                    startIndex = $(ui.item).index();
                 },
                 stop: (event, ui) => {
                     // on stop we determine the new index of the
                     // item and store it there
-                    const newIndex = ($(ui.item).index());
+                    const newIndex = $(ui.item).index();
                     const objToMove = this.objects[startIndex];
                     this.zone.run(() => {
                         this.objects.splice(startIndex, 1);
@@ -50,12 +50,9 @@ export class SortableDirective implements OnInit {
                         // since we're outside its lifecycle
                         this.onMove.emit({ object: objToMove, from: startIndex, to: newIndex });
                     });
-
                 },
-                axis: 'y'
+                axis: 'y',
             });
         });
-
     }
-
 }

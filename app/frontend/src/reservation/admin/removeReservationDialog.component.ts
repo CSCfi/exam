@@ -21,24 +21,21 @@ import { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'remove-reservation-dialog',
-    template: require('./removeReservationDialog.component.html')
+    template: require('./removeReservationDialog.component.html'),
 })
 export class RemoveReservationDialogComponent {
-
     @Input() reservation: Reservation;
     message = { text: '' };
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient
-    ) { }
+    constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}
 
     ok = () =>
-        this.http.delete(`/app/reservations/${this.reservation.id}`,
-            { headers: { 'Content-Type': 'application/json' }, params: { 'msg': this.message.text } })
-            .subscribe(() => this.activeModal.close(), err => toast.error(err))
+        this.http
+            .delete(`/app/reservations/${this.reservation.id}`, {
+                headers: { 'Content-Type': 'application/json' },
+                params: { msg: this.message.text },
+            })
+            .subscribe(() => this.activeModal.close(), err => toast.error(err));
 
     cancel = () => this.activeModal.dismiss();
-
 }
-

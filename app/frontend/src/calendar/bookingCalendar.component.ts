@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2017 Exam Consortium
+ *
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+ * versions of the EUPL (the "Licence");
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
+ * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
 import { Component, EventEmitter, Inject, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Options } from 'fullcalendar';
@@ -6,21 +20,19 @@ import * as moment from 'moment';
 import { CalendarComponent } from 'ng-fullcalendar';
 import { CalendarService, Room } from './calendar.service';
 
-declare var $: any;
+declare let $: any;
 
 @Component({
     selector: 'booking-calendar',
     template: `
         <div id="calendarBlock">
-            <ng-fullcalendar #bookingCalendar [options]="calendarOptions"
-                id="calendar"></ng-fullcalendar>
+            <ng-fullcalendar #bookingCalendar [options]="calendarOptions" id="calendar"></ng-fullcalendar>
         </div>
-    `
+    `,
 })
 export class BookingCalendarComponent implements OnInit {
-
-    @Output() onRefresh = new EventEmitter<{ start: moment.Moment, callback: (events: any[]) => void }>();
-    @Output() onEventSelected = new EventEmitter<{ start: moment.Moment, end: moment.Moment }>();
+    @Output() onRefresh = new EventEmitter<{ start: moment.Moment; callback: (events: any[]) => void }>();
+    @Output() onEventSelected = new EventEmitter<{ start: moment.Moment; end: moment.Moment }>();
     @Input() room: Room;
     @Input() minDate: moment.Moment;
     @Input() maxDate: moment.Moment;
@@ -33,8 +45,8 @@ export class BookingCalendarComponent implements OnInit {
     constructor(
         @Inject('$routeParams') private RouteParams: any,
         private translate: TranslateService,
-        private Calendar: CalendarService
-    ) { }
+        private Calendar: CalendarService,
+    ) {}
 
     ngOnInit(): void {
         this.defaultDate = moment();
@@ -55,27 +67,31 @@ export class BookingCalendarComponent implements OnInit {
             slotLabelFormat: 'H:mm',
             slotEventOverlap: false,
             buttonText: {
-                today: this.translate.instant('sitnet_today')
+                today: this.translate.instant('sitnet_today'),
             },
             header: {
                 left: 'myCustomButton',
                 center: 'prev title next',
-                right: 'today'
+                right: 'today',
             },
             customButtons: {
                 myCustomButton: {
-                    text: _.capitalize(moment().locale(this.translate.currentLang).format('MMMM YYYY')),
-                    click: () => { }
-                }
+                    text: _.capitalize(
+                        moment()
+                            .locale(this.translate.currentLang)
+                            .format('MMMM YYYY'),
+                    ),
+                    click: () => {},
+                },
             },
             events: (start, end, tz, callback) => {
                 this.onRefresh.emit({ start: start, callback: callback });
             },
-            viewRender: (view) => {
+            viewRender: view => {
                 this.defaultDate = moment(view.start);
                 // this.Calendar.renderCalendarTitle();
             },
-            eventClick: (event) => {
+            eventClick: event => {
                 if (event.availableMachines > 0) {
                     this.onEventSelected.emit({ start: moment(event.start), end: moment(event.end) });
                     if (selectedEvent) {
@@ -87,24 +103,30 @@ export class BookingCalendarComponent implements OnInit {
                     $(this).css('background-color', '#92C3E4');
                 }
             },
-            eventMouseover: (event) => {
+            eventMouseover: event => {
                 if (!event.selected && event.availableMachines > 0) {
                     $(this).css('cursor', 'pointer');
                     $(this).css('background-color', '#3CA34F');
                 }
             },
-            eventMouseout: (event) => {
+            eventMouseout: event => {
                 if (!event.selected && event.availableMachines > 0) {
                     $(this).css('background-color', '#A6E9B2');
                 }
             },
             eventRender: (event, element) => {
                 if (event.availableMachines > 0) {
-                    element.attr('title', this.translate.instant('sitnet_new_reservation') + ' ' +
-                        moment(event.start).format('HH:mm') + ' - ' + moment(event.end).format('HH:mm'));
+                    element.attr(
+                        'title',
+                        this.translate.instant('sitnet_new_reservation') +
+                            ' ' +
+                            moment(event.start).format('HH:mm') +
+                            ' - ' +
+                            moment(event.end).format('HH:mm'),
+                    );
                 }
             },
-            eventAfterAllRender: (view) => {
+            eventAfterAllRender: view => {
                 // Disable next/prev buttons if date range is off limits
                 const prevButton = $('.fc-prev-button');
                 prevButton.attr('aria-label', 'previous week');
@@ -116,7 +138,11 @@ export class BookingCalendarComponent implements OnInit {
                 const today = moment();
 
                 customButton.text(
-                    _.capitalize(moment(view.start).locale(this.translate.currentLang).format('MMMM YYYY'))
+                    _.capitalize(
+                        moment(view.start)
+                            .locale(this.translate.currentLang)
+                            .format('MMMM YYYY'),
+                    ),
                 );
 
                 if (this.minDate >= view.start && this.minDate <= moment(view.end)) {
@@ -140,7 +166,7 @@ export class BookingCalendarComponent implements OnInit {
                     todayButton.removeClass('fc-state-disabled');
                     todayButton.prop('disabled', false);
                 }
-            }
+            },
         };
     }
 
@@ -167,10 +193,9 @@ export class BookingCalendarComponent implements OnInit {
                     maxTime: maxTime.format('HH:mm:ss'),
                     scrollTime: minTime.format('HH:mm:ss'),
                     hiddenDays: hiddenDays,
-                    height: 'auto'
-                })
+                    height: 'auto',
+                }),
             );
         }
     }
-
 }

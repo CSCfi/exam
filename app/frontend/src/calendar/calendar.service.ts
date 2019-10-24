@@ -20,7 +20,6 @@ import { Observable } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
-
 export interface Room {
     id: number;
     _id?: string;
@@ -31,7 +30,7 @@ export interface Room {
     roomInstruction: string | null;
     roomInstructionSV: string | null;
     roomInstructionEN: string | null;
-    accessibilities: { id: number, name: string }[];
+    accessibilities: { id: number; name: string }[];
     outOfService: boolean;
     statusComment: string | null;
 }
@@ -57,13 +56,12 @@ export interface OpeningHours {
 
 @Injectable()
 export class CalendarService {
-
     constructor(
         private http: HttpClient,
         @Inject('$routeParams') private RouteParams: any,
         private DateTime: DateTimeService,
-        private Session: SessionService
-    ) { }
+        private Session: SessionService,
+    ) {}
 
     private adjustBack(date: moment.Moment, tz: string): string {
         const adjusted = moment.tz(date, tz);
@@ -71,20 +69,27 @@ export class CalendarService {
         return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
-    private reserveInternal$ = (slot: Slot, accs: { filtered: boolean; id: number }[],
-        collaborative: boolean): Observable<void> => {
-
+    private reserveInternal$ = (
+        slot: Slot,
+        accs: { filtered: boolean; id: number }[],
+        collaborative: boolean,
+    ): Observable<void> => {
         slot.aids = accs.filter(item => item.filtered).map(item => item.id);
         const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
         return this.http.post<void>(url, slot);
-    }
+    };
 
-    private reserveExternal$ = (slot: Slot) =>
-        this.http.post<void>('/integration/iop/reservations/external', slot)
+    private reserveExternal$ = (slot: Slot) => this.http.post<void>('/integration/iop/reservations/external', slot);
 
-    reserve$(start: moment.Moment, end: moment.Moment, room: Room,
-        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false,
-        sectionIds: number[] = []) {
+    reserve$(
+        start: moment.Moment,
+        end: moment.Moment,
+        room: Room,
+        accs: { filtered: boolean; id: number }[],
+        org: { _id: string | null },
+        collaborative = false,
+        sectionIds: number[] = [],
+    ) {
         const tz = room.localTimezone;
         const slot: Slot = {
             start: this.adjustBack(start, tz),
@@ -92,7 +97,7 @@ export class CalendarService {
             examId: parseInt(this.RouteParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id,
-            sectionIds: sectionIds
+            sectionIds: sectionIds,
         };
         if (org._id !== null) {
             return this.reserveExternal$(slot);
@@ -107,10 +112,13 @@ export class CalendarService {
         const title = selector.text();
         const separator = ' — ';
         const endPart = title.split(separator)[1];
-        const startFragments: string[] = title.split(separator)[0].split('.').filter(function (x) {
-            // ignore empty fragments (introduced if title already correctly formatted)
-            return x;
-        });
+        const startFragments: string[] = title
+            .split(separator)[0]
+            .split('.')
+            .filter(function(x) {
+                // ignore empty fragments (introduced if title already correctly formatted)
+                return x;
+            });
         let newTitle = '';
         if (startFragments.length < 3) {
             startFragments.forEach(f => {
@@ -140,10 +148,9 @@ export class CalendarService {
             WEDNESDAY: { ord: 3, name: weekday(3).toLocaleDateString(locale, options) },
             THURSDAY: { ord: 4, name: weekday(4).toLocaleDateString(locale, options) },
             FRIDAY: { ord: 5, name: weekday(5).toLocaleDateString(locale, options) },
-            SATURDAY: { ord: 6, name: weekday(6).toLocaleDateString(locale, options) }
+            SATURDAY: { ord: 6, name: weekday(6).toLocaleDateString(locale, options) },
         };
     }
-
 
     processOpeningHours(room: Room): OpeningHours[] {
         const weekdayNames = this.getWeekdayNames();
@@ -156,14 +163,14 @@ export class CalendarService {
                     name: weekdayNames[dwh.weekday].name,
                     ref: dwh.weekday,
                     ord: weekdayNames[dwh.weekday].ord,
-                    periods: []
+                    periods: [],
                 };
                 openingHours.push(obj);
             }
             const hours = this.findOpeningHours(dwh, openingHours);
             hours.periods.push(
-                moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' +
-                moment.tz(dwh.endTime, tz).format('HH:mm'));
+                moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' + moment.tz(dwh.endTime, tz).format('HH:mm'),
+            );
         });
         openingHours.forEach(oh => {
             oh.periodText = oh.periods.sort().join(', ');
@@ -183,8 +190,8 @@ export class CalendarService {
     getExceptionHours(room: Room, start: moment.Moment, end: moment.Moment) {
         const s = moment.max(moment(), start);
         const e = end;
-        const events = room.calendarExceptionEvents.filter(function (e) {
-            return (moment(e.startDate) > start && moment(e.endDate) < end);
+        const events = room.calendarExceptionEvents.filter(function(e) {
+            return moment(e.startDate) > start && moment(e.endDate) < end;
         });
         return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
@@ -195,31 +202,35 @@ export class CalendarService {
 
     getEarliestOpening(room: Room): moment.Moment {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map(function (dwh) {
+        const openings = room.defaultWorkingHours.map(function(dwh) {
             const start = moment.tz(dwh.startTime, tz);
-            return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
+            return moment()
+                .hours(start.hours())
+                .minutes(start.minutes())
+                .seconds(start.seconds());
         });
         return moment.min(...openings);
     }
 
     getLatestClosing(room: Room): moment.Moment {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map(function (dwh) {
+        const closings = room.defaultWorkingHours.map(function(dwh) {
             const end = moment.tz(dwh.endTime, tz);
-            return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
+            return moment()
+                .hours(end.hours())
+                .minutes(end.minutes())
+                .seconds(end.seconds());
         });
         return moment.max(...closings);
     }
 
     getClosedWeekdays(room: Room): number[] {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-        const openedDays = room.defaultWorkingHours.map(function (dwh) {
+        const openedDays = room.defaultWorkingHours.map(function(dwh) {
             return weekdays.indexOf(dwh.weekday);
         });
-        return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
+        return [0, 1, 2, 3, 4, 5, 6].filter(function(x) {
             return openedDays.indexOf(x) === -1;
         });
     }
-
 }
-

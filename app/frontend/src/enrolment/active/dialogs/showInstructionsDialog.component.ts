@@ -18,13 +18,13 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'show-instructions-dialog',
-    template: require('./showInstructionsDialog.component.html')
+    template: require('./showInstructionsDialog.component.html'),
 })
 export class ShowInstructionsDialogComponent {
     @Input() instructions: string;
     @Input() title: string;
 
-    constructor(public activeModal: NgbActiveModal) { }
+    constructor(public activeModal: NgbActiveModal) {}
 
     ok = () => this.activeModal.close();
 }

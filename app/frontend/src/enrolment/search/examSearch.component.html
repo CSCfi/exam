@@ -1,15 +1,15 @@
 <div id="dashboard">
     <div>
         <div class="student-details-title-wrap padtop padleft">
-            <h1 class="student-exam-search-title">{{'sitnet_exams' | translate}}</h1>
+            <h1 class="student-exam-search-title">{{ 'sitnet_exams' | translate }}</h1>
         </div>
     </div>
     <div>
         <div class="student-details-title-wrap padleft">
             <span class="form-group">
-                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="info-icon"> &nbsp;
-                <span *ngIf="permissionCheck.active===false">{{ 'sitnet_exam_search_description' | translate }}</span>
-                <span *ngIf="permissionCheck.active===true">{{ 'sitnet_search_restricted' | translate }}</span>
+                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="info-icon" /> &nbsp;
+                <span *ngIf="permissionCheck.active === false">{{ 'sitnet_exam_search_description' | translate }}</span>
+                <span *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</span>
             </span>
         </div>
     </div>
@@ -17,22 +17,34 @@
     <div ng-show="permissionCheck.active===false">
         <div class="student-details-title-wrap padleft" style="width: 80%;">
             <div class="form-group input-group search">
-                <input aria-label="exam-search" (ngModelChange)="search($event)" [(ngModel)]="filter.text" type="text"
-                    class="form-control search" placeholder="{{'sitnet_search' | translate }}">
+                <input
+                    aria-label="exam-search"
+                    (ngModelChange)="search($event)"
+                    [(ngModel)]="filter.text"
+                    type="text"
+                    class="form-control search"
+                    placeholder="{{ 'sitnet_search' | translate }}"
+                />
                 <div class="input-group-addon search">
-                    <img class="nopad" src="/assets/assets/images/icon_search.png" alt="search-icon" width="49"
-                        height="40">
+                    <img
+                        class="nopad"
+                        src="/assets/assets/images/icon_search.png"
+                        alt="search-icon"
+                        width="49"
+                        height="40"
+                    />
                 </div>
             </div>
         </div>
     </div>
     <div *ngIf="exams.length > 0" class="student-details-title-wrap padleft">
-        {{'sitnet_student_exam_search_result' | translate}} {{exams.length}}
-        {{'sitnet_student_exam_search_result_continues' | translate}}
-        <b>"{{filter.text}}"</b>
+        {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
+        {{ 'sitnet_student_exam_search_result_continues' | translate }}
+        <b>"{{ filter.text }}"</b>
     </div>
     <div class="student-details-title-wrap padleft">
-        <button *ngIf="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+        <button *ngIf="loader.loading" class="btn btn-success">
+            {{ 'sitnet_searching' | translate }}...
             <i class="fa fa-spinner fa-spin"></i>
         </button>
     </div>
@@ -40,5 +52,4 @@
     <div class="exams-list list-item" *ngFor="let exam of exams">
         <exam-search-result [exam]="exam"></exam-search-result>
     </div>
-
 </div>

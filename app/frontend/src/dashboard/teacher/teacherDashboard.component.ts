@@ -20,7 +20,6 @@ import { SessionService } from '../../session/session.service';
 import { ExamSearchPipe } from '../examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
-
 interface ExtraColumn {
     text: string;
     property: string;
@@ -32,7 +31,6 @@ interface ExtraColumn {
     template: require('./teacherDashboard.component.html'),
 })
 export class TeacherDashboardComponent implements OnInit {
-
     activeTab: string;
     userId: number;
     executionTypes: ExamExecutionType[];
@@ -53,46 +51,49 @@ export class TeacherDashboardComponent implements OnInit {
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
         @Inject('$location') private $location: any,
-        private searchFilter: ExamSearchPipe
+        private searchFilter: ExamSearchPipe,
     ) {
         this.activeExtraColumns = [
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
                 link: '/exams/__/4',
-                checkOwnership: false
-            }, {
+                checkOwnership: false,
+            },
+            {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
                 link: '/exams/__/4',
-                checkOwnership: true
-            }, {
+                checkOwnership: true,
+            },
+            {
                 text: 'sitnet_dashboard_title_waiting_reservation',
                 property: 'reservationCount',
                 link: '/reservations/__',
-                checkOwnership: false
-            }
+                checkOwnership: false,
+            },
         ];
         this.finishedExtraColumns = [
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
                 link: '/exams/__/4',
-                checkOwnership: false
-            }, {
+                checkOwnership: false,
+            },
+            {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
                 link: '/exams/__/4',
-                checkOwnership: true
-            }
+                checkOwnership: true,
+            },
         ];
         this.archivedExtraColumns = [
             {
                 text: 'sitnet_participations_assessed',
                 property: 'assessedCount',
                 link: '/exams/__/4',
-                checkOwnership: true
-            }
+                checkOwnership: true,
+            },
         ];
         this.draftExtraColumns = [];
     }
@@ -113,10 +114,9 @@ export class TeacherDashboardComponent implements OnInit {
     changeTab = (event: NgbTabChangeEvent) => {
         this.activeTab = event.nextId;
         this.$location.search('tab', event.nextId);
-    }
+    };
 
     search = (text: string) => {
-
         // Use same search parameter for all the 4 result tables
         this.filteredFinished = this.searchFilter.transform(this.finishedExams, text);
         this.filteredActive = this.searchFilter.transform(this.activeExams, text);
@@ -128,12 +128,12 @@ export class TeacherDashboardComponent implements OnInit {
 
         // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
         this.filteredFinished = this.filteredFinished.filter(
-            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
+            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+        );
 
         // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-        this.filteredActive = this.filteredActive.filter(exam =>
-            exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
-
-    }
-
+        this.filteredActive = this.filteredActive.filter(
+            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+        );
+    };
 }

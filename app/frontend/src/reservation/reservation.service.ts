@@ -25,64 +25,69 @@ import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.compon
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
 import { ExamMachine, Reservation } from './reservation.model';
 
-
 @Injectable()
 export class ReservationService {
-
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
-        private ConfirmationDialog: ConfirmationDialogService
-    ) { }
+        private ConfirmationDialog: ConfirmationDialogService,
+    ) {}
 
     printExamState = (reservation: Reservation) =>
-        reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state
+        reservation.noShow
+            ? 'NO_SHOW'
+            : reservation.enrolment.exam
+            ? reservation.enrolment.exam.state
+            : reservation.enrolment.collaborativeExam.state;
 
     removeReservation(enrolment: ExamEnrolment) {
         if (!enrolment.reservation) {
             return;
         }
         const externalRef = enrolment.reservation.externalRef;
-        const dialog = this.ConfirmationDialog.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'));
+        const dialog = this.ConfirmationDialog.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
         const successFn = () => {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
         };
         const errorFn = resp => toast.error(resp.data);
-        const url = externalRef ?
-            `/integration/iop/reservations/external/${externalRef}` :
-            `/app/calendar/reservation/${enrolment.reservation.id}`;
+        const url = externalRef
+            ? `/integration/iop/reservations/external/${externalRef}`
+            : `/app/calendar/reservation/${enrolment.reservation.id}`;
 
         dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
     }
 
-    getReservationCount = (exam: Exam) => exam.examEnrolments.filter(
-        enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime()
-    ).length
+    getReservationCount = (exam: Exam) =>
+        exam.examEnrolments.filter(
+            enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime(),
+        ).length;
 
     changeMachine = (reservation: Reservation): void => {
         const modalRef = this.modal.open(ChangeMachineDialogComponent, {
             backdrop: 'static',
-            keyboard: false
+            keyboard: false,
         });
         modalRef.componentInstance.reservation = reservation;
-        modalRef.result.then((machine: ExamMachine) => {
-            if (machine) {
-                reservation.machine = machine;
-            }
-        }).catch(err => toast.error(err));
-    }
+        modalRef.result
+            .then((machine: ExamMachine) => {
+                if (machine) {
+                    reservation.machine = machine;
+                }
+            })
+            .catch(err => toast.error(err));
+    };
 
     cancelReservation = (reservation: Reservation): Promise<void> => {
         const modalRef = this.modal.open(RemoveReservationDialogComponent, {
             backdrop: 'static',
-            keyboard: false
+            keyboard: false,
         });
         modalRef.componentInstance.reservation = reservation;
         return modalRef.result;
-    }
-
+    };
 }

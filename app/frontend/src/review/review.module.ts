@@ -21,19 +21,9 @@ import { CollaborativeAssesmentService } from './assessment/collaborativeAssessm
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        UtilityModule,
-    ],
-    declarations: [
-        FeedbackComponent
-    ],
-    entryComponents: [
-        FeedbackComponent
-    ],
-    providers: [
-        AssessmentService,
-        CollaborativeAssesmentService
-    ]
+    imports: [NgbModule, UtilityModule],
+    declarations: [FeedbackComponent],
+    entryComponents: [FeedbackComponent],
+    providers: [AssessmentService, CollaborativeAssesmentService],
 })
-export class ReviewModule { }
+export class ReviewModule {}

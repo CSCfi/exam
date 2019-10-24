@@ -41,12 +41,7 @@ import { AdjustDstFilter } from '../app.filter';
 import { ApplyDstPipe } from './date/applyDst.pipe';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        TranslateModule,
-        FormsModule,
-        NgbModule,
-    ],
+    imports: [CommonModule, TranslateModule, FormsModule, NgbModule],
     exports: [
         CommonModule,
         TranslateModule,
@@ -61,7 +56,7 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         HistoryBackComponent,
         TeacherListComponent,
         TableSortComponent,
-        PaginatorComponent
+        PaginatorComponent,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -77,7 +72,7 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         TableSortComponent,
         TeacherListComponent,
         TruncatingPipe,
-        ApplyDstPipe
+        ApplyDstPipe,
     ],
     entryComponents: [
         AttachmentSelectorComponent,
@@ -87,7 +82,7 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         HistoryBackComponent,
         PaginatorComponent,
         TeacherListComponent,
-        TableSortComponent
+        TableSortComponent,
     ],
     providers: [
         AttachmentService,
@@ -96,7 +91,7 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         FileService,
         LanguageService,
         UserService,
-        WindowRef
-    ]
+        WindowRef,
+    ],
 })
-export class UtilityModule { }
+export class UtilityModule {}

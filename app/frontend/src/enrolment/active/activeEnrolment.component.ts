@@ -22,10 +22,9 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-
 @Component({
     selector: 'active-enrolment',
-    template: require('./activeEnrolment.component.html')
+    template: require('./activeEnrolment.component.html'),
 })
 export class ActiveEnrolmentComponent {
     @Input() enrolment: ExamEnrolment;
@@ -36,8 +35,8 @@ export class ActiveEnrolmentComponent {
         private location: Location,
         private ConfirmationDialog: ConfirmationDialogService,
         private Enrolment: EnrolmentService,
-        private Reservation: ReservationService
-    ) { }
+        private Reservation: ReservationService,
+    ) {}
 
     removeReservation = () => this.Reservation.removeReservation(this.enrolment);
 
@@ -45,17 +44,19 @@ export class ActiveEnrolmentComponent {
         if (this.enrolment.reservation) {
             toast.error(this.translate.instant('sitnet_cancel_reservation_first'));
         } else {
-            this.ConfirmationDialog.open(this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_are_you_sure')).result.then(
-                    () => this.Enrolment.removeEnrolment(this.enrolment).subscribe(
-                        () => this.onRemoval.emit(this.enrolment)
-                    ));
+            this.ConfirmationDialog.open(
+                this.translate.instant('sitnet_confirm'),
+                this.translate.instant('sitnet_are_you_sure'),
+            ).result.then(() =>
+                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment)),
+            );
         }
-    }
+    };
 
-    getLinkToCalendar = () => this.enrolment.collaborativeExam ?
-        '/calendar/collaborative/' + this.enrolment.collaborativeExam.id :
-        '/calendar/' + this.enrolment.exam.id
+    getLinkToCalendar = () =>
+        this.enrolment.collaborativeExam
+            ? '/calendar/collaborative/' + this.enrolment.collaborativeExam.id
+            : '/calendar/' + this.enrolment.exam.id;
 
     addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
 
@@ -71,8 +72,7 @@ export class ActiveEnrolmentComponent {
             o = reservation.machine.room;
         }
         return o['roomInstruction' + this.translate.currentLang.toUpperCase()] || o.roomInstruction;
-    }
+    };
 
     goToCalendar = () => this.location.go(this.getLinkToCalendar());
-
 }

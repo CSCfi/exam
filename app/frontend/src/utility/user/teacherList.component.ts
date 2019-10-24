@@ -18,8 +18,12 @@ import { Exam } from '../../exam/exam.model';
 
 @Component({
     selector: 'teacher-list',
-    template:
-        `<div><strong>{{owners}}</strong></div><div>{{ inspectors }}</div>`
+    template: `
+        <div>
+            <strong>{{ owners }}</strong>
+        </div>
+        <div>{{ inspectors }}</div>
+    `,
 })
 export class TeacherListComponent implements OnInit {
     @Input() exam: Exam;
@@ -35,5 +39,4 @@ export class TeacherListComponent implements OnInit {
         }
         this.inspectors = this.exam.examInspections.map(ei => `${ei.user.firstName} ${ei.user.lastName}`).join(', ');
     }
-
 }

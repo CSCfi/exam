@@ -15,116 +15,110 @@
 import angular from 'angular';
 import toast from 'toastr';
 
+angular.module('app.examination').component('examinationToolbar', {
+    template: require('./examinationToolbar.template.html'),
+    bindings: {
+        exam: '<',
+        activeSection: '<',
+        isPreview: '<',
+        isCollaborative: '<',
+        onPageSelect: '&',
+    },
+    controller: [
+        '$http',
+        '$state',
+        '$location',
+        '$window',
+        '$translate',
+        'dialogs',
+        'Session',
+        'Examination',
+        'Attachment',
+        'Enrolment',
+        function($http, $state, $location, $window, $translate, dialogs, Session, Examination, Attachment, Enrolment) {
+            this.$onInit = () => {
+                if (!this.isPreview) {
+                    $http.get('/app/enrolments/room/' + this.exam.hash).then(resp => (this.room = resp.data));
+                }
+            };
 
-angular.module('app.examination')
-    .component('examinationToolbar', {
-        template: require('./examinationToolbar.template.html'),
-        bindings: {
-            exam: '<',
-            activeSection: '<',
-            isPreview: '<',
-            isCollaborative: '<',
-            onPageSelect: '&'
-        },
-        controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
-            'Attachment', 'Enrolment',
-            function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
-                Enrolment) {
+            this.displayUser = () => {
+                const user = Session.getUser();
+                if (!user) {
+                    return;
+                }
+                const userId = user.userIdentifier ? ' (' + user.userIdentifier + ')' : '';
+                return user.firstName + ' ' + user.lastName + userId;
+            };
 
-                const vm = this;
+            this.turnExam = () => {
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_confirm_turn_exam'),
+                );
+                dialog.result.then(() =>
+                    // Save all textual answers regardless of empty or not
+                    Examination.saveAllTextualAnswersOfExam(this.exam).then(() =>
+                        Examination.logout('sitnet_exam_returned', this.exam.hash, this.exam.requiresUserAgentAuth),
+                    ),
+                );
+            };
 
-                vm.$onInit = function () {
-                    if (!vm.isPreview) {
-                        $http.get('/app/enrolments/room/' + vm.exam.hash).then(function (resp) {
-                            vm.room = resp.data;
-                        });
-                    }
-                };
-
-                vm.displayUser = function () {
-                    const user = Session.getUser();
-                    if (!user) {
-                        return;
-                    }
-                    const userId = user.userIdentifier ? ' (' + user.userIdentifier + ')' : '';
-                    return user.firstName + ' ' + user.lastName + userId;
-                };
-
-                vm.turnExam = function () {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
-                    dialog.result.then(function () {
-                        if (vm.activeSection) {
-                            Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, false).then(function () {
-                                Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
-                            });
-                        } else {
-                            Examination.logout('sitnet_exam_returned', vm.exam.hash, vm.exam.requiresUserAgentAuth);
-                        }
-                    });
-                };
-
-                vm.abortExam = function () {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
-                    dialog.result.then(function () {
-                        Examination.abort(vm.exam.hash).then(function () {
+            this.abortExam = () => {
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_confirm_abort_exam'),
+                );
+                dialog.result.then(() =>
+                    Examination.abort(this.exam.hash)
+                        .then(() => {
                             toast.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
-                            window.onbeforeunload = null;
-                            $location.path('/student/logout/aborted/' + vm.exam.requiresUserAgentAuth);
-                        }).catch(function (err) {
-                            toast.error(err.data);
-                        });
-                    });
-                };
+                            $window.onbeforeunload = null;
+                            $state.go('examinationLogout', {
+                                reason: 'aborted',
+                                quitLinkEnabled: this.exam.requiresUserAgentAuth,
+                            });
+                        })
+                        .catch(err => toast.error(err.data)),
+                );
+            };
 
-                vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam, vm.isCollaborative);
-                };
+            this.downloadExamAttachment = () => Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 
-                vm.selectGuidePage = function () {
-                    vm.onPageSelect({ page: { type: 'guide' } });
-                };
+            this.selectGuidePage = () => this.onPageSelect({ page: { type: 'guide' } });
 
-                vm.selectSection = function (section) {
-                    vm.onPageSelect({ page: { id: section.id, type: 'section' } });
-                };
+            this.selectSection = section => this.onPageSelect({ page: { id: section.id, type: 'section' } });
 
-                vm.getQuestionAmount = function (section, type) {
-                    if (type === 'total') {
-                        return section.sectionQuestions.length;
-                    } else if (type === 'answered') {
-                        return section.sectionQuestions.filter(function (sq) {
-                            return Examination.isAnswered(sq);
-                        }).length;
-                    } else if (type === 'unanswered') {
-                        return section.sectionQuestions.length - section.sectionQuestions.filter(function (sq) {
-                            return Examination.isAnswered(sq);
-                        }).length;
+            this.getQuestionAmount = (section, type) => {
+                if (type === 'total') {
+                    return section.sectionQuestions.length;
+                } else if (type === 'answered') {
+                    return section.sectionQuestions.filter(Examination.isAnswered).length;
+                } else if (type === 'unanswered') {
+                    return (
+                        section.sectionQuestions.length - section.sectionQuestions.filter(Examination.isAnswered).length
+                    );
+                }
+            };
+
+            this.displayRoomInstructions = () => {
+                if (this.room) {
+                    switch ($translate.use()) {
+                        case 'fi':
+                            return this.room.roomInstruction;
+                        case 'sv':
+                            return this.room.roomInstructionSV;
+                        case 'en':
+                        /* falls through */
+                        default:
+                            return this.room.roomInstructionEN;
                     }
-                };
+                }
+            };
 
-                vm.displayRoomInstructions = function () {
-                    if (vm.room) {
-                        switch ($translate.use()) {
-                            case 'fi':
-                                return vm.room.roomInstruction;
-                            case 'sv':
-                                return vm.room.roomInstructionSV;
-                            case 'en':
-                            /* falls through */
-                            default:
-                                return vm.room.roomInstructionEN;
-                        }
-                    }
-                };
+            this.showMaturityInstructions = () => Enrolment.showMaturityInstructions({ exam: this.exam });
 
-                vm.showMaturityInstructions = function () {
-                    Enrolment.showMaturityInstructions({ exam: vm.exam });
-                };
-
-                vm.exitPreview = function () {
-                    $location.path($location.path().replace("/view/preview", ""));
-                };
-
-            }
-        ]
-    });
+            this.exitPreview = () => $location.path($location.path().replace('/view/preview', ''));
+        },
+    ],
+});

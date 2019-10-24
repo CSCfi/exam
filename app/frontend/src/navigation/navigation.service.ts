@@ -12,30 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import { Observable } from 'rxjs';
 
 import { SessionService, User } from '../session/session.service';
 
-
 export interface Link {
-    href: string;
+    state: string;
     visible: boolean;
     name: string;
     iconSvg?: string;
     iconPng?: string;
-    submenu?: { hidden: boolean, items: Link[] };
+    submenu?: { hidden: boolean; items: Link[] };
 }
 
 @Injectable()
 export class NavigationService {
-
-    constructor(
-        private http: HttpClient,
-        private location: Location,
-        private Session: SessionService) { }
+    constructor(private http: HttpClient, private state: StateService, private Session: SessionService) {}
 
     getAppVersion(): Observable<{ appVersion: string }> {
         return this.http.get<{ appVersion: string }>('/app/settings/appVersion');
@@ -58,7 +53,8 @@ export class NavigationService {
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test(this.location.path());
+        const regex = /\/student\/waiting-room|wrong-machine|wrong-room/;
+        const hideDashboard = regex.test(this.state.current.url as string);
 
         // Change the menu item title if student
         const nameForDashboard = student ? 'sitnet_user_enrolled_exams_title' : 'sitnet_dashboard';
@@ -67,43 +63,49 @@ export class NavigationService {
             hidden: true,
             items: [
                 {
-                    href: student ? '/student/exams/collaborative' : '/exams/collaborative',
+                    state: student ? 'collaborativeExamSearch' : 'collaborativeExams',
                     visible: true,
                     name: 'sitnet_collaborative_exams',
-                    iconPng: 'icon_admin_exams.png'
-                }
-            ]
+                    iconPng: 'icon_admin_exams.png',
+                },
+            ],
         };
 
-        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : {
-            hidden: true,
-            items: []
-        };
-        const studentCollaborativeExamsSubmenu = student && interoperable ? collaborativeExamsSubmenu : {
-            hidden: true,
-            items: []
-        };
+        const teacherCollaborativeExamsSubmenu =
+            teacher && interoperable
+                ? collaborativeExamsSubmenu
+                : {
+                      hidden: true,
+                      items: [],
+                  };
+        const studentCollaborativeExamsSubmenu =
+            student && interoperable
+                ? collaborativeExamsSubmenu
+                : {
+                      hidden: true,
+                      items: [],
+                  };
 
         return [
             {
-                href: '/',
+                state: 'dashboard',
                 visible: !hideDashboard,
                 name: nameForDashboard,
                 iconPng: 'icon_enrols.svg',
-                submenu: teacherCollaborativeExamsSubmenu
+                submenu: teacherCollaborativeExamsSubmenu,
             },
             {
-                href: '/inspections',
+                state: 'languageInspections',
                 visible: languageInspector,
                 name: 'sitnet_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png',
                 submenu: {
                     hidden: true,
-                    items: []
-                }
+                    items: [],
+                },
             },
             {
-                href: '/exams',
+                state: 'exams',
                 visible: admin,
                 name: 'sitnet_exams',
                 iconPng: 'icon_admin_exams.png',
@@ -111,34 +113,34 @@ export class NavigationService {
                     hidden: true,
                     items: [
                         {
-                            href: '/inspections',
+                            state: 'languageInspections',
                             visible: true,
                             name: 'sitnet_language_inspections',
-                            iconPng: 'icon_admin_lang_inspection.png'
+                            iconPng: 'icon_admin_lang_inspection.png',
                         },
                         {
-                            href: '/printouts',
+                            state: 'printouts',
                             visible: true,
                             name: 'sitnet_printout_exams',
-                            iconPng: 'icon_printouts.png'
+                            iconPng: 'icon_printouts.png',
                         },
                         {
-                            href: '/exams/collaborative',
+                            state: 'collaborativeExams',
                             visible: interoperable,
                             name: 'sitnet_collaborative_exams',
-                            iconPng: 'icon_admin_exams.png'
+                            iconPng: 'icon_admin_exams.png',
                         },
                         {
-                            href: '/questions',
+                            state: 'library',
                             visible: true,
                             name: 'sitnet_library_new',
-                            iconPng: 'icon_questions.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_questions.png',
+                        },
+                    ],
+                },
             },
             {
-                href: '/rooms',
+                state: 'rooms',
                 visible: admin,
                 name: 'sitnet_exam_rooms',
                 iconPng: 'icon_administration.png',
@@ -146,66 +148,66 @@ export class NavigationService {
                     hidden: true,
                     items: [
                         {
-                            href: '/reports',
+                            state: 'reports',
                             visible: true,
                             name: 'sitnet_reports',
-                            iconPng: 'icon_reports.png'
+                            iconPng: 'icon_reports.png',
                         },
                         {
-                            href: '/statistics',
+                            state: 'statistics',
                             visible: true,
                             name: 'sitnet_statistics',
-                            iconPng: 'icon_statistics.png'
+                            iconPng: 'icon_statistics.png',
                         },
                         {
-                            href: '/settings',
+                            state: 'settings',
                             visible: true,
                             name: 'sitnet_settings',
-                            iconPng: 'icon_settings.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_settings.png',
+                        },
+                    ],
+                },
             },
             {
-                href: '/users',
+                state: 'users',
                 visible: admin,
                 name: 'sitnet_users',
                 iconPng: 'icon_users.png',
                 submenu: {
                     hidden: true,
-                    items: []
-                }
+                    items: [],
+                },
             },
             {
-                href: '/questions',
+                state: 'library',
                 visible: teacher,
                 name: 'sitnet_library_new',
                 iconPng: 'icon_questions.png',
                 submenu: {
                     hidden: true,
-                    items: []
-                }
+                    items: [],
+                },
             },
             {
-                href: '/reservations',
+                state: 'reservations',
                 visible: teacher,
                 name: 'sitnet_reservations_new',
                 iconSvg: 'icon_reservations.svg',
                 iconPng: 'icon_reservations.png',
                 submenu: {
                     hidden: true,
-                    items: []
-                }
+                    items: [],
+                },
             },
             {
-                href: '/student/exams',
+                state: 'examSearch',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exams',
                 iconPng: 'icon_exams.png',
                 submenu: studentCollaborativeExamsSubmenu,
             },
             {
-                href: '/student/participations',
+                state: 'participations',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exam_responses',
                 iconPng: 'icon_finished.png',
@@ -213,24 +215,24 @@ export class NavigationService {
                     hidden: true,
                     items: [
                         {
-                            href: '/student/participations/collaborative',
+                            state: 'collaborativeParticipations',
                             visible: true,
                             name: 'sitnet_collaborative_exam_responses',
-                            iconPng: 'icon_finished.png'
-                        }
-                    ]
-                }
+                            iconPng: 'icon_finished.png',
+                        },
+                    ],
+                },
             },
             {
-                href: '/logout',
+                state: 'logout',
                 visible: true,
                 name: 'sitnet_logout',
                 iconPng: 'icon_admin_logout.png',
                 submenu: {
                     hidden: true,
-                    items: []
-                }
-            }
+                    items: [],
+                },
+            },
         ];
     }
 }

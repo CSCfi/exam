@@ -12,15 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { QuestionService } from '../question.service';
-import { Question } from '../../exam/exam.model';
 
-angular.module('app.question')
-    .component('question', {
-        template: `
+import { Question } from '../../exam/exam.model';
+import { QuestionService } from '../question.service';
+
+angular.module('app.question').component('question', {
+    template: `
             <div id="dashboard">
                 <div class="top-row">
                     <div class="col-md-12">
@@ -63,116 +62,126 @@ angular.module('app.question')
                     </div>
                 </div>
             </div>`,
-        bindings: {
-            newQuestion: '<',
-            questionId: '<',
-            questionDraft: '<?',
-            lotteryOn: '<',
-            collaborative: '<',
-            examId: '<',
-            sectionQuestion: '<',
-            onSave: '&?',
-            onCancel: '&?'
-        },
-        controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question',
-            function ($routeParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
+    bindings: {
+        newQuestion: '<',
+        questionId: '<',
+        questionDraft: '<?',
+        lotteryOn: '<',
+        collaborative: '<',
+        examId: '<',
+        sectionQuestion: '<',
+        onSave: '&?',
+        onCancel: '&?',
+    },
+    controller: [
+        '$routeParams',
+        '$scope',
+        '$location',
+        '$translate',
+        'dialogs',
+        'Question',
+        function($routeParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.currentOwners = [];
-                    if (vm.newQuestion) {
-                        vm.question = Question.getQuestionDraft();
-                        delete vm.question.id; // TODO: TS/JS hack
-                        vm.currentOwners = angular.copy(vm.question.questionOwners);
-                    } else if (vm.questionDraft && vm.collaborative) {
-                        vm.question = vm.questionDraft;
-                        vm.currentOwners = angular.copy(vm.question.questionOwners);
-                        window.onbeforeunload = function () {
-                            return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                        };
-                    } else {
-                        Question.getQuestion(vm.questionId || $routeParams.id).subscribe(
-                            (question: Question) => {
-                                vm.question = question;
-                                vm.currentOwners = angular.copy(vm.question.questionOwners);
-                                window.onbeforeunload = function () {
-                                    return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                                };
-                            }, (error) => toast.error(error.data)
-                        );
-                    }
-                };
-
-                vm.hasNoCorrectOption = () =>
-                    vm.question.type === 'MultipleChoiceQuestion' &&
-                    vm.question.options.every(o => !o.correctOption);
-
-                vm.saveQuestion = function () {
-                    vm.question.questionOwners = vm.currentOwners;
-                    const fn = function (q) {
-                        clearListeners();
-                        if (vm.onSave) {
-                            vm.onSave({ question: q });
-                        } else {
-                            $location.path('/questions');
-                        }
+            vm.$onInit = function() {
+                vm.currentOwners = [];
+                if (vm.newQuestion) {
+                    vm.question = Question.getQuestionDraft();
+                    delete vm.question.id; // TODO: TS/JS hack
+                    vm.currentOwners = angular.copy(vm.question.questionOwners);
+                } else if (vm.questionDraft && vm.collaborative) {
+                    vm.question = vm.questionDraft;
+                    vm.currentOwners = angular.copy(vm.question.questionOwners);
+                    window.onbeforeunload = function() {
+                        return $translate.instant('sitnet_unsaved_data_may_be_lost');
                     };
+                } else {
+                    Question.getQuestion(vm.questionId || $routeParams.id).subscribe(
+                        (question: Question) => {
+                            vm.question = question;
+                            vm.currentOwners = angular.copy(vm.question.questionOwners);
+                            window.onbeforeunload = function() {
+                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                            };
+                        },
+                        error => toast.error(error.data),
+                    );
+                }
+            };
 
-                    if (vm.collaborative) {
-                        fn(vm.question);
-                    } else if (vm.newQuestion) {
-                        Question.createQuestion(vm.question).then(
-                            function (question) {
-                                fn(question);
-                            }, function (error) {
-                                toast.error(error.data);
-                            });
-                    } else {
-                        Question.updateQuestion(vm.question, true).then(
-                            function () {
-                                fn(vm.question);
-                            }, function (error) {
-                                toast.error(error.data);
-                            });
-                    }
-                };
+            vm.hasNoCorrectOption = () =>
+                vm.question.type === 'MultipleChoiceQuestion' && vm.question.options.every(o => !o.correctOption);
 
-                vm.cancel = function () {
-                    toast.info($translate.instant('sitnet_canceled'));
-                    // Call off the event listener so it won't ask confirmation now that we are going away
+            vm.saveQuestion = function() {
+                vm.question.questionOwners = vm.currentOwners;
+                const fn = function(q) {
                     clearListeners();
-                    if (vm.onCancel) {
-                        vm.onCancel();
+                    if (vm.onSave) {
+                        vm.onSave({ question: q });
                     } else {
                         $location.path('/questions');
                     }
                 };
 
-                const routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
-                    if (window.onbeforeunload) {
-                        event.preventDefault();
-                        // we got changes in the model, ask confirmation
-                        const dialog = dialogs.confirm($translate.instant('sitnet_confirm_exit'),
-                            $translate.instant('sitnet_unsaved_question_data'));
-                        dialog.result.then(function (data) {
-                            if (data.toString() === 'yes') {
-                                // ok to reroute
-                                clearListeners();
-                                $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
-                            }
-                        });
-                    } else {
-                        clearListeners();
-                    }
-                });
+                if (vm.collaborative) {
+                    fn(vm.question);
+                } else if (vm.newQuestion) {
+                    Question.createQuestion(vm.question).then(
+                        function(question) {
+                            fn(question);
+                        },
+                        function(error) {
+                            toast.error(error.data);
+                        },
+                    );
+                } else {
+                    Question.updateQuestion(vm.question, true).then(
+                        function() {
+                            fn(vm.question);
+                        },
+                        function(error) {
+                            toast.error(error.data);
+                        },
+                    );
+                }
+            };
 
-                const clearListeners = function () {
-                    window.onbeforeunload = null;
-                    // Call off the event listener so it won't ask confirmation now that we are going away
-                    routingWatcher();
-                };
+            vm.cancel = function() {
+                toast.info($translate.instant('sitnet_canceled'));
+                // Call off the event listener so it won't ask confirmation now that we are going away
+                clearListeners();
+                if (vm.onCancel) {
+                    vm.onCancel();
+                } else {
+                    $location.path('/questions');
+                }
+            };
 
-            }]
-    });
+            const routingWatcher = $scope.$on('$locationChangeStart', function(event, newUrl) {
+                if (window.onbeforeunload) {
+                    event.preventDefault();
+                    // we got changes in the model, ask confirmation
+                    const dialog = dialogs.confirm(
+                        $translate.instant('sitnet_confirm_exit'),
+                        $translate.instant('sitnet_unsaved_question_data'),
+                    );
+                    dialog.result.then(function(data) {
+                        if (data.toString() === 'yes') {
+                            // ok to reroute
+                            clearListeners();
+                            $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                        }
+                    });
+                } else {
+                    clearListeners();
+                }
+            });
 
+            const clearListeners = function() {
+                window.onbeforeunload = null;
+                // Call off the event listener so it won't ask confirmation now that we are going away
+                routingWatcher();
+            };
+        },
+    ],
+});

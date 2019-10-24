@@ -15,10 +15,9 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rMultiChoiceAnswer', {
-        template: require('./multiChoiceAnswer.template.html'),
-        bindings: {
-            sectionQuestion: '<'
-        }
-    });
+angular.module('app.review').component('rMultiChoiceAnswer', {
+    template: require('./multiChoiceAnswer.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+});

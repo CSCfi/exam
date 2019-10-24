@@ -20,10 +20,9 @@ import { User } from '../../../session/session.service';
 import { UserService } from '../../../utility/user/user.service';
 import { QuestionService } from '../../question.service';
 
-
 @Component({
     selector: 'library-owner-selection',
-    template: require('./libraryOwners.component.html')
+    template: require('./libraryOwners.component.html'),
 })
 export class LibraryOwnerSelection implements OnInit {
     @Input() selections: number[];
@@ -32,10 +31,7 @@ export class LibraryOwnerSelection implements OnInit {
     teachers: User[];
     newTeacher: User;
 
-    constructor(
-        private translate: TranslateService,
-        private Question: QuestionService,
-        private User: UserService) { }
+    constructor(private translate: TranslateService, private Question: QuestionService, private User: UserService) {}
 
     ngOnInit() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {
@@ -43,7 +39,7 @@ export class LibraryOwnerSelection implements OnInit {
         });
     }
 
-    onTeacherSelect = (teacher) => this.newTeacher = teacher;
+    onTeacherSelect = teacher => (this.newTeacher = teacher);
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected
@@ -61,8 +57,7 @@ export class LibraryOwnerSelection implements OnInit {
                 toast.info(this.translate.instant('sitnet_question_owner_added'));
                 this.ownerUpdated.emit();
             },
-            () => toast.info(this.translate.instant('sitnet_update_failed'))
+            () => toast.info(this.translate.instant('sitnet_update_failed')),
         );
-    }
-
+    };
 }

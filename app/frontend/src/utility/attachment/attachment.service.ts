@@ -12,18 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toast from 'toastr';
-import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { ReviewQuestion } from '../../review/review.model';
-import { FileService } from '../file/file.service';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
+import * as toast from 'toastr';
+
 import { Observable } from '../../../node_modules/rxjs';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
+import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
+import { ReviewQuestion } from '../../review/review.model';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../file/file.service';
+import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
 
 interface ExamWithFeedback {
     id: number;
@@ -37,32 +38,34 @@ interface ExamWithStatement {
 
 interface AnsweredQuestion {
     id: number;
-    essayAnswer: { objectVersion: number, attachment: { fileName: string } };
+    essayAnswer: { objectVersion: number; attachment: { fileName: string } };
 }
 @Injectable()
 export class AttachmentService {
-
     constructor(
         private dialogs: ConfirmationDialogService,
         private http: HttpClient,
         private modal: NgbModal,
         private translate: TranslateService,
         private Files: FileService,
-    ) { }
+    ) {}
 
-    private questionAttachmentApi = (id) => `/app/attachment/question/${id}`;
+    private questionAttachmentApi = id => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid, qid) =>
-        `/integration/iop/attachment/exam/${eid}/question/${qid}`
-    private answerAttachmentApi = (qid) => `/app/attachment/question/${qid}/answer`;
+        `/integration/iop/attachment/exam/${eid}/question/${qid}`;
+    private answerAttachmentApi = qid => `/app/attachment/question/${qid}/answer`;
     private externalAnswerAttachmentApi = (qid, hash) => `/app/iop/attachment/question/${qid}/answer/${hash}`;
-    private examAttachmentApi = (id) => `/app/attachment/exam/${id}`;
-    private collaborativeExamAttachmentApi = (id) => `/integration/iop/attachment/exam/${id}`;
-    private feedbackAttachmentApi = (id) => `/app/attachment/exam/${id}/feedback`;
-    private statementAttachmentApi = (id) => `/app/attachment/exam/${id}/statement`;
+    private examAttachmentApi = id => `/app/attachment/exam/${id}`;
+    private collaborativeExamAttachmentApi = id => `/integration/iop/attachment/exam/${id}`;
+    private feedbackAttachmentApi = id => `/app/attachment/exam/${id}/feedback`;
+    private statementAttachmentApi = id => `/app/attachment/exam/${id}/statement`;
 
     private getResource(url, external = false, collaborative = false) {
-        return external ? url.replace('/app/', '/app/iop/') :
-            collaborative ? url.replace('/app/', '/integration/iop/') : url;
+        return external
+            ? url.replace('/app/', '/app/iop/')
+            : collaborative
+            ? url.replace('/app/', '/integration/iop/')
+            : url;
     }
 
     removeQuestionAttachment(question: { attachment: { removed: boolean } }) {
@@ -72,16 +75,16 @@ export class AttachmentService {
     private toPromise = (observable: Observable<any>) =>
         new Promise((resolve, reject) => {
             observable.subscribe(() => resolve(), err => reject(err));
-        })
+        });
 
     eraseQuestionAttachment = (question: Question) =>
-        this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)))
+        this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)));
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
-                () => resolve(), err => reject(err)
-            );
+            this.http
+                .delete(this.collaborativeQuestionAttachmentApi(examId, questionId))
+                .subscribe(() => resolve(), err => reject(err));
         });
     }
 
@@ -93,57 +96,78 @@ export class AttachmentService {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question, hash);
     }
 
-    private removeAnswerAttachment(url: string, question: AnsweredQuestion,
-        hash?: string) {
-        const dialog = this.dialogs.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'));
+    private removeAnswerAttachment(url: string, question: AnsweredQuestion, hash?: string) {
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
         dialog.result.then(() => {
-            this.http.delete<{ objectVersion: number }>(url, {}).subscribe(resp => {
-                toast.info(this.translate.instant('sitnet_attachment_removed'));
-                question.essayAnswer.objectVersion = resp.objectVersion;
-                delete question.essayAnswer.attachment;
-            }, err => toast.error(err));
+            this.http.delete<{ objectVersion: number }>(url, {}).subscribe(
+                resp => {
+                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    question.essayAnswer.objectVersion = resp.objectVersion;
+                    delete question.essayAnswer.attachment;
+                },
+                err => toast.error(err),
+            );
         });
     }
 
     removeExamAttachment(exam: Exam, collaborative = false) {
-        const dialog = this.dialogs.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'));
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
         dialog.result.then(() => {
-            let api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
-            this.http.delete(api(exam.id)).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_attachment_removed'));
-                delete exam.attachment;
-            }, err => toast.error(err));
+            const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
+            this.http.delete(api(exam.id)).subscribe(
+                () => {
+                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    delete exam.attachment;
+                },
+                err => toast.error(err),
+            );
         });
     }
 
     removeFeedbackAttachment(exam: Examination) {
-        const dialog = this.dialogs.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'));
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
         dialog.result.then(() => {
-            this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_attachment_removed'));
-                delete exam.examFeedback.attachment;
-            }, err => toast.error(err));
+            this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(
+                () => {
+                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    delete exam.examFeedback.attachment;
+                },
+                err => toast.error(err),
+            );
         });
     }
 
     removeStatementAttachment(exam: ExamWithStatement) {
-        const dialog = this.dialogs.open(this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'));
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
         dialog.result.then(() => {
-            this.http.delete(this.statementAttachmentApi(exam.id)).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_attachment_removed'));
-                delete exam.languageInspection.statement.attachment;
-            }, err => toast.error(err));
+            this.http.delete(this.statementAttachmentApi(exam.id)).subscribe(
+                () => {
+                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    delete exam.languageInspection.statement.attachment;
+                },
+                err => toast.error(err),
+            );
         });
     }
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment && sq.question.attachment.id) {
-            this.Files.download(`/app/iop/attachment/exam/${exam.hash}/question/${sq.id}`,
-                sq.question.attachment.fileName);
+            this.Files.download(
+                `/app/iop/attachment/exam/${exam.hash}/question/${sq.id}`,
+                sq.question.attachment.fileName,
+            );
         }
     }
 
@@ -153,16 +177,17 @@ export class AttachmentService {
         }
     }
 
-    downloadCollaborativeQuestionAttachment(examId: Number, sq: ExamSectionQuestion) {
+    downloadCollaborativeQuestionAttachment(examId: number, sq: ExamSectionQuestion) {
         if (sq.question.attachment && sq.question.attachment.externalId) {
-            this.Files.download(`/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
-                sq.question.attachment.fileName);
+            this.Files.download(
+                `/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
+                sq.question.attachment.fileName,
+            );
         }
     }
 
     downloadQuestionAnswerAttachment(question: AnsweredQuestion | ReviewQuestion) {
-        this.Files.download(`/app/attachment/question/${question.id}/answer`,
-            question.essayAnswer.attachment.fileName);
+        this.Files.download(`/app/attachment/question/${question.id}/answer`, question.essayAnswer.attachment.fileName);
     }
 
     downloadCollaborativeAttachment(id: string, fileName: string) {
@@ -173,9 +198,14 @@ export class AttachmentService {
         if (!exam.attachment) {
             return;
         }
-        this.Files.download(this.getResource(`/app/attachment/exam/${exam.external ? exam.hash : exam.id}`,
-            exam.external, collaborative),
-            exam.attachment.fileName);
+        this.Files.download(
+            this.getResource(
+                `/app/attachment/exam/${exam.external ? exam.hash : exam.id}`,
+                exam.external,
+                collaborative,
+            ),
+            exam.attachment.fileName,
+        );
     }
 
     downloadFeedbackAttachment(exam: Exam) {
@@ -188,8 +218,10 @@ export class AttachmentService {
         if (!exam.languageInspection) {
             return;
         }
-        this.Files.download('/app/attachment/exam/' + exam.id + '/statement',
-            exam.languageInspection.statement.attachment.fileName);
+        this.Files.download(
+            '/app/attachment/exam/' + exam.id + '/statement',
+            exam.languageInspection.statement.attachment.fileName,
+        );
     }
 
     getFileSize(size: number): string {
@@ -199,11 +231,10 @@ export class AttachmentService {
     selectFile(isTeacherModal: boolean, params: any): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
-            keyboard: false
+            keyboard: false,
         });
         Object.assign(modalRef.componentInstance, params);
         modalRef.componentInstance.isTeacherModal = isTeacherModal;
         return modalRef.result;
     }
-
 }

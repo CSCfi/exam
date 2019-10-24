@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
 import { FileService } from '../../file/file.service';
 
 export interface FileResult {
@@ -23,7 +23,7 @@ export interface FileResult {
 
 @Component({
     selector: 'attachment-selector',
-    template: require('./attachmentSelector.component.html')
+    template: require('./attachmentSelector.component.html'),
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file') file;
@@ -33,10 +33,10 @@ export class AttachmentSelectorComponent implements OnInit {
     isTeacherModal: boolean;
     maxFileSize: number;
 
-    constructor(public activeModal: NgbActiveModal, private Files: FileService) { }
+    constructor(public activeModal: NgbActiveModal, private Files: FileService) {}
 
     ngOnInit() {
-        this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
+        this.Files.getMaxFilesize().then(data => (this.maxFileSize = data.filesize));
     }
 
     confirmed() {
@@ -45,12 +45,11 @@ export class AttachmentSelectorComponent implements OnInit {
 
     onFilesAdded() {
         const files: { [key: string]: File } = this.file.nativeElement.files;
-        for (let key in files) {
+        for (const key in files) {
             if (!isNaN(parseInt(key))) {
                 this.fileObject = files[key];
                 break;
             }
         }
     }
-
 }

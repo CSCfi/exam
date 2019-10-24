@@ -24,10 +24,9 @@ import { DashboardEnrolment, StudentDashboardService } from './studentDashboard.
 
 @Component({
     selector: 'student-dashboard',
-    template: require('./studentDashboard.component.html')
+    template: require('./studentDashboard.component.html'),
 })
 export class StudentDashboardComponent implements OnInit {
-
     userEnrolments: DashboardEnrolment[];
 
     constructor(
@@ -35,13 +34,13 @@ export class StudentDashboardComponent implements OnInit {
         private Reservation: ReservationService,
         private DateTime: DateTimeService,
         private Enrolment: EnrolmentService,
-        private Session: SessionService) {
-    }
+        private Session: SessionService,
+    ) {}
 
     ngOnInit() {
         this.StudentDashboard.listEnrolments().subscribe(
-            data => this.userEnrolments = data,
-            err => console.error(err)
+            data => (this.userEnrolments = data),
+            err => console.error(err),
         );
     }
 
@@ -56,5 +55,4 @@ export class StudentDashboardComponent implements OnInit {
     enrolmentRemoved = (data: DashboardEnrolment) => this.userEnrolments.splice(this.userEnrolments.indexOf(data), 1);
 
     removeEnrolment = (enrolment: ExamEnrolment) => this.Enrolment.removeEnrolment(enrolment);
-
 }

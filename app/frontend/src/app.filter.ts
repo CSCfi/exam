@@ -19,7 +19,6 @@ import * as moment from 'moment';
 const truncate = require('truncate-html').default;
 
 export class TruncateFilter {
-
     static factory(): angular.FilterFactory {
         return () => (value: string, after: number): string => {
             return truncate(value, after);
@@ -28,7 +27,6 @@ export class TruncateFilter {
 }
 
 export class DiffInMinutesFilter {
-
     static factory(): angular.FilterFactory {
         return () => (from: VarDate, to: VarDate): number => {
             const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
@@ -38,7 +36,6 @@ export class DiffInMinutesFilter {
 }
 
 export class DiffInDaysFilter {
-
     static factory(): angular.FilterFactory {
         return () => (date: VarDate): string => {
             const msInDay = 1000 * 60 * 60 * 24;
@@ -64,7 +61,6 @@ export class OffsetFilter {
 }
 
 export class PageFillFilter {
-
     static factory(): angular.FilterFactory {
         return () => (input: number[], total: number, current: number, pageSize: number): number[] => {
             const pages = Math.floor(total / pageSize);
@@ -78,11 +74,12 @@ export class PageFillFilter {
 }
 
 export class AdjustDstFilter {
-
     static factory(): angular.FilterFactory {
         return () => (input: moment.MomentInput): string => {
             if (moment(input).isDST()) {
-                return moment(input).add(-1, 'hour').format();
+                return moment(input)
+                    .add(-1, 'hour')
+                    .format();
             }
             return moment(input).format();
         };

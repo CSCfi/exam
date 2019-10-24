@@ -27,7 +27,7 @@ export const AppComponent: angular.IComponentOptions = {
             <navigation [hidden]="$ctrl.hideNavBar"></navigation>
             <div id="mainView" class="container-fluid"
                 ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
-                <div class="ng-view"></div>
+                <div class="ui-view"></div>
             </div>
         </div>
         `,
@@ -40,17 +40,15 @@ export const AppComponent: angular.IComponentOptions = {
         constructor(
             private $rootScope: angular.IRootScopeService,
             private $window: angular.IWindowService,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
 
-            this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
-            this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
-            this.Session.devLogoutChange$.pipe(
-                takeUntil(this.ngUnsubscribe)
-            ).subscribe(() => {
+            this.$rootScope.$on('examStarted', () => (this.hideNavBar = true));
+            this.$rootScope.$on('examEnded', () => (this.hideNavBar = false));
+            this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
                 delete this.user;
             });
-
         }
 
         $onInit() {
@@ -73,10 +71,11 @@ export const AppComponent: angular.IComponentOptions = {
             this.Session.getEnv$().subscribe(
                 (value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
-                        this.Session.login$('', '').subscribe(user => this.user = user);
+                        this.Session.login$('', '').subscribe(user => (this.user = user));
                     }
                     this.devLoginRequired = value === 'DEV';
-                }, () => console.log('no env found')
+                },
+                () => console.log('no env found'),
             );
         }
 
@@ -88,7 +87,5 @@ export const AppComponent: angular.IComponentOptions = {
         setUser(user: any) {
             this.user = user;
         }
-    }
+    },
 };
-
-

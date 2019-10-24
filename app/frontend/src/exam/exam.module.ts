@@ -24,25 +24,9 @@ import { CoursePickerComponent } from './editor/common/coursePicker.component';
 import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        UtilityModule,
-    ],
-    declarations: [
-        SectionsListComponent,
-        SectionComponent,
-        CoursePickerComponent,
-        LanguageSelectorComponent
-    ],
-    entryComponents: [
-        CoursePickerComponent,
-        SectionsListComponent,
-        LanguageSelectorComponent
-    ],
-    providers: [
-        ExamService,
-        CoursePickerService,
-        CollaborativeExamService
-    ]
+    imports: [NgbModule, UtilityModule],
+    declarations: [SectionsListComponent, SectionComponent, CoursePickerComponent, LanguageSelectorComponent],
+    entryComponents: [CoursePickerComponent, SectionsListComponent, LanguageSelectorComponent],
+    providers: [ExamService, CoursePickerService, CollaborativeExamService],
 })
-export class ExamModule { }
+export class ExamModule {}

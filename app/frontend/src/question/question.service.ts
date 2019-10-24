@@ -24,22 +24,20 @@ import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
 
-
 @Injectable()
 export class QuestionService {
-
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private Session: SessionService,
         private Files: FileService,
-        private Attachment: AttachmentService
-    ) { }
+        private Attachment: AttachmentService,
+    ) {}
 
-    questionsApi = (id?: number) => !id ? '/app/questions' : `/app/questions/${id}`;
-    questionOwnerApi = (id?: number) => !id ? '/app/questions/owner' : `/app/questions/owner/${id}`;
-    essayScoreApi = (id) => `'/app/review/examquestion/${id}/score`;
-    questionCopyApi = (id?: number) => !id ? '/app/question' : `/app/question/${id}`;
+    questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
+    questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
+    essayScoreApi = id => `'/app/review/examquestion/${id}/score`;
+    questionCopyApi = (id?: number) => (!id ? '/app/question' : `/app/question/${id}`);
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -58,7 +56,7 @@ export class QuestionService {
                 break;
         }
         return questionType;
-    }
+    };
 
     getQuestionDraft(): ReverseQuestion {
         return {
@@ -69,7 +67,7 @@ export class QuestionService {
             options: [],
             questionOwners: [this.Session.getUser()],
             state: 'NEW',
-            tags: []
+            tags: [],
         };
     }
 
@@ -93,21 +91,16 @@ export class QuestionService {
             });
         });
         return data;
-    }
+    };
 
     calculateDefaultMaxPoints = (question: Question) =>
-        question.options
-            .filter(o => o.defaultScore > 0)
-            .reduce((a, b) => a + b.defaultScore, 0)
-
+        question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
     // For weighted mcq
     calculateMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
-        const points = sectionQuestion.options
-            .filter(o => o.score > 0)
-            .reduce((a, b) => a + b.score, 0);
+        const points = sectionQuestion.options.filter(o => o.score > 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
-    }
+    };
 
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
         if (!sectionQuestion.clozeTestAnswer) {
@@ -117,20 +110,18 @@ export class QuestionService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
-        const proportion = score.correctAnswers * sectionQuestion.maxScore /
-            (score.correctAnswers + score.incorrectAnswers);
+        const proportion =
+            (score.correctAnswers * sectionQuestion.maxScore) / (score.correctAnswers + score.incorrectAnswers);
         return parseFloat(proportion.toFixed(2));
-    }
+    };
 
     scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
-        const score = sectionQuestion.options
-            .filter(o => o.answered)
-            .reduce((a, b) => a + b.score, 0);
+        const score = sectionQuestion.options.filter(o => o.answered).reduce((a, b) => a + b.score, 0);
         return Math.max(0, score);
-    }
+    };
 
     // For non-weighted mcq
     scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
@@ -147,19 +138,19 @@ export class QuestionService {
         }
 
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
-    }
+    };
 
     private getQuestionData(question: Question): Question {
         const questionToUpdate: any = {
-            'type': question.type,
-            'defaultMaxScore': question.defaultMaxScore,
-            'question': question.question,
-            'shared': question.shared,
-            'defaultAnswerInstructions': question.defaultAnswerInstructions,
-            'defaultEvaluationCriteria': question.defaultEvaluationCriteria,
-            'questionOwners': question.questionOwners,
-            'tags': question.tags,
-            'options': question.options
+            type: question.type,
+            defaultMaxScore: question.defaultMaxScore,
+            question: question.question,
+            shared: question.shared,
+            defaultAnswerInstructions: question.defaultAnswerInstructions,
+            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
+            questionOwners: question.questionOwners,
+            tags: question.tags,
+            options: question.options,
         };
         if (question.id) {
             questionToUpdate.id = question.id;
@@ -186,50 +177,58 @@ export class QuestionService {
                 response => {
                     toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
-                        this.Files.upload('/app/attachment/question', question.attachment.file,
-                            { questionId: response.id }, question, function () {
+                        this.Files.upload(
+                            '/app/attachment/question',
+                            question.attachment.file,
+                            { questionId: response.id },
+                            question,
+                            function() {
                                 resolve(response);
-                            });
+                            },
+                        );
                     } else {
                         resolve(response);
                     }
                 },
-                error => reject(error)
+                error => reject(error),
             );
         });
-    }
+    };
 
     updateQuestion = (question: Question, displayErrors: boolean): Promise<Question> => {
         const body = this.getQuestionData(question);
         return new Promise<Question>((resolve, reject) => {
-            this.http.put<Question>(this.questionsApi(question.id), body).subscribe(
-                response => {
-                    toast.info(this.translate.instant('sitnet_question_saved'));
-                    if (question.attachment && question.attachment.file && question.attachment.modified) {
-                        this.Files.upload('/app/attachment/question', question.attachment.file,
-                            { questionId: question.id }, question, function () {
-                                resolve();
-                            });
-                    } else if (question.attachment && question.attachment.removed) {
-                        this.Attachment.eraseQuestionAttachment(question).then(function () {
-                            resolve(response);
-                        });
-                    } else {
+            this.http.put<Question>(this.questionsApi(question.id), body).subscribe(response => {
+                toast.info(this.translate.instant('sitnet_question_saved'));
+                if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    this.Files.upload(
+                        '/app/attachment/question',
+                        question.attachment.file,
+                        { questionId: question.id },
+                        question,
+                        function() {
+                            resolve();
+                        },
+                    );
+                } else if (question.attachment && question.attachment.removed) {
+                    this.Attachment.eraseQuestionAttachment(question).then(function() {
                         resolve(response);
-                    }
+                    });
+                } else {
+                    resolve(response);
                 }
-            );
+            });
         });
-    }
+    };
 
     updateDistributedExamQuestion = (question: Question, sectionQuestion: ExamSectionQuestion, examId, sectionId) => {
         const data: any = {
-            'id': sectionQuestion.id,
-            'maxScore': sectionQuestion.maxScore,
-            'answerInstructions': sectionQuestion.answerInstructions,
-            'evaluationCriteria': sectionQuestion.evaluationCriteria,
-            'options': sectionQuestion.options,
-            'question': question
+            id: sectionQuestion.id,
+            maxScore: sectionQuestion.maxScore,
+            answerInstructions: sectionQuestion.answerInstructions,
+            evaluationCriteria: sectionQuestion.evaluationCriteria,
+            options: sectionQuestion.options,
+            question: question,
         };
 
         // update question specific attributes
@@ -240,17 +239,25 @@ export class QuestionService {
                 break;
         }
         return new Promise<ExamSectionQuestion>((resolve, reject) => {
-            this.http.put<ExamSectionQuestion>(
-                `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`, data)
+            this.http
+                .put<ExamSectionQuestion>(
+                    `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`,
+                    data,
+                )
                 .subscribe(
                     response => {
                         Object.assign(response.question, question);
                         if (question.attachment && question.attachment.modified && question.attachment.file) {
-                            this.Files.upload('/app/attachment/question', question.attachment.file,
-                                { questionId: question.id }, question, function () {
+                            this.Files.upload(
+                                '/app/attachment/question',
+                                question.attachment.file,
+                                { questionId: question.id },
+                                question,
+                                function() {
                                     response.question.attachment = question.attachment;
                                     resolve(response);
-                                });
+                                },
+                            );
                         } else if (question.attachment && question.attachment.removed) {
                             this.Attachment.eraseQuestionAttachment(question).then(() => {
                                 delete response.question.attachment;
@@ -259,25 +266,25 @@ export class QuestionService {
                         } else {
                             resolve(response);
                         }
-                    }, err => {
+                    },
+                    err => {
                         toast.error(err.data);
                         reject();
-                    }
+                    },
                 );
         });
-    }
+    };
 
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
         option.correctOption = true;
-        options.forEach(o => o.correctOption = o === option);
-    }
+        options.forEach(o => (o.correctOption = o === option));
+    };
 
     addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
         const data = {
-            'uid': uid,
-            'questionIds': qids.join()
+            uid: uid,
+            questionIds: qids.join(),
         };
         return this.http.put(this.questionOwnerApi(uid), data);
-    }
-
+    };
 }

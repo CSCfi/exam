@@ -12,33 +12,30 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import _ from 'lodash';
 
-angular.module('app.review')
-    .component('printedClozeTest', {
-        template: require('./templates/clozeTest.template.html'),
-        bindings: {
-            sectionQuestion: '<'
+angular.module('app.review').component('printedClozeTest', {
+    template: require('./templates/clozeTest.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+    controller: [
+        '$sce',
+        function($sce) {
+            const vm = this;
+
+            vm.displayQuestionText = function() {
+                return $sce.trustAsHtml(vm.sectionQuestion.question.question);
+            };
+
+            vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
+
+            vm.displayAchievedScore = function() {
+                const max = vm.sectionQuestion.maxScore;
+                const score = vm.sectionQuestion.clozeTestAnswer.score;
+                return (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers).toFixed(2);
+            };
         },
-        controller: ['$sce',
-            function ($sce) {
-
-                const vm = this;
-
-                vm.displayQuestionText = function () {
-                    return $sce.trustAsHtml(vm.sectionQuestion.question.question);
-                };
-
-                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
-
-                vm.displayAchievedScore = function () {
-                    const max = vm.sectionQuestion.maxScore;
-                    const score = vm.sectionQuestion.clozeTestAnswer.score;
-                    return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
-                }
-
-            }
-        ]
-    });
+    ],
+});

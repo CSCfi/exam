@@ -19,16 +19,15 @@ import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
     selector: 'exam-feedback',
-    template: require('./examFeedback.component.html')
+    template: require('./examFeedback.component.html'),
 })
 export class ExamFeedbackComponent {
     @Input() assessment: ReviewedExam;
     @Input() scores: Scores;
 
-    constructor(private Attachment: AttachmentService) { }
+    constructor(private Attachment: AttachmentService) {}
 
     downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.assessment);
 
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
-
 }

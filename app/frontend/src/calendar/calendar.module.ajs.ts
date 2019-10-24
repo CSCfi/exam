@@ -19,9 +19,8 @@ import { CalendarService } from './calendar.service';
 import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
 import { BookingCalendarComponent } from './bookingCalendar.component';
 
-
-export default angular.module('app.calendar', [])
+export default angular
+    .module('app.calendar', [])
     .service('Calendar', downgradeInjectable(CalendarService))
     .directive('ngCalendar', downgradeComponent({ component: BookingCalendarComponent }))
-    .directive('calendar', downgradeComponent({ component: CalendarComponent }))
-    .name;
+    .directive('calendar', downgradeComponent({ component: CalendarComponent })).name;
