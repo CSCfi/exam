@@ -27,9 +27,10 @@ angular.module('app.question').component('examQuestion', {
     controller: [
         '$scope',
         '$translate',
+        '$state',
         'Attachment',
         'Question',
-        function($scope, $translate, Attachment, Question) {
+        function($scope, $translate, $state, Attachment, Question) {
             // This component depicts a distributed exam question
 
             const vm = this;
@@ -158,7 +159,7 @@ angular.module('app.question').component('examQuestion', {
                 return Question.calculateMaxPoints(vm.examQuestion);
             };
 
-            const routingWatcher = $scope.$on('$locationChangeStart', function(event, newUrl) {
+            const routingWatcher = $scope.$on('$stateChangeStart', function(event, toState, toParams) {
                 if (window.onbeforeunload) {
                     event.preventDefault();
                     // we got changes in the model, ask confirmation
@@ -170,7 +171,7 @@ angular.module('app.question').component('examQuestion', {
                         if (data.toString() === 'yes') {
                             // ok to reroute
                             clearListeners();
-                            $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                            $state.go(toState, toParams);
                         }
                     });
                 } else {

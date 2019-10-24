@@ -12,21 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
+import toast from 'toastr';
 
 angular.module('app.facility.rooms').component('room', {
     template: require('./room.template.html'),
     controller: [
         '$translate',
-        '$location',
-        '$routeParams',
+        '$state',
+        '$stateParams',
         'Room',
         'SettingsResource',
         'InteroperabilityResource',
-        function($translate, $location, $routeParams, Room, SettingsRes, InteroperabilityRes) {
+        function($translate, $state, $stateParams, Room, SettingsRes, InteroperabilityRes) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -37,7 +36,7 @@ angular.module('app.facility.rooms').component('room', {
                 });
 
                 Room.rooms.get(
-                    { id: $routeParams.id },
+                    { id: $stateParams.id },
                     function(room) {
                         room.availableForExternals = room.externalRef !== null;
                         vm.room = room;
@@ -108,7 +107,7 @@ angular.module('app.facility.rooms').component('room', {
                     vm.room,
                     function() {
                         toast.info($translate.instant('sitnet_room_saved'));
-                        $location.path('/rooms/');
+                        $state.go('rooms');
                     },
                     function(error) {
                         toast.error(error.data);

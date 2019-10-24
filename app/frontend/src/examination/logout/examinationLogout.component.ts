@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams, StateService } from '@uirouter/core';
 import * as angular from 'angular';
 
 export const ExaminationLogoutComponent: angular.IComponentOptions = {
@@ -41,16 +42,16 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
         constructor(
             private $rootScope: angular.IRootScopeService,
             private $http: angular.IHttpService,
-            private $routeParams: angular.route.IRouteParamsService,
-            private $location: angular.ILocationService,
+            private $stateParams: StateParams,
+            private $state: StateService,
             private $timeout: angular.ITimeoutService,
         ) {
             'ngInject';
         }
 
         $onInit = () => {
-            this.reasonPhrase = this.$routeParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-            this.quitLinkEnabled = this.$routeParams.quitLinkEnabled === 'true';
+            this.reasonPhrase = this.$stateParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
+            this.quitLinkEnabled = this.$stateParams.quitLinkEnabled === 'true';
 
             if (this.quitLinkEnabled) {
                 this.$http
@@ -62,13 +63,13 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
                         // Fetching quit link failed for some reason, just log out
                         this.$timeout(() => {
                             this.$rootScope.$broadcast('examEnded');
-                            this.$location.path('/logout');
+                            this.$state.go('logout');
                         }, 4000);
                     });
             } else {
                 this.$timeout(() => {
                     this.$rootScope.$broadcast('examEnded');
-                    this.$location.path('/logout');
+                    this.$state.go('logout');
                 }, 8000);
             }
         };

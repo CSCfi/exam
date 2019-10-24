@@ -12,26 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.facility.rooms').component('roomList', {
     template: require('./roomList.template.html'),
     controller: [
-        '$routeParams',
+        '$stateParams',
         'Session',
-        '$location',
+        '$state',
         'Room',
         '$translate',
-        function($routeParams, Session, $location, Room, $translate) {
+        function($stateParams, Session, $state, Room, $translate) {
             const vm = this;
 
             vm.$onInit = function() {
                 vm.user = Session.getUser();
 
                 if (vm.user.isAdmin) {
-                    if (!$routeParams.id) {
+                    if (!$stateParams.id) {
                         Room.rooms.query(function(rooms) {
                             vm.times = Room.getTimes();
                             vm.rooms = rooms;
@@ -43,7 +42,7 @@ angular.module('app.facility.rooms').component('roomList', {
                         });
                     }
                 } else {
-                    $location.path('/');
+                    $state.go('dashboard');
                 }
             };
 
@@ -60,7 +59,7 @@ angular.module('app.facility.rooms').component('roomList', {
                 Room.draft.get(
                     function(room) {
                         toast.info($translate.instant('sitnet_room_draft_created'));
-                        $location.path('/rooms/' + room.id);
+                        $state.go('room', { id: room.id });
                     },
                     function(error) {
                         toast.error(error.data);

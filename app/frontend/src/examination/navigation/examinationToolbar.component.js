@@ -26,6 +26,7 @@ angular.module('app.examination').component('examinationToolbar', {
     },
     controller: [
         '$http',
+        '$state',
         '$location',
         '$window',
         '$translate',
@@ -34,7 +35,7 @@ angular.module('app.examination').component('examinationToolbar', {
         'Examination',
         'Attachment',
         'Enrolment',
-        function($http, $location, $window, $translate, dialogs, Session, Examination, Attachment, Enrolment) {
+        function($http, $state, $location, $window, $translate, dialogs, Session, Examination, Attachment, Enrolment) {
             this.$onInit = () => {
                 if (!this.isPreview) {
                     $http.get('/app/enrolments/room/' + this.exam.hash).then(resp => (this.room = resp.data));
@@ -73,7 +74,10 @@ angular.module('app.examination').component('examinationToolbar', {
                         .then(() => {
                             toast.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
                             $window.onbeforeunload = null;
-                            $location.path('/student/logout/aborted/' + this.exam.requiresUserAgentAuth);
+                            $state.go('examinationLogout', {
+                                reason: 'aborted',
+                                quitLinkEnabled: this.exam.requiresUserAgentAuth,
+                            });
                         })
                         .catch(err => toast.error(err.data)),
                 );

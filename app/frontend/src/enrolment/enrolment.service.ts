@@ -21,13 +21,14 @@ import * as toast from 'toastr';
 import { Exam } from '../exam/exam.model';
 import { User } from '../session/session.service';
 import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+import { StateService } from '@uirouter/core';
 
 export class EnrolmentService {
     constructor(
         private $translate: ng.translate.ITranslateService,
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private $location: ng.ILocationService,
+        private $state: StateService,
         private $uibModal: uib.IModalService,
         private Language: any,
     ) {
@@ -68,7 +69,7 @@ export class EnrolmentService {
                         '<br/>' +
                         this.$translate.instant('sitnet_remember_exam_machine_reservation'),
                 );
-                this.$location.path((collaborative ? '/calendar/collaborative/' : '/calendar/') + exam.id);
+                this.$state.go(collaborative ? 'collaborativeCalendar' : 'calendar', { id: exam.id });
                 deferred.resolve();
             })
             .catch(error => {

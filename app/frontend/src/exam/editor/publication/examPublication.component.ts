@@ -20,6 +20,7 @@ import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
 import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
+import { StateService } from '@uirouter/core';
 
 export const ExamPublicationComponent: angular.IComponentOptions = {
     template: require('./examPublication.template.html'),
@@ -48,7 +49,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             private $http: angular.IHttpService,
             private $q: angular.IQService,
             private $translate: angular.translate.ITranslateService,
-            private $location: angular.ILocationService,
+            private $state: StateService,
             private $uibModal: IModalService,
             private $window: angular.IWindowService,
             private Session: SessionService,
@@ -202,7 +203,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                                     ? 'sitnet_exam_saved_and_pre_published'
                                     : 'sitnet_exam_saved_and_published';
                                 toast.success(this.$translate.instant(text));
-                                this.$location.path('/');
+                                this.$state.go('dashboard');
                             })
                             .catch(angular.noop);
                     });

@@ -12,10 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
+import toast from 'toastr';
 
 angular.module('app.enrolment').component('wrongLocation', {
     template: require('./wrongLocation.template.html'),
@@ -24,26 +23,26 @@ angular.module('app.enrolment').component('wrongLocation', {
     },
     controller: [
         '$http',
-        '$routeParams',
+        '$stateParams',
         '$translate',
         'Enrolment',
         'StudentExamRes',
         'DateTime',
-        function($http, $routeParams, $translate, Enrolment, StudentExamRes, DateTime) {
+        function($http, $stateParams, $translate, Enrolment, StudentExamRes, DateTime) {
             const vm = this;
 
             vm.$onInit = function() {
-                if ($routeParams.eid) {
+                if ($stateParams.eid) {
                     vm.upcoming = true;
                     StudentExamRes.enrolment.get(
-                        { eid: $routeParams.eid },
+                        { eid: $stateParams.eid },
                         function(enrolment) {
                             setOccasion(enrolment.reservation);
                             vm.enrolment = enrolment;
                             const room = vm.enrolment.reservation.machine.room;
                             const code = $translate.use().toUpperCase();
                             vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                            $http.get('/app/machines/' + $routeParams.mid).then(function(data) {
+                            $http.get('/app/machines/' + $stateParams.mid).then(function(data) {
                                 vm.currentMachine = data.machine;
                             });
                             vm.printExamDuration = function() {

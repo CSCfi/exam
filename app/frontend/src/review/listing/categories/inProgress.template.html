@@ -54,7 +54,7 @@
             ng-hide="$ctrl.exam.executionType.type==='MATURITY' || $ctrl.parentCtrl.collaborative"
             class="review-attachment-button review-list-speed-button marr20"
         >
-            <a class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
+            <a class="pointer" ui-sref="speedReview({id: {{$ctrl.exam.id}} })">
                 {{'sitnet_speed_review' | translate}} ({{$ctrl.data.filtered.length}})
             </a>
         </div>

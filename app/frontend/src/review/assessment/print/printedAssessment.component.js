@@ -22,7 +22,7 @@ angular.module('app.review').component('printedAssessment', {
         collaborative: '<',
     },
     controller: [
-        '$routeParams',
+        '$stateParams',
         '$document',
         '$http',
         'Question',
@@ -30,11 +30,11 @@ angular.module('app.review').component('printedAssessment', {
         'Assessment',
         'Session',
         'Language',
-        function($routeParams, $document, $http, Question, Exam, Assessment, Session, Language) {
+        function($stateParams, $document, $http, Question, Exam, Assessment, Session, Language) {
             const vm = this;
 
             vm.$onInit = function() {
-                const path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
+                const path = vm.collaborative ? `${$stateParams.id}/${$stateParams.ref}` : $stateParams.id;
                 const url = getResource(path);
 
                 $http.get(url).then(function(resp) {
@@ -73,8 +73,8 @@ angular.module('app.review').component('printedAssessment', {
                     };
                     if (vm.collaborative) {
                         participationsApi = Assessment.collaborativeParticipationsApi;
-                        params.eid = $routeParams.id;
-                        params.aid = $routeParams.ref;
+                        params.eid = $stateParams.id;
+                        params.aid = $stateParams.ref;
                     }
                     participationsApi.query(params, handleParticipations);
 

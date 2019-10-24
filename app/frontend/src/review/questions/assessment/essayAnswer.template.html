@@ -11,7 +11,7 @@
     </div>
     <div class="main-row">
         <div class="col-md-10 essay-answer-item">
-            <a href="/assessments/{{$ctrl.answer.examSection.exam.id}}" target="_blank">
+            <a ui-sref="assessment({id: {{$ctrl.answer.examSection.exam.id}} })" target="_blank">
                 <strong>
                     {{$ctrl.name}}
                     <span ng-if="$ctrl.answer.examSection.exam.creator.userIdentifier">

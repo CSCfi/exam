@@ -37,7 +37,7 @@
         <div class="nav-body">
             <ul class="links">
                 <li ng-repeat="link in $ctrl.links" ng-show="link.visible">
-                    <a ng-class="{selected: $ctrl.isActive(link)}" href="{{link.href}}">
+                    <a ng-class="{selected: $ctrl.isActive(link)}" ui-sref="{{link.state}}">
                         <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
                         <span class="menu-item" ng-click="link.submenu.hidden = !link.submenu.hidden"
                             >{{ link.name | translate }}</span
@@ -49,7 +49,7 @@
                             ng-class="{selectedsub: $ctrl.isActive(subitem)}"
                             ng-if="subitem.visible"
                         >
-                            <a href="{{subitem.href}}">
+                            <a ui-sref="{{subitem.state}}">
                                 <div>
                                     <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="" /> {{
                                     subitem.name | translate }}
@@ -64,7 +64,7 @@
         <div class="nav-body-mobile" ng-show="$ctrl.mobileMenuOpen">
             <ul class="links">
                 <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="link.visible">
-                    <a href="{{link.href}}">
+                    <a ui-sref="{{link.state}}">
                         <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>

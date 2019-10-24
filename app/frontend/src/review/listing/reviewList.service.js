@@ -12,29 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import _ from 'lodash';
 import toast from 'toastr';
 
-angular.module('app.review').service('ReviewList', [
-    '$q',
-    '$http',
-    '$translate',
-    'Exam',
-    'ExamRes',
-    function($q, $http, $translate, Exam, ExamRes) {
-        const self = this;
-
-        self.getDisplayName = function(review, collaborative = false) {
+class ReviewListService {
+    constructor($q, $http, $translate, Exam, ExamRes) {
+        this.getDisplayName = (review, collaborative = false) => {
             return review.user
                 ? `${review.user.lastName} ${review.user.firstName}`
                 : collaborative
                 ? review._id
                 : review.exam.id;
         };
-
-        self.gradeExam = function(exam) {
+        this.gradeExam = exam => {
             if (!exam.grade || !exam.grade.id) {
                 exam.grade = {};
             }
@@ -43,7 +34,7 @@ angular.module('app.review').service('ReviewList', [
             }
             const scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
             scale.grades = scale.grades || [];
-            exam.selectableGrades = scale.grades.map(function(grade) {
+            exam.selectableGrades = scale.grades.map(grade => {
                 grade.type = grade.name;
                 grade.name = Exam.getExamGradeDisplayName(grade.name);
                 if (exam.grade && exam.grade.id === grade.id) {
@@ -58,8 +49,7 @@ angular.module('app.review').service('ReviewList', [
             }
             exam.selectableGrades.push(noGrade);
         };
-
-        self.filterReview = function(filter, review) {
+        this.filterReview = (filter, review) => {
             if (!filter) {
                 return true;
             }
@@ -72,14 +62,12 @@ angular.module('app.review').service('ReviewList', [
                     .indexOf(s) > -1
             );
         };
-
-        self.filterByState = function(reviews, states) {
-            return reviews.filter(function(r) {
+        this.filterByState = (reviews, states) => {
+            return reviews.filter(r => {
                 return states.indexOf(r.exam.state) > -1;
             });
         };
-
-        self.prepareView = function(items, setup) {
+        this.prepareView = (items, setup) => {
             items.forEach(setup);
             return {
                 items: items,
@@ -88,31 +76,18 @@ angular.module('app.review').service('ReviewList', [
                 pageSize: 30,
             };
         };
-
-        self.applyFilter = function(filter, items) {
+        this.applyFilter = (filter, items) => {
             if (!filter) {
                 return items;
             }
-            return items.filter(function(i) {
-                return self.filterReview(filter, i);
+            return items.filter(i => {
+                return this.filterReview(filter, i);
             });
         };
-
-        const getSelectedReviews = function(items) {
-            const objects = items.filter(function(i) {
-                return i.selected;
-            });
-            if (objects.length === 0) {
-                toast.warning($translate.instant('sitnet_choose_atleast_one'));
-                return;
-            }
-            return objects;
-        };
-
-        const resetSelections = function(scope, view) {
+        const resetSelections = (scope, view) => {
             let prev, next;
             for (const k in scope) {
-                if (scope.hasOwnProperty(k)) {
+                if (Object.prototype.hasOwnProperty.call(scope, k)) {
                     if (k === view) {
                         scope[k] = !scope[k];
                         next = scope[k];
@@ -126,50 +101,32 @@ angular.module('app.review').service('ReviewList', [
             }
             return prev && next;
         };
-
-        self.selectAll = function(scope, items) {
+        this.selectAll = (scope, items) => {
             const override = resetSelections(scope, 'all');
-            items.forEach(function(i) {
-                i.selected = !i.selected || override;
-            });
+            items.forEach(i => (i.selected = !i.selected || override));
         };
-
-        self.selectPage = function(scope, items, selector) {
+        this.selectPage = (scope, items, selector) => {
             const override = resetSelections(scope, 'page');
             const boxes = angular.element('.' + selector);
             const ids = [];
-            angular.forEach(boxes, function(input) {
-                ids.push(parseInt(angular.element(input).val()));
-            });
+            boxes.forEach(input => ids.push(parseInt(angular.element(input).val())));
             // init all as not selected
             if (override) {
-                items.forEach(function(i) {
-                    i.selected = false;
-                });
+                items.forEach(i => (i.selected = false));
             }
-            const pageItems = items.filter(function(i) {
-                return ids.indexOf(i.exam.id) > -1;
-            });
-            pageItems.forEach(function(pi) {
-                pi.selected = !pi.selected || override;
-            });
+            items.filter(i => ids.indexOf(i.exam.id) > -1).forEach(pi => (pi.selected = !pi.selected || override));
         };
-
-        self.getSelectedReviews = function(items) {
-            const objects = items.filter(function(i) {
-                return i.selected;
-            });
+        this.getSelectedReviews = items => {
+            const objects = items.filter(i => i.selected);
             if (objects.length === 0) {
                 toast.warning($translate.instant('sitnet_choose_atleast_one'));
                 return;
             }
             return objects;
         };
-
-        const send = function(review, examId, state) {
+        const send = (review, examId, state) => {
             const deferred = $q.defer();
             const exam = review.exam;
-
             if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
                 const examToRecord = {
                     id: exam.id,
@@ -189,9 +146,7 @@ angular.module('app.review').service('ReviewList', [
                     });
                 } else {
                     const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
-                    resource.add(examToRecord, function() {
-                        deferred.resolve();
-                    });
+                    resource.add(examToRecord, () => deferred.resolve());
                 }
             } else {
                 toast.error($translate.instant('sitnet_failed_to_record_review'));
@@ -199,13 +154,9 @@ angular.module('app.review').service('ReviewList', [
             }
             return deferred.promise;
         };
+        this.sendToArchive = (review, examId) => send(review, examId, 'ARCHIVED');
+        this.sendToRegistry = (review, examId) => send(review, examId, 'GRADED_LOGGED');
+    }
+}
 
-        self.sendToArchive = function(review, examId) {
-            send(review, examId, 'ARCHIVED');
-        };
-
-        self.sendToRegistry = function(review, examId) {
-            send(review, examId, 'GRADED_LOGGED');
-        };
-    },
-]);
+angular.module('app.review').service('ReviewList', ['$q', '$http', '$translate', 'Exam', 'ExamRes', ReviewListService]);

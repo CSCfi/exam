@@ -19,15 +19,15 @@ angular.module('app.exam.editor').component('courseSelection', {
     template: require('./courseSelection.template.html'),
     controller: [
         '$translate',
-        '$location',
-        '$routeParams',
+        '$state',
+        '$stateParams',
         'ExamRes',
         'Exam',
-        function($translate, $location, $routeParams, ExamRes, Exam) {
+        function($translate, $state, $stateParams, ExamRes, Exam) {
             const vm = this;
 
             vm.$onInit = function() {
-                ExamRes.exams.get({ id: $routeParams.id }, function(exam) {
+                ExamRes.exams.get({ id: $stateParams.id }, function(exam) {
                     vm.exam = exam;
                 });
             };
@@ -60,12 +60,12 @@ angular.module('app.exam.editor').component('courseSelection', {
             vm.cancelNewExam = function() {
                 ExamRes.exams.remove({ id: vm.exam.id }, function() {
                     toast.success($translate.instant('sitnet_exam_removed'));
-                    $location.path('/');
+                    $state.go('dashboard');
                 });
             };
 
             vm.continueToExam = function() {
-                $location.path('/exams/' + vm.exam.id + '/1');
+                $state.go('examEditor', { id: vm.exam.id, tab: 1 });
             };
         },
     ],

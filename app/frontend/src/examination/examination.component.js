@@ -21,21 +21,22 @@ angular.module('app.examination').component('examination', {
         isCollaborative: '<', // Collaborative preview
     },
     controller: [
-        '$location',
-        '$routeParams',
+        '$state',
+        '$window',
+        '$stateParams',
         '$translate',
         'Examination',
         'Enrolment',
-        function($location, $routeParams, $translate, Examination, Enrolment) {
+        function($state, $window, $stateParams, $translate, Examination, Enrolment) {
             const vm = this;
 
             vm.$onInit = function() {
                 if (!vm.isPreview) {
-                    window.onbeforeunload = function() {
+                    $window.onbeforeunload = function() {
                         return $translate.instant('sitnet_unsaved_data_may_be_lost');
                     };
                 }
-                Examination.startExam($routeParams.hash, vm.isPreview, vm.isCollaborative, $routeParams.id).then(
+                Examination.startExam($stateParams.hash, vm.isPreview, vm.isCollaborative, $stateParams.id).then(
                     function(exam) {
                         exam.examSections.sort(function(a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
@@ -53,7 +54,7 @@ angular.module('app.examination').component('examination', {
                     },
                     function(err) {
                         console.log(JSON.stringify(err));
-                        $location.path('/');
+                        $state.go('dashboard');
                     },
                 );
             };
@@ -85,7 +86,7 @@ angular.module('app.examination').component('examination', {
                 if (page.type === 'section') {
                     vm.activeSection = findSection(page.id);
                 }
-                window.scrollTo(0, 0);
+                $window.scrollTo(0, 0);
             };
 
             const logout = function(msg) {

@@ -19,7 +19,7 @@ angular.module('app.review').service('Assessment', [
     '$q',
     '$http',
     '$resource',
-    '$routeParams',
+    '$stateParams',
     '$translate',
     '$location',
     '$timeout',
@@ -27,7 +27,7 @@ angular.module('app.review').service('Assessment', [
     'ExamRes',
     'Session',
     'Exam',
-    function($q, $http, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Exam) {
+    function($q, $http, $resource, $stateParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Exam) {
         const self = this;
 
         self.noShowApi = $resource('/app/usernoshows/:eid', {
@@ -217,7 +217,7 @@ angular.module('app.review').service('Assessment', [
             if (user.isAdmin) {
                 return '/';
             }
-            const id = exam.parent ? exam.parent.id : $routeParams.id;
+            const id = exam.parent ? exam.parent.id : $stateParams.id;
             return collaborative ? `/exams/collaborative/${id}/4` : `/exams/${id}/4`;
         };
 

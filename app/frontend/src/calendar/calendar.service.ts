@@ -21,6 +21,7 @@ import * as toastr from 'toastr';
 import { DateTimeService } from '../utility/date/date.service';
 import { SessionService } from '../session/session.service';
 import { IDeferred } from 'angular';
+import { StateParams, StateService } from '@uirouter/core';
 
 export interface Room {
     id: number;
@@ -60,8 +61,8 @@ export class CalendarService {
     constructor(
         private $q: angular.IQService,
         private $http: angular.IHttpService,
-        private $routeParams: angular.route.IRouteParamsService,
-        private $location: angular.ILocationService,
+        private $stateParams: StateParams,
+        private $state: StateService,
         private DateTime: DateTimeService,
         private Session: SessionService,
         private uiCalendarConfig: any,
@@ -92,7 +93,7 @@ export class CalendarService {
         this.$http
             .post(url, slot)
             .then(() => {
-                this.$location.path('/');
+                this.$state.go('dashboard');
                 promise.resolve();
             })
             .catch(resp => {
@@ -105,7 +106,7 @@ export class CalendarService {
         this.$http
             .post('/integration/iop/reservations/external', slot)
             .then(() => {
-                this.$location.path('/');
+                this.$state.go('dashboard');
                 promise.resolve();
             })
             .catch(resp => {
@@ -128,7 +129,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.$routeParams.id),
+            examId: parseInt(this.$stateParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,

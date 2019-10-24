@@ -90,7 +90,9 @@
                         </span>
                         <div>
                             <span>
-                                <a ng-if="!$ctrl.disableLinks" href="/questions/{{question.id}}">{{question.id}}</a>
+                                <a ng-if="!$ctrl.disableLinks" ui-sref="question({id: {{question.id}} })"
+                                    >{{question.id}}</a
+                                >
                                 <span ng-if="$ctrl.disableLinks">#{{question.id}}</span>
                                 <i
                                     ng-if="question.questionOwners.length > 1"

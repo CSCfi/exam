@@ -52,9 +52,9 @@ require('./assessment/sections/examSection.component');
 require('./listing/reviewList.service');
 require('./listing/reviewList.component.ts');
 require('./listing/speedReview.component');
-require('./listing/dialogs/abortedExams.component');
+require('./listing/dialogs/abortedExams.component.ts');
 require('./listing/dialogs/archiveDownload.component');
-require('./listing/dialogs/feedback.component');
+require('./listing/dialogs/feedback.component.ts');
 require('./listing/dialogs/noShows.component');
 
 require('./listing/categories/archived.component');

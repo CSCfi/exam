@@ -19,6 +19,7 @@ import * as toast from 'toastr';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { SessionService } from '../../../session/session.service';
 import { IHttpResponse } from 'angular';
+import { StateService } from '@uirouter/core';
 
 export const ExamListCategoryComponent: ng.IComponentOptions = {
     template: require('./examListCategory.template.html'),
@@ -49,7 +50,8 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
         constructor(
             private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
-            private $location: ng.ILocationService,
+            private $location: ng.ILocationService, // TODO: maybe use states?
+            private $state: StateService,
             private dialogs: angular.dialogservice.IDialogService,
             private Exam: any, // TBD
             private DateTime: DateTimeService,
@@ -88,7 +90,7 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
                 .post(`/app/exams/${exam.id}`, { type: type })
                 .then((resp: IHttpResponse<{ id: number }>) => {
                     toast.success(this.$translate.instant('sitnet_exam_copied'));
-                    this.$location.path(`/exams/${resp.data.id}/1`);
+                    this.$state.go('examEditor', { id: resp.data.id, tab: 1 });
                 })
                 .catch(resp => toast.error(resp.data));
         }

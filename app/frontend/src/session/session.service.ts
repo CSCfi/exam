@@ -19,6 +19,7 @@ import * as toastr from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
 import * as adl from 'angular-dynamic-locale';
+import { StateService } from '@uirouter/core';
 
 export interface Role {
     name: string;
@@ -56,12 +57,11 @@ export class SessionService {
 
     constructor(
         private $http: angular.IHttpService,
-        private $route: angular.route.IRouteService,
+        private $state: StateService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
         private $sessionStorage: any, // no usable typedef available
         private $translate: angular.translate.ITranslateService,
-        private $location: angular.ILocationService,
         private $rootScope: angular.IRootScopeService,
         private $timeout: angular.ITimeoutService,
         private $uibModal: uib.IModalService,
@@ -131,15 +131,15 @@ export class SessionService {
             this.$window.location.href = localLogout;
         } else {
             // DEV logout
-            this.$location.path('/');
+            this.$state.go('dashboard');
             this.$rootScope.$broadcast('devLogout');
         }
         this.$timeout(toastr.clear, 300);
     }
 
     private redirect(): void {
-        if (this.$location.path() === '/' && this._user.isLanguageInspector) {
-            this.$location.path('/inspections');
+        if (this.$state.current.name === 'dashboard' && this._user.isLanguageInspector) {
+            this.$state.go('languageInspections');
         }
     }
 
@@ -167,7 +167,7 @@ export class SessionService {
     }
 
     private onLoginFailure(message: any): void {
-        this.$location.path('/');
+        this.$state.go('dashboard');
         toastr.error(message);
     }
 
@@ -342,13 +342,13 @@ export class SessionService {
                         user.userAgreementAccepted = true;
                         this.setUser(user);
                         // We need to reload controllers after accepted user agreement.
-                        this.$route.reload();
+                        this.$state.reload();
                     })
                     .catch(resp => {
                         toastr.error(resp.data);
                     });
             })
-            .catch(() => this.$location.path('/logout'));
+            .catch(() => this.$state.go('logout'));
     }
 
     private openRoleSelectModal(user: User) {
@@ -377,14 +377,14 @@ export class SessionService {
                             this.openEulaModal(user);
                         } else {
                             // We need to reload controllers after role is selected.
-                            this.$route.reload();
+                            this.$state.reload();
                         }
                     })
                     .catch(resp => {
                         toastr.error(resp.data);
-                        this.$location.path('/logout');
+                        this.$state.go('logout');
                     });
             })
-            .catch(() => this.$location.path('/logout'));
+            .catch(() => this.$state.go('logout'));
     }
 }
