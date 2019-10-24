@@ -135,7 +135,7 @@
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
     <div class="top-row">
         <div class="col-md-12">
-            <a href="/rooms/{{$ctrl.room.id}}/availability/">{{'sitnet_reservations_new' | translate}}</a>
+            <a ui-sref="availability({id: {{$ctrl.room.id}} })">{{'sitnet_reservations_new' | translate}}</a>
         </div>
     </div>
 

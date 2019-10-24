@@ -109,7 +109,7 @@
             >
                 <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" href="/assessments/{{review.exam.id}}">
+                    <a class="pointer" ui-sref="assessment({id: {{review.exam.id}} })">
                         {{review.displayName}}
                         <span ng-if="review.user.userIdentifier"> <br />({{review.user.userIdentifier}})</span>
                     </a>

@@ -11,7 +11,9 @@
                 </div>
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
-                    <a href="/enroll/exam/{{ $ctrl.enrolment.exam.id }}?code={{ $ctrl.enrolment.exam.course.code }}">
+                    <a
+                        ui-sref="enrolments({id: {{ $ctrl.enrolment.exam.id }}, code: {{$ctrl.enrolment.exam.course.code}} })"
+                    >
                         {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a
                     >
                     <span ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"

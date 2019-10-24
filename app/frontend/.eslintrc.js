@@ -30,7 +30,6 @@ module.exports = {
         'no-caller': 'error',
         'no-bitwise': 'error',
         'no-new': 'error',
-        'no-var': 'error',
-        camelcase: 'error',
+        'no-var': 'error'
     },
 };

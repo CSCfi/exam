@@ -42,7 +42,7 @@ angular.module('app.exam').component('printoutListing', {
         '                <tr ng-repeat="exam in $ctrl.printouts | orderBy:$ctrl.predicate:$ctrl.reverse">\n' +
         '                    <td>{{ exam.examinationDatesAggregate }}</td>\n' +
         '                    <td>{{exam.course.code}}</td>\n' +
-        '                    <td><a class="exams-info-title bold-button" href="/exams/{{exam.id}}/view/printout">{{exam.name}}</a>\n' +
+        '                    <td><a class="exams-info-title bold-button" ui-sref="printoutListing({id: {{exam.id}} })">{{exam.name}}</a>\n' +
         '                    <td>\n' +
         '                        <teacher-list exam="exam"/>\n' +
         '                    </td>\n' +

@@ -50,7 +50,8 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                         <tbody>
                         <tr ng-repeat="exam in $ctrl.exams | orderBy:$ctrl.predicate:$ctrl.reverse">
                             <td>
-                                <a class="exams-info-title bold-button" href="/exams/collaborative/{{exam.id}}/1">
+                                <a class="exams-info-title bold-button" 
+                                    ui-sref="collaborativeExamEditor({id: {{exam.id}}, tab: 1})">
                                     <span ng-if="exam.name">{{exam.name}}</span>
                                     <span ng-if="!exam.name" class="text-danger">
                                         {{'sitnet_no_name' | translate | uppercase }}

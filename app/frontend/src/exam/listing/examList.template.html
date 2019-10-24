@@ -153,7 +153,10 @@
                         >
                             <td>{{exam.course.code}}</td>
                             <td>
-                                <a ng-if="exam.name" class="exams-info-title bold-button" href="/exams/{{exam.id}}/1"
+                                <a
+                                    ng-if="exam.name"
+                                    class="exams-info-title bold-button"
+                                    ui-sref="examEditor({id: {{exam.id}}, tab: 1 })"
                                     >{{exam.name}}</a
                                 >
                                 <a

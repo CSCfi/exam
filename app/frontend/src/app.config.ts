@@ -48,7 +48,6 @@ export default function configs(
 
     // ROUTING -->
 
-    /* index */
     $stateProvider
         .state('dashboard', { url: '/', component: 'dashboard', reloadOnSearch: false })
         .state('library', { url: '/questions', component: 'library' })
@@ -151,7 +150,7 @@ export default function configs(
             component: 'collaborativeExamParticipations',
         })
         .state('examinationLogout', { url: '/student/logout?reason&quitLinkEnabled', component: 'examinationLogout' })
-        .state('enrolments', { url: '/enroll/exam/{id}', component: 'examEnrolments' })
+        .state('enrolments', { url: '/enroll/exam/{id}?{code}', component: 'examEnrolments' })
         .state('assessment', {
             url: '/assessments/{id}',
             component: 'assessment',

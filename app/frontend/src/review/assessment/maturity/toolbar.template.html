@@ -1,4 +1,4 @@
-<!-- kielentarkistuksen painikkeet  -->
+<!-- language inspection controls  -->
 <div
     class="review-toolbar-wrapper padl0 padr0 marb20"
     ng-show="$ctrl.isOwnerOrAdmin() || $ctrl.isUnderLanguageInspection()"
@@ -11,7 +11,9 @@
                 </button>
             </div>
             <div ng-show="$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
-                <a class="pointer preview" href="/exams/{{$ctrl.exam.parent.id}}/4"> {{'sitnet_close' | translate}}</a>
+                <a class="pointer preview" ui-sref="examEditor({id: {{$ctrl.exam.parent.id}}, tab: 4 })">
+                    {{'sitnet_close' | translate}}</a
+                >
             </div>
         </span>
 
