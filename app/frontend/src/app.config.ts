@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateProvider, UrlRouterProvider } from '@uirouter/angularjs';
 import * as angular from 'angular';
-import { StateProvider, UrlRouterProvider } from 'angular-ui-router';
 import * as base64 from 'base64-js';
 import * as textEncoding from 'text-encoding-polyfill';
 import * as toast from 'toastr';

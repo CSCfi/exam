@@ -35,7 +35,7 @@
         <div class="nav-body">
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
-                    <a [ngClass]="{ selected: isActive(link) }" uiSref="link.state">
+                    <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
                         <img width="18" src="/assets/assets/images/nav/{{ link.iconPng }}" alt="" />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
@@ -47,7 +47,7 @@
                             [hidden]="!subitem.visible"
                             [ngClass]="{ selectedsub: isActive(subitem) }"
                         >
-                            <a uiSref="subitem.state">
+                            <a uiSref="{{ subitem.state }}">
                                 <div>
                                     <img width="18" src="/assets/assets/images/nav/{{ subitem.iconPng }}" alt="" />
                                     {{ subitem.name | translate }}
@@ -62,7 +62,7 @@
         <div class="nav-body-mobile" [hidden]="!mobileMenuOpen">
             <ul class="links">
                 <li [ngClass]="{ selected: isActive(link) }" *ngFor="let link of links" [hidden]="!link.visible">
-                    <a uiSref="link.state">
+                    <a uiSref="{{ link.state }}">
                         <img width="18" src="/assets/assets/images/nav/{{ link.iconPng }}" alt="" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>

@@ -20,7 +20,6 @@ import { SessionService, User } from './session/session.service';
 
 export const AppComponent: angular.IComponentOptions = {
     template: `
-        <a ui-sref="newExam">Uusi tentti</a>
         <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
             <dev-login (on-logged-in)="$ctrl.setUser($event)"></dev-login>
         </div>

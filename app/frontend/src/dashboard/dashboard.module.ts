@@ -14,6 +14,7 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { EnrolmentModule } from '../enrolment/enrolment.module';
@@ -28,7 +29,7 @@ import { TeacherDashboardComponent } from './teacher/teacherDashboard.component'
 import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, ReservationModule, UtilityModule, EnrolmentModule],
+    imports: [NgbModule, OrderModule, ReservationModule, UtilityModule, EnrolmentModule, UIRouterModule],
     declarations: [
         ExamListCategoryComponent,
         TeacherDashboardComponent,

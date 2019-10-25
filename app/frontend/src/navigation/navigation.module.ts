@@ -15,12 +15,13 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { UIRouterModule } from '@uirouter/angular';
 
 import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule],
+    imports: [CommonModule, TranslateModule, UIRouterModule],
     exports: [NavigationComponent],
     declarations: [NavigationComponent],
     entryComponents: [NavigationComponent],

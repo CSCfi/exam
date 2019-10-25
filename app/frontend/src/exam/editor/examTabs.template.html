@@ -34,11 +34,11 @@
                 deselect="$ctrl.tabChanged($selectedIndex)"
             >
                 <sections
-                    exam="$ctrl.exam"
-                    on-previous-tab-selected="$ctrl.switchToBasicInfo()"
-                    on-next-tab-selected="$ctrl.switchToPublishSettings()"
-                    collaborative="$ctrl.collaborative"
-                    on-new-library-question="$ctrl.reload()"
+                    [exam]="$ctrl.exam"
+                    (on-previous-tab-selected)="$ctrl.switchToBasicInfo()"
+                    (on-next-tab-selected)="$ctrl.switchToPublishSettings()"
+                    [collaborative]="$ctrl.collaborative"
+                    (on-new-library-question)="$ctrl.reload()"
                 >
                 </sections>
             </uib-tab>

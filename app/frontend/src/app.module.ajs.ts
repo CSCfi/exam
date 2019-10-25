@@ -23,12 +23,13 @@ import 'angular-dynamic-locale';
 import 'angular-resource';
 import 'angular-translate';
 import 'angular-ui-bootstrap';
-import 'angular-ui-router';
 import 'bootstrap';
 import 'font-awesome/css/font-awesome.min.css';
 import 'ngstorage';
 import 'toastr/toastr.scss';
 
+import { upgradeModule } from '@uirouter/angular-hybrid';
+import uiRouter from '@uirouter/angularjs';
 import * as angularJS from 'angular';
 
 import { AppComponent } from './app.component';
@@ -47,8 +48,8 @@ export const ajsApp = angularJS
     .module('app', [
         'ngAnimate',
         'ngResource',
-        'ui.router',
-        'ui.router.upgrade',
+        uiRouter,
+        upgradeModule.name,
         'ngStorage',
         'ui.bootstrap',
         'pascalprecht.translate',

@@ -36,6 +36,15 @@ registerLocaleData(localeEn);
 // eslint-disable-next-line angular/module-getter
 ajsApp.config(['$urlServiceProvider', ($urlService: UrlService) => $urlService.deferIntercept()]);
 
+const traceRunBlock = [
+    '$trace',
+    $trace => {
+        $trace.enable(1);
+    },
+];
+// eslint-disable-next-line angular/module-getter
+ajsApp.run(traceRunBlock);
+
 // Manually bootstrap the Angular app
 platformBrowserDynamic()
     .bootstrapModule(AppModule)

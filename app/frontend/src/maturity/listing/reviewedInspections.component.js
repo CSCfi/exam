@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.maturity').component('reviewedInspections', {
@@ -46,12 +45,12 @@ angular.module('app.maturity').component('reviewedInspections', {
                 vm.filteredInspections = filterFilter(vm.inspections, vm.filterText);
             };
 
-            vm.startDateChanged = function(date) {
-                vm.onStartDateChange({ date: date });
+            vm.startDateChanged = function(event) {
+                vm.onStartDateChange({ date: event.date });
             };
 
-            vm.endDateChanged = function(date) {
-                vm.onEndDateChange({ date: date });
+            vm.endDateChanged = function(event) {
+                vm.onEndDateChange({ date: event.date });
             };
 
             vm.showStatement = function(statement) {
