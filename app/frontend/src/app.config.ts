@@ -49,161 +49,199 @@ export default function configs(
     // ROUTING -->
 
     $stateProvider
-        .state('dashboard', { url: '/', component: 'dashboard', reloadOnSearch: false })
-        .state('library', { url: '/questions', component: 'library' })
+        .state('app', { url: '/', component: 'examApp', redirectTo: 'dashboard' })
+        .state('dashboard', { url: 'dashboard', component: 'dashboard', reloadOnSearch: false, parent: 'app' })
+        .state('library', { url: 'questions', component: 'library', parent: 'app' })
         .state('question', {
-            url: '/questions/{id}',
+            url: 'questions/{id}',
             component: 'question',
+            parent: 'app',
             resolve: {
                 newQuestion: () => false,
             },
         })
         .state('newQuestion', {
-            url: '/questions/newQuestion',
+            url: 'questions/newQuestion',
             component: 'question',
+            parent: 'app',
             resolve: {
                 newQuestion: () => true,
             },
         })
-        .state('newExam', { url: '/exams/new', component: 'newExam' })
-        .state('examEditor', { url: '/exams/{id}/{tab}', component: 'examTabs' })
-        .state('courseSelector', { url: '/exams/{id}/select/course', component: 'courseSelection' })
+        .state('newExam', { url: 'exams/new', component: 'newExam', parent: 'app' })
+        .state('examEditor', { url: 'exams/{id}/{tab}', component: 'examTabs', parent: 'app' })
+        .state('courseSelector', { url: 'exams/{id}/select/course', component: 'courseSelection', parent: 'app' })
         .state('examPreview', {
-            url: '/exams/{id}/view/preview?tab',
+            url: 'exams/{id}/view/preview?tab',
             component: 'examination',
+            parent: 'app',
             resolve: { isPreview: () => true },
         })
         .state('collaborativePreview', {
-            url: '/exams/collaborative/{id}/view/preview?tab',
+            url: 'exams/collaborative/{id}/view/preview?tab',
             component: 'examination',
+            parent: 'app',
             resolve: {
                 isPreview: () => true,
                 isCollaborative: () => true,
             },
         })
-        .state('printout', { url: '/exams/{id}/view/printout?tab', component: 'printout' })
-        .state('printouts', { url: '/printouts', component: 'printoutListing' })
-        .state('collaborativeExams', { url: '/exams/collaborative', component: 'collaborativeExamListing' })
+        .state('printout', { url: 'exams/{id}/view/printout?tab', component: 'printout', parent: 'app' })
+        .state('printouts', { url: 'printouts', component: 'printoutListing', parent: 'app' })
+        .state('collaborativeExams', {
+            url: 'exams/collaborative',
+            component: 'collaborativeExamListing',
+            parent: 'app',
+        })
         .state('collaborativeExamEditor', {
-            url: '/exams/collaborative/{id}/{tab}',
+            url: 'exams/collaborative/{id}/{tab}',
             component: 'examTabs',
+            parent: 'app',
             resolve: {
                 collaborative: () => true,
             },
         })
         .state('calendar', {
-            url: '/calendar/{id}',
+            url: 'calendar/{id}',
             component: 'calendar',
+            parent: 'app',
             resolve: {
                 isExternal: () => false,
                 isCollaborative: () => false,
             },
         })
         .state('externalCalendar', {
-            url: '/iop/calendar/{id}',
+            url: 'iop/calendar/{id}',
             component: 'calendar',
+            parent: 'app',
             resolve: {
                 isExternal: () => true,
                 isCollaborative: () => false,
             },
         })
         .state('collaborativeCalendar', {
-            url: '/calendar/collaborative/{id}',
+            url: 'calendar/collaborative/{id}',
             component: 'calendar',
+            parent: 'app',
             resolve: {
                 isExternal: () => false,
                 isCollaborative: () => true,
             },
         })
-        .state('logout', { url: '/logout', component: 'logout' })
+        .state('logout', { url: 'logout', component: 'logout', parent: 'app' })
         .state('examination', {
-            url: '/student/exam/{hash}',
+            url: 'student/exam/{hash}',
             component: 'examination',
+            parent: 'app',
             resolve: {
                 isPreview: () => false,
             },
         })
-        .state('waitingRoom', { url: '/student/waiting-room/{id}', component: 'waitingRoom' })
-        .state('waitingRoomNoExam', { url: '/student/waiting-room', component: 'waitingRoom' })
+        .state('waitingRoom', { url: 'student/waiting-room/{id}', component: 'waitingRoom', parent: 'app' })
+        .state('waitingRoomNoExam', { url: 'student/waiting-room', component: 'waitingRoom', parent: 'app' })
         .state('wrongRoom', {
-            url: '/student/wrong-room/{eid}/{mid}',
+            url: 'student/wrong-room/{eid}/{mid}',
             component: 'wrongLocation',
+            parent: 'app',
             resolve: {
                 cause: () => 'room',
             },
         })
         .state('wrongMachine', {
-            url: '/student/wrong-machine/{eid}/{mid}',
+            url: 'student/wrong-machine/{eid}/{mid}',
             component: 'wrongLocation',
+            parent: 'app',
             resolve: {
                 cause: () => 'machine',
             },
         })
-        .state('examSearch', { url: '/student/exams', component: 'examSearch' })
+        .state('examSearch', { url: 'student/exams', component: 'examSearch', parent: 'app' })
         .state('collaborativeExamSearch', {
-            url: '/student/exams/collaborative',
+            url: 'student/exams/collaborative',
             component: 'collaborativeExamSearch',
+            parent: 'app',
         })
-        .state('participations', { url: '/student/participations', component: 'examParticipations' })
+        .state('participations', { url: 'student/participations', component: 'examParticipations', parent: 'app' })
         .state('collaborativeParticipations', {
-            url: '/student/participations/collaborative',
+            url: 'student/participations/collaborative',
             component: 'collaborativeExamParticipations',
+            parent: 'app',
         })
-        .state('examinationLogout', { url: '/student/logout?reason&quitLinkEnabled', component: 'examinationLogout' })
-        .state('enrolments', { url: '/enroll/exam/{id}?{code}', component: 'examEnrolments' })
+        .state('examinationLogout', {
+            url: 'student/logout?reason&quitLinkEnabled',
+            component: 'examinationLogout',
+            parent: 'app',
+        })
+        .state('enrolments', { url: 'enroll/exam/{id}?{code}', component: 'examEnrolments', parent: 'app' })
         .state('assessment', {
-            url: '/assessments/{id}',
+            url: 'assessments/{id}',
             component: 'assessment',
+            parent: 'app',
             resolve: {
                 collaborative: () => false,
             },
         })
         .state('collaborativeAssessment', {
-            url: '/assessments/collaborative/{id}/{ref}',
+            url: 'assessments/collaborative/{id}/{ref}',
             component: 'assessment',
+            parent: 'app',
             resolve: {
                 collaborative: () => true,
             },
         })
-        .state('speedReview', { url: '/speedreview/{id}', component: 'speedReview' })
+        .state('speedReview', { url: 'speedreview/{id}', component: 'speedReview', parent: 'app' })
         .state('printedAssessment', {
-            url: '/print/exam/{id}',
+            url: 'print/exam/{id}',
             component: 'printedAssessment',
+            parent: 'app',
             resolve: {
                 collaborative: () => false,
             },
         })
         .state('collaborativePrintedAssessment', {
-            url: '/print/exam/{id}/{ref}',
+            url: 'print/exam/{id}/{ref}',
             component: 'printedAssessment',
+            parent: 'app',
             resolve: {
                 collaborative: () => true,
             },
         })
-        .state('questionAssessment', { url: '/assessments/{id}/questions', component: 'questionAssessment' })
-        .state('reservations', { url: '/reservations', component: 'teacherReservations' })
-        .state('examReservations', { url: '/reservations/{eid}', component: 'teacherReservations' })
-        .state('exams', { url: '/exams', component: 'examList' })
-        .state('rooms', { url: '/rooms', component: 'examRoomsAdminTabs' })
-        .state('room', { url: '/rooms/{id}', component: 'room' })
-        .state('availability', { url: '/rooms/{id}/availability', component: 'availability' })
-        .state('multiRoom', { url: '/rooms_edit/edit_multiple', component: 'multiRoom' })
-        .state('software', { url: '/softwares', component: 'software' })
-        .state('accessibility', { url: '/accessibility', component: 'accessibility' })
-        .state('machine', { url: '/machines/{id}', component: 'machine' })
-        .state('reports', { url: '/reports', component: 'reports' })
-        .state('statistics', { url: '/statistics', component: 'statistics' })
-        .state('settings', { url: '/settins', component: 'settings' })
-        .state('users', { url: '/users', component: 'users' })
-        .state('languageInspections', { url: '/inspections', component: 'languageInspections' })
-        .state('languageInspectionReports', { url: '/inspections/reports', component: 'maturityReporting' });
+        .state('questionAssessment', {
+            url: 'assessments/{id}/questions',
+            component: 'questionAssessment',
+            parent: 'app',
+        })
+        .state('reservations', { url: 'reservations', component: 'teacherReservations', parent: 'app' })
+        .state('examReservations', { url: 'reservations/{eid}', component: 'teacherReservations', parent: 'app' })
+        .state('exams', { url: 'exams', component: 'examList', parent: 'app' })
+        .state('rooms', { url: 'rooms', component: 'examRoomsAdminTabs', parent: 'app' })
+        .state('room', { url: 'rooms/{id}', component: 'room', parent: 'app' })
+        .state('availability', { url: 'rooms/{id}/availability', component: 'availability', parent: 'app' })
+        .state('multiRoom', { url: 'rooms_edit/edit_multiple', component: 'multiRoom', parent: 'app' })
+        .state('software', { url: 'softwares', component: 'software', parent: 'app' })
+        .state('accessibility', { url: 'accessibility', component: 'accessibility', parent: 'app' })
+        .state('machine', { url: 'machines/{id}', component: 'machine', parent: 'app' })
+        .state('reports', { url: 'reports', component: 'reports', parent: 'app' })
+        .state('statistics', { url: 'statistics', component: 'statistics', parent: 'app' })
+        .state('settings', { url: 'settins', component: 'settings', parent: 'app' })
+        .state('users', { url: 'users', component: 'users', parent: 'app' })
+        .state('languageInspections', { url: 'inspections', component: 'languageInspections', parent: 'app' })
+        .state('languageInspectionReports', {
+            url: 'inspections/reports',
+            component: 'maturityReporting',
+            parent: 'app',
+        });
 
     $urlRouterProvider.otherwise('/');
 
     // HTTP INTERCEPTOR
-    $httpProvider.interceptors.push(function($q, $rootScope, $state, $translate, $window, WrongLocation) {
+    $httpProvider.interceptors.push(function($q, $rootScope, $state, $translate, $window, Session, WrongLocation) {
         'ngInject';
         return {
+            request: function(request) {
+                Object.assign(request.headers, { 'x-exam-authentication': Session.getToken() });
+                return request;
+            },
             response: function(response) {
                 if (!$window['TextDecoder']) {
                     $window['TextDecoder'] = textEncoding.TextDecoder;

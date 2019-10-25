@@ -64,9 +64,8 @@ export const ajsApp = angularJS
         'app.enrolment',
         'app.maturity',
         'app.administrative',
-    ]);
-
-    ajsApp.config(configs)
+    ])
+    .config(configs)
     .run(runBlock)
     .component('examApp', AppComponent)
     .filter('truncate', filters.TruncateFilter.factory())

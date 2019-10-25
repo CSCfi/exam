@@ -14,19 +14,27 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { UtilityModule } from '../utility/utility.module';
+import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
+import { CoursePickerComponent } from './editor/common/coursePicker.component';
+import { CoursePickerService } from './editor/common/coursePicker.service';
 import { LanguageSelectorComponent } from './editor/common/languageSelector.component';
+import { NewExamComponent } from './editor/creation/newExam.component';
 import { SectionComponent } from './editor/sections/section.component.upgrade';
 import { SectionsListComponent } from './editor/sections/sectionsList.component';
 import { ExamService } from './exam.service';
-import { CoursePickerService } from './editor/common/coursePicker.service';
-import { CoursePickerComponent } from './editor/common/coursePicker.component';
-import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
 
 @NgModule({
     imports: [NgbModule, UtilityModule],
-    declarations: [SectionsListComponent, SectionComponent, CoursePickerComponent, LanguageSelectorComponent],
-    entryComponents: [CoursePickerComponent, SectionsListComponent, LanguageSelectorComponent],
+    declarations: [
+        SectionsListComponent,
+        NewExamComponent,
+        SectionComponent,
+        CoursePickerComponent,
+        LanguageSelectorComponent,
+    ],
+    entryComponents: [CoursePickerComponent, NewExamComponent, SectionsListComponent, LanguageSelectorComponent],
     providers: [ExamService, CoursePickerService, CollaborativeExamService],
 })
 export class ExamModule {}

@@ -33,19 +33,23 @@ registerLocaleData(localeEn);
 
 // Using AngularJS config block, call `deferIntercept()`.
 // This tells UI-Router to delay the initial URL sync (until all bootstrapping is complete)
-ajsApp.config([ '$urlServiceProvider', ($urlService: UrlService) => $urlService.deferIntercept() ]);
+// eslint-disable-next-line angular/module-getter
+ajsApp.config(['$urlServiceProvider', ($urlService: UrlService) => $urlService.deferIntercept()]);
 
 // Manually bootstrap the Angular app
-platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
-  // Initialize the Angular Module
-  // get() the UIRouter instance from DI to initialize the router
-  const urlService: UrlService = platformRef.injector.get(UIRouter).urlService;
+platformBrowserDynamic()
+    .bootstrapModule(AppModule)
+    .then(platformRef => {
+        // Initialize the Angular Module
+        // get() the UIRouter instance from DI to initialize the router
+        const urlService: UrlService = platformRef.injector.get(UIRouter).urlService;
 
-  // Instruct UIRouter to listen to URL changes
-  function startUIRouter() {
-    urlService.listen();
-    urlService.sync();
-  }
+        // Instruct UIRouter to listen to URL changes
+        function startUIRouter() {
+            urlService.listen();
+            urlService.sync();
+        }
 
-  platformRef.injector.get<NgZone>(NgZone).run(startUIRouter);
-});
+        // eslint-disable-next-line angular/module-getter
+        platformRef.injector.get<NgZone>(NgZone).run(startUIRouter);
+    });

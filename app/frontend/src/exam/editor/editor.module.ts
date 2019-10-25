@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
-import { LanguageSelectorComponent } from './common/languageSelector.component';
-import { SectionsListComponent } from './sections/sectionsList.component';
-import { CoursePickerService } from './common/coursePicker.service';
-import { CoursePickerComponent } from './common/coursePicker.component';
+import * as angular from 'angular';
+
 import { CollaborativeExamService } from '../collaborative/collaborativeExam.service';
+import { CoursePickerComponent } from './common/coursePicker.component';
+import { CoursePickerService } from './common/coursePicker.service';
+import { LanguageSelectorComponent } from './common/languageSelector.component';
+import { NewExamComponent } from './creation/newExam.component';
+import { SectionsListComponent } from './sections/sectionsList.component';
 
 require('../../facility');
 require('../../software');
@@ -33,4 +34,5 @@ angular
     .service('CollaborativeExam', downgradeInjectable(CollaborativeExamService))
     .directive('coursePicker', downgradeComponent({ component: CoursePickerComponent }))
     .directive('languageSelector', downgradeComponent({ component: LanguageSelectorComponent }))
+    .directive('newExam', downgradeComponent({ component: NewExamComponent }))
     .directive('sections', downgradeComponent({ component: SectionsListComponent }));

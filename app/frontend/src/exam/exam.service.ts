@@ -23,7 +23,7 @@ import * as toast from 'toastr';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { Exam, ExamExecutionType, ExamSection, GradeScale, ExaminationEventConfiguration } from './exam.model';
+import { Exam, ExamExecutionType, ExaminationEventConfiguration, ExamSection, GradeScale } from './exam.model';
 
 @Injectable()
 export class ExamService {
@@ -44,7 +44,7 @@ export class ExamService {
     getProcessedCount = (exam: Exam) =>
         exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
-    createExam = (executionType: ExamExecutionType) => {
+    createExam = (executionType: string) => {
         this.http.post<Exam>('/app/exams', { executionType: executionType }).subscribe(
             response => {
                 toast.info(this.translate.instant('sitnet_exam_added'));

@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as toast from 'toastr';
-import { LanguageService } from '../../../utility/language/language.service';
-import { Exam, ExamLanguage } from '../../exam.model';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
+
+import { LanguageService } from '../../../utility/language/language.service';
+import { Exam, ExamLanguage } from '../../exam.model';
 
 @Component({
     selector: 'language-selector',

@@ -21,6 +21,7 @@ import { NavigationService } from './navigation.service';
 
 @NgModule({
     imports: [CommonModule, TranslateModule],
+    exports: [NavigationComponent],
     declarations: [NavigationComponent],
     entryComponents: [NavigationComponent],
     providers: [NavigationService],

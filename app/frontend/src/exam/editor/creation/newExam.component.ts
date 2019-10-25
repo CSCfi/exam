@@ -12,26 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import { Component, OnInit } from '@angular/core';
 
-angular.module('app.exam.editor').component('newExam', {
-    template: require('./newExam.template.html'),
-    controller: [
-        'Exam',
-        function(Exam) {
-            const vm = this;
+import { ExamExecutionType } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
-            vm.$onInit = function() {
-                Exam.listExecutionTypes().then(function(types) {
-                    vm.executionTypes = types;
-                });
-            };
+@Component({
+    selector: 'new-exam',
+    template: require('./newExam.component.html'),
+})
+export class NewExamComponent implements OnInit {
+    executionTypes: ExamExecutionType[];
+    type: ExamExecutionType; // the one selected (on UI)
 
-            vm.createExam = function() {
-                if (vm.type) {
-                    Exam.createExam(vm.type.type);
-                }
-            };
-        },
-    ],
-});
+    constructor(private Exam: ExamService) {}
+
+    ngOnInit() {
+        this.Exam.listExecutionTypes().subscribe(types => (this.executionTypes = types));
+    }
+
+    createExam = () => {
+        if (this.type) {
+            this.Exam.createExam(this.type.type);
+        }
+    };
+}

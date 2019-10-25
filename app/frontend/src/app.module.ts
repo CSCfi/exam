@@ -97,7 +97,6 @@ import { UtilityModule } from './utility/utility.module';
         },
     ],
 })
-
 export class AppModule {
     /*
         Bootstrap the AngularJS app
