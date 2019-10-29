@@ -17,9 +17,11 @@ import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static
 import { AssessmentService } from './assessment/assessment.service';
 import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
+import { GradingComponent } from './assessment/grading/grading.component';
 
 angular
     .module('app.review', [])
     .service('Assessment', downgradeInjectable(AssessmentService))
     .service('CollaborativeAssessment', downgradeInjectable(CollaborativeAssesmentService))
-    .directive('rFeedback', downgradeComponent({ component: FeedbackComponent }));
+    .directive('rFeedback', downgradeComponent({ component: FeedbackComponent }))
+    .directive('rGrading', downgradeComponent({ component: GradingComponent }));

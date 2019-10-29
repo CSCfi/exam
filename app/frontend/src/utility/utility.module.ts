@@ -17,10 +17,12 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+
 import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
 import { CKEditorComponent } from './ckeditor/ckeditor.component';
+import { ApplyDstPipe } from './date/applyDst.pipe';
 import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
@@ -31,14 +33,14 @@ import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { LanguageService } from './language/language.service';
+import { MathJaxDirective } from './math/mathJax.directive';
+import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
+import { DropdownSelectComponent } from './select/dropDownSelect.component';
+import { TableSortComponent } from './sorting/tableSort.component';
+import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { WindowRef } from './window/window.service';
-import { TeacherListComponent } from './user/teacherList.component';
-import { TableSortComponent } from './sorting/tableSort.component';
-import { DropdownSelectComponent } from './select/dropDownSelect.component';
-import { AdjustDstFilter } from '../app.filter';
-import { ApplyDstPipe } from './date/applyDst.pipe';
 
 @NgModule({
     imports: [CommonModule, TranslateModule, FormsModule, NgbModule],
@@ -52,11 +54,13 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         ApplyDstPipe,
         DraggableModalDirective,
         DropdownSelectComponent,
+        PageFillPipe,
         SortableDirective,
         HistoryBackComponent,
         TeacherListComponent,
         TableSortComponent,
         PaginatorComponent,
+        MathJaxDirective,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -68,10 +72,12 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
         PaginatorComponent,
         DraggableModalDirective,
         DropdownSelectComponent,
+        MathJaxDirective,
         SortableDirective,
         TableSortComponent,
         TeacherListComponent,
         TruncatingPipe,
+        PageFillPipe,
         ApplyDstPipe,
     ],
     entryComponents: [

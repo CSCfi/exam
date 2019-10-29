@@ -19,6 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Observable } from '../../../node_modules/rxjs';
+import { ReviewedExam } from '../../enrolment/enrolment.model';
 import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
 import { ReviewQuestion } from '../../review/review.model';
@@ -93,10 +94,10 @@ export class AttachmentService {
     }
 
     removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
-        this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question, hash);
+        this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question);
     }
 
-    private removeAnswerAttachment(url: string, question: AnsweredQuestion, hash?: string) {
+    private removeAnswerAttachment(url: string, question: AnsweredQuestion) {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
@@ -208,13 +209,13 @@ export class AttachmentService {
         );
     }
 
-    downloadFeedbackAttachment(exam: Exam) {
+    downloadFeedbackAttachment(exam: Exam | ReviewedExam) {
         if (exam.examFeedback.attachment) {
             this.Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
         }
     }
 
-    downloadStatementAttachment(exam: Exam) {
+    downloadStatementAttachment(exam: Exam | ReviewedExam) {
         if (!exam.languageInspection) {
             return;
         }

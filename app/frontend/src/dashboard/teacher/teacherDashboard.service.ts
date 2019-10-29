@@ -43,6 +43,8 @@ export class Dashboard {
     archivedExams: ArchivedExam[] = [];
 }
 
+type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
+
 @Injectable()
 export class TeacherDashboardService {
     constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
@@ -57,9 +59,9 @@ export class TeacherDashboardService {
     // Printout exams do not have an activity period but have examination dates.
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam: Exam) {
-        const dates = exam.examinationDates.map(es => es.date);
-        exam.examActiveStartDate = Math.min.apply(Math, dates);
-        exam.examActiveEndDate = Math.max.apply(Math, dates);
+        const dates = exam.examinationDates.map(es => es.date.getMilliseconds());
+        exam.examActiveStartDate = Math.min(...dates);
+        exam.examActiveEndDate = Math.max(...dates);
     }
 
     populate = (): Observable<Dashboard> =>

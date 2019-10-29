@@ -2,6 +2,7 @@ import { MomentInput } from 'moment';
 
 import { CollaborativeExam, Exam } from '../exam/exam.model';
 import { Reservation } from '../reservation/reservation.model';
+import { User } from '../session/session.service';
 
 export interface ExamParticipation {
     id: number;
@@ -9,6 +10,9 @@ export interface ExamParticipation {
     ended: MomentInput;
     started: MomentInput;
     reservation: Reservation;
+    duration: number | string;
+    user: User;
+    _id?: string;
 }
 
 export interface Scores {
@@ -18,10 +22,15 @@ export interface Scores {
     rejectedAnswerCount: number;
 }
 
-export interface ReviewedExam extends Exam, Scores {}
+type GradedExam = Omit<Exam, 'grade' | 'creditType'> & {
+    grade: { displayName: string; name: string };
+    creditType: { displayName: string; type: string };
+};
 
-export interface AssessedParticipation extends ExamParticipation {
-    reviewedExam: Exam;
+export interface ReviewedExam extends GradedExam, Scores {}
+
+export interface AssessedParticipation extends Omit<ExamParticipation, 'exam'> {
+    exam: ReviewedExam;
     scores: {
         maxScore: number;
         totalScore: number;

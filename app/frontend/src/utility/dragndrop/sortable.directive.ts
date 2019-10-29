@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import 'jquery-ui/ui/widgets/sortable';
+
 import { Directive, ElementRef, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
 
 // add jquery reference

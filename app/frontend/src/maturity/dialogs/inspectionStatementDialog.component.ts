@@ -13,25 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import angular from 'angular';
-
-angular.module('app.maturity').component('inspectionStatementDialog', {
-    template: require('./inspectionStatementDialog.template.html'),
-    bindings: {
-        resolve: '<',
-        close: '&',
-        dismiss: '&',
-    },
-    controller: function() {
-        const vm = this;
-
-        vm.$onInit = function() {
-            vm.statement = vm.resolve.statement;
-        };
-
-        vm.ok = function() {
-            vm.close();
-        };
-    },
-});
+@Component({
+    selector: 'inspection-statement-dialog',
+    template: require('./inspectionStatementDialog.component.html'),
+})
+export class InspectionStatementDialogComponent {
+    @Input() statement: unknown;
+    constructor(public activeModal: NgbActiveModal) {}
+}

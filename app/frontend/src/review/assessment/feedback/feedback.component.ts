@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
+
 import { Participation } from '../../../exam/exam.model';
+import { Examination } from '../../../examination/examination.service';
+import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
+import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileService } from '../../../utility/file/file.service';
-import { Examination } from '../../../examination/examination.service';
-import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 
 // add jquery reference
 declare let $: any;

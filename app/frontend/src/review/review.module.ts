@@ -19,11 +19,14 @@ import { UtilityModule } from '../utility/utility.module';
 import { AssessmentService } from './assessment/assessment.service';
 import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
+import { GradingComponent } from './assessment/grading/grading.component';
+import { InspectionComponent } from './assessment/grading/inspection.component';
+import { ToolbarComponent } from './assessment/grading/toolbar.component';
 
 @NgModule({
     imports: [NgbModule, UtilityModule],
-    declarations: [FeedbackComponent],
-    entryComponents: [FeedbackComponent],
+    declarations: [FeedbackComponent, GradingComponent, InspectionComponent, ToolbarComponent],
+    entryComponents: [FeedbackComponent, GradingComponent],
     providers: [AssessmentService, CollaborativeAssesmentService],
 })
 export class ReviewModule {}

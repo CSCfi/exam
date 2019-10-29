@@ -32,6 +32,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
 import { AuthInterceptor } from './httpInterceptor';
+import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
 import { QuestionModule } from './question/question.module';
 import { ReviewModule } from './review/review.module';
@@ -61,6 +62,7 @@ import { UtilityModule } from './utility/utility.module';
         UtilityModule,
         ReviewModule,
         CalendarModule,
+        MaturityModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

@@ -38,16 +38,16 @@ export class WrongLocationComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private StateParams: StateParams,
+        @Inject('$stateParams') private stateParams: StateParams,
         private translate: TranslateService,
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
     ) {}
 
     ngOnInit() {
-        if (this.StateParams.eid) {
+        if (this.stateParams.eid) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.StateParams.id}`).subscribe(
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -58,7 +58,7 @@ export class WrongLocationComponent implements OnInit {
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
                     this.http
-                        .get<ExamMachine>(`/app/machines/${this.StateParams.mid}`)
+                        .get<ExamMachine>(`/app/machines/${this.stateParams.mid}`)
                         .subscribe(machine => (this.currentMachine = machine));
                 },
                 err => toast.error(err.data),

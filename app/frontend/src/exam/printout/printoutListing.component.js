@@ -15,9 +15,7 @@
 import angular from 'angular';
 import moment from 'moment';
 
-
-angular.module('app.printout')
-    .component('printoutListing', {
+angular.module('app.printout').component('printoutListing', {
     template:
         '<div id="sitnet-header" class="header">\n' +
         '    <div class="col-md-12 header-wrapper">\n' +

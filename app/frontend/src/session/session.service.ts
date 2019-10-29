@@ -82,8 +82,11 @@ export class SessionService {
         // TODO: Move to app.component.ts
         i18n.addLangs(['fi', 'sv', 'en']);
         i18n.setDefaultLang('en');
+        //eslint-disable-next-line
         i18n.setTranslation('fi', require('../assets/i18n/fi.json'));
+        //eslint-disable-next-line
         i18n.setTranslation('sv', require('../assets/i18n/sv.json'));
+        //eslint-disable-next-line
         i18n.setTranslation('en', require('../assets/i18n/en.json'));
 
         this.userChange$ = this.userChangeSubscription.asObservable();
@@ -146,7 +149,7 @@ export class SessionService {
             this.location.go('/');
             this.devLogoutSubscription.next();
         }
-        setTimeout(toastr.clear, 300);
+        this.windowRef.nativeWindow.setTimeout(toastr.clear, 300);
     }
 
     private redirect(): void {
@@ -318,7 +321,7 @@ export class SessionService {
                         );
                     }
                 };
-                setTimeout(welcome, 2000);
+                this.windowRef.nativeWindow.setTimeout(welcome, 2000);
                 this.redirect();
             }),
             catchError(resp => {

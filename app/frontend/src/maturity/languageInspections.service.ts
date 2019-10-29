@@ -12,12 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as ng from 'angular';
-import * as uib from 'angular-ui-bootstrap';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
+import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
+import { InspectionStatementDialogComponent } from './dialogs/inspectionStatementDialog.component';
 import { LanguageInspection } from './maturity.model';
 
 export interface QueryParams {
@@ -26,52 +30,37 @@ export interface QueryParams {
     end?: number;
 }
 
+@Injectable()
 export class LanguageInspectionService {
     constructor(
-        private $http: ng.IHttpService,
-        private $state: StateService,
-        private $uibModal: uib.IModalService,
-        private $translate: ng.translate.ITranslateService,
-        private dialogs: angular.dialogservice.IDialogService,
-    ) {
-        'ngInject';
-    }
+        private http: HttpClient,
+        private state: StateService,
+        private modal: NgbModal,
+        private translate: TranslateService,
+        private dialogs: ConfirmationDialogService,
+    ) {}
 
-    query(params: QueryParams): ng.IPromise<ng.IHttpResponse<LanguageInspection[]>> {
-        return this.$http({
-            url: '/app/inspections',
-            method: 'GET',
-            params: params,
-        });
-    }
+    query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
+        this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
 
     showStatement = (statement: { comment: string }) => {
-        this.$uibModal
-            .open({
-                backdrop: 'static',
-                keyboard: true,
-                component: 'inspectionStatementDialog',
-                resolve: {
-                    statement: function() {
-                        return statement.comment;
-                    },
-                },
-            })
-            .result.catch(angular.noop);
+        const modalRef = this.modal.open(InspectionStatementDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+        });
+        modalRef.componentInstance.statement = statement.comment;
+        modalRef.result.catch(angular.noop);
     };
 
     assignInspection = (inspection: LanguageInspection) => {
-        const dialog = this.dialogs.confirm(
-            this.$translate.instant('sitnet_confirm'),
-            this.$translate.instant('sitnet_confirm_assign_inspection'),
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_assign_inspection'),
         );
         dialog.result.then(() => {
-            this.$http
+            this.http
                 .put(`/app/inspection/${inspection.id}`, {})
-                .then(() => this.$state.go('assessment', { id: inspection.exam.id }))
-                .catch(err => toast.error(err.data));
+                .subscribe(() => this.state.go('assessment', { id: inspection.exam.id }), err => toast.error(err.data));
         });
     };
 }
-
-angular.module('app.maturity').service('LanguageInspections', LanguageInspectionService);

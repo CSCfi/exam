@@ -16,7 +16,6 @@
 import './administrative';
 import './assets/styles/main.scss';
 import './exam/printout';
-import './maturity';
 import 'angular-animate';
 import 'angular-dialog-service';
 import 'angular-dynamic-locale';
@@ -40,6 +39,7 @@ import runBlock from './app.run';
 import DashboardModule from './dashboard/dashboard.module.ajs';
 import EnrolmentModule from './enrolment/enrolment.module.ajs';
 import CollaborativeExamModule from './exam/collaborative';
+import MaturityModuleAjs from './maturity/maturity.module.ajs';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
 import UtilityModule from './utility/utility.module.ajs';
@@ -58,6 +58,7 @@ export const ajsApp = angularJS
         'dialogs.controllers',
         SessionModuleAjs,
         NavigationModuleAjs,
+        MaturityModuleAjs,
         UtilityModule,
         EnrolmentModule,
         DashboardModule,

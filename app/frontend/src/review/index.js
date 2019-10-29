@@ -26,8 +26,8 @@ require('./assessment/general/generalInfo.component.ts');
 require('./assessment/general/participation.component');
 
 require('./assessment/grading/grading.component.ts');
-require('./assessment/grading/inspection.component');
-require('./assessment/grading/toolbar.component');
+require('./assessment/grading/inspection.component.ts');
+require('./assessment/grading/toolbar.component.ts');
 
 require('./assessment/maturity/maturity.service');
 require('./assessment/maturity/grading.component');

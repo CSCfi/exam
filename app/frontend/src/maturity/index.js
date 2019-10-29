@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./maturity.module');
+require('./maturity.module.ajs.ts');
 require('./maturity.model.ts');
 require('../common');
-require('./listing/reviewedInspections.component');
+require('./listing/reviewedInspections.component.ts');
 require('./listing/unfinishedInspections.component');
 require('./languageInspections.service.ts');
 require('./languageInspections.component.ts');
 require('./reporting/maturityReporting.component');
-require('./dialogs/inspectionStatementDialog.component');
+require('./dialogs/inspectionStatementDialog.component.ts');

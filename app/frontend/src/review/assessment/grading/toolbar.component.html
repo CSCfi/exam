@@ -1,0 +1,39 @@
+<!-- Buttons -->
+<div class="review-toolbar-wrapper padl0 padr0 marb20">
+    <div
+        [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
+        class="review-attachment-button exam-questions-buttons marl15"
+    >
+        <!-- TODO: use uiSref instead of href -->
+        <a class="pointer preview" href="{{ getExitUrl() }}"> {{ 'sitnet_close' | translate }}</a>
+    </div>
+
+    <span class="pull-right">
+        <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
+            <button
+                class="pointer preview"
+                *ngIf="!isMaturityRejection()"
+                [disabled]="!isOwnerOrAdmin() || !valid"
+                (click)="createExamRecord()"
+            >
+                {{ 'sitnet_send_result_to_registry' | translate }}
+            </button>
+        </div>
+
+        <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <button
+                class="pointer preview"
+                *ngIf="isMaturityRejection()"
+                [disabled]="!isOwnerOrAdmin() || !valid"
+                (click)="rejectMaturity()"
+            >
+                {{ 'sitnet_reject_maturity' | translate }}
+            </button>
+        </div>
+        <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <button class="pointer" [disabled]="isReadOnly()" (click)="saveAssessment()">
+                {{ 'sitnet_save_changes' | translate }}
+            </button>
+        </div>
+    </span>
+</div>

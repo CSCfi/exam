@@ -1,3 +1,4 @@
+import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { LanguageInspection } from '../maturity/maturity.model';
 import { User } from '../session/session.service';
 
@@ -5,8 +6,13 @@ export interface Grade {
     id: number;
     name: string;
     marksRejection: boolean;
-    displayName: string;
 }
+
+export type TypedGrade = Grade & { type: string };
+export type NoGrade = Omit<TypedGrade, 'id'> & { type: 'NONE' };
+export type SelectableGrade = TypedGrade | NoGrade;
+const isRealGrade = (grade: SelectableGrade): grade is TypedGrade => grade.type !== 'NONE';
+export default isRealGrade;
 
 export interface GradeEvaluation {
     id: number;
@@ -32,7 +38,6 @@ export interface Course {
 
 export interface ExamExecutionType {
     type: string;
-    name?: string;
     id: number;
 }
 
@@ -56,7 +61,7 @@ export interface ExamLanguage {
 
 export interface Attachment {
     id?: number;
-    externalId?: number;
+    externalId?: string;
     fileName: string;
     removed: boolean;
     modified: boolean;
@@ -213,8 +218,8 @@ export interface ExamImpl {
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
     duration: number;
     course: Course | null;
     external: boolean;
@@ -224,7 +229,7 @@ export interface ExamImpl {
     creator: User;
     examType: { type: string; name?: string };
     executionType: ExamExecutionType;
-    examEnrolments: { reservation?: { endAt: number } }[];
+    examEnrolments: ExamEnrolment[];
     gradeScale: GradeScale | null;
     autoEvaluationConfig: AutoEvaluationConfig;
     children: Exam[];
@@ -244,12 +249,12 @@ export interface ExamImpl {
     internalRef: string;
     objectVersion: number;
     examFeedback: Feedback;
-    grade: Grade;
+    grade: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
     gradeless: boolean;
     credit: number;
-    creditType: { type: string; displayName: string };
+    creditType: { type: string; id: number };
     customCredit: number;
     maxScore: number;
     totalScore: number;
@@ -263,9 +268,8 @@ export interface ExamImpl {
     examinationEventConfigurations: ExaminationEventConfiguration[];
 }
 
-// TODO: should somehow make it clearer whether answerLanguage can be a string or an object
 export interface Exam extends ExamImpl {
-    answerLanguage?: ExamLanguage;
+    answerLanguage?: string;
 }
 
 export interface ExamParticipation {

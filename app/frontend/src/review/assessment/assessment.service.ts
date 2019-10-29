@@ -12,27 +12,30 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import isRealGrade, { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { Examination, ExaminationQuestion } from '../../examination/examination.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { WindowRef } from '../../utility/window/window.service';
 
 @Injectable()
 export class AssessmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private Location: Location,
+        private location: Location,
+        @Inject(DOCUMENT) private document: Document,
+        private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
         private Exam: ExamService,
@@ -59,14 +62,14 @@ export class AssessmentService {
     isReadOnly = (exam: Examination) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam.state) > -1;
     isGraded = (exam: Examination) => exam.state === 'GRADED';
 
-    pickExamLanguage = (exam: Examination) => {
-        let lang = exam.answerLanguage;
+    pickExamLanguage = (exam: Examination): { code: string } => {
+        const lang = exam.answerLanguage;
         if (lang) {
             return { code: lang };
         } else if (exam.examLanguages.length === 1) {
-            lang = exam.examLanguages[0];
+            return { code: exam.examLanguages[0].code };
         }
-        return lang;
+        throw Error('No Exam Language to pick!');
     };
 
     checkCredit<T extends Exam>(exam: T, silent = false) {
@@ -100,7 +103,7 @@ export class AssessmentService {
     };
 
     private strip = html => {
-        const tmp = document.createElement('div');
+        const tmp = this.document.createElement('div');
         tmp.innerHTML = html;
         if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
             return '';
@@ -127,13 +130,13 @@ export class AssessmentService {
         return collaborative ? `/exams/collaborative/${id}/4` : `/exams/${id}/4`;
     };
 
-    getExitUrl = (exam: Examination) => {
+    getExitUrl = (exam: Examination, collaborative = false) => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
             return '/';
         }
         const id = exam.parent ? exam.parent.id : exam.id; // CHECK THIS, need to get from URL!
-        return this.getExitUrlById(id, false);
+        return this.getExitUrlById(id, collaborative);
     };
 
     createExamRecord$ = (exam: Examination, needsConfirmation: boolean, followUpUrl): Observable<void> => {
@@ -203,7 +206,7 @@ export class AssessmentService {
                 // Just save feedback and leave
                 this.saveFeedback$(exam).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
-                    this.Location.go(this.getExitUrl(exam));
+                    this.location.go(this.getExitUrl(exam));
                 });
             }
         } else {
@@ -238,14 +241,14 @@ export class AssessmentService {
         return this.http.put(url, { forcedScore: question.forcedScore, rev: rev });
     };
 
-    rejectMaturity = (exam: Examination, askConfirmation, followUpUrl) => {
+    rejectMaturity = (exam: Examination, askConfirmation = false, followUpUrl?: string) => {
         const reject = () => {
             this.saveFeedback$(exam).subscribe(() => {
                 const payload = this.getPayload(exam, 'REJECTED');
                 this.http.put(`/app/review/${exam.id}`, payload).subscribe(
                     () => {
                         toast.info(this.translate.instant('sitnet_maturity_rejected'));
-                        this.Location.go(followUpUrl || this.getExitUrl(exam));
+                        this.location.go(followUpUrl || this.getExitUrl(exam));
                     },
                     resp => toast.error(resp.error),
                 );
@@ -264,11 +267,11 @@ export class AssessmentService {
     getPayload = (exam: Examination, state?: string) => ({
         id: exam.id,
         state: state || exam.state,
-        grade: exam.grade && exam.grade.id ? exam.grade.id : undefined,
+        grade: exam.grade && isRealGrade(exam.grade) ? exam.grade.id : undefined,
         gradeless: exam.gradeless,
         customCredit: exam.customCredit,
         creditType: exam.creditType ? exam.creditType.type : undefined,
-        answerLanguage: exam.answerLanguage ? exam.answerLanguage.code : undefined,
+        answerLanguage: exam.answerLanguage,
         additionalInfo: exam.additionalInfo,
     });
 
@@ -282,10 +285,13 @@ export class AssessmentService {
                         messages.forEach(function(msg) {
                             toast.warning(this.translate.instant(msg));
                         });
-                        setTimeout(() => toast.info(this.translate.instant('sitnet_review_saved')), 1000);
+                        this.windowRef.nativeWindow.setTimeout(
+                            () => toast.info(this.translate.instant('sitnet_review_saved')),
+                            1000,
+                        );
                     } else {
                         toast.info(this.translate.instant('sitnet_review_graded'));
-                        this.Location.go(this.getExitUrl(exam));
+                        this.location.go(this.getExitUrl(exam));
                     }
                 }),
                 catchError(resp => toast.error(resp.error)),
@@ -312,7 +318,7 @@ export class AssessmentService {
         return this.http.post(res, payload).pipe(
             map(() => {
                 toast.info(this.translate.instant('sitnet_review_recorded'));
-                this.Location.go(followUpUrl || this.getExitUrl(exam));
+                this.location.go(followUpUrl || this.getExitUrl(exam));
             }),
         );
     };

@@ -195,9 +195,9 @@ export class QuestionService {
         });
     };
 
-    updateQuestion = (question: Question, displayErrors: boolean): Promise<Question> => {
+    updateQuestion = (question: Question): Promise<Question> => {
         const body = this.getQuestionData(question);
-        return new Promise<Question>((resolve, reject) => {
+        return new Promise<Question>(resolve => {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe(response => {
                 toast.info(this.translate.instant('sitnet_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
@@ -206,9 +206,7 @@ export class QuestionService {
                         question.attachment.file,
                         { questionId: question.id },
                         question,
-                        function() {
-                            resolve();
-                        },
+                        resolve,
                     );
                 } else if (question.attachment && question.attachment.removed) {
                     this.Attachment.eraseQuestionAttachment(question).then(function() {

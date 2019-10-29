@@ -20,6 +20,7 @@ import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
+import { WindowRef } from '../../utility/window/window.service';
 import { ExamEnrolment } from '../enrolment.model';
 
 @Component({
@@ -34,15 +35,16 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private StateParams: StateParams,
+        @Inject('$stateParams') private stateParams: StateParams,
         private translate: TranslateService,
         private location: Location,
+        private Window: WindowRef,
     ) {}
 
     ngOnInit() {
-        if (this.StateParams.id) {
+        if (this.stateParams.id) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.StateParams.id}`).subscribe(
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -50,12 +52,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
-                    this.timeoutId = window.setTimeout(
+                    this.timeoutId = this.Window.nativeWindow(
                         () => this.location.go(`/student/exam/${this.enrolment.exam.hash}`),
                         offset,
                     );
 
-                    window.setTimeout(() => {
+                    this.Window.nativeWindow.setTimeout(() => {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();
                         this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
@@ -67,7 +69,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        window.clearTimeout(this.timeoutId);
+        this.Window.nativeWindow.clearTimeout(this.timeoutId);
     }
 
     private setOccasion = reservation => {

@@ -58,9 +58,9 @@ export class ExamParticipationComponent implements OnInit {
             this.loadReview(this.participation.exam);
         }
         this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            if (this.participation.reviewedExam) {
-                this.participation.reviewedExam.grade.displayName = this.Exam.getExamGradeDisplayName(
-                    this.participation.reviewedExam.grade.name,
+            if (this.participation.exam) {
+                this.participation.exam.grade.displayName = this.Exam.getExamGradeDisplayName(
+                    this.participation.exam.grade.name,
                 );
             }
         });
@@ -70,16 +70,14 @@ export class ExamParticipationComponent implements OnInit {
         return this.Assessment.setCommentRead(exam);
     };
 
-    private loadReview = (exam: Exam) =>
-        this.http.get<Exam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview);
+    private loadReview = (exam: ReviewedExam) =>
+        this.http.get<ReviewedExam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview);
 
-    private prepareReview = (exam: Exam) => {
+    private prepareReview = (exam: ReviewedExam) => {
         if (!exam.grade) {
             exam.grade = {
                 name: 'NONE',
-                id: 0,
-                marksRejection: false,
-                displayName: 'NONE',
+                displayName: '',
             };
         }
         if (exam.languageInspection) {
@@ -97,7 +95,7 @@ export class ExamParticipationComponent implements OnInit {
             exam.creditType.displayName = this.Exam.getExamTypeDisplayName(exam.creditType.type);
         }
 
-        this.participation.reviewedExam = exam;
+        this.participation.exam = exam;
         if (this.collaborative) {
             // No need to load separate scores.
             this.prepareScores(exam);
@@ -108,7 +106,7 @@ export class ExamParticipationComponent implements OnInit {
             .subscribe(this.prepareScores, err => toastr.error(err.data));
     };
 
-    private prepareScores = (exam: Exam) => {
+    private prepareScores = (exam: ReviewedExam) => {
         this.participation.scores = {
             maxScore: exam.maxScore,
             totalScore: exam.totalScore,

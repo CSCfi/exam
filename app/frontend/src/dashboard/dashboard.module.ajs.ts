@@ -26,7 +26,7 @@ import { TeacherDashboardService } from './teacher/teacherDashboard.service';
 require('../exam/editor'); // TODO: make a proper exportable module
 
 export default angular
-    .module('app.dashboard', [ReservationModule, 'app.exam'])
+    .module('app.dashboard', [ReservationModule, 'app.exam', 'app.maturity'])
     .service('StudentDashboard', downgradeInjectable(StudentDashboardService))
     .service('TeacherDashboard', downgradeInjectable(TeacherDashboardService))
     .directive('dashboard', downgradeComponent({ component: DashboardComponent }))

@@ -13,19 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="ckeditor" />
+import { DOCUMENT } from '@angular/common';
 import {
     AfterViewChecked,
     AfterViewInit,
     Component,
     forwardRef,
+    Inject,
     Input,
     NgZone,
     OnDestroy,
     ViewChild,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
+
+import { WindowRef } from '../window/window.service';
 
 declare let CKEDITOR: any;
 
@@ -34,6 +38,7 @@ declare let CKEDITOR: any;
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
             useExisting: forwardRef(() => CKEditorComponent),
             multi: true,
         },
@@ -59,10 +64,15 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
 
     instance: any;
     _value: any;
-    onChange(_: any) {}
-    onTouched() {}
+    onChange: (_: unknown) => unknown;
+    onTouched: () => unknown;
 
-    constructor(private zone: NgZone, private translate: TranslateService) {}
+    constructor(
+        private zone: NgZone,
+        private translate: TranslateService,
+        @Inject(DOCUMENT) private document: Document,
+        private Window: WindowRef,
+    ) {}
 
     updateValue(value: any) {
         this.zone.run(() => {
@@ -72,7 +82,8 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         });
     }
 
-    private documentContains = (n: Node) => (document.contains ? document.contains(n) : document.body.contains(n));
+    private documentContains = (n: Node) =>
+        this.document.contains ? this.document.contains(n) : this.document.body.contains(n);
 
     editorInit() {
         if (typeof CKEDITOR === 'undefined') {
@@ -117,7 +128,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
 
     ngOnDestroy() {
         if (this.instance) {
-            setTimeout(() => {
+            this.Window.nativeWindow.setTimeout(() => {
                 this.instance.removeAllListeners();
                 CKEDITOR.instances[this.instance.name].destroy();
                 this.instance.destroy();

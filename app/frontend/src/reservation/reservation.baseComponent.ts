@@ -73,12 +73,12 @@ export class ReservationComponentBase implements OnInit {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private StateParams: StateParams,
+        @Inject('$stateParams') private stateParams: StateParams,
         private orderPipe: OrderPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = this.StateParams.eid;
+        this.examId = this.stateParams.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {

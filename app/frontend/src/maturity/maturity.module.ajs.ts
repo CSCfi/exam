@@ -12,10 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
+import * as angular from 'angular';
 
-import angular from 'angular';
+import { LanguageInspectionsComponent } from './languageInspections.component';
+import { LanguageInspectionService } from './languageInspections.service';
+import { MaturityReportingComponent } from './reporting/maturityReporting.component';
 
 require('angular-sanitize');
 require('angular-dialog-service');
 
-angular.module('app.maturity', ['ngSanitize', 'dialogs.main', 'app.common']);
+export default angular
+    .module('app.maturity', ['ngSanitize', 'dialogs.main', 'app.common'])
+    .service('LanguageInspection', downgradeInjectable(LanguageInspectionService))
+    .directive('maturityReporting', downgradeComponent({ component: MaturityReportingComponent }))
+    .directive('languageInspections', downgradeComponent({ component: LanguageInspectionsComponent })).name;

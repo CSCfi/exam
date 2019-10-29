@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, concatMap, map, tap, toArray } from 'rxjs/operators';
@@ -54,7 +54,7 @@ export class ExaminationService {
     isExternal = false;
 
     constructor(
-        private Location: Location,
+        private state: StateService,
         private http: HttpClient,
         private translate: TranslateService,
         private Window: WindowRef,
@@ -69,7 +69,7 @@ export class ExaminationService {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
-                    this.Location.go('/student/exam/' + e.hash);
+                    this.state.go('examination', { hash: e.hash });
                 }
                 this.isExternal = e.external;
                 return e;
@@ -218,7 +218,7 @@ export class ExaminationService {
             () => {
                 toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
                 this.Window.nativeWindow().onbeforeunload = null;
-                this.Location.go('/student/logout/finished/' + quitLinkEnabled);
+                this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
             },
             resp => toast.error(this.translate.instant(resp.data)),
         );

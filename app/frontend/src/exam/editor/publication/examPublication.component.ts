@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
@@ -20,7 +21,6 @@ import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
 import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
-import { StateService } from '@uirouter/core';
 
 export const ExamPublicationComponent: angular.IComponentOptions = {
     template: require('./examPublication.template.html'),
@@ -95,8 +95,8 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             });
         };
 
-        startDateChanged = (date: VarDate) => (this.exam.examActiveStartDate = date);
-        endDateChanged = (date: VarDate) => (this.exam.examActiveEndDate = date);
+        startDateChanged = (date: string) => (this.exam.examActiveStartDate = date);
+        endDateChanged = (date: string) => (this.exam.examActiveEndDate = date);
 
         autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
             angular.extend(this.exam.autoEvaluationConfig, config);

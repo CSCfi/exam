@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as ng from 'angular';
+import { IModalService } from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
+
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { IModalService } from 'angular-ui-bootstrap';
-import { Course, Exam, ExamExecutionType, ExaminationEventConfiguration, GradeScale } from '../../exam.model';
+import { Exam, ExamExecutionType, ExaminationEventConfiguration, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {

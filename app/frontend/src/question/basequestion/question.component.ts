@@ -12,11 +12,109 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as toast from 'toastr';
 
 import { Question } from '../../exam/exam.model';
+import { WindowRef } from '../../utility/window/window.service';
 import { QuestionService } from '../question.service';
+
+const QuestionController = (
+    $stateParams: StateParams,
+    $scope: angular.IScope,
+    $location: angular.ILocationService,
+    $translate: angular.translate.ITranslateService,
+    windowRef: WindowRef,
+    dialogs: angular.dialogservice.IDialogService,
+    questionService: QuestionService,
+) => {
+    const routingWatcher = $scope.$on('$locationChangeStart', (event, newUrl) => {
+        if (windowRef.nativeWindow.onbeforeunload) {
+            event.preventDefault();
+            // we got changes in the model, ask confirmation
+            const dialog = dialogs.confirm(
+                $translate.instant('sitnet_confirm_exit'),
+                $translate.instant('sitnet_unsaved_question_data'),
+            );
+            dialog.result.then(data => {
+                if (data.toString() === 'yes') {
+                    // ok to reroute
+                    windowRef.nativeWindow.onbeforeunload = null;
+                    routingWatcher();
+                    $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                }
+            });
+        } else {
+            windowRef.nativeWindow.onbeforeunload = null;
+            routingWatcher();
+        }
+    });
+
+    const clearListeners = () => {
+        windowRef.nativeWindow.onbeforeunload = null;
+        // Call off the event listener so it won't ask confirmation now that we are going away
+        routingWatcher();
+    };
+
+    this.$onInit = () => {
+        this.currentOwners = [];
+        if (this.newQuestion) {
+            this.question = questionService.getQuestionDraft();
+            delete this.question.id; // TODO: TS/JS hack
+            this.currentOwners = angular.copy(this.question.questionOwners);
+        } else if (this.questionDraft && this.collaborative) {
+            this.question = this.questionDraft;
+            this.currentOwners = angular.copy(this.question.questionOwners);
+            windowRef.nativeWindow.onbeforeunload = () => $translate.instant('sitnet_unsaved_data_may_be_lost');
+        } else {
+            questionService.getQuestion(this.questionId || $stateParams.id).subscribe(
+                (question: Question) => {
+                    this.question = question;
+                    this.currentOwners = angular.copy(this.question.questionOwners);
+                    windowRef.nativeWindow.onbeforeunload = () => $translate.instant('sitnet_unsaved_data_may_be_lost');
+                },
+                error => toast.error(error.data),
+            );
+        }
+    };
+
+    this.hasNoCorrectOption = () =>
+        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every(o => !o.correctOption);
+
+    this.saveQuestion = () => {
+        this.question.questionOwners = this.currentOwners;
+        const fn = q => {
+            clearListeners();
+            if (this.onSave) {
+                this.onSave({ question: q });
+            } else {
+                $location.path('/questions');
+            }
+        };
+
+        if (this.collaborative) {
+            fn(this.question);
+        } else if (this.newQuestion) {
+            questionService.createQuestion(this.question).then(fn, error => toast.error(error.data));
+        } else {
+            questionService
+                .updateQuestion(this.question)
+                .then(() => fn(this.question), error => toast.error(error.data));
+        }
+    };
+
+    this.cancel = () => {
+        toast.info($translate.instant('sitnet_canceled'));
+        // Call off the event listener so it won't ask confirmation now that we are going away
+        clearListeners();
+        if (this.onCancel) {
+            this.onCancel();
+        } else {
+            $location.path('/questions');
+        }
+    };
+};
 
 angular.module('app.question').component('question', {
     template: `
@@ -78,110 +176,9 @@ angular.module('app.question').component('question', {
         '$scope',
         '$location',
         '$translate',
+        '$window',
         'dialogs',
         'Question',
-        function($stateParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
-            const vm = this;
-
-            vm.$onInit = function() {
-                vm.currentOwners = [];
-                if (vm.newQuestion) {
-                    vm.question = Question.getQuestionDraft();
-                    delete vm.question.id; // TODO: TS/JS hack
-                    vm.currentOwners = angular.copy(vm.question.questionOwners);
-                } else if (vm.questionDraft && vm.collaborative) {
-                    vm.question = vm.questionDraft;
-                    vm.currentOwners = angular.copy(vm.question.questionOwners);
-                    window.onbeforeunload = function() {
-                        return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                    };
-                } else {
-                    Question.getQuestion(vm.questionId || $stateParams.id).subscribe(
-                        (question: Question) => {
-                            vm.question = question;
-                            vm.currentOwners = angular.copy(vm.question.questionOwners);
-                            window.onbeforeunload = function() {
-                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                            };
-                        },
-                        error => toast.error(error.data),
-                    );
-                }
-            };
-
-            vm.hasNoCorrectOption = () =>
-                vm.question.type === 'MultipleChoiceQuestion' && vm.question.options.every(o => !o.correctOption);
-
-            vm.saveQuestion = function() {
-                vm.question.questionOwners = vm.currentOwners;
-                const fn = function(q) {
-                    clearListeners();
-                    if (vm.onSave) {
-                        vm.onSave({ question: q });
-                    } else {
-                        $location.path('/questions');
-                    }
-                };
-
-                if (vm.collaborative) {
-                    fn(vm.question);
-                } else if (vm.newQuestion) {
-                    Question.createQuestion(vm.question).then(
-                        function(question) {
-                            fn(question);
-                        },
-                        function(error) {
-                            toast.error(error.data);
-                        },
-                    );
-                } else {
-                    Question.updateQuestion(vm.question, true).then(
-                        function() {
-                            fn(vm.question);
-                        },
-                        function(error) {
-                            toast.error(error.data);
-                        },
-                    );
-                }
-            };
-
-            vm.cancel = function() {
-                toast.info($translate.instant('sitnet_canceled'));
-                // Call off the event listener so it won't ask confirmation now that we are going away
-                clearListeners();
-                if (vm.onCancel) {
-                    vm.onCancel();
-                } else {
-                    $location.path('/questions');
-                }
-            };
-
-            const routingWatcher = $scope.$on('$locationChangeStart', function(event, newUrl) {
-                if (window.onbeforeunload) {
-                    event.preventDefault();
-                    // we got changes in the model, ask confirmation
-                    const dialog = dialogs.confirm(
-                        $translate.instant('sitnet_confirm_exit'),
-                        $translate.instant('sitnet_unsaved_question_data'),
-                    );
-                    dialog.result.then(function(data) {
-                        if (data.toString() === 'yes') {
-                            // ok to reroute
-                            clearListeners();
-                            $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
-                        }
-                    });
-                } else {
-                    clearListeners();
-                }
-            });
-
-            const clearListeners = function() {
-                window.onbeforeunload = null;
-                // Call off the event listener so it won't ask confirmation now that we are going away
-                routingWatcher();
-            };
-        },
+        QuestionController,
     ],
 });

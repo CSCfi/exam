@@ -61,7 +61,7 @@ export interface OpeningHours {
 export class CalendarService {
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private StateParams: StateParams,
+        @Inject('$stateParams') private stateParams: StateParams,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {}
@@ -97,7 +97,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.StateParams.id),
+            examId: parseInt(this.stateParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,
@@ -191,10 +191,9 @@ export class CalendarService {
     }
 
     getExceptionHours(room: Room, start: moment.Moment, end: moment.Moment) {
-        const s = moment.max(moment(), start);
-        const e = end;
-        const events = room.calendarExceptionEvents.filter(function(e) {
-            return moment(e.startDate) > start && moment(e.endDate) < end;
+        const maxStart = moment.max(moment(), start);
+        const events = room.calendarExceptionEvents.filter(e => {
+            return moment(e.startDate) > maxStart && moment(e.endDate) < end;
         });
         return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }

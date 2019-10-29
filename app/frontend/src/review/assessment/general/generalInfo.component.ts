@@ -12,90 +12,116 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as moment from 'moment';
 
-angular.module('app.review').component('rGeneralInfo', {
+import { ExamEnrolment, ExamParticipation } from '../../../enrolment/enrolment.model';
+import { Examination } from '../../../examination/examination.service';
+import { Reservation } from '../../../reservation/reservation.model';
+import { User } from '../../../session/session.service';
+import { AttachmentService } from '../../../utility/attachment/attachment.service';
+
+interface Participation {
+    id: number;
+    noShow: boolean;
+    started: moment.MomentInput;
+    duration: moment.MomentInput;
+    user: User;
+    _id?: string;
+    exam: {
+        state: string;
+    };
+}
+
+export const GeneralInfoComponent: angular.IComponentOptions = {
     template: require('./generalInfo.template.html'),
     bindings: {
         exam: '<',
         participation: '<',
         collaborative: '<',
     },
-    controller: [
-        'Attachment',
-        '$stateParams',
-        '$resource',
-        function(Attachment, $stateParams, $resource) {
-            const vm = this;
+    controller: class GeneralInfoController implements angular.IComponentController, angular.IOnInit {
+        participation: Participation;
+        exam: Examination;
+        collaborative: boolean;
+        student: User;
+        studentName: string;
+        enrolment: ExamEnrolment;
+        reservation: Reservation;
+        previousParticipations: Participation[];
 
-            const noShowApi = $resource('/app/usernoshows/:eid', {
-                eid: '@eid',
-            });
+        constructor(
+            private $http: angular.IHttpService,
+            private stateParams: StateParams,
+            private Attachment: AttachmentService,
+        ) {
+            'ngInject';
+        }
 
-            const participationsApi = $resource('/app/examparticipations/:eid', {
-                eid: '@eid',
-            });
-
-            const collaborativeParticipationsApi = $resource('/integration/iop/reviews/:eid/participations/:aid', {
-                eid: '@eid',
-                aid: '@aid',
-            });
-
-            vm.$onInit = function() {
-                const duration = moment.utc(new Date(vm.participation.duration));
-                if (duration.second() > 29) {
-                    duration.add(1, 'minutes');
-                }
-                vm.participation.duration = duration.format('HH:mm');
-
-                vm.student = vm.participation.user;
-                vm.studentName = vm.student
-                    ? `${vm.student.lastName} ${vm.student.firstName}`
-                    : vm.collaborative
-                    ? vm.participation._id
-                    : vm.exam.id;
-                vm.enrolment = vm.exam.examEnrolments[0];
-                vm.reservation = vm.enrolment.reservation;
-                const params = {
-                    eid: vm.exam.id,
-                    aid: undefined,
-                };
-                let api = participationsApi;
-                if (vm.collaborative) {
-                    api = collaborativeParticipationsApi;
-                    params.eid = $stateParams.id;
-                    params.aid = $stateParams.ref;
-                }
-                api.query(params, handleParticipations);
-            };
-
-            vm.downloadExamAttachment = function() {
-                if (vm.collaborative) {
-                    const attachment = vm.exam.attachment;
-                    Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-                    return;
-                }
-                Attachment.downloadExamAttachment(vm.exam);
-            };
-
-            function handleParticipations(data) {
-                if (vm.collaborative) {
-                    // TODO: Add collaborative support for noshows.
-                    vm.previousParticipations = data;
-                    return;
-                }
-                // Filter out the participation we are looking into
-                const previousParticipations = data.filter(function(p) {
-                    return p.id !== vm.participation.id;
-                });
-                noShowApi.query({ eid: vm.exam.id }, function(data) {
-                    const noShows = data.map(function(d) {
-                        return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
-                    });
-                    vm.previousParticipations = previousParticipations.concat(noShows);
-                });
+        private handleParticipations = (data: Participation[]) => {
+            if (this.collaborative) {
+                // TODO: Add collaborative support for noshows.
+                this.previousParticipations = data;
+                return;
             }
-        },
-    ],
-});
+            // Filter out the participation we are looking into
+            const previousParticipations = data.filter(p => {
+                return p.id !== this.participation.id;
+            });
+            this.$http
+                .get(`/app/usernoshows/${this.exam.id}`)
+                .then((resp: angular.IHttpResponse<ExamParticipation[]>) => {
+                    const noShows: Participation[] = resp.data.map(d => {
+                        return {
+                            id: d.id,
+                            noShow: true,
+                            duration: d.duration,
+                            _id: d._id,
+                            user: d.user,
+                            started: (d.reservation as Reservation).startAt,
+                            exam: { state: 'no_show' },
+                        };
+                    });
+                    this.previousParticipations = previousParticipations.concat(noShows);
+                });
+        };
+
+        $onInit() {
+            const duration = moment.utc(new Date(this.participation.duration as string));
+            if (duration.second() > 29) {
+                duration.add(1, 'minutes');
+            }
+            this.participation.duration = duration.format('HH:mm');
+
+            this.student = this.participation.user;
+            this.studentName = this.student
+                ? `${this.student.lastName} ${this.student.firstName}`
+                : this.collaborative
+                ? (this.participation._id as string)
+                : this.exam.id.toString();
+            this.enrolment = this.exam.examEnrolments[0];
+            this.reservation = this.enrolment.reservation as Reservation;
+            if (this.collaborative) {
+                this.$http
+                    .get(`/integration/iop/reviews/${this.stateParams.eid}/participations/${this.stateParams.ref}`)
+                    .then((resp: angular.IHttpResponse<Participation[]>) => this.handleParticipations(resp.data));
+            } else {
+                this.$http
+                    .get(`app/examparticipations/${this.stateParams.eid}`)
+                    .then((resp: angular.IHttpResponse<Participation[]>) => this.handleParticipations(resp.data));
+            }
+        }
+
+        downloadExamAttachment = () => {
+            if (this.collaborative && this.exam.attachment) {
+                const attachment = this.exam.attachment;
+                this.Attachment.downloadCollaborativeAttachment(attachment.externalId as string, attachment.fileName);
+            } else {
+                this.Attachment.downloadExamAttachment(this.exam);
+            }
+        };
+    },
+};
+
+angular.module('app.review').component('rGeneralInfo', GeneralInfoComponent);

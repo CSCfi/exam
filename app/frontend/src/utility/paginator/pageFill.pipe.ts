@@ -12,14 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as ng from 'angular';
+import { Pipe, PipeTransform } from '@angular/core';
+import { range } from 'lodash';
 
-export default function run($templateCache: ng.ITemplateCacheService) {
-    'ngInject';
-    // This is necessary because angular can't find the bundled uib-template unless added to template cache
-    $templateCache.put(
-        'uib/template/datepickerPopup/popup.html',
-        // eslint-disable-next-line
-        require('./date/template/uibPopupOverride.template.html'),
-    );
+@Pipe({ name: 'pageFill' })
+export class PageFillPipe implements PipeTransform {
+    transform = (input: number[], total: number, current: number, pageSize: number): number[] => {
+        const pages = Math.floor(total / pageSize);
+        if (pages > 0 && current === pages) {
+            const amount = (pages + 1) * pageSize - total;
+            return input.concat(range(0, amount));
+        }
+        return input;
+    };
 }

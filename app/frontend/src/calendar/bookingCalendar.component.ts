@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Options } from 'fullcalendar';
+import { EventObject, Options } from 'fullcalendar';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { CalendarComponent } from 'ng-fullcalendar';
@@ -40,15 +40,10 @@ export class BookingCalendarComponent implements OnInit {
 
     @ViewChild(CalendarComponent) bookingCalendar: CalendarComponent;
 
-    calendarOptions: Options & {locale: string};
+    calendarOptions: Options & { locale: string };
     defaultDate: moment.Moment;
 
-    constructor(
-        private translate: TranslateService,
-        private Calendar: CalendarService,
-    ) {
-        
-    }
+    constructor(private translate: TranslateService, private Calendar: CalendarService) {}
 
     ngOnInit(): void {
         this.defaultDate = moment();
@@ -93,7 +88,7 @@ export class BookingCalendarComponent implements OnInit {
                 this.defaultDate = moment(view.start);
                 // this.Calendar.renderCalendarTitle();
             },
-            eventClick: event => {
+            eventClick: (event: EventObject) => {
                 if (event.availableMachines > 0) {
                     this.onEventSelected.emit({ start: moment(event.start), end: moment(event.end) });
                     if (selectedEvent) {
@@ -105,7 +100,7 @@ export class BookingCalendarComponent implements OnInit {
                     $(this).css('background-color', '#92C3E4');
                 }
             },
-            eventMouseover: event => {
+            eventMouseover: (event: EventObject) => {
                 if (!event.selected && event.availableMachines > 0) {
                     $(this).css('cursor', 'pointer');
                     $(this).css('background-color', '#3CA34F');

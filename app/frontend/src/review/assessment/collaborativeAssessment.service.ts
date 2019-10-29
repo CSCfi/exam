@@ -20,14 +20,15 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, Grade, Participation } from '../../exam/exam.model';
+import { Exam, Participation, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
     id: number;
     state: string;
-    grade: Grade | null;
+    grade?: SelectableGrade;
     gradeless: boolean;
     customCredit: number;
     creditType: { type: string };
@@ -41,7 +42,8 @@ export class CollaborativeAssesmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private Location: Location,
+        private location: Location,
+        private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
     ) {}
@@ -84,11 +86,11 @@ export class CollaborativeAssesmentService {
         return {
             id: exam.id,
             state: state || exam.state,
-            grade: exam.gradeless ? null : exam.grade,
+            grade: exam.gradeless ? undefined : exam.grade,
             gradeless: exam.gradeless,
             customCredit: exam.customCredit,
             creditType: exam.creditType,
-            answerLanguage: exam.answerLanguage ? exam.answerLanguage.code : undefined,
+            answerLanguage: exam.answerLanguage,
             additionalInfo: exam.additionalInfo,
             rev: rev,
         };
@@ -110,10 +112,13 @@ export class CollaborativeAssesmentService {
                     () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach(msg => toast.warning(this.translate.instant(msg)));
-                            setTimeout(() => toast.info(this.translate.instant('sitnet_review_saved')), 1000);
+                            this.windowRef.nativeWindow.setTimeout(
+                                () => toast.info(this.translate.instant('sitnet_review_saved')),
+                                1000,
+                            );
                         } else {
                             toast.info(this.translate.instant('sitnet_review_graded'));
-                            this.Location.go(this.Assessment.getExitUrlById(examId, true));
+                            this.location.go(this.Assessment.getExitUrlById(examId, true));
                         }
                     },
                     resp => toast.error(resp.error),
@@ -129,7 +134,7 @@ export class CollaborativeAssesmentService {
                 // Just save feedback and leave
                 this.saveFeedback(id, ref, participation).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
-                    this.Location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
+                    this.location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
                 });
             }
         } else {
@@ -159,7 +164,7 @@ export class CollaborativeAssesmentService {
             data => {
                 participation._rev = data.rev;
                 toast.info(this.translate.instant('sitnet_review_recorded'));
-                this.Location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
+                this.location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
             },
             resp => toast.error(resp.error),
         );

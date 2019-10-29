@@ -12,235 +12,225 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { StateParams } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import isRealGrade, {
+    Exam,
+    ExamExecutionType,
+    ExamLanguage,
+    GradeScale,
+    NoGrade,
+    Participation,
+    SelectableGrade,
+} from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
+import { Examination } from '../../../examination/examination.service';
+import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
-angular.module('app.review').component('rGrading', {
-    template: require('./grading.template.html'),
-    bindings: {
-        onUpdate: '&',
-    },
-    require: {
-        parentCtrl: '^^assessment',
-    },
-    controller: [
-        '$translate',
-        '$scope',
-        '$stateParams',
-        'Assessment',
-        'CollaborativeAssessment',
-        'Exam',
-        'ExamRes',
-        'Attachment',
-        'Language',
-        function(
-            $translate,
-            $scope,
-            $stateParams,
-            Assessment: AssessmentService,
-            CollaborativeAssessment: CollaborativeAssesmentService,
-            Exam: ExamService,
-            ExamRes,
-            Attachment: AttachmentService,
-            Language: LanguageService,
-        ) {
-            const vm = this;
+@Component({
+    selector: 'r-grading',
+    template: require('./grading.component.html'),
+})
+export class GradingComponent implements OnInit {
+    @Input() exam: Examination;
+    @Input() questionSummary: any;
+    @Input() participation: Participation;
+    @Input() collaborative: boolean;
+    @Input() user: User;
+    @Output() onUpdate = new EventEmitter<unknown>();
+    message: { text: string };
+    selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
+    grades: SelectableGrade[];
+    creditTypes: ExamExecutionType[];
+    languages: (ExamLanguage & { name: string })[];
 
-            vm.$onInit = function() {
-                vm.exam = vm.parentCtrl.exam;
-                vm.questionSummary = vm.parentCtrl.questionSummary;
-                vm.participation = vm.parentCtrl.participation;
-                vm.collaborative = vm.parentCtrl.collaborative;
-                vm.user = vm.parentCtrl.user;
-                vm.message = {};
-                vm.selections = {};
-                initGrade();
-                initCreditTypes();
-                initLanguages();
+    constructor(
+        private translate: TranslateService,
+        private stateParams: StateParams,
+        private http: HttpClient,
+        private Assessment: AssessmentService,
+        private CollaborativeAssessment: CollaborativeAssesmentService,
+        private Exam: ExamService,
+        private Attachment: AttachmentService,
+        private Language: LanguageService,
+    ) {}
+
+    ngOnInit() {
+        this.initGrade();
+        this.initCreditTypes();
+        this.initLanguages();
+
+        this.translate.onLangChange.subscribe(() => {
+            this.initCreditTypes();
+            this.grades.forEach(g => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
+        });
+    }
+
+    private resolveGradeScale = (): GradeScale => {
+        if (this.exam.gradeScale) {
+            return this.exam.gradeScale;
+        } else if (this.exam.parent && this.exam.parent.gradeScale) {
+            return this.exam.parent.gradeScale;
+        } else if (this.exam.course && this.exam.course.gradeScale) {
+            return this.exam.course.gradeScale;
+        } else {
+            throw Error('No GradeScale for Assessment!');
+        }
+    };
+
+    private _setGrade = (grade: SelectableGrade) => {
+        this.selections.grade = grade;
+    };
+
+    private initGrade = () => {
+        const scale = this.resolveGradeScale();
+        this.grades = scale.grades.map(grade => {
+            return {
+                ...grade,
+                name: this.Exam.getExamGradeDisplayName(grade.name),
+                type: grade.name,
             };
+        });
+        this.grades
+            .filter(
+                g => this.exam.grade && isRealGrade(g) && isRealGrade(this.exam.grade) && this.exam.grade.id === g.id,
+            )
+            .forEach(this._setGrade);
 
-            vm.getExamMaxPossibleScore = function() {
-                return Exam.getMaxScore(vm.exam);
-            };
+        // The "no grade" option
+        const noGrade: NoGrade = {
+            name: this.Exam.getExamGradeDisplayName('NONE'),
+            type: 'NONE',
+            marksRejection: false,
+        };
+        if (this.exam.gradeless && !this.selections.grade) {
+            this.selections.grade = noGrade;
+        }
+        this.grades.push(noGrade);
+    };
 
-            vm.getExamTotalScore = function() {
-                return Exam.getTotalScore(vm.exam);
-            };
-
-            vm.inspectionDone = function() {
-                vm.onUpdate();
-            };
-
-            vm.isOwnerOrAdmin = function() {
-                return Exam.isOwnerOrAdmin(vm.exam, vm.collaborative);
-            };
-
-            vm.isReadOnly = function() {
-                return Assessment.isReadOnly(vm.exam);
-            };
-
-            vm.isGraded = function() {
-                return Assessment.isGraded(vm.exam);
-            };
-
-            vm.getTeacherCount = function() {
-                // Do not add up if user exists in both groups
-                const examOwners = vm.collaborative ? vm.exam.examOwners : vm.exam.parent.examOwners;
-                const owners = examOwners.filter(function(owner) {
-                    return (
-                        vm.exam.examInspections
-                            .map(function(inspection) {
-                                return inspection.user.id;
-                            })
-                            .indexOf(owner.id) === -1
-                    );
-                });
-                return vm.exam.examInspections.length + owners.length;
-            };
-
-            vm.sendEmailMessage = function() {
-                if (!vm.message.text) {
-                    toast.error($translate.instant('sitnet_email_empty'));
-                    return;
+    initCreditTypes = () => {
+        this.Exam.refreshExamTypes().subscribe(types => {
+            const creditType = this.exam.creditType || this.exam.examType;
+            this.creditTypes = types;
+            types.forEach(type => {
+                if (creditType.id === type.id) {
+                    // Reset also exam's credit type in case it was taken from its exam type.
+                    // Confusing isn't it :)
+                    this.exam.creditType = this.selections.type = type;
                 }
-                if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.sendEmailMessage(
-                        $stateParams.id,
-                        $stateParams.ref,
-                        vm.message.text,
-                    ).subscribe(
-                        () => {
-                            delete vm.message.text;
-                            toast.info(this.$translate.instant('sitnet_email_sent'));
-                        },
-                        err => toast.error(err.data),
-                    );
-                } else {
-                    ExamRes.email.inspection(
-                        {
-                            eid: vm.exam.id,
-                            msg: vm.message.text,
-                        },
-                        function() {
-                            toast.info($translate.instant('sitnet_email_sent'));
-                            delete vm.message.text;
-                        },
-                        function(error) {
-                            toast.error(error.data);
-                        },
-                    );
-                }
-            };
-
-            vm.saveAssessmentInfo = function() {
-                if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.saveAssessmentInfo($stateParams.id, $stateParams.ref, vm.participation);
-                } else {
-                    Assessment.saveAssessmentInfo(vm.exam);
-                }
-            };
-
-            vm.downloadFeedbackAttachment = function() {
-                Attachment.downloadFeedbackAttachment(vm.exam);
-            };
-
-            vm.setGrade = function() {
-                if (vm.selections.grade && (vm.selections.grade.id || vm.selections.grade.type === 'NONE')) {
-                    vm.exam.grade = vm.selections.grade;
-                    vm.exam.gradeless = vm.selections.grade.type === 'NONE';
-                } else {
-                    delete vm.exam.grade;
-                    vm.exam.gradeless = false;
-                }
-            };
-
-            vm.setCreditType = function() {
-                if (vm.selections.type && vm.selections.type.type) {
-                    vm.exam.creditType = { type: vm.selections.type.type };
-                } else {
-                    delete vm.exam.creditType;
-                }
-            };
-
-            vm.setLanguage = function() {
-                vm.exam.answerLanguage = vm.selections.language ? { code: vm.selections.language.code } : undefined;
-            };
-
-            vm.isCommentRead = function() {
-                return Assessment.isCommentRead(vm.exam);
-            };
-
-            const initGrade = function() {
-                if (!vm.exam.grade || !vm.exam.grade.id) {
-                    vm.exam.grade = {};
-                }
-                const scale = vm.exam.gradeScale || vm.exam.parent.gradeScale || vm.exam.course.gradeScale;
-                scale.grades = scale.grades || [];
-                vm.grades = scale.grades.map(function(grade) {
-                    grade.type = grade.name;
-                    grade.name = Exam.getExamGradeDisplayName(grade.name);
-
-                    if (vm.exam.grade && vm.exam.grade.id === grade.id) {
-                        vm.exam.grade.type = grade.type;
-                        vm.selections.grade = grade;
-                    }
-                    return grade;
-                });
-                // The "no grade" option
-                const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
-                if (vm.exam.gradeless && !vm.selections.grade) {
-                    vm.selections.grade = noGrade;
-                }
-                vm.grades.push(noGrade);
-            };
-
-            const initCreditTypes = function() {
-                Exam.refreshExamTypes().subscribe(function(types) {
-                    const creditType = vm.exam.creditType || vm.exam.examType;
-                    vm.creditTypes = types;
-                    types.forEach(function(type) {
-                        if (creditType.id === type.id) {
-                            // Reset also exam's credit type in case it was taken from its exam type.
-                            // Confusing isn't it :)
-                            vm.exam.creditType = vm.selections.type = type;
-                        }
-                    });
-                });
-                if (vm.exam.course && !Exam.hasCustomCredit(vm.exam)) {
-                    vm.exam.customCredit = vm.exam.course.credits;
-                }
-            };
-
-            const initLanguages = function() {
-                const lang = Assessment.pickExamLanguage(vm.exam);
-                if (!vm.exam.answerLanguage) {
-                    vm.exam.answerLanguage = lang;
-                } else {
-                    vm.exam.answerLanguage = { code: vm.exam.answerLanguage };
-                }
-                Language.getExamLanguages().then(function(languages) {
-                    vm.languages = languages.map(function(language) {
-                        if (lang && lang.code === language.code) {
-                            vm.selections.language = language;
-                        }
-                        language.name = Language.getLanguageNativeName(language.code);
-                        return language;
-                    });
-                });
-            };
-
-            $scope.$on('$localeChangeSuccess', function() {
-                initCreditTypes();
-                vm.grades.forEach(function(eg) {
-                    eg.name = Exam.getExamGradeDisplayName(eg.type);
-                });
             });
-        },
-    ],
-});
+        });
+        if (this.exam.course && !this.Exam.hasCustomCredit(this.exam)) {
+            this.exam.customCredit = this.exam.course.credits;
+        }
+    };
+
+    initLanguages = () => {
+        const lang = this.Assessment.pickExamLanguage(this.exam);
+        if (!this.exam.answerLanguage) {
+            this.exam.answerLanguage = lang.code;
+        }
+        this.Language.getExamLanguages().then(languages => {
+            this.languages = languages.map(language => {
+                if (lang.code === language.code) {
+                    this.selections.language = language;
+                }
+                language.name = this.Language.getLanguageNativeName(language.code);
+                return language;
+            });
+        });
+    };
+
+    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
+
+    getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
+
+    inspectionDone = () => this.onUpdate.emit();
+
+    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
+
+    isReadOnly = () => this.Assessment.isReadOnly(this.exam);
+
+    isGraded = () => this.Assessment.isGraded(this.exam);
+
+    getTeacherCount = () => {
+        // Do not add up if user exists in both groups
+        const examOwners = this.collaborative ? this.exam.examOwners : (this.exam.parent as Exam).examOwners;
+        const owners = examOwners.filter(
+            owner => this.exam.examInspections.map(inspection => inspection.user.id).indexOf(owner.id) === -1,
+        );
+        return this.exam.examInspections.length + owners.length;
+    };
+
+    sendEmailMessage = () => {
+        if (!this.message.text) {
+            toast.error(this.translate.instant('sitnet_email_empty'));
+            return;
+        }
+        if (this.collaborative) {
+            this.CollaborativeAssessment.sendEmailMessage(
+                this.stateParams.id,
+                this.stateParams.ref,
+                this.message.text,
+            ).subscribe(
+                () => {
+                    delete this.message.text;
+                    toast.info(this.translate.instant('sitnet_email_sent'));
+                },
+                err => toast.error(err.data),
+            );
+        } else {
+            this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe(() => {
+                toast.info(this.translate.instant('sitnet_email_sent'));
+                delete this.message.text;
+            }, toast.error);
+        }
+    };
+
+    saveAssessmentInfo = () => {
+        if (this.collaborative) {
+            this.CollaborativeAssessment.saveAssessmentInfo(
+                this.stateParams.id,
+                this.stateParams.ref,
+                this.participation,
+            );
+        } else {
+            this.Assessment.saveAssessmentInfo(this.exam);
+        }
+    };
+
+    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
+
+    setGrade = () => {
+        if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {
+            this.exam.grade = this.selections.grade;
+            this.exam.gradeless = this.selections.grade.type === 'NONE';
+        } else {
+            delete this.exam.grade;
+            this.exam.gradeless = false;
+        }
+    };
+
+    setCreditType = () => {
+        if (this.selections.type && this.selections.type.type) {
+            this.exam.creditType = this.selections.type;
+        } else {
+            delete this.exam.creditType;
+        }
+    };
+
+    setLanguage = () => {
+        this.exam.answerLanguage = this.selections.language ? this.selections.language.code : undefined;
+    };
+
+    isCommentRead = () => this.Assessment.isCommentRead(this.exam);
+}

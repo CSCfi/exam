@@ -20,10 +20,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { Exam, ExamExecutionType, ExaminationEventConfiguration, ExamSection, GradeScale } from './exam.model';
+
+type SectionContainer = { examSections: ExamSection[] };
 
 @Injectable()
 export class ExamService {
@@ -187,7 +190,7 @@ export class ExamService {
         );
     };
 
-    getCredit = (exam: Exam) => {
+    getCredit = (exam: Exam | ReviewedExam) => {
         if (this.hasCustomCredit(exam)) {
             return exam.customCredit;
         } else {
@@ -195,7 +198,7 @@ export class ExamService {
         }
     };
 
-    hasCustomCredit = (exam: Exam) => !isNaN(exam.customCredit) && exam.customCredit >= 0;
+    hasCustomCredit = (exam: Exam | ReviewedExam) => !isNaN(exam.customCredit) && exam.customCredit >= 0;
 
     getExamDisplayCredit = exam => {
         const courseCredit = exam.course ? exam.course.credits : 0;
@@ -280,14 +283,14 @@ export class ExamService {
         return isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 
-    hasQuestions = (exam: Exam) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
+    hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
 
-    hasEssayQuestions = (exam: Exam) =>
+    hasEssayQuestions = (exam: SectionContainer) =>
         exam.examSections.filter(es => es.sectionQuestions.some(sq => sq.question.type === 'EssayQuestion')).length > 0;
 
-    getMaxScore = (exam: Exam) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
+    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
-    getTotalScore = (exam: Exam) =>
+    getTotalScore = (exam: SectionContainer) =>
         exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2);
 
     isOwner = (exam: Exam, collaborative = false) => {
