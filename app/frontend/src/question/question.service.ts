@@ -24,6 +24,8 @@ import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
 
+export type QuestionDraft = Omit<ReverseQuestion, 'id'>;
+
 @Injectable()
 export class QuestionService {
     constructor(
@@ -36,7 +38,7 @@ export class QuestionService {
 
     questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
     questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
-    essayScoreApi = id => `'/app/review/examquestion/${id}/score`;
+    essayScoreApi = (id: number) => `'/app/review/examquestion/${id}/score`;
     questionCopyApi = (id?: number) => (!id ? '/app/question' : `/app/question/${id}`);
 
     getQuestionType = (type: string) => {
@@ -54,13 +56,14 @@ export class QuestionService {
             case 'cloze':
                 questionType = 'ClozeTestQuestion';
                 break;
+            default:
+                throw Error('question type not found!');
         }
         return questionType;
     };
 
-    getQuestionDraft(): ReverseQuestion {
+    getQuestionDraft(): QuestionDraft {
         return {
-            id: 0,
             question: '',
             type: '',
             examSectionQuestions: [],
@@ -140,7 +143,7 @@ export class QuestionService {
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
     };
 
-    private getQuestionData(question: Question): Question {
+    private getQuestionData(question: Partial<Question>): Question {
         const questionToUpdate: any = {
             type: question.type,
             defaultMaxScore: question.defaultMaxScore,
@@ -170,10 +173,11 @@ export class QuestionService {
         return questionToUpdate;
     }
 
-    createQuestion = (question: Question): Promise<Question> => {
+    createQuestion = (question: QuestionDraft): Promise<Question> => {
         const body = this.getQuestionData(question);
+        // TODO: make this a pipe
         return new Promise<Question>((resolve, reject) => {
-            this.http.post<Question>(this.questionsApi(question.id), body).subscribe(
+            this.http.post<Question>(this.questionsApi(), body).subscribe(
                 response => {
                     toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
@@ -182,9 +186,7 @@ export class QuestionService {
                             question.attachment.file,
                             { questionId: response.id },
                             question,
-                            function() {
-                                resolve(response);
-                            },
+                            () => resolve(response),
                         );
                     } else {
                         resolve(response);
@@ -219,7 +221,12 @@ export class QuestionService {
         });
     };
 
-    updateDistributedExamQuestion = (question: Question, sectionQuestion: ExamSectionQuestion, examId, sectionId) => {
+    updateDistributedExamQuestion = (
+        question: Question,
+        sectionQuestion: ExamSectionQuestion,
+        examId: number,
+        sectionId: number,
+    ) => {
         const data: any = {
             id: sectionQuestion.id,
             maxScore: sectionQuestion.maxScore,

@@ -86,7 +86,7 @@ export class ExamService {
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
     };
 
-    getExamTypeDisplayName = type => {
+    getExamTypeDisplayName = (type: string) => {
         let name = '';
         switch (type) {
             case 'PARTIAL':
@@ -200,7 +200,7 @@ export class ExamService {
 
     hasCustomCredit = (exam: Exam | ReviewedExam) => !isNaN(exam.customCredit) && exam.customCredit >= 0;
 
-    getExamDisplayCredit = exam => {
+    getExamDisplayCredit = (exam: Exam) => {
         const courseCredit = exam.course ? exam.course.credits : 0;
         return this.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
     };
@@ -278,7 +278,7 @@ export class ExamService {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
 
-        const isInteger = n => typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
+        const isInteger = (n: number) => typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
 
         return isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
@@ -329,7 +329,7 @@ export class ExamService {
         }
     };
 
-    getResource = (url, collaborative = false) =>
+    getResource = (url: string, collaborative = false) =>
         collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
 
     isAllowedToUnpublishOrRemove = (exam: Exam, collaborative = false) => {

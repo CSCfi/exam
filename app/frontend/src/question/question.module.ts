@@ -15,14 +15,16 @@
 import { NgModule } from '@angular/core';
 
 import { UtilityModule } from '../utility/utility.module';
+import { QuestionComponent } from './basequestion/question.component';
+import { QuestionBodyComponent } from './basequestion/questionBody.component.upgrade';
 import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
 
 @NgModule({
     imports: [UtilityModule],
-    declarations: [LibrarySearchComponent],
-    entryComponents: [LibrarySearchComponent],
+    declarations: [LibrarySearchComponent, QuestionComponent, QuestionBodyComponent],
+    entryComponents: [LibrarySearchComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}

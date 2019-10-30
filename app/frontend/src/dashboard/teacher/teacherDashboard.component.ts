@@ -16,7 +16,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { ExamExecutionType } from '../../exam/exam.model';
-import { SessionService } from '../../session/session.service';
+import { SessionService, User } from '../../session/session.service';
 import { ExamSearchPipe } from '../examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
@@ -124,16 +124,18 @@ export class TeacherDashboardComponent implements OnInit {
         this.filteredDrafts = this.searchFilter.transform(this.draftExams, text);
 
         // for drafts, display exams only for owners AM-1658
-        this.filteredDrafts = this.filteredDrafts.filter(exam => exam.examOwners.some(eo => eo.id === this.userId));
+        this.filteredDrafts = this.filteredDrafts.filter(exam =>
+            exam.examOwners.some((eo: User) => eo.id === this.userId),
+        );
 
         // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
         this.filteredFinished = this.filteredFinished.filter(
-            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+            exam => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
 
         // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
         this.filteredActive = this.filteredActive.filter(
-            exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+            exam => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
     };
 }

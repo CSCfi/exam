@@ -19,7 +19,8 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import { CalendarComponent } from 'ng-fullcalendar';
 
-import { CalendarService, Room } from './calendar.service';
+import { ExamRoom } from '../reservation/reservation.model';
+import { CalendarService } from './calendar.service';
 
 declare let $: any;
 
@@ -32,9 +33,9 @@ declare let $: any;
     `,
 })
 export class BookingCalendarComponent implements OnInit {
-    @Output() onRefresh = new EventEmitter<{ start: moment.Moment; callback: (events: any[]) => void }>();
+    @Output() onRefresh = new EventEmitter<{ start: moment.Moment; callback: (events: unknown[]) => unknown }>();
     @Output() onEventSelected = new EventEmitter<{ start: moment.Moment; end: moment.Moment }>();
-    @Input() room: Room;
+    @Input() room: ExamRoom;
     @Input() minDate: moment.Moment;
     @Input() maxDate: moment.Moment;
 
@@ -47,7 +48,7 @@ export class BookingCalendarComponent implements OnInit {
 
     ngOnInit(): void {
         this.defaultDate = moment();
-        let selectedEvent;
+        let selectedEvent: EventObject;
         this.calendarOptions = {
             locale: this.translate.currentLang,
             defaultDate: this.defaultDate,
@@ -81,7 +82,7 @@ export class BookingCalendarComponent implements OnInit {
                     click: () => {},
                 },
             },
-            events: (start, end, tz, callback) => {
+            events: (start: moment.Moment, end: moment.Moment, tz: string, callback: () => unknown) => {
                 this.onRefresh.emit({ start: start, callback: callback });
             },
             viewRender: view => {

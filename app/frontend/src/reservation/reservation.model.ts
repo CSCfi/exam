@@ -17,13 +17,37 @@ import moment = require('moment');
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { User } from '../session/session.service';
 
+export type DefaultWorkingHours = {
+    startTime: Date;
+    endTime: Date;
+    weekday: string;
+};
+
+export type ExceptionWorkingHours = {
+    startDate: Date;
+    endDate: Date;
+    outOfService: boolean;
+};
+
+export type Accessibility = {
+    id: number;
+    name: string;
+};
+
 export interface ExamRoom {
     id: number;
+    _id?: number;
+    name: string;
+    examMachines: ExamMachine[];
     localTimezone: string;
     roomInstruction: string;
-    roomInstructionEn: string;
-    roomInstructionFi: string;
-    roomInstructionSv: string;
+    roomInstructionEN: string;
+    roomInstructionSV: string;
+    defaultWorkingHours: DefaultWorkingHours[];
+    calendarExceptionEvents: ExceptionWorkingHours[];
+    accessibilities: Accessibility[];
+    outOfService: boolean;
+    statusComment: string;
 }
 
 export interface ExamMachine {
@@ -34,6 +58,13 @@ export interface ExamMachine {
 
 export interface ExternalReservation {
     roomTz: string;
+    orgName: string;
+    orgCode: string;
+    machineName: string;
+    roomName: string;
+    roomInstructionEN: string;
+    roomInstruction: string;
+    roomInstructionSV: string;
 }
 
 export interface Reservation {
@@ -47,4 +78,5 @@ export interface Reservation {
     startAt: moment.MomentInput;
     endAt: moment.MomentInput;
     user: User;
+    retrialPermitted: boolean;
 }

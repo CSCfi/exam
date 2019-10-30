@@ -28,7 +28,7 @@ export class DraggableModalDirective implements OnInit {
         this.zone.runOutsideAngular(() =>
             $(this.el.nativeElement).draggable({
                 revert: false,
-                drag: (_, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto'),
+                drag: (_: unknown, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto'),
             }),
         );
     }

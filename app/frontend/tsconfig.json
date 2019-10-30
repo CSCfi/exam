@@ -8,7 +8,7 @@
       "scripthost"
     ],
     "module": "commonjs",
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "removeComments": true,
     "noLib": false,
     "emitDecoratorMetadata": true,

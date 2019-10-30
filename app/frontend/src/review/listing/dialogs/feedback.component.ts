@@ -27,7 +27,7 @@ export const FeedbackComponent: angular.IComponentOptions = {
         resolve: { exam: Exam };
         exam: Exam;
         close: () => unknown;
-        dismiss: ({ $value: string }) => unknown;
+        dismiss: (_: { $value: string }) => unknown;
 
         constructor(private $scope: angular.IScope, private $window: angular.IWindowService, private Assessment: any) {
             'ngInject';

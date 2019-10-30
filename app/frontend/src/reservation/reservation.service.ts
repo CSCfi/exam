@@ -34,7 +34,10 @@ export class ReservationService {
         private ConfirmationDialog: ConfirmationDialogService,
     ) {}
 
-    printExamState = (reservation: Reservation) =>
+    printExamState = (reservation: {
+        noShow: boolean;
+        enrolment: { exam: { state: string }; collaborativeExam: { state: string } };
+    }) =>
         reservation.noShow
             ? 'NO_SHOW'
             : reservation.enrolment.exam
@@ -54,7 +57,7 @@ export class ReservationService {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
         };
-        const errorFn = resp => toast.error(resp.data);
+        const errorFn = (resp: { data: string }) => toast.error(resp.data);
         const url = externalRef
             ? `/integration/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;

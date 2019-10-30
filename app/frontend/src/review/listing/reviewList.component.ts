@@ -59,7 +59,7 @@ export const ReviewListComponent: angular.IComponentOptions = {
             }
         }
 
-        $onChanges = function() {
+        $onChanges = () => {
             this.abortedExams = this.filterByState(['ABORTED']);
             this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED']);
             this.gradedReviews = this.reviews.filter(

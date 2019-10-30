@@ -70,10 +70,10 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         $onInit = () => {
             this.refreshExamTypes();
             this.refreshGradeScales();
-            this.SettingsResource.gradeScale.get(data => {
+            this.SettingsResource.gradeScale.get((data: { overridable: boolean }) => {
                 this.gradeScaleSetting = data;
             });
-            this.SettingsResource.anonymousReviewEnabled.get(data => {
+            this.SettingsResource.anonymousReviewEnabled.get((data: { anonymousReviewEnabled: boolean }) => {
                 this.anonymousReviewEnabled = data.anonymousReviewEnabled;
             });
             this.initGradeScale();

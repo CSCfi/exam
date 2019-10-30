@@ -53,7 +53,7 @@ export class ReservationDetailsComponent {
             .catch(err => toast.error(err));
     }
 
-    permitRetrial(reservation) {
+    permitRetrial(reservation: Reservation) {
         this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(
             () => {
                 reservation.retrialPermitted = true;

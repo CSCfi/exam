@@ -20,23 +20,11 @@ import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
 
+import { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
-export interface Room {
-    id: number;
-    _id?: string;
-    name: string;
-    localTimezone: string;
-    defaultWorkingHours: any[];
-    calendarExceptionEvents: any[];
-    roomInstruction: string | null;
-    roomInstructionSV: string | null;
-    roomInstructionEN: string | null;
-    accessibilities: { id: number; name: string }[];
-    outOfService: boolean;
-    statusComment: string | null;
-}
+type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 export interface Slot {
     start: string;
@@ -87,7 +75,7 @@ export class CalendarService {
     reserve$(
         start: moment.Moment,
         end: moment.Moment,
-        room: Room,
+        room: ExamRoom,
         accs: { filtered: boolean; id: number }[],
         org: { _id: string | null },
         collaborative = false,
@@ -98,7 +86,7 @@ export class CalendarService {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
             examId: parseInt(this.stateParams.id),
-            roomId: room._id != null ? room._id : room.id,
+            roomId: room._id ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,
         };
@@ -118,9 +106,9 @@ export class CalendarService {
         const startFragments: string[] = title
             .split(separator)[0]
             .split('.')
-            .filter(function(x) {
+            .filter(f => {
                 // ignore empty fragments (introduced if title already correctly formatted)
-                return x;
+                return f.length > 0;
             });
         let newTitle = '';
         if (startFragments.length < 3) {
@@ -135,11 +123,10 @@ export class CalendarService {
         }
     }
 
-    private findOpeningHours(obj, items) {
-        return items.find(i => i.ref === obj.weekday);
-    }
+    private findOpeningHours = (dwh: DefaultWorkingHours, items: OpeningHours[]) =>
+        items.find(i => i.ref === dwh.weekday);
 
-    getWeekdayNames() {
+    getWeekdayNames(): WeekdayNames {
         const lang = this.Session.getUser().lang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options = { weekday: 'short' };
@@ -155,7 +142,7 @@ export class CalendarService {
         };
     }
 
-    processOpeningHours(room: Room): OpeningHours[] {
+    processOpeningHours(room: ExamRoom): OpeningHours[] {
         const weekdayNames = this.getWeekdayNames();
         const openingHours: OpeningHours[] = [];
         const tz = room.localTimezone;
@@ -171,9 +158,11 @@ export class CalendarService {
                 openingHours.push(obj);
             }
             const hours = this.findOpeningHours(dwh, openingHours);
-            hours.periods.push(
-                moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' + moment.tz(dwh.endTime, tz).format('HH:mm'),
-            );
+            if (hours) {
+                hours.periods.push(
+                    moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' + moment.tz(dwh.endTime, tz).format('HH:mm'),
+                );
+            }
         });
         openingHours.forEach(oh => {
             oh.periodText = oh.periods.sort().join(', ');
@@ -181,16 +170,21 @@ export class CalendarService {
         return openingHours.sort((a, b) => a.ord - b.ord);
     }
 
-    private static formatExceptionEvent(event, tz) {
+    private static formatExceptionEvent(
+        event: ExceptionWorkingHours,
+        tz: string,
+    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
         const startDate = moment.tz(event.startDate, tz);
         const endDate = moment.tz(event.endDate, tz);
-        event.start = startDate.format('DD.MM.YYYY HH:mm');
-        event.end = endDate.format('DD.MM.YYYY HH:mm');
-        event.description = event.outOfService ? 'sitnet_closed' : 'sitnet_open';
-        return event;
+        return {
+            ...event,
+            start: startDate.format('DD.MM.YYYY HH:mm'),
+            end: endDate.format('DD.MM.YYYY HH:mm'),
+            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
+        };
     }
 
-    getExceptionHours(room: Room, start: moment.Moment, end: moment.Moment) {
+    getExceptionHours(room: ExamRoom, start: moment.Moment, end: moment.Moment) {
         const maxStart = moment.max(moment(), start);
         const events = room.calendarExceptionEvents.filter(e => {
             return moment(e.startDate) > maxStart && moment(e.endDate) < end;
@@ -198,13 +192,13 @@ export class CalendarService {
         return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
-    getExceptionalAvailability(room: Room) {
+    getExceptionalAvailability(room: ExamRoom) {
         return room.calendarExceptionEvents.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
-    getEarliestOpening(room: Room): moment.Moment {
+    getEarliestOpening(room: ExamRoom): moment.Moment {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map(function(dwh) {
+        const openings = room.defaultWorkingHours.map(dwh => {
             const start = moment.tz(dwh.startTime, tz);
             return moment()
                 .hours(start.hours())
@@ -214,9 +208,9 @@ export class CalendarService {
         return moment.min(...openings);
     }
 
-    getLatestClosing(room: Room): moment.Moment {
+    getLatestClosing(room: ExamRoom): moment.Moment {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map(function(dwh) {
+        const closings = room.defaultWorkingHours.map(dwh => {
             const end = moment.tz(dwh.endTime, tz);
             return moment()
                 .hours(end.hours())
@@ -226,13 +220,9 @@ export class CalendarService {
         return moment.max(...closings);
     }
 
-    getClosedWeekdays(room: Room): number[] {
+    getClosedWeekdays(room: ExamRoom): number[] {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-        const openedDays = room.defaultWorkingHours.map(function(dwh) {
-            return weekdays.indexOf(dwh.weekday);
-        });
-        return [0, 1, 2, 3, 4, 5, 6].filter(function(x) {
-            return openedDays.indexOf(x) === -1;
-        });
+        const openedDays = room.defaultWorkingHours.map(dwh => weekdays.indexOf(dwh.weekday));
+        return [0, 1, 2, 3, 4, 5, 6].filter(x => openedDays.indexOf(x) === -1);
     }
 }

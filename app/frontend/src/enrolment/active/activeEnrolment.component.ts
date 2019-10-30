@@ -17,6 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ExamRoom } from '../../reservation/reservation.model';
 import { ReservationService } from '../../reservation/reservation.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExamEnrolment } from '../enrolment.model';
@@ -60,18 +61,31 @@ export class ActiveEnrolmentComponent {
 
     addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
 
+    private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
+
     getRoomInstruction = () => {
         const reservation = this.enrolment.reservation;
         if (!reservation) {
             return;
         }
-        let o;
+        let o: { roomInstruction: string; roomInstructionEN: string; roomInstructionSV: string };
         if (reservation.externalReservation) {
             o = reservation.externalReservation;
         } else if (reservation.machine) {
             o = reservation.machine.room;
+        } else {
+            return '';
         }
-        return o['roomInstruction' + this.translate.currentLang.toUpperCase()] || o.roomInstruction;
+        return this.getRoomInstructions(this.translate.currentLang.toUpperCase(), o);
     };
 
     goToCalendar = () => this.location.go(this.getLinkToCalendar());

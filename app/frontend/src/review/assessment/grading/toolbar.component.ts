@@ -68,7 +68,7 @@ export class ToolbarComponent {
                 this.stateParams.ref,
             );
         } else {
-            this.Assessment.createExamRecord$(this.exam, true, this.collaborative).subscribe();
+            this.Assessment.createExamRecord$(this.exam, true).subscribe();
         }
     };
 

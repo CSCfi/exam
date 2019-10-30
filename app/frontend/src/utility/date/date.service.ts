@@ -37,7 +37,7 @@ export class DateTimeService {
         return '';
     }
 
-    getDateForWeekday(ordinal): Date {
+    getDateForWeekday(ordinal: number): Date {
         const now = new Date();
         const distance = ordinal - now.getDay();
         return new Date(now.setDate(now.getDate() + distance));

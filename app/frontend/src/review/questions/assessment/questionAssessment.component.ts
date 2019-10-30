@@ -94,7 +94,7 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
                         }
                         resolve();
                     })
-                    .catch(err => {
+                    .catch((err: { data: string }) => {
                         // Roll back
                         answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
                         toast.error(err.data);

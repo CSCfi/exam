@@ -67,17 +67,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    isActive(link: Link): boolean {
-        return link.state === this.state.current.name; // CHECK THESE OUT!
-    }
+    isActive = (link: Link): boolean => link.state === this.state.current.name;
 
-    openMenu(): void {
-        this.mobileMenuOpen = !this.mobileMenuOpen;
-    }
+    openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 
-    switchLanguage(key): void {
-        this.Session.switchLanguage(key);
-    }
+    switchLanguage = (key: string) => this.Session.switchLanguage(key);
 
     private getLinks = (checkInteroperability: boolean) => {
         if (checkInteroperability) {

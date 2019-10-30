@@ -20,14 +20,16 @@ import { User } from '../../session/session.service';
 export class UserService {
     constructor(private http: HttpClient) {}
 
-    listUsersByRole$ = role => this.http.get<User[]>(`/app/users/byrole/${role}`);
+    listUsersByRole$ = (role: string) => this.http.get<User[]>(`/app/users/byrole/${role}`);
 
     // was filterUsersByExam
-    filterInspectorsByExam$ = (examId, role) => this.http.get<User[]>(`/app/users/filter/${role}/${examId}`);
+    filterInspectorsByExam$ = (examId: number, role: string) =>
+        this.http.get<User[]>(`/app/users/filter/${role}/${examId}`);
 
-    filterOwnersByExam$ = (examId, role) => this.http.get<User[]>(`/app/users/exam/owners/${role}/${examId}`);
+    filterOwnersByExam$ = (examId: number, role: string) =>
+        this.http.get<User[]>(`/app/users/exam/owners/${role}/${examId}`);
 
-    filterOwnersByQuestion$ = role => this.http.get<User[]>(`/app/users/question/owners/${role}`);
+    filterOwnersByQuestion$ = (role: string) => this.http.get<User[]>(`/app/users/question/owners/${role}`);
 
-    getUnenrolledStudents$ = examId => this.http.get<User[]>(`/app/students/${examId}`);
+    getUnenrolledStudents$ = (examId: number) => this.http.get<User[]>(`/app/students/${examId}`);
 }

@@ -15,7 +15,8 @@
 import { StateProvider, UrlRouterProvider } from '@uirouter/angularjs';
 import * as angular from 'angular';
 import * as base64 from 'base64-js';
-import * as textEncoding from 'text-encoding-polyfill';
+// eslint-disable-next-line
+const textEncoding = require('text-encoding-polyfill');
 import * as toast from 'toastr';
 
 export default function configs(

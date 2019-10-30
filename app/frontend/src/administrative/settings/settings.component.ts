@@ -46,7 +46,7 @@ export const SettingsComponent: angular.IComponentOptions = {
         private onSuccess = () =>
             toast.info(this.$translate.instant('sitnet_settings') + ' ' + this.$translate.instant('sitnet_updated'));
 
-        private onError = error => toast.error(error.data);
+        private onError = (error: { data: string }) => toast.error(error.data);
 
         $onInit = () => {
             this.$http.get('/app/config').then((resp: angular.IHttpResponse<AppConfig>) => {

@@ -68,7 +68,7 @@ export class PaginatorComponent implements OnChanges {
 
     range = () => _.range(0, this.pageCount + 1);
 
-    setPage = n => {
+    setPage = (n: number) => {
         this.currentPage = n;
         this.onSelectPage.emit({ page: n });
     };

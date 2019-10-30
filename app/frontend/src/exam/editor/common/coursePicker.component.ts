@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { from, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
+
 import { Course } from '../../exam.model';
 import { CoursePickerService } from './coursePicker.service';
 
@@ -51,9 +51,10 @@ export class CoursePickerComponent implements OnInit {
         };
     }
 
-    private showError = term => toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
+    private showError = (term: string) =>
+        toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
 
-    private getCourses$ = (category: string, text$: Observable<string>): Observable<Course[]> =>
+    private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
         text$.pipe(
             tap(term => {
                 this.setInputValue(category, term);
@@ -65,7 +66,7 @@ export class CoursePickerComponent implements OnInit {
             tap(courses => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
-                    this.showError(this.filter.code);
+                    this.showError(this.filter.code as string);
                 }
             }),
         );
@@ -81,7 +82,7 @@ export class CoursePickerComponent implements OnInit {
         this.onUpdate.emit(event.item);
     };
 
-    private toggleLoadingIcon = (filter: string, isOn: boolean) => (this.loader[filter].isOn = isOn);
+    private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);
     private setInputValue = (filter: string, value: string) => {
         if (filter === 'code') {
             this.filter = { code: value };

@@ -21,7 +21,7 @@ export default function run($state: StateService, $location: any, $rootScope: an
     // Add location reload flag to original $location service.
     // TODO: maybe try this with $state.go?
     const original = $location.path;
-    $location.path = (path, reload) => {
+    $location.path = (path: string, reload: boolean) => {
         if (reload === false) {
             const lastRoute = $state.current;
             const undo = $rootScope.$on('$locationChangeSuccess', () => {

@@ -51,17 +51,18 @@ export class AttachmentService {
         private Files: FileService,
     ) {}
 
-    private questionAttachmentApi = id => `/app/attachment/question/${id}`;
-    private collaborativeQuestionAttachmentApi = (eid, qid) =>
+    private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
+    private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
         `/integration/iop/attachment/exam/${eid}/question/${qid}`;
-    private answerAttachmentApi = qid => `/app/attachment/question/${qid}/answer`;
-    private externalAnswerAttachmentApi = (qid, hash) => `/app/iop/attachment/question/${qid}/answer/${hash}`;
-    private examAttachmentApi = id => `/app/attachment/exam/${id}`;
-    private collaborativeExamAttachmentApi = id => `/integration/iop/attachment/exam/${id}`;
-    private feedbackAttachmentApi = id => `/app/attachment/exam/${id}/feedback`;
-    private statementAttachmentApi = id => `/app/attachment/exam/${id}/statement`;
+    private answerAttachmentApi = (qid: number) => `/app/attachment/question/${qid}/answer`;
+    private externalAnswerAttachmentApi = (qid: number, hash: string) =>
+        `/app/iop/attachment/question/${qid}/answer/${hash}`;
+    private examAttachmentApi = (id: number) => `/app/attachment/exam/${id}`;
+    private collaborativeExamAttachmentApi = (id: number) => `/integration/iop/attachment/exam/${id}`;
+    private feedbackAttachmentApi = (id: number) => `/app/attachment/exam/${id}/feedback`;
+    private statementAttachmentApi = (id: number) => `/app/attachment/exam/${id}/statement`;
 
-    private getResource(url, external = false, collaborative = false) {
+    private getResource(url: string, external = false, collaborative = false) {
         return external
             ? url.replace('/app/', '/app/iop/')
             : collaborative
@@ -69,8 +70,10 @@ export class AttachmentService {
             : url;
     }
 
-    removeQuestionAttachment(question: { attachment: { removed: boolean } }) {
-        question.attachment.removed = true;
+    removeQuestionAttachment(question: Partial<Question>) {
+        if (question.attachment) {
+            question.attachment.removed = true;
+        }
     }
 
     private toPromise = (observable: Observable<any>) =>
@@ -172,7 +175,7 @@ export class AttachmentService {
         }
     }
 
-    downloadQuestionAttachment(question: Question) {
+    downloadQuestionAttachment(question: Partial<Question>) {
         if (question.attachment && question.attachment.id) {
             this.Files.download('/app/attachment/question/' + question.id, question.attachment.fileName);
         }
@@ -229,7 +232,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, params: any): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params?: any): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false,

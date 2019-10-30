@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FileService } from '../../file/file.service';
@@ -26,7 +26,7 @@ export interface FileResult {
     template: require('./attachmentSelector.component.html'),
 })
 export class AttachmentSelectorComponent implements OnInit {
-    @ViewChild('file') file;
+    @ViewChild('file') file: ElementRef;
     fileObject: File;
 
     title = 'sitnet_attachment_selection';

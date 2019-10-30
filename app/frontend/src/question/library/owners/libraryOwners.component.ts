@@ -39,7 +39,7 @@ export class LibraryOwnerSelection implements OnInit {
         });
     }
 
-    onTeacherSelect = teacher => (this.newTeacher = teacher);
+    onTeacherSelect = (teacher: User) => (this.newTeacher = teacher);
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected

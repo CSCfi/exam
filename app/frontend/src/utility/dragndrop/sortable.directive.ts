@@ -35,11 +35,11 @@ export class SortableDirective implements OnInit {
         this.zone.runOutsideAngular(() => {
             $(this.el.nativeElement).sortable({
                 items: this.selection,
-                start: (event, ui) => {
+                start: (event: unknown, ui: JQueryUI.SortableUIParams) => {
                     // on start we define where the item is dragged from
                     startIndex = $(ui.item).index();
                 },
-                stop: (event, ui) => {
+                stop: (event: unknown, ui: JQueryUI.SortableUIParams) => {
                     // on stop we determine the new index of the
                     // item and store it there
                     const newIndex = $(ui.item).index();

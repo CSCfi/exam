@@ -28,6 +28,17 @@ import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 
+type Payload = {
+    id: number;
+    state: string;
+    grade?: number;
+    gradeless: boolean;
+    customCredit: number;
+    creditType?: string;
+    answerLanguage?: string;
+    additionalInfo: string;
+};
+
 @Injectable()
 export class AssessmentService {
     constructor(
@@ -102,7 +113,7 @@ export class AssessmentService {
         return normalizedText.length;
     };
 
-    private strip = html => {
+    private strip = (html: string) => {
         const tmp = this.document.createElement('div');
         tmp.innerHTML = html;
         if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
@@ -111,7 +122,7 @@ export class AssessmentService {
         return tmp.textContent || tmp.innerText;
     };
 
-    countWords = text => {
+    countWords = (text: string) => {
         let normalizedText = text
             .replace(/(\r\n|\n|\r)/gm, ' ')
             .replace(/^\s+|\s+$/g, '')
@@ -139,7 +150,7 @@ export class AssessmentService {
         return this.getExitUrlById(id, collaborative);
     };
 
-    createExamRecord$ = (exam: Examination, needsConfirmation: boolean, followUpUrl): Observable<void> => {
+    createExamRecord$ = (exam: Examination, needsConfirmation: boolean, followUpUrl?: string): Observable<void> => {
         if (!this.checkCredit(exam)) {
             return of();
         }
@@ -148,7 +159,7 @@ export class AssessmentService {
             messages.forEach(msg => toast.error(this.translate.instant(msg)));
             return of();
         } else {
-            let dialogNote, res;
+            let dialogNote, res: string;
             if (exam.gradeless) {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
@@ -179,7 +190,12 @@ export class AssessmentService {
         }
     };
 
-    saveEssayScore = (question: ExaminationQuestion, examId, examRef, rev): Observable<{ data: any }> => {
+    saveEssayScore = (
+        question: ExaminationQuestion,
+        examId: number,
+        examRef: string,
+        rev: string,
+    ): Observable<{ data: unknown }> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
             return of({ data: 'sitnet_error_score_input' });
         }
@@ -188,7 +204,7 @@ export class AssessmentService {
                 ? `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`
                 : `/app/review/examquestion/${question.id}/score`;
 
-        return this.http.put<{ data: any }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
+        return this.http.put<{ data: unknown }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
     };
 
     saveAssessmentInfo = (exam: Examination): Observable<void> => {
@@ -200,7 +216,7 @@ export class AssessmentService {
         return of();
     };
 
-    saveAssessment = (exam: Examination, modifiable) => {
+    saveAssessment = (exam: Examination, modifiable: boolean) => {
         if (!modifiable) {
             if (exam.state !== 'GRADED') {
                 // Just save feedback and leave
@@ -264,7 +280,7 @@ export class AssessmentService {
         }
     };
 
-    getPayload = (exam: Examination, state?: string) => ({
+    getPayload = (exam: Examination, state?: string): Payload => ({
         id: exam.id,
         state: state || exam.state,
         grade: exam.grade && isRealGrade(exam.grade) ? exam.grade.id : undefined,
@@ -275,7 +291,7 @@ export class AssessmentService {
         additionalInfo: exam.additionalInfo,
     });
 
-    sendAssessment = (newState, payload, messages, exam: Examination) => {
+    sendAssessment = (newState: string, payload: Payload, messages: string[], exam: Examination) => {
         this.http
             .put(`/app/review/${exam.id}`, payload)
             .pipe(
@@ -313,7 +329,7 @@ export class AssessmentService {
         return messages;
     };
 
-    sendToRegistry$ = (payload, res: string, exam: Examination, followUpUrl): Observable<void> => {
+    sendToRegistry$ = (payload: Payload, res: string, exam: Examination, followUpUrl?: string): Observable<void> => {
         payload.state = 'GRADED_LOGGED';
         return this.http.post(res, payload).pipe(
             map(() => {
@@ -323,7 +339,7 @@ export class AssessmentService {
         );
     };
 
-    register$ = (exam: Examination, res: string, payload, followUpUrl): Observable<void> => {
+    register$ = (exam: Examination, res: string, payload: Payload, followUpUrl?: string): Observable<void> => {
         return this.saveFeedback$(exam).pipe(
             switchMap(() => this.http.put(`/app/review/${exam.id}`, payload)),
             switchMap(() => {

@@ -16,6 +16,7 @@ import * as angular from 'angular';
 import * as toast from 'toastr';
 
 import { Exam } from '../../../exam/exam.model';
+import { Reservation } from '../../../reservation/reservation.model';
 import { SessionService } from '../../../session/session.service';
 
 export const AbortedExamsComponent: angular.IComponentOptions = {
@@ -28,13 +29,13 @@ export const AbortedExamsComponent: angular.IComponentOptions = {
         resolve: { exam: Exam; abortedExams: Exam[] };
         exam: Exam;
         abortedExams: Exam[];
-        dismiss: ({ $value: string }) => unknown;
+        dismiss: (_: { $value: string }) => unknown;
 
         constructor(
             private $translate: angular.translate.ITranslateService,
             private $scope: angular.IScope,
             private $window: angular.IWindowService,
-            private ExamRes: any,
+            private $http: angular.IHttpService,
             private Session: SessionService,
         ) {
             'ngInject';
@@ -51,8 +52,8 @@ export const AbortedExamsComponent: angular.IComponentOptions = {
             this.exam = this.resolve.exam;
         };
         showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
-        permitRetrial = reservation => {
-            this.ExamRes.reservation.update({ id: reservation.id }, () => {
+        permitRetrial = (reservation: Reservation) => {
+            this.$http.put(`/app/reservations/${reservation.id}`, {}).then(() => {
                 reservation.retrialPermitted = true;
                 toast.info(this.$translate.instant('sitnet_retrial_permitted'));
             });

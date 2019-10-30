@@ -19,7 +19,7 @@ import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { ExamMachine } from '../../reservation/reservation.model';
+import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
@@ -44,6 +44,17 @@ export class WrongLocationComponent implements OnInit {
         private DateTime: DateTimeService,
     ) {}
 
+    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
+
     ngOnInit() {
         if (this.stateParams.eid) {
             this.isUpcoming = true;
@@ -56,7 +67,7 @@ export class WrongLocationComponent implements OnInit {
                     this.enrolment = enrolment;
                     const room = enrolment.reservation.machine.room;
                     const code = this.translate.currentLang.toUpperCase();
-                    this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                    this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http
                         .get<ExamMachine>(`/app/machines/${this.stateParams.mid}`)
                         .subscribe(machine => (this.currentMachine = machine));

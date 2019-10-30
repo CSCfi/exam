@@ -20,15 +20,21 @@ import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
+import { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { WindowRef } from '../../utility/window/window.service';
 import { ExamEnrolment } from '../enrolment.model';
+
+type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
+type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
+    reservation: WaitingReservation;
+};
 
 @Component({
     selector: 'waiting-room',
     template: require('./waitingRoom.component.html'),
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-    enrolment: any;
+    enrolment: WaitingEnrolment;
     isUpcoming: boolean;
     timeoutId: number;
     roomInstructions: string;
@@ -41,10 +47,21 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private Window: WindowRef,
     ) {}
 
+    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
+
     ngOnInit() {
         if (this.stateParams.id) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -60,7 +77,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.Window.nativeWindow.setTimeout(() => {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();
-                        this.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                        this.roomInstructions = this.getRoomInstructions(code, room);
                     }, 1000);
                 },
                 err => toast.error(err.data),
@@ -72,7 +89,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         this.Window.nativeWindow.clearTimeout(this.timeoutId);
     }
 
-    private setOccasion = reservation => {
+    private setOccasion = (reservation: WaitingReservation) => {
         const tz = reservation.machine.room.localTimezone;
         const start = moment.tz(reservation.startAt, tz);
         const end = moment.tz(reservation.endAt, tz);

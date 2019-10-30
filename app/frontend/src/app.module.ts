@@ -69,7 +69,7 @@ import { UtilityModule } from './utility/utility.module';
         {
             provide: LOCALE_ID,
             deps: [SessionService],
-            useFactory: srv => srv.getLocale(),
+            useFactory: (srv: SessionService) => srv.getLocale(),
         },
         Location,
         { provide: LocationStrategy, useClass: PathLocationStrategy },

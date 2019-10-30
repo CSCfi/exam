@@ -22,7 +22,7 @@ import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { NgZone } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { UIRouter, UrlService } from '@uirouter/core';
+import { UIRouter, UrlService, Trace } from '@uirouter/core';
 
 import { AppModule } from './app.module';
 import { ajsApp } from './app.module.ajs';
@@ -35,14 +35,13 @@ registerLocaleData(localeEn);
 // This tells UI-Router to delay the initial URL sync (until all bootstrapping is complete)
 // eslint-disable-next-line angular/module-getter
 ajsApp.config(['$urlServiceProvider', ($urlService: UrlService) => $urlService.deferIntercept()]);
-
+// Enable state transition tracing for time being
 const traceRunBlock = [
     '$trace',
-    $trace => {
+    ($trace: Trace) => {
         $trace.enable(1);
     },
 ];
-// eslint-disable-next-line angular/module-getter
 ajsApp.run(traceRunBlock);
 
 // Manually bootstrap the Angular app

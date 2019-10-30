@@ -59,9 +59,8 @@ export class StudentDashboardService {
         } else if (machine) {
             tz = machine.room.localTimezone;
         }
-        // const tz = machine ? machine.room.localTimezone : external.roomTz;
-        const start = moment.tz(reservation.startAt, tz);
-        const end = moment.tz(reservation.endAt, tz);
+        const start = tz ? moment.tz(reservation.startAt, tz) : moment(reservation.startAt);
+        const end = tz ? moment.tz(reservation.endAt, tz) : moment(reservation.endAt);
         if (start.isDST()) {
             start.add(-1, 'hour');
         }

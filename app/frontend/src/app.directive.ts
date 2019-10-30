@@ -91,7 +91,7 @@ export class CkEditor implements IDirective<CkEditorScope> {
             language: this.$translate.use(),
         });
 
-        let modelValue;
+        let modelValue: string;
         ck.on('instanceReady', () => {
             ck.setData(modelValue);
         });
@@ -190,7 +190,7 @@ export class UiBlur implements IDirective {
 
     constructor(private $parse: angular.IParseService) {}
 
-    link(scope, element, attributes) {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: angular.IAttributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiBlur);
         element.bind('blur', () => expr(scope));
     }
@@ -207,7 +207,7 @@ export class UiChange implements IDirective {
 
     constructor(private $parse: angular.IParseService) {}
 
-    link(scope, element, attributes) {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: angular.IAttributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiChange);
         element.bind('change', () => expr(scope));
     }
@@ -224,7 +224,7 @@ export class FileModel implements IDirective {
 
     constructor(private $parse: angular.IParseService) {}
 
-    link(scope, element, attributes) {
+    link(scope: IScope, element: any, attributes: angular.IAttributes) {
         const modelSetter = this.$parse(attributes.fileModel).assign;
         element.bind('change', () => scope.$apply(() => modelSetter(scope.$parent, element[0].files[0])));
     }
@@ -242,8 +242,9 @@ export class FileSelector implements IDirective {
 
     constructor(private $parse: angular.IParseService) {}
 
-    link(scope, element, attributes, ngModel) {
-        element.bind('change', () => ngModel.$setViewValue(element[0].files[0]));
+    link(scope: IScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: angular.INgModelController) {
+        const input = element[0] as HTMLInputElement;
+        element.bind('change', () => ngModel.$setViewValue(input.files ? input.files[0] : undefined));
     }
 
     static factory(): IDirectiveFactory {
@@ -256,7 +257,7 @@ export class FileSelector implements IDirective {
 export class MathJaxLoader implements IDirective {
     restrict = 'A';
 
-    link(scope, element, attributes) {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: IAttributes) {
         scope.$watch(attributes.ngModel, () => MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.get(0)]));
     }
 
@@ -266,7 +267,7 @@ export class MathJaxLoader implements IDirective {
 }
 
 export class FocusOn implements IDirective {
-    link(scope, element, attributes) {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: IAttributes) {
         scope.$on('focusOn', (el, name) => {
             if (name === attributes.focusOn) {
                 element[0].focus();
@@ -280,7 +281,7 @@ export class FocusOn implements IDirective {
 
 export class Lowercase implements IDirective {
     require = 'ngModel';
-    link(scope, element, attrs, ngModel) {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: angular.INgModelController) {
         const toLowerCase = (input: string) => {
             const lc = (input || '').toLowerCase();
             if (lc !== input) {

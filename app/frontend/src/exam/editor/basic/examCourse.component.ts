@@ -16,6 +16,7 @@ import * as angular from 'angular';
 import * as toast from 'toastr';
 
 import { Course, Exam } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
 export const ExamCourseComponent: angular.IComponentOptions = {
     template: require('./examCourse.template.html'),
@@ -25,9 +26,13 @@ export const ExamCourseComponent: angular.IComponentOptions = {
     },
     controller: class ExamCourseController implements angular.IComponentController {
         exam: Exam;
-        onUpdate: ({ course: Course }) => any;
+        onUpdate: (_: { course: Course }) => unknown;
 
-        constructor(private $translate: angular.translate.ITranslateService, private Exam: any, private ExamRes: any) {
+        constructor(
+            private $translate: angular.translate.ITranslateService,
+            private $http: angular.IHttpService,
+            private Exam: ExamService,
+        ) {
             'ngInject';
         }
 
@@ -37,7 +42,7 @@ export const ExamCourseComponent: angular.IComponentOptions = {
                 : null;
 
         setCourse = (course: Course) =>
-            this.ExamRes.course.update({ eid: this.exam.id, cid: course.id }, () => {
+            this.$http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).then(() => {
                 toast.success(this.$translate.instant('sitnet_exam_associated_with_course'));
                 this.exam.course = course;
                 this.onUpdate({ course: course });

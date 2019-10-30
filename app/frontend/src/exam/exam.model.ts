@@ -67,7 +67,7 @@ export interface Attachment {
     modified: boolean;
     size: number;
     file?: File;
-    objectVersion: number;
+    objectVersion?: number;
 }
 
 export interface Tag {

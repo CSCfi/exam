@@ -98,7 +98,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             }
         };
 
-        goBack = event => {
+        goBack = (event: Event) => {
             event.preventDefault();
             this.$window.history.back();
         };

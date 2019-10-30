@@ -40,7 +40,7 @@ export interface Examination extends Exam {
 export interface ExaminationQuestion extends ExamSectionQuestion {
     questionStatus: string;
     autosaved: Date;
-    selectedOption: MultipleChoiceOption;
+    selectedOption: MultipleChoiceOption | number;
     answered: boolean;
     selectedAnsweredState: string;
 }
@@ -60,9 +60,9 @@ export class ExaminationService {
         private Window: WindowRef,
     ) {}
 
-    getResource = url => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
+    getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
-    startExam$(hash, isPreview, isCollaboration, id): Observable<Examination> {
+    startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
         return this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url).pipe(
             tap(e => {
@@ -77,7 +77,11 @@ export class ExaminationService {
         );
     }
 
-    saveTextualAnswer = (esq: ExaminationQuestion, hash, autosave): Observable<ExaminationQuestion> => {
+    saveTextualAnswer = (
+        esq: ExaminationQuestion,
+        hash: string,
+        autosave: boolean,
+    ): Observable<ExaminationQuestion> => {
         const type = esq.question.type;
         const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
         if (!answerObj) {
@@ -127,9 +131,9 @@ export class ExaminationService {
 
     saveAllTextualAnswersOfSection = (
         section: ExaminationSection,
-        hash,
-        autosave,
-        allowEmpty,
+        hash: string,
+        autosave: boolean,
+        allowEmpty: boolean,
     ): Observable<ExaminationQuestion[]> => {
         const questions = section.sectionQuestions.filter(esq => this.isTextualAnswer(esq, allowEmpty));
         return from(questions).pipe(
@@ -141,7 +145,7 @@ export class ExaminationService {
     saveAllTextualAnswersOfExam = (exam: Examination): Observable<unknown> =>
         from(exam.examSections).pipe(concatMap(es => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true)));
 
-    private stripHtml = text => {
+    private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {
             return String(text).replace(/<[^>]+>/gm, '');
         }
@@ -185,12 +189,12 @@ export class ExaminationService {
         }
     };
 
-    saveOption = (hash, sq: ExaminationQuestion, preview) => {
-        let ids;
+    saveOption = (hash: string, sq: ExaminationQuestion, preview: boolean) => {
+        let ids: number[];
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
             ids = sq.options.filter(o => o.answered).map(o => o.id);
         } else {
-            ids = [sq.selectedOption];
+            ids = [sq.selectedOption as number];
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
