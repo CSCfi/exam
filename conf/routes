@@ -171,7 +171,8 @@ DELETE        /app/enrolments/:id                                      backend.c
 DELETE        /app/enrolments/student/:id                              backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long, request: Request)
 PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long, request: Request)
 GET           /app/enrolments/room/:hash                               backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String, request: Request)
-
+POST          /app/enrolments/:eid/examination/:cid                    backend.controllers.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long, request: Request)
+DELETE        /app/enrolments/:eid/examination                         backend.controllers.EnrolmentController.removeExaminationEventConfig(eid: Long, request: Request)
 
 ############### Courses interface ###############
 GET           /app/courses                                             backend.controllers.CourseController.getCourses(filter: Option[String], q: Option[String])

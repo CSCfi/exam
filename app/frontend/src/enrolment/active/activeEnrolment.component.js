@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -32,7 +31,19 @@ angular.module('app.enrolment').component('activeEnrolment', {
             const vm = this;
 
             vm.removeReservation = function() {
-                Reservation.removeReservation(vm.enrolment);
+                if (vm.enrolment.reservation) {
+                    Reservation.removeReservation(vm.enrolment);
+                } else {
+                    Enrolment.removeExaminationEvent(vm.enrolment);
+                }
+            };
+
+            vm.makeReservation = () => {
+                if (vm.enrolment.exam.requiresUserAgentAuth) {
+                    Enrolment.selectExaminationEvent(vm.enrolment.exam, vm.enrolment);
+                } else {
+                    vm.goToCalendar();
+                }
             };
 
             vm.removeEnrolment = function() {

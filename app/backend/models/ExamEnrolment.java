@@ -59,6 +59,9 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
+    @ManyToOne
+    private ExaminationEventConfiguration examinationEventConfiguration;
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime enrolledOn;
@@ -115,6 +118,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
+    }
+
+    public ExaminationEventConfiguration getExaminationEventConfiguration() {
+        return examinationEventConfiguration;
+    }
+
+    public void setExaminationEventConfiguration(ExaminationEventConfiguration examinationEventConfiguration) {
+        this.examinationEventConfiguration = examinationEventConfiguration;
     }
 
     public String getInformation() {

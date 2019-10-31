@@ -251,6 +251,8 @@ public class StudentActionsController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
+                .fetch("examinationEventConfiguration")
+                .fetch("exam.examinationEventConfigurations.examinationEvent")
                 .fetch("collaborativeExam")
                 .fetch("exam.executionType")
                 .fetch("exam.examSections", "name, description")
@@ -325,12 +327,13 @@ public class StudentActionsController extends CollaborationController {
 
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
-                .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
+                .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth")
                 .fetch("course", "code, name")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("examLanguages", "code, name", new FetchConfig().query())
                 .fetch("creator", "firstName, lastName")
+                .fetch("examinationEventConfigurations.examinationEvent")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
