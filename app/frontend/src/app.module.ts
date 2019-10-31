@@ -15,14 +15,13 @@
 import '@babel/polyfill';
 import * as angular from 'angular';
 import 'angular-resource';
-import 'angular-route';
+import 'angular-ui-router';
 import 'angular-animate';
 import 'angular-ui-bootstrap';
 import 'ngstorage';
 import 'angular-translate';
 import 'angular-dialog-service';
 import 'angular-dynamic-locale';
-
 import configs from './app.config';
 import runBlock from './app.run';
 import SessionModule from './session';
@@ -46,7 +45,7 @@ angular
     .module('app', [
         'ngAnimate',
         'ngResource',
-        'ngRoute',
+        'ui.router',
         'ngStorage',
         'ui.bootstrap',
         'pascalprecht.translate',

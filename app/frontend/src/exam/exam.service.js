@@ -19,13 +19,13 @@ import toast from 'toastr';
 angular.module('app.exam').service('Exam', [
     '$translate',
     '$q',
-    '$location',
+    '$state',
     '$http',
     'ExamRes',
     'Question',
     'Session',
     'dialogs',
-    function($translate, $q, $location, $http, ExamRes, Question, Session, dialogs) {
+    function($translate, $q, $state, $http, ExamRes, Question, Session, dialogs) {
         const self = this;
 
         self.getReviewablesCount = function(exam) {
@@ -52,7 +52,7 @@ angular.module('app.exam').service('Exam', [
                 function(response) {
                     toast.info($translate.instant('sitnet_exam_added'));
                     //return response.id;
-                    $location.path('/exams/' + response.id + '/select/course').replace();
+                    $state.go('courseSelector', { id: response.id });
                 },
                 function(error) {
                     toast.error(error.data);
@@ -401,7 +401,7 @@ angular.module('app.exam').service('Exam', [
                             .delete(self.getResource(`/app/exams/${exam.id}`, collaborative))
                             .then(() => {
                                 toast.success($translate.instant('sitnet_exam_removed'));
-                                $location.path('/');
+                                $state.go('dashboard');
                             })
                             .catch(resp => toast.error(resp.data));
                     })
@@ -424,9 +424,14 @@ angular.module('app.exam').service('Exam', [
         };
 
         self.previewExam = function(exam, fromTab, collaborative) {
-            const resource = exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-            const collaboration = collaborative ? 'collaborative/' : '';
-            $location.path(`/exams/${collaboration}${exam.id}/view/${resource}/${fromTab}`);
+            const params = { id: exam.id, tab: fromTab };
+            if (collaborative) {
+                $state.go('collaborativeExamEditor', params);
+            } else if (exam.executionType.type === 'PRINTOUT') {
+                $state.go('printout', params);
+            } else {
+                $state.go('collaborativeExamEditor', params);
+            }
         };
 
         self.hasCustomCredit = exam => {

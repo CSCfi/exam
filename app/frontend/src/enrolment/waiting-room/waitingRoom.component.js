@@ -12,33 +12,32 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
+import toast from 'toastr';
 
 angular.module('app.enrolment').component('waitingRoom', {
     template: require('./waitingRoom.template.html'),
     controller: [
-        '$routeParams',
+        '$stateParams',
         '$timeout',
         '$translate',
-        '$location',
+        '$state',
         'StudentExamRes',
-        function($routeParams, $timeout, $translate, $location, StudentExamRes) {
+        function($stateParams, $timeout, $translate, $state, StudentExamRes) {
             const vm = this;
 
             vm.$onInit = function() {
-                if ($routeParams.id) {
+                if ($stateParams.id) {
                     vm.upcoming = true;
                     StudentExamRes.enrolment.get(
-                        { eid: $routeParams.id },
+                        { eid: $stateParams.id },
                         function(enrolment) {
                             setOccasion(enrolment.reservation);
                             vm.enrolment = enrolment;
                             const offset = calculateOffset();
                             vm.timeout = $timeout(function() {
-                                $location.path('/student/exam/' + vm.enrolment.exam.hash);
+                                $state.go('examination', { hash: vm.enrolment.exam.hash });
                             }, offset);
 
                             $timeout(() => {

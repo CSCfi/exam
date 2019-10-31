@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -65,13 +64,13 @@ angular.module('app.question').component('question', {
         onCancel: '&?',
     },
     controller: [
-        '$routeParams',
+        '$stateParams',
         '$scope',
-        '$location',
+        '$state',
         '$translate',
         'dialogs',
         'Question',
-        function($routeParams, $scope, $location, $translate, dialogs, Question) {
+        function($stateParams, $scope, $state, $translate, dialogs, Question) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -87,7 +86,7 @@ angular.module('app.question').component('question', {
                     };
                 } else {
                     Question.questionsApi.get(
-                        { id: vm.questionId || $routeParams.id },
+                        { id: vm.questionId || $stateParams.id },
                         function(question) {
                             vm.question = question;
                             vm.currentOwners = angular.copy(vm.question.questionOwners);
@@ -112,7 +111,7 @@ angular.module('app.question').component('question', {
                     if (vm.onSave) {
                         vm.onSave({ question: q });
                     } else {
-                        $location.path('/questions');
+                        $state.go('questions');
                     }
                 };
 
@@ -146,11 +145,11 @@ angular.module('app.question').component('question', {
                 if (vm.onCancel) {
                     vm.onCancel();
                 } else {
-                    $location.path('/questions');
+                    $state.go('questions');
                 }
             };
 
-            const routingWatcher = $scope.$on('$locationChangeStart', function(event, newUrl) {
+            const routingWatcher = $scope.$on('$stateChangeStart', function(event, toState, toParams) {
                 if (window.onbeforeunload) {
                     event.preventDefault();
                     // we got changes in the model, ask confirmation
@@ -162,7 +161,7 @@ angular.module('app.question').component('question', {
                         if (data.toString() === 'yes') {
                             // ok to reroute
                             clearListeners();
-                            $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                            $state.go(toState, toParams);
                         }
                     });
                 } else {

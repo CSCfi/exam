@@ -21,7 +21,7 @@ angular.module('app.review').component('assessment', {
     },
     template: require('./assessment.template.html'),
     controller: [
-        '$routeParams',
+        '$stateParams',
         '$http',
         'Assessment',
         'CollaborativeAssessment',
@@ -29,11 +29,11 @@ angular.module('app.review').component('assessment', {
         'Question',
         'Session',
         'Exam',
-        function($routeParams, $http, Assessment, CollaborativeAssessment, ExamRes, Question, Session, Exam) {
+        function($stateParams, $http, Assessment, CollaborativeAssessment, ExamRes, Question, Session, Exam) {
             const vm = this;
 
             vm.$onInit = function() {
-                vm.path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
+                vm.path = vm.collaborative ? `${$stateParams.id}/${$stateParams.ref}` : $stateParams.id;
                 const url = getResource(vm.path);
                 $http
                     .get(url)
@@ -71,7 +71,7 @@ angular.module('app.review').component('assessment', {
 
             vm.print = function() {
                 const url = vm.collaborative
-                    ? `/print/exam/${$routeParams.id}/${$routeParams.ref}`
+                    ? `/print/exam/${$stateParams.id}/${$stateParams.ref}`
                     : `/print/exam/${vm.exam.id}`;
                 window.open(url, '_blank');
             };

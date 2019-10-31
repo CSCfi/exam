@@ -23,30 +23,29 @@ angular.module('app.review').component('speedReview', {
     controller: [
         'dialogs',
         '$q',
-        '$route',
-        '$routeParams',
+        '$state',
+        '$stateParams',
         '$translate',
         'ExamRes',
         'Exam',
         'ReviewList',
         'Files',
         '$uibModal',
-        '$location',
-        function(dialogs, $q, $route, $routeParams, $translate, ExamRes, Exam, ReviewList, Files, $modal, $location) {
+        function(dialogs, $q, $state, $stateParams, $translate, ExamRes, Exam, ReviewList, Files, $modal) {
             const handleOngoingReviews = review => ReviewList.gradeExam(review.exam);
 
             this.$onInit = () => {
                 this.pageSize = 10;
-                this.eid = $routeParams.id;
+                this.eid = $stateParams.id;
 
-                ExamRes.exams.get({ id: $routeParams.id }, exam => {
+                ExamRes.exams.get({ id: $stateParams.id }, exam => {
                     this.examInfo = {
                         examOwners: exam.examOwners,
                         title: exam.course.code + ' ' + exam.name,
                         anonymous: exam.anonymous,
                     };
                     ExamRes.examReviews.query(
-                        { eid: $routeParams.id },
+                        { eid: $stateParams.id },
                         reviews => {
                             reviews.forEach(r => {
                                 r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
@@ -173,7 +172,7 @@ angular.module('app.review').component('speedReview', {
                     $q.all(promises).then(() => {
                         toast.info($translate.instant('sitnet_saved'));
                         if (this.examReviews.length === 0) {
-                            $location.path(`/exams/${$routeParams.id}/4`);
+                            $state.go('examEditor', { id: $stateParams.id, tab: 4 });
                         }
                     });
                 });
@@ -200,7 +199,7 @@ angular.module('app.review').component('speedReview', {
                         },
                     })
                     .result.then(data =>
-                        Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload),
+                        Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $state.reload),
                     );
             };
 

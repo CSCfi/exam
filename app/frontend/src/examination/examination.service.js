@@ -17,7 +17,7 @@ import async from 'async';
 import _ from 'lodash';
 import toast from 'toastr';
 
-function ExaminationFactory($q, $location, $http, $window, $translate) {
+function ExaminationFactory($q, $state, $http, $window, $translate) {
     const self = this;
     let _external;
 
@@ -34,7 +34,7 @@ function ExaminationFactory($q, $location, $http, $window, $translate) {
                 if (resp.data.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
-                    $location.path('/student/exam/' + resp.data.hash);
+                    $state.go('examination', { hash: resp.data.hash });
                 }
                 _external = resp.data.external;
                 deferred.resolve(resp.data);
@@ -213,7 +213,7 @@ function ExaminationFactory($q, $location, $http, $window, $translate) {
             .then(function() {
                 toast.info($translate.instant(msg), { timeOut: 5000 });
                 $window.onbeforeunload = null;
-                $location.path('/student/logout/finished/' + quitLinkEnabled);
+                $state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
             })
             .catch(function(resp) {
                 toast.error($translate.instant(resp.data));
@@ -223,4 +223,4 @@ function ExaminationFactory($q, $location, $http, $window, $translate) {
 
 angular
     .module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$window', '$translate', ExaminationFactory]);
+    .service('Examination', ['$q', '$state', '$http', '$window', '$translate', ExaminationFactory]);

@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.review').component('rToolbar', {
@@ -24,11 +23,11 @@ angular.module('app.review').component('rToolbar', {
         parentCtrl: '^^rGrading',
     },
     controller: [
-        '$routeParams',
+        '$stateParams',
         'Assessment',
         'CollaborativeAssessment',
         'Exam',
-        function($routeParams, Assessment, CollaborativeAssessment, Exam) {
+        function($stateParams, Assessment, CollaborativeAssessment, Exam) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -62,8 +61,8 @@ angular.module('app.review').component('rToolbar', {
                     CollaborativeAssessment.saveAssessment(
                         vm.participation,
                         vm.isOwnerOrAdmin(),
-                        $routeParams.id,
-                        $routeParams.ref,
+                        $stateParams.id,
+                        $stateParams.ref,
                     );
                 } else {
                     Assessment.saveAssessment(vm.exam, vm.isOwnerOrAdmin());
@@ -72,7 +71,7 @@ angular.module('app.review').component('rToolbar', {
 
             vm.createExamRecord = function() {
                 if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.createExamRecord(vm.participation, $routeParams.id, $routeParams.ref);
+                    CollaborativeAssessment.createExamRecord(vm.participation, $stateParams.id, $stateParams.ref);
                 } else {
                     Assessment.createExamRecord(vm.exam, true, vm.parentCtrl.collaborative);
                 }

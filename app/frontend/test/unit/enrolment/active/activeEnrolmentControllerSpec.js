@@ -17,7 +17,7 @@
 import angular from 'angular';
 
 describe('ActiveEnrolmentController', function() {
-    beforeEach(angular.mock.module('app.enrolment', 'app.reservation'));
+    beforeEach(angular.mock.module('app.enrolment', 'app.reservation', 'ui.router'));
 
     let ctrl;
     let scope;

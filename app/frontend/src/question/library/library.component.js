@@ -19,9 +19,9 @@ import toast from 'toastr';
 angular.module('app.question').component('library', {
     template: require('./library.template.html'),
     controller: [
-        '$location',
+        '$state',
         '$translate',
-        function($location, $translate) {
+        function($state, $translate) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -38,7 +38,7 @@ angular.module('app.question').component('library', {
 
             vm.questionCopied = function(copy) {
                 toast.info($translate.instant('sitnet_question_copied'));
-                $location.path('/questions/' + copy.id);
+                $state.go('question', { id: copy.id });
             };
         },
     ],

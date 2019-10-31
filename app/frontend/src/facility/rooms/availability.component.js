@@ -12,26 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
-import { fail } from 'assert';
+import toast from 'toastr';
 
 angular.module('app.facility.rooms').component('availability', {
     template: require('./availability.template.html'),
     controller: [
-        '$routeParams',
+        '$stateParams',
         'Room',
         'Calendar',
-        function($routeParams, Room, Calendar) {
+        function($stateParams, Room, Calendar) {
             const vm = this;
 
             vm.$onInit = function() {
                 vm.loader = {
                     loading: false,
                 };
-                Room.rooms.get({ id: $routeParams.id }, function(room) {
+                Room.rooms.get({ id: $stateParams.id }, function(room) {
                     vm.openingHours = Calendar.processOpeningHours(room);
                     vm.exceptionHours = Calendar.getExceptionalAvailability(room);
                     vm.room = room;
@@ -43,7 +41,7 @@ angular.module('app.facility.rooms').component('availability', {
             };
 
             const query = function(successFn, date) {
-                Room.getAvailability($routeParams.id, date)
+                Room.getAvailability($stateParams.id, date)
                     .then(successFn)
                     .catch(resp => {
                         toast.error(resp);

@@ -45,6 +45,7 @@ import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
+import backend.models.ExaminationEventConfiguration;
 import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
@@ -252,7 +253,7 @@ public class EnrolmentController extends BaseController {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<Exam> possibleExam = getExam(eid, type);
-            if (!possibleExam.isPresent()) {
+            if (possibleExam.isEmpty()) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
             }
             Exam exam = possibleExam.get();
@@ -348,6 +349,9 @@ public class EnrolmentController extends BaseController {
         User user;
         if (uid.isPresent()) {
             user = Ebean.find(User.class, uid.get());
+            if (user == null) {
+                return wrapAsPromise(badRequest("user not found"));
+            }
         } else if (email.isPresent()) {
             List<User> users = Ebean.find(User.class).where()
                     .or()
@@ -379,12 +383,8 @@ public class EnrolmentController extends BaseController {
             return wrapAsPromise(badRequest());
         }
 
-        final User receiver = user;
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
-            if (receiver == null) {
-                return result;
-            }
             if (exam.getState() != Exam.State.PUBLISHED) {
                 return result;
             }
@@ -392,8 +392,8 @@ public class EnrolmentController extends BaseController {
                 return result;
             }
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composePrivateExamParticipantNotification(receiver, sender, exam);
-                logger.info("Exam participation notification email sent to {}", receiver.getEmail());
+                emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                logger.info("Exam participation notification email sent to {}", user.getEmail());
             }, actor.dispatcher());
             return result;
         });
@@ -446,6 +446,51 @@ public class EnrolmentController extends BaseController {
         } else {
             return ok(enrolment.getReservation().getMachine().getRoom());
         }
+    }
+
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public Result addExaminationEventConfig(Long enrolmentId, Long configId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class).where()
+                .idEq(enrolmentId)
+                .eq("user", user)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return notFound("enrolment not found");
+        }
+        ExamEnrolment enrolment = oee.get();
+        Optional<ExaminationEventConfiguration> config = Ebean.find(ExaminationEventConfiguration.class).where()
+                .idEq(configId)
+                .gt("examinationEvent.start", DateTime.now())
+                .eq("exam", enrolment.getExam())
+                .findOneOrEmpty();
+        if (config.isEmpty()) {
+            return notFound("config not found");
+        }
+        enrolment.setExaminationEventConfiguration(config.get());
+        enrolment.update();
+        return ok();
+    }
+
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public Result removeExaminationEventConfig(Long enrolmentId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class).where()
+                .idEq(enrolmentId)
+                .eq("user", user)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .isNotNull("examinationEventConfiguration")
+                .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return notFound("enrolment not found");
+        }
+        ExamEnrolment enrolment = oee.get();
+        enrolment.setExaminationEventConfiguration(null);
+        enrolment.update();
+        return ok();
     }
 
 

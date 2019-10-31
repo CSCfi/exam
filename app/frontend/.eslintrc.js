@@ -24,12 +24,12 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'off',
         'angular/file-name': 'off',
         'angular/no-service-method': 'off',
+        'angular/service-name': 'off',
         'no-redeclare': 'error',
         'no-eval': 'error',
         'no-caller': 'error',
         'no-bitwise': 'error',
         'no-new': 'error',
-        'no-var': 'error',
-        camelcase: 'error',
+        'no-var': 'error'
     },
 };

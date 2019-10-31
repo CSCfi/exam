@@ -12,22 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.exam').component('printout', {
     template: require('./printout.template.html'),
     controller: [
         '$http',
-        '$routeParams',
-        '$location',
+        '$stateParams',
+        '$state',
+        '$window',
         '$sce',
         'Files',
-        function($http, $routeParams, $location, $sce, Files) {
+        function($http, $stateParams, $state, $window, $sce, Files) {
             const vm = this;
 
             vm.$onInit = function() {
-                $http.get('/app/exams/' + $routeParams.id + '/preview').then(function(resp) {
+                $http.get('/app/exams/' + $stateParams.id + '/preview').then(function(resp) {
                     resp.data.examSections.sort(function(a, b) {
                         return a.sequenceNumber - b.sequenceNumber;
                     });
@@ -94,16 +94,19 @@ angular.module('app.exam').component('printout', {
             };
 
             vm.exitPreview = function() {
-                const path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
-                $location.path(path);
+                if ($stateParams.tab) {
+                    $state.go('examEditor', { id: $stateParams.id, tab: $stateParams.tab });
+                } else {
+                    $state.go('printouts');
+                }
             };
 
             vm.print = function() {
-                window.print();
+                $window.print();
             };
 
             vm.printAttachment = function() {
-                Files.download('/app/attachment/exam/' + $routeParams.id, vm.exam.attachment.fileName);
+                Files.download('/app/attachment/exam/' + $stateParams.id, vm.exam.attachment.fileName);
             };
 
             vm.trustAsHtml = function(content) {

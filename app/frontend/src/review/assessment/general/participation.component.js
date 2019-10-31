@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.review').component('rParticipation', {
@@ -24,14 +23,14 @@ angular.module('app.review').component('rParticipation', {
     controller: [
         'Exam',
         'Session',
-        '$routeParams',
-        function(Exam, Session, $routeParams) {
+        '$stateParams',
+        function(Exam, Session, $stateParams) {
             const vm = this;
 
             vm.viewAnswers = function() {
                 let url = '/assessments/' + vm.participation.exam.id;
                 if (vm.collaborative) {
-                    url = `/assessments/collaborative/${$routeParams.id}/${vm.participation._id}`;
+                    url = `/assessments/collaborative/${$stateParams.id}/${vm.participation._id}`;
                 }
                 window.open(url, '_blank');
             };

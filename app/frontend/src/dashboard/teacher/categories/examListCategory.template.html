@@ -74,16 +74,21 @@
                 <tbody>
                     <tr ng-repeat="exam in $ctrl.items | orderBy:$ctrl.sorting.predicate:$ctrl.sorting.reverse">
                         <td ng-if="exam.name" class="table-column-examname">
-                            <a ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/1">{{ exam.name }}</a>
+                            <a ng-if="$ctrl.isOwner(exam)" ui-sref="examEditor({id: {{exam.id}}, tab: 1 })"
+                                >{{ exam.name }}</a
+                            >
                             <span ng-if="!$ctrl.isOwner(exam)">{{ exam.name }}</span>
                         </td>
                         <td ng-if="!exam.name" class="table-column-examname">
-                            <a class="text-danger" ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/1"
-                                >{{ 'sitnet_no_name' | translate }}</a
-                            >
-                            <span class="text-danger" ng-if="!$ctrl.isOwner(exam)"
-                                >{{ 'sitnet_no_name' | translate }}</span
-                            >
+                            <a
+                                class="text-danger"
+                                ng-if="$ctrl.isOwner(exam)"
+                                ui-sref="examEditor({id: {{exam.id}}, tab: 1 })"
+                                >{{ 'sitnet_no_name' | translate }}
+                            </a>
+                            <span class="text-danger" ng-if="!$ctrl.isOwner(exam)">
+                                {{ 'sitnet_no_name' | translate }}
+                            </span>
                         </td>
                         <td>
                             <span class="exam-code">{{ exam.course.code }}</span>
@@ -103,13 +108,15 @@
                                 <a
                                     ng-if="(!column.checkOwnership || $ctrl.isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'"
                                     href="{{ column.link.replace('__', exam.id)}}"
-                                    >{{exam[column.property]}}</a
                                 >
+                                    {{exam[column.property]}}
+                                </a>
                                 <span
                                     ng-if="(!$ctrl.isOwner(exam) && column.checkOwnership) && exam.executionType.type !== 'PRINTOUT'"
                                     class="exam-count-not-active"
-                                    >{{exam[column.property]}}</span
                                 >
+                                    {{exam[column.property]}}
+                                </span>
                             </span>
                             <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                         </td>

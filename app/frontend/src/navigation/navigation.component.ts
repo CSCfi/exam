@@ -17,6 +17,7 @@ import * as angular from 'angular';
 import * as toastr from 'toastr';
 import { SessionService, User } from '../session/session.service';
 import { Link, NavigationService } from './navigation.service';
+import { StateService } from '@uirouter/core';
 
 export const NavigationComponent: angular.IComponentOptions = {
     template: require('./navigation.template.html'),
@@ -30,7 +31,7 @@ export const NavigationComponent: angular.IComponentOptions = {
         constructor(
             private $http: angular.IHttpService,
             private $rootScope: angular.IRootScopeService,
-            private $location: angular.ILocationService,
+            private $state: StateService,
             private Navigation: NavigationService,
             private Session: SessionService,
         ) {
@@ -58,7 +59,7 @@ export const NavigationComponent: angular.IComponentOptions = {
             }
         }
 
-        isActive = (link: Link): boolean => link.href === this.$location.path();
+        isActive = (link: Link): boolean => link.state === this.$state.current.name;
 
         openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

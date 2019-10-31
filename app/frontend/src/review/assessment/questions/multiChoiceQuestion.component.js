@@ -27,12 +27,12 @@ angular.module('app.review').component('rMultiChoiceQuestion', {
     },
     controller: [
         '$sce',
-        '$routeParams',
+        '$stateParams',
         '$translate',
         'Assessment',
         'Attachment',
         'Question',
-        function($sce, $routeParams, $translate, Assessment, Attachment, Question) {
+        function($sce, $stateParams, $translate, Assessment, Attachment, Question) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -77,7 +77,7 @@ angular.module('app.review').component('rMultiChoiceQuestion', {
             };
 
             vm.insertForcedScore = () => {
-                Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                Assessment.saveForcedScore(vm.sectionQuestion, $stateParams.id, $stateParams.ref, vm.participation._rev)
                     .then(resp => {
                         toast.info($translate.instant('sitnet_graded'));
                         vm.onScore({ revision: resp.data ? resp.data.rev : undefined });

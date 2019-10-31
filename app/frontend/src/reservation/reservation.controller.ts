@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
@@ -61,7 +62,7 @@ export class ReservationController implements angular.IComponentController {
 
     constructor(
         private $http: angular.IHttpService,
-        private $routeParams: angular.route.IRouteParamsService,
+        private $stateParams: StateParams,
         private $filter: angular.IFilterService,
         private Session: SessionService,
         private Reservation: ReservationService,
@@ -69,7 +70,7 @@ export class ReservationController implements angular.IComponentController {
     ) {
         'ngInject';
 
-        this.examId = this.$routeParams.eid ? this.$routeParams.eid : undefined;
+        this.examId = this.$stateParams.eid ? this.$stateParams.eid : undefined;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {

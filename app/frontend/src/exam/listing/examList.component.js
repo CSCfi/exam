@@ -22,15 +22,15 @@ angular.module('app.exam').component('examList', {
         'Session',
         'Exam',
         '$translate',
-        '$location',
+        '$state',
         'ExamRes',
-        function(dialogs, Session, Exam, $translate, $location, ExamRes) {
+        function(dialogs, Session, Exam, $translate, $state, ExamRes) {
             const vm = this;
 
             vm.$onInit = function() {
                 vm.user = Session.getUser();
                 if (!vm.user.isAdmin) {
-                    $location.url('/');
+                    $state.go('dashboard');
                     return;
                 }
                 vm.view = 'PUBLISHED';
@@ -84,7 +84,7 @@ angular.module('app.exam').component('examList', {
                     { id: exam.id, type: type },
                     function(copy) {
                         toast.success($translate.instant('sitnet_exam_copied'));
-                        $location.path('/exams/' + copy.id + '/1/');
+                        $state.go('examEditor', { id: copy.id, tab: 1 });
                     },
                     function(error) {
                         toast.error(error.data);
@@ -97,21 +97,16 @@ angular.module('app.exam').component('examList', {
                     $translate.instant('sitnet_confirm'),
                     $translate.instant('sitnet_remove_exam'),
                 );
-                dialog.result.then(
-                    function(btn) {
-                        ExamRes.exams.remove(
-                            { id: exam.id },
-                            function(ex) {
-                                toast.success($translate.instant('sitnet_exam_removed'));
-                                vm.exams.splice(vm.exams.indexOf(exam), 1);
-                            },
-                            function(error) {
-                                toast.error(error.data);
-                            },
-                        );
-                    },
-                    function(btn) {},
-                );
+                dialog.result.then(() => {
+                    ExamRes.exams.remove(
+                        { id: exam.id },
+                        () => {
+                            toast.success($translate.instant('sitnet_exam_removed'));
+                            vm.exams.splice(vm.exams.indexOf(exam), 1);
+                        },
+                        error => toast.error(error.data),
+                    );
+                });
             };
 
             vm.getExecutionTypeTranslation = function(exam) {

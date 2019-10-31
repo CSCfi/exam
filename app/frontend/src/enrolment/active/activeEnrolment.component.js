@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
@@ -24,15 +23,27 @@ angular.module('app.enrolment').component('activeEnrolment', {
     },
     controller: [
         '$translate',
-        '$location',
+        '$state',
         'dialogs',
         'Enrolment',
         'Reservation',
-        function($translate, $location, dialogs, Enrolment, Reservation) {
+        function($translate, $state, dialogs, Enrolment, Reservation) {
             const vm = this;
 
             vm.removeReservation = function() {
-                Reservation.removeReservation(vm.enrolment);
+                if (vm.enrolment.reservation) {
+                    Reservation.removeReservation(vm.enrolment);
+                } else {
+                    Enrolment.removeExaminationEvent(vm.enrolment);
+                }
+            };
+
+            vm.makeReservation = () => {
+                if (vm.enrolment.exam.requiresUserAgentAuth) {
+                    Enrolment.selectExaminationEvent(vm.enrolment.exam, vm.enrolment);
+                } else {
+                    vm.goToCalendar();
+                }
             };
 
             vm.removeEnrolment = function() {
@@ -49,10 +60,12 @@ angular.module('app.enrolment').component('activeEnrolment', {
                 }
             };
 
-            vm.getLinkToCalendar = function() {
-                return vm.enrolment.collaborativeExam
-                    ? '/calendar/collaborative/' + vm.enrolment.collaborativeExam.id
-                    : '/calendar/' + vm.enrolment.exam.id;
+            vm.getNextState = function() {
+                return vm.enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar';
+            };
+
+            vm.getNextStateParams = function() {
+                return vm.enrolment.collaborativeExam ? vm.enrolment.collaborativeExam.id : vm.enrolment.exam.id;
             };
 
             vm.addEnrolmentInformation = function() {
@@ -71,7 +84,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.goToCalendar = function() {
-                $location.path(vm.getLinkToCalendar());
+                $state.go(vm.getNextState(), { id: vm.getNextStateParams() });
             };
         },
     ],
