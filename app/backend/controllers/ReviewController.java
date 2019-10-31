@@ -764,7 +764,7 @@ public class ReviewController extends BaseController {
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, claimChoiceType")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")

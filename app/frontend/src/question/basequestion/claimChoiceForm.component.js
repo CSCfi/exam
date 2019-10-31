@@ -16,9 +16,8 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('claimChoiceForm', {
-        template: `
+angular.module('app.question').component('claimChoiceForm', {
+    template: `
             <div>
                 <div class="col-md-9 col-md-offset-3 mart10 marb0"">
                     <div class="col-md-8 padl0">
@@ -93,32 +92,34 @@ angular.module('app.question')
                 </div>
             </div>
         `,
-        bindings: {
-            option: '<',
-            question: '<',
-            lotteryOn: '<'
-        },
-        controller: ['$translate', 'Question', function ($translate, Question) {
-
+    bindings: {
+        option: '<',
+        question: '<',
+        lotteryOn: '<',
+    },
+    controller: [
+        '$translate',
+        'Question',
+        function($translate, Question) {
             const vm = this;
 
             vm.$onInit = function() {
                 const { state, question } = vm.question;
-                if(state === 'NEW' && question === undefined) {
+                if (state === 'NEW' && question === undefined) {
                     vm.resetOptions();
                 }
-            }
+            };
 
             vm.defaultAnswers = {
-                correct: { option: "", defaultScore: 1, correctOption: true },
-                wrong: { option: "", defaultScore: -1, correctOption: false },
-                skip: { option: "", defaultScore: 0, correctOption: true }
+                correct: { option: '', defaultScore: 1, correctOption: true, claimChoiceType: 'CorrectOption' },
+                wrong: { option: '', defaultScore: -1, correctOption: false, claimChoiceType: 'IncorrectOption' },
+                skip: { option: '', defaultScore: 0, correctOption: false, claimChoiceType: 'SkipOption' },
             };
 
             vm.resetOptions = function() {
                 const { correct, wrong, skip } = vm.defaultAnswers;
-                vm.question.options = [ correct, wrong, skip ];
-            }
-
-        }]
-    });
+                vm.question.options = [correct, wrong, skip];
+            };
+        },
+    ],
+});

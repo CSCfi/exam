@@ -47,6 +47,7 @@ import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.QuestionTextSanitizer;
@@ -342,6 +343,10 @@ public class QuestionController extends BaseController implements SectionQuestio
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
         option.setCorrectOption(correctOption);
+        option.setClaimChoiceType(
+                SanitizingHelper.parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                .orElse(null)
+        );
         saveOption(option, question, user);
         propagateOptionCreationToExamQuestions(question, null, option);
     }

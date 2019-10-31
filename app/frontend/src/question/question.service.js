@@ -133,6 +133,18 @@ function QuestionService(
         return parseFloat(points.toFixed(2));
     };
 
+    this.getCorrectOptionScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.find(o => o.option.correctOption);
+        if (correctOption) {
+            return correctOption.score;
+        } else {
+            return 0;
+        }
+    };
+
     this.scoreClozeTestAnswer = sectionQuestion => {
         if (_.isNumber(sectionQuestion.forcedScore)) {
             return sectionQuestion.forcedScore;
@@ -170,6 +182,26 @@ function QuestionService(
         return 0;
     };
 
+    this.scoreClaimChoiceAnswer = (sectionQuestion, ignoreForcedScore) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+            return sectionQuestion.forcedScore;
+        }
+        const selected = sectionQuestion.options.filter(o => o.answered);
+
+        // Use the score from the skip option if no option was chosen
+        const skipOption = sectionQuestion.options.filter(o => o.option.claimChoiceType === 'SkipOption');
+        const skipScore = skipOption.length === 1 ? skipOption[0].score : 0;
+
+        if (selected.length === 0) {
+            return skipScore;
+        }
+        if (selected.length !== 1) {
+            console.error('multiple options selected for a ClaimChoice answer!');
+        }
+        const score = _.isNumber(selected[0].score) ? selected[0].score : 0;
+        return score;
+    };
+
     this.decodeHtml = html => {
         const txt = $document.createElement('textarea');
         txt.innerHTML = html;
@@ -205,7 +237,7 @@ function QuestionService(
             case 'WeightedMultipleChoiceQuestion':
             case 'EssayQuestion':
             case 'ClozeTestQuestion':
-            case 'ClaimQuestion':
+            case 'ClaimChoiceQuestion':
                 _filter = filter;
                 break;
             default:

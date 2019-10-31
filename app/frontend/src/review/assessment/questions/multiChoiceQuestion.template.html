@@ -43,6 +43,15 @@
                         </span>
                         / {{$ctrl.calculateMaxPoints()}} {{ 'sitnet_unit_points' | translate }}
                     </div>
+                    <div class="review-points" ng-if="$ctrl.sectionQuestion.question.type==='ClaimChoiceQuestion'">
+                        <span ng-style="$ctrl.hasForcedScore() ? {'text-decoration': 'line-through'} : ''">
+                            {{$ctrl.scoreClaimChoiceAnswer(true)}}
+                        </span>
+                        <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
+                            {{$ctrl.sectionQuestion.forcedScore}}
+                        </span>
+                        / {{$ctrl.calculateMaxPoints()}} {{ 'sitnet_unit_points' | translate }}
+                    </div>
                 </div>
 
                 <div class="review-question-title marr110" mathjax ng-bind-html="$ctrl.displayQuestionText()"></div>
@@ -68,6 +77,9 @@
             <div ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
                 <r-weighted-multi-choice-answer section-question="$ctrl.sectionQuestion">
                 </r-weighted-multi-choice-answer>
+            </div>
+            <div ng-if="$ctrl.sectionQuestion.question.type==='ClaimChoiceQuestion'">
+                <r-claim-choice-answer section-question="$ctrl.sectionQuestion"></r-claim-choice-answer>
             </div>
             <div ng-show="$ctrl.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                 <div class="points-title">

@@ -139,6 +139,13 @@ function ExaminationFactory($q, $location, $http, $window, $translate) {
                         return o.answered;
                     }).length > 0;
                 break;
+            case 'ClaimChoiceQuestion':
+                isAnswered =
+                    angular.isDefined(sq.selectedOption) ||
+                    sq.options.filter(function(o) {
+                        return o.answered;
+                    }).length > 0;
+                break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
                 isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);

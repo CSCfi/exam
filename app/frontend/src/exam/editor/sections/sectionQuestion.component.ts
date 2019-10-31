@@ -58,6 +58,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
 
         calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
 
+        getCorrectOptionScore = () => this.Question.getCorrectOptionScore(this.sectionQuestion);
+
         sanitizeQuestion = () => this.$sce.trustAsHtml(this.sectionQuestion.question.question);
 
         editQuestion = () => this.openExamQuestionEditor();

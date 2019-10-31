@@ -309,6 +309,9 @@ angular.module('app.exam').service('Exam', [
                             score += sq.maxScore;
                         }
                         break;
+                    case 'ClaimChoiceQuestion':
+                        score += Question.getCorrectOptionScore(sq);
+                        break;
                     default:
                         break;
                 }

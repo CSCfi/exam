@@ -56,6 +56,13 @@ angular.module('app.review').component('rMultiChoiceQuestion', {
                 return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
             };
 
+            vm.scoreClaimChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
+                    return 0;
+                }
+                return Question.scoreClaimChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
+
             vm.displayMaxScore = () =>
                 _.isInteger(vm.sectionQuestion.maxScore)
                     ? vm.sectionQuestion.maxScore

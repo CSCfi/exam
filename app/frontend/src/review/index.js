@@ -46,6 +46,7 @@ require('./assessment/questions/essayQuestion.component');
 require('./assessment/questions/multiChoiceQuestion.component');
 require('./assessment/questions/multiChoiceAnswer.component');
 require('./assessment/questions/weightedMultiChoiceAnswer.component');
+require('./assessment/questions/claimChoiceAnswer.component');
 
 require('./assessment/sections/examSection.component');
 

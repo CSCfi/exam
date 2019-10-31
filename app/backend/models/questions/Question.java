@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,6 +54,7 @@ import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.base.OwnedModel;
 import backend.models.sections.ExamSectionQuestion;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
@@ -328,6 +330,36 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         reason = getClozeTestQuestionContentValidationResult(node);
                     }
                     break;
+                case ClaimChoiceQuestion:
+                    if(!nodeExists(node, "options") || node.get("options").size() != 3) {
+                        reason = "sitnet_three_answers_required_in_claim_question";
+                    } else {
+                        ArrayNode options = (ArrayNode) node.get("options");
+                        boolean hasCorrectOption = StreamSupport.stream(options.spliterator(), false)
+                                .anyMatch(n -> {
+                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
+                                    Double score = n.get("defaultScore").asDouble();
+                                    return (ccot == ClaimChoiceOptionType.CorrectOption && score > 0);
+                                });
+
+                        boolean hasIncorrectOption = StreamSupport.stream(options.spliterator(), false)
+                                .anyMatch(n -> {
+                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
+                                    Double score = n.get("defaultScore").asDouble();
+                                    return (ccot == ClaimChoiceOptionType.IncorrectOption && score <= 0);
+                                });
+
+                        boolean hasSkipOption = StreamSupport.stream(options.spliterator(), false)
+                                .anyMatch(n -> {
+                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
+                                    return (ccot == ClaimChoiceOptionType.SkipOption);
+                                });
+
+                        if(!hasCorrectOption || !hasIncorrectOption || !hasSkipOption) {
+                            reason = "sitnet_incorrect_claim_question_options";
+                        }
+                    }
+                    break;
                 default:
                     reason = "unknown question type";
                     break;
@@ -359,6 +391,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         .map(MultipleChoiceOption::getDefaultScore)
                         .filter(score -> score != null && score > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
+            case ClaimChoiceQuestion:
+                return options.stream()
+                        .mapToDouble(option -> option.getDefaultScore())
+                        .max()
+                        .orElse(0.0);
         }
         return 0.0;
     }
@@ -370,6 +407,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     .map(MultipleChoiceOption::getDefaultScore)
                     .filter(score -> score != null && score < 0)
                     .reduce(0.0, (sum, x) -> sum += x);
+        } else if(getType() == Type.ClaimChoiceQuestion) {
+            return options.stream()
+                    .mapToDouble(option -> option.getDefaultScore())
+                    .min()
+                    .orElse(0.0);
         }
         return 0.0;
     }
