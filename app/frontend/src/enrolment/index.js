@@ -31,3 +31,4 @@ require('./exams/examEnrolments.component');
 require('./active/activeEnrolment.component');
 require('./active/dialogs/addEnrolmentInformationDialog.component');
 require('./active/dialogs/showInstructionsDialog.component');
+require('./active/dialogs/selectExaminationEventDialog.component.ts');

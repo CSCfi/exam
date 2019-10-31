@@ -13,15 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
+import { StateService } from '@uirouter/core';
 import * as ng from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { Exam } from '../exam/exam.model';
+import { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import { User } from '../session/session.service';
 import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
-import { StateService } from '@uirouter/core';
 
 export class EnrolmentService {
     constructor(
@@ -30,6 +30,7 @@ export class EnrolmentService {
         private $http: ng.IHttpService,
         private $state: StateService,
         private $uibModal: uib.IModalService,
+        private dialogs: ng.dialogservice.IDialogService,
         private Language: any,
     ) {
         'ngInject';
@@ -59,17 +60,59 @@ export class EnrolmentService {
     private getResource = (path: string, collaborative: boolean) =>
         (collaborative ? '/integration/iop/enrolments/' : '/app/enrolments/') + path;
 
+    selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
+        this.$uibModal
+            .open({
+                backdrop: 'static',
+                keyboard: false,
+                component: 'selectExaminationEventDialog',
+                resolve: {
+                    exam: () => exam,
+                    existingEventId: () =>
+                        enrolment.examinationEventConfiguration
+                            ? enrolment.examinationEventConfiguration.id
+                            : undefined,
+                },
+            })
+            .result.then((data: ExaminationEventConfiguration) => {
+                this.$http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).then(() => {
+                    enrolment.examinationEventConfiguration = data;
+                    if (nextState) {
+                        this.$state.go(nextState);
+                    }
+                });
+            });
+    };
+
+    removeExaminationEvent = (enrolment: ExamEnrolment) => {
+        this.dialogs
+            .confirm(this.$translate.instant('sitnet_confirm'), this.$translate.instant('sitnet_are_you_sure'))
+            .result.then(() => {
+                this.$http
+                    .delete(`/app/enrolments/${enrolment.id}/examination`)
+                    .then(() => {
+                        toast.info(this.$translate.instant('sitnet_removed'));
+                        delete enrolment.examinationEventConfiguration;
+                    })
+                    .catch(err => toast.error(err.data));
+            });
+    };
+
     enroll(exam: Exam, collaborative = false): ng.IPromise<any> {
         const deferred = this.$q.defer();
         this.$http
             .post(this.getResource(`${exam.id}`, collaborative), { code: exam.course ? exam.course.code : undefined })
-            .then(() => {
+            .then((resp: angular.IHttpResponse<ExamEnrolment>) => {
                 toast.success(
                     this.$translate.instant('sitnet_you_have_enrolled_to_exam') +
                         '<br/>' +
                         this.$translate.instant('sitnet_remember_exam_machine_reservation'),
                 );
-                this.$state.go(collaborative ? 'collaborativeCalendar' : 'calendar', { id: exam.id });
+                if (exam.requiresUserAgentAuth && exam.examinationEventConfigurations.length > 0) {
+                    this.selectExaminationEvent(exam, resp.data, 'dashboard');
+                } else {
+                    this.$state.go(collaborative ? 'collaborativeCalendar' : 'calendar', { id: exam.id });
+                }
                 deferred.resolve();
             })
             .catch(error => {
