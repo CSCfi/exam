@@ -75,7 +75,7 @@ import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
 @Restrict({@Group("STUDENT")})
-public class StudentExamController extends BaseController {
+public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
     protected final ActorSystem actor;
@@ -85,10 +85,10 @@ public class StudentExamController extends BaseController {
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
 
-    private static final Logger.ALogger logger = Logger.of(StudentExamController.class);
+    private static final Logger.ALogger logger = Logger.of(ExaminationController.class);
 
     @Inject
-    public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
+    public ExaminationController(EmailComposer emailComposer, ActorSystem actor,
                                  CollaborativeExamLoader collaborativeExamLoader,
                                  AutoEvaluationHandler autoEvaluationHandler,
                                  Environment environment,

@@ -32,7 +32,7 @@ import java.util.Iterator;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-public class StudentExamControllerTest extends IntegrationTestCase {
+public class ExaminationControllerTest extends IntegrationTestCase {
 
     private Exam exam;
     private User user;
