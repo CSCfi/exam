@@ -471,6 +471,10 @@ public class EnrolmentController extends BaseController {
         }
         enrolment.setExaminationEventConfiguration(config.get());
         enrolment.update();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeExaminationEventNotification(user, enrolment, false);
+            logger.info("Examination event notification email sent to {}", user.getEmail());
+        }, actor.dispatcher());
         return ok();
     }
 
@@ -490,6 +494,10 @@ public class EnrolmentController extends BaseController {
         ExamEnrolment enrolment = oee.get();
         enrolment.setExaminationEventConfiguration(null);
         enrolment.update();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeExaminationEventCancellationNotification(user, enrolment);
+            logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
+        }, actor.dispatcher());
         return ok();
     }
 

@@ -52,6 +52,16 @@ public interface EmailComposer {
     void composeReservationNotification(User student, Reservation reservation, Exam exam, Boolean isReminder);
 
     /**
+     * Message sent to student when examination event has been selected.
+     */
+    void composeExaminationEventNotification(User student, ExamEnrolment enrolment, Boolean isReminder);
+
+    /**
+     * Message sent to student when examination event has been cancelled.
+     */
+    void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment);
+
+    /**
      * Message sent to newly added inspectors.
      */
     void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message);

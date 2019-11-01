@@ -46,6 +46,13 @@ angular.module('app.enrolment').component('activeEnrolment', {
                 }
             };
 
+            vm.hasUpcomingAlternativeEvents = () =>
+                vm.enrolment.exam.examinationEventConfigurations.some(
+                    eec =>
+                        eec.examinationEvent.start > new Date() &&
+                        eec.id !== this.enrolment.examinationEventConfiguration.id,
+                );
+
             vm.removeEnrolment = function() {
                 if (vm.enrolment.reservation) {
                     toast.error($translate.instant('sitnet_cancel_reservation_first'));

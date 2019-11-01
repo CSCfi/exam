@@ -58,6 +58,8 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamMachine;
 import backend.models.ExamParticipation;
+import backend.models.ExaminationEvent;
+import backend.models.ExaminationEventConfiguration;
 import backend.models.Language;
 import backend.models.LanguageInspection;
 import backend.models.MailAddress;
@@ -259,6 +261,87 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
+    public void composeExaminationEventNotification(User recipient, ExamEnrolment enrolment, Boolean isReminder) {
+        String templatePath = getTemplatesRoot() + "examinationEventConfirmed.html";
+        String template = fileHandler.read(templatePath);
+        Exam exam = enrolment.getExam();
+        ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
+        Lang lang = getLang(recipient);
+        String subject = String.format("%s: \"%s\"", messaging.get(lang, isReminder ?
+                "email.examinationEvent.reminder.subject" :
+                "email.examinationEvent.subject"), exam.getName());
+        String examInfo = String.format("%s %s", exam.getName(), exam.getCourse() != null ?
+                String.format("(%s)", exam.getCourse().getCode()) : "");
+        String teacherName = getTeachers(exam);
+        DateTime startDate = adjustDST(config.getExaminationEvent().getStart());
+        String examDuration = String.format("%dh %dmin", exam.getDuration() / MINUTES_IN_HOUR,
+                exam.getDuration() % MINUTES_IN_HOUR);
+        String description = config.getExaminationEvent().getDescription();
+        String title = messaging.get(lang, "email.examinationEvent.title");
+
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("title", title);
+        stringValues.put("exam_info", messaging.get(lang, "email.template.reservation.exam", examInfo));
+        stringValues.put("teacher_name", messaging.get(lang, "email.template.reservation.teacher", teacherName));
+        stringValues.put("event_date", messaging.get(lang, "email.examinationEvent.date", startDate));
+        stringValues.put("exam_duration", messaging.get(lang, "email.template.reservation.exam.duration", examDuration));
+        stringValues.put("description", description);
+
+        stringValues.put("cancellation_info", messaging.get(lang, "email.examinationEvent.cancel.info"));
+        stringValues.put("cancellation_link", hostName);
+        stringValues.put("cancellation_link_text", messaging.get(lang, "email.examinationEvent.cancel.link.text"));
+        stringValues.put("settings_file_info", messaging.get(lang, "email.examinationEvent.file.info"));
+        String content = replaceAll(template, stringValues);
+
+        // Attach a SEB config file
+        String fileName = exam.getName().replace(" ", "-");
+        File file;
+        try {
+            file = File.createTempFile(fileName, ".seb");
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] data = byodConfigHandler.getExamConfig(config.getHash(),
+                    config.getEncryptedSettingsPassword(), config.getSettingsPasswordSalt());
+            fos.write(data);
+            fos.close();
+        } catch (Exception e) {
+            logger.error("Failed to create a temporary SEB file on disk!");
+            throw new RuntimeException(e);
+        }
+        EmailAttachment attachment = new EmailAttachment();
+        attachment.setPath(file.getAbsolutePath());
+        attachment.setDisposition(EmailAttachment.ATTACHMENT);
+        attachment.setName(fileName + ".seb");
+
+        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
+    }
+
+    public void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment) {
+        Exam exam = enrolment.getExam();
+        ExaminationEvent event = enrolment.getExaminationEventConfiguration().getExaminationEvent();
+        Lang lang = getLang(user);
+        String templatePath = getTemplatesRoot() + "examinationEventCancelled.html";
+        String template = fileHandler.read(templatePath);
+        String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
+
+        Map<String, String> stringValues = new HashMap<>();
+        String time = DTF.print(adjustDST(event.getStart()));
+        String teacherName = getTeachers(exam);
+        String examInfo = String.format("%s %s", exam.getName(), exam.getCourse() != null ?
+                String.format("(%s)", exam.getCourse().getCode()) : "");
+
+        stringValues.put("exam", messaging.get(lang, "email.template.reservation.exam", examInfo));
+        stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", teacherName));
+        stringValues.put("time", messaging.get(lang, "email.examinationEvent.date", time));
+        stringValues.put("link", hostName);
+        stringValues.put("message", messaging.get(lang, "email.examinationEvent.cancel.message.student"));
+        stringValues.put("newTime", messaging.get(lang, "email.examinationEvent.cancel.message.student.new.time"));
+        stringValues.put("description", event.getDescription());
+        String content = replaceAll(template, stringValues);
+
+        emailSender.send(user.getEmail(), SYSTEM_ACCOUNT, subject, content);
+    }
+
+    @Override
     public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Boolean isReminder) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = fileHandler.read(templatePath);
@@ -312,30 +395,6 @@ class EmailComposerImpl implements EmailComposer {
         String content = replaceAll(template, stringValues);
 
         List<EmailAttachment> attachments = new ArrayList<>();
-
-        if (exam.getRequiresUserAgentAuth()) {
-            // Attach a SEB config file
-            File file;
-            try {
-                String name = exam.getName().replace(" ", "-");
-                file = File.createTempFile(name, ".seb");
-                FileOutputStream fos = new FileOutputStream(file);
-                byte[] data = byodConfigHandler.getExamConfig(exam.getHash(),
-                        exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt());
-                fos.write(data);
-                fos.close();
-                EmailAttachment attachment = new EmailAttachment();
-                attachment.setPath(file.getAbsolutePath());
-                logger.info("Wrote file to {}", file.getAbsolutePath());
-                attachment.setDisposition(EmailAttachment.ATTACHMENT);
-                attachment.setName(name + ".seb");
-                attachments.add(attachment);
-            } catch (Exception e) {
-                logger.error("Failed to create a temporary SEB file on disk!");
-                throw new RuntimeException(e);
-            }
-        }
-
         // Export as iCal format (local reservations only)
         if (er == null) {
             MailAddress address = machine.getRoom().getMailAddress();
@@ -511,7 +570,6 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("new_time", messaging.get(lang, "email.template.reservation.cancel.message.student.new.time"));
         stringValues.put("link", hostName);
         sendReservationCancellationNotification(stringValues, message, info, lang, email, template, subject);
-
     }
 
     private void doComposeReservationAdminCancellationNotification(String email, Lang lang, Reservation reservation,
