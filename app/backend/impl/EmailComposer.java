@@ -22,6 +22,7 @@ import com.google.inject.ImplementedBy;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
+import backend.models.ExaminationEvent;
 import backend.models.LanguageInspection;
 import backend.models.Reservation;
 import backend.models.User;
@@ -50,6 +51,16 @@ public interface EmailComposer {
      * Message sent to student when reservation has been made.
      */
     void composeReservationNotification(User student, Reservation reservation, Exam exam, Boolean isReminder);
+
+    /**
+     * Message sent to student when examination event has been selected.
+     */
+    void composeExaminationEventNotification(User student, ExamEnrolment enrolment, Boolean isReminder);
+
+    /**
+     * Message sent to student when examination event has been cancelled.
+     */
+    void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment, ExaminationEvent event);
 
     /**
      * Message sent to newly added inspectors.
