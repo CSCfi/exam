@@ -315,9 +315,9 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 
-    public void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment) {
+    public void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment,
+                                                                ExaminationEvent event) {
         Exam exam = enrolment.getExam();
-        ExaminationEvent event = enrolment.getExaminationEventConfiguration().getExaminationEvent();
         Lang lang = getLang(user);
         String templatePath = getTemplatesRoot() + "examinationEventCancelled.html";
         String template = fileHandler.read(templatePath);
@@ -334,7 +334,7 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("time", messaging.get(lang, "email.examinationEvent.date", time));
         stringValues.put("link", hostName);
         stringValues.put("message", messaging.get(lang, "email.examinationEvent.cancel.message.student"));
-        stringValues.put("newTime", messaging.get(lang, "email.examinationEvent.cancel.message.student.new.time"));
+        stringValues.put("new_time", messaging.get(lang, "email.examinationEvent.cancel.message.student.new.time"));
         stringValues.put("description", event.getDescription());
         String content = replaceAll(template, stringValues);
 

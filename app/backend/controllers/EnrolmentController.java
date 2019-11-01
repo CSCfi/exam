@@ -45,6 +45,7 @@ import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
+import backend.models.ExaminationEvent;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.Reservation;
 import backend.models.Role;
@@ -482,7 +483,8 @@ public class EnrolmentController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeExaminationEventConfig(Long enrolmentId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class).where()
+        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class)
+                .where()
                 .idEq(enrolmentId)
                 .eq("user", user)
                 .eq("exam.state", Exam.State.PUBLISHED)
@@ -492,10 +494,11 @@ public class EnrolmentController extends BaseController {
             return notFound("enrolment not found");
         }
         ExamEnrolment enrolment = oee.get();
+        ExaminationEvent event = enrolment.getExaminationEventConfiguration().getExaminationEvent();
         enrolment.setExaminationEventConfiguration(null);
         enrolment.update();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeExaminationEventCancellationNotification(user, enrolment);
+            emailComposer.composeExaminationEventCancellationNotification(user, enrolment, event);
             logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
         }, actor.dispatcher());
         return ok();
