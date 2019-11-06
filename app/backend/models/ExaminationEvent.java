@@ -20,11 +20,13 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import backend.models.base.GeneratedIdentityModel;
 
@@ -62,6 +64,11 @@ public class ExaminationEvent extends GeneratedIdentityModel {
 
     public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
         this.examinationEventConfigurations = examinationEventConfigurations;
+    }
+
+    @Transient
+    public Interval toInterval(Exam exam) {
+        return new Interval(start, start.plusMinutes(exam.getDuration()));
     }
 
     @Override

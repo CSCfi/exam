@@ -44,6 +44,7 @@ angular.module('app.review').component('rGeneralInfo', {
                     : vm.exam.id;
                 vm.enrolment = vm.exam.examEnrolments[0];
                 vm.reservation = vm.enrolment.reservation;
+                vm.config = vm.enrolment.examinationEventConfiguration;
                 const params = {
                     eid: vm.exam.id,
                 };
@@ -77,7 +78,13 @@ angular.module('app.review').component('rGeneralInfo', {
                 });
                 Assessment.noShowApi.query({ eid: vm.exam.id }, function(data) {
                     const noShows = data.map(function(d) {
-                        return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
+                        return {
+                            noShow: true,
+                            started: d.reservation
+                                ? d.reservation.startAt
+                                : d.examinationEventConfiguration.examinationEvent.start,
+                            exam: { state: 'no_show' },
+                        };
                     });
                     vm.previousParticipations = previousParticipations.concat(noShows);
                 });

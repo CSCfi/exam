@@ -50,7 +50,8 @@ angular.module('app.enrolment').component('activeEnrolment', {
                 vm.enrolment.exam.examinationEventConfigurations.some(
                     eec =>
                         eec.examinationEvent.start > new Date() &&
-                        eec.id !== this.enrolment.examinationEventConfiguration.id,
+                        (!this.enrolment.examinationEventConfiguration ||
+                            eec.id !== this.enrolment.examinationEventConfiguration.id),
                 );
 
             vm.removeEnrolment = function() {

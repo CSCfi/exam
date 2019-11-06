@@ -17,10 +17,10 @@ import * as angular from 'angular';
 export const DateTimePickerComponent: angular.IComponentOptions = {
     template: `
         <div id="datetimepicker" class="datetimepicker-wrapper">
-            <date-picker initial-date="$ctrl.initialTime" on-update="$ctrl.onDateUpdate(date)"><date-picker/>
+            <date-picker initial-date="$ctrl.initialTime" on-update="$ctrl.onDateUpdate(date)" disabled="$ctrl.disabled"><date-picker/>
         </div>
         <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
-            <div uib-timepicker ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" 
+            <div uib-timepicker ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" ng-disabled="$ctrl.disabled"
                 show-meridian="false" hour-step="$ctrl.hourStep" minute-step="$ctrl.minuteStep">
         </div>
         `,
@@ -29,6 +29,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         hourStep: '<?',
         minuteStep: '<?',
         initialTime: '<?',
+        disabled: '<?',
     },
     controller: class DateTimePickerController implements angular.IComponentController {
         onUpdate: ({ date: Date }) => unknown;
@@ -37,6 +38,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         minuteStep: number;
         time: Date;
         initialTime: Date;
+        disabled: boolean;
 
         private setDateTime = (dt: Date) => {
             this.date.setFullYear(dt.getFullYear());

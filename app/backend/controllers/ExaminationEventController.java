@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
+import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.Logger;
@@ -107,25 +108,36 @@ public class ExaminationEventController extends BaseController {
 
     @With(ExaminationEventSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
+    public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) throws CryptorException {
         Optional<ExaminationEventConfiguration> oeec = Ebean.find(ExaminationEventConfiguration.class)
                 .where().idEq(eecid).eq("exam.id", eid).findOneOrEmpty();
         if (oeec.isEmpty()) {
             return notFound("event not found");
         }
         ExaminationEventConfiguration eec = oeec.get();
+        boolean hasEnrolments = eec.getExamEnrolments().size() > 0;
         ExaminationEvent ee = eec.getExaminationEvent();
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        if (start.isBeforeNow()) {
-            return forbidden("start occasion in the past");
+        if (!hasEnrolments) {
+            DateTime start = request.attrs().get(Attrs.START_DATE);
+            if (start.isBeforeNow()) {
+                return forbidden("start occasion in the past");
+            }
+            ee.setStart(start);
         }
-        ee.setStart(start);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
         ee.update();
-        encryptSettingsPassword(eec, request.attrs().get(Attrs.SETTINGS_PASSWORD));
-        eec.save();
-        // Pass back the plaintext password so it can be shown to user
-        eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
+        if (!hasEnrolments) {
+            encryptSettingsPassword(eec, request.attrs().get(Attrs.SETTINGS_PASSWORD));
+            eec.save();
+            // Pass back the plaintext password so it can be shown to user
+            eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
+        } else {
+            // Disallow changing password if enrolments exist for this event
+            // TODO: check how this could be made possible. Would need resending seb-files with new encryption
+            // Send back the original (unchanged password)
+            eec.setSettingsPassword(byodConfigHandler.getPlaintextPassword(
+                    eec.getEncryptedSettingsPassword(), eec.getSettingsPasswordSalt()));
+        }
         return ok(eec);
     }
 
@@ -138,6 +150,9 @@ public class ExaminationEventController extends BaseController {
             return notFound("event not found");
         }
         ExaminationEventConfiguration eec = oeec.get();
+        if (!eec.getExamEnrolments().isEmpty()) {
+            return forbidden("event can not be deleted because there are enrolments involved");
+        }
         eec.delete();
         // Check if we can delete the event altogether (in case no configs are using it)
         Set<ExaminationEventConfiguration> configs = Ebean.find(ExaminationEventConfiguration.class)

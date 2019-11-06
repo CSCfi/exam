@@ -1,3 +1,4 @@
+import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { User } from '../session/session.service';
 
 export interface Grade {
@@ -129,6 +130,7 @@ export interface ExaminationEventConfiguration {
     id?: number;
     settingsPassword: string;
     examinationEvent: ExaminationEvent;
+    examEnrolments: ExamEnrolment[];
 }
 
 export interface ExamImpl {

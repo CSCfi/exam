@@ -30,11 +30,16 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
                 </h1>
             </div>
             <form class="modal-body" name="eventForm">
+                <div class="row" ng-if="$ctrl.hasEnrolments">
+                    <div class="col-md-12 text text-danger">
+                        {{ 'sitnet_enrolments_exist_for_examination_event' | translate }}
+                    </div>
+                </div>
                 <div id="datetimepicker">
                     <div class="row">
                         <div class="col-md-12">
                             <label for="dtpicker">{{'sitnet_begin' | translate}}:</label>
-                            <date-time-picker id="dtpicker" hour-step="1" minute-step="15" 
+                            <date-time-picker disabled="$ctrl.hasEnrolments" id="dtpicker" hour-step="1" minute-step="15" 
                                 initial-time="$ctrl.start" on-update="$ctrl.onStartDateChange(date)">
                             </date-time-picker>
                         </div>  
@@ -52,7 +57,7 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
                         <label for="password">{{'sitnet_settings_password' | translate}}:</label>
                         <div id="password" class="input-group wdth-30">
                             <input type="{{$ctrl.pwdInputType}}" name="password" class="form-control"
-                            ng-model="$ctrl.password" required>
+                            ng-model="$ctrl.password" ng-disabled="$ctrl.hasEnrolments" required>
                             <span class="input-group-addon">
                                 <span ng-class="$ctrl.pwdInputType === 'text' ? 'fa fa-lock' : 'fa fa-unlock'"
                                     ng-click="$ctrl.togglePasswordInputType()">
@@ -84,12 +89,13 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
     },
     controller: class ExaminationEventDialogController implements angular.IComponentController {
         resolve: { config: ExaminationEventConfiguration };
-        close: (_: { $value: { config: ExaminationEventConfiguration } }) => any;
+        close: (_: { $value: { config: Omit<ExaminationEventConfiguration, 'examEnrolments'> } }) => any;
         dismiss: () => any;
 
         start: Date;
         description: string;
         password: string;
+        hasEnrolments: boolean;
         pwdInputType = 'password';
 
         constructor(private $translate: angular.translate.ITranslateService) {
@@ -101,6 +107,7 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
                 this.start = new Date(this.resolve.config.examinationEvent.start);
                 this.description = this.resolve.config.examinationEvent.description;
                 this.password = this.resolve.config.settingsPassword;
+                this.hasEnrolments = this.resolve.config.examEnrolments.length > 0;
             } else {
                 this.start = new Date();
             }
