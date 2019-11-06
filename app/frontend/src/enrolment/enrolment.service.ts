@@ -91,7 +91,7 @@ export class EnrolmentService {
                 this.$http
                     .delete(`/app/enrolments/${enrolment.id}/examination`)
                     .then(() => {
-                        toast.info(this.$translate.instant('sitnet_removed'));
+                        toast.info(this.$translate.instant('sitnet_examination_event_removed'));
                         delete enrolment.examinationEventConfiguration;
                     })
                     .catch(err => toast.error(err.data));

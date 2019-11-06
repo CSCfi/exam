@@ -753,6 +753,8 @@ public class ReviewController extends BaseController {
                 .fetch("examEnrolments.reservation")
                 .fetch("examEnrolments.reservation.machine")
                 .fetch("examEnrolments.reservation.machine.room")
+                .fetch("examEnrolments.examinationEventConfiguration")
+                .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
                 .fetch("examInspections")
                 .fetch("examInspections.user")
                 .fetch("examParticipation")

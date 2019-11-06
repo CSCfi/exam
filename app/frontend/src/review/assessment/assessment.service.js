@@ -139,7 +139,7 @@ angular.module('app.review').service('Assessment', [
         };
 
         self.isCommentRead = function(exam) {
-            return exam.examFeedback.feedbackStatus;
+            return exam.examFeedback && exam.examFeedback.feedbackStatus;
         };
 
         self.pickExamLanguage = function(exam) {

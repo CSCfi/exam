@@ -23,7 +23,7 @@
         <div class="col-md-2 general-info-title">{{'sitnet_student_enrolment_info' | translate }}:</div>
         <div class="col-md-10 general-info-content">{{$ctrl.enrolment.information}}</div>
     </div>
-    <div class="detail-row marb20">
+    <div class="detail-row marb20" ng-if="$ctrl.reservation">
         <div class="col-md-2 general-info-title">{{'sitnet_examination_location' | translate}}:</div>
         <div class="col-md-4 general-info-content" ng-if="$ctrl.reservation.machine.room">
             {{$ctrl.reservation.machine.room.name}} ({{$ctrl.reservation.machine.room.roomCode}})
@@ -35,6 +35,16 @@
             {{$ctrl.reservation.machine.name}}
         </div>
         <div class="col-md-4 general-info-content" ng-if="!$ctrl.reservation.machine">N/A</div>
+    </div>
+    <div class="detail-row marb20" ng-if="$ctrl.config">
+        <div class="col-md-2 general-info-title">{{'sitnet_examination_event' | translate}}:</div>
+        <div class="col-md-4 general-info-content">
+            {{$ctrl.config.examinationEvent.start | date }}
+        </div>
+        <div class="col-md-2 general-info-title">{{'sitnet_instructions' | translate}}:</div>
+        <div class="col-md-4 general-info-content">
+            {{$ctrl.config.examinationEvent.description}}
+        </div>
     </div>
 
     <div class="detail-row marb20">

@@ -39,13 +39,12 @@ angular.module('app.enrolment').component('waitingRoom', {
                             vm.timeout = $timeout(function() {
                                 $state.go('examination', { hash: vm.enrolment.exam.hash });
                             }, offset);
-
-                            $timeout(() => {
+                            if (vm.enrolment.reservation) {
                                 const room = vm.enrolment.reservation.machine.room;
                                 const code = $translate.use().toUpperCase();
                                 vm.roomInstructions =
                                     code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                            }, 1000);
+                            }
                         },
                         function(error) {
                             toast.error(error.data);
@@ -70,6 +69,9 @@ angular.module('app.enrolment').component('waitingRoom', {
             };
 
             const setOccasion = function(reservation) {
+                if (!reservation) {
+                    return;
+                }
                 const tz = reservation.machine.room.localTimezone;
                 const start = moment.tz(reservation.startAt, tz);
                 const end = moment.tz(reservation.endAt, tz);

@@ -939,5 +939,8 @@
   "sitnet_add_examination_event": "Lisää tenttitilaisuus EN",
   "sitnet_update_examination_event": "Muokkaa tenttitilaisuutta EN",
   "sitnet_examination_type_description": "Akvaariotentti = hallinnoidussa tenttitilassa suoritettu tentti. BYOD = Bring Your Own Device eli tentti suoritetaan omalla koneella luentosalissa tai vastaavassa EN",
-  "sitnet_pick_examination_event": "Valitse tenttitilaisuus EN"
+  "sitnet_pick_examination_event": "Valitse tenttitilaisuus EN",
+  "sitnet_examination_event_removed": "Ilmoittautuminen poistettu EN",
+  "sitnet_examination_event": "Tenttitilaisuus EN",
+  "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita. EN"
 }
