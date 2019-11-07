@@ -24,12 +24,10 @@
                     >
                         {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a
                     >
-                    <small
-                        class="smaller"
-                        ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"
+                    <small ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small
                     >
-                    <small class="smaller" ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth"
+                    <small ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth"
                         >({{ 'sitnet_examination_type_seb' | translate }})</small
                     >
                     <br />
@@ -85,7 +83,9 @@
                                 </span>
                             </li>
                             <!-- enrolment with examination event, allow changing -->
-                            <li ng-if="$ctrl.enrolment.examinationEventConfiguration">
+                            <li
+                                ng-if="$ctrl.enrolment.examinationEventConfiguration && $ctrl.hasUpcomingAlternativeEvents()"
+                            >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
                                     <a class="text-info" ng-click="$ctrl.makeReservation()">
@@ -258,6 +258,35 @@
                         $ctrl.enrolment.collaborativeExam.examActiveStartDate | date:'dd.MM.yyyy' }} &ndash; {{
                         $ctrl.enrolment.exam.examActiveEndDate || $ctrl.enrolment.collaborativeExam.examActiveEndDate |
                         date:'dd.MM.yyyy' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mart20" ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ 'sitnet_examination_events' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        <span
+                            class="marr20"
+                            ng-repeat="config in $ctrl.enrolment.exam.examinationEventConfigurations | orderBy:'examinationEvent.start'"
+                        >
+                            <span
+                                ng-if="config.id === $ctrl.enrolment.examinationEventConfiguration.id"
+                                class="text text-success"
+                            >
+                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                            </span>
+                            <span
+                                ng-if="config.id !== $ctrl.enrolment.examinationEventConfiguration.id"
+                                class="text-muted"
+                            >
+                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </div>

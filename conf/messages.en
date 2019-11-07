@@ -82,4 +82,13 @@ email.template.reservation.exam.info=Details of your exam.
 email.template.section.title=Valitsemasi aihealueet EN
 email.template.section.name=Nimi EN
 email.template.section.description=Kuvaus EN
-
+email.examinationEvent.reminder.subject=Muistutus tulevasta tenttitapahtumasta EN
+email.examinationEvent.subject=Ilmoittautuminen tenttitapahtumaan EN
+email.examinationEvent.title=Olet ilmoittautunut tenttitapahtumaan. Tässä tapahtuman tiedot EN
+email.examinationEvent.date=Tapahtuma alkaa: {0} EN
+email.examinationEvent.file.info=Liitteenä on tiedosto, jonka avulla tentti käynnistetään tenttitapahtuman alettua EN
+email.examinationEvent.cancel.info=Peruthan ilmoittautumisesi ajoissa, jos suunnitelmasi muuttuvat! EN
+email.examinationEvent.cancel.link.text=Ilmoittautumisen peruminen tai muuttaminen EN
+email.examinationEvent.cancel.subject=Perumasi ilmoittautuminen tenttitapahtumaan EN
+email.examinationEvent.cancel.message.student=Olet perunut ilmoittautumisesi seuraavaan tenttitapahtumaan: EN
+email.examinationEvent.cancel.message.student.new.time=Voit ilmoittautua uudelleen tenttitapahtumaan tästä EN

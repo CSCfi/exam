@@ -36,7 +36,7 @@ export const SelectExaminationEventDialogComponent: angular.IComponentOptions = 
                 <div ng-repeat="config in $ctrl.configs" class="examination-event">
                     <div class="row">
                         <div class="col-md-12">
-                            <h3>{{ config.examinationEvent.start | date }}</h3>
+                            <h3>{{ config.examinationEvent.start | adjustdst | date:'dd.MM.yyyy HH:mm' }}</h3>
                         </div>
                     </div>    
                     <div class="row">
