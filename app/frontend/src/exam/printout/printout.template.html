@@ -151,7 +151,9 @@
                 ng-bind-html="$ctrl.trustAsHtml(esq.clozeTestAnswer.question)"
             ></span>
             <span
-                ng-if="esq.question.type === 'MultipleChoiceQuestion' || esq.question.type === 'WeightedMultipleChoiceQuestion'"
+                ng-if="esq.question.type === 'MultipleChoiceQuestion' || 
+                        esq.question.type === 'WeightedMultipleChoiceQuestion' ||
+                        esq.question.type === 'ClaimChoiceQuestion'"
                 class="col-md-12"
             >
                 <div ng-repeat="o in esq.options">
@@ -159,6 +161,9 @@
                         <label><input type="checkbox" onclick="return false;" value="" />{{o.option.option}}</label>
                     </div>
                     <div ng-if="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
+                        <label><input type="radio" onclick="return false;" name="" />{{o.option.option}}</label>
+                    </div>
+                    <div ng-if="esq.question.type === 'ClaimChoiceQuestion'" class="radio">
                         <label><input type="radio" onclick="return false;" name="" />{{o.option.option}}</label>
                     </div>
                 </div>

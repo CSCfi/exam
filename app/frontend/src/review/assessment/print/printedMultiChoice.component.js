@@ -40,8 +40,19 @@ angular.module('app.review').component('printedMultiChoice', {
                 return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
             };
 
+            vm.scoreClaimChoiceAnswer = function(ignoreForcedScore) {
+                if (vm.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
+                    return 0;
+                }
+                return Question.scoreClaimChoiceAnswer(vm.sectionQuestion, ignoreForcedScore);
+            };
+
             vm.calculateMaxPoints = function() {
                 return Question.calculateMaxPoints(vm.sectionQuestion);
+            };
+
+            vm.getCorrectClaimChoiceOptionScore = function() {
+                return Question.getCorrectClaimChoiceOptionScore(vm.sectionQuestion);
             };
 
             vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);

@@ -303,9 +303,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public Double getTotalScore() {
-        return toFixed(examSections.stream()
+        Double totalScore = toFixed(examSections.stream()
                 .map(ExamSection::getTotalScore)
                 .reduce(0.0, (sum, x) -> sum += x));
+
+        return Math.max(totalScore, 0.0);
     }
 
     public Double getMaxScore() {

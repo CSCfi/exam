@@ -101,6 +101,9 @@ angular.module('app.question').service('Library', [
                             case 'ClozeTestQuestion':
                                 item.icon = 'fa-commenting-o';
                                 break;
+                            case 'ClaimChoiceQuestion':
+                                item.icon = 'fa-list-ol';
+                                break;
                         }
                         return item;
                     });
@@ -116,12 +119,15 @@ angular.module('app.question').service('Library', [
                             q.displayedMaxScore = 'sitnet_evaluation_select';
                         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
                             q.displayedMaxScore = Question.calculateDefaultMaxPoints(q);
+                        } else if (q.type === 'ClaimChoiceQuestion') {
+                            q.displayedMaxScore = Question.getCorrectClaimChoiceOptionDefaultScore(q);
                         }
                         q.typeOrd = [
                             'EssayQuestion',
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
                             'WeightedMultipleChoiceQuestion',
+                            'ClaimChoiceQuestion',
                         ].indexOf(q.type);
                         q.ownerAggregate = '';
                         if (q.questionOwners) {

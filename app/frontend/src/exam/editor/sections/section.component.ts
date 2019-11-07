@@ -81,6 +81,9 @@ export const SectionComponent: ng.IComponentOptions = {
             if (type === 'WeightedMultipleChoiceQuestion') {
                 return this.Question.calculateMaxPoints(question);
             }
+            if (type === 'ClaimChoiceQuestion') {
+                return this.Question.scoreClaimChoiceAnswer(question);
+            }
             return null;
         };
 

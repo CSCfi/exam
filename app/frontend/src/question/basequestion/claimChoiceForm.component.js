@@ -54,7 +54,7 @@ angular.module('app.question').component('claimChoiceForm', {
                 </div>
                 <div class="col-md-12 margin-10 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
-                        {{'sitnet_question_claim_wrong' | translate}}
+                        {{'sitnet_question_claim_incorrect' | translate}}
                     </div>
                     <div class="col-md-9 form-horizontal question-editor-option">
                         <div class="col-md-8">

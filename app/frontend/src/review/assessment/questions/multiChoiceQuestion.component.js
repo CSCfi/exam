@@ -72,6 +72,10 @@ angular.module('app.review').component('rMultiChoiceQuestion', {
                 return Question.calculateMaxPoints(vm.sectionQuestion);
             };
 
+            vm.getCorrectClaimChoiceOptionScore = function() {
+                return Question.getCorrectClaimChoiceOptionScore(vm.sectionQuestion);
+            };
+
             vm.displayQuestionText = function() {
                 return $sce.trustAsHtml(vm.sectionQuestion.question.question);
             };

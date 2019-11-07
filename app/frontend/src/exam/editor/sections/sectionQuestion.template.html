@@ -28,7 +28,7 @@
         0 / {{ $ctrl.calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
     </div>
     <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-        0 / {{ $ctrl.getCorrectOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+        0 / {{ $ctrl.getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
     </div>
 
     <!-- Question -->

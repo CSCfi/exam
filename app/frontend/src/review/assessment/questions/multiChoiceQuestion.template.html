@@ -50,7 +50,7 @@
                         <span ng-if="$ctrl.hasForcedScore()" class="text text-danger">
                             {{$ctrl.sectionQuestion.forcedScore}}
                         </span>
-                        / {{$ctrl.calculateMaxPoints()}} {{ 'sitnet_unit_points' | translate }}
+                        / {{$ctrl.getCorrectClaimChoiceOptionScore()}} {{ 'sitnet_unit_points' | translate }}
                     </div>
                 </div>
 

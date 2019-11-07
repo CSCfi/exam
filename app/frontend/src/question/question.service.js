@@ -133,14 +133,36 @@ function QuestionService(
         return parseFloat(points.toFixed(2));
     };
 
-    this.getCorrectOptionScore = sectionQuestion => {
+    this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
         if (!sectionQuestion.options) {
             return 0;
         }
-        const correctOption = sectionQuestion.options.find(o => o.option.correctOption);
-        if (correctOption) {
-            return correctOption.score;
+        const correctOption = sectionQuestion.options.filter(
+            o => o.correctOption && o.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].defaultScore;
+        } else if (correctOption.length === 0) {
+            return 0;
         } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
+    this.getCorrectClaimChoiceOptionScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].score;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
             return 0;
         }
     };
@@ -198,8 +220,10 @@ function QuestionService(
         if (selected.length !== 1) {
             console.error('multiple options selected for a ClaimChoice answer!');
         }
-        const score = _.isNumber(selected[0].score) ? selected[0].score : 0;
-        return score;
+        if (selected[0].score && _.isNumber(selected[0].score)) {
+            return selected[0].score;
+        }
+        return 0;
     };
 
     this.decodeHtml = html => {
@@ -300,6 +324,7 @@ function QuestionService(
                 break;
             case 'MultipleChoiceQuestion':
             case 'WeightedMultipleChoiceQuestion':
+            case 'ClaimChoiceQuestion':
                 questionToUpdate.options = question.options;
                 break;
         }
