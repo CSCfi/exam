@@ -13,7 +13,7 @@
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
             <div class="calendar-phase-icon">
-                <img class="arrow_icon" src="Images/icon-phase.png" alt="phase 1" />
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
             </div>
         </div>
         <div class="student-exam-header-row">
@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ examInfo.course.code }} {{ examInfo.course.name }}
+                        {{ examInfo.course?.code }} {{ examInfo.course?.name }}
                     </div>
                     <div class="clearfix visible-xs"></div>
                     <div class="clearfix visible-sm"></div>
@@ -48,7 +48,7 @@
         <div class="student-exam-row">
             <div
                 class="student-exam-row-infolink infotitle-calendar"
-                ng-show="examInfo.executionType.type !== 'MATURITY'"
+                [hidden]="examInfo.executionType?.type === 'MATURITY'"
             >
                 {{ 'sitnet_calendar_instructions' | translate }}:
             </div>
@@ -57,7 +57,7 @@
             </div>
             <div class="student-exam-row">
                 <span *ngIf="showReservationWindowInfo()" class="text-info">
-                    <img class="arrow_icon" src="Images/icon_info.png" alt="info-icon" />
+                    <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
                     {{ getReservationWindowDescription() }}
                 </span>
             </div>
@@ -74,7 +74,7 @@
                     >{{ getSequenceNumber('material') }}. {{ 'sitnet_exam_materials' | translate }}</span
                 >
                 <div class="calendar-phase-icon" *ngIf="sectionSelectionOk()">
-                    <img class="arrow_icon" alt="exam materials" src="Images/icon-phase.png" />
+                    <img class="arrow_icon" alt="exam materials" src="/assets/assets/images/icon-phase.png" />
                 </div>
             </div>
             <div *ngFor="let section of examInfo.examSections" class="marb20">
@@ -108,13 +108,13 @@
                         </div>
                     </div>
                 </div>
-                <div ng-if="section.examMaterials.length > 0">
+                <div *ngIf="section.examMaterials.length > 0">
                     <div class="row">
                         <div class="col-md-12">
                             <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
                         </div>
                     </div>
-                    <div ng-repeat="material in section.examMaterials">
+                    <div *ngFor="let material of section.examMaterials">
                         <div class="row">
                             <span class="col-md-12">
                                 {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
@@ -137,7 +137,7 @@
         >
             <div class="student-exam-header-row">
                 <span class="calendar-phase-title">
-                    {{ $ctrl.getSequenceNumber('organization') }}. {{ 'sitnet_choose_institution' | translate }}
+                    {{ getSequenceNumber('organization') }}. {{ 'sitnet_choose_institution' | translate }}
                     <small>
                         <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
                             {{ 'sitnet_internal_reservation' | translate }}&nbsp;
@@ -146,7 +146,7 @@
                     </small>
                 </span>
                 <div class="calendar-phase-icon" [hidden]="!selectedOrganisation">
-                    <img class="arrow_icon" alt="phase 2" src="Images/icon-phase.png" />
+                    <img class="arrow_icon" alt="phase 2" src="/assets/assets/images/icon-phase.png" />
                 </div>
             </div>
 
@@ -217,7 +217,11 @@
                     </small>
                 </span>
                 <div class="calendar-phase-icon" *ngIf="selectedRoom">
-                    <img class="arrow_icon" alt="phase {{ isExternal ? 3 : 2 }}" src="Images/icon-phase.png" />
+                    <img
+                        class="arrow_icon"
+                        alt="phase {{ isExternal ? 3 : 2 }}"
+                        src="/assets/assets/images/icon-phase.png"
+                    />
                 </div>
             </div>
             <div class="student-exam-header-row" [hidden]="isExternal">
@@ -232,16 +236,16 @@
                         class="arrow_icon"
                         *ngIf="!showAccs"
                         alt="show accessibility selection"
-                        src="Images/arrow_right.png"
+                        src="/assets/assets/images/arrow_right.png"
                     />
                     <img
                         class="arrow_icon"
                         *ngIf="showAccs"
                         alt="hide accessibility selection"
-                        src="Images/arrow_down.png"
+                        src="/assets/assets/images/arrow_down.png"
                     />
                 </div>
-                <div class="student-exam-row-infobox" ng-show="showAccs">
+                <div class="student-exam-row-infobox" [hidden]="!showAccs">
                     <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
                     <div
                         class="calendar-accs-checkboxes"
@@ -290,7 +294,7 @@
                                 [hidden]="room.filtered"
                                 role="presentation"
                                 [ngClass]="room.outOfService ? 'disabled' : ''"
-                                (click)="selectRoom(room)"
+                                (click)="selectRoom(room); $event.preventDefault()"
                             >
                                 <a role="menuitem" ngbPopover="{{ getDescription(room) }}" trigger="mouseenter">
                                     {{ room.name | truncate: 30 }}</a
@@ -305,10 +309,10 @@
                 <!-- SELECTED ROOM  -->
                 <div class="calendar-room-title">
                     <span
-                        >{{ $ctrl.selectedRoom.name }}&nbsp;
+                        >{{ selectedRoom.name }}&nbsp;
                         <small class="calendar-room-info-content"
-                            >{{ $ctrl.selectedRoom.mailAddress.street }} {{ $ctrl.selectedRoom.mailAddress.zip }}
-                            {{ $ctrl.selectedRoom.mailAddress.city }}
+                            >{{ selectedRoom.mailAddress.street }} {{ selectedRoom.mailAddress.zip }}
+                            {{ selectedRoom.mailAddress.city }}
                         </small>
                     </span>
                 </div>
@@ -364,10 +368,11 @@
                 <booking-calendar
                     #bc
                     (onRefresh)="refresh($event)"
-                    (onEventSelected)="createReservation(start, end)"
-                    [room]="selectedRoom"
+                    (onEventSelected)="createReservation($event)"
+                    (onViewAvailable)="renderExceptionHours($event)"
                     [minDate]="minDate"
                     [maxDate]="maxDate"
+                    [visible]="calendarVisible"
                 >
                 </booking-calendar>
             </div>
@@ -375,21 +380,18 @@
 
         <!-- Reservation confirmation -->
 
-        <div
-            class="student-enrolment-wrapper details-view phase-three"
-            [ngClass]="$ctrl.reservation ? '' : 'notactive'"
-        >
+        <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'">
             <div class="student-exam-header-row">
                 <span class="calendar-phase-title"
-                    >{{ $ctrl.getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}</span
+                    >{{ getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}</span
                 >
-                <div class="calendar-phase-icon" ng-show="$ctrl.reservation">
+                <div class="calendar-phase-icon" [hidden]="!reservation">
                     <img class="arrow_icon" alt="reservation confirmation" src="Images/icon-phase.png" />
                 </div>
             </div>
             <div class="student-exam-header-row">
                 <div class="calendar-titles">
-                    <span class="calendar-course-title">{{ $ctrl.examInfo.name }}</span>
+                    <span class="calendar-course-title">{{ examInfo.name }}</span>
                 </div>
             </div>
 
@@ -398,14 +400,14 @@
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.examInfo.course.code }} {{ $ctrl.examInfo.course.name }}
+                            {{ examInfo.course?.code }} {{ examInfo.course?.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ $ctrl.examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                            {{ $ctrl.examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                            {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
+                            {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
                         </div>
                     </div>
                 </div>
@@ -418,13 +420,13 @@
                             {{ 'sitnet_examination_location' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.reservation.room }}
+                            {{ reservation?.room }}
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_reservation' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ $ctrl.reservation.time }}
+                            {{ reservation?.time }}
                         </div>
                     </div>
                 </div>
@@ -435,7 +437,7 @@
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_exam_duration' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.printExamDuration($ctrl.examInfo) }}
+                            {{ printExamDuration(examInfo) }}
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>

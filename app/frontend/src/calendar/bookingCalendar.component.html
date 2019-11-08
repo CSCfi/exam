@@ -1,0 +1,19 @@
+<div id="calendarBlock" *ngIf="visible">
+    <full-calendar
+        #bookingCalendar
+        [plugins]="plugins"
+        [events]="fetchEvents"
+        [locale]="options.locale"
+        [defaultDate]="options.defaultDate"
+        [editable]="options.editable"
+        [selectable]="options.selectable"
+        [defaultView]="options.defaultView"
+        [allDaySlot]="options.allDaySlot"
+        [weekNumbers]="options.weekNumbers"
+        [firstDay]="options.firstDay"
+        [slotEventOverlap]="options.slotEventOverlap"
+        (eventClick)="options.eventClick($event)"
+        id="calendar"
+    >
+    </full-calendar>
+</div>

@@ -125,12 +125,11 @@ export class SessionService {
         return user && user.loginRole !== null && user.loginRole === role;
     }
 
-    getEnv$(): Observable<'DEV' | 'PROD'> {
-        return this.init().pipe(
+    getEnv$ = (): Observable<'DEV' | 'PROD'> =>
+        this.init().pipe(
             tap(env => (this.env = env)),
             map(env => (env.isProd ? 'PROD' : 'DEV')),
         );
-    }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.userChangeSubscription.next(undefined);
@@ -300,38 +299,38 @@ export class SessionService {
         return user;
     }
 
-    login$(username: string, password: string): Observable<User> {
-        const credentials = {
-            username: username,
-            password: password,
-        };
-        return this.http.post<User>('/app/login', credentials).pipe(
-            map(u => this.prepareUser(u)),
-            switchMap(u => this.processLogin$(u)),
-            tap((u: User) => {
-                this.user = u;
-                this.webStorageService.set('EXAM_USER', this.user);
-                this.translate(this.user.lang);
-                this.restartSessionCheck();
-                this.userChangeSubscription.next(u);
-                const welcome = () => {
-                    if (this.user) {
-                        toastr.success(
-                            `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`,
-                        );
+    login$ = (username: string, password: string): Observable<User> =>
+        this.http
+            .post<User>('/app/login', {
+                username: username,
+                password: password,
+            })
+            .pipe(
+                map(u => this.prepareUser(u)),
+                switchMap(u => this.processLogin$(u)),
+                tap((u: User) => {
+                    this.user = u;
+                    this.webStorageService.set('EXAM_USER', this.user);
+                    this.translate(this.user.lang);
+                    this.restartSessionCheck();
+                    this.userChangeSubscription.next(u);
+                    const welcome = () => {
+                        if (this.user) {
+                            toastr.success(
+                                `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`,
+                            );
+                        }
+                    };
+                    this.windowRef.nativeWindow.setTimeout(welcome, 2000);
+                    this.redirect();
+                }),
+                catchError(resp => {
+                    if (resp.error) {
+                        toastr.error(this.i18n.instant(resp.error));
                     }
-                };
-                this.windowRef.nativeWindow.setTimeout(welcome, 2000);
-                this.redirect();
-            }),
-            catchError(resp => {
-                if (resp.error) {
-                    toastr.error(this.i18n.instant(resp.error));
-                }
-                return throwError(resp);
-            }),
-        );
-    }
+                    return throwError(resp);
+                }),
+            );
 
     private processLogin$(user: User): Observable<User> {
         this.token = user.token;

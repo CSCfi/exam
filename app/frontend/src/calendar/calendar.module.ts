@@ -12,16 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import '@fullcalendar/core/locales/fi';
+import '@fullcalendar/core/locales/sv';
+import '@fullcalendar/core/main.min.css';
+import '@fullcalendar/daygrid/main.min.css';
+import '@fullcalendar/timegrid/main.min.css';
+
 import { NgModule } from '@angular/core';
-import { FullCalendarModule } from 'ng-fullcalendar';
-import 'fullcalendar/dist/fullcalendar.min.css';
-import 'fullcalendar/dist/locale/fi';
-import 'fullcalendar/dist/locale/sv';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { UtilityModule } from '../utility/utility.module';
 import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [FullCalendarModule, NgbModule, UtilityModule],

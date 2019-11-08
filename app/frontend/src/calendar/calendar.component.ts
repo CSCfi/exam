@@ -16,10 +16,11 @@
 import { Location } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { EventApi } from '@fullcalendar/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateParams } from '@uirouter/core';
 import * as moment from 'moment';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -79,6 +80,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     reservationWindowSize: number;
     selectedRoom: FilteredRoom;
     selectedOrganisation: Organisation;
+    calendarVisible: boolean;
+    events: Partial<EventApi>[];
 
     private ngUnsubscribe = new Subject();
 
@@ -92,6 +95,25 @@ export class CalendarComponent implements OnInit, OnDestroy {
         private Calendar: CalendarService,
         private Session: SessionService,
     ) {}
+
+    private fetchOrganisations = () => {
+        // TODO: allow making external reservations to collaborative exams in the future
+        if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
+            this.http
+                .get<any[]>('/integration/iop/organisations')
+                .subscribe(
+                    resp => (this.organisations = resp.filter(org => !org.homeOrg && org.facilities.length > 0)),
+                );
+        }
+    };
+
+    private prepareOptionalSections = (data: ReservationInfo) => {
+        if (data.optionalSections) {
+            this.examInfo.examSections
+                .filter(es => es.optional)
+                .forEach(es => (es.selected = data.optionalSections.map(es => es.id).indexOf(es.id) > -1));
+        }
+    };
 
     ngOnInit() {
         this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
@@ -115,43 +137,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
                     this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate));
                     this.maxDate = moment.min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate));
                 }),
-                tap(() => {
-                    forkJoin(
-                        this.http.get<Accessibility[]>('/app/accessibility'),
-                        this.http.get<ExamRoom[]>('/app/rooms'),
-                        this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop'),
-                        this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.stateParams.id}/reservation`),
-                    ).subscribe(resp => {
-                        this.accessibilities = resp[0].map(a => ({ ...a, filtered: false }));
-                        this.rooms = resp[1].map(r => ({ ...r, filtered: false }));
-                        this.isInteroperable = resp[2].isExamVisitSupported;
-                        // TODO: allow making external reservations to collaborative exams in the future
-                        if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
-                            this.http
-                                .get<any[]>('/integration/iop/organisations')
-                                .subscribe(
-                                    resp =>
-                                        (this.organisations = resp.filter(
-                                            org => !org.homeOrg && org.facilities.length > 0,
-                                        )),
-                                );
-                        }
-                        if (resp[3].optionalSections) {
-                            this.examInfo.examSections
-                                .filter(es => es.optional)
-                                .forEach(
-                                    es => (es.selected = resp[3].optionalSections.map(es => es.id).indexOf(es.id) > -1),
-                                );
-                        }
-                    });
-                }),
+                switchMap(() => this.http.get<Accessibility[]>('/app/accessibility')),
+                tap(resp => (this.accessibilities = resp.map(a => ({ ...a, filtered: false })))),
+                switchMap(() => this.http.get<ExamRoom[]>('/app/rooms')),
+                tap(resp => (this.rooms = resp.map(r => ({ ...r, filtered: false })))),
+                switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
+                tap(resp => (this.isInteroperable = resp.isExamVisitSupported)),
+                tap(() => this.fetchOrganisations()),
+                switchMap(() =>
+                    this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.stateParams.id}/reservation`),
+                ),
+                tap(resp => this.prepareOptionalSections(resp)),
             )
             .subscribe();
     }
 
-    hasOptionalSections(): boolean {
-        return this.examInfo.examSections.some(es => es.optional);
-    }
+    hasOptionalSections = (): boolean => this.examInfo.examSections.some(es => es.optional);
 
     getSequenceNumber(area: string): number {
         const hasOptionalSections = this.hasOptionalSections();
@@ -299,34 +300,37 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     hide() {
-        // TBD
-        $('#calendarBlock').css({ display: 'none' });
+        this.calendarVisible = false;
     }
 
     render() {
-        // TBD
-        $('#calendarBlock').css({ display: 'block' });
-        $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' });
-        this.bc.render();
+        this.calendarVisible = true;
     }
 
-    refresh($event: { start: moment.Moment; callback: (events: unknown[]) => unknown }) {
+    renderExceptionHours = ($event: { start: Date; end: Date }) =>
+        (this.exceptionHours =
+            !$event.start || !$event.end
+                ? []
+                : this.Calendar.getExceptionHours(this.selectedRoom, moment($event.start), moment($event.end)));
+
+    refresh($event: { start: Date; callback: (events: unknown[]) => unknown }) {
         const room = this.selectedRoom;
         if (!room) {
             return;
         }
-        const date = $event.start.format();
+        const date = $event.start;
         const accessibilities = this.accessibilities.filter(i => i.filtered).map(i => i.id);
         this.loader.loading = true;
         const tz = room.localTimezone;
         const successFn = (resp: AvailableSlot[]) => {
-            const events = resp.map(slot => {
+            const events = resp.map((slot, i) => {
                 return {
+                    id: i,
                     title: this.getTitle(slot),
-                    color: this.getColor(slot),
+                    backgroundColor: this.getColor(slot),
                     start: this.adjust(slot.start, tz),
                     end: this.adjust(slot.end, tz),
-                    availableMachines: slot.availableMachines,
+                    extendedProps: { availableMachines: slot.availableMachines, selected: false },
                 };
             });
             $event.callback(events);
@@ -342,22 +346,17 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 toast.error(this.translate.instant('sitnet_no_suitable_enrolment_found'));
             }
         };
-        this.query(successFn, errorFn, date, room, accessibilities);
-        const view = this.bc.bookingCalendar.fullCalendar('getView');
-        this.exceptionHours =
-            view.start === undefined || view.end === undefined
-                ? []
-                : this.Calendar.getExceptionHours(room, moment(view.start), moment(view.end));
+        this.query(successFn, errorFn, date.toISOString(), room, accessibilities);
     }
 
-    createReservation(start: moment.Moment, end: moment.Moment) {
+    createReservation($event: { start: Date; end: Date }) {
         const room = this.selectedRoom;
         if (room !== undefined) {
             this.reservation = {
                 room: room.name,
-                time: start.format('DD.MM.YYYY HH:mm') + ' - ' + end.format('HH:mm'),
-                start: start,
-                end: end,
+                time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
+                start: moment($event.start),
+                end: moment($event.end),
             };
         }
     }
@@ -409,7 +408,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     selectAccessibility(accessibility: FilteredAccessibility) {
         accessibility.filtered = !accessibility.filtered;
         if (this.selectedRoom) {
-            this.bc.bookingCalendar.fullCalendar('refetchEvents');
+            // this.bc.bookingCalendar.getApi().refetchEvents();
         }
     }
 
