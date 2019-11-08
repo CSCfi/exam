@@ -427,7 +427,7 @@ angular.module('app.exam').service('Exam', [
             } else if (exam.executionType.type === 'PRINTOUT') {
                 $state.go('printout', params);
             } else {
-                $state.go('collaborativeExamEditor', params);
+                $state.go('examPreview', params);
             }
         };
 
