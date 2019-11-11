@@ -12,23 +12,31 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import '@fullcalendar/core/locales/fi';
-import '@fullcalendar/core/locales/sv';
-import '@fullcalendar/core/main.min.css';
-import '@fullcalendar/daygrid/main.min.css';
-import '@fullcalendar/timegrid/main.min.css';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { NgModule } from '@angular/core';
-import { FullCalendarModule } from '@fullcalendar/angular';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { UtilityModule } from '../utility/utility.module';
 import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
+import * as ac from 'angular-calendar';
+import { DateAdapter } from 'angular-calendar';
+
+import 'angular-calendar/css/angular-calendar.css';
+import { UIRouterModule } from '@uirouter/angular';
 
 @NgModule({
-    imports: [FullCalendarModule, NgbModule, UtilityModule],
+    imports: [
+        NgbModule,
+        ac.CalendarModule.forRoot({
+            provide: DateAdapter,
+            useFactory: adapterFactory,
+        }),
+        UIRouterModule,
+        UtilityModule,
+    ],
     declarations: [BookingCalendarComponent, CalendarComponent],
     entryComponents: [CalendarComponent, BookingCalendarComponent],
     providers: [CalendarService],

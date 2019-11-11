@@ -1,5 +1,5 @@
 <div id="dashboard">
-    <div class="top-row">
+    <div class="row mart10">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <history-back></history-back>
@@ -8,76 +8,69 @@
         </div>
     </div>
 
-    <!-- Exam Info -->
-    <div class="student-enrolment-wrapper details-view">
-        <div class="student-exam-header-row">
+    <!-- Phase 1: Exam Info -->
+    <div class="row student-enrolment-wrapper details-view">
+        <span class="col-md-12">
             <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
-            <div class="calendar-phase-icon">
+            <span class="calendar-phase-icon pull-right">
                 <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
-            </div>
-        </div>
-        <div class="student-exam-header-row">
+            </span>
+        </span>
+        <div class="col-md-12">
             <div class="calendar-titles">
                 <span class="calendar-course-title">{{ examInfo.name }}</span>
                 <span *ngIf="examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ examInfo.course?.code }} {{ examInfo.course?.name }}
-                    </div>
-                    <div class="clearfix visible-xs"></div>
-                    <div class="clearfix visible-sm"></div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                        {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ printExamDuration(examInfo) }}
-                    </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{ examInfo.course?.code }} {{ examInfo.course?.name }}
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
+                    {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{ printExamDuration(examInfo) }}
                 </div>
             </div>
         </div>
-
-        <div class="student-exam-row">
-            <div
-                class="student-exam-row-infolink infotitle-calendar"
-                [hidden]="examInfo.executionType?.type === 'MATURITY'"
-            >
+        <div class="col-md-12">
+            <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
                 {{ 'sitnet_calendar_instructions' | translate }}:
-            </div>
-            <div class="student-exam-row-infobox">
-                <div [innerHtml]="examInfo.enrollInstruction"></div>
-            </div>
-            <div class="student-exam-row">
-                <span *ngIf="showReservationWindowInfo()" class="text-info">
-                    <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
-                    {{ getReservationWindowDescription() }}
-                </span>
-            </div>
+                <span [innerHtml]="examInfo.enrollInstruction"></span>
+            </span>
         </div>
+        <div class="col-md-12 mart10">
+            <span *ngIf="showReservationWindowInfo()" class="text-info">
+                <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
+                {{ getReservationWindowDescription() }}
+            </span>
+        </div>
+    </div>
 
-        <!-- Optional exam section selection (if any) -->
-        <div
-            class="student-enrolment-wrapper details-view"
-            *ngIf="examInfo && hasOptionalSections()"
-            [ngClass]="sectionSelectionOk() ? '' : 'notactive'"
-        >
-            <div class="student-exam-header-row">
-                <span class="calendar-phase-title"
-                    >{{ getSequenceNumber('material') }}. {{ 'sitnet_exam_materials' | translate }}</span
-                >
-                <div class="calendar-phase-icon" *ngIf="sectionSelectionOk()">
-                    <img class="arrow_icon" alt="exam materials" src="/assets/assets/images/icon-phase.png" />
-                </div>
-            </div>
-            <div *ngFor="let section of examInfo.examSections" class="marb20">
+    <!-- Phase 2: optional exam section selection (optional) -->
+    <div
+        class="row student-enrolment-wrapper details-view"
+        *ngIf="examInfo && hasOptionalSections()"
+        [ngClass]="sectionSelectionOk() ? '' : 'notactive'"
+    >
+        <span class="col-md-12">
+            <span class="calendar-phase-title"
+                >{{ getSequenceNumber('material') }}. {{ 'sitnet_exam_materials' | translate }}</span
+            >
+            <span class="calendar-phase-icon pull-right">
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
+            </span>
+        </span>
+        <div *ngFor="let section of examInfo.examSections" class="marb20">
+            <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-6">
                         <strong>{{ 'sitnet_exam_section' | translate }}:</strong> {{ section.name }}
@@ -88,6 +81,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-6">
                         {{ section.description }}
@@ -108,49 +103,46 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="section.examMaterials.length > 0">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
-                        </div>
-                    </div>
-                    <div *ngFor="let material of section.examMaterials">
-                        <div class="row">
-                            <span class="col-md-12">
-                                {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
-                                <span *ngIf="material.author">
-                                    {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}
-                                </span>
-                                <span *ngIf="material.isbn"> ISBN: {{ material.isbn }} </span>
-                            </span>
-                        </div>
-                    </div>
+            </div>
+            <div *ngIf="section.examMaterials.length > 0">
+                <div class="col-md-12">
+                    <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
+                </div>
+                <div *ngFor="let material of section.examMaterials">
+                    <span class="col-md-12">
+                        {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
+                        <span *ngIf="material.author">
+                            {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}
+                        </span>
+                        <span *ngIf="material.isbn"> ISBN: {{ material.isbn }} </span>
+                    </span>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Organisation picker -->
-        <div
-            *ngIf="isExternal"
-            class="student-enrolment-wrapper details-view"
-            [ngClass]="selectedOrganisation ? '' : 'notactive'"
-        >
-            <div class="student-exam-header-row">
-                <span class="calendar-phase-title">
-                    {{ getSequenceNumber('organization') }}. {{ 'sitnet_choose_institution' | translate }}
-                    <small>
-                        <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
-                            {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                            <i class="fa fa-angle-double-right"></i>
-                        </button>
-                    </small>
-                </span>
-                <div class="calendar-phase-icon" [hidden]="!selectedOrganisation">
-                    <img class="arrow_icon" alt="phase 2" src="/assets/assets/images/icon-phase.png" />
-                </div>
-            </div>
-
-            <div class="student-exam-row">
+    <!-- Phase 3: insert org picker here -->
+    <div
+        class="student-enrolment-wrapper details-view row"
+        *ngIf="isExternal"
+        [ngClass]="selectedOrganisation ? '' : 'notactive'"
+    >
+        <span class="col-md-12">
+            <span class="calendar-phase-title">
+                {{ getSequenceNumber('organization') }}. {{ 'sitnet_choose_institution' | translate }}
+                <small>
+                    <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
+                        {{ 'sitnet_internal_reservation' | translate }}&nbsp;
+                        <i class="fa fa-angle-double-right"></i>
+                    </button>
+                </small>
+            </span>
+            <span class="calendar-phase-icon pull-right">
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose institution" />
+            </span>
+        </span>
+        <div class="col-md-12">
+            <div class="row">
                 <div class="col-1 student-exam-row-title">
                     <span ngbDropdown>
                         <button
@@ -185,47 +177,48 @@
                                 role="presentation"
                                 (click)="setOrganisation(org)"
                             >
-                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                                <a ngbDropdownItem role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
                             </li>
                         </ul>
                     </span>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="student-exam-row">
-                <!-- SELECTED Organisation  -->
-                <div class="calendar-room-title" *ngIf="selectedOrganisation">
-                    <span>{{ selectedOrganisation.name }}&nbsp;({{ selectedOrganisation.code }})</span>
-                </div>
+    <!-- Selected organisation  -->
+    <div id="calendar" class="row selected-room-container" *ngIf="selectedOrganisation">
+        <div class="col-md-12">
+            <div class="calendar-room-title">
+                <span>{{ selectedOrganisation.name }}&nbsp;({{ selectedOrganisation.code }})</span>
             </div>
         </div>
+    </div>
 
-        <!-- Room picker -->
-        <div class="student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
-            <div class="student-exam-header-row">
-                <span class="calendar-phase-title">
-                    {{ getSequenceNumber('room') }}. {{ 'sitnet_calendar_phase_2' | translate }}
-                    <small>
-                        <button
-                            class="btn btn-sm btn-success btn-link"
-                            (click)="makeExternalReservation()"
-                            *ngIf="isInteroperable && !isCollaborative && !isExternal"
-                        >
-                            {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                            <i class="fa fa-angle-double-right"></i>
-                        </button>
-                    </small>
-                </span>
-                <div class="calendar-phase-icon" *ngIf="selectedRoom">
-                    <img
-                        class="arrow_icon"
-                        alt="phase {{ isExternal ? 3 : 2 }}"
-                        src="/assets/assets/images/icon-phase.png"
-                    />
-                </div>
-            </div>
-            <div class="student-exam-header-row" [hidden]="isExternal">
-                <div class="calendar-accessibility-link">
+    <!-- Phase 4: Room picker -->
+    <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
+        <span class="col-md-12 marb10">
+            <span class="calendar-phase-title"
+                >{{ getSequenceNumber('room') }}. {{ 'sitnet_calendar_phase_2' | translate }}
+                <small>
+                    <button
+                        class="btn btn-sm btn-link"
+                        (click)="makeExternalReservation()"
+                        *ngIf="isInteroperable && !isCollaborative && !isExternal"
+                    >
+                        {{ 'sitnet_external_reservation' | translate }}&nbsp;
+                        <i class="fa fa-angle-double-right"></i>
+                    </button>
+                </small>
+            </span>
+            <span class="calendar-phase-icon pull-right">
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
+            </span>
+        </span>
+
+        <div class="col-md-12" [hidden]="isExternal">
+            <div class="row calendar-accessibility-link">
+                <span class="col-md-12">
                     <a *ngIf="sectionSelectionOk()" (click)="showAccs = !showAccs">
                         {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                     </a>
@@ -244,30 +237,34 @@
                         alt="hide accessibility selection"
                         src="/assets/assets/images/arrow_down.png"
                     />
-                </div>
-                <div class="student-exam-row-infobox" [hidden]="!showAccs">
-                    <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
-                    <div
-                        class="calendar-accs-checkboxes"
-                        style="display:inline-block; padding-right:10px;"
-                        *ngFor="let accessibility of accessibilities"
-                    >
-                        <input
-                            aria-label="search for accessibility criteria"
-                            type="checkbox"
-                            role="presentation"
-                            (click)="selectAccessibility(accessibility)"
-                            value="{{ accessibility.name | truncate: 30 }}"
-                        />
-                        {{ accessibility.name | truncate: 30 }}
-                    </div>
-                    <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
-                <div class="calendar-accs-checkboxes">....</div-->
-                </div>
+                </span>
             </div>
+            <div class="row" [hidden]="!showAccs">
+                <div class="col-md-12">
+                    <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
+                </div>
+                <div
+                    class="col-md-12 calendar-accs-checkboxes"
+                    style="display:inline-block; padding-right:10px;"
+                    *ngFor="let accessibility of accessibilities"
+                >
+                    <input
+                        aria-label="search for accessibility criteria"
+                        type="checkbox"
+                        role="presentation"
+                        (click)="selectAccessibility(accessibility)"
+                        value="{{ accessibility.name | truncate: 30 }}"
+                    />
+                    {{ accessibility.name | truncate: 30 }}
+                </div>
+                <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
+            <div class="calendar-accs-checkboxes">....</div-->
+            </div>
+        </div>
 
-            <div class="student-exam-row">
-                <div class="col-1 student-exam-row-title">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-1 student-exam-row-title">
                     <span ngbDropdown>
                         <button
                             style="width:13em;"
@@ -294,9 +291,14 @@
                                 [hidden]="room.filtered"
                                 role="presentation"
                                 [ngClass]="room.outOfService ? 'disabled' : ''"
-                                (click)="selectRoom(room); $event.preventDefault()"
+                                (click)="selectRoom(room)"
                             >
-                                <a role="menuitem" ngbPopover="{{ getDescription(room) }}" trigger="mouseenter">
+                                <a
+                                    ngbDropdownItem
+                                    role="menuitem"
+                                    ngbPopover="{{ getDescription(room) }}"
+                                    trigger="mouseenter"
+                                >
                                     {{ room.name | truncate: 30 }}</a
                                 >
                             </li>
@@ -304,164 +306,158 @@
                     </span>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="student-exam-row" *ngIf="selectedRoom">
-                <!-- SELECTED ROOM  -->
-                <div class="calendar-room-title">
+    <!-- SELECTED ROOM  -->
+    <div id="calendar" class="row selected-room-container" *ngIf="selectedRoom">
+        <div class="col-md-12">
+            <div class="calendar-room-title">
+                <span
+                    >{{ selectedRoom.name }}&nbsp;
+                    <small class="calendar-room-info-content"
+                        >{{ selectedRoom.mailAddress.street }} {{ selectedRoom.mailAddress.zip }}
+                        {{ selectedRoom.mailAddress.city }}
+                    </small>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="calendar-room-info">
+                <div class="calendar-room-info-title">{{ 'sitnet_room_default_working_hours' | translate }}:</div>
+                <div class="calendar-room-info-content">
+                    <span *ngFor="let oh of openingHours">
+                        {{ oh.name }}: {{ oh.periodText }}
+                        <!-- check joining -->
+                    </span>
+                    <span>({{ selectedRoom.localTimezone }})</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="calendar-room-info" *ngIf="exceptionHours?.length > 0">
+                <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
+                <div class="calendar-room-info-content">
                     <span
-                        >{{ selectedRoom.name }}&nbsp;
-                        <small class="calendar-room-info-content"
-                            >{{ selectedRoom.mailAddress.street }} {{ selectedRoom.mailAddress.zip }}
-                            {{ selectedRoom.mailAddress.city }}
-                        </small>
+                        *ngFor="let eh of exceptionHours"
+                        [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
+                        trigger="mouseenter"
+                        ngbPopover="{{ eh.description | translate }}"
+                    >
+                        {{ eh.start }} - {{ eh.end }}
+                        <!-- check joining {{ $last ? '' : '| ';}} -->
                     </span>
                 </div>
-
-                <div class="calendar-room-info">
-                    <div class="calendar-room-info-title">{{ 'sitnet_room_default_working_hours' | translate }}:</div>
-                    <div class="calendar-room-info-content">
-                        <span *ngFor="let oh of openingHours">
-                            {{ oh.name }}: {{ oh.periodText }}
-                            <!-- check joining -->
-                        </span>
-                        <span>({{ selectedRoom.localTimezone }})</span>
-                    </div>
-                </div>
-
-                <div class="calendar-room-info" *ngIf="exceptionHours?.length > 0">
-                    <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
-                    <div class="calendar-room-info-content">
-                        <span
-                            *ngFor="let eh of exceptionHours"
-                            [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
-                            trigger="mouseenter"
-                            ngbPopover="{{ eh.description | translate }}"
-                        >
-                            {{ eh.start }} - {{ eh.end }}
-                            <!-- check joining {{ $last ? '' : '| ';}} -->
-                        </span>
-                    </div>
-                </div>
-
-                <div class="calendar-room-info" *ngIf="getRoomInstructions()">
-                    <div class="calendar-room-info-title">{{ 'sitnet_instructions' | translate }}:</div>
-                    <div class="calendar-room-info-content">{{ getRoomInstructions() }}</div>
-                </div>
-
-                <div class="calendar-room-info" *ngIf="getRoomAccessibility()">
-                    <div class="calendar-room-info-title">{{ 'sitnet_room_accessibility' | translate }}:</div>
-                    <div class="calendar-room-info-content">{{ getRoomAccessibility() }}</div>
-                </div>
-
-                <hr *ngIf="selectedRoom" />
-            </div>
-
-            <div class="student-exam-row">
-                <div class="main-row" *ngIf="loader.loading">
-                    <div class="col-md-12">
-                        <button class="btn btn-success">
-                            {{ 'sitnet_searching' | translate }}...
-                            <i class="fa fa-spinner fa-spin"></i>
-                        </button>
-                    </div>
-                </div>
-                <booking-calendar
-                    #bc
-                    (onRefresh)="refresh($event)"
-                    (onEventSelected)="createReservation($event)"
-                    (onViewAvailable)="renderExceptionHours($event)"
-                    [minDate]="minDate"
-                    [maxDate]="maxDate"
-                    [visible]="calendarVisible"
-                >
-                </booking-calendar>
             </div>
         </div>
-
-        <!-- Reservation confirmation -->
-
-        <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'">
-            <div class="student-exam-header-row">
-                <span class="calendar-phase-title"
-                    >{{ getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}</span
-                >
-                <div class="calendar-phase-icon" [hidden]="!reservation">
-                    <img class="arrow_icon" alt="reservation confirmation" src="Images/icon-phase.png" />
-                </div>
+        <div class="col-md-12">
+            <div class="calendar-room-info" *ngIf="getRoomInstructions()">
+                <div class="calendar-room-info-title">{{ 'sitnet_instructions' | translate }}:</div>
+                <div class="calendar-room-info-content">{{ getRoomInstructions() }}</div>
             </div>
-            <div class="student-exam-header-row">
-                <div class="calendar-titles">
-                    <span class="calendar-course-title">{{ examInfo.name }}</span>
-                </div>
+        </div>
+        <div class="col-md-12">
+            <div class="calendar-room-info" *ngIf="getRoomAccessibility()">
+                <div class="calendar-room-info-title">{{ 'sitnet_room_accessibility' | translate }}:</div>
+                <div class="calendar-room-info-content">{{ getRoomAccessibility() }}</div>
             </div>
+            <hr *ngIf="selectedRoom" />
+        </div>
+    </div>
 
+    <div class="row booking-calendar-container">
+        <div class="col-md-12">
+            <booking-calendar
+                (onRefresh)="refresh($event)"
+                (onEventSelected)="createReservation($event)"
+                (onNeedMoreEvents)="refresh($event)"
+                [minDate]="minDate"
+                [maxDate]="maxDate"
+                [visible]="calendarVisible"
+                [events]="events"
+            >
+            </booking-calendar>
+        </div>
+    </div>
+
+    <!-- Reservation confirmation -->
+
+    <div class="student-enrolment-wrapper details-view phase-three row" [ngClass]="reservation ? '' : 'notactive'">
+        <span class="col-md-12 marb10">
+            <span class="calendar-phase-title"
+                >{{ getSequenceNumber('room') }}. {{ 'sitnet_calendar_phase_2' | translate }}
+            </span>
+            <span class="calendar-phase-icon pull-right">
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="reservation confirmation" />
+            </span>
+        </span>
+        <div class="col-md-12">
+            <div class="calendar-titles">
+                <span class="calendar-course-title">{{ examInfo.name }}</span>
+            </div>
+        </div>
+        <div class="col-md-12">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ examInfo.course?.code }} {{ examInfo.course?.name }}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                            {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
-                        </div>
-                    </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ examInfo.course?.code }} {{ examInfo.course?.name }}
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ 'sitnet_examination_location' | translate }}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ reservation?.room }}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_reservation' | translate }}:</div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ reservation?.time }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_exam_duration' | translate }}:</div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ printExamDuration(examInfo) }}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                            &nbsp;
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            &nbsp;
-                        </div>
-                    </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                    {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
+                    {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
                 </div>
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_examination_location' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ reservation?.room }}
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_reservation' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                    {{ reservation?.time }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_exam_duration' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ printExamDuration(examInfo) }}
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    &nbsp;
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="calendar-button-save">
-            <div [ngClass]="reservation ? 'calendar-button-save-activated' : 'link-button'">
-                <button [disabled]="!reservation || confirming" class="btn btn-link" (click)="confirmReservation()">
-                    {{ 'sitnet_student_confirm_reservation' | translate }}
+    <div class="row">
+        <span class="col-md-12">
+            <button
+                type="button"
+                [disabled]="!reservation || confirming"
+                class="btn btn-primary pull-right"
+                (click)="confirmReservation()"
+            >
+                {{ 'sitnet_student_confirm_reservation' | translate }}
+            </button>
+            <a uiSref="dashboard">
+                <button type="button" class="btn btn-secondary pull-right marr10">
+                    {{ 'sitnet_button_cancel' | translate }}
                 </button>
-            </div>
-            <div>
-                <br />
-                <a class="link-button cancel" ui-sref="dashboard">{{ 'sitnet_button_cancel' | translate }}</a>
-            </div>
-        </div>
+            </a>
+        </span>
     </div>
 </div>

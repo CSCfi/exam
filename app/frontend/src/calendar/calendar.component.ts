@@ -15,12 +15,12 @@
 /// <reference types="angular-dialog-service" />
 import { Location } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { EventApi } from '@fullcalendar/core';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateParams } from '@uirouter/core';
+import { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -29,7 +29,7 @@ import { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/r
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { BookingCalendarComponent } from './bookingCalendar.component';
+import { SlotMeta } from './bookingCalendar.component';
 import { CalendarService, OpeningHours, Slot } from './calendar.service';
 
 type SelectableSection = ExamSection & { selected: boolean };
@@ -59,8 +59,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     @Input() isExternal: boolean;
     @Input() isCollaborative: boolean;
 
-    @ViewChild('bc') bc: BookingCalendarComponent;
-
     accessibilities: FilteredAccessibility[] = [];
     isInteroperable: boolean;
     confirming = false;
@@ -76,12 +74,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
     };
     minDate: moment.Moment;
     maxDate: moment.Moment;
+    minHours: number;
+    maxHours: number;
     reservationWindowEndDate: moment.Moment;
     reservationWindowSize: number;
     selectedRoom: FilteredRoom;
     selectedOrganisation: Organisation;
     calendarVisible: boolean;
-    events: Partial<EventApi>[];
+
+    events: CalendarEvent<SlotMeta>[];
 
     private ngUnsubscribe = new Subject();
 
@@ -107,8 +108,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         }
     };
 
-    private prepareOptionalSections = (data: ReservationInfo) => {
-        if (data.optionalSections) {
+    private prepareOptionalSections = (data: ReservationInfo | null) => {
+        if (data && data.optionalSections) {
             this.examInfo.examSections
                 .filter(es => es.optional)
                 .forEach(es => (es.selected = data.optionalSections.map(es => es.id).indexOf(es.id) > -1));
@@ -145,9 +146,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 tap(resp => (this.isInteroperable = resp.isExamVisitSupported)),
                 tap(() => this.fetchOrganisations()),
                 switchMap(() =>
-                    this.http.get<ReservationInfo>(`/app/calendar/enrolment/${this.stateParams.id}/reservation`),
+                    this.http.get<ReservationInfo | null>(`/app/calendar/enrolment/${this.stateParams.id}/reservation`),
                 ),
-                tap(resp => this.prepareOptionalSections(resp)),
+                tap((resp: ReservationInfo | null) => this.prepareOptionalSections(resp)),
             )
             .subscribe();
     }
@@ -242,10 +243,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.location.go('/calendar/' + this.stateParams.id);
     }
 
-    private adjust(date: string, tz: string): string {
+    private adjust(date: string, tz: string): Date {
         const adjusted: moment.Moment = moment.tz(date, tz);
         const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').format();
+        return adjusted.add(offset, 'hour').toDate();
     }
 
     private getTitle(slot: AvailableSlot): string {
@@ -258,7 +259,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         }
     }
 
-    private getColor(slot: AvailableSlot) {
+    /*private getColor(slot: AvailableSlot) {
         if (slot.availableMachines < 0) {
             return '#92c3e4'; // blueish
         } else if (slot.availableMachines > 0) {
@@ -266,36 +267,26 @@ export class CalendarComponent implements OnInit, OnDestroy {
         } else {
             return '#D8D8D8'; // grey
         }
-    }
+    }*/
 
-    private query(
-        success: (_: AvailableSlot[]) => void,
-        error: (_: HttpErrorResponse) => void,
-        date: string,
-        room: ExamRoom,
-        accessibilityIds: number[],
-    ) {
+    private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
         if (this.isExternal) {
-            this.http
-                .get<AvailableSlot[]>(`/integration/iop/calendar/${this.stateParams.id}/${room._id}`, {
-                    params: {
-                        org: this.selectedOrganisation._id,
-                        date: date,
-                    },
-                })
-                .subscribe(success, error);
+            return this.http.get<AvailableSlot[]>(`/integration/iop/calendar/${this.stateParams.id}/${room._id}`, {
+                params: {
+                    org: this.selectedOrganisation._id,
+                    date: date,
+                },
+            });
         } else {
             const url = this.isCollaborative
                 ? `/integration/iop/exams/${this.stateParams.id}/calendar/${room.id}`
                 : `/app/calendar/${this.stateParams.id}/${room.id}`;
-            this.http
-                .get(url, {
-                    params: {
-                        day: date,
-                        aids: accessibilityIds.join(','),
-                    },
-                })
-                .subscribe(success, error);
+            return this.http.get<AvailableSlot[]>(url, {
+                params: {
+                    day: date,
+                    aids: accessibilityIds.join(','),
+                },
+            });
         }
     }
 
@@ -313,28 +304,27 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 ? []
                 : this.Calendar.getExceptionHours(this.selectedRoom, moment($event.start), moment($event.end)));
 
-    refresh($event: { start: Date; callback: (events: unknown[]) => unknown }) {
+    refresh($event: { date: Date }) {
         const room = this.selectedRoom;
         if (!room) {
             return;
         }
-        const date = $event.start;
+        const date = $event.date;
         const accessibilities = this.accessibilities.filter(i => i.filtered).map(i => i.id);
         this.loader.loading = true;
         const tz = room.localTimezone;
+
         const successFn = (resp: AvailableSlot[]) => {
-            const events = resp.map((slot, i) => {
-                return {
-                    id: i,
-                    title: this.getTitle(slot),
-                    backgroundColor: this.getColor(slot),
-                    start: this.adjust(slot.start, tz),
-                    end: this.adjust(slot.end, tz),
-                    extendedProps: { availableMachines: slot.availableMachines, selected: false },
-                };
-            });
-            $event.callback(events);
+            const events: CalendarEvent<SlotMeta>[] = resp.map((slot: AvailableSlot, i) => ({
+                id: i,
+                title: this.getTitle(slot),
+                start: this.adjust(slot.start, tz),
+                end: this.adjust(slot.end, tz),
+                meta: { availableMachines: slot.availableMachines },
+            }));
             this.loader.loading = false;
+            this.events = events;
+            this.render();
         };
         const errorFn = (resp: HttpErrorResponse) => {
             this.loader.loading = false;
@@ -346,7 +336,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 toast.error(this.translate.instant('sitnet_no_suitable_enrolment_found'));
             }
         };
-        this.query(successFn, errorFn, date.toISOString(), room, accessibilities);
+        this.query(moment(date).format('YYYY-MM-DD'), room, accessibilities).subscribe(successFn, errorFn);
+    }
+
+    selectRoom(room: FilteredRoom) {
+        if (!room.outOfService) {
+            this.rooms.forEach(r => (r.filtered = false));
+            room.filtered = true;
+            this.selectedRoom = room;
+            delete this.reservation;
+            this.openingHours = this.Calendar.processOpeningHours(room);
+            this.refresh({ date: new Date() });
+        }
     }
 
     createReservation($event: { start: Date; end: Date }) {
@@ -392,7 +393,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.isCollaborative,
             selectedSectionIds,
         )
-            .subscribe(() => this.location.go('/'), resp => toast.error(resp.error))
+            .subscribe(
+                () => this.location.go('/'),
+                resp => {
+                    toast.error(resp.error);
+                },
+            )
             .add(() => (this.confirming = false));
     }
 
@@ -422,16 +428,5 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     printExamDuration(exam: Exam) {
         return this.DateTime.printExamDuration(exam);
-    }
-
-    selectRoom(room: FilteredRoom) {
-        if (!room.outOfService) {
-            this.rooms.forEach(r => (r.filtered = false));
-            room.filtered = true;
-            this.selectedRoom = room;
-            delete this.reservation;
-            this.openingHours = this.Calendar.processOpeningHours(room);
-            this.render();
-        }
     }
 }

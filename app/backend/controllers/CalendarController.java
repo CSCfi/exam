@@ -100,7 +100,7 @@ public class CalendarController extends BaseController {
             emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
             logger.info("Reservation cancellation confirmation email sent");
         }, system.dispatcher());
-        return ok("removed");
+        return ok();
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
@@ -252,7 +252,7 @@ public class CalendarController extends BaseController {
             logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
 
-        return wrapAsPromise(ok("ok"));
+        return wrapAsPromise(ok());
     }
 
     @Authenticated

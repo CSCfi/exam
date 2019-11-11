@@ -1,5 +1,58 @@
-<div id="calendarBlock" *ngIf="visible">
-    <full-calendar
+<div *ngIf="visible">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="btn-group">
+                <div
+                    class="btn btn-primary"
+                    mwlCalendarPreviousView
+                    [view]="view"
+                    [(viewDate)]="viewDate"
+                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
+                >
+                    Previous
+                </div>
+                <div
+                    class="btn btn-outline-secondary"
+                    mwlCalendarToday
+                    [(viewDate)]="viewDate"
+                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
+                >
+                    Today
+                </div>
+                <div
+                    class="btn btn-primary"
+                    mwlCalendarNextView
+                    [view]="view"
+                    [(viewDate)]="viewDate"
+                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
+                >
+                    Next
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-template #loading *ngIf="visible">
+        <div class="text-center">
+            <i class="fa fa-spin fa-spinner fa-5x"></i> <br />
+            Loading events...
+        </div>
+    </ng-template>
+
+    <div *ngIf="visible">
+        <mwl-calendar-week-view
+            [viewDate]="viewDate"
+            [events]="events"
+            [dayStartHour]="06"
+            [dayEndHour]="22"
+            [locale]="locale"
+            [weekStartsOn]="weekStartsOn"
+            [excludeDays]="hiddenDays"
+            (eventClicked)="eventClicked($event.event)"
+        >
+        </mwl-calendar-week-view>
+    </div>
+
+    <!--full-calendar
         #bookingCalendar
         [plugins]="plugins"
         [events]="fetchEvents"
@@ -15,5 +68,5 @@
         (eventClick)="options.eventClick($event)"
         id="calendar"
     >
-    </full-calendar>
+    </full-calendar-->
 </div>
