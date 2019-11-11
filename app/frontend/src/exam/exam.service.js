@@ -423,7 +423,7 @@ angular.module('app.exam').service('Exam', [
         self.previewExam = function(exam, fromTab, collaborative) {
             const params = { id: exam.id, tab: fromTab };
             if (collaborative) {
-                $state.go('collaborativeExamEditor', params);
+                $state.go('collaborativePreview', params);
             } else if (exam.executionType.type === 'PRINTOUT') {
                 $state.go('printout', params);
             } else {
