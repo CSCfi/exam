@@ -1,19 +1,14 @@
 package backend.util.config;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.zip.GZIPOutputStream;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
@@ -28,7 +23,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.cryptonode.jncryptor.AES256JNCryptor;
 import org.cryptonode.jncryptor.CryptorException;
@@ -50,8 +44,6 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private static final String START_URL_PLACEHOLDER = "*** startURL ***";
     private static final String QUIT_PWD_PLACEHOLDER = "*** quitPwd ***";
     private static final String PASSWORD_ENCRYPTION = "pswd";
-    private static final String HMAC_SHA_256 = "HMACSHA256";
-    private static final int KB = 1024;
 
     private FileHandler fileHandler;
     private ConfigReader configReader;
@@ -162,25 +154,6 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         return om.writeValueAsString(tm);
     }
 
-    private byte[] calculateHmac(Mac mac, InputStream in) throws java.io.IOException {
-        byte[] buf = new byte[KB];
-        int len;
-        while ((len = in.read(buf)) != -1) {
-            mac.update(buf, 0, len);
-        }
-        return mac.doFinal();
-    }
-
-    private String hmac(String sebJson) throws NoSuchAlgorithmException, IOException, InvalidKeyException {
-        SecretKey sk = new EmptyHmacKey();
-        Mac mac = Mac.getInstance(HMAC_SHA_256);
-        mac.init(sk);
-        InputStream is = new ByteArrayInputStream(sebJson.getBytes(StandardCharsets.UTF_8));
-        byte[] hmac = calculateHmac(mac, is);
-        is.close();
-        return Hex.encodeHexString(hmac);
-    }
-
     @Override
     public byte[] getExamConfig(String hash, byte[] pwd, String salt) throws IOException, CryptorException {
         String template = getTemplate(hash);
@@ -237,8 +210,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
 
 
     @Override
-    public String calculateConfigKey(String hash) throws IOException, ParserConfigurationException, SAXException,
-            InvalidKeyException, NoSuchAlgorithmException {
+    public String calculateConfigKey(String hash) throws IOException, ParserConfigurationException, SAXException {
         Document doc;
         try (StringReader reader = new StringReader(getTemplate(hash))) {
             InputSource src = new InputSource(reader);
@@ -252,7 +224,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         if (sebJson.isPresent()) {
             String ordered = jsonToSortedString(sebJson.get());
             String unescaped = ordered.replaceAll("\\\\\\\\", "\\\\");
-            return hmac(unescaped);
+            return DigestUtils.sha256Hex(unescaped);
         }
         throw new IOException("Failed in converting the seb.plist to json");
     }
