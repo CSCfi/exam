@@ -15,10 +15,12 @@
 
 package backend.models;
 
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -41,6 +43,10 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @JsonBackReference
     private ExaminationEvent examinationEvent;
 
+    @OneToMany(mappedBy = "examinationEventConfiguration")
+    @JsonBackReference
+    private Set<ExamEnrolment> examEnrolments;
+
     @Lob
     @JsonIgnore
     private byte[] encryptedSettingsPassword;
@@ -57,7 +63,6 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @Transient
     private String settingsPassword;
 
-
     public Exam getExam() {
         return exam;
     }
@@ -72,6 +77,14 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
     public void setExaminationEvent(ExaminationEvent examinationEvent) {
         this.examinationEvent = examinationEvent;
+    }
+
+    public Set<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+
+    public void setExamEnrolments(Set<ExamEnrolment> examEnrolments) {
+        this.examEnrolments = examEnrolments;
     }
 
     public byte[] getEncryptedSettingsPassword() {

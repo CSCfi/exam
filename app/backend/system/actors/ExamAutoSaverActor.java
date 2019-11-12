@@ -33,6 +33,7 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
+import backend.models.ExaminationEvent;
 import backend.models.GeneralSettings;
 import backend.models.Reservation;
 import backend.models.User;
@@ -66,6 +67,7 @@ public class ExamAutoSaverActor extends AbstractActor {
                 .fetch("exam")
                 .fetch("reservation")
                 .fetch("reservation.machine.room")
+                .fetch("examinationEvent")
                 .where()
                 .isNull("ended")
                 .isNotNull("reservation")
@@ -82,9 +84,12 @@ public class ExamAutoSaverActor extends AbstractActor {
         for (ExamParticipation participation : participations) {
             Exam exam = participation.getExam();
             Reservation reservation = participation.getReservation();
-            DateTime reservationStart = new DateTime(reservation.getStartAt());
+            ExaminationEvent event = participation.getExaminationEvent();
+            DateTime reservationStart = new DateTime(reservation == null ? event.getStart() : reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = reservation == null ?
+                    DateTimeUtils.adjustDST(DateTime.now()) :
+                    DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 participation.setEnded(now);
                 participation.setDuration(
