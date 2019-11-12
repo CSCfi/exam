@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
@@ -26,6 +25,7 @@ export const DatePickerComponent: angular.IComponentOptions = {
         extraText: '@',
         onExtraAction: '&',
         modelOptions: '<?',
+        disabled: '<',
         optional: '<?',
     },
     controller: class DatePickerController implements angular.IComponentController {

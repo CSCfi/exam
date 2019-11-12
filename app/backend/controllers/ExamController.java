@@ -565,6 +565,7 @@ public class ExamController extends BaseController {
                 .fetch("executionType")
                 .fetch("examinationDates")
                 .fetch("examinationEventConfigurations")
+                .fetch("examinationEventConfigurations.examEnrolments")
                 .fetch("examinationEventConfigurations.examinationEvent")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")

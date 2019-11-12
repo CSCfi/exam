@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
+
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
-import { StateService } from '@uirouter/core';
 
 export const ExamSearchResultComponent: angular.IComponentOptions = {
     template: require('./examSearchResult.template.html'),
@@ -43,8 +43,13 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
                 .catch(angular.noop);
         };
 
-        makeReservation = () =>
-            this.$state.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
+        makeReservation = () => {
+            if (this.exam.requiresUserAgentAuth) {
+                this.$state.go('dashboard');
+            } else {
+                this.$state.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
+            }
+        };
     },
 };
 

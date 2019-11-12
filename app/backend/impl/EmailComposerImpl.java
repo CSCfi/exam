@@ -311,7 +311,9 @@ class EmailComposerImpl implements EmailComposer {
         attachment.setPath(file.getAbsolutePath());
         attachment.setDisposition(EmailAttachment.ATTACHMENT);
         attachment.setName(fileName + ".seb");
-
+        if (env.isDev()) {
+            logger.info("Wrote SEB config file to {}", file.getAbsolutePath());
+        }
         emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 

@@ -19,10 +19,17 @@
             <div class="student-exam-header-row">
                 <div>
                     <!-- calendar box -->
-                    <div class="student-enrolment-date-box">
+                    <div ng-if="$ctrl.enrolment.reservation" class="student-enrolment-date-box">
                         {{ $ctrl.enrolment.reservation.startAt | date:'dd' }}
                         <span class="month-name"
                             >{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span
+                        >
+                    </div>
+                    <div ng-if="$ctrl.enrolment.examinationEventConfiguration" class="student-enrolment-date-box">
+                        {{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'dd' }}
+                        <span class="month-name"
+                            >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'MMM' |
+                            limitTo:3 | uppercase }}</span
                         >
                     </div>
                     <!-- exam title n stuff -->
@@ -60,7 +67,7 @@
                     </div>
                 </div>
                 <div class="col-md-12" style="padding-top:10px;">
-                    <div class="row">
+                    <div ng-if="$ctrl.enrolment.reservation" class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                             {{ 'sitnet_exam_room' | translate }}:
                         </div>
@@ -78,6 +85,27 @@
                             {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
                             {{$ctrl.enrolment.reservation.occasion.startAt}} -
                             {{$ctrl.enrolment.reservation.occasion.endAt}}
+                        </div>
+                    </div>
+                    <div ng-if="$ctrl.enrolment.examinationEventConfiguration" class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_examination_event' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.description }}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_begin' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{$ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | adjustdst |
+                            date:'dd.MM.yyyy HH:mm'}}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_exam_duration' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{ $ctrl.enrolment.exam.duration }} {{ 'sitnet_minutes' | translate }}
                         </div>
                     </div>
                 </div>

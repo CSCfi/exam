@@ -16,6 +16,7 @@
 package backend.controllers;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
 import backend.models.GeneralSettings;
+import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
@@ -337,15 +339,20 @@ public class ExaminationController extends BaseController {
     }
 
     private void setDurations(ExamParticipation ep) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        DateTime now = ep.getReservation() == null ?
+                DateTimeUtils.adjustDST(DateTime.now()) :
+                DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
         boolean isCollaborative = enrolment.getCollaborativeExam() != null;
-        Set<Long> ids = enrolment.getReservation().getOptionalSections().stream()
-                .map(ExamSection::getId).collect(Collectors.toSet());
+        Reservation reservation = enrolment.getReservation();
+        // TODO: support for optional sections in BYOD exams
+        Set<Long> ids = reservation == null ? Collections.emptySet() :
+                reservation.getOptionalSections().stream()
+                        .map(ExamSection::getId).collect(Collectors.toSet());
         Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
@@ -361,19 +368,36 @@ public class ExaminationController extends BaseController {
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
         examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
-        examParticipation.setReservation(enrolment.getReservation());
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        examParticipation.setReservation(reservation);
+        if (enrolment.getExaminationEventConfiguration() != null) {
+            examParticipation.setExaminationEvent(enrolment.getExaminationEventConfiguration().getExaminationEvent());
+        }
+        DateTime now = reservation == null ? DateTimeUtils.adjustDST(DateTime.now()) :
+                DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         examParticipation.setStarted(now);
         examParticipation.save();
         return studentExam;
     }
 
-    private static ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
+    private boolean isInEffect(ExamEnrolment ee) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        return Ebean.find(ExamEnrolment.class)
+        if (ee.getReservation() != null) {
+            return ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now);
+        } else if (ee.getExaminationEventConfiguration() != null) {
+            DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            DateTime end = start.plusMinutes(ee.getExam().getDuration());
+            return start.isBefore(now) && end.isAfter(now);
+        }
+        return false;
+    }
+
+    private ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
                 .where()
                 .eq("user.id", user.getId())
                 .or()
@@ -383,9 +407,15 @@ public class ExaminationController extends BaseController {
                 .isNull("exam.id")
                 .endAnd()
                 .endOr()
-                .le("reservation.startAt", now.toDate())
-                .gt("reservation.endAt", now.toDate())
-                .findOne();
+                .findList()
+                .stream()
+                .filter(this::isInEffect)
+                .collect(Collectors.toList());
+
+        if (enrolments.size() > 1) {
+            logger.error("multiple enrolments found during examination");
+        }
+        return enrolments.isEmpty() ? null : enrolments.get(0);
     }
 
     protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, Http.Request request) {
@@ -394,13 +424,14 @@ public class ExaminationController extends BaseController {
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         }
-        // Exam and enrolment found. Is student on the right machine?
-        if (enrolment.getReservation() == null) {
+        boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        if (isByod) {
+            return byodConfigHandler.checkUserAgent(request,
+                    enrolment.getExaminationEventConfiguration().getConfigKey());
+        } else if (enrolment.getReservation() == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         } else if (enrolment.getReservation().getMachine() == null) {
             return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
-        } else if (enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth()) {
-            return byodConfigHandler.checkUserAgent(request, enrolment.getExam().getConfigKey());
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
