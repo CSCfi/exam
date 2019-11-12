@@ -21,7 +21,7 @@ angular.module('app.question').component('claimChoiceForm', {
             <div>
                 <div class="col-md-9 col-md-offset-3 mart10 marb0"">
                     <div class="col-md-8 padl0">
-                        <span class="question-option-title">{{'sitnet_claim' | translate}}</span>
+                        <span class="question-option-title">{{'sitnet_question_options' | translate | uppercase}}</span>
                         <br/><span>
                             <i ng-if="$ctrl.showWarning" class="fa fa-exclamation-circle reddish"></i>
                             <small ng-if="$ctrl.showWarning">{{'sitnet_shared_question_property_info' | translate}}</small>

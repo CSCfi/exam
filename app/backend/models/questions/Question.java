@@ -56,6 +56,8 @@ import backend.models.base.OwnedModel;
 import backend.models.sections.ExamSectionQuestion;
 import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 
+import backend.sanitizers.SanitizingHelper;
+
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
 
@@ -286,6 +288,30 @@ public class Question extends OwnedModel implements AttachmentContainer {
     }
 
     @Transient
+    private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
+
+        // Check that all required option conditions are met, discarding possible duplicates
+        return StreamSupport.stream(options.spliterator(), false)
+                .filter(n -> {
+                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null);
+                    Double defaultScore = n.get("defaultScore").asDouble();
+
+                    if(type == null) {
+                        return false;
+                    }
+
+                    return (
+                        (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0) ||
+                        (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0) ||
+                        (type == ClaimChoiceOptionType.SkipOption)
+                    );
+                })
+                .distinct()
+                .limit(3)
+                .count() == 3;
+    }
+
+    @Transient
     public Optional<Result> getValidationResult(JsonNode node) {
         String reason = null;
         if (nodeExists(node, "question")) {
@@ -335,27 +361,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         reason = "sitnet_three_answers_required_in_claim_question";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
-                        boolean hasCorrectOption = StreamSupport.stream(options.spliterator(), false)
-                                .anyMatch(n -> {
-                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
-                                    Double score = n.get("defaultScore").asDouble();
-                                    return (ccot == ClaimChoiceOptionType.CorrectOption && score > 0);
-                                });
+                        boolean hasValidOptions = getClaimChoiceOptionsValidationResult(options);
 
-                        boolean hasIncorrectOption = StreamSupport.stream(options.spliterator(), false)
-                                .anyMatch(n -> {
-                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
-                                    Double score = n.get("defaultScore").asDouble();
-                                    return (ccot == ClaimChoiceOptionType.IncorrectOption && score <= 0);
-                                });
-
-                        boolean hasSkipOption = StreamSupport.stream(options.spliterator(), false)
-                                .anyMatch(n -> {
-                                    ClaimChoiceOptionType ccot = ClaimChoiceOptionType.valueOf(n.get("claimChoiceType").asText());
-                                    return (ccot == ClaimChoiceOptionType.SkipOption);
-                                });
-
-                        if(!hasCorrectOption || !hasIncorrectOption || !hasSkipOption) {
+                        if(!hasValidOptions) {
                             reason = "sitnet_incorrect_claim_question_options";
                         }
                     }
