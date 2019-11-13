@@ -76,7 +76,6 @@ import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
-@Restrict({@Group("STUDENT")})
 public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
@@ -122,7 +121,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
-    @Transactional
+    @Restrict({@Group("STUDENT")})
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -142,7 +141,7 @@ public class ExaminationController extends BaseController {
                 if (error.isPresent()) {
                     return error.get();
                 }
-                Exam newExam = createNewExam(prototype, user, enrolment);
+                Exam newExam = Ebean.executeCall(() -> createNewExam(prototype, user, enrolment));
                 if (enrolment.getCollaborativeExam() != null) {
                     try {
                         externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
@@ -172,6 +171,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Transactional
     public Result turnExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
@@ -210,6 +210,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Transactional
     public Result abortExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
@@ -240,6 +241,7 @@ public class ExaminationController extends BaseController {
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
+    @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
@@ -263,6 +265,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
@@ -284,6 +287,7 @@ public class ExaminationController extends BaseController {
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
+    @Restrict({@Group("STUDENT")})
     public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
