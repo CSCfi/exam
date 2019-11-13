@@ -283,6 +283,9 @@ angular.module('app.exam').service('Exam', [
                             }
                         }
                         break;
+                    case 'ClaimChoiceQuestion':
+                        score += Question.scoreClaimChoiceAnswer(sq);
+                        break;
                     default:
                         break;
                 }
@@ -308,6 +311,9 @@ angular.module('app.exam').service('Exam', [
                         if (sq.evaluationType === 'Points') {
                             score += sq.maxScore;
                         }
+                        break;
+                    case 'ClaimChoiceQuestion':
+                        score += Question.getCorrectClaimChoiceOptionScore(sq);
                         break;
                     default:
                         break;
@@ -367,7 +373,7 @@ angular.module('app.exam').service('Exam', [
             exam.examSections.forEach(function(section) {
                 total += self.getSectionTotalScore(section);
             });
-            return total.toFixed(2);
+            return Math.max(total.toFixed(2), 0.0);
         };
 
         self.isOwner = function(exam, collaborative) {

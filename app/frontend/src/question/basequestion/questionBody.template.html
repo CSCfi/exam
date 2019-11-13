@@ -89,6 +89,9 @@
         <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">
             {{'sitnet_toolbar_weighted_multiplechoice_question' | translate}}
         </span>
+        <span ng-if="$ctrl.question.type == 'ClaimChoiceQuestion'">
+            {{'sitnet_toolbar_claim_choice_question' | translate}}
+        </span>
     </div>
 
     <div class="col-md-12 mart40 padl0 padr0" ng-if="$ctrl.question.type">
@@ -130,7 +133,8 @@
     <div
         class="col-md-12 mart40 wide-column padl0 marb20"
         ng-show="$ctrl.question.type == 'MultipleChoiceQuestion' ||
-                                                                     $ctrl.question.type == 'WeightedMultipleChoiceQuestion'"
+                                                                     $ctrl.question.type == 'WeightedMultipleChoiceQuestion' ||
+                                                                     $ctrl.question.type == 'ClaimChoiceQuestion'"
     >
         <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
     </div>
@@ -154,6 +158,12 @@
             allow-option-removal="!$ctrl.isInPublishedExam"
         >
         </multiple-choice-form>
+        <claim-choice-form
+            ng-switch-when="ClaimChoiceQuestion"
+            question="$ctrl.question"
+            show-warning="$ctrl.showWarning()"
+        >
+        </claim-choice-form>
     </div>
 
     <!-- Evaluation type - not allowed if question is in use in other published exam. -->

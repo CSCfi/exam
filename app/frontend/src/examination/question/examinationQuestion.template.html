@@ -110,6 +110,14 @@
             >
             </examination-multi-choice-question>
 
+            <examination-multi-choice-question
+                ng-switch-when="ClaimChoiceQuestion"
+                sq="$ctrl.sq"
+                exam-hash="$ctrl.exam.hash"
+                is-preview="$ctrl.isPreview"
+            >
+            </examination-multi-choice-question>
+
             <examination-weighted-multi-choice-question
                 ng-switch-when="WeightedMultipleChoiceQuestion"
                 sq="$ctrl.sq"

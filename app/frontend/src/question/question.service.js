@@ -84,6 +84,8 @@ function QuestionService(
             case 'cloze':
                 questionType = 'ClozeTestQuestion';
                 break;
+            case 'claim':
+                questionType = 'ClaimChoiceQuestion';
         }
         return questionType;
     };
@@ -131,6 +133,40 @@ function QuestionService(
         return parseFloat(points.toFixed(2));
     };
 
+    this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.correctOption && o.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].defaultScore;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
+    this.getCorrectClaimChoiceOptionScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].score;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
     this.scoreClozeTestAnswer = sectionQuestion => {
         if (_.isNumber(sectionQuestion.forcedScore)) {
             return sectionQuestion.forcedScore;
@@ -164,6 +200,28 @@ function QuestionService(
         }
         if (selected[0].option.correctOption === true) {
             return sectionQuestion.maxScore;
+        }
+        return 0;
+    };
+
+    this.scoreClaimChoiceAnswer = (sectionQuestion, ignoreForcedScore) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+            return sectionQuestion.forcedScore;
+        }
+        const selected = sectionQuestion.options.filter(o => o.answered);
+
+        // Use the score from the skip option if no option was chosen
+        const skipOption = sectionQuestion.options.filter(o => o.option.claimChoiceType === 'SkipOption');
+        const skipScore = skipOption.length === 1 ? skipOption[0].score : 0;
+
+        if (selected.length === 0) {
+            return skipScore;
+        }
+        if (selected.length !== 1) {
+            console.error('multiple options selected for a ClaimChoice answer!');
+        }
+        if (selected[0].score && _.isNumber(selected[0].score)) {
+            return selected[0].score;
         }
         return 0;
     };
@@ -203,6 +261,7 @@ function QuestionService(
             case 'WeightedMultipleChoiceQuestion':
             case 'EssayQuestion':
             case 'ClozeTestQuestion':
+            case 'ClaimChoiceQuestion':
                 _filter = filter;
                 break;
             default:
@@ -265,6 +324,7 @@ function QuestionService(
                 break;
             case 'MultipleChoiceQuestion':
             case 'WeightedMultipleChoiceQuestion':
+            case 'ClaimChoiceQuestion':
                 questionToUpdate.options = question.options;
                 break;
         }
