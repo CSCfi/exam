@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.zip.GZIPOutputStream;
-import javax.crypto.SecretKey;
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,26 +47,6 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private FileHandler fileHandler;
     private ConfigReader configReader;
     private Environment env;
-
-    // This is a workaround for using hmac with empty key
-    // Should not be doing this but some bug in SEB client forces our hand (it should support SHA-256 but it doesn't)
-    private class EmptyHmacKey implements SecretKey {
-
-        @Override
-        public String getAlgorithm() {
-            return "HMAC";
-        }
-
-        @Override
-        public String getFormat() {
-            return "RAW";
-        }
-
-        @Override
-        public byte[] getEncoded() {
-            return new byte[0];
-        }
-    }
 
     @Inject
     ByodConfigHandlerImpl(FileHandler fileHandler, ConfigReader configReader, Environment env) {
@@ -202,7 +181,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         } else {
             String eckDigest = DigestUtils.sha256Hex(absoluteUrl + examConfigKey);
             if (!eckDigest.equals(oc.get())) {
-                return Optional.of(Results.unauthorized("Wrong ECK digest"));
+                return Optional.of(Results.unauthorized("Wrong configuration key digest"));
             }
         }
         return Optional.empty();
