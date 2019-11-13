@@ -809,7 +809,7 @@ class EmailComposerImpl implements EmailComposer {
 
         return exams.stream()
                 .map(e -> new Tuple2<>(e, getEnrolments(e)))
-                .filter(t -> !t._1.isPrivate() || t._2.isEmpty())
+                .filter(t -> !t._1.isPrivate() || !t._2.isEmpty())
                 .map(t -> {
                     Map<String, String> stringValues = new HashMap<>();
                     stringValues.put("exam_link", String.format("%s/reservations/%d", hostName, t._1.getId()));

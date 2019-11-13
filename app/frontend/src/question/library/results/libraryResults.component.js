@@ -160,6 +160,8 @@ angular.module('app.question').component('libraryResults', {
                         return 'fa-balance-scale';
                     case 'ClozeTestQuestion':
                         return 'fa-terminal';
+                    case 'ClaimChoiceQuestion':
+                        return 'fa-list-ol';
                 }
                 return '';
             };
@@ -174,6 +176,8 @@ angular.module('app.question').component('libraryResults', {
                         return 'sitnet_question_weighted_mc';
                     case 'ClozeTestQuestion':
                         return 'sitnet_toolbar_cloze_test_question';
+                    case 'ClaimChoiceQuestion':
+                        return 'sitnet_toolbar_claim_choice_question';
                 }
                 return '';
             };

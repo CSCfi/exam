@@ -47,6 +47,7 @@ import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.QuestionTextSanitizer;
@@ -71,7 +72,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             return ok(Collections.emptySet());
         }
         PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(defaultScore), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
+                "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
@@ -119,7 +120,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Query<Question> query = Ebean.find(Question.class);
         PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
+                "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name), " +
                 "examSectionQuestions(id, examSection(name, exam(name, state))))");
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
@@ -342,6 +343,10 @@ public class QuestionController extends BaseController implements SectionQuestio
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
         option.setCorrectOption(correctOption);
+        option.setClaimChoiceType(
+                SanitizingHelper.parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                .orElse(null)
+        );
         saveOption(option, question, user);
         propagateOptionCreationToExamQuestions(question, null, option);
     }

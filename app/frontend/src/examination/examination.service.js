@@ -127,17 +127,13 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
                 break;
             }
             case 'MultipleChoiceQuestion':
-                isAnswered =
-                    angular.isDefined(sq.selectedOption) ||
-                    sq.options.filter(function(o) {
-                        return o.answered;
-                    }).length > 0;
+                isAnswered = angular.isDefined(sq.selectedOption) || sq.options.some(o => o.answered);
                 break;
             case 'WeightedMultipleChoiceQuestion':
-                isAnswered =
-                    sq.options.filter(function(o) {
-                        return o.answered;
-                    }).length > 0;
+                isAnswered = sq.options.some(o => o.answered);
+                break;
+            case 'ClaimChoiceQuestion':
+                isAnswered = angular.isDefined(sq.selectedOption) || sq.options.some(o => o.answered);
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;

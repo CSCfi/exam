@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,6 +54,9 @@ import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.base.OwnedModel;
 import backend.models.sections.ExamSectionQuestion;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
+
+import backend.sanitizers.SanitizingHelper;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
@@ -61,7 +65,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
         @EnumValue("1") MultipleChoiceQuestion,
         @EnumValue("2") EssayQuestion,
         @EnumValue("3") WeightedMultipleChoiceQuestion,
-        @EnumValue("4") ClozeTestQuestion
+        @EnumValue("4") ClozeTestQuestion,
+        @EnumValue("5") ClaimChoiceQuestion
     }
 
     public enum EvaluationType {
@@ -283,6 +288,30 @@ public class Question extends OwnedModel implements AttachmentContainer {
     }
 
     @Transient
+    private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
+
+        // Check that all required option conditions are met, discarding possible duplicates
+        return StreamSupport.stream(options.spliterator(), false)
+                .filter(n -> {
+                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null);
+                    Double defaultScore = n.get("defaultScore").asDouble();
+
+                    if(type == null) {
+                        return false;
+                    }
+
+                    return (
+                        (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0) ||
+                        (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0) ||
+                        (type == ClaimChoiceOptionType.SkipOption)
+                    );
+                })
+                .distinct()
+                .limit(3)
+                .count() == 3;
+    }
+
+    @Transient
     public Optional<Result> getValidationResult(JsonNode node) {
         String reason = null;
         if (nodeExists(node, "question")) {
@@ -327,6 +356,18 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         reason = getClozeTestQuestionContentValidationResult(node);
                     }
                     break;
+                case ClaimChoiceQuestion:
+                    if(!nodeExists(node, "options") || node.get("options").size() != 3) {
+                        reason = "sitnet_three_answers_required_in_claim_question";
+                    } else {
+                        ArrayNode options = (ArrayNode) node.get("options");
+                        boolean hasValidOptions = getClaimChoiceOptionsValidationResult(options);
+
+                        if(!hasValidOptions) {
+                            reason = "sitnet_incorrect_claim_question_options";
+                        }
+                    }
+                    break;
                 default:
                     reason = "unknown question type";
                     break;
@@ -358,6 +399,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         .map(MultipleChoiceOption::getDefaultScore)
                         .filter(score -> score != null && score > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
+            case ClaimChoiceQuestion:
+                return options.stream()
+                        .mapToDouble(option -> option.getDefaultScore())
+                        .max()
+                        .orElse(0.0);
         }
         return 0.0;
     }
@@ -369,6 +415,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     .map(MultipleChoiceOption::getDefaultScore)
                     .filter(score -> score != null && score < 0)
                     .reduce(0.0, (sum, x) -> sum += x);
+        } else if(getType() == Type.ClaimChoiceQuestion) {
+            return options.stream()
+                    .mapToDouble(option -> option.getDefaultScore())
+                    .min()
+                    .orElse(0.0);
         }
         return 0.0;
     }
