@@ -32,9 +32,13 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         participations: any[];
         onNextTabSelected: () => any;
         gradeDistribution: _.Dictionary<number>;
+        gradeDistributionData: number[];
+        gradeDistributionLabels: string[];
+        gradeTimeData:  string[];
+        gradeTimeLabels: string[];
         gradedCount: number;
-        data: number[];
-        labels: string[];
+        chartOptions: any;
+        datasetOverride: any;
 
         constructor(
             private $http: angular.IHttpService
@@ -48,18 +52,31 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                 this.participations = resp.data;
                 this.exam = this.participations[0].exam.parent;
                 this.buildGradeDistribution();
+                this.buildGradeTime();
                 this.gradedCount = this.participations.filter(
                     p => p.exam.grade).length;
             }).catch(err => toast.error(err.data));
 
             this.gradeDistribution = {};
+            this.chartOptions = {
+                elements: {
+                    line: {
+                        tension: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'min'
+                        }
+                    }]
+                }
+            };
+
         }
 
         getResource = path => `/app/reviews/${path}`;
-
-        getGradeDistribution = () => {
-            return this.gradeDistribution;
-        }
 
         getRegisteredCount = () => this.participations.length;
 
@@ -87,8 +104,16 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         buildGradeDistribution = () => {
             const grades: string[] = this.participations.filter(p => p.exam.grade).map(p => p.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
-            this.data = Object.values(this.gradeDistribution);
-            this.labels = Object.keys(this.gradeDistribution);
+            this.gradeDistributionData = Object.values(this.gradeDistribution);
+            this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
+        }
+
+        buildGradeTime = () => {
+            const gradeTimes: any[] = this.participations.sort((a, b) => (a.duration > b.duration) ? 1 : -1).map(p =>
+                                            [Math.round(p.duration / 60000).toString(), p.exam.grade.name]
+            );
+            this.gradeTimeLabels = gradeTimes.map( g => g[0]);
+            this.gradeTimeData = gradeTimes.map( g => g[1]);
         }
 
         getAverageTime = () => {
