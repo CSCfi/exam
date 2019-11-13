@@ -42,8 +42,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
 
         private setDateTime = (dt: Date) => {
             this.date.setFullYear(dt.getFullYear());
-            this.date.setMonth(dt.getMonth());
-            this.date.setDate(dt.getDate());
+            this.date.setMonth(dt.getMonth(), dt.getDate());
             this.time.setHours(dt.getHours());
             this.time.setMinutes(dt.getMinutes());
             this.time.setSeconds(0);
@@ -68,8 +67,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
 
         onDateUpdate(date: Date) {
             this.date.setFullYear(date.getFullYear());
-            this.date.setMonth(date.getMonth());
-            this.date.setDate(date.getDate());
+            this.date.setMonth(date.getMonth(), date.getDate());
             this.date.setHours(this.time.getHours());
             this.date.setMinutes(this.time.getMinutes());
             this.date.setSeconds(0);

@@ -25,11 +25,21 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onStartDateChange(date)">
+                    <date-time-picker
+                        initial-time="$ctrl.exception.startDate"
+                        hour-step="1"
+                        minute-step="15"
+                        on-update="$ctrl.onStartDateChange(date)"
+                    >
                     </date-time-picker>
                 </div>
                 <div class="col-md-6">
-                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onEndDateChange(date)">
+                    <date-time-picker
+                        initial-time="$ctrl.exception.endDate"
+                        hour-step="1"
+                        minute-step="15"
+                        on-update="$ctrl.onEndDateChange(date)"
+                    >
                     </date-time-picker>
                 </div>
             </div>
