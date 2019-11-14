@@ -1,14 +1,14 @@
 <div class="student-enrolment-wrapper marr20 marl20">
     <div class="col-md-12">
-
         <div class="student-exam-header-row">
-
             <div>
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
                     <span ng-if="$ctrl.participation.exam.anonymous">#{{ $ctrl.participation.exam.id }}</span>
                     {{ $ctrl.participation.exam.name }}
-                    <span ng-if="$ctrl.participation.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                    <span ng-if="$ctrl.participation.exam.anonymous"
+                        >({{ 'sitnet_anonymous_review' | translate }})</span
+                    >
                 </div>
             </div>
 
@@ -57,25 +57,44 @@
 
             <div class="student-exam-row" ng-if="$ctrl.participation.reviewedExam">
                 <div class="student-exam-row-infolink">
-                    <a class="infolink pointer" ng-click="$ctrl.showEvaluation = !$ctrl.showEvaluation; $ctrl.setCommentRead($ctrl.participation.reviewedExam) ">
+                    <a
+                        class="infolink pointer"
+                        ng-click="$ctrl.showEvaluation = !$ctrl.showEvaluation; $ctrl.setCommentRead($ctrl.participation.reviewedExam) "
+                    >
                         <span ng-hide="$ctrl.showEvaluation">{{ 'sitnet_comments_open' | translate}}</span>
                         <span ng-show="$ctrl.showEvaluation">{{ 'sitnet_comments_hide' | translate}}</span>
-                        <img class="arrow_icon" alt="hide evaluation" ng-hide="$ctrl.showEvaluation" src="Images/arrow_right.png">
-                        <img class="arrow_icon" alt="show evaluation" ng-show="$ctrl.showEvaluation" src="Images/arrow_down.png">
+                        <img
+                            class="arrow_icon"
+                            alt="hide evaluation"
+                            ng-hide="$ctrl.showEvaluation"
+                            src="Images/arrow_right.png"
+                        />
+                        <img
+                            class="arrow_icon"
+                            alt="show evaluation"
+                            ng-show="$ctrl.showEvaluation"
+                            src="Images/arrow_down.png"
+                        />
                     </a>
                 </div>
-                <exam-feedback class="student-exam-row-infobox" ng-show="$ctrl.showEvaluation" assessment="$ctrl.participation.reviewedExam"
-                    scores="$ctrl.participation.scores">
+                <exam-feedback
+                    class="student-exam-row-infobox"
+                    ng-show="$ctrl.showEvaluation"
+                    assessment="$ctrl.participation.reviewedExam"
+                    scores="$ctrl.participation.scores"
+                >
                 </exam-feedback>
             </div>
             <div class="student-exam-row" ng-if="$ctrl.participation.reservation.noShow">
                 <div class="student-exam-row-infolink text-danger">{{ 'sitnet_no_show' | translate }}</div>
             </div>
-            <div class="student-exam-row" ng-if="!$ctrl.participation.reservation.noShow && !$ctrl.participation.reviewedExam"
-                class="text-muted">
+            <div
+                class="student-exam-row"
+                ng-if="!$ctrl.participation.reservation.noShow && !$ctrl.participation.reviewedExam"
+                class="text-muted"
+            >
                 <div class="student-exam-row-infolink">{{'sitnet_no_comments' | translate}}</div>
             </div>
-
         </div>
     </div>
 </div>

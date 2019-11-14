@@ -6,26 +6,32 @@
             </div>
             <div class="make-inline">
                 <div class="question-add-owners-box">
-                            <span class="padl10">
-                                <i class="fa fa-user fa-fw" style="color:#266B99;"></i>&nbsp;
-                                <a class="bold-button" ng-click="$ctrl.showOwnerSelection = !$ctrl.showOwnerSelection">
-                                {{'sitnet_add_question_owner' | translate}}</a>
-                            </span>
+                    <span class="padl10">
+                        <i class="fa fa-user fa-fw" style="color:#266B99;"></i>&nbsp;
+                        <a class="bold-button" ng-click="$ctrl.showOwnerSelection = !$ctrl.showOwnerSelection">
+                            {{'sitnet_add_question_owner' | translate}}</a
+                        >
+                    </span>
                     <div ng-show="$ctrl.showOwnerSelection">
                         <div class="input-group">
-                            <input class="form-control ng-pristine ng-valid question-add-owners"
-                                   ng-model="$ctrl.newTeacher"
-                                   placeholder="{{'sitnet_add_question_owner' | translate}}"
-                                   uib-typeahead="t as t.name for t in $ctrl.teachers | filter:$viewValue | limitTo:8"
-                                   typeahead-on-select="$ctrl.onTeacherSelect($item, $model, $label)"
-                                   typeahead-wait-ms="100"
-                                   typeahead-focus-first="false"
-                                   typeahead-min-length="2">
+                            <input
+                                class="form-control ng-pristine ng-valid question-add-owners"
+                                ng-model="$ctrl.newTeacher"
+                                placeholder="{{'sitnet_add_question_owner' | translate}}"
+                                uib-typeahead="t as t.name for t in $ctrl.teachers | filter:$viewValue | limitTo:8"
+                                typeahead-on-select="$ctrl.onTeacherSelect($item, $model, $label)"
+                                typeahead-wait-ms="100"
+                                typeahead-focus-first="false"
+                                typeahead-min-length="2"
+                            />
                         </div>
                         <div class="col-md-2 bottom-padding-2 padl10">
-                            <input type="button" class="btn green border-green whitetext"
-                                   ng-click="$ctrl.addOwnerForSelected()"
-                                   value="{{'sitnet_add' | translate}}"/>
+                            <input
+                                type="button"
+                                class="btn green border-green whitetext"
+                                ng-click="$ctrl.addOwnerForSelected()"
+                                value="{{'sitnet_add' | translate}}"
+                            />
                         </div>
                     </div>
                 </div>

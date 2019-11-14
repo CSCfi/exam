@@ -16,9 +16,8 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('wmcOptionForm', {
-        template: `
+angular.module('app.question').component('wmcOptionForm', {
+    template: `
             <div class="col-md-12 form-horizontal question-editor-option">
                 <div class="col-md-6 question-option-empty" ng-class="$ctrl.option.defaultScore > 0 ? 'question-correct-option' : ''">
                     <input id="optionText" type="text" focus-on="opt{{$ctrl.option.id}}" class="question-option-input"
@@ -39,16 +38,17 @@ angular.module('app.question')
                 <div class="col-md-3"></div>
             </div>
         `,
-        bindings: {
-            option: '<',
-            question: '<',
-            lotteryOn: '<'
-        },
-        controller: ['$translate', function ($translate) {
-
+    bindings: {
+        option: '<',
+        question: '<',
+        lotteryOn: '<',
+    },
+    controller: [
+        '$translate',
+        function($translate) {
             const vm = this;
 
-            vm.removeOption = function () {
+            vm.removeOption = function() {
                 const hasCorrectAnswer = vm.question.options.some(o => o !== vm.option && o.defaultScore > 0);
                 if (hasCorrectAnswer) {
                     vm.question.options.splice(vm.question.options.indexOf(vm.option), 1);
@@ -56,6 +56,6 @@ angular.module('app.question')
                     toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
                 }
             };
-
-        }]
-    });
+        },
+    ],
+});

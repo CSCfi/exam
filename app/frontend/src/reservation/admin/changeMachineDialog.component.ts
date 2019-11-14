@@ -25,10 +25,9 @@ export const ChangeMachineDialogComponent: angular.IComponentOptions = {
     bindings: {
         resolve: '<',
         close: '&',
-        dismiss: '&'
+        dismiss: '&',
     },
     controller: class ChangeMachineDialogController implements angular.IComponentController {
-
         resolve: { reservation: { id: number } };
         close: (_: any) => void;
         dismiss: () => void;
@@ -37,47 +36,45 @@ export const ChangeMachineDialogComponent: angular.IComponentOptions = {
         availableMachineOptions: Option[];
         reservation: { id: number };
 
-        constructor(
-            private $http: angular.IHttpService,
-            private $translate: angular.translate.ITranslateService
-        ) {
+        constructor(private $http: angular.IHttpService, private $translate: angular.translate.ITranslateService) {
             'ngInject';
         }
 
         $onInit() {
             this.reservation = this.resolve.reservation;
-            this.$http.get(`/app/reservations/${this.reservation.id}/machines`).then((resp: IHttpResponse<any[]>) => {
-                this.availableMachineOptions = resp.data.map(o => {
-                    return {
-                        id: o.id,
-                        label: o.name,
-                        value: o
-                    };
-                });
-            }).catch(angular.noop);
+            this.$http
+                .get(`/app/reservations/${this.reservation.id}/machines`)
+                .then((resp: IHttpResponse<any[]>) => {
+                    this.availableMachineOptions = resp.data.map(o => {
+                        return {
+                            id: o.id,
+                            label: o.name,
+                            value: o,
+                        };
+                    });
+                })
+                .catch(angular.noop);
         }
 
-        machineChanged = (machine) => this.selection = machine;
-
+        machineChanged = machine => (this.selection = machine);
 
         ok() {
-            this.$http.put(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
+            this.$http
+                .put(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
                 .then((resp: angular.IHttpResponse<any>) => {
                     toast.info(this.$translate.instant('sitnet_updated'));
-                    this.close(
-                        {
-                            $value: {
-                                msg: 'Accepted',
-                                machine: resp.data
-                            }
-                        });
-                }).catch(resp => toast.error(resp.data));
+                    this.close({
+                        $value: {
+                            msg: 'Accepted',
+                            machine: resp.data,
+                        },
+                    });
+                })
+                .catch(resp => toast.error(resp.data));
         }
 
         cancel() {
             this.close({ $value: 'Dismissed' });
         }
-
-    }
-
+    },
 };

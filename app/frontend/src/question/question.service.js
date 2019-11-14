@@ -16,46 +16,60 @@ import angular from 'angular';
 import _ from 'lodash';
 import toast from 'toastr';
 
-function QuestionService($q, $resource, $translate, $document, $sessionStorage, ExamQuestion, Session,
-    Files, Attachment) {
-
-    this.questionsApi = $resource('/app/questions/:id',
+function QuestionService(
+    $q,
+    $resource,
+    $translate,
+    $document,
+    $sessionStorage,
+    ExamQuestion,
+    Session,
+    Files,
+    Attachment,
+) {
+    this.questionsApi = $resource(
+        '/app/questions/:id',
         {
-            id: '@id'
+            id: '@id',
         },
         {
-            'update': { method: 'PUT' },
-            'delete': { method: 'DELETE', params: { id: '@id' } },
-            'create': { method: 'POST' }
+            update: { method: 'PUT' },
+            delete: { method: 'DELETE', params: { id: '@id' } },
+            create: { method: 'POST' },
+        },
+    );
 
-        });
-
-    this.questionOwnerApi = $resource('/app/questions/owner/:uid',
+    this.questionOwnerApi = $resource(
+        '/app/questions/owner/:uid',
         {
-            uid: '@uid'
+            uid: '@uid',
         },
         {
-            'update': { method: 'POST' }
-        });
+            update: { method: 'POST' },
+        },
+    );
 
-    this.essayScoreApi = $resource('/app/review/examquestion/:id/score',
+    this.essayScoreApi = $resource(
+        '/app/review/examquestion/:id/score',
         {
-            id: '@id'
+            id: '@id',
         },
         {
-            'update': { method: 'PUT', params: { id: '@id' } }
-        });
+            update: { method: 'PUT', params: { id: '@id' } },
+        },
+    );
 
-    this.questionCopyApi = $resource('/app/question/:id',
+    this.questionCopyApi = $resource(
+        '/app/question/:id',
         {
-            id: '@id'
+            id: '@id',
         },
         {
-            'copy': { method: 'POST' }
-        });
+            copy: { method: 'POST' },
+        },
+    );
 
-
-    this.getQuestionType = (type) => {
+    this.getQuestionType = type => {
         let questionType;
         switch (type) {
             case 'essay':
@@ -70,6 +84,8 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             case 'cloze':
                 questionType = 'ClozeTestQuestion';
                 break;
+            case 'claim':
+                questionType = 'ClaimChoiceQuestion';
         }
         return questionType;
     };
@@ -80,11 +96,11 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             options: [],
             questionOwners: [Session.getUser()],
             state: 'NEW',
-            tags: []
+            tags: [],
         };
     };
 
-    this.getQuestionAmounts = (exam) => {
+    this.getQuestionAmounts = exam => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };
         angular.forEach(exam.examSections, section => {
             angular.forEach(section.sectionQuestions, sectionQuestion => {
@@ -106,20 +122,49 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
 
     // For weighted mcq
     this.calculateDefaultMaxPoints = question =>
-        question.options
-            .filter(o => o.defaultScore > 0)
-            .reduce((a, b) => a + b.defaultScore, 0);
-
+        question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
     // For weighted mcq
     this.calculateMaxPoints = sectionQuestion => {
         if (!sectionQuestion.options) {
             return 0;
         }
-        const points = sectionQuestion.options
-            .filter(o => o.score > 0)
-            .reduce((a, b) => a + parseFloat(b.score), 0);
+        const points = sectionQuestion.options.filter(o => o.score > 0).reduce((a, b) => a + parseFloat(b.score), 0);
         return parseFloat(points.toFixed(2));
+    };
+
+    this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.correctOption && o.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].defaultScore;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
+    this.getCorrectClaimChoiceOptionScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].score;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
     };
 
     this.scoreClozeTestAnswer = sectionQuestion => {
@@ -127,17 +172,17 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
-        return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
-            (score.correctAnswers + score.incorrectAnswers).toFixed(2));
+        return parseFloat(
+            (score.correctAnswers * sectionQuestion.maxScore) /
+                (score.correctAnswers + score.incorrectAnswers).toFixed(2),
+        );
     };
 
     this.scoreWeightedMultipleChoiceAnswer = (sectionQuestion, ignoreForcedScore) => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
-        const score = sectionQuestion.options
-            .filter(o => o.answered)
-            .reduce((a, b) => a + b.score, 0);
+        const score = sectionQuestion.options.filter(o => o.answered).reduce((a, b) => a + b.score, 0);
         return Math.max(0, score);
     };
 
@@ -159,6 +204,28 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
         return 0;
     };
 
+    this.scoreClaimChoiceAnswer = (sectionQuestion, ignoreForcedScore) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+            return sectionQuestion.forcedScore;
+        }
+        const selected = sectionQuestion.options.filter(o => o.answered);
+
+        // Use the score from the skip option if no option was chosen
+        const skipOption = sectionQuestion.options.filter(o => o.option.claimChoiceType === 'SkipOption');
+        const skipScore = skipOption.length === 1 ? skipOption[0].score : 0;
+
+        if (selected.length === 0) {
+            return skipScore;
+        }
+        if (selected.length !== 1) {
+            console.error('multiple options selected for a ClaimChoice answer!');
+        }
+        if (selected[0].score && _.isNumber(selected[0].score)) {
+            return selected[0].score;
+        }
+        return 0;
+    };
+
     this.decodeHtml = html => {
         const txt = $document.createElement('textarea');
         txt.innerHTML = html;
@@ -176,7 +243,6 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
     };
 
     this.shortText = (text, maxLength) => {
-
         if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
             // remove HTML tags
             let str = String(text).replace(/<[^>]+>/gm, '');
@@ -195,6 +261,7 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
             case 'WeightedMultipleChoiceQuestion':
             case 'EssayQuestion':
             case 'ClozeTestQuestion':
+            case 'ClaimChoiceQuestion':
                 _filter = filter;
                 break;
             default:
@@ -235,15 +302,15 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
 
     const getQuestionData = question => {
         const questionToUpdate = {
-            'type': question.type,
-            'defaultMaxScore': question.defaultMaxScore,
-            'question': question.question,
-            'shared': question.shared,
-            'defaultAnswerInstructions': question.defaultAnswerInstructions,
-            'defaultEvaluationCriteria': question.defaultEvaluationCriteria,
-            'questionOwners': question.questionOwners,
-            'tags': question.tags,
-            'options': question.options
+            type: question.type,
+            defaultMaxScore: question.defaultMaxScore,
+            question: question.question,
+            shared: question.shared,
+            defaultAnswerInstructions: question.defaultAnswerInstructions,
+            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
+            questionOwners: question.questionOwners,
+            tags: question.tags,
+            options: question.options,
         };
         if (question.id) {
             questionToUpdate.id = question.id;
@@ -257,6 +324,7 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
                 break;
             case 'MultipleChoiceQuestion':
             case 'WeightedMultipleChoiceQuestion':
+            case 'ClaimChoiceQuestion':
                 questionToUpdate.options = question.options;
                 break;
         }
@@ -267,18 +335,23 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
         const body = getQuestionData(question);
         const deferred = $q.defer();
 
-        this.questionsApi.create(body,
+        this.questionsApi.create(
+            body,
             response => {
                 toast.info($translate.instant('sitnet_question_added'));
                 if (question.attachment && question.attachment.modified) {
-                    Files.upload('/app/attachment/question', question.attachment.file,
-                        { questionId: response.id }, question, () => deferred.resolve(response)
+                    Files.upload(
+                        '/app/attachment/question',
+                        question.attachment.file,
+                        { questionId: response.id },
+                        question,
+                        () => deferred.resolve(response),
                     );
                 } else {
                     deferred.resolve(response);
                 }
             },
-            deferred.reject
+            deferred.reject,
         );
         return deferred.promise;
     };
@@ -286,37 +359,42 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
     this.updateQuestion = (question, displayErrors) => {
         const body = getQuestionData(question);
         const deferred = $q.defer();
-        this.questionsApi.update(body,
+        this.questionsApi.update(
+            body,
             response => {
                 toast.info($translate.instant('sitnet_question_saved'));
                 if (question.attachment && question.attachment.modified) {
-                    Files.upload('/app/attachment/question', question.attachment.file,
-                        { questionId: question.id }, question, () => deferred.resolve
+                    Files.upload(
+                        '/app/attachment/question',
+                        question.attachment.file,
+                        { questionId: question.id },
+                        question,
+                        () => deferred.resolve,
                     );
-                }
-                else if (question.attachment && question.attachment.removed) {
+                } else if (question.attachment && question.attachment.removed) {
                     Attachment.eraseQuestionAttachment(question).then(() => deferred.resolve(response));
                 } else {
                     deferred.resolve(response);
                 }
-            }, error => {
+            },
+            error => {
                 if (displayErrors) {
                     toast.error(error.data);
                 }
                 deferred.reject();
-            }
+            },
         );
         return deferred.promise;
     };
 
     this.updateDistributedExamQuestion = (question, sectionQuestion, examId, sectionId) => {
         const data = {
-            'id': sectionQuestion.id,
-            'maxScore': sectionQuestion.maxScore,
-            'answerInstructions': sectionQuestion.answerInstructions,
-            'evaluationCriteria': sectionQuestion.evaluationCriteria,
-            'options': sectionQuestion.options,
-            'question': question
+            id: sectionQuestion.id,
+            maxScore: sectionQuestion.maxScore,
+            answerInstructions: sectionQuestion.answerInstructions,
+            evaluationCriteria: sectionQuestion.evaluationCriteria,
+            options: sectionQuestion.options,
+            question: question,
         };
 
         // update question specific attributes
@@ -327,19 +405,23 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
                 break;
         }
         const deferred = $q.defer();
-        ExamQuestion.distributionApi.update({ qid: sectionQuestion.id, eid: examId, sid: sectionId }, data,
+        ExamQuestion.distributionApi.update(
+            { qid: sectionQuestion.id, eid: examId, sid: sectionId },
+            data,
             esq => {
                 angular.extend(esq.question, question);
                 if (question.attachment && question.attachment.modified) {
-                    Files.upload('/app/attachment/question', question.attachment,
-                        { questionId: question.id }, question,
+                    Files.upload(
+                        '/app/attachment/question',
+                        question.attachment,
+                        { questionId: question.id },
+                        question,
                         () => {
                             esq.question.attachment = question.attachment;
                             deferred.resolve(esq);
-                        }
+                        },
                     );
-                }
-                else if (question.attachment && question.attachment.removed) {
+                } else if (question.attachment && question.attachment.removed) {
                     Attachment.eraseQuestionAttachment(question).then(() => {
                         esq.question.attachment = null;
                         deferred.resolve(esq);
@@ -347,22 +429,32 @@ function QuestionService($q, $resource, $translate, $document, $sessionStorage, 
                 } else {
                     deferred.resolve(esq);
                 }
-            }, error => {
+            },
+            error => {
                 toast.error(error.data);
                 deferred.reject();
-            }
+            },
         );
         return deferred.promise;
     };
 
     this.toggleCorrectOption = (option, options) => {
         option.correctOption = true;
-        angular.forEach(options, o => o.correctOption = o === option);
+        angular.forEach(options, o => (o.correctOption = o === option));
     };
-
 }
 
-angular.module('app.question')
-    .service('Question', ['$q', '$resource', '$translate', '$document', '$sessionStorage',
-        'ExamQuestion', 'Session', 'Files', 'Attachment', QuestionService]);
-
+angular
+    .module('app.question')
+    .service('Question', [
+        '$q',
+        '$resource',
+        '$translate',
+        '$document',
+        '$sessionStorage',
+        'ExamQuestion',
+        'Session',
+        'Files',
+        'Attachment',
+        QuestionService,
+    ]);

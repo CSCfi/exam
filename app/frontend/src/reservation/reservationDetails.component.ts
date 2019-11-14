@@ -19,11 +19,11 @@ import * as toast from 'toastr';
 
 import { ReservationService } from './reservationService';
 
-export const ReservationDetailComponent: angular.IComponentOptions = {
+export const ReservationDetailsComponent: angular.IComponentOptions = {
     template: require('./reservationDetails.template.html'),
     bindings: {
         reservations: '<',
-        isAdminView: '<'
+        isAdminView: '<',
     },
     controller: class ReservationDetailController implements angular.IComponentController {
         reservations: any[];
@@ -31,38 +31,44 @@ export const ReservationDetailComponent: angular.IComponentOptions = {
         constructor(
             private $http: angular.IHttpService,
             private $translate: angular.translate.ITranslateService,
-            private Reservation: ReservationService
+            private Reservation: ReservationService,
         ) {
             'ngInject';
         }
 
-        printExamState = (reservation) => this.Reservation.printExamState(reservation);
+        printExamState = reservation => this.Reservation.printExamState(reservation);
 
-        getStateclass = (reservation) =>
-            reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase()
+        getStateclass = reservation =>
+            reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
 
         removeReservation(reservation) {
-            this.Reservation.cancelReservation(reservation).then(() => {
-                this.reservations.splice(this.reservations.indexOf(reservation), 1);
-                toast.info(this.$translate.instant('sitnet_reservation_removed'));
-            }).catch(angular.noop);
+            this.Reservation.cancelReservation(reservation)
+                .then(() => {
+                    this.reservations.splice(this.reservations.indexOf(reservation), 1);
+                    toast.info(this.$translate.instant('sitnet_reservation_removed'));
+                })
+                .catch(angular.noop);
         }
 
         removeExternalReservation(reservation) {
-            this.Reservation.cancelReservation(reservation).then(() => {
-                this.reservations.splice(this.reservations.indexOf(reservation), 1);
-                toast.info(this.$translate.instant('sitnet_reservation_removed'));
-            }).catch(angular.noop);
+            this.Reservation.cancelReservation(reservation)
+                .then(() => {
+                    this.reservations.splice(this.reservations.indexOf(reservation), 1);
+                    toast.info(this.$translate.instant('sitnet_reservation_removed'));
+                })
+                .catch(angular.noop);
         }
 
         permitRetrial(reservation) {
-            this.$http.put(`/app/reservations/${reservation.id}`, {}).then(() => {
-                reservation.retrialPermitted = true;
-                toast.info(this.$translate.instant('sitnet_retrial_permitted'));
-            }).catch(angular.noop);
+            this.$http
+                .put(`/app/reservations/${reservation.id}`, {})
+                .then(() => {
+                    reservation.retrialPermitted = true;
+                    toast.info(this.$translate.instant('sitnet_retrial_permitted'));
+                })
+                .catch(angular.noop);
         }
 
-        changeReservationMachine = (reservation) => this.Reservation.changeMachine(reservation);
-
-    }
+        changeReservationMachine = reservation => this.Reservation.changeMachine(reservation);
+    },
 };

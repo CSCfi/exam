@@ -4,7 +4,10 @@
             <span class="sitnet-white">{{'sitnet_exam_time_left' | translate}}: </span>
         </span>
         <span class="exam-clock">
-            <span ng-if="$ctrl.showRemainingTime" ng-class="$ctrl.remainingTime <= $ctrl.alarmThreshold ? 'sitnet-text-alarm' : ''">
+            <span
+                ng-if="$ctrl.showRemainingTime"
+                ng-class="$ctrl.remainingTime <= $ctrl.alarmThreshold ? 'sitnet-text-alarm' : ''"
+            >
                 {{$ctrl.formatRemainingTime()}}
             </span>
             <span ng-if="!$ctrl.showRemainingTime" class="clock-hide">
@@ -12,8 +15,12 @@
             </span>
         </span>
         <span>
-            <img ng-click="$ctrl.showRemainingTime = !$ctrl.showRemainingTime" src="Images/icon_clock.svg" alt="clock"
-                onerror="this.onerror=null;this.src='Images/icon_clock.png';" />
+            <img
+                ng-click="$ctrl.showRemainingTime = !$ctrl.showRemainingTime"
+                src="Images/icon_clock.svg"
+                alt="clock"
+                onerror="this.onerror=null;this.src='Images/icon_clock.png';"
+            />
         </span>
     </div>
 </div>

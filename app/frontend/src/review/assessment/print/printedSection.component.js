@@ -15,15 +15,15 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('printedSection', {
-        template: `
+angular.module('app.review').component('printedSection', {
+    template: `
             <blockquote><h4>{{$index + 1}}.&nbsp; &nbsp;{{$ctrl.section.name}}</h4></blockquote>
             <p>{{$ctrl.section.description}}</p>
             <div class="sub-content-row col-md-12" 
                 ng-repeat="sectionQuestion in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
                 <printed-multi-choice ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
-                            sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                            sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' ||
+                            sectionQuestion.question.type === 'ClaimChoiceQuestion'"
                      section-question="sectionQuestion">
                 </printed-multi-choice>
                 <printed-essay ng-if="sectionQuestion.question.type === 'EssayQuestion'" 
@@ -34,7 +34,7 @@ angular.module('app.review')
                 </printed-cloze-test>
             </div>
         `,
-        bindings: {
-            section: '<'
-        }
-    });
+    bindings: {
+        section: '<',
+    },
+});

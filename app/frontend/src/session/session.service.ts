@@ -19,6 +19,7 @@ import * as toastr from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
 import * as adl from 'angular-dynamic-locale';
+import { StateService } from '@uirouter/core';
 
 export interface Role {
     name: string;
@@ -49,28 +50,27 @@ interface Env {
 }
 
 export class SessionService {
-
     PING_INTERVAL: number = 60 * 1000;
     _user: User;
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;
 
-    constructor(private $http: angular.IHttpService,
-        private $route: angular.route.IRouteService,
+    constructor(
+        private $http: angular.IHttpService,
+        private $state: StateService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
         private $sessionStorage: any, // no usable typedef available
         private $translate: angular.translate.ITranslateService,
-        private $location: angular.ILocationService,
         private $rootScope: angular.IRootScopeService,
         private $timeout: angular.ITimeoutService,
         private $uibModal: uib.IModalService,
         private $window: angular.IWindowService,
         private tmhDynamicLocaleCache: { get: (k: string) => any; put: (k: string, v: any) => void },
-        private tmhDynamicLocale: adl.tmh.IDynamicLocale) {
+        private tmhDynamicLocale: adl.tmh.IDynamicLocale,
+    ) {
         'ngInject';
     }
-
 
     getUser(): User {
         return this._user;
@@ -87,10 +87,13 @@ export class SessionService {
     private init(): angular.IPromise<Env> {
         const deferred: IDeferred<Env> = this.$q.defer();
         if (!this._env) {
-            this.$http.get('/app/settings/environment').then((resp: IHttpResponse<Env>) => {
-                this._env = resp.data;
-                deferred.resolve();
-            }).catch(angular.noop);
+            this.$http
+                .get('/app/settings/environment')
+                .then((resp: IHttpResponse<Env>) => {
+                    this._env = resp.data;
+                    deferred.resolve();
+                })
+                .catch(angular.noop);
         } else {
             deferred.resolve();
         }
@@ -122,21 +125,21 @@ export class SessionService {
         this.$window.onbeforeunload = () => null;
         const localLogout = `${this.$window.location.protocol}//${this.$window.location.host}/Shibboleth.sso/Logout`;
         if (data && data.logoutUrl) {
-            this.$window.location.href = `${data.logoutUrl}?return=${localLogout}`;
+            this.$window.location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!this._env || this._env.isProd) {
             // redirect to SP-logout directly
             this.$window.location.href = localLogout;
         } else {
             // DEV logout
-            this.$location.path('/');
+            this.$state.go('dashboard');
             this.$rootScope.$broadcast('devLogout');
         }
         this.$timeout(toastr.clear, 300);
     }
 
     private redirect(): void {
-        if (this.$location.path() === '/' && this._user.isLanguageInspector) {
-            this.$location.path('/inspections');
+        if (this.$state.current.name === 'dashboard' && this._user.isLanguageInspector) {
+            this.$state.go('languageInspections');
         }
     }
 
@@ -147,7 +150,7 @@ export class SessionService {
         const welcome = () => {
             if (this._user) {
                 toastr.success(
-                    `${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`
+                    `${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`,
                 );
             }
         };
@@ -164,7 +167,7 @@ export class SessionService {
     }
 
     private onLoginFailure(message: any): void {
-        this.$location.path('/');
+        this.$state.go('dashboard');
         toastr.error(message);
     }
 
@@ -204,7 +207,7 @@ export class SessionService {
             isAdmin: loginRole != null && loginRole === 'ADMIN',
             isStudent: loginRole != null && loginRole === 'STUDENT',
             isTeacher: isTeacher,
-            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
+            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
         };
 
         this.$sessionStorage['EXAM_USER'] = this._user;
@@ -215,29 +218,33 @@ export class SessionService {
         if (!this._user) {
             return;
         }
-        this.$http.post('/app/logout', {}).then((resp: IHttpResponse<{ logoutUrl: string }>) => {
-            delete this.$sessionStorage['EXAM_USER'];
-            if (this.$http.defaults.headers) {
-                delete this.$http.defaults.headers.common;
-            }
-            delete this._user;
-            this.onLogoutSuccess(resp.data);
-        }).catch(error => toastr.error(error.data));
+        this.$http
+            .post('/app/logout', {})
+            .then((resp: IHttpResponse<{ logoutUrl: string }>) => {
+                delete this.$sessionStorage['EXAM_USER'];
+                if (this.$http.defaults.headers) {
+                    delete this.$http.defaults.headers.common;
+                }
+                delete this._user;
+                this.onLogoutSuccess(resp.data);
+            })
+            .catch(error => toastr.error(error.data));
     }
 
     login(username: string, password: string): IPromise<User> {
         const credentials = {
             username: username,
-            password: password
+            password: password,
         };
         const deferred: IDeferred<User> = this.$q.defer();
-        this.$http.post('/app/login', credentials)
+        this.$http
+            .post('/app/login', credentials)
             .then((resp: IHttpResponse<User>) => {
                 this.processLoggedInUser(resp.data);
                 this.onLoginSuccess();
                 deferred.resolve(this._user);
             })
-            .catch((resp) => {
+            .catch(resp => {
                 this.onLoginFailure(resp.data);
                 deferred.reject();
             });
@@ -260,7 +267,7 @@ export class SessionService {
 
             this.tmhDynamicLocale.set(lang);
         }
-    }
+    };
 
     translate(lang: string) {
         this.$translate.use(lang);
@@ -271,14 +278,13 @@ export class SessionService {
         if (!this._user) {
             this.translate(lang);
         } else {
-            this.$http.put('/app/user/lang', { lang: lang })
+            this.$http
+                .put('/app/user/lang', { lang: lang })
                 .then(() => {
                     this._user.lang = lang;
                     this.translate(lang);
                 })
-                .catch(() =>
-                    toastr.error('failed to switch language')
-                );
+                .catch(() => toastr.error('failed to switch language'));
         }
     }
 
@@ -290,22 +296,28 @@ export class SessionService {
     }
 
     private checkSession = () => {
-        this.$http.get('/app/checkSession')
-            .then((resp) => {
+        this.$http
+            .get('/app/checkSession')
+            .then(resp => {
                 if (resp.data === 'alarm') {
-                    toastr.warning(this.$translate.instant('sitnet_continue_session'),
-                        this.$translate.instant('sitnet_session_will_expire_soon'), {
-                        timeOut: 0,
-                        preventDuplicates: true,
-                        onclick: () => {
-                            this.$http.put('/app/extendSession', {})
-                                .then(() => {
-                                    toastr.info(this.$translate.instant('sitnet_session_extended'),
-                                        '', { timeOut: 1000 });
-                                })
-                                .catch(angular.noop);
-                        }
-                    });
+                    toastr.warning(
+                        this.$translate.instant('sitnet_continue_session'),
+                        this.$translate.instant('sitnet_session_will_expire_soon'),
+                        {
+                            timeOut: 0,
+                            preventDuplicates: true,
+                            onclick: () => {
+                                this.$http
+                                    .put('/app/extendSession', {})
+                                    .then(() => {
+                                        toastr.info(this.$translate.instant('sitnet_session_extended'), '', {
+                                            timeOut: 1000,
+                                        });
+                                    })
+                                    .catch(angular.noop);
+                            },
+                        },
+                    );
                 } else if (resp.data === 'no_session') {
                     if (this._scheduler) {
                         this.$interval.cancel(this._scheduler);
@@ -314,54 +326,65 @@ export class SessionService {
                 }
             })
             .catch(angular.noop);
-    }
+    };
 
     private openEulaModal(user: User): void {
-        this.$uibModal.open({
-            backdrop: 'static',
-            keyboard: true,
-            component: 'eulaDialog'
-        }).result.then(() => {
-            this.$http.put('/app/users/agreement', {}).then(() => {
-                user.userAgreementAccepted = true;
-                this.setUser(user);
-                // We need to reload controllers after accepted user agreement.
-                this.$route.reload();
-            }).catch((resp) => {
-                toastr.error(resp.data);
-            });
-        }).catch(() => this.$location.path('/logout'));
+        this.$uibModal
+            .open({
+                backdrop: 'static',
+                keyboard: true,
+                component: 'eulaDialog',
+            })
+            .result.then(() => {
+                this.$http
+                    .put('/app/users/agreement', {})
+                    .then(() => {
+                        user.userAgreementAccepted = true;
+                        this.setUser(user);
+                        // We need to reload controllers after accepted user agreement.
+                        this.$state.reload();
+                    })
+                    .catch(resp => {
+                        toastr.error(resp.data);
+                    });
+            })
+            .catch(() => this.$state.go('logout'));
     }
 
     private openRoleSelectModal(user: User) {
-        this.$uibModal.open({
-            component: 'selectRoleDialog',
-            backdrop: 'static',
-            keyboard: false,
-            resolve: {
-                user: () => user
-            }
-        }).result.then((role: { name: string; icon: string; displayName: string }) => {
-            this.$http.put(`/app/users/${user.id}/roles/${role.name}`, {}).then(() => {
-                user.loginRole = role.name;
-                user.isAdmin = role.name === 'ADMIN';
-                user.isTeacher = role.name === 'TEACHER';
-                user.isStudent = role.name === 'STUDENT';
-                user.isLanguageInspector =
-                    user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
-                this.setUser(user);
-                this.$rootScope.$broadcast('userUpdated');
-                if (user.isStudent && !user.userAgreementAccepted) {
-                    this.openEulaModal(user);
-                } else {
-                    // We need to reload controllers after role is selected.
-                    this.$route.reload();
-                }
-            }).catch((resp) => {
-                toastr.error(resp.data);
-                this.$location.path('/logout');
-            });
-        }).catch(() => this.$location.path('/logout'));
+        this.$uibModal
+            .open({
+                component: 'selectRoleDialog',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    user: () => user,
+                },
+            })
+            .result.then((role: { name: string; icon: string; displayName: string }) => {
+                this.$http
+                    .put(`/app/users/${user.id}/roles/${role.name}`, {})
+                    .then(() => {
+                        user.loginRole = role.name;
+                        user.isAdmin = role.name === 'ADMIN';
+                        user.isTeacher = role.name === 'TEACHER';
+                        user.isStudent = role.name === 'STUDENT';
+                        user.isLanguageInspector =
+                            user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                        this.setUser(user);
+                        this.$rootScope.$broadcast('userUpdated');
+                        if (user.isStudent && !user.userAgreementAccepted) {
+                            this.openEulaModal(user);
+                        } else {
+                            // We need to reload controllers after role is selected.
+                            this.$state.reload();
+                        }
+                    })
+                    .catch(resp => {
+                        toastr.error(resp.data);
+                        this.$state.go('logout');
+                    });
+            })
+            .catch(() => this.$state.go('logout'));
     }
-
 }

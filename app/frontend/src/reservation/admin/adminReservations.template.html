@@ -1,5 +1,4 @@
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
@@ -9,18 +8,23 @@
     </div>
 
     <div class="reservation-border">
-
         <div class="pad30">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_student' | translate}}</strong>
-                <drop-down-select ng-if="$ctrl.studentOptions" options="$ctrl.studentOptions"
-                    on-select="$ctrl.studentChanged(value)">
+                <drop-down-select
+                    ng-if="$ctrl.studentOptions"
+                    options="$ctrl.studentOptions"
+                    on-select="$ctrl.studentChanged(value)"
+                >
                 </drop-down-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{'sitnet_exam' | translate}}</strong>
-                <drop-down-select ng-if="$ctrl.examOptions" options="$ctrl.examOptions"
-                    on-select="$ctrl.examChanged(value)">
+                <drop-down-select
+                    ng-if="$ctrl.examOptions"
+                    options="$ctrl.examOptions"
+                    on-select="$ctrl.examChanged(value)"
+                >
                 </drop-down-select>
             </div>
             <div class="col-md-2 reservation-search-titles">
@@ -35,20 +39,29 @@
         <div class="pad30">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_exam_owners' | translate}}</strong>
-                <drop-down-select ng-if="$ctrl.teacherOptions" options="$ctrl.teacherOptions"
-                    on-select="$ctrl.ownerChanged(value)">
+                <drop-down-select
+                    ng-if="$ctrl.teacherOptions"
+                    options="$ctrl.teacherOptions"
+                    on-select="$ctrl.ownerChanged(value)"
+                >
                 </drop-down-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_room' | translate}}</strong>
-                <drop-down-select ng-if="$ctrl.roomOptions" options="$ctrl.roomOptions"
-                    on-select="$ctrl.roomChanged(value)">
+                <drop-down-select
+                    ng-if="$ctrl.roomOptions"
+                    options="$ctrl.roomOptions"
+                    on-select="$ctrl.roomChanged(value)"
+                >
                 </drop-down-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{'sitnet_exam_machine' | translate}}</strong>
-                <drop-down-select ng-if="$ctrl.machineOptions" options="$ctrl.machineOptions"
-                    on-select="$ctrl.machineChanged(value)">
+                <drop-down-select
+                    ng-if="$ctrl.machineOptions"
+                    options="$ctrl.machineOptions"
+                    on-select="$ctrl.machineChanged(value)"
+                >
                 </drop-down-select>
             </div>
             <div class="col-md-3">
@@ -56,10 +69,24 @@
                 <drop-down-select options="$ctrl.stateOptions" on-select="$ctrl.stateChanged(value)">
                 </drop-down-select>
             </div>
+            <div class="col-md-3">
+                <div class="checkbox">
+                    <label>
+                        <input
+                            type="checkbox"
+                            value=""
+                            ng-model="$ctrl.externalReservationsOnly"
+                            ng-change="$ctrl.externalReservationFilterClicked()"
+                        />
+                        <strong class="reservation-search-titles">
+                            {{'sitnet_external_reservations_only' | translate}}
+                        </strong>
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <reservation-detail ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true">
-        </reservation-detail>
-
+        <reservation-details ng-if="$ctrl.reservations" reservations="$ctrl.reservations" is-admin-view="true">
+        </reservation-details>
     </div>
 </div>

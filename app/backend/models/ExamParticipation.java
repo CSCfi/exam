@@ -51,6 +51,10 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
+    @ManyToOne
+    @JsonBackReference
+    private ExaminationEvent examinationEvent;
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime started;
@@ -109,6 +113,14 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
+    }
+
+    public ExaminationEvent getExaminationEvent() {
+        return examinationEvent;
+    }
+
+    public void setExaminationEvent(ExaminationEvent examinationEvent) {
+        this.examinationEvent = examinationEvent;
     }
 
     public DateTime getStarted() {

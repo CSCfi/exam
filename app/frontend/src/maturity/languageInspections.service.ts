@@ -18,7 +18,7 @@ import * as uib from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
 
 import { LanguageInspection } from './maturity.model';
-
+import { StateService } from '@uirouter/core';
 
 export interface QueryParams {
     text?: string;
@@ -27,13 +27,12 @@ export interface QueryParams {
 }
 
 export class LanguageInspectionService {
-
     constructor(
         private $http: ng.IHttpService,
-        private $location: ng.ILocationService,
+        private $state: StateService,
         private $uibModal: uib.IModalService,
         private $translate: ng.translate.ITranslateService,
-        private dialogs: angular.dialogservice.IDialogService
+        private dialogs: angular.dialogservice.IDialogService,
     ) {
         'ngInject';
     }
@@ -42,33 +41,37 @@ export class LanguageInspectionService {
         return this.$http({
             url: '/app/inspections',
             method: 'GET',
-            params: params
+            params: params,
         });
     }
 
     showStatement = (statement: { comment: string }) => {
-        this.$uibModal.open({
-            backdrop: 'static',
-            keyboard: true,
-            component: 'inspectionStatementDialog',
-            resolve: {
-                statement: function () {
-                    return statement.comment;
-                }
-            }
-        }).result.catch(angular.noop);
-    }
+        this.$uibModal
+            .open({
+                backdrop: 'static',
+                keyboard: true,
+                component: 'inspectionStatementDialog',
+                resolve: {
+                    statement: function() {
+                        return statement.comment;
+                    },
+                },
+            })
+            .result.catch(angular.noop);
+    };
 
     assignInspection = (inspection: LanguageInspection) => {
-        const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-            this.$translate.instant('sitnet_confirm_assign_inspection'));
+        const dialog = this.dialogs.confirm(
+            this.$translate.instant('sitnet_confirm'),
+            this.$translate.instant('sitnet_confirm_assign_inspection'),
+        );
         dialog.result.then(() => {
-            this.$http.put(`/app/inspection/${inspection.id}`, {}).then(() =>
-                this.$location.path(`assessments/${inspection.exam.id}`)
-            ).catch((err) => toast.error(err.data));
+            this.$http
+                .put(`/app/inspection/${inspection.id}`, {})
+                .then(() => this.$state.go('assessment', { id: inspection.exam.id }))
+                .catch(err => toast.error(err.data));
         });
-    }
-
+    };
 }
 
 angular.module('app.maturity').service('LanguageInspections', LanguageInspectionService);

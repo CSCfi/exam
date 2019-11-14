@@ -16,155 +16,171 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('libraryResults', {
-        template: require('./libraryResults.template.html'),
-        bindings: {
-            onSelection: '&',
-            onCopy: '&',
-            questions: '<',
-            disableLinks: '<',
-            tableClass: '@?'
-        },
-        controller: ['$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session',
-            function ($translate, dialogs, Question, Library, Attachment, Session) {
+angular.module('app.question').component('libraryResults', {
+    template: require('./libraryResults.template.html'),
+    bindings: {
+        onSelection: '&',
+        onCopy: '&',
+        questions: '<',
+        disableLinks: '<',
+        tableClass: '@?',
+    },
+    controller: [
+        '$translate',
+        'dialogs',
+        'Question',
+        'Library',
+        'Attachment',
+        'Session',
+        function($translate, dialogs, Question, Library, Attachment, Session) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.user = Session.getUser();
+                vm.allSelected = false;
+                vm.pageSize = 25;
+                vm.currentPage = 0;
+                vm.tableClass = vm.tableClass || 'exams-table';
+                const storedData = Library.loadFilters('sorting');
+                if (storedData.filters) {
+                    vm.questionsPredicate = storedData.filters.predicate;
+                    vm.reverse = storedData.filters.reverse;
+                }
+            };
 
-                vm.$onInit = function () {
-                    vm.user = Session.getUser();
-                    vm.allSelected = false;
-                    vm.pageSize = 25;
+            vm.$onChanges = function(props) {
+                if (props.questions) {
                     vm.currentPage = 0;
-                    vm.tableClass = vm.tableClass || 'exams-table';
-                    const storedData = Library.loadFilters('sorting');
-                    if (storedData.filters) {
-                        vm.questionsPredicate = storedData.filters.predicate;
-                        vm.reverse = storedData.filters.reverse;
-                    }
-                };
+                    resetSelections();
+                }
+            };
 
-                vm.$onChanges = function (props) {
-                    if (props.questions) {
-                        vm.currentPage = 0;
-                        resetSelections();
-                    }
-                };
+            vm.onSort = function() {
+                saveFilters();
+            };
 
-                vm.onSort = function () {
-                    saveFilters();
+            const saveFilters = function() {
+                const filters = {
+                    predicate: vm.questionsPredicate,
+                    reverse: vm.reverse,
                 };
+                Library.storeFilters(filters, 'sorting');
+            };
 
-                const saveFilters = function () {
-                    const filters = {
-                        predicate: vm.questionsPredicate,
-                        reverse: vm.reverse
-                    };
-                    Library.storeFilters(filters, 'sorting');
-                };
+            vm.selectAll = function() {
+                vm.questions.forEach(function(q) {
+                    q.selected = vm.allSelected;
+                });
+                vm.questionSelected();
+            };
 
-                vm.selectAll = function () {
-                    vm.questions.forEach(function (q) {
-                        q.selected = vm.allSelected;
-                    });
-                    vm.questionSelected();
-                };
+            const resetSelections = function() {
+                vm.questions.forEach(function(q) {
+                    q.selected = false;
+                });
+                vm.questionSelected();
+            };
 
-                const resetSelections = function () {
-                    vm.questions.forEach(function (q) {
-                        q.selected = false;
-                    });
-                    vm.questionSelected();
-                };
-
-                vm.questionSelected = function () {
-                    const selections = vm.questions.filter(function (q) {
+            vm.questionSelected = function() {
+                const selections = vm.questions
+                    .filter(function(q) {
                         return q.selected;
-                    }).map(function (q) {
+                    })
+                    .map(function(q) {
                         return q.id;
                     });
-                    vm.onSelection({ selections: selections });
-                };
+                vm.onSelection({ selections: selections });
+            };
 
-                vm.deleteQuestion = function (question) {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                        $translate.instant('sitnet_remove_question_from_library_only'));
-                    dialog.result.then(function (btn) {
-                        Question.questionsApi.delete({ id: question.id }, function () {
-                            vm.questions.splice(vm.questions.indexOf(question), 1);
-                            toast.info($translate.instant('sitnet_question_removed'));
-                        });
+            vm.deleteQuestion = function(question) {
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_remove_question_from_library_only'),
+                );
+                dialog.result.then(function(btn) {
+                    Question.questionsApi.delete({ id: question.id }, function() {
+                        vm.questions.splice(vm.questions.indexOf(question), 1);
+                        toast.info($translate.instant('sitnet_question_removed'));
                     });
-                };
+                });
+            };
 
-                vm.copyQuestion = function (question) {
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                        $translate.instant('sitnet_copy_question'));
-                    dialog.result.then(function (btn) {
-                        Question.questionCopyApi.copy({ id: question.id }, function (copy) {
-                            vm.questions.splice(vm.questions.indexOf(question), 0, copy);
-                            vm.onCopy({ copy: copy });
-                        });
+            vm.copyQuestion = function(question) {
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_copy_question'),
+                );
+                dialog.result.then(function(btn) {
+                    Question.questionCopyApi.copy({ id: question.id }, function(copy) {
+                        vm.questions.splice(vm.questions.indexOf(question), 0, copy);
+                        vm.onCopy({ copy: copy });
                     });
-                };
+                });
+            };
 
-                vm.downloadQuestionAttachment = function (question) {
-                    Attachment.downloadQuestionAttachment(question);
-                };
+            vm.downloadQuestionAttachment = function(question) {
+                Attachment.downloadQuestionAttachment(question);
+            };
 
-                vm.printOwners = function (question) {
-                    return question.questionOwners.map(function (o) {
+            vm.printOwners = function(question) {
+                return question.questionOwners
+                    .map(function(o) {
                         return vm.printOwner(o, false);
-                    }).join(', ');
-                };
+                    })
+                    .join(', ');
+            };
 
-                vm.printOwner = function (owner, showId) {
-                    let s = owner.firstName + ' ' + owner.lastName;
-                    if (showId && owner.userIdentifier) {
-                        s += ' (' + owner.userIdentifier + ')';
-                    }
-                    return s;
-                };
-
-                vm.printTags = function (question) {
-                    return question.tags.map(function (t) {
-                        return t.name.toUpperCase();
-                    }).join(', ');
-                };
-
-                vm.pageSelected = function (page) {
-                    vm.currentPage = page;
+            vm.printOwner = function(owner, showId) {
+                let s = owner.firstName + ' ' + owner.lastName;
+                if (showId && owner.userIdentifier) {
+                    s += ' (' + owner.userIdentifier + ')';
                 }
+                return s;
+            };
 
-                vm.getQuestionTypeIcon = function (question) {
-                    switch (question.type) {
-                        case 'EssayQuestion':
-                            return 'fa-edit';
-                        case 'MultipleChoiceQuestion':
-                            return 'fa-list-ul';
-                        case 'WeightedMultipleChoiceQuestion':
-                            return 'fa-balance-scale';
-                        case 'ClozeTestQuestion':
-                            return 'fa-terminal';
-                    }
-                    return '';
-                };
+            vm.printTags = function(question) {
+                return question.tags
+                    .map(function(t) {
+                        return t.name.toUpperCase();
+                    })
+                    .join(', ');
+            };
 
-                vm.getQuestionTypeText = function (question) {
-                    switch (question.type) {
-                        case 'EssayQuestion':
-                            return 'sitnet_essay';
-                        case 'MultipleChoiceQuestion':
-                            return 'sitnet_question_mc';
-                        case 'WeightedMultipleChoiceQuestion':
-                            return 'sitnet_question_weighted_mc';
-                        case 'ClozeTestQuestion':
-                            return 'sitnet_toolbar_cloze_test_question';
-                    }
-                    return '';
-                };
+            vm.pageSelected = function(page) {
+                vm.currentPage = page;
+            };
 
-            }
-        ]
-    });
+            vm.getQuestionTypeIcon = function(question) {
+                switch (question.type) {
+                    case 'EssayQuestion':
+                        return 'fa-edit';
+                    case 'MultipleChoiceQuestion':
+                        return 'fa-list-ul';
+                    case 'WeightedMultipleChoiceQuestion':
+                        return 'fa-balance-scale';
+                    case 'ClozeTestQuestion':
+                        return 'fa-terminal';
+                    case 'ClaimChoiceQuestion':
+                        return 'fa-list-ol';
+                }
+                return '';
+            };
 
+            vm.getQuestionTypeText = function(question) {
+                switch (question.type) {
+                    case 'EssayQuestion':
+                        return 'sitnet_essay';
+                    case 'MultipleChoiceQuestion':
+                        return 'sitnet_question_mc';
+                    case 'WeightedMultipleChoiceQuestion':
+                        return 'sitnet_question_weighted_mc';
+                    case 'ClozeTestQuestion':
+                        return 'sitnet_toolbar_cloze_test_question';
+                    case 'ClaimChoiceQuestion':
+                        return 'sitnet_toolbar_claim_choice_question';
+                }
+                return '';
+            };
+        },
+    ],
+});

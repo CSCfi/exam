@@ -16,8 +16,9 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 
 export class DateTimeService {
-
-    constructor(private $translate: angular.translate.ITranslateService) { 'ngInject'; }
+    constructor(private $translate: angular.translate.ITranslateService) {
+        'ngInject';
+    }
 
     printExamDuration(exam: { duration: number }): string {
         if (exam && exam.duration) {
@@ -44,8 +45,8 @@ export class DateTimeService {
         const lang = this.$translate.use();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options = { weekday: 'short' };
-        return _.range(1, 7).concat(0).map(
-            d => this.getDateForWeekday(d).toLocaleDateString(locale, options)
-        );
+        return _.range(1, 7)
+            .concat(0)
+            .map(d => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
 }

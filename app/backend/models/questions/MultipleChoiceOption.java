@@ -27,16 +27,25 @@ import org.springframework.beans.BeanUtils;
 
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.sections.ExamSectionQuestionOption;
+import io.ebean.annotation.EnumValue;
 
 
 @Entity
 public class MultipleChoiceOption extends GeneratedIdentityModel implements Comparable<MultipleChoiceOption> {
+
+    public enum ClaimChoiceOptionType {
+        @EnumValue("1") CorrectOption,
+        @EnumValue("2") IncorrectOption,
+        @EnumValue("3") SkipOption
+    }
 
     private String option;
 
     private boolean correctOption;
 
     private Double defaultScore;
+
+    private ClaimChoiceOptionType claimChoiceType;
 
     @ManyToOne
     @JsonBackReference
@@ -70,6 +79,10 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     public void setDefaultScore(Double defaultScore) {
         this.defaultScore = defaultScore;
     }
+
+    public ClaimChoiceOptionType getClaimChoiceType() { return claimChoiceType; }
+
+    public void setClaimChoiceType(ClaimChoiceOptionType claimChoiceType) { this.claimChoiceType = claimChoiceType; }
 
     public Question getQuestion() {
         return question;

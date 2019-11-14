@@ -14,7 +14,6 @@
  */
 import * as ng from 'angular';
 import * as _ from 'lodash';
-import * as toast from 'toastr';
 
 import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
 
@@ -22,107 +21,85 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
     bindings: {
         exam: '<',
-        collaborative: '<',
-        onUpdate: '&',
-        onNextTabSelected: '&'
+        reviews: '<',
     },
-    controller: class ExamSummaryController implements ng.IComponentController {
-
+    controller: class ExamSummaryController implements ng.IComponentController, ng.IOnInit, ng.IOnChanges {
         exam: Exam;
-        participations: any[];
-        onNextTabSelected: () => any;
+        reviews: any[];
         gradeDistribution: _.Dictionary<number>;
+        gradedCount: number;
+        gradeTimeData: string[];
+        gradeTimeLabels: string[];
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
-        gradeTimeData:  string[];
-        gradeTimeLabels: string[];
-        gradedCount: number;
         chartOptions: any;
-        datasetOverride: any;
 
-        constructor(
-            private $http: angular.IHttpService
-        ) {
-            'ngInject';
-        }
-
-        $onInit = () => {
-            const url = this.getResource(this.exam.id);
-            this.$http.get(url).then((resp: angular.IHttpResponse<any>) => {
-                this.participations = resp.data;
-                this.exam = this.participations[0].exam.parent;
-                this.buildGradeDistribution();
-                this.buildGradeTime();
-                this.gradedCount = this.participations.filter(
-                    p => p.exam.grade).length;
-            }).catch(err => toast.error(err.data));
-
-            this.gradeDistribution = {};
+        private refresh = () => {
+            this.buildGradeDistribution();
+            this.gradedCount = this.reviews.filter(r => r.exam.grade).length;
+            this.buildGradeTime();
             this.chartOptions = {
                 elements: {
                     line: {
-                        tension: 0
-                    }
+                        tension: 0,
+                    },
                 },
                 scales: {
-                    xAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'min'
-                        }
-                    }]
-                }
+                    xAxes: [
+                        {
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'min',
+                            },
+                        },
+                    ],
+                },
             };
+        };
 
-        }
+        $onInit = () => this.refresh();
 
-        getResource = path => `/app/reviews/${path}`;
+        $onChanges = () => this.refresh();
 
-        getRegisteredCount = () => this.participations.length;
+        getGradeDistribution = () => this.gradeDistribution;
+
+        getRegisteredCount = () => this.reviews.length;
 
         getReadFeedback = () =>
-            this.participations.filter(p =>
-                p.exam.examFeedback &&
-                p.exam.examFeedback.feedbackStatus === true).length;
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
 
         getTotalFeedback = () =>
-            this.getReadFeedback() + this.participations.filter(p =>
-                p.exam.examFeedback &&
-                p.exam.examFeedback.feedbackStatus === false).length;
+            this.getReadFeedback() +
+            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === false).length;
 
-        getFeedbackPercentage = () =>
-            this.getReadFeedback() / this.getTotalFeedback() * 100;
-
-        nextTab = () => this.onNextTabSelected();
+        getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;
 
         getTotalQuestions = () => {
-            const sections: ExamSection[] = this.participations.map(p => p.exam.examSections);
+            const sections: ExamSection[] = this.reviews.map(r => r.exam.examSections);
             const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
             return _.flatMap(questions).length;
-        }
+        };
 
         buildGradeDistribution = () => {
-            const grades: string[] = this.participations.filter(p => p.exam.grade).map(p => p.exam.grade.name);
+            const grades: string[] = this.reviews.filter(r => r.exam.grade).map(r => r.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
             this.gradeDistributionData = Object.values(this.gradeDistribution);
             this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
-        }
-
-        buildGradeTime = () => {
-            const gradeTimes: any[] = this.participations.sort((a, b) => (a.duration > b.duration) ? 1 : -1).map(p =>
-                                            [Math.round(p.duration / 60000).toString(), p.exam.grade.name]
-            );
-            this.gradeTimeLabels = gradeTimes.map( g => g[0]);
-            this.gradeTimeData = gradeTimes.map( g => g[1]);
-        }
+        };
 
         getAverageTime = () => {
-            const durations = this.participations.map(p => p.duration);
-            return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
-        }
+            const durations = this.reviews.map(r => r.duration);
+            return durations.reduce((a, b) => a + b, 0) / durations.length;
+        };
 
-    }
+        buildGradeTime = () => {
+            const gradeTimes: any[] = this.reviews
+                .sort((a, b) => (a.duration > b.duration ? 1 : -1))
+                .map(r => [Math.round(r.duration / 60000).toString(), r.exam.grade.name]);
+            this.gradeTimeLabels = gradeTimes.map(g => g[0]);
+            this.gradeTimeData = gradeTimes.map(g => g[1]);
+        };
+    },
 };
 
 angular.module('app.review').component('examSummary', ExamSummaryComponent);
-

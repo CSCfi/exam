@@ -17,10 +17,7 @@ import * as angular from 'angular';
 import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 
-
-export default angular.module('app.navigation', [])
+export default angular
+    .module('app.navigation', [])
     .service('Navigation', NavigationService)
-    .component('navigation', NavigationComponent)
-    .name;
-
-
+    .component('navigation', NavigationComponent).name;

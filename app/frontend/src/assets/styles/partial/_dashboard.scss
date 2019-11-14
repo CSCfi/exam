@@ -1549,6 +1549,10 @@
       width: 5em;
 
     }
+
+    &.claim {
+      width: 100%;
+    }
   }
 
   .question-option-empty {
@@ -1839,6 +1843,13 @@
     height: auto;
     max-height: 400px;
     overflow-y: scroll;
+  }
+
+  .participant-selector-toggle {
+    label {
+      display: block;
+      font-weight: 400;
+    }
   }
 }
 

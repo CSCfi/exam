@@ -15,31 +15,24 @@
 
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('examFeedback', {
-        template: require('./examFeedback.template.html'),
-        bindings: {
-            assessment: '<',
-            scores: '<'
+angular.module('app.enrolment').component('examFeedback', {
+    template: require('./examFeedback.template.html'),
+    bindings: {
+        assessment: '<',
+        scores: '<',
+    },
+    controller: [
+        'Attachment',
+        function(Attachment) {
+            const vm = this;
+
+            vm.downloadFeedbackAttachment = function() {
+                Attachment.downloadFeedbackAttachment(vm.assessment);
+            };
+
+            vm.downloadStatementAttachment = function() {
+                Attachment.downloadStatementAttachment(vm.assessment);
+            };
         },
-        controller: ['Attachment',
-            function (Attachment) {
-
-                const vm = this;
-
-                vm.downloadFeedbackAttachment = function () {
-                    Attachment.downloadFeedbackAttachment(vm.assessment);
-                };
-
-                vm.downloadStatementAttachment = function () {
-                    Attachment.downloadStatementAttachment(vm.assessment);
-                }
-
-            }
-
-        ]
-    });
-
-
-
-
+    ],
+});

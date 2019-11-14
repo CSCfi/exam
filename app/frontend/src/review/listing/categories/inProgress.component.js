@@ -15,47 +15,46 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rlInProgress', {
-        template: require('./inProgress.template.html'),
-        bindings: {
-            exam: '<',
-            reviews: '<'
-        },
-        require: {
-            parentCtrl: '^^reviewList'
-        },
-        controller: ['ReviewList', 'Session', function (ReviewList, Session) {
-
+angular.module('app.review').component('rlInProgress', {
+    template: require('./inProgress.template.html'),
+    bindings: {
+        exam: '<',
+        reviews: '<',
+    },
+    require: {
+        parentCtrl: '^^reviewList',
+    },
+    controller: [
+        'ReviewList',
+        'Session',
+        function(ReviewList, Session) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.data = ReviewList.prepareView(vm.reviews, handleOngoingReviews);
                 vm.data.predicate = 'deadline';
 
-                vm.isOwner = (user) =>
+                vm.isOwner = user =>
                     vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
-
             };
 
             vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
-            vm.getLinkToAssessment = (review) =>
-                vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
-                    : `/assessments/${review.exam.id}`
+            vm.getLinkToAssessment = review =>
+                vm.parentCtrl.collaborative
+                    ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
+                    : `/assessments/${review.exam.id}`;
 
-
-            vm.pageSelected = function (page) {
+            vm.pageSelected = function(page) {
                 vm.data.page = page;
             };
 
-            vm.applyFreeSearchFilter = () =>
-                vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
+            vm.applyFreeSearchFilter = () => (vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items));
 
-            const handleOngoingReviews = (review) => {
+            const handleOngoingReviews = review => {
                 review.displayName = ReviewList.getDisplayName(review, vm.parentCtrl.collaborative);
                 ReviewList.gradeExam(review.exam);
             };
-
-        }]
-    });
+        },
+    ],
+});

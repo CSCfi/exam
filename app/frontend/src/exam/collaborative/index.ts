@@ -17,6 +17,7 @@ import * as angular from 'angular';
 import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExamListingComponent } from './collaborativeExamListing.component';
 
-export default angular.module('app.exam.collaborative', [])
+export default angular
+    .module('app.exam.collaborative', [])
     .service('CollaborativeExam', CollaborativeExamService)
     .component('collaborativeExamListing', CollaborativeExamListingComponent).name;

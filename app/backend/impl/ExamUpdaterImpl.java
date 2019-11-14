@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,7 +128,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
-                if (exam.getRequiresUserAgentAuth() && exam.getEncryptedSettingsPassword() == null) {
+                if (exam.getRequiresUserAgentAuth() && exam.getExaminationEventConfigurations().stream()
+                        .anyMatch(eec ->  eec.getEncryptedSettingsPassword() == null)) {
                     return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
@@ -146,30 +146,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
             exam.setState(state.get());
         }
         return Optional.empty();
-    }
-
-    private void setSettingsPassword(Exam exam, boolean requiresUserAgentAuth, String pwd) {
-        if (requiresUserAgentAuth && pwd != null) {
-            try {
-                String oldPwd = exam.getEncryptedSettingsPassword() != null ?
-                        byodConfigHandler.getPlaintextPassword(
-                                exam.getEncryptedSettingsPassword(), exam.getSettingsPasswordSalt())
-                        : null;
-                if (!pwd.equals(oldPwd)) {
-                    String newSalt = UUID.randomUUID().toString();
-                    exam.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(pwd, newSalt));
-                    exam.setSettingsPasswordSalt(newSalt);
-                    // Pre-calculate config key so we don't need to do it each time a check is needed
-                    exam.setConfigKey(byodConfigHandler.calculateConfigKey(exam.getHash()));
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            exam.setEncryptedSettingsPassword(null);
-            exam.setSettingsPasswordSalt(null);
-            exam.setConfigKey(null);
-        }
     }
 
     @Override
@@ -213,7 +189,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         exam.setRequiresUserAgentAuth(requiresUserAgentAuth);
-        setSettingsPassword(exam, requiresUserAgentAuth, settingsPassword);
         if (loginRole == Role.Name.ADMIN &&
                 ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
                 !hasFutureReservations(exam)) {

@@ -18,11 +18,12 @@ require('./question.service');
 
 require('./basequestion/question.component');
 require('./basequestion/questionBody.component');
-require('./basequestion/tagPicker.component');
+require('./basequestion/tagPicker.component.ts');
 require('./basequestion/essayForm.component');
 require('./basequestion/multipleChoiceForm.component');
 require('./basequestion/multipleChoiceOptionForm.component');
 require('./basequestion/weightedMultipleChoiceOptionForm.component');
+require('./basequestion/claimChoiceForm.component');
 
 require('./examquestion/examQuestion.service');
 require('./examquestion/examQuestion.component');

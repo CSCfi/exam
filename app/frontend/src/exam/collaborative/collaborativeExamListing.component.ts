@@ -18,6 +18,7 @@ import * as toast from 'toastr';
 import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExam } from '../exam.model';
 import { User, SessionService } from '../../session/session.service';
+import { StateService } from '@uirouter/core';
 
 export const CollaborativeExamListingComponent: angular.IComponentOptions = {
     template: `
@@ -49,7 +50,8 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                         <tbody>
                         <tr ng-repeat="exam in $ctrl.exams | orderBy:$ctrl.predicate:$ctrl.reverse">
                             <td>
-                                <a class="exams-info-title bold-button" href="/exams/collaborative/{{exam.id}}/1">
+                                <a class="exams-info-title bold-button" 
+                                    ui-sref="collaborativeExamEditor({id: {{exam.id}}, tab: 1})">
                                     <span ng-if="exam.name">{{exam.name}}</span>
                                     <span ng-if="!exam.name" class="text-danger">
                                         {{'sitnet_no_name' | translate | uppercase }}
@@ -67,31 +69,34 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
         </div>
         `,
     controller: class CollaborativeExamListingController implements angular.IComponentController {
-
         exams: CollaborativeExam[];
         user: User;
 
         constructor(
-            private $location: angular.ILocationService,
+            private $state: StateService,
             private $translate: angular.translate.ITranslateService,
             private Session: SessionService,
-            private CollaborativeExam: CollaborativeExamService) {
+            private CollaborativeExam: CollaborativeExamService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
             this.user = this.Session.getUser();
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams;
-            }).catch(angular.noop);
+            this.CollaborativeExam.listExams()
+                .then((exams: CollaborativeExam[]) => {
+                    this.exams = exams;
+                })
+                .catch(angular.noop);
         }
 
         createExam() {
-            this.CollaborativeExam.createExam().then((exam: CollaborativeExam) => {
-                toast.info(this.$translate.instant('sitnet_exam_created'));
-                this.$location.path(`/exams/collaborative/${exam.id}/1`);
-            }).catch(resp => toast.error(resp.data));
+            this.CollaborativeExam.createExam()
+                .then((exam: CollaborativeExam) => {
+                    toast.info(this.$translate.instant('sitnet_exam_created'));
+                    this.$state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
+                })
+                .catch(resp => toast.error(resp.data));
         }
-
-    }
+    },
 };

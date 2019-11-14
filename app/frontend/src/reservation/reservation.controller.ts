@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
@@ -19,7 +20,6 @@ import * as toast from 'toastr';
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
 import { ReservationService } from './reservationService';
-
 
 interface Selection {
     roomId?: number;
@@ -31,7 +31,6 @@ interface Selection {
 }
 
 export class ReservationController implements angular.IComponentController {
-
     examId: string | undefined;
     user: User;
     startDate: Date = new Date();
@@ -46,7 +45,7 @@ export class ReservationController implements angular.IComponentController {
         'STUDENT_STARTED',
         'PUBLISHED',
         'ABORTED',
-        'NO_SHOW'
+        'NO_SHOW',
     ];
     selection: Selection;
     stateOptions: Option[];
@@ -59,25 +58,25 @@ export class ReservationController implements angular.IComponentController {
     machines: any[];
     reservations: any[];
     isInteroperable: boolean;
+    externalReservationsOnly: boolean;
 
     constructor(
         private $http: angular.IHttpService,
-        private $routeParams: angular.route.IRouteParamsService,
+        private $stateParams: StateParams,
         private $filter: angular.IFilterService,
         private Session: SessionService,
         private Reservation: ReservationService,
-        private SettingsResource: any
+        private SettingsResource: any,
     ) {
         'ngInject';
 
-        this.examId = $routeParams.eid ? $routeParams.eid : undefined;
-        this.user = Session.getUser();
+        this.examId = this.$stateParams.eid ? this.$stateParams.eid : undefined;
+        this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {
             this.examStates.push('EXTERNAL_UNFINISHED');
             this.examStates.push('EXTERNAL_FINISHED');
         }
-
     }
 
     $onInit() {
@@ -118,105 +117,139 @@ export class ReservationController implements angular.IComponentController {
                 params.end = this.endDate;
             }
 
-            this.$http.get('/app/reservations', { params: params }).then((resp: angular.IHttpResponse<any[]>) => {
-                const reservations = resp.data;
-                reservations.forEach(r => {
-                    r.userAggregate = r.user ? `${r.user.lastName}  ${r.user.firstName}`
-                        : r.externalUserRef ? r.externalUserRef : r.enrolment.exam.id;
-                    // Transfer exam taken here
-                    if (!r.enrolment || r.enrolment.externalExam) {
-                        r.enrolment = r.enrolment || {};
-                        const state = r.enrolment.externalExam && r.enrolment.externalExam.finished
-                            ? 'EXTERNAL_FINISHED' : 'EXTERNAL_UNFINISHED';
-                        r.enrolment.exam = { external: true, examOwners: [], state: state };
-                    }
-                    // Transfer exam taken elsewhere
-                    if (r.externalReservation) {
-                        r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
-                        r.machine = {
-                            name: r.externalReservation.machineName,
-                            room: { name: r.externalReservation.roomName },
-                        };
-                    }
-                    // Collaborative exam
-                    if (r.enrolment.collaborativeExam) {
-                        r.enrolment.exam = r.enrolment.collaborativeExam;
-                        r.enrolment.exam.examOwners = [];
-                    }
-                    if (!r.enrolment.exam) {
-                        console.warn('no exam for enrolment ' + r.enrolment.id);
-                    } else {
-                        const exam = r.enrolment.exam.parent || r.enrolment.exam;
-                        r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
-                            return o.lastName + o.firstName;
-                        }).join();
-                        const state = this.Reservation.printExamState(r);
-                        r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                            'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
-                            'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
-                    }
+            this.$http
+                .get('/app/reservations', { params: params })
+                .then((resp: angular.IHttpResponse<any[]>) => {
+                    const reservations = resp.data;
+                    reservations.forEach(r => {
+                        r.userAggregate = r.user
+                            ? `${r.user.lastName}  ${r.user.firstName}`
+                            : r.externalUserRef
+                            ? r.externalUserRef
+                            : r.enrolment.exam.id;
+                        // Transfer exam taken here
+                        if (!r.enrolment || r.enrolment.externalExam) {
+                            r.enrolment = r.enrolment || {};
+                            const state =
+                                r.enrolment.externalExam && r.enrolment.externalExam.finished
+                                    ? 'EXTERNAL_FINISHED'
+                                    : 'EXTERNAL_UNFINISHED';
+                            r.enrolment.exam = { external: true, examOwners: [], state: state };
+                        }
+                        // Transfer exam taken elsewhere
+                        if (r.externalReservation) {
+                            r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
+                            r.machine = {
+                                name: r.externalReservation.machineName,
+                                room: { name: r.externalReservation.roomName },
+                            };
+                        }
+                        // Collaborative exam
+                        if (r.enrolment.collaborativeExam) {
+                            if (!r.enrolment.exam) {
+                                r.enrolment.exam = r.enrolment.collaborativeExam;
+                            }
+                            r.enrolment.exam.examOwners = [];
+                        }
+                        if (!r.enrolment.exam) {
+                            console.warn('no exam for enrolment ' + r.enrolment.id);
+                        } else {
+                            const exam = r.enrolment.exam.parent || r.enrolment.exam;
+                            r.enrolment.teacherAggregate = exam.examOwners
+                                .map(function(o) {
+                                    return o.lastName + o.firstName;
+                                })
+                                .join();
+                            const state = this.Reservation.printExamState(r);
+                            r.stateOrd = [
+                                'PUBLISHED',
+                                'NO_SHOW',
+                                'STUDENT_STARTED',
+                                'ABORTED',
+                                'REVIEW',
+                                'REVIEW_STARTED',
+                                'GRADED',
+                                'GRADED_LOGGED',
+                                'REJECTED',
+                                'ARCHIVED',
+                                'EXTERNAL_UNFINISHED',
+                                'EXTERNAL_FINISHED',
+                            ].indexOf(state);
+                        }
+                    });
+                    this.reservations = reservations.filter(
+                        r => r.externalReservation || !this.externalReservationsOnly,
+                    );
+                })
+                .catch(resp => {
+                    toast.error(resp);
                 });
-                this.reservations = reservations;
-            }).catch(resp => {
-                toast.error(resp);
-            });
         }
     }
 
     isAdminView = () => this.user.isAdmin;
 
     private initOptions() {
-        this.$http.get('/app/reservations/students')
+        this.$http
+            .get('/app/reservations/students')
             .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                 const students = this.$filter('orderBy')(resp.data, ['lastName', 'firstName']);
                 this.studentOptions = students.map(s => {
                     return { id: s.id, value: s, label: s.name };
                 });
-            }).catch(resp => toast.error(resp.data));
-        this.SettingsResource.examVisit.get((data) => {
+            })
+            .catch(resp => toast.error(resp.data));
+        this.SettingsResource.examVisit.get(data => {
             this.isInteroperable = data.isExamVisitSupported;
             this.initExamOptions();
         });
 
         if (this.isAdminView()) {
-            this.$http.get('/app/reservations/teachers')
+            this.$http
+                .get('/app/reservations/teachers')
                 .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                     const teachers = this.$filter('orderBy')(resp.data, ['lastName', 'firstName']);
                     this.teacherOptions = teachers.map(t => {
                         return { id: t.id, value: t, label: t.name };
                     });
-                }).catch(resp => toast.error(resp.data));
+                })
+                .catch(resp => toast.error(resp.data));
 
-            this.$http.get('/app/reservations/examrooms')
+            this.$http
+                .get('/app/reservations/examrooms')
                 .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                     this.rooms = this.$filter('orderBy')(resp.data, 'name');
                     this.roomOptions = this.rooms.map(r => {
                         return { id: r.id, value: r, label: r.name };
                     });
-                    this.$http.get('/app/machines')
+                    this.$http
+                        .get('/app/machines')
                         .then((resp: angular.IHttpResponse<{ id: number; name: string }[]>) => {
                             this.machines = this.$filter('orderBy')(resp.data, 'name');
                             this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                         });
-
-
-                }).catch(resp => toast.error(resp.data));
+                })
+                .catch(resp => toast.error(resp.data));
         }
     }
 
     protected initExamOptions(): void {
-        this.$http.get('/app/reservations/exams')
+        this.$http
+            .get('/app/reservations/exams')
             .then((resp: angular.IHttpResponse<{ id: string; name: string }[]>) => {
                 return resp.data;
             })
             .then(exams => {
                 if (this.isInteroperable && this.isAdminView()) {
                     // Load also collaborative exams.
-                    return this.$http.get('/integration/iop/exams')
+                    return this.$http
+                        .get('/integration/iop/exams')
                         .then((resp: angular.IHttpResponse<{ id: string; name: string; externalRef: string }[]>) => {
-                            return exams.concat(resp.data.map(e => {
-                                return { id: e.externalRef, name: e.name };
-                            }));
+                            return exams.concat(
+                                resp.data.map(e => {
+                                    return { id: e.externalRef, name: e.name };
+                                }),
+                            );
                         });
                 }
                 return exams;
@@ -239,17 +272,19 @@ export class ReservationController implements angular.IComponentController {
         const data = {
             id: undefined,
             label: room.name,
-            isHeader: true
+            isHeader: true,
         };
         return [data].concat(
-            machines.filter(m => this.roomContains(room, m)).map(m => {
-                return { id: m.id, value: m, label: m.name == null ? '' : m.name };
-            }));
+            machines
+                .filter(m => this.roomContains(room, m))
+                .map(m => {
+                    return { id: m.id, value: m, label: m.name == null ? '' : m.name };
+                }),
+        );
     }
 
     private machinesForRooms = (rooms: any[], machines): Option[] =>
-        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), [])
-
+        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
     roomChanged(room: Option | undefined) {
         if (room === undefined) {
@@ -269,6 +304,10 @@ export class ReservationController implements angular.IComponentController {
 
     endDateChanged(date) {
         this.endDate = date;
+        this.query();
+    }
+
+    externalReservationFilterClicked() {
         this.query();
     }
 
@@ -308,5 +347,4 @@ export class ReservationController implements angular.IComponentController {
         this.selection.examId = exam ? exam.id : undefined;
         this.query();
     }
-
 }

@@ -15,73 +15,79 @@
 
 import angular from 'angular';
 
-angular.module('app.question')
-    .service('Library', ['$resource', '$sessionStorage', '$q', 'Question',
-        function ($resource, $sessionStorage, $q, Question) {
+angular.module('app.question').service('Library', [
+    '$resource',
+    '$sessionStorage',
+    '$q',
+    'Question',
+    function($resource, $sessionStorage, $q, Question) {
+        const self = this;
 
-            const self = this;
+        self.examApi = $resource('/app/examsearch');
+        self.courseApi = $resource('/app/courses/user');
+        self.tagApi = $resource('/app/tags');
+        self.questionApi = $resource('/app/questions');
 
-            self.examApi = $resource('/app/examsearch');
-            self.courseApi = $resource('/app/courses/user');
-            self.tagApi = $resource('/app/tags');
-            self.questionApi = $resource('/app/questions');
+        self.loadFilters = function(category) {
+            if ($sessionStorage.questionFilters && $sessionStorage.questionFilters[category]) {
+                return JSON.parse($sessionStorage.questionFilters[category]);
+            }
+            return {};
+        };
 
-            self.loadFilters = function (category) {
-                if ($sessionStorage.questionFilters && $sessionStorage.questionFilters[category]) {
-                    return JSON.parse($sessionStorage.questionFilters[category]);
-                }
-                return {};
-            };
+        self.storeFilters = function(filters, category) {
+            const data = { filters: filters };
+            if (!$sessionStorage.questionFilters) {
+                $sessionStorage.questionFilters = {};
+            }
+            $sessionStorage.questionFilters[category] = JSON.stringify(data);
+        };
 
-            self.storeFilters = function (filters, category) {
-                const data = {filters: filters};
-                if (!$sessionStorage.questionFilters) {
-                    $sessionStorage.questionFilters = {};
-                }
-                $sessionStorage.questionFilters[category] = JSON.stringify(data);
-            };
+        self.applyFreeSearchFilter = function(text, questions) {
+            if (text) {
+                return questions.filter(function(question) {
+                    const re = new RegExp(text, 'i');
 
-            self.applyFreeSearchFilter = function (text, questions) {
-                if (text) {
-                    return questions.filter(function (question) {
-                        const re = new RegExp(text, 'i');
-
-                        const isMatch = question.question && htmlDecode(question.question).match(re);
-                        if (isMatch) {
-                            return true;
-                        }
-                        // match course code
-                        return question.examSectionQuestions.filter(function (esq) {
+                    const isMatch = question.question && htmlDecode(question.question).match(re);
+                    if (isMatch) {
+                        return true;
+                    }
+                    // match course code
+                    return (
+                        question.examSectionQuestions.filter(function(esq) {
                             // Course can be empty in case of a copied exam
                             return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
-                        }).length > 0;
-                    });
-                } else {
-                    return questions;
-                }
-            };
+                        }).length > 0
+                    );
+                });
+            } else {
+                return questions;
+            }
+        };
 
-            self.applyOwnerSearchFilter = function (text, questions) {
-                if (text) {
-                    return questions.filter(function (question) {
-                        const re = new RegExp(text, 'i');
-                        const owner = question.creator.firstName + ' ' + question.creator.lastName;
-                        return owner.match(re);
-                    });
-                } else {
-                    return questions;
-                }
-            };
+        self.applyOwnerSearchFilter = function(text, questions) {
+            if (text) {
+                return questions.filter(function(question) {
+                    const re = new RegExp(text, 'i');
+                    const owner = question.creator.firstName + ' ' + question.creator.lastName;
+                    return owner.match(re);
+                });
+            } else {
+                return questions;
+            }
+        };
 
-            self.search = function (examIds, courseIds, tagIds, sectionIds) {
-                const deferred = $q.defer();
-                self.questionApi.query({
+        self.search = function(examIds, courseIds, tagIds, sectionIds) {
+            const deferred = $q.defer();
+            self.questionApi.query(
+                {
                     exam: examIds,
                     course: courseIds,
                     tag: tagIds,
-                    section: sectionIds
-                }, function (data) {
-                    data.map(function (item) {
+                    section: sectionIds,
+                },
+                function(data) {
+                    data.map(function(item) {
                         switch (item.type) {
                             case 'MultipleChoiceQuestion':
                                 item.icon = 'fa-list-ul';
@@ -95,43 +101,56 @@ angular.module('app.question')
                             case 'ClozeTestQuestion':
                                 item.icon = 'fa-commenting-o';
                                 break;
+                            case 'ClaimChoiceQuestion':
+                                item.icon = 'fa-list-ol';
+                                break;
                         }
                         return item;
                     });
                     const questions = Question.applyFilter(data);
-                    questions.forEach(function (q) {
-                        if (q.defaultEvaluationType === 'Points' || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
+                    questions.forEach(function(q) {
+                        if (
+                            q.defaultEvaluationType === 'Points' ||
+                            q.type === 'ClozeTestQuestion' ||
+                            q.type === 'MultipleChoiceQuestion'
+                        ) {
                             q.displayedMaxScore = q.defaultMaxScore;
                         } else if (q.defaultEvaluationType === 'Selection') {
                             q.displayedMaxScore = 'sitnet_evaluation_select';
                         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
                             q.displayedMaxScore = Question.calculateDefaultMaxPoints(q);
+                        } else if (q.type === 'ClaimChoiceQuestion') {
+                            q.displayedMaxScore = Question.getCorrectClaimChoiceOptionDefaultScore(q);
                         }
-                        q.typeOrd = ['EssayQuestion',
+                        q.typeOrd = [
+                            'EssayQuestion',
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
-                            'WeightedMultipleChoiceQuestion'].indexOf(q.type);
+                            'WeightedMultipleChoiceQuestion',
+                            'ClaimChoiceQuestion',
+                        ].indexOf(q.type);
                         q.ownerAggregate = '';
                         if (q.questionOwners) {
-                            q.ownerAggregate = q.questionOwners.reduce(function (s, owner) {
+                            q.ownerAggregate = q.questionOwners.reduce(function(s, owner) {
                                 return s + owner.lastName + owner.firstName;
                             }, '');
                         }
-                        q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
-                            const exam = esq.examSection.exam;
-                            return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
-                        }).length === 0;
+                        q.allowedToRemove =
+                            q.examSectionQuestions.filter(function(esq) {
+                                const exam = esq.examSection.exam;
+                                return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
+                            }).length === 0;
                     });
                     deferred.resolve(questions);
-                });
-                return deferred.promise;
-            };
+                },
+            );
+            return deferred.promise;
+        };
 
-
-            const htmlDecode = function (text) {
-                return $('<div/>').html(text).text();
-            };
-
-
-        }]);
-
+        const htmlDecode = function(text) {
+            return $('<div/>')
+                .html(text)
+                .text();
+        };
+    },
+]);

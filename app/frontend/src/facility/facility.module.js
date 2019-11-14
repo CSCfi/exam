@@ -15,6 +15,10 @@
 
 import angular from 'angular';
 
-angular.module('app.facility', ['app.facility.accessibility', 'app.facility.machines',
-    'app.facility.rooms', 'app.facility.address', 'app.facility.schedule']);
-
+angular.module('app.facility', [
+    'app.facility.accessibility',
+    'app.facility.machines',
+    'app.facility.rooms',
+    'app.facility.address',
+    'app.facility.schedule',
+]);

@@ -45,6 +45,7 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.ExamParticipation;
+import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
@@ -207,6 +208,8 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
                 .where()
                 .idEq(eid)
                 .eq("user", request.attrs().get(Attrs.AUTHENTICATED_USER))
@@ -217,7 +220,8 @@ public class StudentActionsController extends CollaborationController {
         PathProperties pp = PathProperties.parse(
                 "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
                         "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
-                        "roomInstruction, roomInstructionEN, roomInstructionSV))))"
+                        "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
+                        "examinationEventConfiguration(examinationEvent(*)))"
         );
         if (enrolment.getCollaborativeExam() != null) {
             // Collaborative exam, we need to download
@@ -250,8 +254,11 @@ public class StudentActionsController extends CollaborationController {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
                 .fetch("collaborativeExam")
+                .fetch("exam")
+                .fetch("exam.examinationEventConfigurations.examinationEvent")
                 .fetch("exam.executionType")
                 .fetch("exam.examSections", "name, description")
                 .fetch("exam.course", "name, code")
@@ -272,7 +279,11 @@ public class StudentActionsController extends CollaborationController {
                 .gt("reservation.endAt", now.toDate())
                 .isNull("reservation")
                 .endJunction()
-                .findList();
+                .findList()
+                .stream()
+                .filter(ee -> ee.getExaminationEventConfiguration() == null ||
+                        ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((now)))
+                .collect(Collectors.toList());
         enrolments.forEach(ee -> {
             Exam exam = ee.getExam();
             if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
@@ -325,12 +336,13 @@ public class StudentActionsController extends CollaborationController {
 
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
-                .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
+                .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth")
                 .fetch("course", "code, name")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("examLanguages", "code, name", new FetchConfig().query())
                 .fetch("creator", "firstName, lastName")
+                .fetch("examinationEventConfigurations.examinationEvent")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
@@ -349,7 +361,12 @@ public class StudentActionsController extends CollaborationController {
                     .ilike("course.name", condition)
                     .endJunction();
         }
-        List<Exam> exams = query.orderBy("course.code").findList();
+        List<Exam> exams = query.orderBy("course.code").findList().stream().filter(e ->
+            !e.getRequiresUserAgentAuth() ||
+                    e.getExaminationEventConfigurations().stream()
+                            .map(ExaminationEventConfiguration::getExaminationEvent)
+                            .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
+        ).collect(Collectors.toList());
         return ok(exams);
     }
 

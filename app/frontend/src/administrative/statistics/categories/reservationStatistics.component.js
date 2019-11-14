@@ -12,48 +12,48 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.statistics')
-    .component('reservationStatistics', {
-        template: `
+angular.module('app.administrative.statistics').component('reservationStatistics', {
+    template: `
         <div class="bottom-row">
             <div class="col-md-12">
-                <button class="btn btn-primary" ng-click="$ctrl.listReservations()">{{'sitnet_search' | translate}}</button>
+                <button class="btn btn-primary" ng-click="$ctrl.listReservations()">
+                    {{'sitnet_search' | translate}}
+                </button>
             </div>
         </div>
         <div class="top-row">
-            <div class="col-md-2"><strong>{{'sitnet_total_reservations' | translate}}:</strong></div>
+            <div class="col-md-2"><strong>{{'sitnet_total_reservations' | translate}}:</strong></div>
             <div class="col-md-10">{{$ctrl.reservations.length}}</div>
         </div>
         <div class="main-row">
-            <div class="col-md-2"><strong>{{'sitnet_total_no_shows' | translate}}:</strong></div>
+            <div class="col-md-2"><strong>{{'sitnet_total_no_shows' | translate}}:</strong></div>
             <div class="col-md-10">{{$ctrl.noShows.length}}</div>
         </div>
         `,
-        bindings: {
-            queryParams: '<'
-        },
-        controller: ['Statistics', function (Statistics) {
-
+    bindings: {
+        queryParams: '<',
+    },
+    controller: [
+        'Statistics',
+        function(Statistics) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.listReservations();
             };
 
-            vm.listReservations = function () {
-                Statistics.reservations.query(vm.queryParams, function (reservations) {
-                    vm.reservations = reservations.filter(function (r) {
+            vm.listReservations = function() {
+                Statistics.reservations.query(vm.queryParams, function(reservations) {
+                    vm.reservations = reservations.filter(function(r) {
                         return !r.noShow;
                     });
-                    vm.noShows = reservations.filter(function (r) {
+                    vm.noShows = reservations.filter(function(r) {
                         return r.noShow;
                     });
                 });
             };
-
-        }]
-    });
-
+        },
+    ],
+});

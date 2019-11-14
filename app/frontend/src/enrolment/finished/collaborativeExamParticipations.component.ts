@@ -26,7 +26,6 @@ interface Filter {
 export const CollaborativeExamParticipationsComponent: angular.IComponentOptions = {
     template: require('./examParticipations.template.html'),
     controller: class CollaborativeExamParticipationsController implements angular.IComponentController {
-
         collaborative = true;
         originals: Participation[];
         participations: Participation[];
@@ -34,18 +33,18 @@ export const CollaborativeExamParticipationsComponent: angular.IComponentOptions
         currentPage = 1;
         filter: Filter;
 
-        constructor(
-            private CollaborativeExam: CollaborativeExamService
-        ) {
+        constructor(private CollaborativeExam: CollaborativeExamService) {
             'ngInject';
         }
 
         $onInit() {
             this.filter = { ordering: '-ended', text: '' };
-            this.CollaborativeExam.listStudentParticipations().then((participations: Participation[]) => {
-                this.originals = Array.from(participations);
-                this.participations = Array.from(participations);
-            }).catch(angular.noop);
+            this.CollaborativeExam.listStudentParticipations()
+                .then((participations: Participation[]) => {
+                    this.originals = Array.from(participations);
+                    this.participations = Array.from(participations);
+                })
+                .catch(angular.noop);
         }
 
         pageSelected(page: number) {
@@ -63,9 +62,7 @@ export const CollaborativeExamParticipationsComponent: angular.IComponentOptions
                 return exam && exam.name && exam.name.indexOf(text) > -1;
             });
         }
-
-    }
+    },
 };
 
-angular.module('app.enrolment')
-    .component('collaborativeExamParticipations', CollaborativeExamParticipationsComponent);
+angular.module('app.enrolment').component('collaborativeExamParticipations', CollaborativeExamParticipationsComponent);

@@ -16,13 +16,15 @@
 package backend.controllers.base;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -160,14 +162,13 @@ public class BaseController extends Controller {
                 .eq("reservation.noShow", true)
                 .ne("reservation.retrialPermitted", true)
                 .findList();
-        List<CountsAsTrial> trials = new ArrayList<>(participations);
-        trials.addAll(noShows);
         // Sort by trial time desc
-        trials.sort((o1, o2) -> o1.getTrialTime().isAfter(o2.getTrialTime()) ? -1 : 1);
+        List<CountsAsTrial> trials = Stream.concat(participations.stream(), noShows.stream())
+                .sorted(Comparator.comparing(CountsAsTrial::getTrialTime).reversed())
+                .collect(Collectors.toList());
 
         if (trials.size() >= trialCount) {
-            List<CountsAsTrial> subset = trials.subList(0, trialCount);
-            return subset.stream().anyMatch(CountsAsTrial::isProcessed);
+            return trials.stream().limit(trialCount).anyMatch(CountsAsTrial::isProcessed);
         }
         return true;
     }

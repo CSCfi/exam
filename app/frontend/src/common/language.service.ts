@@ -16,7 +16,6 @@ import * as angular from 'angular';
 
 import { ExamLanguage } from '../exam/exam.model';
 
-
 export interface IsoLang {
     name: string;
     nativeName: string;
@@ -27,10 +26,7 @@ export interface IsoLangMap {
 }
 
 export class LanguageService {
-
-    constructor(
-        private $q: angular.IQService,
-        private $http: angular.IHttpService) {
+    constructor(private $q: angular.IQService, private $http: angular.IHttpService) {
         'ngInject';
     }
 
@@ -40,25 +36,26 @@ export class LanguageService {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang ? lang.name : undefined;
-    }
+    };
 
     getLanguageNativeName = (code: string) => {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang ? lang.nativeName : undefined;
-    }
+    };
 
     getExamLanguages(): angular.IPromise<ExamLanguage[]> {
         const deferred: ng.IDeferred<ExamLanguage[]> = this.$q.defer();
-        this.$http.get('/app/languages').then(
-            (resp: angular.IHttpResponse<ExamLanguage[]>) => {
+        this.$http
+            .get('/app/languages')
+            .then((resp: angular.IHttpResponse<ExamLanguage[]>) => {
                 deferred.resolve(resp.data);
-            }).catch((err) => deferred.reject(err));
+            })
+            .catch(err => deferred.reject(err));
         return deferred.promise;
     }
 
     getLanguages = () => Object.keys(this.isoLangs).map(k => this.isoLangs[k]);
-
 }
 
 angular.module('app.common').service('Language', LanguageService);

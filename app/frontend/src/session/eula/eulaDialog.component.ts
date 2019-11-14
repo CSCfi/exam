@@ -44,10 +44,9 @@ export const EulaDialogComponent: angular.IComponentOptions = {
     `,
     bindings: {
         close: '&',
-        dismiss: '&'
+        dismiss: '&',
     },
     controller: class EulaDialogController implements IComponentController {
-
         settings: { eula: { value: string } };
         close: () => any;
         dismiss: (x: any) => any;
@@ -57,9 +56,12 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.$http.get('/app/settings/agreement').then((resp: IHttpResponse<{ value: string }>) =>
-                this.settings = { eula: { value: resp.data.value } }
-            ).catch(angular.noop);
+            this.$http
+                .get('/app/settings/agreement')
+                .then(
+                    (resp: IHttpResponse<{ value: string }>) => (this.settings = { eula: { value: resp.data.value } }),
+                )
+                .catch(angular.noop);
         }
 
         cancel() {
@@ -69,7 +71,5 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         ok() {
             this.close();
         }
-
-    }
-
+    },
 };

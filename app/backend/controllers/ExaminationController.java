@@ -16,6 +16,7 @@
 package backend.controllers;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
 import backend.models.GeneralSettings;
+import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
@@ -74,8 +76,7 @@ import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
-@Restrict({@Group("STUDENT")})
-public class StudentExamController extends BaseController {
+public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
     protected final ActorSystem actor;
@@ -85,10 +86,10 @@ public class StudentExamController extends BaseController {
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
 
-    private static final Logger.ALogger logger = Logger.of(StudentExamController.class);
+    private static final Logger.ALogger logger = Logger.of(ExaminationController.class);
 
     @Inject
-    public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
+    public ExaminationController(EmailComposer emailComposer, ActorSystem actor,
                                  CollaborativeExamLoader collaborativeExamLoader,
                                  AutoEvaluationHandler autoEvaluationHandler,
                                  Environment environment,
@@ -120,7 +121,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Authenticated
-    @Transactional
+    @Restrict({@Group("STUDENT")})
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -140,7 +141,7 @@ public class StudentExamController extends BaseController {
                 if (error.isPresent()) {
                     return error.get();
                 }
-                Exam newExam = createNewExam(prototype, user, enrolment);
+                Exam newExam = Ebean.executeCall(() -> createNewExam(prototype, user, enrolment));
                 if (enrolment.getCollaborativeExam() != null) {
                     try {
                         externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
@@ -170,6 +171,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Transactional
     public Result turnExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
@@ -208,6 +210,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     @Transactional
     public Result abortExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
@@ -238,6 +241,7 @@ public class StudentExamController extends BaseController {
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
+    @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
@@ -261,6 +265,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Authenticated
+    @Restrict({@Group("STUDENT")})
     public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
@@ -282,6 +287,7 @@ public class StudentExamController extends BaseController {
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
+    @Restrict({@Group("STUDENT")})
     public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
@@ -337,15 +343,20 @@ public class StudentExamController extends BaseController {
     }
 
     private void setDurations(ExamParticipation ep) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        DateTime now = ep.getReservation() == null ?
+                DateTimeUtils.adjustDST(DateTime.now()) :
+                DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
         boolean isCollaborative = enrolment.getCollaborativeExam() != null;
-        Set<Long> ids = enrolment.getReservation().getOptionalSections().stream()
-                .map(ExamSection::getId).collect(Collectors.toSet());
+        Reservation reservation = enrolment.getReservation();
+        // TODO: support for optional sections in BYOD exams
+        Set<Long> ids = reservation == null ? Collections.emptySet() :
+                reservation.getOptionalSections().stream()
+                        .map(ExamSection::getId).collect(Collectors.toSet());
         Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
@@ -361,19 +372,36 @@ public class StudentExamController extends BaseController {
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
         examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
-        examParticipation.setReservation(enrolment.getReservation());
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        examParticipation.setReservation(reservation);
+        if (enrolment.getExaminationEventConfiguration() != null) {
+            examParticipation.setExaminationEvent(enrolment.getExaminationEventConfiguration().getExaminationEvent());
+        }
+        DateTime now = reservation == null ? DateTimeUtils.adjustDST(DateTime.now()) :
+                DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         examParticipation.setStarted(now);
         examParticipation.save();
         return studentExam;
     }
 
-    private static ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
+    private boolean isInEffect(ExamEnrolment ee) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        return Ebean.find(ExamEnrolment.class)
+        if (ee.getReservation() != null) {
+            return ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now);
+        } else if (ee.getExaminationEventConfiguration() != null) {
+            DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            DateTime end = start.plusMinutes(ee.getExam().getDuration());
+            return start.isBefore(now) && end.isAfter(now);
+        }
+        return false;
+    }
+
+    private ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
                 .where()
                 .eq("user.id", user.getId())
                 .or()
@@ -383,9 +411,15 @@ public class StudentExamController extends BaseController {
                 .isNull("exam.id")
                 .endAnd()
                 .endOr()
-                .le("reservation.startAt", now.toDate())
-                .gt("reservation.endAt", now.toDate())
-                .findOne();
+                .findList()
+                .stream()
+                .filter(this::isInEffect)
+                .collect(Collectors.toList());
+
+        if (enrolments.size() > 1) {
+            logger.error("multiple enrolments found during examination");
+        }
+        return enrolments.isEmpty() ? null : enrolments.get(0);
     }
 
     protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, Http.Request request) {
@@ -394,13 +428,14 @@ public class StudentExamController extends BaseController {
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         }
-        // Exam and enrolment found. Is student on the right machine?
-        if (enrolment.getReservation() == null) {
+        boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        if (isByod) {
+            return byodConfigHandler.checkUserAgent(request,
+                    enrolment.getExaminationEventConfiguration().getConfigKey());
+        } else if (enrolment.getReservation() == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         } else if (enrolment.getReservation().getMachine() == null) {
             return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
-        } else if (enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth()) {
-            return byodConfigHandler.checkUserAgent(request, enrolment.getExam().getConfigKey());
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)

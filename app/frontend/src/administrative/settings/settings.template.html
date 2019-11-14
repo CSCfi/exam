@@ -5,49 +5,67 @@
 </div>
 
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12 form-group">
             <label for="editor">{{'sitnet_user_agreement' | translate}}</label>
-            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="$ctrl.config.eula">
-            </textarea>
+            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="$ctrl.config.eula"> </textarea>
         </div>
     </div>
     <div class="bottom-row">
         <div class="col-md-12">
-            <button ng-click="$ctrl.updateAgreement()"
-                class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+            <button ng-click="$ctrl.updateAgreement()" class="btn btn-success">
+                {{'sitnet_button_save' | translate}}
+            </button>
         </div>
     </div>
 
     <div class="top-row">
         <div class="col-md-2 form-group">
             <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
-            <input id="deadline" name="deadline" class="form-control" type="number" lang="en" min="1"
-                ng-model="$ctrl.config.reviewDeadline" uib-popover="{{'sitnet_info_deadline' | translate}}"
-                popover-trigger="focus" />
+            <input
+                id="deadline"
+                name="deadline"
+                class="form-control"
+                type="number"
+                lang="en"
+                min="1"
+                ng-model="$ctrl.config.reviewDeadline"
+                uib-popover="{{'sitnet_info_deadline' | translate}}"
+                popover-trigger="focus"
+            />
         </div>
     </div>
     <div class="bottom-row">
         <div class="col-md-12">
-            <button ng-click="$ctrl.updateDeadline()"
-                class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+            <button ng-click="$ctrl.updateDeadline()" class="btn btn-success">
+                {{'sitnet_button_save' | translate}}
+            </button>
         </div>
     </div>
 
     <div class="top-row">
         <div class="col-md-2 form-group">
-            <label for="reservationWindow">{{'sitnet_reservation_window' | translate}}
-                ({{'sitnet_days' | translate}})</label>
-            <input id="reservationWindow" name="reservationWindow" class="form-control" type="number" lang="en" min="1"
+            <label for="reservationWindow"
+                >{{'sitnet_reservation_window' | translate}} ({{'sitnet_days' | translate}})</label
+            >
+            <input
+                id="reservationWindow"
+                name="reservationWindow"
+                class="form-control"
+                type="number"
+                lang="en"
+                min="1"
                 ng-model="$ctrl.config.reservationWindowSize"
-                uib-popover="{{'sitnet_info_reservation_window' | translate}}" popover-trigger="focus" />
+                uib-popover="{{'sitnet_info_reservation_window' | translate}}"
+                popover-trigger="focus"
+            />
         </div>
     </div>
     <div class="bottom-row">
         <div class="col-md-12">
-            <button ng-click="$ctrl.updateReservationWindow()"
-                class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+            <button ng-click="$ctrl.updateReservationWindow()" class="btn btn-success">
+                {{'sitnet_button_save' | translate}}
+            </button>
         </div>
     </div>
 
@@ -76,7 +94,7 @@
                 </li>
                 <ul ng-if="$ctrl.config.hasCourseSearchIntegration">
                     <li ng-repeat="(k, v) in $ctrl.config.courseSearchIntegrationUrls">
-                        <strong>{{k}}:</strong>&nbsp;{{v}}</li>
+                        <strong>{{k}}:</strong>&nbsp;{{v}}
                     </li>
                 </ul>
                 <li>
@@ -99,20 +117,20 @@
                 </li>
                 <ul>
                     <li>
-                        <strong>{{'sitnet_student' | translate }}:</strong>&nbsp;
-                        {{$ctrl.config.roles.STUDENT.join(', ')}}
+                        <strong>{{'sitnet_student' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.STUDENT.join(',
+                        ')}}
                     </li>
                     <li>
-                        <strong>{{'sitnet_teacher' | translate }}:</strong>&nbsp;
-                        {{$ctrl.config.roles.TEACHER.join(', ')}}
+                        <strong>{{'sitnet_teacher' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.TEACHER.join(',
+                        ')}}
                     </li>
                     <li>
                         <strong>{{'sitnet_admin' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.ADMIN.join(', ')}}
                     </li>
                 </ul>
                 <li>
-                    <strong>{{'sitnet_exam_durations' | translate}}:</strong>&nbsp;{{$ctrl.config.examDurations.join(', ')}}
-                </li>
+                    <strong>{{'sitnet_exam_durations' | translate}}:</strong>&nbsp;{{$ctrl.config.examDurations.join(',
+                    ')}}
                 </li>
                 <li>
                     <strong>{{'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
@@ -120,16 +138,16 @@
                     <span ng-if="!$ctrl.config.gradeScaleOverridable">{{'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{'sitnet_attachment_max_size' | translate}}:</strong>&nbsp;{{$ctrl.config.maxFileSize / 1000000}}
-                    MB</li>
+                    <strong>{{'sitnet_attachment_max_size' | translate}}:</strong>&nbsp;{{$ctrl.config.maxFileSize /
+                    1000000}} MB
                 </li>
                 <li>
-                    <strong>{{'sitnet_exam_expiration_period' | translate}}:</strong>&nbsp;{{$ctrl.config.expirationPeriod}}
+                    <strong>{{'sitnet_exam_expiration_period' | translate}}:</strong
+                    >&nbsp;{{$ctrl.config.expirationPeriod}}
                 </li>
-                </li>
+
                 <li>
                     <strong>{{'sitnet_default_timezone' | translate}}:</strong>&nbsp;{{$ctrl.config.defaultTimeZone}}
-                </li>
                 </li>
             </ul>
         </div>
@@ -139,18 +157,19 @@
     <div class="top-row">
         <div class="col-md-12">
             <ul ng-show="$ctrl.attributes">
-                <li ng-repeat="(key, value) in $ctrl.attributes">
-                    <strong>{{key}}:</strong>&nbsp;{{value}}</li>
+                <li ng-repeat="(key, value) in $ctrl.attributes"><strong>{{key}}:</strong>&nbsp;{{value}}</li>
             </ul>
         </div>
     </div>
 
     <div class="bottom-row">
         <div class="col-md-12">
-            <a ng-show="!$ctrl.attributes" ng-click="$ctrl.showAttributes()"
-                class="pointer">{{'sitnet_show_http_headers' | translate}}</a>
-            <a class="pointer" ng-show="$ctrl.attributes"
-                ng-click="$ctrl.attributes = undefined">{{'sitnet_hide' | translate}}</a>
+            <a ng-show="!$ctrl.attributes" ng-click="$ctrl.showAttributes()" class="pointer"
+                >{{'sitnet_show_http_headers' | translate}}</a
+            >
+            <a class="pointer" ng-show="$ctrl.attributes" ng-click="$ctrl.attributes = undefined"
+                >{{'sitnet_hide' | translate}}</a
+            >
         </div>
     </div>
 </div>

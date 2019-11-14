@@ -12,56 +12,51 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import moment from 'moment';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .component('archiveDownload', {
-        template: require('./archiveDownload.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&'
-        },
-        controller: ['$translate', function ($translate) {
+class ArchiveDownloadController {
+    constructor($translate) {
+        this.$onInit = function() {
+            this.params = { startDate: new Date(), endDate: new Date() };
+        };
+        this.startDateChanged = function(date) {
+            this.params.startDate = date;
+        };
+        this.endDateChanged = function(date) {
+            this.params.endDate = date;
+        };
+        this.ok = function() {
+            let start, end;
+            if (this.params.startDate) {
+                start = moment(this.params.startDate);
+            }
+            if (this.params.endDate) {
+                end = moment(this.params.endDate);
+            }
+            if (start && end && end < start) {
+                toast.error($translate.instant('sitnet_endtime_before_starttime'));
+            } else {
+                this.close({
+                    $value: {
+                        start: start.format('DD.MM.YYYY'),
+                        end: end.format('DD.MM.YYYY'),
+                    },
+                });
+            }
+        };
+        this.cancel = function() {
+            this.dismiss({ $value: 'cancel' });
+        };
+    }
+}
 
-            const vm = this;
-
-            vm.$onInit = function () {
-                vm.params = {startDate: new Date(), endDate: new Date()};
-            };
-
-            vm.startDateChanged = function (date) {
-                vm.params.startDate = date;
-            };
-
-            vm.endDateChanged = function (date) {
-                vm.params.endDate = date;
-            };
-
-            vm.ok = function () {
-                let start, end;
-                if (vm.params.startDate) {
-                    start = moment(vm.params.startDate);
-                }
-                if (vm.params.endDate) {
-                    end = moment(vm.params.endDate);
-                }
-                if (start && end && end < start) {
-                    toast.error($translate.instant('sitnet_endtime_before_starttime'));
-                } else {
-                    vm.close({
-                        $value: {
-                            start: start.format('DD.MM.YYYY'),
-                            end: end.format('DD.MM.YYYY')
-                        }
-                    });
-                }
-            };
-
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
-            };
-        }]
-    });
+angular.module('app.review').component('archiveDownload', {
+    template: require('./archiveDownload.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+    },
+    controller: ['$translate', ArchiveDownloadController],
+});

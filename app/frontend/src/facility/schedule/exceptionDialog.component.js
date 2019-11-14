@@ -17,40 +17,39 @@ import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
 
-angular.module('app.facility.schedule')
-    .component('exceptionDialog', {
-        template: require('./exceptionDialog.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$translate', function ($translate) {
-
+angular.module('app.facility.schedule').component('exceptionDialog', {
+    template: require('./exceptionDialog.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$translate',
+        function($translate) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 const now = new Date();
-                now.setMinutes(0);
                 now.setSeconds(0);
                 now.setMilliseconds(0);
                 vm.dateOptions = {
-                    'starting-day': 1
+                    'starting-day': 1,
                 };
                 vm.dateFormat = 'dd.MM.yyyy';
 
                 vm.exception = { startDate: now, endDate: angular.copy(now), outOfService: true };
             };
 
-            vm.onStartDateChange = function (date) {
+            vm.onStartDateChange = function(date) {
                 vm.exception.startDate = date;
             };
 
-            vm.onEndDateChange = function (date) {
+            vm.onEndDateChange = function(date) {
                 vm.exception.endDate = date;
             };
 
-            vm.ok = function () {
+            vm.ok = function() {
                 const start = moment(vm.exception.startDate);
                 const end = moment(vm.exception.endDate);
                 if (end <= start) {
@@ -59,15 +58,16 @@ angular.module('app.facility.schedule')
                 }
                 vm.close({
                     $value: {
-                        "startDate": start,
-                        "endDate": end,
-                        "outOfService": vm.exception.outOfService
-                    }
+                        startDate: start,
+                        endDate: end,
+                        outOfService: vm.exception.outOfService,
+                    },
                 });
             };
 
-            vm.cancel = function () {
+            vm.cancel = function() {
                 vm.dismiss({ $value: 'cancel' });
             };
-        }]
-    });
+        },
+    ],
+});

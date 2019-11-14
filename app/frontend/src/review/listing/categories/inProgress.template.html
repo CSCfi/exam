@@ -1,21 +1,34 @@
 <div class="main-row">
     <div class="col-md-12">
-        <div class="review-list-title">{{ 'sitnet_exam_in_review' | translate }}
+        <div class="review-list-title">
+            {{ 'sitnet_exam_in_review' | translate }}
             <a ng-click="$ctrl.data.toggle = !$ctrl.data.toggle" class="pointer">
-                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
-                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
+                <img
+                    ng-show="!$ctrl.data.toggle"
+                    src="Images/icon_list_show_right.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
+                />
+                <img
+                    ng-show="$ctrl.data.toggle"
+                    src="Images/icon_list_show_down.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
+                />
             </a>
             <sup class="padl05">
-                <img popover-placement="right" popover-trigger="'mouseenter'"
-                    uib-popover="{{'sitnet_review_started_description' | translate}}" src="Images/icon_tooltip.svg"
-                    alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                <img
+                    popover-placement="right"
+                    popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_review_started_description' | translate}}"
+                    src="Images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                />
             </sup>
         </div>
     </div>
 </div>
-
 
 <div ng-show="$ctrl.data.items.length === 0">
     <div class="review-no-results">
@@ -24,64 +37,104 @@
     </div>
 </div>
 
-
 <div ng-show="$ctrl.data.toggle && $ctrl.data.items.length > 0">
-
     <div class="col-md-12">
         <div class="form-group input-group search tab-search review-list-search padl0 marl10">
-            <input ng-change="$ctrl.applyFreeSearchFilter()" ng-model="$ctrl.data.filter" class="form-control search"
-                placeholder="{{'sitnet_search' | translate }}">
+            <input
+                ng-change="$ctrl.applyFreeSearchFilter()"
+                ng-model="$ctrl.data.filter"
+                class="form-control search"
+                placeholder="{{'sitnet_search' | translate }}"
+            />
             <div class="input-group-addon search">
-                <img class="nopad" src="Images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="Images/icon_search.png" width="49" height="40" />
             </div>
         </div>
-        <div ng-hide="$ctrl.exam.executionType.type==='MATURITY' || $ctrl.parentCtrl.collaborative"
-            class="review-attachment-button review-list-speed-button marr20">
-            <a class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
+        <div
+            ng-hide="$ctrl.exam.executionType.type==='MATURITY' || $ctrl.parentCtrl.collaborative"
+            class="review-attachment-button review-list-speed-button marr20"
+        >
+            <a class="pointer" ui-sref="speedReview({id: {{$ctrl.exam.id}} })">
                 {{'sitnet_speed_review' | translate}} ({{$ctrl.data.filtered.length}})
             </a>
         </div>
         <div ng-if="!$ctrl.parentCtrl.collaborative" class="review-attachment-button review-list-speed-button marr20">
-            <a popover-placement="left" popover-trigger="'mouseenter'"
-                uib-popover="{{'sitnet_exam_review_attachment_description' | translate}}" class="pointer"
-                ng-click="$ctrl.getAnswerAttachments()">
+            <a
+                popover-placement="left"
+                popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_exam_review_attachment_description' | translate}}"
+                class="pointer"
+                ng-click="$ctrl.getAnswerAttachments()"
+            >
                 {{'sitnet_load_answer_attachments' | translate }}
-                <img src="Images/icon_attachment.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_attachment.png'" />
+                <img
+                    src="Images/icon_attachment.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_attachment.png'"
+                />
             </a>
-
         </div>
-
     </div>
 
     <table class="table table-striped exams-table">
         <thead>
             <tr>
                 <th ng-if="$ctrl.showId()" class="with-top">Id</th>
-                <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate"
-                    reverse="$ctrl.data.reverse"></th>
-                <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate"
-                    reverse="$ctrl.data.reverse"></th>
-                <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate"
-                    reverse="$ctrl.data.reverse"></th>
-                <th class="with-top" sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.predicate"
-                    reverse="$ctrl.data.reverse"></th>
-                <th class="with-space with-top" sort by="deadline" text="sitnet_review_deadline"
-                    predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
+                <th
+                    class="with-top"
+                    sort
+                    by="displayName"
+                    text="sitnet_student"
+                    predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"
+                ></th>
+                <th
+                    class="with-top"
+                    sort
+                    by="user.email"
+                    text="sitnet_email"
+                    predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"
+                ></th>
+                <th
+                    class="with-top"
+                    sort
+                    by="duration"
+                    text="sitnet_exam_duration"
+                    predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"
+                ></th>
+                <th
+                    class="with-top"
+                    sort
+                    by="started"
+                    text="sitnet_exam_time"
+                    predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"
+                ></th>
+                <th
+                    class="with-space with-top"
+                    sort
+                    by="deadline"
+                    text="sitnet_review_deadline"
+                    predicate="$ctrl.data.predicate"
+                    reverse="$ctrl.data.reverse"
+                ></th>
                 <th class="with-space with-top">{{'sitnet_inspection_status' | translate}}</th>
                 <th class="with-space with-top">{{'sitnet_exam_state' | translate}}</th>
             </tr>
         </thead>
 
         <tbody>
-            <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
-                | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
+            <tr
+                ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
+                | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize"
+            >
                 <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-15 table-column-bold">
                     <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}
-                        <span ng-if="review.user.userIdentifier">
-                            <br />({{review.user.userIdentifier}})</span>
+                        <span ng-if="review.user.userIdentifier"> <br />({{review.user.userIdentifier}})</span>
                     </a>
                 </td>
                 <td class="table-column-15">
@@ -91,10 +144,11 @@
                     {{review.duration + " min"}}
                 </td>
                 <td class="table-column-10">
-                    {{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}} {{review.started | adjustdst | date:
-                    'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
+                    {{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}}
+                    {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
                 </td>
-                <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (
+                <td class="table-column-10">
+                    {{review.deadline | date:'dd.MM.yyyy'}} (
                     <span ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                 </td>
                 <td class="table-column-teachers">
@@ -106,8 +160,10 @@
                         </span>
                     </div>
                 </td>
-                <td class="table-column-15"
-                    ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'">
+                <td
+                    class="table-column-15"
+                    ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'"
+                >
                     {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                 </td>
             </tr>
@@ -123,13 +179,16 @@
             </tr>
         </tbody>
     </table>
-
 </div>
 
 <div class="detail-row" ng-show="$ctrl.data.toggle">
     <div class="col-md-12" ng-show="$ctrl.data.filtered.length > $ctrl.data.pageSize">
-        <paginator items="$ctrl.data.filtered" page-size="$ctrl.data.pageSize" on-select-page="$ctrl.pageSelected(page)"
-            current-page="$ctrl.data.page">
+        <paginator
+            items="$ctrl.data.filtered"
+            page-size="$ctrl.data.pageSize"
+            on-select-page="$ctrl.pageSelected(page)"
+            current-page="$ctrl.data.page"
+        >
         </paginator>
     </div>
 </div>

@@ -18,7 +18,7 @@ import { SessionService, User } from '../session.service';
 
 export const DevLoginComponent: angular.IComponentOptions = {
     bindings: {
-        onLoggedIn: '&'
+        onLoggedIn: '&',
     },
     template: `
     <div class="top-row">
@@ -60,14 +60,11 @@ export const DevLoginComponent: angular.IComponentOptions = {
         login() {
             this.Session.login(this.credentials.username, this.credentials.password)
                 .then((user: User) => {
-                    this.onLoggedIn({ 'user': user });
+                    this.onLoggedIn({ user: user });
                 })
-                .catch((err) => {
+                .catch(err => {
                     console.log(JSON.stringify(err));
                 });
-
         }
-
-    }
-
+    },
 };

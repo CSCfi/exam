@@ -40,21 +40,28 @@ public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
-        PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
+        PathProperties pp = PathProperties.parse("(startAt, endAt, externalUserRef, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
                 "enrolment( " +
-                "exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))," +
+                "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
+                                "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
                 "collaborativeExam(name)" +
                 "), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
         Query<Reservation> query = Ebean.find(Reservation.class);
         pp.apply(query);
         ExpressionList<Reservation> el = query.where()
+                .or()// *
+                .and() // **
                 .isNotNull("enrolment")
-                .or()
+                .or() // ***
                 .isNotNull("enrolment.collaborativeExam")
                 .ne("enrolment.exam.state", Exam.State.DELETED)
-                .endOr();
+                .endOr() // ***
+                .endAnd() // **
+                .isNotNull("externalUserRef")
+                .endOr(); // *
+
         if (start.isPresent()) {
             DateTime startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(start.get());
             el = el.ge("startAt", startDate.toDate());
