@@ -95,7 +95,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         buildGradeTime = () => {
             const gradeTimes: any[] = this.reviews
                 .sort((a, b) => (a.duration > b.duration ? 1 : -1))
-                .map(r => [Math.round(r.duration / 60000).toString(), r.exam.grade.name]);
+                .map(r => [r.duration, r.exam.grade.name]);
             this.gradeTimeLabels = gradeTimes.map(g => g[0]);
             this.gradeTimeData = gradeTimes.map(g => g[1]);
         };

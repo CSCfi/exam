@@ -16,4 +16,3 @@ import angular from 'angular';
 import 'angular-chart.js';
 
 angular.module('app.review', ['chart.js']);
-
