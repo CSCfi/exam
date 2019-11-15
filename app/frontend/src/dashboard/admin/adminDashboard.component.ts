@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,11 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeComponent } from '@angular/upgrade/static';
-import * as angular from 'angular';
+import { Component } from '@angular/core';
 
-import { DashboardComponent } from './dashboard.component';
-
-export default angular
-    .module('app.dashboard', [])
-    .directive('dashboard', downgradeComponent({ component: DashboardComponent })).name;
+@Component({
+    selector: 'admin-dashboard',
+    template: '<admin-reservations></admin-reservations>',
+})
+export class AdminDashboardComponent {}

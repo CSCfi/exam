@@ -17,7 +17,7 @@ import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 import { ExamExecutionType } from '../../exam/exam.model';
 import { SessionService, User } from '../../session/session.service';
-import { ExamSearchPipe } from '../examSearch.pipe';
+import { ExamSearchPipe } from './examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
 interface ExtraColumn {

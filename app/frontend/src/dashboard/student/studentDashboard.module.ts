@@ -12,11 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeComponent } from '@angular/upgrade/static';
-import * as angular from 'angular';
+import { NgModule } from '@angular/core';
+import { OrderModule } from 'ngx-order-pipe';
 
-import { DashboardComponent } from './dashboard.component';
+import { EnrolmentModule } from '../../enrolment/enrolment.module';
+import { UtilityModule } from '../../utility/utility.module';
+import { StudentDashboardComponent } from './studentDashboard.component';
+import { StudentDashboardService } from './studentDashboard.service';
 
-export default angular
-    .module('app.dashboard', [])
-    .directive('dashboard', downgradeComponent({ component: DashboardComponent })).name;
+@NgModule({
+    imports: [OrderModule, UtilityModule, EnrolmentModule],
+    exports: [StudentDashboardComponent],
+    declarations: [StudentDashboardComponent],
+    providers: [StudentDashboardService],
+})
+export class StudentDashboardModule {}

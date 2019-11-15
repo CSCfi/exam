@@ -12,11 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeComponent } from '@angular/upgrade/static';
-import * as angular from 'angular';
+import { NgModule } from '@angular/core';
 
-import { DashboardComponent } from './dashboard.component';
+import { ReservationModule } from '../../reservation/reservation.module';
+import { UtilityModule } from '../../utility/utility.module';
+import { AdminDashboardComponent } from './adminDashboard.component';
 
-export default angular
-    .module('app.dashboard', [])
-    .directive('dashboard', downgradeComponent({ component: DashboardComponent })).name;
+@NgModule({
+    imports: [UtilityModule, ReservationModule],
+    exports: [AdminDashboardComponent],
+    declarations: [AdminDashboardComponent],
+})
+export class AdminDashboardModule {}

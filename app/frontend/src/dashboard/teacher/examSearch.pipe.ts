@@ -14,7 +14,7 @@
  */
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { Exam } from '../exam/exam.model';
+import { Exam } from '../../exam/exam.model';
 
 @Pipe({ name: 'examSearch' })
 export class ExamSearchPipe implements PipeTransform {

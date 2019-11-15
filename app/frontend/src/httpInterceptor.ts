@@ -21,7 +21,7 @@ import { SessionService } from './session/session.service';
 export class AuthInterceptor implements HttpInterceptor {
     constructor(private Session: SessionService) {}
 
-    intercept(req: HttpRequest<any>, next: HttpHandler) {
+    intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         // Get the auth token from the service.
         const token = this.Session.getToken();
         if (!token) {

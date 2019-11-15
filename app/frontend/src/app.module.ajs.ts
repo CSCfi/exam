@@ -36,6 +36,7 @@ import configs from './app.config';
 import * as directives from './app.directive';
 import * as filters from './app.filter';
 import runBlock from './app.run';
+import states from './app.states';
 import DashboardModule from './dashboard/dashboard.module.ajs';
 import EnrolmentModule from './enrolment/enrolment.module.ajs';
 import CollaborativeExamModule from './exam/collaborative';
@@ -68,6 +69,7 @@ export const ajsApp = angularJS
         'app.administrative',
     ])
     .config(configs)
+    .config(states)
     .run(runBlock)
     .component('examApp', AppComponent)
     .filter('truncate', filters.TruncateFilter.factory())

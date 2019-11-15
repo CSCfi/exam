@@ -13,36 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
-import { EnrolmentModule } from '../enrolment/enrolment.module';
-import { ReservationModule } from '../reservation/reservation.module';
 import { UtilityModule } from '../utility/utility.module';
+import { AdminDashboardModule } from './admin/adminDashboard.module';
 import { DashboardComponent } from './dashboard.component';
-import { ExamSearchPipe } from './examSearch.pipe';
-import { StudentDashboardComponent } from './student/studentDashboard.component';
-import { StudentDashboardService } from './student/studentDashboard.service';
-import { ExamListCategoryComponent } from './teacher/categories/examListCategory.component';
-import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
-import { TeacherDashboardService } from './teacher/teacherDashboard.service';
+import { StudentDashboardModule } from './student/studentDashboard.module';
+import { TeacherDashboardModule } from './teacher/teacherDashboard.module';
 
+// TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
+// We need a router setup that supports this first
 @NgModule({
-    imports: [NgbModule, OrderModule, ReservationModule, UtilityModule, EnrolmentModule, UIRouterModule],
-    declarations: [
-        ExamListCategoryComponent,
-        TeacherDashboardComponent,
-        StudentDashboardComponent,
-        DashboardComponent,
-        ExamSearchPipe,
-    ],
-    entryComponents: [
-        ExamListCategoryComponent,
-        TeacherDashboardComponent,
-        StudentDashboardComponent,
-        DashboardComponent,
-    ],
-    providers: [TeacherDashboardService, StudentDashboardService, ExamSearchPipe],
+    imports: [UtilityModule, StudentDashboardModule, TeacherDashboardModule, AdminDashboardModule],
+    declarations: [DashboardComponent],
+    entryComponents: [DashboardComponent],
 })
 export class DashboardModule {}

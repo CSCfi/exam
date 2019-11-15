@@ -50,11 +50,11 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
 
         constructor(
             private $scope: ng.IScope,
+            private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
             private Exam: ExamService,
             private $uibModal: IModalService,
             private dialogs: angular.dialogservice.IDialogService,
-            private SettingsResource: any,
             private Attachment: AttachmentService,
             private Files: FileService,
             private Session: SessionService,
@@ -70,12 +70,14 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         $onInit = () => {
             this.refreshExamTypes();
             this.refreshGradeScales();
-            this.SettingsResource.gradeScale.get((data: { overridable: boolean }) => {
-                this.gradeScaleSetting = data;
+            this.$http.get('/app/settings/gradescale').then((resp: ng.IHttpResponse<{ overridable: boolean }>) => {
+                this.gradeScaleSetting = resp.data;
             });
-            this.SettingsResource.anonymousReviewEnabled.get((data: { anonymousReviewEnabled: boolean }) => {
-                this.anonymousReviewEnabled = data.anonymousReviewEnabled;
-            });
+            this.$http
+                .get('/app/settings/anonymousReviewEnabled')
+                .then((resp: ng.IHttpResponse<{ anonymousReviewEnabled: boolean }>) => {
+                    this.anonymousReviewEnabled = resp.data.anonymousReviewEnabled;
+                });
             this.initGradeScale();
         };
 
