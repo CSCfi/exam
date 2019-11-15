@@ -36,7 +36,7 @@ import java.util.UUID;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-public class ExternalStudentExamControllerTest extends IntegrationTestCase {
+public class ExternalExaminationControllerTest extends IntegrationTestCase {
 
     private Exam exam;
     private ExternalExam ee;

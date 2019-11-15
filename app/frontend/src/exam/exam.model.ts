@@ -121,6 +121,7 @@ export interface MultipleChoiceOption {
     id: number;
     correctOption: boolean;
     defaultScore: number;
+    claimChoiceType: string;
 }
 
 export interface ExamSectionQuestionOption {
@@ -211,6 +212,7 @@ export interface ExaminationEventConfiguration {
     id?: number;
     settingsPassword: string;
     examinationEvent: ExaminationEvent;
+    examEnrolments: ExamEnrolment[];
 }
 
 export interface ExamImpl {

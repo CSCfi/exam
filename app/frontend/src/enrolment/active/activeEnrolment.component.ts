@@ -39,7 +39,29 @@ export class ActiveEnrolmentComponent {
         private Reservation: ReservationService,
     ) {}
 
-    removeReservation = () => this.Reservation.removeReservation(this.enrolment);
+    removeReservation = () => {
+        if (this.enrolment.reservation) {
+            this.Reservation.removeReservation(this.enrolment);
+        } else {
+            this.Enrolment.removeExaminationEvent(this.enrolment);
+        }
+    };
+
+    makeReservation = () => {
+        if (this.enrolment.exam.requiresUserAgentAuth) {
+            this.Enrolment.selectExaminationEvent(this.enrolment.exam, this.enrolment);
+        } else {
+            this.goToCalendar();
+        }
+    };
+
+    hasUpcomingAlternativeEvents = () =>
+        this.enrolment.exam.examinationEventConfigurations.some(
+            eec =>
+                eec.examinationEvent.start > new Date() &&
+                (!this.enrolment.examinationEventConfiguration ||
+                    eec.id !== this.enrolment.examinationEventConfiguration.id),
+        );
 
     removeEnrolment = () => {
         if (this.enrolment.reservation) {

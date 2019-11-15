@@ -171,6 +171,9 @@ export class ExaminationService {
                 isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
                 break;
             }
+            case 'ClaimChoiceQuestion':
+                isAnswered = _.isObject(sq.selectedOption) || sq.options.some(o => o.answered);
+                break;
             default:
                 isAnswered = false;
         }

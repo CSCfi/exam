@@ -74,11 +74,11 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         offset,
                     );
 
-                    this.Window.nativeWindow.setTimeout(() => {
+                    if (this.enrolment.reservation) {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();
                         this.roomInstructions = this.getRoomInstructions(code, room);
-                    }, 1000);
+                    }
                 },
                 err => toast.error(err.data),
             );
@@ -90,6 +90,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     private setOccasion = (reservation: WaitingReservation) => {
+        if (!reservation) {
+            return;
+        }
         const tz = reservation.machine.room.localTimezone;
         const start = moment.tz(reservation.startAt, tz);
         const end = moment.tz(reservation.endAt, tz);

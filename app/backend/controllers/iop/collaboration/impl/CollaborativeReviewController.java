@@ -42,6 +42,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.util.StringUtils;
 import play.Logger;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -86,6 +88,9 @@ public class CollaborativeReviewController extends CollaborationController {
     @Inject
     FileHandler fileHandler;
 
+    @Inject
+    MessagesApi messages;
+
     private static final Logger.ALogger logger = Logger.of(CollaborativeReviewController.class);
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
@@ -102,12 +107,13 @@ public class CollaborativeReviewController extends CollaborationController {
         }
     }
 
-    private Result handleSingleAssessmentResponse(Http.Request request, WSResponse response, boolean admin) {
+    private Result handleSingleAssessmentResponse(Http.Request request, WSResponse response, boolean admin, User user) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
         }
         JsonNode examNode = root.get("exam");
+        String blankAnswerText = messages.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
 
         // Manipulate cloze test answers so that they can be conveniently displayed for review
         stream(examNode.get("examSections"))
@@ -120,7 +126,7 @@ public class CollaborativeReviewController extends CollaborationController {
                     }
                     ClozeTestAnswer cta = JsonDeserializer.deserialize(
                             ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
-                    cta.setQuestionWithResults(esq);
+                    cta.setQuestionWithResults(esq, blankAnswerText);
                     ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
                 });
 
@@ -269,7 +275,7 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             WSRequest wsRequest = wsClient.url(url.get().toString());
             final boolean admin = user.hasRole(Role.Name.ADMIN);
-            return wsRequest.get().thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin));
+            return wsRequest.get().thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin, user));
         }).getOrElseGet(Function.identity());
     }
 

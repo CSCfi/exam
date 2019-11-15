@@ -177,7 +177,7 @@ export class AssessmentService {
         }
     };
 
-    isCommentRead = (exam: Exam | Examination) => exam.examFeedback.feedbackStatus;
+    isCommentRead = (exam: Exam | Examination) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
     setCommentRead = (exam: Exam | Examination) => {
         if (!this.isCommentRead(exam)) {

@@ -92,4 +92,31 @@
             </div>
         </div>
     </div>
+
+    <div style="height:50%;width:50%;padding-top:40%;">
+        <canvas
+            id="doughnut"
+            class="chart chart-doughnut"
+            chart-data="$ctrl.gradeDistributionData"
+            chart-labels="$ctrl.gradeDistributionLabels"
+        >
+        </canvas>
+    </div>
+
+    <div class="col-md-12 mart40">
+        <div class="review-list-title">
+            {{'sitnet_exam_grade_time' | translate}}
+        </div>
+    </div>
+
+    <div style="height:50%;width:50%;padding-top:10%;">
+        <canvas
+            id="line"
+            class="chart chart-line"
+            chart-options="$ctrl.chartOptions"
+            chart-data="$ctrl.gradeTimeData"
+            chart-labels="$ctrl.gradeTimeLabels"
+        >
+        </canvas>
+    </div>
 </div>

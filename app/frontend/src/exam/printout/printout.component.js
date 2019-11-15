@@ -89,6 +89,8 @@ angular.module('app.printout').component('printout', {
                     case 'ClozeTestQuestion':
                         name = 'Aukkotehtävä / Fyll i det som saknas / Cloze test question';
                         break;
+                    case 'ClaimChoiceQuestion':
+                        name = 'Väittämä-kysymys / Claim choice question SV / Claim choice question';
                 }
                 return name;
             };

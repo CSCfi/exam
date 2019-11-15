@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -32,7 +32,7 @@ type SectionContainer = { examSections: ExamSection[] };
 export class ExamService {
     constructor(
         private translate: TranslateService,
-        private location: Location,
+        private State: StateService,
         private http: HttpClient,
         private Question: QuestionService,
         private Session: SessionService,
@@ -51,7 +51,7 @@ export class ExamService {
         this.http.post<Exam>('/app/exams', { executionType: executionType }).subscribe(
             response => {
                 toast.info(this.translate.instant('sitnet_exam_added'));
-                this.location.go(`/exams/${response.id}/select/course`);
+                this.State.go('courseSelector', { id: response.id });
             },
             err => toast.error(err.data),
         );
@@ -248,6 +248,10 @@ export class ExamService {
                     if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
                         score = sq.essayAnswer.evaluatedScore;
                     }
+                    break;
+                case 'ClaimChoiceQuestion':
+                    score += this.Question.scoreClaimChoiceAnswer(sq, false);
+                    break;
             }
             return n + score;
         }, 0);
@@ -271,6 +275,9 @@ export class ExamService {
                         score = sq.maxScore;
                     }
                     break;
+                case 'ClaimChoiceQuestion':
+                    score += this.Question.getCorrectClaimChoiceOptionScore(sq);
+                    break;
             }
             return n + score;
         }, 0);
@@ -290,8 +297,10 @@ export class ExamService {
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
-    getTotalScore = (exam: SectionContainer) =>
-        exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2);
+    getTotalScore = (exam: SectionContainer): string => {
+        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2);
+        return parseFloat(score) > 0 ? score : '0';
+    };
 
     isOwner = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
@@ -319,7 +328,7 @@ export class ExamService {
                 this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe(
                     () => {
                         toast.success(this.translate.instant('sitnet_exam_removed'));
-                        this.location.go('/');
+                        this.State.go('dashboard');
                     },
                     err => toast.error(err),
                 ),
@@ -341,9 +350,14 @@ export class ExamService {
     };
 
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
-        const resource = exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-        const collaboration = collaborative ? 'collaborative/' : '';
-        this.location.go(`/exams/${collaboration}${exam.id}/view/${resource}/${fromTab}`);
+        const params = { id: exam.id, tab: fromTab };
+        if (collaborative) {
+            this.State.go('collaborativePreview', params);
+        } else if (exam.executionType.type === 'PRINTOUT') {
+            this.State.go('printout', params);
+        } else {
+            this.State.go('collaborativeExamEditor', params);
+        }
     };
 
     reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<any> =>

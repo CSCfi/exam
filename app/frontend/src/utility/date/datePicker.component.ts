@@ -25,6 +25,7 @@ export class DatePickerComponent implements OnInit {
     @Input() extra: boolean;
     @Input() extraText: string;
     @Input() modelOptions: any = {};
+    @Input() disabled: boolean;
     @Input() optional: boolean;
 
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();

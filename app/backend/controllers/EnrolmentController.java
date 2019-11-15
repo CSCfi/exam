@@ -45,6 +45,8 @@ import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
+import backend.models.ExaminationEvent;
+import backend.models.ExaminationEventConfiguration;
 import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
@@ -171,14 +173,16 @@ public class EnrolmentController extends BaseController {
                     .eq("exam.id", id)
                     .gt("exam.examActiveEndDate", now.toDate())
                     .disjunction()
-                    .gt("reservation.endAt", now.toDate())
-                    .isNull("reservation")
-                    .endJunction()
-                    .disjunction()
                     .eq("exam.state", Exam.State.PUBLISHED)
                     .eq("exam.state", Exam.State.STUDENT_STARTED)
                     .endJunction()
-                    .findList();
+                    .findList()
+                    .stream()
+                    .filter(ExamEnrolment::isActive)
+                    .collect(Collectors.toList());
+            if (enrolments.isEmpty()) {
+                return notFound("error not found");
+            }
             return ok(enrolments);
         }
         return forbidden("sitnet_no_trials_left");
@@ -203,7 +207,7 @@ public class EnrolmentController extends BaseController {
         if (enrolment.getExam() != null && enrolment.getExam().isPrivate()) {
             return forbidden();
         }
-        if (enrolment.getReservation() != null) {
+        if (enrolment.getReservation() != null || enrolment.getExaminationEventConfiguration() != null) {
             return forbidden("sitnet_cancel_reservation_first");
         }
         enrolment.delete();
@@ -249,7 +253,7 @@ public class EnrolmentController extends BaseController {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<Exam> possibleExam = getExam(eid, type);
-            if (!possibleExam.isPresent()) {
+            if (possibleExam.isEmpty()) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
             }
             Exam exam = possibleExam.get();
@@ -257,6 +261,8 @@ public class EnrolmentController extends BaseController {
             // Find existing enrolments for exam and user
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
+                    .fetch("examinationEventConfiguration")
+                    .fetch("examinationEventConfiguration.examinationEvent")
                     .where()
                     // either exam id matches or parent exam's id matches
                     .or()
@@ -270,17 +276,28 @@ public class EnrolmentController extends BaseController {
                     ).collect(Collectors.toList());
 
 
-            // already enrolled
-            if (enrolments.stream().anyMatch(e -> e.getReservation() == null)) {
+            // already enrolled (regular examination)
+            if (enrolments.stream().anyMatch(e -> !e.getExam().getRequiresUserAgentAuth() && e.getReservation() == null)) {
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
+            }
+            // already enrolled (BYOD examination)
+            if (enrolments.stream().anyMatch(e -> e.getExam().getRequiresUserAgentAuth() && e.getExaminationEventConfiguration() == null)) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
             }
             // reservation in effect
             if (enrolments.stream().map(ExamEnrolment::getReservation).anyMatch(r ->
-                    r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))) {
+                    r != null && r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))) {
+                return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
+            }
+            // examination event in effect
+            if (enrolments.stream().anyMatch(e ->
+                    e.getExaminationEventConfiguration() != null &&
+                            e.getExaminationEventConfiguration().getExaminationEvent()
+                                    .toInterval(e.getExam()).contains(DateTimeUtils.adjustDST(DateTime.now())))) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments.stream()
-                    .filter(ee -> ee.getReservation().toInterval().isAfterNow())
+                    .filter(ee -> ee.getReservation() != null && ee.getReservation().toInterval().isAfterNow())
                             .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
                 logger.error("Several enrolments with future reservations found for user {} and exam {}",
@@ -297,6 +314,24 @@ public class EnrolmentController extends BaseController {
                     return ok(newEnrolment);
                 });
             }
+            List<ExamEnrolment> enrolmentsWithFutureExaminatioEvents = enrolments.stream()
+                    .filter(e -> e.getExaminationEventConfiguration() != null &&
+                            e.getExaminationEventConfiguration().getExaminationEvent()
+                                    .toInterval(e.getExam()).isAfterNow())
+                    .collect(Collectors.toList());
+            if (enrolmentsWithFutureExaminatioEvents.size() > 1) {
+                logger.error("Several enrolments with future examination events found for user {} and exam {}",
+                        user, exam.getId());
+                return wrapAsPromise(internalServerError()); // Lets fail right here
+            }
+            // examination event in the future, replace it
+            if (!enrolmentsWithFutureExaminatioEvents.isEmpty()) {
+                ExamEnrolment enrolment = enrolmentsWithFutureExaminatioEvents.get(0);
+                enrolment.delete();
+                ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                return wrapAsPromise(ok(newEnrolment));
+            }
+
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
             Ebean.commitTransaction();
             return wrapAsPromise(ok(newEnrolment));
@@ -345,6 +380,9 @@ public class EnrolmentController extends BaseController {
         User user;
         if (uid.isPresent()) {
             user = Ebean.find(User.class, uid.get());
+            if (user == null) {
+                return wrapAsPromise(badRequest("user not found"));
+            }
         } else if (email.isPresent()) {
             List<User> users = Ebean.find(User.class).where()
                     .or()
@@ -376,12 +414,8 @@ public class EnrolmentController extends BaseController {
             return wrapAsPromise(badRequest());
         }
 
-        final User receiver = user;
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
-            if (receiver == null) {
-                return result;
-            }
             if (exam.getState() != Exam.State.PUBLISHED) {
                 return result;
             }
@@ -389,8 +423,8 @@ public class EnrolmentController extends BaseController {
                 return result;
             }
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composePrivateExamParticipantNotification(receiver, sender, exam);
-                logger.info("Exam participation notification email sent to {}", receiver.getEmail());
+                emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                logger.info("Exam participation notification email sent to {}", user.getEmail());
             }, actor.dispatcher());
             return result;
         });
@@ -443,6 +477,61 @@ public class EnrolmentController extends BaseController {
         } else {
             return ok(enrolment.getReservation().getMachine().getRoom());
         }
+    }
+
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public Result addExaminationEventConfig(Long enrolmentId, Long configId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class).where()
+                .idEq(enrolmentId)
+                .eq("user", user)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return notFound("enrolment not found");
+        }
+        ExamEnrolment enrolment = oee.get();
+        Optional<ExaminationEventConfiguration> config = Ebean.find(ExaminationEventConfiguration.class).where()
+                .idEq(configId)
+                .gt("examinationEvent.start", DateTime.now())
+                .eq("exam", enrolment.getExam())
+                .findOneOrEmpty();
+        if (config.isEmpty()) {
+            return notFound("config not found");
+        }
+        enrolment.setExaminationEventConfiguration(config.get());
+        enrolment.update();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeExaminationEventNotification(user, enrolment, false);
+            logger.info("Examination event notification email sent to {}", user.getEmail());
+        }, actor.dispatcher());
+        return ok();
+    }
+
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public Result removeExaminationEventConfig(Long enrolmentId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean.find(ExamEnrolment.class)
+                .where()
+                .idEq(enrolmentId)
+                .eq("user", user)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .isNotNull("examinationEventConfiguration")
+                .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return notFound("enrolment not found");
+        }
+        ExamEnrolment enrolment = oee.get();
+        ExaminationEvent event = enrolment.getExaminationEventConfiguration().getExaminationEvent();
+        enrolment.setExaminationEventConfiguration(null);
+        enrolment.update();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeExaminationEventCancellationNotification(user, enrolment, event);
+            logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
+        }, actor.dispatcher());
+        return ok();
     }
 
 

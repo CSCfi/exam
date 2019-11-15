@@ -35,6 +35,7 @@ import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
 import backend.models.json.ExternalExam;
 import backend.util.datetime.DateTimeAdapter;
+import backend.util.datetime.DateTimeUtils;
 
 
 @Entity
@@ -58,6 +59,9 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
+
+    @ManyToOne
+    private ExaminationEventConfiguration examinationEventConfiguration;
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
@@ -117,6 +121,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.reservation = reservation;
     }
 
+    public ExaminationEventConfiguration getExaminationEventConfiguration() {
+        return examinationEventConfiguration;
+    }
+
+    public void setExaminationEventConfiguration(ExaminationEventConfiguration examinationEventConfiguration) {
+        this.examinationEventConfiguration = examinationEventConfiguration;
+    }
+
     public String getInformation() {
         return information;
     }
@@ -140,6 +152,18 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     public void setPreEnrolledUserEmail(String preEnrolledUserEmail) {
         this.preEnrolledUserEmail = preEnrolledUserEmail;
     }
+
+    @Transient
+    public boolean isActive() {
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        if (exam == null || !exam.getRequiresUserAgentAuth()) {
+            return reservation == null || reservation.getEndAt().isAfter(now);
+        }
+        return examinationEventConfiguration == null ||
+                examinationEventConfiguration.getExaminationEvent()
+                        .getStart().plusMinutes(exam.getDuration()).isAfter(now);
+    }
+
 
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {

@@ -80,22 +80,22 @@ POST          /app/exam/record/export/report/:id                       backend.c
 
 
 ############### Student exam execution interface ###############
-GET           /app/student/exam/:hash                                  backend.controllers.StudentExamController.startExam(hash: String, request: Request)
-PUT           /app/student/exam/:hash                                  backend.controllers.StudentExamController.turnExam(hash: String, request: Request)
-PUT           /app/student/exam/abort/:hash                            backend.controllers.StudentExamController.abortExam(hash: String, request: Request)
+GET           /app/student/exam/:hash                                  backend.controllers.ExaminationController.startExam(hash: String, request: Request)
+PUT           /app/student/exam/:hash                                  backend.controllers.ExaminationController.turnExam(hash: String, request: Request)
+PUT           /app/student/exam/abort/:hash                            backend.controllers.ExaminationController.abortExam(hash: String, request: Request)
 
-POST          /app/student/exam/:hash/question/:qid/option             backend.controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, request: Request)
-POST          /app/student/exam/:hash/question/:questionId             backend.controllers.StudentExamController.answerEssay(hash: String, questionId: Long, request: Request)
-POST          /app/student/exam/:hash/clozetest/:questionId            backend.controllers.StudentExamController.answerClozeTest(hash: String, questionId: Long, request: Request)
+POST          /app/student/exam/:hash/question/:qid/option             backend.controllers.ExaminationController.answerMultiChoice(hash: String, qid: Long, request: Request)
+POST          /app/student/exam/:hash/question/:questionId             backend.controllers.ExaminationController.answerEssay(hash: String, questionId: Long, request: Request)
+POST          /app/student/exam/:hash/clozetest/:questionId            backend.controllers.ExaminationController.answerClozeTest(hash: String, questionId: Long, request: Request)
 
 ############### External student exam execution interface ###############
-GET           /app/iop/student/exam/:hash                              backend.controllers.iop.transfer.impl.ExternalStudentExamController.startExam(hash: String, request: Request)
-PUT           /app/iop/student/exam/:hash                              backend.controllers.iop.transfer.impl.ExternalStudentExamController.turnExam(hash: String, request: Request)
-PUT           /app/iop/student/exam/abort/:hash                        backend.controllers.iop.transfer.impl.ExternalStudentExamController.abortExam(hash: String, request: Request)
+GET           /app/iop/student/exam/:hash                              backend.controllers.iop.transfer.impl.ExternalExaminationController.startExam(hash: String, request: Request)
+PUT           /app/iop/student/exam/:hash                              backend.controllers.iop.transfer.impl.ExternalExaminationController.turnExam(hash: String, request: Request)
+PUT           /app/iop/student/exam/abort/:hash                        backend.controllers.iop.transfer.impl.ExternalExaminationController.abortExam(hash: String, request: Request)
 
-POST          /app/iop/student/exam/:hash/question/:qid/option         backend.controllers.iop.transfer.impl.ExternalStudentExamController.answerMultiChoice(hash: String, qid: Long, request: Request)
-POST          /app/iop/student/exam/:hash/question/:questionId         backend.controllers.iop.transfer.impl.ExternalStudentExamController.answerEssay(hash: String, questionId: Long, request: Request)
-POST          /app/iop/student/exam/:hash/clozetest/:questionId        backend.controllers.iop.transfer.impl.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long, request: Request)
+POST          /app/iop/student/exam/:hash/question/:qid/option         backend.controllers.iop.transfer.impl.ExternalExaminationController.answerMultiChoice(hash: String, qid: Long, request: Request)
+POST          /app/iop/student/exam/:hash/question/:questionId         backend.controllers.iop.transfer.impl.ExternalExaminationController.answerEssay(hash: String, questionId: Long, request: Request)
+POST          /app/iop/student/exam/:hash/clozetest/:questionId        backend.controllers.iop.transfer.impl.ExternalExaminationController.answerClozeTest(hash: String, questionId: Long, request: Request)
 
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                 backend.controllers.StudentActionsController.getExamFeedback(eid: Long, request: Request)
@@ -170,7 +170,8 @@ DELETE        /app/enrolments/:id                                      backend.c
 DELETE        /app/enrolments/student/:id                              backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long, request: Request)
 PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long, request: Request)
 GET           /app/enrolments/room/:hash                               backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String, request: Request)
-
+POST          /app/enrolments/:eid/examination/:cid                    backend.controllers.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long, request: Request)
+DELETE        /app/enrolments/:eid/examination                         backend.controllers.EnrolmentController.removeExaminationEventConfig(eid: Long, request: Request)
 
 ############### Courses interface ###############
 GET           /app/courses                                             backend.controllers.CourseController.getCourses(filter: Option[String], q: Option[String])

@@ -19,12 +19,22 @@
             <div class="student-exam-header-row">
                 <div>
                     <!-- calendar box -->
-                    <div class="student-enrolment-date-box">
+                    <div *ngIf="enrolment.reservation" class="student-enrolment-date-box">
                         {{ enrolment.reservation.startAt | date: 'dd' }}
                         <span class="month-name">{{
                             enrolment.reservation.startAt | date: 'MMM' | slice: 0:3 | uppercase
                         }}</span>
                     </div>
+                    <div *ngIf="enrolment.examinationEventConfiguration" class="student-enrolment-date-box">
+                        {{ enrolment.examinationEventConfiguration.examinationEvent.start | date: 'dd' }}
+                        <span class="month-name">{{
+                            enrolment.examinationEventConfiguration.examinationEvent.start
+                                | date: 'MMM'
+                                | slice: 0:3
+                                | uppercase
+                        }}</span>
+                    </div>
+
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
                         {{ enrolment.exam.name }}
@@ -54,7 +64,7 @@
                     </div>
                 </div>
                 <div class="col-md-12" style="padding-top:10px;">
-                    <div class="row">
+                    <div class="row" *ngIf="enrolment.reservation">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                             {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -68,6 +78,26 @@
                             {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
                             {{ enrolment.reservation.occasion.startAt }}
                             - {{ enrolment.reservation.occasion.endAt }}
+                        </div>
+                    </div>
+                    <div *ngIf="enrolment.examinationEventConfiguration" class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_examination_event' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_begin' | translate }}:</div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{
+                                enrolment.examinationEventConfiguration.examinationEvent.start
+                                    | applyDst
+                                    | date: 'dd.MM.yyyy HH:mm'
+                            }}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{ enrolment.exam.duration }} {{ 'sitnet_minutes' | translate }}
                         </div>
                     </div>
                 </div>

@@ -16,7 +16,8 @@ import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as moment from 'moment';
 
-import { ExamEnrolment, ExamParticipation } from '../../../enrolment/enrolment.model';
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { ExaminationEventConfiguration } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
 import { Reservation } from '../../../reservation/reservation.model';
 import { User } from '../../../session/session.service';
@@ -49,7 +50,7 @@ export const GeneralInfoComponent: angular.IComponentOptions = {
         studentName: string;
         enrolment: ExamEnrolment;
         reservation: Reservation;
-        previousParticipations: Participation[];
+        previousParticipations: Partial<Participation>[];
 
         constructor(
             private $http: angular.IHttpService,
@@ -59,7 +60,7 @@ export const GeneralInfoComponent: angular.IComponentOptions = {
             'ngInject';
         }
 
-        private handleParticipations = (data: Participation[]) => {
+        private handleParticipations = (data: Partial<Participation>[]) => {
             if (this.collaborative) {
                 // TODO: Add collaborative support for noshows.
                 this.previousParticipations = data;
@@ -69,22 +70,20 @@ export const GeneralInfoComponent: angular.IComponentOptions = {
             const previousParticipations = data.filter(p => {
                 return p.id !== this.participation.id;
             });
-            this.$http
-                .get(`/app/usernoshows/${this.exam.id}`)
-                .then((resp: angular.IHttpResponse<ExamParticipation[]>) => {
-                    const noShows: Participation[] = resp.data.map(d => {
-                        return {
-                            id: d.id,
-                            noShow: true,
-                            duration: d.duration,
-                            _id: d._id,
-                            user: d.user,
-                            started: (d.reservation as Reservation).startAt,
-                            exam: { state: 'no_show' },
-                        };
-                    });
-                    this.previousParticipations = previousParticipations.concat(noShows);
+            this.$http.get(`/app/usernoshows/${this.exam.id}`).then((resp: angular.IHttpResponse<ExamEnrolment[]>) => {
+                const noShows: Partial<Participation>[] = resp.data.map(d => {
+                    return {
+                        id: d.id,
+                        noShow: true,
+                        user: d.user,
+                        started: d.reservation
+                            ? d.reservation.startAt
+                            : (d.examinationEventConfiguration as ExaminationEventConfiguration).examinationEvent.start,
+                        exam: { state: 'no_show' },
+                    };
                 });
+                this.previousParticipations = previousParticipations.concat(noShows);
+            });
         };
 
         $onInit() {

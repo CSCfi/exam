@@ -42,7 +42,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
-import backend.controllers.StudentExamController;
+import backend.controllers.ExaminationController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
@@ -64,10 +64,10 @@ import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
 @Restrict({@Group("STUDENT")})
-public class ExternalStudentExamController extends StudentExamController {
+public class ExternalExaminationController extends ExaminationController {
 
     @Inject
-    public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
+    public ExternalExaminationController(EmailComposer emailComposer, ActorSystem actor,
                                          CollaborativeExamLoader collaborativeExamLoader,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment,
                                          ExternalAttachmentLoader externalAttachmentLoader,

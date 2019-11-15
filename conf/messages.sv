@@ -82,4 +82,14 @@ email.template.reservation.exam.info=Information om tentamen
 email.template.section.title=Valitsemasi aihealueet SV
 email.template.section.name=Nimi SV
 email.template.section.description=Kuvaus SV
-
+email.examinationEvent.reminder.subject=Muistutus tulevasta tenttitapahtumasta SV
+email.examinationEvent.subject=Ilmoittautuminen tenttitapahtumaan SV
+email.examinationEvent.title=Olet ilmoittautunut tenttitapahtumaan. Tässä tapahtuman tiedot SV
+email.examinationEvent.date=Tapahtuma alkaa: {0} SV
+email.examinationEvent.file.info=Liitteenä on tiedosto, jonka avulla tentti käynnistetään tenttitapahtuman alettua SV
+email.examinationEvent.cancel.info=Peruthan ilmoittautumisesi ajoissa, jos suunnitelmasi muuttuvat! SV
+email.examinationEvent.cancel.link.text=Ilmoittautumisen peruminen tai muuttaminen SV
+email.examinationEvent.cancel.subject=Perumasi ilmoittautuminen tenttitapahtumaan SV
+email.examinationEvent.cancel.message.student=Olet perunut ilmoittautumisesi seuraavaan tenttitapahtumaan: SV
+email.examinationEvent.cancel.message.student.new.time=Voit ilmoittautua uudelleen tenttitapahtumaan tästä SV
+clozeTest.blank.answer=blank

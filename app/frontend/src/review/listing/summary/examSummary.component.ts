@@ -28,11 +28,33 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         reviews: any[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
+        gradeTimeData: string[];
+        gradeTimeLabels: string[];
+        gradeDistributionData: number[];
+        gradeDistributionLabels: string[];
+        chartOptions: any;
 
         private refresh = () => {
             this.buildGradeDistribution();
             this.gradedCount = this.reviews.filter(r => r.exam.grade).length;
-            this.gradeDistribution = {};
+            this.buildGradeTime();
+            this.chartOptions = {
+                elements: {
+                    line: {
+                        tension: 0,
+                    },
+                },
+                scales: {
+                    xAxes: [
+                        {
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'min',
+                            },
+                        },
+                    ],
+                },
+            };
         };
 
         $onInit = () => this.refresh();
@@ -61,11 +83,21 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         buildGradeDistribution = () => {
             const grades: string[] = this.reviews.filter(r => r.exam.grade).map(r => r.exam.grade.name);
             this.gradeDistribution = _.countBy(grades);
+            this.gradeDistributionData = Object.values(this.gradeDistribution);
+            this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
         };
 
         getAverageTime = () => {
             const durations = this.reviews.map(r => r.duration);
-            return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
+            return durations.reduce((a, b) => a + b, 0) / durations.length;
+        };
+
+        buildGradeTime = () => {
+            const gradeTimes: any[] = this.reviews
+                .sort((a, b) => (a.duration > b.duration ? 1 : -1))
+                .map(r => [r.duration, r.exam.grade.name]);
+            this.gradeTimeLabels = gradeTimes.map(g => g[0]);
+            this.gradeTimeData = gradeTimes.map(g => g[1]);
         };
     },
 };

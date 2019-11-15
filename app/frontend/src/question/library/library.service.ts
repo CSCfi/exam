@@ -120,6 +120,8 @@ export class LibraryService {
                 return 'fa-edit';
             case 'ClozeTestQuestion':
                 return 'fa-commenting-o';
+            case 'ClaimChoiceQuestion':
+                return 'fa-list-ol';
             default:
                 return '';
         }
@@ -136,6 +138,8 @@ export class LibraryService {
             return 'sitnet_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
             return this.Question.calculateDefaultMaxPoints(q);
+        } else if (q.type === 'ClaimChoiceQuestion') {
+            return this.Question.getCorrectClaimChoiceOptionDefaultScore(q);
         }
         return '';
     };
@@ -163,6 +167,7 @@ export class LibraryService {
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
                             'WeightedMultipleChoiceQuestion',
+                            'ClaimChoiceQuestion',
                         ].indexOf(q.type);
                         q.ownerAggregate = this.getOwnerAggregate(q);
                         q.allowedToRemove =

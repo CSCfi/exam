@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { Exam } from '../../exam/exam.model';
@@ -29,7 +29,7 @@ export class ExamSearchResultComponent {
 
     enrolling: boolean;
 
-    constructor(private location: Location, private Enrolment: EnrolmentService) {}
+    constructor(private State: StateService, private Enrolment: EnrolmentService) {}
 
     enrollForExam = () => {
         if (this.enrolling) {
@@ -42,6 +42,11 @@ export class ExamSearchResultComponent {
         );
     };
 
-    makeReservation = () =>
-        this.location.go((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id);
+    makeReservation = () => {
+        if (this.exam.requiresUserAgentAuth) {
+            this.State.go('dashboard');
+        } else {
+            this.State.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
+        }
+    };
 }

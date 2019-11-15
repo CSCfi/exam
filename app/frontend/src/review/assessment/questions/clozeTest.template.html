@@ -81,13 +81,7 @@
                 <div class="points-title">
                     <span>{{'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <cloze-test
-                    content="$ctrl.sectionQuestion.clozeTestAnswer.question"
-                    results="$ctrl.sectionQuestion.clozeTestAnswer.answer"
-                    editable="false"
-                >
-                </cloze-test>
-
+                <div ng-bind-html="$ctrl.sectionQuestion.clozeTestAnswer.question"></div>
                 <div ng-show="$ctrl.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"

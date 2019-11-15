@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-// NOTE! AngularJS needs to be imported before Angular. Do not change this order of imports.
 import './administrative';
 import './assets/styles/main.scss';
 import './exam/printout';
@@ -82,7 +81,6 @@ export const ajsApp = angularJS
     .directive('uniqueValue', directives.UniquenessValidator.factory())
     .directive('ckEditor', directives.CkEditor.factory())
     .directive('fixedPrecision', directives.FixedPrecision.factory())
-    .directive('clozeTest', directives.ClozeTest.factory())
     .directive('uiBlur', directives.UiBlur.factory())
     .directive('uiChange', directives.UiChange.factory())
     .directive('fileModel', directives.FileModel.factory())

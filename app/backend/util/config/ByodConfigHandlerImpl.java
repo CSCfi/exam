@@ -1,20 +1,15 @@
 package backend.util.config;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.zip.GZIPOutputStream;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,7 +23,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.cryptonode.jncryptor.AES256JNCryptor;
 import org.cryptonode.jncryptor.CryptorException;
@@ -39,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import play.Environment;
+import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -50,38 +45,28 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private static final String START_URL_PLACEHOLDER = "*** startURL ***";
     private static final String QUIT_PWD_PLACEHOLDER = "*** quitPwd ***";
     private static final String PASSWORD_ENCRYPTION = "pswd";
-    private static final String HMAC_SHA_256 = "HMACSHA256";
-    private static final int KB = 1024;
+
+    private static final Logger.ALogger logger = Logger.of(ByodConfigHandlerImpl.class);
 
     private FileHandler fileHandler;
     private ConfigReader configReader;
     private Environment env;
-
-    // This is a workaround for using hmac with empty key
-    // Should not be doing this but some bug in SEB client forces our hand (it should support SHA-256 but it doesn't)
-    private class EmptyHmacKey implements SecretKey {
-
-        @Override
-        public String getAlgorithm() {
-            return "HMAC";
-        }
-
-        @Override
-        public String getFormat() {
-            return "RAW";
-        }
-
-        @Override
-        public byte[] getEncoded() {
-            return new byte[0];
-        }
-    }
 
     @Inject
     ByodConfigHandlerImpl(FileHandler fileHandler, ConfigReader configReader, Environment env) {
         this.fileHandler = fileHandler;
         this.configReader = configReader;
         this.env = env;
+    }
+
+    /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
+    private String getProtocol() {
+        try {
+            URL url = new URL(configReader.getHostName());
+            return url.getProtocol();
+        } catch (IOException  e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getTemplate(String hash) {
@@ -162,25 +147,6 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         return om.writeValueAsString(tm);
     }
 
-    private byte[] calculateHmac(Mac mac, InputStream in) throws java.io.IOException {
-        byte[] buf = new byte[KB];
-        int len;
-        while ((len = in.read(buf)) != -1) {
-            mac.update(buf, 0, len);
-        }
-        return mac.doFinal();
-    }
-
-    private String hmac(String sebJson) throws NoSuchAlgorithmException, IOException, InvalidKeyException {
-        SecretKey sk = new EmptyHmacKey();
-        Mac mac = Mac.getInstance(HMAC_SHA_256);
-        mac.init(sk);
-        InputStream is = new ByteArrayInputStream(sebJson.getBytes(StandardCharsets.UTF_8));
-        byte[] hmac = calculateHmac(mac, is);
-        is.close();
-        return Hex.encodeHexString(hmac);
-    }
-
     @Override
     public byte[] getExamConfig(String hash, byte[] pwd, String salt) throws IOException, CryptorException {
         String template = getTemplate(hash);
@@ -220,16 +186,16 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
 
     @Override
     public Optional<Result> checkUserAgent(Http.RequestHeader request, String examConfigKey) {
-        String protocol = request.secure() ? "https://" : "http://";
-        String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
-
+        String absoluteUrl = String.format("%s://%s%s", getProtocol(), request.host(), request.uri());
         Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
         if (oc.isEmpty()) {
             return Optional.of(Results.unauthorized("SEB headers missing"));
         } else {
             String eckDigest = DigestUtils.sha256Hex(absoluteUrl + examConfigKey);
             if (!eckDigest.equals(oc.get())) {
-                return Optional.of(Results.unauthorized("Wrong ECK digest"));
+                logger.warn("Config key mismatch for URL {} and exam config key {}. Digest received: {}",
+                        absoluteUrl, examConfigKey, oc.get());
+                return Optional.of(Results.unauthorized("Wrong configuration key digest"));
             }
         }
         return Optional.empty();
@@ -237,8 +203,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
 
 
     @Override
-    public String calculateConfigKey(String hash) throws IOException, ParserConfigurationException, SAXException,
-            InvalidKeyException, NoSuchAlgorithmException {
+    public String calculateConfigKey(String hash) throws IOException, ParserConfigurationException, SAXException {
         Document doc;
         try (StringReader reader = new StringReader(getTemplate(hash))) {
             InputSource src = new InputSource(reader);
@@ -252,7 +217,7 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         if (sebJson.isPresent()) {
             String ordered = jsonToSortedString(sebJson.get());
             String unescaped = ordered.replaceAll("\\\\\\\\", "\\\\");
-            return hmac(unescaped);
+            return DigestUtils.sha256Hex(unescaped);
         }
         throw new IOException("Failed in converting the seb.plist to json");
     }

@@ -57,6 +57,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.mvc.Http;
@@ -109,6 +111,9 @@ public class ReviewController extends BaseController {
 
     @Inject
     protected ActorSystem actor;
+
+    @Inject
+    protected MessagesApi messaging;
 
     private static final Logger.ALogger logger = Logger.of(ReviewController.class);
 
@@ -164,16 +169,20 @@ public class ReviewController extends BaseController {
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        exam.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion).forEach(esq -> {
-            if (esq.getClozeTestAnswer() == null) {
-                ClozeTestAnswer cta = new ClozeTestAnswer();
-                cta.save();
-                esq.setClozeTestAnswer(cta);
-                esq.update();
-            }
-            esq.getClozeTestAnswer().setQuestionWithResults(esq);
-        });
+
+        String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    if (esq.getClozeTestAnswer() == null) {
+                        ClozeTestAnswer cta = new ClozeTestAnswer();
+                        cta.save();
+                        esq.setClozeTestAnswer(cta);
+                        esq.update();
+                    }
+                    esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+                });
         return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
     }
 
@@ -685,13 +694,28 @@ public class ReviewController extends BaseController {
     }
 
     private static Query<Exam> createQuery() {
-        return Ebean.find(Exam.class).fetch("course").fetch("course.organisation").fetch("course.gradeScale")
-                .fetch("course.gradeScale.grades", new FetchConfig().query()).fetch("parent").fetch("parent.creator")
-                .fetch("parent.gradeScale").fetch("parent.gradeScale.grades", new FetchConfig().query())
-                .fetch("parent.examOwners", new FetchConfig().query()).fetch("examEnrolments")
-                .fetch("examEnrolments.reservation").fetch("examEnrolments.reservation.machine")
-                .fetch("examEnrolments.reservation.machine.room").fetch("examInspections").fetch("examInspections.user")
-                .fetch("examParticipation").fetch("examParticipation.user").fetch("examType").fetch("executionType")
+        return Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("course.organisation")
+                .fetch("course.gradeScale")
+                .fetch("course.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("parent.gradeScale")
+                .fetch("parent.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examEnrolments")
+                .fetch("examEnrolments.reservation")
+                .fetch("examEnrolments.reservation.machine")
+                .fetch("examEnrolments.reservation.machine.room")
+                .fetch("examEnrolments.examinationEventConfiguration")
+                .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
+                .fetch("examInspections")
+                .fetch("examInspections.user")
+                .fetch("examParticipation")
+                .fetch("examParticipation.user")
+                .fetch("examType")
+                .fetch("executionType")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions",
                         "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType",
@@ -699,7 +723,7 @@ public class ReviewController extends BaseController {
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, claimChoiceType")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")

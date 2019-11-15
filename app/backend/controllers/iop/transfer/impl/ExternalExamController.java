@@ -51,7 +51,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
+import backend.controllers.ExaminationController;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
@@ -295,7 +295,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private static Query<ExamEnrolment> createQuery() {
         Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
-        PathProperties props = StudentExamController.getPath(true);
+        PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
     }

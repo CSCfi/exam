@@ -23,6 +23,7 @@ require('./basequestion/essayForm.component');
 require('./basequestion/multipleChoiceForm.component');
 require('./basequestion/multipleChoiceOptionForm.component');
 require('./basequestion/weightedMultipleChoiceOptionForm.component');
+require('./basequestion/claimChoiceForm.component');
 
 require('./examquestion/examQuestion.service');
 require('./examquestion/examQuestion.component');

@@ -1,6 +1,6 @@
 import { MomentInput } from 'moment';
 
-import { CollaborativeExam, Exam } from '../exam/exam.model';
+import { CollaborativeExam, Exam, ExaminationEvent, ExaminationEventConfiguration } from '../exam/exam.model';
 import { Reservation } from '../reservation/reservation.model';
 import { User } from '../session/session.service';
 
@@ -10,6 +10,7 @@ export interface ExamParticipation {
     ended: MomentInput;
     started: MomentInput;
     reservation: Reservation;
+    examinationEvent: ExaminationEvent;
     duration: number | string;
     user: User;
     _id?: string;
@@ -45,9 +46,11 @@ export interface ExamEnrolment {
     information: string;
     reservation?: Reservation;
     exam: Exam;
+    user: User;
     collaborativeExam: CollaborativeExam;
     reservationCanceled: boolean;
     externalExam?: any; // TBD
+    examinationEventConfiguration?: ExaminationEventConfiguration;
 }
 
 export interface EnrolmentInfo extends Exam {

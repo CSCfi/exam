@@ -56,6 +56,9 @@ export class QuestionService {
             case 'cloze':
                 questionType = 'ClozeTestQuestion';
                 break;
+            case 'claim':
+                questionType = 'ClaimChoiceQuestion';
+                break;
             default:
                 throw Error('question type not found!');
         }
@@ -105,6 +108,38 @@ export class QuestionService {
         return parseFloat(points.toFixed(2));
     };
 
+    getCorrectClaimChoiceOptionDefaultScore = (question: Question) => {
+        if (!question.options) {
+            return 0;
+        }
+        const correctOption = question.options.filter(o => o.correctOption && o.claimChoiceType === 'CorrectOption');
+        if (correctOption.length === 1) {
+            return correctOption[0].defaultScore;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
+    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion) => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const correctOption = sectionQuestion.options.filter(
+            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
+        );
+        if (correctOption.length === 1) {
+            return correctOption[0].score;
+        } else if (correctOption.length === 0) {
+            return 0;
+        } else {
+            console.error('Correct option missing on claim choice question!');
+            return 0;
+        }
+    };
+
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
         if (!sectionQuestion.clozeTestAnswer) {
             return 0;
@@ -141,6 +176,28 @@ export class QuestionService {
         }
 
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
+    };
+
+    scoreClaimChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+            return sectionQuestion.forcedScore;
+        }
+        const selected = sectionQuestion.options.filter(o => o.answered);
+
+        // Use the score from the skip option if no option was chosen
+        const skipOption = sectionQuestion.options.filter(o => o.option.claimChoiceType === 'SkipOption');
+        const skipScore = skipOption.length === 1 ? skipOption[0].score : 0;
+
+        if (selected.length === 0) {
+            return skipScore;
+        }
+        if (selected.length !== 1) {
+            console.error('multiple options selected for a ClaimChoice answer!');
+        }
+        if (selected[0].score && _.isNumber(selected[0].score)) {
+            return selected[0].score;
+        }
+        return 0;
     };
 
     private getQuestionData(question: Partial<Question>): Question {

@@ -19,10 +19,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     template: `
         <div>
             <div id="datetimepicker" class="datetimepicker-wrapper">
-                <date-picker [initialDate]="initialTime" (onUpdate)="onDateUpdate($event)"></date-picker>
+                <date-picker
+                    [disabled]="disabled"
+                    [initialDate]="initialTime"
+                    (onUpdate)="onDateUpdate($event)"
+                ></date-picker>
             </div>
             <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
                 <ngb-timepicker
+                    [disabled]="disabled"
                     [(ngModel)]="time"
                     (ngModelChange)="onTimeUpdate($event)"
                     [minuteStep]="minuteStep"
@@ -36,6 +41,7 @@ export class DateTimePickerComponent {
     @Input() initialTime: Date;
     @Input() hourStep: number;
     @Input() minuteStep: number;
+    @Input() disabled: boolean;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
     date: Date;
@@ -43,8 +49,7 @@ export class DateTimePickerComponent {
 
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
-        this.date.setMonth(dt.getMonth());
-        this.date.setDate(dt.getDate());
+        this.date.setMonth(dt.getMonth(), dt.getDate());
         this.time.setHours(dt.getHours());
         this.time.setMinutes(dt.getMinutes());
         this.time.setSeconds(0);
@@ -69,8 +74,7 @@ export class DateTimePickerComponent {
 
     onDateUpdate() {
         this.date.setFullYear(this.date.getFullYear());
-        this.date.setMonth(this.date.getMonth());
-        this.date.setDate(this.date.getDate());
+        this.date.setMonth(this.date.getMonth(), this.date.getDate());
         this.date.setHours(this.time.getHours());
         this.date.setMinutes(this.time.getMinutes());
         this.date.setSeconds(0);

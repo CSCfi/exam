@@ -1,0 +1,44 @@
+<div id="sitnet-dialog">
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <h1 class="student-enroll-title">
+                <i class="fa fa-user"></i>&nbsp;&nbsp;{{ 'sitnet_pick_examination_event' | translate }}
+            </h1>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>
+                        {{ 'sitnet_exam_duration' | translate }}: {{ exam.duration }} {{ 'sitnet_minutes' | translate }}
+                    </h3>
+                </div>
+            </div>
+            <div *ngFor="let config of configs" class="examination-event">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3>{{ config.examinationEvent.start | adjustdst | date: 'dd.MM.yyyy HH:mm' }}</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <span>{{ config.examinationEvent.description }}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mart10">
+                        <button class="btn btn-sm btn-success" (click)="selectEvent(config)">
+                            {{ 'sitnet_select' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="col-md-12">
+                <button class="btn btn-sm btn-danger pull-right" (click)="cancel()">
+                    {{ 'sitnet_button_decline' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

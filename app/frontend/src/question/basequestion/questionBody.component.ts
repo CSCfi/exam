@@ -70,6 +70,7 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
                 { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
                 { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
                 { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
+                { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
             ];
 
             this.init();
