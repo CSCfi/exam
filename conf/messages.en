@@ -92,3 +92,4 @@ email.examinationEvent.cancel.link.text=Ilmoittautumisen peruminen tai muuttamin
 email.examinationEvent.cancel.subject=Perumasi ilmoittautuminen tenttitapahtumaan EN
 email.examinationEvent.cancel.message.student=Olet perunut ilmoittautumisesi seuraavaan tenttitapahtumaan: EN
 email.examinationEvent.cancel.message.student.new.time=Voit ilmoittautua uudelleen tenttitapahtumaan tästä EN
+clozeTest.blank.answer=blank

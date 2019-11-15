@@ -57,6 +57,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.mvc.Http;
@@ -110,6 +112,9 @@ public class ReviewController extends BaseController {
 
     @Inject
     protected ActorSystem actor;
+
+    @Inject
+    protected MessagesApi messaging;
 
     private static final Logger.ALogger logger = Logger.of(ReviewController.class);
 
@@ -183,6 +188,7 @@ public class ReviewController extends BaseController {
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -193,7 +199,7 @@ public class ReviewController extends BaseController {
                         esq.setClozeTestAnswer(cta);
                         esq.update();
                     }
-                    esq.getClozeTestAnswer().setQuestionWithResults(esq);
+                    esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
                 });
         return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
     }
