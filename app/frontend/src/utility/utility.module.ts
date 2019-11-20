@@ -40,6 +40,7 @@ import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
+import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
 import { WindowRef } from './window/window.service';
 
 @NgModule({
@@ -61,6 +62,7 @@ import { WindowRef } from './window/window.service';
         TableSortComponent,
         PaginatorComponent,
         MathJaxDirective,
+        UniqueValuesValidatorDirective,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -79,6 +81,7 @@ import { WindowRef } from './window/window.service';
         TruncatingPipe,
         PageFillPipe,
         ApplyDstPipe,
+        UniqueValuesValidatorDirective,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

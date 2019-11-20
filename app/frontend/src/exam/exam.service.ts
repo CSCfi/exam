@@ -57,7 +57,7 @@ export class ExamService {
         );
     };
 
-    updateExam = (exam: Exam, overrides: any, collaborative: boolean): Observable<Exam> => {
+    updateExam$ = (exam: Exam, overrides: any = {}, collaborative = false): Observable<Exam> => {
         const data = {
             id: exam.id,
             name: exam.name || '',

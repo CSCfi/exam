@@ -35,7 +35,8 @@ import { User } from '../session.service';
                     <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
                         <li *ngFor="let role of user.roles">
                             <a
-                                class="dropdown-item pointer"
+                                ngbDropdownItem
+                                class="pointer"
                                 title="{{ role.displayName | translate }}"
                                 (click)="activeModal.close(role)"
                             >

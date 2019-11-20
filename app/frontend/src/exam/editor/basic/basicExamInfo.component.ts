@@ -88,7 +88,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         };
 
         updateExam = (resetAutoEvaluationConfig: boolean) => {
-            this.Exam.updateExam(this.exam, {}, this.collaborative).subscribe(
+            this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(
                 () => {
                     toast.info(this.$translate.instant('sitnet_exam_saved'));
                     if (resetAutoEvaluationConfig) {

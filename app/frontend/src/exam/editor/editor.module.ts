@@ -19,7 +19,12 @@ import { CollaborativeExamService } from '../collaborative/collaborativeExam.ser
 import { CoursePickerComponent } from './common/coursePicker.component';
 import { CoursePickerService } from './common/coursePicker.service';
 import { LanguageSelectorComponent } from './common/languageSelector.component';
+import { CourseSelectionComponent } from './creation/courseSelection.component';
 import { NewExamComponent } from './creation/newExam.component';
+import { ExaminationEventDialogComponent } from './events/examinationEventDialog.component';
+import { AutoEvaluationComponent } from './publication/autoEvaluation.component';
+import { CollaborativeExamOwnerSelectorComponent } from './publication/collaborativeExamOwnerSelector.component';
+import { ExamParticipantSelectorComponent } from './publication/examParticipantSelector.component';
 import { SectionsListComponent } from './sections/sectionsList.component';
 
 require('../../facility');
@@ -34,5 +39,13 @@ angular
     .service('CollaborativeExam', downgradeInjectable(CollaborativeExamService))
     .directive('coursePicker', downgradeComponent({ component: CoursePickerComponent }))
     .directive('languageSelector', downgradeComponent({ component: LanguageSelectorComponent }))
+    .directive('courseSelection', downgradeComponent({ component: CourseSelectionComponent }))
     .directive('newExam', downgradeComponent({ component: NewExamComponent }))
-    .directive('sections', downgradeComponent({ component: SectionsListComponent }));
+    .directive('sections', downgradeComponent({ component: SectionsListComponent }))
+    .directive('autoEvaluation', downgradeComponent({ component: AutoEvaluationComponent }))
+    .directive('examParticipantSelector', downgradeComponent({ component: ExamParticipantSelectorComponent }))
+    .directive(
+        'collaborativeExamOwnerSelector',
+        downgradeComponent({ component: CollaborativeExamOwnerSelectorComponent }),
+    )
+    .directive('examinationEventDialog', downgradeComponent({ component: ExaminationEventDialogComponent }));

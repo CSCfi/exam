@@ -1,6 +1,3 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Exam } from '../../exam/exam.model';
-
 /*
  * Copyright (c) 2018 Exam Consortium
  *
@@ -15,6 +12,9 @@ import { Exam } from '../../exam/exam.model';
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, Input, OnInit } from '@angular/core';
+
+import { Exam } from '../../exam/exam.model';
 
 @Component({
     selector: 'teacher-list',

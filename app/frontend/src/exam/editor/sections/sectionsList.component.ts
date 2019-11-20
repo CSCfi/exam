@@ -88,7 +88,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
         );
 
     updateExam = (silent: boolean) =>
-        this.Exam.updateExam(this.exam, {}, this.collaborative).pipe(
+        this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_exam_saved'));

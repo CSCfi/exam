@@ -1,0 +1,58 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_collaborative_exams' | translate }}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <!-- toolbar -->
+    <div class="top-row" ng-if="$ctrl.user.isAdmin">
+        <div class="col-md-12">
+            <button class=" pull-right btn btn-info" (click)="createExam()">
+                {{ 'sitnet_toolbar_new_exam' | translate }}
+            </button>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <table class="table table-striped table-condensed exams-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <table-sort
+                                by="name"
+                                text="sitnet_exam_name"
+                                [predicate]="predicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('name')"
+                            ></table-sort>
+                        </th>
+                        <th>
+                            <table-sort
+                                by="ownerAggregate"
+                                text="sitnet_teachers"
+                                [predicate]="predicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('ownerAggregate')"
+                            ></table-sort>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let exam of exams | orderBy: predicate:reverse:'case-insensitive'">
+                        <td>
+                            <a class="exams-info-title bold-button" uiSref="collaborativeExamEditor({id: exam.id})">
+                                <span *ngIf="exam.name">{{ exam.name }}</span>
+                                <span *ngIf="!exam.name" class="text-danger">
+                                    {{ 'sitnet_no_name' | translate | uppercase }}
+                                </span>
+                            </a>
+                        </td>
+                        <td>
+                            <span *ngFor="let o of exam.examOwners">{{ o.email }}&nbsp;</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

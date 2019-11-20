@@ -39,38 +39,6 @@ export class DateValidator implements IDirective {
     }
 }
 
-// MOVE TO EXAM/EDITOR
-interface UniquenessScope extends IScope {
-    items: any[];
-    property: string;
-}
-export class UniquenessValidator implements IDirective<UniquenessScope> {
-    require = 'ngModel';
-    scope = {
-        items: '=',
-        property: '@property',
-    };
-
-    link(scope: UniquenessScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
-        const validate = (value: any): void => {
-            const matches = !scope.items ? [] : scope.items.map(i => i[scope.property]).filter(i => i === value);
-            ngModel.$setValidity('uniqueness', matches.length < 2);
-        };
-
-        scope.$watch(
-            'items',
-            function() {
-                validate(ngModel.$viewValue);
-            },
-            true,
-        );
-    }
-
-    static factory(): IDirectiveFactory {
-        return () => new UniquenessValidator();
-    }
-}
-
 interface CkEditorScope extends IScope {
     enableClozeTest: boolean;
 }

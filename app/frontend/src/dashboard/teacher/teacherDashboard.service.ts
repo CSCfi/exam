@@ -59,7 +59,7 @@ export class TeacherDashboardService {
     // Printout exams do not have an activity period but have examination dates.
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam: Exam) {
-        const dates = exam.examinationDates.map(es => es.date.getMilliseconds());
+        const dates = exam.examinationDates.map(es => es.date as number);
         exam.examActiveStartDate = Math.min(...dates);
         exam.examActiveEndDate = Math.max(...dates);
     }

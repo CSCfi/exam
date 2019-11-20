@@ -12,15 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
+
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
-import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
-import { BookingCalendarComponent } from './bookingCalendar.component';
 
 export default angular
     .module('app.calendar', [])
     .service('Calendar', downgradeInjectable(CalendarService))
-    .directive('ngCalendar', downgradeComponent({ component: BookingCalendarComponent }))
     .directive('calendar', downgradeComponent({ component: CalendarComponent })).name;

@@ -14,6 +14,7 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
@@ -33,7 +34,7 @@ import { WrongLocationComponent } from './wrong-location/wrongLocation.component
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UtilityModule],
+    imports: [NgbModule, OrderModule, UIRouterModule, UtilityModule],
     exports: [ActiveEnrolmentComponent],
     declarations: [
         ActiveEnrolmentComponent,

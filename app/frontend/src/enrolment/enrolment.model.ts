@@ -51,6 +51,7 @@ export interface ExamEnrolment {
     reservationCanceled: boolean;
     externalExam?: any; // TBD
     examinationEventConfiguration?: ExaminationEventConfiguration;
+    preEnrolledUserEmail?: string;
 }
 
 export interface EnrolmentInfo extends Exam {

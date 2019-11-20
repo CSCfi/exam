@@ -77,7 +77,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             const fmt = 'DD/MM/YYYY';
             const formattedDate = moment(date).format(fmt);
             const alreadyExists: boolean = this.exam.examinationDates
-                .map((ed: { date: Date }) => moment(ed.date).format(fmt))
+                .map((ed: { date: Date | number }) => moment(ed.date).format(fmt))
                 .some((d: string) => d === formattedDate);
             if (!alreadyExists) {
                 this.$http
@@ -113,7 +113,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 evaluationConfig:
                     this.autoevaluation.enabled && this.canBeAutoEvaluated()
                         ? {
-                              releaseType: this.exam.autoEvaluationConfig.releaseType.name,
+                              releaseType: this.exam.autoEvaluationConfig.releaseType,
                               releaseDate: this.exam.autoEvaluationConfig.releaseDate
                                   ? new Date(this.exam.autoEvaluationConfig.releaseDate).getTime()
                                   : null,

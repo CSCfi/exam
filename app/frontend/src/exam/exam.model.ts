@@ -15,16 +15,16 @@ const isRealGrade = (grade: SelectableGrade): grade is TypedGrade => grade.type 
 export default isRealGrade;
 
 export interface GradeEvaluation {
-    id: number;
+    id?: number;
     grade: Grade;
     percentage: number;
 }
 
 export interface AutoEvaluationConfig {
-    id: number;
-    releaseDate: VarDate | null;
-    amountDays: number | null;
-    releaseType: { name: string };
+    id?: number;
+    releaseDate?: Date;
+    amountDays?: number;
+    releaseType?: string;
     gradeEvaluations: GradeEvaluation[];
 }
 
@@ -51,7 +51,7 @@ export interface GradeScale {
 
 export interface ExaminationDate {
     id: number;
-    date: Date;
+    date: Date | number;
 }
 
 export interface ExamLanguage {

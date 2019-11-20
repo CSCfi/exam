@@ -27,13 +27,12 @@ require('./common/coursePicker.service.ts');
 require('./common/coursePicker.component.ts');
 require('./common/languageSelector.component.ts');
 
-require('./creation/courseSelection.component');
+require('./creation/courseSelection.component.ts');
 require('./creation/newExam.component.ts');
 
 require('./events/examinationEventDialog.component.ts');
 
 require('./publication/autoEvaluation.component');
-require('./publication/examParticipantSelector.component');
 require('./publication/examPreParticipantSelector.component');
 require('./publication/examPublication.component.ts');
 require('./publication/publicationErrorDialog.component');

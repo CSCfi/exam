@@ -1,0 +1,48 @@
+<div class="col-md-12 padl0 margin-20" [hidden]="exam.executionType.type === 'PUBLIC'">
+    <div class="col-md-9 col-md-offset-3">
+        <input
+            type="text"
+            class="form-control wdth-30 make-inline"
+            placeholder="{{ 'sitnet_write_participant_name' | translate }}"
+            [(ngModel)]="newParticipant.name"
+            [ngbTypeahead]="listStudents$"
+            [inputFormatter]="nameFormat"
+            [resultFormatter]="nameFormat"
+            (selectItem)="setExamParticipant($event)"
+        />
+        <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-primary green border-green">
+            {{ 'sitnet_add' | translate }}
+        </button>
+    </div>
+
+    <div class="row col-md-12">
+        <div class="col-md-3 exam-basic-title"></div>
+        <div class="col-md-9">
+            <ul class="list-inline mart10">
+                <!-- Students not having finished the exam -->
+                <li class="marl10" *ngFor="let enrolment of enrolments">
+                    {{ enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                    <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
+                    <button
+                        class="reviewer-remove"
+                        [disabled]="exam.state === 'PUBLISHED'"
+                        (click)="removeParticipant(enrolment.id)"
+                        title="{{ 'sitnet_remove' | translate }}"
+                    >
+                        <img
+                            [hidden]="exam.state === 'PUBLISHED'"
+                            src="Images/icon_remove.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_remove.png'"
+                        />
+                    </button>
+                </li>
+                <!-- Students that have finished the exam -->
+                <li class="marl10" *ngFor="let participant of participants">
+                    {{ participant.firstName }} {{ participant.lastName }}
+                    <span *ngIf="participant.userIdentifier">({{ participant.userIdentifier }})</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

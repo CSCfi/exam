@@ -210,7 +210,7 @@
         <!-- Exam participants -->
         <exam-participant-selector
             ng-if="!$ctrl.collaborative && $ctrl.visibleParticipantSelector === 'participant'"
-            exam="$ctrl.exam"
+            [exam]="$ctrl.exam"
         ></exam-participant-selector>
 
         <!-- Exam pre-participants -->
@@ -248,12 +248,12 @@
             </div>
         </div>
         <!-- Autoevaluation -->
-        <div class="bottom-padding-2" ng-show="$ctrl.canBeAutoEvaluated()">
+        <div class="bottom-padding-2" ng-if="$ctrl.canBeAutoEvaluated()">
             <auto-evaluation
-                exam="$ctrl.exam"
-                on-disabled="$ctrl.autoEvaluationDisabled()"
-                on-enabled="$ctrl.autoEvaluationEnabled()"
-                on-update="$ctrl.autoEvaluationConfigChanged(config)"
+                [exam]="$ctrl.exam"
+                (on-disabled)="$ctrl.autoEvaluationDisabled()"
+                (on-enabled)="$ctrl.autoEvaluationEnabled()"
+                (on-update)="$ctrl.autoEvaluationConfigChanged(config)"
             >
             </auto-evaluation>
         </div>

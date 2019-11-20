@@ -12,89 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
+import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
-import { CollaborativeExamService } from './collaborativeExam.service';
+
+import { SessionService, User } from '../../session/session.service';
 import { CollaborativeExam } from '../exam.model';
-import { User, SessionService } from '../../session/session.service';
+import { CollaborativeExamService } from './collaborativeExam.service';
 
-export const CollaborativeExamListingComponent: angular.IComponentOptions = {
-    template: `
-        <div id="sitnet-header" class="header">
-            <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{'sitnet_collaborative_exams' | translate}}</span>
-            </div>
-        </div>
-        <div id="dashboard">
-            <!-- toolbar -->
-            <div class="top-row" ng-if="$ctrl.user.isAdmin">
-                <div class="col-md-12">
-                    <button class=" pull-right btn btn-info" ng-click="$ctrl.createExam()">
-                        {{'sitnet_toolbar_new_exam' | translate}}
-                    </a>
-                </div>
-            </div>
-            <div class="top-row">
-                <div class="col-md-12">
-                    <table class="table table-striped table-condensed exams-table">
-                        <thead>
-                        <tr>
-                            <th sort by="name" text="sitnet_exam_name" predicate="$ctrl.predicate"
-                                reverse="$ctrl.reverse"></th>
-                            <th sort by="ownerAggregate" text="sitnet_teachers"
-                                predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="exam in $ctrl.exams | orderBy:$ctrl.predicate:$ctrl.reverse">
-                            <td>
-                                <a class="exams-info-title bold-button" href="/exams/collaborative/{{exam.id}}/1">
-                                    <span ng-if="exam.name">{{exam.name}}</span>
-                                    <span ng-if="!exam.name" class="text-danger">
-                                        {{'sitnet_no_name' | translate | uppercase }}
-                                    </span>
-                                </a>
-                            </td>
-                            <td>
-                                <span ng-repeat="o in exam.examOwners">{{ o.email }}&nbsp;</span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        `,
-    controller: class CollaborativeExamListingController implements angular.IComponentController {
-        exams: CollaborativeExam[];
-        user: User;
+@Component({
+    selector: 'collaborative-exam-listing',
+    template: require('./collaborativeExamListing.component.html'),
+})
+export class CollaborativeExamListingComponent implements OnInit {
+    exams: CollaborativeExam[];
+    user: User;
 
-        constructor(
-            private $location: angular.ILocationService,
-            private $translate: angular.translate.ITranslateService,
-            private Session: SessionService,
-            private CollaborativeExam: CollaborativeExamService,
-        ) {
-            'ngInject';
-        }
+    constructor(
+        private state: StateService,
+        private translate: TranslateService,
+        private Session: SessionService,
+        private CollaborativeExam: CollaborativeExamService,
+    ) {}
 
-        $onInit() {
-            this.user = this.Session.getUser();
-            this.CollaborativeExam.listExams().subscribe(
-                (exams: CollaborativeExam[]) => (this.exams = exams),
-                err => toast.error(err.data),
-            );
-        }
+    ngOnInit() {
+        this.user = this.Session.getUser();
+        this.CollaborativeExam.listExams().subscribe(
+            (exams: CollaborativeExam[]) => (this.exams = exams),
+            err => toast.error(err.data),
+        );
+    }
 
-        createExam() {
-            this.CollaborativeExam.createExam().subscribe(
-                (exam: CollaborativeExam) => {
-                    toast.info(this.$translate.instant('sitnet_exam_created'));
-                    this.$location.path(`/exams/collaborative/${exam.id}/1`);
-                },
-                err => toast.error(err.data),
-            );
-        }
-    },
-};
+    createExam() {
+        this.CollaborativeExam.createExam().subscribe(
+            (exam: CollaborativeExam) => {
+                toast.info(this.translate.instant('sitnet_exam_created'));
+                this.state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
+            },
+            err => toast.error(err.data),
+        );
+    }
+}

@@ -14,6 +14,7 @@
  */
 import './administrative';
 import './assets/styles/main.scss';
+import './exam/editor';
 import './exam/printout';
 import 'angular-animate';
 import 'angular-dialog-service';
@@ -63,6 +64,7 @@ export const ajsApp = angularJS
         EnrolmentModule,
         DashboardModule,
         CollaborativeExamModule,
+        'app.exam.editor',
         'app.enrolment',
         'app.maturity',
         'app.administrative',

@@ -1,11 +1,11 @@
 <div class="col-md-12 padl0 margin-20">
     <div class="col-md-3 exam-basic-title">
-        {{'sitnet_exam_owners' | translate}}
+        {{ 'sitnet_exam_owners' | translate }}
         <sup>
             <img
-                popover-placement="right"
-                popover-trigger="'mouseenter'"
-                uib-popover="{{'sitnet_exam_owner_description' | translate}}"
+                ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
+                placement="right"
+                trigger="mouseenter"
                 src="Images/icon_tooltip.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
@@ -17,16 +17,16 @@
             <input
                 type="email"
                 name="email"
-                placeholder="{{'sitnet_write_exam_owner_email' | translate}}"
+                placeholder="{{ 'sitnet_write_exam_owner_email' | translate }}"
                 class="form-control wdth-30 make-inline"
-                ng-model="$ctrl.newOwner.email"
+                [(ngModel)]="newOwner.email"
             />
             <button
-                ng-disabled="!myForm.email.$valid || !$ctrl.newOwner.email || !$ctrl.user.isAdmin"
-                ng-click="$ctrl.addOwner()"
+                [disabled]="!myForm.email.valid || !newOwner.email || !user.isAdmin"
+                (click)="addOwner()"
                 class="btn btn-primary green border-green"
             >
-                {{'sitnet_add' | translate}}
+                {{ 'sitnet_add' | translate }}
             </button>
         </form>
     </div>
@@ -36,16 +36,16 @@
         <div class="col-md-9">
             <ul class="list-inline mart10">
                 <!-- Owners for the exam -->
-                <li class="marl10" ng-repeat="owner in $ctrl.exam.examOwners">
+                <li class="marl10" *ngFor="let owner of exam.examOwners">
                     {{ owner.email }}
                     <button
                         class="reviewer-remove"
-                        ng-disabled="!$ctrl.user.isAdmin"
-                        ng-click="$ctrl.removeOwner(owner.id)"
-                        title="{{'sitnet_remove' | translate}}"
+                        [disabled]="!user.isAdmin"
+                        (click)="removeOwner(owner.id)"
+                        title="{{ 'sitnet_remove' | translate }}"
                     >
                         <img
-                            ng-hide="$ctrl.exam.state === 'PUBLISHED'"
+                            [hidden]="exam.state === 'PUBLISHED'"
                             src="Images/icon_remove.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='Images/icon_remove.png'"

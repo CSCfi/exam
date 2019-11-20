@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
 
 import { CollaborativeExamService } from './collaborativeExam.service';
@@ -19,5 +20,5 @@ import { CollaborativeExamListingComponent } from './collaborativeExamListing.co
 
 export default angular
     .module('app.exam.collaborative', [])
-    .service('CollaborativeExam', CollaborativeExamService)
-    .component('collaborativeExamListing', CollaborativeExamListingComponent).name;
+    .service('CollaborativeExam', downgradeInjectable(CollaborativeExamService))
+    .directive('collaborativeExamListing', downgradeComponent({ component: CollaborativeExamListingComponent })).name;

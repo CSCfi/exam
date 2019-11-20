@@ -127,7 +127,7 @@ export class EnrolmentService {
             }),
         );
 
-    enrollStudent = (exam: Exam, student: User): Observable<ExamEnrolment> => {
+    enrollStudent = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)

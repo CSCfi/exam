@@ -12,52 +12,48 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
 import * as toast from 'toastr';
+
 import { SessionService, User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
-export const CollaborativeExamOwnerSelectorComponent: angular.IComponentOptions = {
-    template: require('./collaborativeExamOwnerSelector.template.html'),
-    bindings: {
-        exam: '<',
-    },
-    controller: class CollaborativeExamOwnerSelectorController implements angular.IComponentController {
-        exam: Exam;
-        user: User;
-        newOwner: { email: string | null };
+@Component({
+    selector: 'collaborative-exam-owner-selector',
+    template: require('./collaborativeExamOwnerSelector.component.html'),
+})
+export class CollaborativeExamOwnerSelectorComponent implements OnInit {
+    @Input() exam: Exam;
 
-        constructor(private $http: angular.IHttpService, private Session: SessionService) {
-            'ngInject';
+    user: User;
+    newOwner: { email: string | null };
 
-            this.newOwner = { email: null };
+    constructor(private http: HttpClient, private Session: SessionService) {}
+
+    ngOnInit() {
+        this.user = this.Session.getUser();
+    }
+
+    addOwner = () => {
+        const exists = this.exam.examOwners.some(o => o.email === this.newOwner.email);
+        if (!exists) {
+            this.http.post<User>(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
+                user => {
+                    this.exam.examOwners.push(user);
+                    delete this.newOwner.email;
+                },
+                resp => toast.error(resp.data),
+            );
         }
+    };
 
-        $onInit = () => {
-            this.user = this.Session.getUser();
-        };
-
-        addOwner = () => {
-            const exists = this.exam.examOwners.some(o => o.email === this.newOwner.email);
-            if (!exists) {
-                this.$http
-                    .post(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner)
-                    .then((response: angular.IHttpResponse<User>) => {
-                        this.exam.examOwners.push(response.data);
-                        delete this.newOwner.email;
-                    })
-                    .catch(resp => toast.error(resp.data));
-            }
-        };
-
-        removeOwner = (id: number) => {
-            this.$http
-                .delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`)
-                .then(() => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)))
-                .catch(resp => toast.error(resp.data));
-        };
-    },
-};
-
-angular.module('app.exam.editor').component('collaborativeExamOwnerSelector', CollaborativeExamOwnerSelectorComponent);
+    removeOwner = (id: number) => {
+        this.http
+            .delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`)
+            .subscribe(
+                () => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)),
+                resp => toast.error(resp.data),
+            );
+    };
+}

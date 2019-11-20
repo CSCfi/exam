@@ -1,0 +1,74 @@
+<div id="sitnet-dialog">
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <h1 class="student-enroll-title">
+                <i class="fa fa-book marr10"></i>
+                <span *ngIf="!config">{{ 'sitnet_add_examination_event' | translate }}</span>
+                <span *ngIf="config">{{ 'sitnet_update_examination_event' | translate }}</span>
+            </h1>
+        </div>
+        <form class="modal-body" name="eventForm">
+            <div class="row" *ngIf="hasEnrolments">
+                <div class="col-md-12 text text-danger">
+                    {{ 'sitnet_enrolments_exist_for_examination_event' | translate }}
+                </div>
+            </div>
+            <div id="datetimepicker">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="dtpicker">{{ 'sitnet_begin' | translate }}:</label>
+                        <date-time-picker
+                            [disabled]="hasEnrolments"
+                            id="dtpicker"
+                            [hourStep]="1"
+                            [minuteStep]="15"
+                            [initialTime]="start"
+                            (onUpdate)="onStartDateChange($event)"
+                        >
+                        </date-time-picker>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="description">{{ 'sitnet_instructions' | translate }}:</label>
+                    <textarea id="description" class="form-control" required [(ngModel)]="$ctrl.description"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="password">{{ 'sitnet_settings_password' | translate }}:</label>
+                    <div id="password" class="input-group wdth-30">
+                        <input
+                            type="{{ pwdInputType }}"
+                            name="password"
+                            class="form-control"
+                            [(ngModel)]="password"
+                            (disabled)="(hasEnrolments)"
+                            required
+                        />
+                        <span class="input-group-addon">
+                            <span
+                                [ngClass]="pwdInputType === 'text' ? 'fa fa-lock' : 'fa fa-unlock'"
+                                (click)="togglePasswordInputType()"
+                            >
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" [disabled]="!eventForm.$valid" (click)="ok()">
+                    {{ 'sitnet_button_accept' | translate }}
+                </button>
+            </div>
+            <div class="student-message-dialog-button-cancel">
+                <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
+                    {{ 'sitnet_button_decline' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
