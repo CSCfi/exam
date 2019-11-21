@@ -123,7 +123,7 @@
                         <span ng-if="question.type === 'ClozeTestQuestion'"
                             >{{ 'sitnet_toolbar_cloze_test_question' | translate }}
                         </span>
-                        <span ng-id="question.type === 'ClaimChoiceQuestion'">
+                        <span ng-if="question.type === 'ClaimChoiceQuestion'">
                             {{'sitnet_toolbar_claim_choice_question' | translate}}
                         </span>
                     </td>
