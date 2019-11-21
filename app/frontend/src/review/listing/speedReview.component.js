@@ -12,21 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
-import moment from 'moment';
-import _ from 'lodash';
-
 import FileSaver from 'file-saver';
+import _ from 'lodash';
+import moment from 'moment';
+import toast from 'toastr';
+
 
 angular.module('app.review')
     .component('speedReview', {
         template: require('./speedReview.template.html'),
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'ReviewList', 'Files', '$uibModal',
+            'ReviewList', 'Files', '$uibModal', '$location',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                Exam, ReviewList, Files, $modal) {
+                Exam, ReviewList, Files, $modal, $location) {
 
                 const vm = this;
 
@@ -171,6 +170,9 @@ angular.module('app.review')
                         });
                         $q.all(promises).then(function () {
                             toast.info($translate.instant('sitnet_saved'));
+                            if (this.examReviews.length === 0) {
+                                $location.path(`/exams/${$routeParams.id}/4`)
+                            }
                         });
                     });
                 };
