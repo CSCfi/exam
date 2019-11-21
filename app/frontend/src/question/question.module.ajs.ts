@@ -15,14 +15,16 @@
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
 
+import { QuestionComponent } from './basequestion/question.component';
 import { LibraryService } from './library/library.service';
+import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
-import { QuestionComponent } from './basequestion/question.component';
 
 angular
     .module('app.question', [])
     .directive('librarySearch', downgradeComponent({ component: LibrarySearchComponent }))
+    .directive('libraryResults', downgradeComponent({ component: LibraryResultsComponent }))
     .directive('question', downgradeComponent({ component: QuestionComponent }))
     .service('Question', downgradeInjectable(QuestionService))
     .service('Library', downgradeInjectable(LibraryService));

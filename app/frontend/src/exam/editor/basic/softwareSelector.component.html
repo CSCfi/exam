@@ -1,0 +1,41 @@
+<div class="col-md-12 margin-20">
+    <div class="review-list-title">{{ 'sitnet_exam_requirements' | translate }}</div>
+</div>
+
+<div [hidden]="$ctrl.exam.executionType.type === 'MATURITY'" class="row col-md-12 margin-20">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_machine_softwares' | translate }}
+        <sup
+            ><img
+                ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
+                placement="right"
+                trigger="mouseenter"
+                src="Images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+        /></sup>
+    </div>
+    <div class="col-md-9">
+        <span class="dropdown" ngbDropdown>
+            <button
+                ngbDropdownToggle
+                class="btn btn-default dropdown-toggle"
+                type="button"
+                id="dropDownMenu1"
+                aria-expanded="true"
+            >
+                {{ selectedSoftware() }}&nbsp;<span class="caret"></span>
+            </button>
+            <ul ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
+                <li
+                    *ngFor="let sw of software"
+                    role="presentation"
+                    [ngClass]="isSelected(sw) ? 'active' : ''"
+                    (click)="updateExamSoftware(sw)"
+                >
+                    <a ngbDropdownItem role="menuitem" class="pointer" title="{{ sw.name }}">{{ sw.name }}</a>
+                </li>
+            </ul>
+        </span>
+    </div>
+</div>

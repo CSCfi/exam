@@ -13,18 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { QuestionComponent } from './basequestion/question.component';
 import { QuestionBodyComponent } from './basequestion/questionBody.component.upgrade';
 import { LibraryService } from './library/library.service';
+import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
 
 @NgModule({
-    imports: [UtilityModule],
-    declarations: [LibrarySearchComponent, QuestionComponent, QuestionBodyComponent],
-    entryComponents: [LibrarySearchComponent, QuestionComponent],
+    imports: [UtilityModule, NgbModule, OrderModule],
+    declarations: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent, QuestionBodyComponent],
+    entryComponents: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}

@@ -38,7 +38,7 @@ import { UIRouterModule } from '@uirouter/angular';
         UtilityModule,
     ],
     declarations: [BookingCalendarComponent, CalendarComponent],
-    entryComponents: [CalendarComponent, BookingCalendarComponent],
+    entryComponents: [CalendarComponent],
     providers: [CalendarService],
 })
 export class CalendarModule {}

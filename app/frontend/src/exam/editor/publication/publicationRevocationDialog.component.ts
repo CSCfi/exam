@@ -13,23 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import angular from 'angular';
+import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-angular.module('app.exam.editor').component('publicationRevokeDialog', {
-    template: require('./publicationRevokeDialog.template.html'),
-    bindings: {
-        resolve: '<',
-        close: '&',
-        dismiss: '&',
-    },
-    controller: function() {
-        const vm = this;
-        vm.ok = function() {
-            vm.close();
-        };
-
-        vm.cancel = function() {
-            vm.dismiss();
-        };
-    },
-});
+@Component({
+    selector: 'publication-revoke-dialog',
+    template: require('./publicationRevocationDialog.component.html'),
+})
+export class PublicationRevocationDialogComponent {
+    constructor(public activeModal: NgbActiveModal) {}
+}

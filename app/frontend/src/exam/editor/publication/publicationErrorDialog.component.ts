@@ -13,24 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import angular from 'angular';
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-angular.module('app.exam.editor').component('publicationErrorDialog', {
-    template: require('./publicationErrorDialog.template.html'),
-    bindings: {
-        resolve: '<',
-        close: '&',
-        dismiss: '&',
-    },
-    controller: function() {
-        const vm = this;
+@Component({
+    selector: 'publication-error-dialog',
+    template: require('./publicationErrorDialog.component.html'),
+})
+export class PublicationErrorDialogComponent {
+    @Input() errors: string[];
 
-        vm.$onInit = function() {
-            vm.errors = vm.resolve.errors;
-        };
-
-        vm.ok = function() {
-            vm.close();
-        };
-    },
-});
+    constructor(public activeModal: NgbActiveModal) {}
+}

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
@@ -25,7 +25,7 @@ import { ExaminationEventConfiguration } from '../../exam.model';
     template: require('./examinationEventDialog.component.html'),
 })
 export class ExaminationEventDialogComponent implements OnInit {
-    config?: ExaminationEventConfiguration;
+    @Input() config?: ExaminationEventConfiguration;
     start: Date;
     description: string;
     password: string;

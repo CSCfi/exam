@@ -1,15 +1,15 @@
 <div id="sitnet-dialog">
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
-            <div class="student-enroll-title">{{'sitnet_please_check_following_infos' | translate}}</div>
+            <div class="student-enroll-title">{{ 'sitnet_please_check_following_infos' | translate }}</div>
         </div>
         <div class="modal-body">
-            <p ng-repeat="error in $ctrl.errors">{{ error | translate }}</p>
+            <p *ngFor="let error of activeModal.errors">{{ error | translate }}</p>
         </div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
-                    {{'sitnet_button_ok' | translate}}
+                <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    {{ 'sitnet_button_ok' | translate }}
                 </button>
             </div>
         </div>

@@ -17,31 +17,10 @@ require('./editor.module.ts');
 require('./examTabs.component.ts');
 
 require('./basic/basicExamInfo.component.ts');
-require('./basic/examCourse.component.ts');
-require('./basic/examInspectorSelector.component');
-require('./basic/examOwnerSelector.component');
-
 require('./basic/softwareSelector.component');
-
-require('./common/coursePicker.service.ts');
-require('./common/coursePicker.component.ts');
-require('./common/languageSelector.component.ts');
-
-require('./creation/courseSelection.component.ts');
-require('./creation/newExam.component.ts');
-
-require('./events/examinationEventDialog.component.ts');
-
-require('./publication/autoEvaluation.component');
-require('./publication/examPreParticipantSelector.component');
 require('./publication/examPublication.component.ts');
-require('./publication/publicationErrorDialog.component');
-require('./publication/publicationDialog.component');
-require('./publication/publicationRevokeDialog.component');
-require('./publication/collaborativeExamOwnerSelector.component.ts');
 
 require('./sections/section.component.ts');
 require('./sections/sectionQuestion.component.ts');
-require('./sections/sectionsList.component.ts');
 require('./sections/examMaterial.component.ts');
 require('./sections/examMaterialSelector.component.ts');

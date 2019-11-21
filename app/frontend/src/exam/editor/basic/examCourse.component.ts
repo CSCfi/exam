@@ -12,42 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-export const ExamCourseComponent: angular.IComponentOptions = {
-    template: require('./examCourse.template.html'),
-    bindings: {
-        exam: '<',
-        onUpdate: '&',
-    },
-    controller: class ExamCourseController implements angular.IComponentController {
-        exam: Exam;
-        onUpdate: (_: { course: Course }) => unknown;
+@Component({
+    selector: 'exam-course',
+    template: require('./examCourse.component.html'),
+})
+export class ExamCourseComponent {
+    @Input() exam: Exam;
+    @Output() onUpdate = new EventEmitter<Course>();
 
-        constructor(
-            private $translate: angular.translate.ITranslateService,
-            private $http: angular.IHttpService,
-            private Exam: ExamService,
-        ) {
-            'ngInject';
-        }
+    constructor(private http: HttpClient, private translate: TranslateService, private Exam: ExamService) {}
 
-        displayGradeScale = () =>
-            this.exam.course && this.exam.course.gradeScale
-                ? this.Exam.getScaleDisplayName(this.exam.course.gradeScale)
-                : null;
+    displayGradeScale = () =>
+        this.exam.course && this.exam.course.gradeScale
+            ? this.Exam.getScaleDisplayName(this.exam.course.gradeScale)
+            : null;
 
-        setCourse = (course: Course) =>
-            this.$http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).then(() => {
-                toast.success(this.$translate.instant('sitnet_exam_associated_with_course'));
-                this.exam.course = course;
-                this.onUpdate({ course: course });
-            });
-    },
-};
-
-angular.module('app.exam.editor').component('examCourse', ExamCourseComponent);
+    setCourse = (course: Course) =>
+        this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
+            toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
+            this.exam.course = course;
+            this.onUpdate.emit(course);
+        });
+}

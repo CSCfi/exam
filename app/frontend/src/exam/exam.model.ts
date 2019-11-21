@@ -215,6 +215,16 @@ export interface ExaminationEventConfiguration {
     examEnrolments: ExamEnrolment[];
 }
 
+export interface ExamInspection {
+    user: User;
+    ready: boolean;
+}
+
+export interface Software {
+    id: number;
+    name: string;
+}
+
 export interface ExamImpl {
     id: number;
     attachment: Attachment | null;
@@ -258,6 +268,7 @@ export interface ExamImpl {
     credit: number;
     creditType: { type: string; id: number };
     customCredit: number;
+    softwares: Software[];
     maxScore: number;
     totalScore: number;
     approvedAnswerCount: number;
@@ -266,7 +277,7 @@ export interface ExamImpl {
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection?: LanguageInspection;
-    examInspections: { user: User; ready: boolean }[];
+    examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
 }
 

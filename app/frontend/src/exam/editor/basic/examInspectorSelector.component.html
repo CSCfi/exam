@@ -1,0 +1,68 @@
+<div class="row col-md-12 margin-20">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_exam_instructor' | translate }}
+        <sup
+            ><img
+                ngbPopover="{{ 'sitnet_exam_instructor_description' | translate }}"
+                placement="right"
+                trigger="mouseenter"
+                src="Images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+        /></sup>
+    </div>
+    <div class="col-md-9">
+        <input
+            type="text"
+            class="form-control wdth-30 make-inline"
+            [(ngModel)]="newInspector.name"
+            [ngbTypeahead]="listInspectors$"
+            (selectItem)="setInspector($event)"
+            [inputFormatter]="nameFormatter"
+            [resultFormatter]="nameFormatter"
+            placeholder="{{ 'sitnet_name' | translate }}"
+        />
+        <label>
+            <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
+            <span>{{ 'sitnet_write_message' | translate }}</span>
+        </label>
+    </div>
+</div>
+<div class="row col-md-12">
+    <div class="col-md-3 exam-basic-title"></div>
+    <div class="col-md-9">
+        <textarea
+            class="form-control wdth-30 make-inline mart10"
+            placeholder="{{ 'sitnet_message' | translate }}"
+            [(ngModel)]="newInspector.comment"
+            [disabled]="!newInspector.sendMessage"
+        >
+        </textarea>
+        <span
+            ><button (click)="addInspector()" class="btn btn-primary green border-green vbottom marb5">
+                {{ 'sitnet_add' | translate }}
+            </button></span
+        >
+    </div>
+    <div class="row col-md-12">
+        <div class="col-md-3 exam-basic-title"></div>
+        <div class="col-md-9">
+            <ul class="list-inline mart10">
+                <li *ngFor="let inspection of examInspections">
+                    {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
+                    <button
+                        class="reviewer-remove"
+                        (click)="removeInspector(inspection.id)"
+                        title="{{ 'sitnet_remove' | translate }}"
+                    >
+                        <img
+                            src="Images/icon_remove.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='Images/icon_remove.png';"
+                        />
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

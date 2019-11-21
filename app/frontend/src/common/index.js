@@ -14,5 +14,4 @@
  */
 
 require('./common.module.ajs.ts');
-require('./settingsResource');
 require('./userResource');

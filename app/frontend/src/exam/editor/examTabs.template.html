@@ -20,10 +20,10 @@
                 deselect="$ctrl.tabChanged($selectedIndex)"
             >
                 <basic-exam-info
-                    exam="$ctrl.exam"
-                    on-next-tab-selected="$ctrl.switchToQuestions()"
-                    on-update="$ctrl.examUpdated(props)"
-                    collaborative="$ctrl.collaborative"
+                    [exam]="$ctrl.exam"
+                    (on-next-tab-selected)="$ctrl.switchToQuestions($event)"
+                    (on-update)="$ctrl.examUpdated($event)"
+                    [collaborative]="$ctrl.collaborative"
                 >
                 </basic-exam-info>
             </uib-tab>
@@ -49,9 +49,9 @@
                 deselect="$ctrl.tabChanged($selectedIndex)"
             >
                 <exam-publication
-                    exam="$ctrl.exam"
-                    on-previous-tab-selected="$ctrl.switchToQuestions()"
-                    collaborative="$ctrl.collaborative"
+                    [exam]="$ctrl.exam"
+                    (on-previous-tab-selected)="$ctrl.switchToQuestions($event)"
+                    [collaborative]="$ctrl.collaborative"
                 >
                 </exam-publication>
             </uib-tab>

@@ -14,7 +14,8 @@
  */
 import angular from 'angular';
 
-angular.module('app.common').factory('SettingsResource', [
+// TO BE REMOVED SOON
+angular.module('app.facility').factory('SettingsResource', [
     '$resource',
     function($resource) {
         return {
