@@ -13,6 +13,7 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import helpers.RemoteServerHelper;
@@ -63,7 +64,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments")));
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class,
+                ImmutableList.of("/enrolments")));
     }
 
     @AfterClass

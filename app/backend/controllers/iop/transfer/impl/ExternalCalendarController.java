@@ -337,7 +337,7 @@ public class ExternalCalendarController extends CalendarController {
                 .eq("externalRef", ref)
                 .isNull("enrolment")
                 .findOneOrEmpty();
-        if (or.isEmpty()) {
+        if (!or.isPresent()) {
             return CompletableFuture.supplyAsync(() -> notFound(String.format("No reservation with ref %s.", ref)));
         }
 

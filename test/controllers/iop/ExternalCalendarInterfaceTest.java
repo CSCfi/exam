@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletOutputStream;
@@ -20,6 +18,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -155,15 +155,15 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         // Check this shit
         String baseUrl2 = String.format("/api/organisations/test-org/facilities/%s", ROOM_REF);
         server = RemoteServerHelper.createAndStartServer(31247,
-                Map.of(
-                        SlotServlet.class, List.of(String.format("%s/slots", baseUrl)),
-                        ReservationServlet.class, List.of(String.format("%s/reservations", baseUrl)),
-                        ReservationRemovalServlet.class, List.of(
+                ImmutableMap.of(
+                        SlotServlet.class, ImmutableList.of(String.format("%s/slots", baseUrl)),
+                        ReservationServlet.class, ImmutableList.of(String.format("%s/reservations", baseUrl)),
+                        ReservationRemovalServlet.class, ImmutableList.of(
                                 String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
                                 String.format("%s/reservations/%s/force", baseUrl2, RESERVATION_REF)
                         ),
-                        EnrolmentServlet.class, List.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
-                        AttachmentServlet.class, List.of("/api/attachments/*")
+                        EnrolmentServlet.class, ImmutableList.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
+                        AttachmentServlet.class, ImmutableList.of("/api/attachments/*")
                 )
         );
     }
