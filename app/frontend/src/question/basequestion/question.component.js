@@ -12,48 +12,50 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
+
 angular.module('app.question')
     .component('question', {
-        template:
-            '<div id="dashboard">\n' +
-            '    <div class="top-row">\n' +
-            '        <div class="col-md-12">\n' +
-            '            <div class="student-details-title-wrap">\n' +
-            '                <div class="student-enroll-title-wrap">\n' +
-            '                    <div ng-if="!$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_questions_edit\' | translate}}</div>\n' +
-            '                    <div ng-if="$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_toolbar_new_question\' | translate}}</div>\n' +
-            '                </div>\n' +
-            '            </div>\n' +
-            '        </div>\n' +
-            '    </div>\n' +
-            '    <div class="marl50 marr50">\n' +
-            '        <!-- Question body //-->\n' +
-            '        <div class="col-md-12 question-border padl40 padr40">\n' +
-            '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
-            '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
-            '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"' +
-            '                       exam-id="$ctrl.examId" section-question="$ctrl.sectionQuestion"></question-body>\n' +
-            '            </form>\n' +
-            '            <!-- buttons -->\n' +
-            '            <div class="mart20">\n' +
-            '                <div class="question-cancel">\n' +
-            '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type || $ctrl.hasNoCorrectOption()" ng-click="$ctrl.saveQuestion()"\n' +
-            '                            type="submit" class="btn btn-success bigbutton">{{\'sitnet_save\' | translate}}\n' +
-            '                    </button>\n' +
-            '                </div>\n' +
-            '                <div class="question-cancel marr20">\n' +
-            '                    <button ng-click="$ctrl.cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">\n' +
-            '                        {{\'sitnet_button_cancel\' | translate}}\n' +
-            '                    </button>\n' +
-            '                </div>\n' +
-            '            </div>\n' +
-            '        </div>\n' +
-            '    </div>\n' +
-            '</div>\n',
+        template: `
+            <div id="dashboard">
+                <div class="top-row">
+                    <div class="col-md-12">
+                        <div class="student-details-title-wrap">
+                            <div class="student-enroll-title-wrap">
+                                <div ng-if="!$ctrl.newQuestion" class="student-enroll-title">{{'sitnet_questions_edit' | translate}}</div>
+                                <div ng-if="$ctrl.newQuestion" class="student-enroll-title">{{'sitnet_toolbar_new_question' | translate}}</div>
+                            </div>
+                        </div>
+                   </div>
+                </div>
+                <div class="marl50 marr50">
+                    <!-- Question body //-->
+                    <div class="col-md-12 question-border padl40 padr40">
+                        <form role="form" class="form-horizontal" name="questionForm" novalidate>
+                            <question-body ng-if="$ctrl.question" question="$ctrl.question"
+                                   current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"
+                                   exam-id="$ctrl.examId" section-question="$ctrl.sectionQuestion" 
+                                   collaborative="$ctrl.collaborative">
+                            </question-body>
+                        </form>
+                        <!-- buttons -->
+                        <div class="mart20">
+                            <div class="question-cancel">
+                                <button ng-disabled="!questionForm.$valid || !$ctrl.question.type || $ctrl.hasNoCorrectOption()" ng-click="$ctrl.saveQuestion()"
+                                        type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
+                                </button>
+                            </div>
+                            <div class="question-cancel marr20">
+                                <button ng-click="$ctrl.cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">
+                                    {{'sitnet_button_cancel' | translate}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`,
         bindings: {
             newQuestion: '<',
             questionId: '<',
