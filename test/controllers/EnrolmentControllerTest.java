@@ -63,7 +63,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, "/enrolments"));
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments")));
     }
 
     @AfterClass
