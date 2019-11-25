@@ -895,7 +895,7 @@
   "sitnet_exam_machine_softwares": "Software needed",
   "sitnet_openinghours_exception_datetimes": "Opening hours and exceptions",
   "sitnet_error_ip_address_exists_for_room": "IP address already assigned",
-  "sitnet_exam_materials": "Select exam material sections",
+  "sitnet_exam_materials": "Choose optional exam sections",
   "sitnet_exam_material_description": "Exam questions based on this exam material/content",
   "sitnet_modify_materials": "Manage exam materials/contents",
   "sitnet_optional_section": "Optional section",
