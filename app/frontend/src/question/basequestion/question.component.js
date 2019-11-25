@@ -34,7 +34,8 @@ angular.module('app.question').component('question', {
         '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
         '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
         '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"' +
-        '                       exam-id="$ctrl.examId" section-question="$ctrl.sectionQuestion"></question-body>\n' +
+        '                       exam-id="$ctrl.examId" section-question="$ctrl.sectionQuestion"' +
+        '                       collaborative="$ctrl.collaborative"></question-body>\n' +
         '            </form>\n' +
         '            <!-- buttons -->\n' +
         '            <div class="mart20">\n' +
