@@ -23,6 +23,7 @@ angular.module('app.question').component('questionBody', {
         lotteryOn: '<',
         examId: '<',
         sectionQuestion: '<',
+        collaborative: '<',
     },
     controller: [
         '$scope',
