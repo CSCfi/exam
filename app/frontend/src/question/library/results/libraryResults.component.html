@@ -69,7 +69,7 @@
                         >
                         </table-sort>
                     </th>
-                    <th>{{'sitnet_categories' | translate}}</th>
+                    <th>{{ 'sitnet_categories' | translate }}</th>
                     <th>
                         <table-sort
                             *ngIf="user.isAdmin"
@@ -82,15 +82,17 @@
                         >
                         </table-sort>
                     </th>
-                    <th>{{'sitnet_remove' | translate}}</th>
-                    <th>{{'sitnet_copy' | translate}}</th>
+                    <th>{{ 'sitnet_remove' | translate }}</th>
+                    <th>{{ 'sitnet_copy' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr
-                    *ngFor="let question of questions 
-                        | orderBy: questionsPredicate:reverse:'case-insensitive'
-                        | slice: currentPage * pageSize:currentPage * pageSize + pageSize"
+                    *ngFor="
+                        let question of questions
+                            | orderBy: questionsPredicate:reverse:'case-insensitive'
+                            | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                    "
                 >
                     <td class="question-table-checkbox">
                         <input
@@ -98,22 +100,24 @@
                             [(ngModel)]="question.selected"
                             (change)="questionSelected()"
                             class="questionToUpdate"
-                            value="{{question.id}}"
+                            value="{{ question.id }}"
                         />
                     </td>
                     <td class="question-table-name">
                         <span *ngIf="question.question" [MathJax]="question.question | truncate: 360"> </span>
                         <span *ngIf="!question.question" class="text-danger">
-                            {{'sitnet_no_name' | translate}}
+                            {{ 'sitnet_no_name' | translate }}
                         </span>
                         <div>
                             <span>
-                                <a *ngIf="!disableLinks" uiSref="question({id: {{question.id}} })">{{question.id}}</a>
-                                <span *ngIf="disableLinks">#{{question.id}}</span>
+                                <a *ngIf="!disableLinks" uiSref="question({id: {{ question.id }} })">{{
+                                    question.id
+                                }}</a>
+                                <span *ngIf="disableLinks">#{{ question.id }}</span>
                                 <i
                                     *ngIf="question.questionOwners.length > 1"
                                     class="fa fa-group text-primary"
-                                    ngbPopover="{{'sitnet_question_owners' | translate}}: {{printOwners(question)}}"
+                                    ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
                                     placement="right"
                                     trigger="mouseenter"
                                 ></i>
@@ -122,25 +126,25 @@
                     </td>
                     <td>
                         <span *ngIf="question.modified" class="timestamp">
-                            {{question.modified | date:'dd.MM.yyyy HH:mm'}}
+                            {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
                             <br />
-                            <small>{{question.modifier.firstName}} {{ question.modifier.lastName}}</small>
+                            <small>{{ question.modifier.firstName }} {{ question.modifier.lastName }}</small>
                         </span>
                     </td>
-                    <td>{{ question.displayedMaxScore | translate}}</td>
+                    <td>{{ question.displayedMaxScore | translate }}</td>
                     <td>
-                        <span *ngIf="question.type === 'MultipleChoiceQuestion'"
-                            >{{ 'sitnet_question_mc' | translate }}</span
-                        >
+                        <span *ngIf="question.type === 'MultipleChoiceQuestion'">{{
+                            'sitnet_question_mc' | translate
+                        }}</span>
                         <span *ngIf="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
                         <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
-                            >{{ 'sitnet_question_weighted_mc' | translate}}
+                            >{{ 'sitnet_question_weighted_mc' | translate }}
                         </span>
                         <span *ngIf="question.type === 'ClozeTestQuestion'"
                             >{{ 'sitnet_toolbar_cloze_test_question' | translate }}
                         </span>
                         <span *ngIf="question.type === 'ClaimChoiceQuestion'">
-                            {{'sitnet_toolbar_claim_choice_question' | translate}}
+                            {{ 'sitnet_toolbar_claim_choice_question' | translate }}
                         </span>
                     </td>
                     <td class="question-table-name">
@@ -152,8 +156,8 @@
                     <td>{{ printTags(question) }}</td>
                     <td *ngIf="user.isAdmin" class="question-table-name">
                         <span ng-repeat="owner in question.questionOwners">
-                            <a href="mailto:{{owner.email}}">
-                                {{printOwner(owner, true)}}{{$last ? "" : ", "}}
+                            <a href="mailto:{{ owner.email }}">
+                                {{ printOwner(owner, true) }}{{ $last ? '' : ', ' }}
                             </a>
                         </span>
                     </td>
@@ -163,7 +167,7 @@
                                 class="fa fa-trash-o fa-fw"
                                 placement="left"
                                 trigger="mouseenter"
-                                ngbPopover="{{'sitnet_exam_remove' | translate}}"
+                                ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
                             ></i>
                         </a>
                     </td>
@@ -173,7 +177,7 @@
                                 class="fa fa-clone fa-fw"
                                 placement="left"
                                 trigger="mouseenter"
-                                ngbPopover="{{'sitnet_copy' | translate}}"
+                                ngbPopover="{{ 'sitnet_copy' | translate }}"
                             ></i>
                         </a>
                     </td>
@@ -184,7 +188,7 @@
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
                 <tr *ngIf="questions.length == 0">
-                    <td colspan="9">{{'sitnet_exam_library_no_results' | translate}}</td>
+                    <td colspan="9">{{ 'sitnet_exam_library_no_results' | translate }}</td>
                 </tr>
             </tbody>
         </table>

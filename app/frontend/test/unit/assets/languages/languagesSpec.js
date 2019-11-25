@@ -14,9 +14,9 @@
  *
  */
 
-const fi = require('../../../../src/assets/languages/locale-fi');
-const en = require('../../../../src/assets/languages/locale-en');
-const sv = require('../../../../src/assets/languages/locale-sv');
+const fi = require('../../../../src/assets/i18n/fi');
+const en = require('../../../../src/assets/i18n/en');
+const sv = require('../../../../src/assets/i18n/sv');
 
 describe('Language files', function() {
     it('should have same keys', function() {
