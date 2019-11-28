@@ -16,7 +16,7 @@ import * as ng from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
 
-import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { Exam, ExamSectionQuestion, Participation, Question } from '../../exam/exam.model';
 import { ReviewQuestion } from '../../review/review.model';
 import { FileService } from '../file/file.service';
 
@@ -49,6 +49,7 @@ export class AttachmentService {
 
     constructor(
         private $resource: ng.resource.IResourceService,
+        private $http: ng.IHttpService,
         private $uibModal: uib.IModalService,
         private dialogs: angular.dialogservice.IDialogService,
         private $translate: ng.translate.ITranslateService,
@@ -203,6 +204,23 @@ export class AttachmentService {
             );
         });
     }
+
+    removeExternalFeedbackAttachment = (id: string, ref: string, participation: Participation) => {
+        const dialog = this.dialogs.confirm(
+            this.$translate.instant('sitnet_confirm'),
+            this.$translate.instant('sitnet_are_you_sure'),
+        );
+        dialog.result.then(() => {
+            this.$http
+                .delete(`/integration/iop/attachment/exam/${id}/${ref}/feedback`)
+                .then((resp: ng.IHttpResponse<{ rev: string }>) => {
+                    toast.info(this.$translate.instant('sitnet_attachment_removed'));
+                    participation._rev = resp.data.rev;
+                    delete participation.exam.examFeedback.attachment;
+                })
+                .catch(err => toast.error(err.data));
+        });
+    };
 
     removeFeedbackAttachment(exam: ExamWithFeedback) {
         const dialog = this.dialogs.confirm(
