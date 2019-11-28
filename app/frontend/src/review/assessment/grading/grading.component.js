@@ -137,7 +137,12 @@ angular.module('app.review').component('rGrading', {
             };
 
             vm.downloadFeedbackAttachment = function() {
-                Attachment.downloadFeedbackAttachment(vm.exam);
+                if (vm.parentCtrl.collaborative) {
+                    const attachment = vm.exam.examFeedback.attachment;
+                    Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                } else {
+                    Attachment.downloadFeedbackAttachment(vm.exam);
+                }
             };
 
             vm.setGrade = function() {

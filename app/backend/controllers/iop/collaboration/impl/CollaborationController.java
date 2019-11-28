@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -47,8 +46,6 @@ public class CollaborationController extends BaseController {
     @Inject
     protected CollaborativeExamLoader examLoader;
 
-    private Random random = new Random();
-
     private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
 
     Optional<URL> parseUrl() {
@@ -63,6 +60,15 @@ public class CollaborationController extends BaseController {
 
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         return examLoader.downloadExam(ce);
+    }
+
+    protected CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
+
+        return examLoader.uploadAssessment(ce, ref, payload);
+    }
+
+    CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef) {
+        return examLoader.downloadAssessment(examRef, assessmentRef);
     }
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {

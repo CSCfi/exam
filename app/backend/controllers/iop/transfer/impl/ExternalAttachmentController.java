@@ -18,12 +18,14 @@ package backend.controllers.iop.transfer.impl;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import play.libs.ws.WSClient;
 import play.mvc.Http;
+import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentInterface;
@@ -81,6 +83,16 @@ public class ExternalAttachmentController extends BaseController implements Exte
             query.eq("creator", user);
         }
         return query.findOneOrEmpty();
+    }
+
+    @Override
+    public CompletionStage<Result> updateExternalAssessment(ExternalExam exam, String assessmentRef, Http.Request request) {
+        return wrapAsPromise(notAcceptable());
+    }
+
+    @Override
+    public CompletionStage<Result> deleteExternalAssessment(ExternalExam exam, String assessmentRef) {
+        return wrapAsPromise(notAcceptable());
     }
 
     @Override
