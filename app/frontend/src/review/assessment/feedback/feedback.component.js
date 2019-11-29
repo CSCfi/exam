@@ -43,23 +43,36 @@ angular.module('app.review').component('rFeedback', {
             };
 
             vm.saveFeedback = function() {
+                return new Promise(resolve => {
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.saveFeedback(
+                            $stateParams.id,
+                            $stateParams.ref,
+                            vm.parentCtrl.participation,
+                        ).then(resolve);
+                    } else {
+                        Assessment.saveFeedback(vm.exam).then(resolve);
+                    }
+                });
+            };
+
+            vm.downloadFeedbackAttachment = function() {
+                const attachment = vm.exam.examFeedback.attachment;
+                vm.parentCtrl.collaborative
+                    ? Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName)
+                    : Attachment.downloadFeedbackAttachment(vm.exam);
+            };
+
+            vm.removeFeedbackAttachment = function() {
                 if (vm.parentCtrl.collaborative) {
-                    CollaborativeAssessment.saveFeedback(
+                    Attachment.removeExternalFeedbackAttachment(
                         $stateParams.id,
                         $stateParams.ref,
                         vm.parentCtrl.participation,
                     );
                 } else {
-                    Assessment.saveFeedback(vm.exam);
+                    Attachment.removeFeedbackAttachment(vm.exam);
                 }
-            };
-
-            vm.downloadFeedbackAttachment = function() {
-                Attachment.downloadFeedbackAttachment(vm.exam);
-            };
-
-            vm.removeFeedbackAttachment = function() {
-                Attachment.removeFeedbackAttachment(vm.exam);
             };
 
             vm.selectFile = function() {
@@ -76,13 +89,15 @@ angular.module('app.review').component('rFeedback', {
                         },
                     })
                     .result.then(function(data) {
-                        Assessment.saveFeedback(vm.exam).then(function() {
-                            Files.upload(
-                                '/app/attachment/exam/' + vm.exam.id + '/feedback',
-                                data.attachmentFile,
-                                { examId: vm.exam.id },
-                                vm.exam.examFeedback,
-                            );
+                        vm.saveFeedback().then(function() {
+                            const url = vm.parentCtrl.collaborative
+                                ? `/integration/iop/attachment/exam/${$stateParams.id}/${$stateParams.ref}/feedback`
+                                : `/app/attachment/exam/${vm.exam.id}/feedback`;
+                            Files.upload(url, data.attachmentFile, { examId: vm.exam.id }, vm.exam.examFeedback, () => {
+                                // kinda hacky, but let's do this mangling for time being
+                                vm.parentCtrl.participation._rev = vm.exam.examFeedback.attachment.rev;
+                                delete vm.exam.examFeedback.attachment.rev;
+                            });
                         });
                     });
             };

@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.enrolment').component('examParticipation', {
@@ -27,7 +26,8 @@ angular.module('app.enrolment').component('examParticipation', {
         'StudentExamRes',
         'Exam',
         'Assessment',
-        function($scope, $translate, StudentExamRes, Exam, Assessment) {
+        'CollaborativeAssessment',
+        function($scope, $translate, StudentExamRes, Exam, Assessment, CollaborativeAssessment) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -48,7 +48,21 @@ angular.module('app.enrolment').component('examParticipation', {
             };
 
             vm.setCommentRead = function(exam) {
-                return Assessment.setCommentRead(exam);
+                if (
+                    vm.collaborative &&
+                    vm.participation.exam.examFeedback &&
+                    !vm.participation.exam.examFeedback.feedbackStatus
+                ) {
+                    CollaborativeAssessment.setCommentRead(
+                        vm.participation.collaborativeExam.id,
+                        vm.participation._id,
+                        vm.participation._rev,
+                    ).then(() => {
+                        vm.participation.exam.examFeedback.feedbackStatus = true;
+                    });
+                } else {
+                    Assessment.setCommentRead(exam);
+                }
             };
 
             const loadReview = function() {
