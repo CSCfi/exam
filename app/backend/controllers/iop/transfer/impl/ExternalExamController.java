@@ -29,9 +29,13 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,13 +53,15 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
-import backend.controllers.SettingsController;
 import backend.controllers.ExaminationController;
+import backend.controllers.SettingsController;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.impl.AutoEvaluationHandler;
+import backend.impl.EmailComposer;
 import backend.impl.NoShowHandler;
 import backend.models.Attachment;
 import backend.models.AutoEvaluationConfig;
@@ -88,6 +94,12 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private ExternalAttachmentLoader externalAttachmentLoader;
+
+    @Inject
+    private ActorSystem actor;
+
+    @Inject
+    private EmailComposer emailComposer;
 
     private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
@@ -172,6 +184,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
             int deadlineDays = Integer.parseInt(settings.getValue());
             DateTime deadline = ee.getFinished().plusDays(deadlineDays);
             ep.setDeadline(deadline);
+            if (clone.isPrivate()) {
+                notifyTeachers(clone);
+            }
             autoEvaluationHandler.autoEvaluate(clone);
         }
         ep.save();
@@ -179,6 +194,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
         // Fetch external attachments to local exam.
         externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
         return wrapAsPromise(created());
+    }
+
+    private void notifyTeachers(Exam exam) {
+        Set<User> recipients = Stream.concat(exam.getParent().getExamOwners().stream(),
+                exam.getExamInspections().stream().map(ExamInspection::getUser))
+                .collect(Collectors.toSet());
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                actor.dispatcher());
     }
 
     private PathProperties getPath() {
