@@ -1174,8 +1174,8 @@
       }
     ],
     "executionType": {
-      "id": 1,
-      "type": "PUBLIC"
+      "id": 2,
+      "type": "PRIVATE"
     },
     "objectVersion": 0,
     "additionalInfo": null,
