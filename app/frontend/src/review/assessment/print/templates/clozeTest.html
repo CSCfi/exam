@@ -29,13 +29,8 @@
     <!-- answer -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
-        <div class="sub-content-row col-md-9">
-            <cloze-test
-                content="$ctrl.sectionQuestion.clozeTestAnswer.question"
-                results="$ctrl.sectionQuestion.clozeTestAnswer.answer"
-                editable="false"
-            >
-            </cloze-test>
+        <div class="sub-content-row col-md-9" id="exam">
+            <div ng-bind-html="$ctrl.sectionQuestion.clozeTestAnswer.question"></div>
         </div>
     </div>
 

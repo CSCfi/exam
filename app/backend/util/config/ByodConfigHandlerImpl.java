@@ -3,6 +3,7 @@ package backend.util.config;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import play.Environment;
+import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -44,6 +46,8 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
     private static final String QUIT_PWD_PLACEHOLDER = "*** quitPwd ***";
     private static final String PASSWORD_ENCRYPTION = "pswd";
 
+    private static final Logger.ALogger logger = Logger.of(ByodConfigHandlerImpl.class);
+
     private FileHandler fileHandler;
     private ConfigReader configReader;
     private Environment env;
@@ -53,6 +57,16 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
         this.fileHandler = fileHandler;
         this.configReader = configReader;
         this.env = env;
+    }
+
+    /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
+    private String getProtocol() {
+        try {
+            URL url = new URL(configReader.getHostName());
+            return url.getProtocol();
+        } catch (IOException  e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getTemplate(String hash) {
@@ -172,15 +186,15 @@ public class ByodConfigHandlerImpl implements ByodConfigHandler {
 
     @Override
     public Optional<Result> checkUserAgent(Http.RequestHeader request, String examConfigKey) {
-        String protocol = request.secure() ? "https://" : "http://";
-        String absoluteUrl = String.format("%s%s%s", protocol, request.host(), request.uri());
-
+        String absoluteUrl = String.format("%s://%s%s", getProtocol(), request.host(), request.uri());
         Optional<String> oc = request.header("X-SafeExamBrowser-ConfigKeyHash");
         if (oc.isEmpty()) {
             return Optional.of(Results.unauthorized("SEB headers missing"));
         } else {
             String eckDigest = DigestUtils.sha256Hex(absoluteUrl + examConfigKey);
             if (!eckDigest.equals(oc.get())) {
+                logger.warn("Config key mismatch for URL {} and exam config key {}. Digest received: {}",
+                        absoluteUrl, examConfigKey, oc.get());
                 return Optional.of(Results.unauthorized("Wrong configuration key digest"));
             }
         }

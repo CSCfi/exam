@@ -261,15 +261,25 @@
   }
 
   .cloze-correct {
-    margin: 0.5em 0 0.5em 0;
-    border-radius: 4px;
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid green;
+    border-radius: 3px;
     background: #ccffcc;
+    min-width: 30px; 
+    display: inline-block; 
+    box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
   }
 
   .cloze-incorrect {
-    margin: 0.5em 0 0.5em 0;
-    border-radius: 4px;
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid red;
+    border-radius: 3px;
     background: #feeeef;
+    min-width:30px; 
+    display: inline-block; 
+    box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
   }
 
   .lottery-item-count {

@@ -344,6 +344,7 @@ PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.c
 PUT           /integration/iop/reviews/:id/:ref/question/:qid/force    backend.controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
 PUT           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String, request: Request)
+POST          /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/info                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
 POST          /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
@@ -362,9 +363,8 @@ POST          /integration/iop/attachment/exam                         backend.c
 DELETE        /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteExamAttachment(id: Long, request: Request)
 GET           /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExamAttachment(id: Long, request: Request)
 
-POST          /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addFeedbackAttachment(id: Long, request: Request)
-DELETE        /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteFeedbackAttachment(id: Long, request: Request)
-GET           /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadFeedbackAttachment(id: Long, request: Request)
+POST          /integration/iop/attachment/exam/:id/:ref/feedback       backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAssessmentAttachment(id: Long, ref: String, request: Request)
+DELETE        /integration/iop/attachment/exam/:id/:ref/feedback       backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteAssessmentAttachment(id: Long, ref: String, request: Request)
 
 POST          /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addStatementAttachment(id: Long, request: Request)
 DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long, request: Request)

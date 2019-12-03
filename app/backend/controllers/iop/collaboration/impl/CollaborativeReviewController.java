@@ -42,6 +42,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.util.StringUtils;
 import play.Logger;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -86,6 +88,9 @@ public class CollaborativeReviewController extends CollaborationController {
     @Inject
     FileHandler fileHandler;
 
+    @Inject
+    MessagesApi messages;
+
     private static final Logger.ALogger logger = Logger.of(CollaborativeReviewController.class);
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
@@ -102,12 +107,13 @@ public class CollaborativeReviewController extends CollaborationController {
         }
     }
 
-    private Result handleSingleAssessmentResponse(Http.Request request, WSResponse response, boolean admin) {
+    private Result handleSingleAssessmentResponse(Http.Request request, WSResponse response, boolean admin, User user) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
         }
         JsonNode examNode = root.get("exam");
+        String blankAnswerText = messages.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
 
         // Manipulate cloze test answers so that they can be conveniently displayed for review
         stream(examNode.get("examSections"))
@@ -120,7 +126,7 @@ public class CollaborativeReviewController extends CollaborationController {
                     }
                     ClozeTestAnswer cta = JsonDeserializer.deserialize(
                             ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
-                    cta.setQuestionWithResults(esq);
+                    cta.setQuestionWithResults(esq, blankAnswerText);
                     ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
                 });
 
@@ -269,7 +275,7 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             WSRequest wsRequest = wsClient.url(url.get().toString());
             final boolean admin = user.hasRole(Role.Name.ADMIN);
-            return wsRequest.get().thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin));
+            return wsRequest.get().thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin, user));
         }).getOrElseGet(Function.identity());
     }
 
@@ -442,6 +448,16 @@ public class CollaborativeReviewController extends CollaborationController {
         }).getOrElseGet(Function.identity());
     }
 
+    private JsonNode getFeedback(JsonNode body, String revision) {
+        JsonNode examNode = body.get("exam");
+        if (!examNode.has("examFeedback")) {
+            ((ObjectNode) examNode).set("examFeedback", Json.newObject());
+        }
+        JsonNode feedbackNode = examNode.get("examFeedback");
+        ((ObjectNode) body).put("rev", revision);
+        return feedbackNode;
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public CompletionStage<Result> addComment(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
@@ -455,16 +471,37 @@ public class CollaborativeReviewController extends CollaborationController {
                                     internalServerError(root.get("message").asText("Connection refused"))
                             );
                         }
-                        JsonNode examNode = root.get("exam");
-                        ((ObjectNode) examNode).set("examFeedback",
-                                Json.newObject().put("comment", body.get("comment").asText()));
-                        ((ObjectNode) root).put("rev", revision);
+                        JsonNode feedbackNode = getFeedback(root, revision);
+                        ((ObjectNode) feedbackNode).put("comment", body.get("comment").asText());
                         return upload(url, root);
                     };
                     return wsRequest.get().thenComposeAsync(onSuccess);
                 }).getOrElseGet(Function.identity())
         ).getOrElseGet(Function.identity());
     }
+
+    @Restrict({@Group("STUDENT")})
+    public CompletionStage<Result> setFeedbackRead(Long id, String ref, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
+                    JsonNode body = request.body().asJson();
+                    String revision = body.get("rev").asText();
+                    WSRequest wsRequest = wsClient.url(url.toString());
+                    Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+                        JsonNode root = response.asJson();
+                        if (response.getStatus() != OK) {
+                            return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                            );
+                        }
+                        JsonNode feedbackNode = getFeedback(root, revision);
+                        ((ObjectNode) feedbackNode).put("feedbackStatus", true);
+                        return upload(url, root);
+                    };
+                    return wsRequest.get().thenComposeAsync(onSuccess);
+                }).getOrElseGet(Function.identity())
+        ).getOrElseGet(Function.identity());
+    }
+
 
     @Authenticated
     @Restrict({@Group("TEACHER")})
@@ -529,7 +566,7 @@ public class CollaborativeReviewController extends CollaborationController {
                             if (revision == null) {
                                 return wrapAsPromise(badRequest());
                             }
-                            Boolean gradeless = body.path("gradeless").asBoolean(false);
+                            boolean gradeless = body.path("gradeless").asBoolean(false);
                             Function<WSResponse, CompletionStage<Result>> onSuccess =
                                     (response) -> getResponse(response).map(r -> {
                                         JsonNode root = r.asJson();

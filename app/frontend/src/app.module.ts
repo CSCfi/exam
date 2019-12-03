@@ -73,7 +73,6 @@ angular
     .directive('uniqueValue', directives.UniquenessValidator.factory())
     .directive('ckEditor', directives.CkEditor.factory())
     .directive('fixedPrecision', directives.FixedPrecision.factory())
-    .directive('clozeTest', directives.ClozeTest.factory())
     .directive('uiBlur', directives.UiBlur.factory())
     .directive('uiChange', directives.UiChange.factory())
     .directive('fileModel', directives.FileModel.factory())

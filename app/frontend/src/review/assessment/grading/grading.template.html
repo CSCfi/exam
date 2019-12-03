@@ -103,9 +103,8 @@
         </button>
     </div>
 </div>
-<div class="marb10 ">&nbsp;</div>
 
-<div class="review-grade-row marb20 " ng-show="$ctrl.getTeacherCount()> 1">
+<div class="review-grade-row" ng-show="$ctrl.getTeacherCount()> 1">
     <div ng-hide="$ctrl.isReadOnly()">
         <div class="col-md-2 general-info-title">
             {{ 'sitnet_send_to_other_reviewers' | translate }}:
@@ -130,18 +129,19 @@
     </div>
 </div>
 
-<div class="review-grade-section" ng-show="$ctrl.isReadOnly()">
+<div class="review-grade-row marb20" ng-show="$ctrl.isReadOnly()">
     <div class="col-md-2 general-info-title">
         {{'sitnet_teachers_comment' | translate }}
         <span ng-if="$ctrl.isCommentRead()">({{'sitnet_teachers_comment_read' | translate | lowercase }})</span>
         <span ng-if="!$ctrl.isCommentRead()">({{'sitnet_teachers_comment_notread' | translate | lowercase }})</span>:
     </div>
     <div
-        ng-class="$ctrl.isCommentRead() ? 'col-md-8 general-info-content' : 'sitnet-text-alarm'"
+        class="col-md-10"
+        ng-class="$ctrl.isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
         mathjax
         ng-bind-html="$ctrl.exam.examFeedback.comment"
     ></div>
-    <div ng-if="$ctrl.exam.examFeedback.attachment" class="col-md-2 general-info-content">
+    <div ng-if="$ctrl.exam.examFeedback.attachment" class="col-md-offset-2 col-md-10 general-info-content">
         <a class="pointer" ng-click="$ctrl.downloadFeedbackAttachment(exam)">
             {{$ctrl.exam.examFeedback.attachment.fileName}}
         </a>
