@@ -303,7 +303,7 @@ export class EnrolmentService {
             .result.catch(angular.noop);
     };
 
-    showMaturityInstructions = (enrolment: ExamEnrolment) => {
+    showMaturityInstructions = (enrolment: { exam: Exam }) => {
         this.getMaturityInstructions(enrolment.exam)
             .then(resp => {
                 this.$uibModal
