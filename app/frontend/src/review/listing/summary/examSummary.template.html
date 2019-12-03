@@ -92,4 +92,18 @@
             </div>
         </div>
     </div>
+
+    <div class="col-md-12 mart40">
+        <div class="review-list-title">
+            {{'sitnet_exam_question_scores_report' | translate}}
+        </div>
+    </div>
+
+    <div class="col-md-12" ng-if="$ctrl.reviews.length > 0">
+        <div class="margin-20">
+            <a class="pointer" ng-click="$ctrl.printQuestionScoresReport()">
+                {{'sitnet_exam_print_question_scores_report' | translate}}
+            </a>
+        </div>
+    </div>
 </div>

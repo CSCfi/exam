@@ -16,6 +16,8 @@ import * as ng from 'angular';
 import * as _ from 'lodash';
 
 import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
+import { FileService } from '../../../utility/file/file.service';
+import { ReviewListService } from '../reviewList.service';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
@@ -28,6 +30,15 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         reviews: any[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
+
+        constructor(
+            private Files: FileService,
+            private ReviewList: ReviewListService,
+            private $filter: ng.IFilterService,
+            private $translate: ng.translate.ITranslateService,
+        ) {
+            'ngInject';
+        }
 
         private refresh = () => {
             this.buildGradeDistribution();
@@ -66,6 +77,24 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         getAverageTime = () => {
             const durations = this.reviews.map(r => r.duration);
             return durations.reduce((a, b) => a + b, 0) / durations.length / 60000;
+        };
+
+        printQuestionScoresReport = () => {
+            const ids = this.reviews.map(r => r.exam.id);
+            console.log('main exam: ', this.exam.id);
+            console.log('exam ids:', ids);
+            if (ids.length > 0) {
+                const url = '/app/reports/questionreport/' + this.exam.id;
+                this.Files.download(
+                    url,
+                    this.$translate.instant('sitnet_grading_info') +
+                        '_' +
+                        this.$filter('date')(Date.now(), 'dd-MM-yyyy') +
+                        '.xlsx',
+                    { childIds: ids },
+                    true,
+                );
+            }
         };
     },
 };
