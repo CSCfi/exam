@@ -23,10 +23,48 @@
       "campus": null,
       "credits": null,
       "endDate": null,
+      "gradeScale": {
+        "id": 1,
+        "type": null,
+        "grades": [
+          {
+            "id": 1,
+            "name": "one",
+            "marksRejection": null
+          },
+          {
+            "id": 2,
+            "name": "two",
+            "marksRejection": null
+          },
+          {
+            "id": 3,
+            "name": "three",
+            "marksRejection": null
+          },
+          {
+            "id": 4,
+            "name": "four",
+            "marksRejection": null
+          },
+          {
+            "id": 5,
+            "name": "five",
+            "marksRejection": null
+          },
+          {
+            "id": 6,
+            "name": "six",
+            "marksRejection": null
+          }
+        ],
+        "description": null,
+        "displayName": null,
+        "externalRef": null
+      },
       "lecturer": null,
       "startDate": null,
       "department": null,
-      "gradeScale": null,
       "identifier": null,
       "organisation": null,
       "objectVersion": 0,
@@ -66,45 +104,7 @@
     "creditType": null,
     "examOwners": [],
     "examRecord": null,
-    "gradeScale": {
-      "id": 1,
-      "type": null,
-      "grades": [
-        {
-          "id": 1,
-          "name": null,
-          "marksRejection": null
-        },
-        {
-          "id": 2,
-          "name": null,
-          "marksRejection": null
-        },
-        {
-          "id": 3,
-          "name": null,
-          "marksRejection": null
-        },
-        {
-          "id": 4,
-          "name": null,
-          "marksRejection": null
-        },
-        {
-          "id": 5,
-          "name": null,
-          "marksRejection": null
-        },
-        {
-          "id": 6,
-          "name": null,
-          "marksRejection": null
-        }
-      ],
-      "description": null,
-      "displayName": null,
-      "externalRef": null
-    },
+    "gradeScale": null,
     "gradedTime": null,
     "totalScore": 0.0,
     "trialCount": null,
@@ -1200,7 +1200,7 @@
           "id": null,
           "grade": {
             "id": 6,
-            "name": null,
+            "name": "six",
             "marksRejection": null
           },
           "percentage": 100,
@@ -1210,7 +1210,7 @@
           "id": null,
           "grade": {
             "id": 1,
-            "name": null,
+            "name": "one",
             "marksRejection": null
           },
           "percentage": 0,
@@ -1220,7 +1220,7 @@
           "id": null,
           "grade": {
             "id": 2,
-            "name": null,
+            "name": "two",
             "marksRejection": null
           },
           "percentage": 20,
@@ -1230,7 +1230,7 @@
           "id": null,
           "grade": {
             "id": 3,
-            "name": null,
+            "name": "three",
             "marksRejection": null
           },
           "percentage": 40,
@@ -1240,7 +1240,7 @@
           "id": null,
           "grade": {
             "id": 4,
-            "name": null,
+            "name": "four",
             "marksRejection": null
           },
           "percentage": 60,
@@ -1250,7 +1250,7 @@
           "id": null,
           "grade": {
             "id": 5,
-            "name": null,
+            "name": "five",
             "marksRejection": null
           },
           "percentage": 80,
