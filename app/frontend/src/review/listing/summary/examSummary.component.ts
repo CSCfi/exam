@@ -113,8 +113,6 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         printQuestionScoresReport = () => {
             const ids = this.reviews.map(r => r.exam.id);
-            console.log('main exam: ', this.exam.id);
-            console.log('exam ids:', ids);
             if (ids.length > 0) {
                 const url = '/app/reports/questionreport/' + this.exam.id;
                 this.Files.download(
