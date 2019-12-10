@@ -73,6 +73,35 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         }
     }
 
+    private Optional<URL> parseUrl(String examRef, String assessmentRef) {
+        String url = String.format("%s/api/exams/%s/assessments/%s",
+                ConfigFactory.load().getString("sitnet.integration.iop.host"), examRef, assessmentRef);
+        try {
+            return Optional.of(new URL(url));
+        } catch (MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
+        Optional<URL> ou = parseUrl(ce.getExternalRef(), ref);
+        if (ou.isEmpty()) {
+            return CompletableFuture.supplyAsync(Optional::empty);
+        }
+        ((ObjectNode)payload).set("rev", payload.get("_rev")); // TBD: maybe this should be checked on XM
+        WSRequest request = wsClient.url(ou.get().toString());
+        Function<WSResponse, Optional<String>> onSuccess = response -> {
+            if (response.getStatus() != OK) {
+                JsonNode root = response.asJson();
+                logger.error(root.get("message").asText());
+                return Optional.empty();
+            }
+            return Optional.of(response.asJson().get("rev").textValue());
+        };
+        return request.put(payload).thenApplyAsync(onSuccess);
+    }
 
     @Override
     public CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
@@ -98,6 +127,24 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 ce.setAnonymous(exam.isAnonymous());
                 ce.update();
                 return Optional.of(exam);
+            };
+            return request.get().thenApplyAsync(onSuccess);
+        }
+        return CompletableFuture.supplyAsync(Optional::empty);
+    }
+
+    @Override
+    public CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef) {
+        Optional<URL> url = parseUrl(examRef, assessmentRef);
+        if (url.isPresent()) {
+            WSRequest request = wsClient.url(url.get().toString());
+            Function<WSResponse, Optional<JsonNode>> onSuccess = response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != OK) {
+                    logger.warn("non-ok response from XM: {}", root.get("message").asText());
+                    return Optional.empty();
+                }
+                return Optional.of(root);
             };
             return request.get().thenApplyAsync(onSuccess);
         }

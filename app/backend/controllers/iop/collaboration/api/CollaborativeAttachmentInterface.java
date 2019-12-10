@@ -19,13 +19,12 @@ package backend.controllers.iop.collaboration.api;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-import akka.NotUsed;
 import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
@@ -104,6 +103,16 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         return e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null
                 ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
                 : Either.right(e.getLanguageInspection());
+    }
+
+    default Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> createSource(
+            Http.MultipartFormData.FilePart<Files.TemporaryFile> file) {
+        Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getRef().path());
+        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+                new Http.MultipartFormData.FilePart<>("file",
+                        file.getFilename(),
+                        file.getContentType(), source);
+        return Source.from(Set.of(filePart));
     }
 
     @Authenticated
@@ -228,48 +237,18 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    @Override
-    default CompletionStage<Result> addFeedbackAttachment(T id, Http.Request request) {
-        MultipartForm mf = getForm(request);
-        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
-        User user = getUser(request);
+    default CompletionStage<Result> addAssessmentAttachment(T id, String ref, Http.Request request) {
         return findExternalExam(id, request)
-                .map(ee -> findExam(ee)
-                        .map(e -> {
-                                    if (e.getExamFeedback() == null) {
-                                        Comment comment = new Comment();
-                                        AppUtil.setCreator(comment, user);
-                                        e.setExamFeedback(comment);
-                                    }
-                                    return uploadAttachment(filePart, ee, e, e.getExamFeedback(), user);
-                                }
-                        ).getOrElseGet(Function.identity())
-                ).getOrElseGet(Function.identity());
-    }
-
-    @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    @Override
-    default CompletionStage<Result> downloadFeedbackAttachment(T id, Http.Request request) {
-        return findExternalExam(id, request)
-                .flatMap(this::findExam)
-                .flatMap(this::findFeedback)
-                .map(ef -> downloadExternalAttachment(ef.getAttachment()))
+                .map(ee -> updateExternalAssessment(ee, ref, request))
                 .getOrElseGet(Function.identity());
-
     }
 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    @Override
-    default CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request) {
+    default CompletionStage<Result> deleteAssessmentAttachment(T id, String ref, Http.Request request) {
         return findExternalExam(id, request)
-                .map(ee -> findExam(ee)
-                        .map(e -> findFeedback(e)
-                                .map(ef -> deleteExternalAttachment(ef, ee, e, getUser(request)))
-                                .getOrElseGet(Function.identity())
-                        ).getOrElseGet(Function.identity())
-                ).getOrElseGet(Function.identity());
+                .map(ee -> deleteExternalAssessment(ee, ref))
+                .getOrElseGet(Function.identity());
     }
 
     @Authenticated
@@ -323,10 +302,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                 ).getOrElseGet(Function.identity());
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     default CompletionStage<Result> downloadExternalAttachment(String id) {
         final Optional<URL> url = parseUrl("/api/attachments/%s", id);
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         return getWsClient().url(url.get().toString()).get().thenCompose(response -> {
@@ -352,7 +331,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     default CompletionStage<Result> download(String id, String mimeType, String fileName) {
         final Optional<URL> url = parseUrl("/api/attachments/%s/download", id);
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         return getWsClient().url(url.get().toString()).stream().thenCompose(response -> {
@@ -418,22 +397,16 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         }
 
         final Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         final WSRequest request = getWsClient().url(url.get().toString());
-        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getRef().path());
-        final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
-                new Http.MultipartFormData.FilePart<>("file",
-                        file.getFilename(),
-                        file.getContentType(), source);
-        final Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, NotUsed> body =
-                Source.from(Collections.singletonList(filePart));
+        Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> source = createSource(file);
         if (StringUtils.isEmpty(externalId)) {
-            return request.post(body).thenComposeAsync(wsResponse ->
+            return request.post(source).thenComposeAsync(wsResponse ->
                     createExternalAttachment(externalExam, exam, container, wsResponse, user));
         }
-        return request.put(body).thenComposeAsync(wsResponse ->
+        return request.put(source).thenComposeAsync(wsResponse ->
                 createExternalAttachment(externalExam, exam, container, wsResponse, user));
     }
 
@@ -464,6 +437,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     Optional<Exam> getExam(U externalExam);
 
     Optional<U> getExternalExam(T eid, Http.Request request);
+
+    CompletionStage<Result> updateExternalAssessment(U exam, String assessmentRef, Http.Request request);
+
+    CompletionStage<Result> deleteExternalAssessment(U exam, String assessmentRef);
 
     WSClient getWsClient();
 

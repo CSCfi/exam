@@ -164,7 +164,7 @@ export interface ExamImpl {
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
-    examFeedback: { comment: string; feedbackStatus: boolean };
+    examFeedback: { comment: string; feedbackStatus: boolean; attachment?: Attachment };
     grade: Grade;
     gradeless: boolean;
     gradedTime: string;
@@ -184,4 +184,5 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    duration: number;
 }
