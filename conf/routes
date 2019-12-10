@@ -275,6 +275,9 @@ GET           /integration/reservations                                backend.c
 GET           /integration/rooms                                       backend.controllers.integration.ReservationAPIController.getRooms
 GET           /integration/rooms/:id/openinghours                      backend.controllers.integration.ReservationAPIController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
 
+# reports
+GET           /integration/reports                                     backend.controllers.integration.ReportAPIController.getExamEnrolments(start: java.util.Optional[String], end: java.util.Optional[String])
+
 ################# Transferred exam ######################
 PUT           /integration/iop/facilities/:id                          backend.controllers.iop.transfer.impl.FacilityController.updateFacility(id: Long)
 GET           /integration/iop/organisations                           backend.controllers.iop.transfer.impl.OrganisationController.listOrganisations
