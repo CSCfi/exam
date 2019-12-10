@@ -126,7 +126,7 @@
 
             <td class="reservation-search" ng-if="$ctrl.isAdminView">
                 <button
-                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
+                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow && !r.externalReservation"
                     ng-click="$ctrl.removeReservation(r)"
                     class="btn btn-primary pull-left"
                 >
@@ -150,7 +150,7 @@
             </td>
             <td class="reservation-search" ng-if="$ctrl.isAdminView">
                 <button
-                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
+                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow && !r.externalReservation"
                     ng-click="$ctrl.changeReservationMachine(r)"
                     class="btn btn-primary pull-left"
                 >
