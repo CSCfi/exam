@@ -131,7 +131,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
             prev = ge;
         }
         Optional<GradeScale> scale = resolveScale(exam);
-        if (scale.isEmpty() || !scale.get().getGrades().contains(grade)) {
+        if (!scale.isPresent() || !scale.get().getGrades().contains(grade)) {
             throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
         }
         return grade;
