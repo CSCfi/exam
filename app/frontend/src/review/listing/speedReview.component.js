@@ -170,7 +170,7 @@ angular.module('app.review')
                         });
                         $q.all(promises).then(function () {
                             toast.info($translate.instant('sitnet_saved'));
-                            if (this.examReviews.length === 0) {
+                            if (vm.examReviews.length === 0) {
                                 $location.path(`/exams/${$routeParams.id}/4`)
                             }
                         });
