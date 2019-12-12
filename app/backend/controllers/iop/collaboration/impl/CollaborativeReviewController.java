@@ -448,6 +448,16 @@ public class CollaborativeReviewController extends CollaborationController {
         }).getOrElseGet(Function.identity());
     }
 
+    private JsonNode getFeedback(JsonNode body, String revision) {
+        JsonNode examNode = body.get("exam");
+        if (!examNode.has("examFeedback")) {
+            ((ObjectNode) examNode).set("examFeedback", Json.newObject());
+        }
+        JsonNode feedbackNode = examNode.get("examFeedback");
+        ((ObjectNode) body).put("rev", revision);
+        return feedbackNode;
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public CompletionStage<Result> addComment(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
@@ -461,16 +471,37 @@ public class CollaborativeReviewController extends CollaborationController {
                                     internalServerError(root.get("message").asText("Connection refused"))
                             );
                         }
-                        JsonNode examNode = root.get("exam");
-                        ((ObjectNode) examNode).set("examFeedback",
-                                Json.newObject().put("comment", body.get("comment").asText()));
-                        ((ObjectNode) root).put("rev", revision);
+                        JsonNode feedbackNode = getFeedback(root, revision);
+                        ((ObjectNode) feedbackNode).put("comment", body.get("comment").asText());
                         return upload(url, root);
                     };
                     return wsRequest.get().thenComposeAsync(onSuccess);
                 }).getOrElseGet(Function.identity())
         ).getOrElseGet(Function.identity());
     }
+
+    @Restrict({@Group("STUDENT")})
+    public CompletionStage<Result> setFeedbackRead(Long id, String ref, Http.Request request) {
+        return findCollaborativeExam(id).map(ce -> getURL(ce, ref).map(url -> {
+                    JsonNode body = request.body().asJson();
+                    String revision = body.get("rev").asText();
+                    WSRequest wsRequest = wsClient.url(url.toString());
+                    Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+                        JsonNode root = response.asJson();
+                        if (response.getStatus() != OK) {
+                            return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                            );
+                        }
+                        JsonNode feedbackNode = getFeedback(root, revision);
+                        ((ObjectNode) feedbackNode).put("feedbackStatus", true);
+                        return upload(url, root);
+                    };
+                    return wsRequest.get().thenComposeAsync(onSuccess);
+                }).getOrElseGet(Function.identity())
+        ).getOrElseGet(Function.identity());
+    }
+
 
     @Authenticated
     @Restrict({@Group("TEACHER")})
@@ -535,7 +566,7 @@ public class CollaborativeReviewController extends CollaborationController {
                             if (revision == null) {
                                 return wrapAsPromise(badRequest());
                             }
-                            Boolean gradeless = body.path("gradeless").asBoolean(false);
+                            boolean gradeless = body.path("gradeless").asBoolean(false);
                             Function<WSResponse, CompletionStage<Result>> onSuccess =
                                     (response) -> getResponse(response).map(r -> {
                                         JsonNode root = r.asJson();

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
@@ -86,6 +87,22 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
         }
     }
 
+    private Optional<GradeScale> resolveScale(Exam exam) {
+        if (exam.getGradeScale() != null) {
+           return Optional.of(exam.getGradeScale());
+        }
+        if (exam.getCourse() != null && exam.getCourse().getGradeScale() != null) {
+            return Optional.of(exam.getCourse().getGradeScale());
+        }
+        if (exam.getParent() != null && exam.getParent().getGradeScale() != null) {
+            return Optional.of(exam.getParent().getGradeScale());
+        } else if (exam.getParent() != null && exam.getParent().getCourse() != null){
+            GradeScale scale = exam.getParent().getCourse().getGradeScale();
+            return scale == null ? Optional.empty() : Optional.of(scale);
+        }
+        return Optional.empty();
+    }
+
     private Grade getGradeBasedOnScore(Exam exam) {
         Double totalScore = exam.getTotalScore();
         Double maxScore = exam.getMaxScore();
@@ -113,8 +130,8 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
             }
             prev = ge;
         }
-        GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
-        if (!scale.getGrades().contains(grade)) {
+        Optional<GradeScale> scale = resolveScale(exam);
+        if (scale.isEmpty() || !scale.get().getGrades().contains(grade)) {
             throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
         }
         return grade;

@@ -418,7 +418,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .reduce(0.0, (sum, x) -> sum += x);
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options.stream()
-                    .filter(o -> !o.getOption().isCorrectOption())
+                    .filter(o -> !o.getOption().isCorrectOption() && o.getScore() != null)
                     .mapToDouble(o -> o.getScore())
                     .min()
                     .orElse(0.0);
