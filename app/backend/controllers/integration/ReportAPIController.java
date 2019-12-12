@@ -23,12 +23,13 @@ public class ReportAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getExamEnrolments(Optional<String> start, Optional<String> end) {
-        PathProperties pp = PathProperties.parse("( " +
+        PathProperties pp = PathProperties.parse("(id, enrolledOn, " +
                 "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt), " +
                 "user(id, firstName, lastName, eppn, email, userIdentifier), " +
                 "exam(id, name, course(name, code, credits, " +
                 "gradeScale(description, displayName), organisation(code, name)), duration, examTypeId, executionTypeId, " +
-                "trialCount, answerLanguage, instruction)");
+                "trialCount, answerLanguage, instruction, examActiveStartDate, examActiveEndDate)" +
+                ")");
 
         Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
         pp.apply(query);
