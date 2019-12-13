@@ -18,12 +18,13 @@ package backend.util.excel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.ebean.Ebean;
 import io.vavr.Tuple2;
@@ -36,10 +37,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import backend.models.ExamRecord;
 import backend.models.Exam;
 import backend.models.dto.ExamScore;
-import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.models.User;
-import backend.models.questions.Question;
 
 public class ExcelBuilder {
 
@@ -103,34 +102,38 @@ public class ExcelBuilder {
                 .eq("id", examId)
                 .findOne();
 
-        /* Get question ids from child exams (this provides question ids that have been deleted from parent) */
-        List<Long> questionsIds = childExams
-                .stream()
-                .flatMap(exam -> exam.getExamSections().stream())
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .map(esq -> esq.getQuestion().getParent().getId())
-                .distinct()
-                .collect(Collectors.toList());
-
-        /* Get question ids from parent exams (for questions that have not appeared on child exams) */
-        parentExam
+        List<Long> parentQuestionIds = parentExam
                 .getExamSections()
                 .stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
-                .forEach(esq -> {
-                    Long questionId = esq.getQuestion().getId();
-                    if(!questionsIds.contains(questionId)) {
-                        questionsIds.add(questionId);
-                    }
-                });
+                .filter(esq -> esq.getQuestion() != null)
+                .map(esq -> esq.getQuestion().getId())
+                .collect(Collectors.toList());
 
-        /* List students for rows */
+        List<Long> deletedQuestionIds = childExams.stream()
+                .flatMap(exam -> exam.getExamSections().stream())
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> isQuestionRemoved(esq, parentQuestionIds))
+                .map(esq -> getQuestionId(esq))
+                .distinct()
+                .collect(Collectors.toList());
+
+        /* Concatenate parent exam question ids with deleted question ids for spreadsheet headers */
+        List<Long> questionIds = Stream
+                .concat(parentQuestionIds.stream(), deletedQuestionIds.stream())
+                .collect(Collectors.toList());
+
+        /* List students for spreadsheet rows */
         List<User> students = childExams.stream().map(exam -> exam.getExamParticipation().getUser()).collect(Collectors.toList());
 
         /* Helper hashmap for printing scores to excel */
         Map<Long, Map<Long, String>> studentScoresByQuestionId = new HashMap<Long, Map<Long, String>>();
         childExams.stream()
                 .forEach(exam -> {
+                    if(exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
+                        return;
+                    }
+
                     Long studentId = exam.getExamParticipation().getUser().getId();
 
                     boolean isGraded = (exam.getState() == Exam.State.GRADED ||
@@ -142,7 +145,7 @@ public class ExcelBuilder {
                             .stream()
                             .flatMap(es -> es.getSectionQuestions().stream())
                             .collect(Collectors.toMap(
-                                    esq -> esq.getQuestion().getParent().getId(),
+                                    esq -> getQuestionId(esq),
                                     esq -> isGraded ? esq.getAssessedScore().toString() : "-"
                             ));
                     studentScoresByQuestionId.put(studentId, questionScores);
@@ -155,9 +158,11 @@ public class ExcelBuilder {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("studentId");
         headerRow.createCell(1).setCellValue("eppn");
-        for(int i = 0; i < questionsIds.size(); i++) {
+        for(int i = 0; i < questionIds.size(); i++) {
             int currentCellIndex = i + 2;
-            headerRow.createCell(currentCellIndex).setCellValue("questionId_" + questionsIds.get(i));
+            Long questionId = questionIds.get(i);
+            String header = parentQuestionIds.contains(questionId) ? "questionId_" + questionId : "removed";
+            headerRow.createCell(currentCellIndex).setCellValue(header);
         }
 
         /* Create score rows */
@@ -167,21 +172,48 @@ public class ExcelBuilder {
             Row dataRow = sheet.createRow(rowId);
             dataRow.createCell(0).setCellValue(student.getId());
             dataRow.createCell(1).setCellValue(student.getEppn());
-            questionsIds.forEach(questionId -> {
-                int cellIndex = questionsIds.indexOf(questionId) + 2;
+            questionIds.forEach(questionId -> {
+                int cellIndex = questionIds.indexOf(questionId) + 2;
                 Cell cell = dataRow.createCell(cellIndex);
-                cell.setCellValue(studentScoresByQuestionId.get(studentId).get(questionId));
+                String cellValue = studentScoresByQuestionId.get(studentId).get(questionId);
+                CellType cellType = cellValue == "" || cellValue == "-" || cellValue == null ? CellType.STRING : CellType.DECIMAL;
+                setValue(cell, cellValue, cellType);
             });
         });
 
         /* Autosize cells */
-        IntStream.range(0, questionsIds.size() + 2).forEach(i -> sheet.autoSizeColumn(i, true));
+        IntStream.range(0, questionIds.size() + 2).forEach(i -> sheet.autoSizeColumn(i, true));
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
 
         return bos;
+    }
+
+    private static Long getQuestionId(ExamSectionQuestion question) {
+        if(question.getQuestion() == null) {
+            return question.getId();
+        }
+
+        if(question.getQuestion().getParent() == null) {
+            return question.getQuestion().getId();
+        }
+
+        return question.getQuestion().getParent().getId();
+    }
+
+    private static boolean isQuestionRemoved(ExamSectionQuestion question, List<Long> parentIds) {
+        if(question.getQuestion() == null) {
+            return true;
+        }
+
+        if(question.getQuestion().getParent() == null) {
+            return true;
+        }
+
+        return !parentIds.contains(question.getQuestion().getParent().getId());
+
     }
 
 }
