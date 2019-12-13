@@ -545,7 +545,7 @@
   "sitnet_at_least_one_role_required": "Rollen kan inte tas bort. Användaren måste ha åtminstone en roll.",
   "sitnet_copy": "Kopiera",
   "sitnet_copy_question": "Kopiera frågan?",
-  "sitnet_load_answer_attachments": "Ladda upp bilagor till tentsvar",
+  "sitnet_load_answer_attachments": "Ladda upp bilagor",
   "sitnet_no_attachments_to_archive": "Inga bilagor hittades.",
   "sitnet_no_name": "UTAN NAMN",
   "sitnet_public_exam": "Tentamen",
@@ -912,6 +912,6 @@
   "sitnet_set_forced_score": "Gå förbi automatiskt beräknade poäng",
   "sitnet_optional": "Vald",
   "sitnet_required": "Obligatorisk",
-  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset SV",
-  "sitnet_exam_status_deleted": "Poistettu SV"
+  "sitnet_external_reservations_only": "Bokningar till andra skolor",
+  "sitnet_exam_status_deleted": "Raderad"
 }

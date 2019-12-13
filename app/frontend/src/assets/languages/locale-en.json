@@ -545,7 +545,7 @@
   "sitnet_at_least_one_role_required": "You cannot remove the role. At least one role has to be admitted.",
   "sitnet_copy": "Copy",
   "sitnet_copy_question": "Do you want to make a copy of this question?",
-  "sitnet_load_answer_attachments": "Download attachments of the questions",
+  "sitnet_load_answer_attachments": "Download attachments",
   "sitnet_no_attachments_to_archive": "No attachments available",
   "sitnet_no_name": "NO NAME GIVEN",
   "sitnet_public_exam": "General exam",
@@ -893,7 +893,7 @@
   "sitnet_exam_machine_softwares": "Software needed",
   "sitnet_openinghours_exception_datetimes": "Opening hours and exceptions",
   "sitnet_error_ip_address_exists_for_room": "IP address already assigned",
-  "sitnet_exam_materials": "Exam sections",
+  "sitnet_exam_materials": "Choose optional exam sections",
   "sitnet_exam_material_description": "Exam questions based on this exam material/content",
   "sitnet_modify_materials": "Manage exam materials/contents",
   "sitnet_optional_section": "Optional section",
@@ -912,6 +912,6 @@
   "sitnet_set_forced_score": "Skip automatic points",
   "sitnet_optional": "Selected",
   "sitnet_required": "Required",
-  "sitnet_external_reservations_only": "Ainoastaan ulkopuolisiin oppilaitoksiin tehdyt varaukset EN",
-  "sitnet_exam_status_deleted": "Poistettu EN"  
+  "sitnet_external_reservations_only": "Reservations for other universities",
+  "sitnet_exam_status_deleted": "Deleted"
 }
