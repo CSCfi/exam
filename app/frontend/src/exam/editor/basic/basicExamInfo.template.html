@@ -160,9 +160,9 @@
                 </sup>
             </div>
             <div class="col-md-9">
-                <textarea class="form-control" rows="4" cols="150" ng-model="$ctrl.exam.instruction" ui-change="$ctrl.updateExam()"
-                    placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                        </textarea>
+                <textarea class="form-control" ck-editor enable-cloze-test="false" rows="4" cols="150" ng-model="$ctrl.exam.instruction"
+                    ui-change="$ctrl.updateExam()" placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+                </textarea>
             </div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
@@ -178,9 +178,9 @@
                 {{'sitnet_allowed_tools' | translate}}
             </div>
             <div class="col-md-9">
-                <textarea class="form-control" rows="4" cols="150" ng-model="$ctrl.exam.enrollInstruction" ui-change="$ctrl.updateExam()"
-                    placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                        </textarea>
+                <textarea class="form-control" ck-editor enable-cloze-test="false" rows="4" cols="150" ng-model="$ctrl.exam.enrollInstruction"
+                    ui-change="$ctrl.updateExam()" placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+                </textarea>
             </div>
         </div>
 

@@ -63,6 +63,7 @@ public class CollaborativeExamController extends CollaborationController {
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
+        cleanUser(user);
         AppUtil.setCreator(exam, user);
 
         ExamSection examSection = new ExamSection();
@@ -284,4 +285,13 @@ public class CollaborativeExamController extends CollaborationController {
         user.setEmail(email);
         return user;
     }
+
+    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // serialization of exam
+    private void cleanUser(User user) {
+        user.getEnrolments().clear();
+        user.getParticipations().clear();
+        user.getInspections().clear();
+    }
+
 }

@@ -58,11 +58,17 @@ export interface Attachment {
     file?: File;
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+}
+
 export interface Question {
     id: number;
     question: string;
     type: string;
     attachment: Attachment;
+    tags: Tag[];
 }
 
 export interface ReverseExamSection extends ExamSection {

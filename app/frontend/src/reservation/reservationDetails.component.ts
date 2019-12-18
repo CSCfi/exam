@@ -16,9 +16,10 @@
  */
 import * as angular from 'angular';
 import * as toast from 'toastr';
+
 import { ReservationService } from './reservationService';
 
-export const ReservationDetailComponent: angular.IComponentOptions = {
+export const ReservationDetailsComponent: angular.IComponentOptions = {
     template: require('./reservationDetails.template.html'),
     bindings: {
         reservations: '<',
@@ -41,6 +42,13 @@ export const ReservationDetailComponent: angular.IComponentOptions = {
             reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase()
 
         removeReservation(reservation) {
+            this.Reservation.cancelReservation(reservation).then(() => {
+                this.reservations.splice(this.reservations.indexOf(reservation), 1);
+                toast.info(this.$translate.instant('sitnet_reservation_removed'));
+            }).catch(angular.noop);
+        }
+
+        removeExternalReservation(reservation) {
             this.Reservation.cancelReservation(reservation).then(() => {
                 this.reservations.splice(this.reservations.indexOf(reservation), 1);
                 toast.info(this.$translate.instant('sitnet_reservation_removed'));

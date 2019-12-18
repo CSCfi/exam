@@ -1,5 +1,15 @@
 package helpers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.Servlet;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -7,15 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import play.libs.Json;
-
-import javax.servlet.Servlet;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
 
 public class RemoteServerHelper {
 
@@ -53,11 +54,11 @@ public class RemoteServerHelper {
         }
     }
 
-    public static Server createAndStartServer(int port, Map<Class<? extends Servlet>, String> handlers) throws Exception {
+    public static Server createAndStartServer(int port, Map<Class<? extends Servlet>, List<String>> handlers) throws Exception {
         Server server = new Server(port);
         server.setStopAtShutdown(true);
         ServletHandler sh = new ServletHandler();
-        handlers.entrySet().forEach(e -> sh.addServletWithMapping(e.getKey(), e.getValue()));
+        handlers.forEach((k, v) -> v.forEach(s -> sh.addServletWithMapping(k, s)));
         server.setHandler(sh);
         server.start();
         return server;

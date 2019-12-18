@@ -59,6 +59,7 @@ export class ReservationController implements angular.IComponentController {
     machines: any[];
     reservations: any[];
     isInteroperable: boolean;
+    externalReservationsOnly: boolean;
 
     constructor(
         private $http: angular.IHttpService,
@@ -140,7 +141,9 @@ export class ReservationController implements angular.IComponentController {
                     }
                     // Collaborative exam
                     if (r.enrolment.collaborativeExam) {
-                        r.enrolment.exam = r.enrolment.collaborativeExam;
+                        if (!r.enrolment.exam) {
+                            r.enrolment.exam = r.enrolment.collaborativeExam;
+                        }
                         r.enrolment.exam.examOwners = [];
                     }
                     if (!r.enrolment.exam) {
@@ -156,7 +159,7 @@ export class ReservationController implements angular.IComponentController {
                             'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
                     }
                 });
-                this.reservations = reservations;
+                this.reservations = reservations.filter(r => r.externalReservation || !this.externalReservationsOnly);
             }).catch(resp => {
                 toast.error(resp);
             });
@@ -269,6 +272,10 @@ export class ReservationController implements angular.IComponentController {
 
     endDateChanged(date) {
         this.endDate = date;
+        this.query();
+    }
+
+    externalReservationFilterClicked() {
         this.query();
     }
 

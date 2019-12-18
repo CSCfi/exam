@@ -63,6 +63,11 @@ public interface EmailComposer {
                                                     Boolean isStudentUser, ExamEnrolment enrolment);
 
     /**
+     * Message sent to student when externally made reservation has been cancelled by hosting admin.
+     */
+    void composeExternalReservationCancellationNotification(Reservation reservation, String message);
+
+    /**
      * Message sent to student when reservation has been changed.
      */
     void composeReservationChangeNotification(User student, ExamMachine previous, ExamMachine current,

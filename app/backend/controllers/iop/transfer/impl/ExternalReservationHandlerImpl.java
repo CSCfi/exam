@@ -135,8 +135,9 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         return request.delete().thenApplyAsync(onSuccess);
     }
 
+    // remove reservation on external side, initiated by reservation holder
     @Override
-    public CompletionStage<Result> removeReservations(Reservation reservation, User user) {
+    public CompletionStage<Result> removeReservation(Reservation reservation, User user) {
         if (reservation.getExternalReservation() == null) {
             return CompletableFuture.supplyAsync(Results::ok);
         }

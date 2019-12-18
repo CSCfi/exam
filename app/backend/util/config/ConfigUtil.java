@@ -124,4 +124,7 @@ public class ConfigUtil {
         return ConfigFactory.load().getBoolean("sitnet.exam.anonymousReview");
     }
 
+    public static String getHomeOrganisationRef() {
+        return ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+    }
 }

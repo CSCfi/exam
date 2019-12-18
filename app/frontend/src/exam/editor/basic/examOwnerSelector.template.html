@@ -7,7 +7,7 @@
     <div class="col-md-9">
         <input type="text" class="form-control wdth-30 make-inline"
                ng-model="$ctrl.newOwner.user.name"
-               uib-typeahead="t.name for t in $ctrl.allExamOwners('name', $viewValue)"
+               uib-typeahead="t.name  + ' (' + t.email + ')' for t in $ctrl.allExamOwners('name', $viewValue)"
                typeahead-editable="false"
                typeahead-min-length="2"
                typeahead-on-select="$ctrl.setExamOwner($item, $model, $label)">
@@ -18,7 +18,7 @@
     <div class="col-md-3 exam-basic-title"></div>
     <div class="col-md-9">
         <ul class="list-inline mart10">
-            <li ng-repeat="user in $ctrl.examOwners">{{user.firstName }} {{ user.lastName }}
+            <li ng-repeat="user in $ctrl.examOwners">{{user.firstName }} {{ user.lastName }} ({{ user.email }})
                 <button class="reviewer-remove"
                         ng-disabled="$ctrl.examOwners.length == 1" ng-click="$ctrl.removeOwner(user.id)"
                         title="{{'sitnet_remove' | translate}}">

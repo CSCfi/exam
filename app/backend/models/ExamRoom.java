@@ -37,7 +37,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import play.i18n.Lang;
 
 import backend.controllers.RoomLike;
 import backend.models.base.GeneratedIdentityModel;
@@ -61,11 +60,8 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     private String externalRef;
 
-    @OneToOne
-    private Organisation organization;
-
     @OneToOne(cascade = CascadeType.ALL)
-    private MailAddress mailAddress = new MailAddress();
+    private MailAddress mailAddress;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room", fetch = FetchType.EAGER)
     private List<DefaultWorkingHours> defaultWorkingHours;
@@ -77,8 +73,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     private List<ExamStartingHour> examStartingHours;
 
-    private String transitionTime;
-
     // Accessibility info describes what accessibility issues there are regarding the room
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examRoom")
     @JsonManagedReference
@@ -88,25 +82,19 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @Column(columnDefinition = "boolean default false")
     private boolean accessible;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstruction;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstructionEN;
 
-    // Tilaohjeet
     @Column(columnDefinition = "TEXT")
     private String roomInstructionSV;
 
-    // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)
-    // tämä voisi olla myös Sitnet User, muuta ei välttämättä kannata
     private String contactPerson;
 
     private String videoRecordingsURL;
 
-    // ExamRoom may be out of service,
     private String statusComment;
 
     @Column(columnDefinition = "boolean default false")
@@ -271,14 +259,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
         this.campus = campus;
     }
 
-    public Organisation getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organisation organization) {
-        this.organization = organization;
-    }
-
     public String getExternalRef() {
         return externalRef;
     }
@@ -293,14 +273,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     public void setAccessible(boolean accessible) {
         this.accessible = accessible;
-    }
-
-    public String getTransitionTime() {
-        return transitionTime;
-    }
-
-    public void setTransitionTime(String transitionTime) {
-        this.transitionTime = transitionTime;
     }
 
     public String getVideoRecordingsURL() {

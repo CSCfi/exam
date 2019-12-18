@@ -5,11 +5,13 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "5.1.1"
+version := "5.1.3"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
 scalaVersion := "2.12.6"
+
+scalacOptions ++= Seq("-deprecation", "-feature")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 

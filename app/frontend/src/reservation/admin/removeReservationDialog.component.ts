@@ -26,11 +26,11 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
     },
     controller: class RemoveReservationDialogController implements angular.IComponentController {
 
-        resolve: { reservation: { id: number } };
+        resolve: { reservation: { id: number; externalUserRef: string; externalRef: string } };
         close: (_: { $value: string }) => void;
         dismiss: (_: { $value: string }) => void;
 
-        reservation: { id: number };
+        reservation: { id: number; externalUserRef: string; externalRef: string };
         message = { text: undefined };
 
         constructor(
@@ -41,7 +41,10 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
 
         ok() {
             this.reservation = this.resolve.reservation;
-            this.$http.delete(`/app/reservations/${this.reservation.id}`, {
+            const url = this.reservation.externalUserRef ?
+                `/integration/iop/reservations/external/${this.reservation.externalRef}/force ` :
+                `/app/reservations/${this.reservation.id}`;
+            this.$http.delete(url, {
                 data: { msg: this.message.text },
                 headers: { 'Content-Type': 'application/json' }
             }).then(() => this.close({ $value: 'Accepted' }))

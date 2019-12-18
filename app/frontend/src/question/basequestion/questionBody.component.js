@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.question')
     .component('questionBody', {
@@ -25,10 +25,10 @@ angular.module('app.question')
             lotteryOn: '<',
             examId: '<',
             sectionQuestion: '<',
+            collaborative: '<',
         },
-        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question',
-            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question) {
-
+        controller: ['Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question',
+            function (Session, Attachment, UserRes, limitToFilter, Question) {
 
                 const vm = this;
 

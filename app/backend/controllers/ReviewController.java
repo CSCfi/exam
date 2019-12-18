@@ -57,6 +57,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -306,14 +307,15 @@ public class ReviewController extends BaseController {
         Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator")
                 .where()
                 .idEq(id)
-                .eq("state", Exam.State.GRADED_LOGGED)
+                .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
                 .findOneOrEmpty();
         if (!option.isPresent()) {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam.getState() != Exam.State.GRADED_LOGGED || isDisallowedToModify(exam, user, exam.getState())) {
+        if (!exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
+                isDisallowedToModify(exam, user, exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
@@ -614,12 +616,12 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result importGrades(Http.Request request) {
-        Http.MultipartFormData<File> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
-        File file = filePart.getRef();
+        File file = filePart.getRef().path().toFile();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         try {

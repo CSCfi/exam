@@ -30,7 +30,8 @@ angular.module('app.exam.editor')
                 vm.$onInit = function () {
                     vm.newOwner = {
                         "id": null,
-                        "name": null
+                        "name": null,
+                        "email": null
                     };
                     vm.examOwners = getExamOwners();
                 };
@@ -63,6 +64,7 @@ angular.module('app.exam.editor')
                         }, function () {
                             getExamOwners();
                             // clear input field
+                            delete vm.newOwner.email;
                             delete vm.newOwner.name;
                             delete vm.newOwner.id;
                         }, function (error) {

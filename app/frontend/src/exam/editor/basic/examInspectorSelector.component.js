@@ -32,7 +32,8 @@ angular.module('app.exam.editor')
                         id: null,
                         name: null,
                         sendMessage: false,
-                        comment: ''
+                        comment: '',
+                        email: null
                     };
                     getInspectors();
                 };

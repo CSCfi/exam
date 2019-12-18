@@ -122,7 +122,7 @@ export class SessionService {
         this.$window.onbeforeunload = () => null;
         const localLogout = `${this.$window.location.protocol}//${this.$window.location.host}/Shibboleth.sso/Logout`;
         if (data && data.logoutUrl) {
-            this.$window.location.href = `${data.logoutUrl}?return=${localLogout}`;
+            this.$window.location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!this._env || this._env.isProd) {
             // redirect to SP-logout directly
             this.$window.location.href = localLogout;

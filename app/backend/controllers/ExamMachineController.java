@@ -181,14 +181,16 @@ public class ExamMachineController extends BaseController {
     public Result getSoftwares() {
         List<Software> softwares = Ebean.find(Software.class)
                 .where()
+                .or()
+                .isNull("status")
                 .eq("status", "ACTIVE")
-                .orderBy("name")
+                .endOr()
                 .findList();
 
         return ok(softwares);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getSoftware(Long id) {
         Software software = Ebean.find(Software.class, id);
 

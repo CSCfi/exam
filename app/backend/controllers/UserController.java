@@ -192,6 +192,7 @@ public class UserController extends BaseController {
             part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
             part.put("firstName", u.getFirstName());
             part.put("lastName", u.getLastName());
+            part.put("email", u.getEmail());
             array.add(part);
         }
         return array;

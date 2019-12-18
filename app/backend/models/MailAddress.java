@@ -15,9 +15,9 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
-
 import javax.persistence.Entity;
+
+import backend.models.base.GeneratedIdentityModel;
 
 
 @Entity

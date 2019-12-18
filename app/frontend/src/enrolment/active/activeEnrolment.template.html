@@ -221,7 +221,7 @@
             </div>
 
             <div class="student-exam-row-infobox" ng-show="$ctrl.showInstructions">
-                {{ $ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction }}
+                <div ng-bind-html="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"></div>
             </div>
         </div>
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0">

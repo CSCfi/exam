@@ -26,7 +26,7 @@ CKEDITOR.plugins.setLang('clozetest', 'en',
             answer: 'Correct Answer',
             errors: {
                 nonEmpty: 'Answer field cannot be empty.',
-                numeric: 'Answer must be a numeric value!',
+                numeric: 'Answer must be a numeric value and it cannot contain any whitespace.',
                 nonNegative: 'Value must be a non negative number.'
             },
             caseSensitive: 'Case sensitive (textual answer only)',

@@ -25,6 +25,7 @@ import play.twirl.api.Html
 class Index @Inject()(environment: Environment)
   extends InjectedController with Logging {
 
+  import scala.language.reflectiveCalls
   import scala.reflect.runtime.universe._
 
   private def getTemplateInstance(clsName: String) = {

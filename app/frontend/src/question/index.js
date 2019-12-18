@@ -18,7 +18,7 @@ require('./question.service');
 
 require('./basequestion/question.component');
 require('./basequestion/questionBody.component');
-require('./basequestion/tagPicker.component');
+require('./basequestion/tagPicker.component.ts');
 require('./basequestion/essayForm.component');
 require('./basequestion/multipleChoiceForm.component');
 require('./basequestion/multipleChoiceOptionForm.component');
