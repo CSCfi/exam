@@ -82,7 +82,7 @@ export const SectionComponent: ng.IComponentOptions = {
                 return this.Question.calculateMaxPoints(question);
             }
             if (type === 'ClaimChoiceQuestion') {
-                return this.Question.scoreClaimChoiceAnswer(question);
+                return this.Question.getCorrectClaimChoiceOptionScore(question);
             }
             return null;
         };
