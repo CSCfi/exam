@@ -22,6 +22,9 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
+import backend.sanitizers.Attrs;
+import backend.util.excel.ExcelBuilder;
+import backend.sanitizers.ExamRecordSanitizer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -31,17 +34,24 @@ import io.ebean.ExpressionList;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Collection;
+import java.util.Base64;
 import java.util.stream.Collectors;
+import play.mvc.With;
 
 public class ReportController extends BaseController {
+
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     @Restrict({@Group("ADMIN")})
     public Result listDepartments() {
@@ -188,6 +198,21 @@ public class ReportController extends BaseController {
             infos.add(info);
         }
         return ok(Json.toJson(infos));
+    }
+
+    @With(ExamRecordSanitizer.class)
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result exportExamQuestionScoresAsExcel(Long examId, Http.Request request) {
+        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        ByteArrayOutputStream bos;
+        try {
+            bos = ExcelBuilder.buildScoreExcel(examId, childIds);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_csv_file");
+        }
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
+                .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
+                .as(XLSX_MIME);
     }
 
 }
