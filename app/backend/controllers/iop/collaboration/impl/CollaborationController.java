@@ -58,6 +58,23 @@ public class CollaborationController extends BaseController {
         }
     }
 
+    Optional<URL> parseUrlWithSearchParam(String filter) {
+        try {
+            if(filter == null) {
+                return Optional.empty();
+            }
+
+            String paramStr = String.format("?filter=%s", filter);
+            String url = String.format("%s/api/exams/search%s", ConfigFactory.load().getString("sitnet.integration.iop.host"), paramStr);
+            return Optional.of(new URL(url));
+
+        } catch(MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+
+    }
+
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         return examLoader.downloadExam(ce);
     }

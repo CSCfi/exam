@@ -333,6 +333,7 @@ PUT           /integration/iop/exams/:eid/reorder                      backend.c
 PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 ################# Collaborative Exam enrolment interface #########
 GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.listExams
+GET           /integration/iop/enrolment/search                        backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: java.util.Optional[String])
 GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long, request: Request)
 POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long, request: Request)
 ################# Collaborative Exam reservation interface #########

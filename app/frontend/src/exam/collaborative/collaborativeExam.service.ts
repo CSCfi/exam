@@ -54,6 +54,25 @@ export class CollaborativeExamService {
         return deferred.promise;
     }
 
+    searchExams(searchTerm: string): ng.IPromise<CollaborativeExam[]> {
+        const deferred: ng.IDeferred<CollaborativeExam[]> = this.$q.defer();
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? searchTerm : '');
+        // This path is used to search from student view only
+        const path = `/integration/iop/enrolment/search${paramStr}`;
+
+        this.$http.get(path).then(
+            (resp: ng.IHttpResponse<CollaborativeExam[]>) => {
+                deferred.resolve(resp.data);
+            },
+            err => {
+                toast.error(err.data);
+                deferred.reject(err);
+            },
+        );
+
+        return deferred.promise;
+    }
+
     createExam(): ng.IPromise<CollaborativeExam> {
         const deferred: ng.IDeferred<CollaborativeExam> = this.$q.defer();
         this.$http.post('/integration/iop/exams', {}).then(
