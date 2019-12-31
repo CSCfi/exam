@@ -948,5 +948,7 @@
   "sitnet_question_claim_skip": "Skip question EN",
   "sitnet_examination_event_removed": "Ilmoittautuminen poistettu EN",
   "sitnet_examination_event": "Tenttitilaisuus EN",
-  "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita. EN"
+  "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita. EN",
+  "sitnet_exam_question_scores_report": "Kysymyskohtaiset pisteet EN",
+  "sitnet_exam_print_question_scores_report": "Tulosta kysymyskohtaiset pisteet EN"
 }

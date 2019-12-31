@@ -16,6 +16,8 @@ import * as ng from 'angular';
 import * as _ from 'lodash';
 
 import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
+import { FileService } from '../../../utility/file/file.service';
+import { ReviewListService } from '../reviewList.service';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
@@ -33,6 +35,15 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
         chartOptions: any;
+
+        constructor(
+            private Files: FileService,
+            private ReviewList: ReviewListService,
+            private $filter: ng.IFilterService,
+            private $translate: ng.translate.ITranslateService,
+        ) {
+            'ngInject';
+        }
 
         private refresh = () => {
             this.buildGradeDistribution();
@@ -98,6 +109,22 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                 .map(r => [r.duration, r.exam.grade.name]);
             this.gradeTimeLabels = gradeTimes.map(g => g[0]);
             this.gradeTimeData = gradeTimes.map(g => g[1]);
+        };
+
+        printQuestionScoresReport = () => {
+            const ids = this.reviews.map(r => r.exam.id);
+            if (ids.length > 0) {
+                const url = '/app/reports/questionreport/' + this.exam.id;
+                this.Files.download(
+                    url,
+                    this.$translate.instant('sitnet_grading_info') +
+                        '_' +
+                        this.$filter('date')(Date.now(), 'dd-MM-yyyy') +
+                        '.xlsx',
+                    { childIds: ids },
+                    true,
+                );
+            }
         };
     },
 };
