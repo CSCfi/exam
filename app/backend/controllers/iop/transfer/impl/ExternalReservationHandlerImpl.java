@@ -90,7 +90,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         return request.delete().thenApplyAsync(onSuccess);
     }
 
-    private CompletionStage<Result> requestRemoval(String ref, User user) throws IOException {
+    private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -126,7 +126,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             boolean isStudentUser = user.equals(enrolment.getUser());
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composeReservationCancellationNotification(enrolment.getUser(),
-                        reservation, "", isStudentUser, enrolment);
+                        reservation, msg, isStudentUser, enrolment);
                 logger.info("Reservation cancellation confirmation email sent");
             }, system.dispatcher());
 
@@ -137,12 +137,12 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
 
     // remove reservation on external side, initiated by reservation holder
     @Override
-    public CompletionStage<Result> removeReservation(Reservation reservation, User user) {
+    public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
         if (reservation.getExternalReservation() == null) {
             return CompletableFuture.supplyAsync(Results::ok);
         }
         try {
-            return requestRemoval(reservation.getExternalRef(), user);
+            return requestRemoval(reservation.getExternalRef(), user, msg);
         } catch (IOException e) {
             return CompletableFuture.supplyAsync(() -> Results.internalServerError(e.getMessage()));
         }

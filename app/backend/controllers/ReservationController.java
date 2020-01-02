@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -43,6 +44,7 @@ import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.controllers.iop.transfer.api.ExternalReservationHandler;
 import backend.exceptions.NotFoundException;
 import backend.impl.EmailComposer;
 import backend.models.Exam;
@@ -67,6 +69,9 @@ public class ReservationController extends BaseController {
 
     @Inject
     protected CollaborativeExamLoader collaborativeExamLoader;
+
+    @Inject
+    protected ExternalReservationHandler externalReservationHandler;
 
     @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -162,7 +167,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result removeReservation(long id, Http.Request request) throws NotFoundException {
+    public CompletionStage<Result> removeReservation(long id, Http.Request request) throws NotFoundException {
 
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String msg = df.get("msg");
@@ -182,7 +187,9 @@ public class ReservationController extends BaseController {
                 .findOne();
 
         if (participation != null) {
-            return forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()));
+            return wrapAsPromise(
+                    forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()))
+            );
         }
 
         Reservation reservation = enrolment.getReservation();
@@ -192,10 +199,14 @@ public class ReservationController extends BaseController {
             emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
         }
 
-        enrolment.setReservation(null);
-        enrolment.update();
-        reservation.delete();
-        return ok("removed");
+        if (reservation.getExternalReservation() != null) {
+            return externalReservationHandler.removeReservation(reservation, enrolment.getUser(), msg);
+        } else {
+            enrolment.setReservation(null);
+            enrolment.update();
+            reservation.delete();
+            return wrapAsPromise(ok("removed"));
+        }
     }
 
     @Restrict({@Group("ADMIN")})
