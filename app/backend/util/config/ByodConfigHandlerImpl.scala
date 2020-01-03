@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets
 import java.util.Optional
 import java.util.zip.GZIPOutputStream
 
-import backend.util.file.FileHandler
 import javax.inject.Inject
 import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
@@ -16,37 +15,41 @@ import play.api.libs.json._
 import play.mvc.{Http, Result, Results}
 
 import scala.compat.java8.OptionConverters._
+import scala.io.Source
 import scala.xml.{Node, XML}
 
-class ByodConfigHandlerImpl @Inject()(fileHandler: FileHandler,
-                                      configReader: ConfigReader,
-                                      env: Environment)
+class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environment)
     extends ByodConfigHandler {
 
   private val logger                = Logger(this.getClass).logger
+  private val crypto                = new AES256JNCryptor
+  private val encryptionKey         = configReader.getSettingsPasswordEncryptionKey
   private val START_URL_PLACEHOLDER = "*** startURL ***"
   private val QUIT_PWD_PLACEHOLDER  = "*** quitPwd ***"
   private val PASSWORD_ENCRYPTION   = "pswd"
+  private val CONFIG_KEY_HEADER     = "X-SafeExamBrowser-ConfigKeyHash"
 
   /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
-  private def getProtocol = new URL(configReader.getHostName).getProtocol
+  private val protocol = new URL(configReader.getHostName).getProtocol
 
   private def getTemplate(hash: String): Node = {
-    val path     = String.format("%s/conf/seb.template.plist", env.rootPath.getAbsolutePath)
-    val startUrl = String.format("%s?exam=%s", configReader.getHostName, hash)
-    val template = fileHandler.read(path).replace(START_URL_PLACEHOLDER, startUrl)
-    val quitPwd  = DigestUtils.sha256Hex(configReader.getQuitPassword)
+    val path     = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
+    val startUrl = s"${configReader.getHostName}?exam=$hash"
+    val source   = Source.fromFile(path)
+    val template = source.mkString.replace(START_URL_PLACEHOLDER, startUrl)
+    source.close
+    val quitPwd = DigestUtils.sha256Hex(configReader.getQuitPassword)
     XML.loadString(template.replace(QUIT_PWD_PLACEHOLDER, quitPwd))
   }
 
-  private def compress(data: Array[Byte]) = {
-    val baos = new ByteArrayOutputStream
+  private def compress(data: Array[Byte]): Array[Byte] = {
+    val os = new ByteArrayOutputStream
     try {
-      val gzip = new GZIPOutputStream(baos)
+      val gzip = new GZIPOutputStream(os)
       gzip.write(data)
       gzip.flush()
-      baos.toByteArray
-    } finally baos.close()
+      os.toByteArray
+    } finally os.close()
   }
 
   private def nodeToJson(node: Node): Option[JsValue] = node.label match {
@@ -79,42 +82,33 @@ class ByodConfigHandlerImpl @Inject()(fileHandler: FileHandler,
   override def getExamConfig(hash: String, pwd: Array[Byte], salt: String): Array[Byte] = {
     val template   = getTemplate(hash)
     val templateGz = compress(template.toString.getBytes(StandardCharsets.UTF_8))
-    val crypto     = new AES256JNCryptor
     // Decrypt user defined setting password
-    val key          = configReader.getSettingsPasswordEncryptionKey
-    val saltedPwd    = crypto.decryptData(pwd, key.toCharArray)
-    val plainTextPwd = new String(saltedPwd, StandardCharsets.UTF_8).replace(salt, "")
+    val plaintextPwd = getPlaintextPassword(pwd, salt)
     // Encrypt the config file using unencrypted password
-    val cipherText   = crypto.encryptData(templateGz, plainTextPwd.toCharArray)
-    val header       = PASSWORD_ENCRYPTION.getBytes(StandardCharsets.UTF_8)
-    val outputStream = new ByteArrayOutputStream()
+    val cipherText = crypto.encryptData(templateGz, plaintextPwd.toCharArray)
+    val header     = PASSWORD_ENCRYPTION.getBytes(StandardCharsets.UTF_8)
+    val os         = new ByteArrayOutputStream()
     try {
-      outputStream.write(header)
-      outputStream.write(cipherText)
-    } finally outputStream.close()
-    compress(outputStream.toByteArray)
+      os.write(header)
+      os.write(cipherText)
+    } finally os.close()
+    compress(os.toByteArray)
   }
 
   override def getPlaintextPassword(pwd: Array[Byte], salt: String): String = {
-    val crypto    = new AES256JNCryptor
-    val key       = configReader.getSettingsPasswordEncryptionKey
-    val saltedPwd = crypto.decryptData(pwd, key.toCharArray)
+    val saltedPwd = crypto.decryptData(pwd, encryptionKey.toCharArray)
     new String(saltedPwd, StandardCharsets.UTF_8).replace(salt, "")
   }
 
-  override def getEncryptedPassword(pwd: String, salt: String): Array[Byte] = {
-    val crypto = new AES256JNCryptor
-    val key    = configReader.getSettingsPasswordEncryptionKey
-    crypto.encryptData((pwd + salt).getBytes(StandardCharsets.UTF_8), key.toCharArray)
-  }
+  override def getEncryptedPassword(pwd: String, salt: String): Array[Byte] =
+    crypto.encryptData((pwd + salt).getBytes(StandardCharsets.UTF_8), encryptionKey.toCharArray)
 
   override def checkUserAgent(request: Http.RequestHeader,
                               examConfigKey: String): Optional[Result] = {
-    val absoluteUrl = String.format("%s://%s%s", getProtocol, request.host, request.uri)
-    val header      = request.header("X-SafeExamBrowser-ConfigKeyHash").asScala
-    header match {
+    request.header(CONFIG_KEY_HEADER).asScala match {
       case None => Some(Results.unauthorized("SEB headers missing")).asJava
       case Some(digest) =>
+        val absoluteUrl = s"$protocol://${request.host}${request.uri}"
         DigestUtils.sha256Hex(absoluteUrl + examConfigKey) match {
           case eck if eck == digest => None.asJava
           case eck =>
@@ -130,7 +124,8 @@ class ByodConfigHandlerImpl @Inject()(fileHandler: FileHandler,
 
   override def calculateConfigKey(hash: String): String = {
     val plist: Node = getTemplate(hash)
-    // Construct a Json-like structure out of the plist for encryption, see SEB documentation for details
+    // Construct a Json-like structure out of .plist and create a digest over it
+    // See SEB documentation for details
     dictToJson((plist \ "dict").head) match {
       case Some(json) =>
         val unescaped = json.toString.replaceAll("\\\\\\\\", "\\\\")
