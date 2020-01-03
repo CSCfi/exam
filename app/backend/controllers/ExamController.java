@@ -242,13 +242,8 @@ public class ExamController extends BaseController {
         // decipher the settings passwords if any
         if (exam.getRequiresUserAgentAuth()) {
             exam.getExaminationEventConfigurations().forEach(eec -> {
-                String plainTextPwd;
-                try {
-                    plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                String plainTextPwd = byodConfigHandler.getPlaintextPassword(
                             eec.getEncryptedSettingsPassword(), eec.getSettingsPasswordSalt());
-                } catch (CryptorException e) {
-                    throw new RuntimeException(e);
-                }
                 eec.setSettingsPassword(plainTextPwd);
             });
         }

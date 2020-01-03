@@ -130,10 +130,10 @@ public class ExaminationController extends BaseController {
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
             Optional<Exam> possibleClone = getPossibleClone(hash, user, ce);
             // no exam found for hash
-            if (!optionalPrototype.isPresent() && !possibleClone.isPresent()) {
+            if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
                 return notFound();
             }
-            if (!possibleClone.isPresent()) {
+            if (possibleClone.isEmpty()) {
                 // Exam not started yet, create new exam for student
                 Exam prototype = optionalPrototype.get();
                 ExamEnrolment enrolment = getEnrolment(user, prototype, ce);

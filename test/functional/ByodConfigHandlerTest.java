@@ -7,7 +7,6 @@ import play.inject.guice.GuiceApplicationBuilder;
 import backend.util.config.ByodConfigHandler;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.failure;
 import static play.test.Helpers.running;
 
 public class ByodConfigHandlerTest {
@@ -18,15 +17,10 @@ public class ByodConfigHandlerTest {
     public void testCalculateConfigKey() {
         running(app, () -> {
             ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
-            try {
-                String key = bch.calculateConfigKey("123456");
-                assertThat(key).isEqualTo("485445b7b7df8fe16b2b7e736eb74f6aaf203924d0ea92d87e179bb5a4c0be43");
-            } catch (Exception e) {
-                throw failure("exception thrown inside handler");
-            }
+            String key = bch.calculateConfigKey("123456");
+            assertThat(key).isEqualTo("485445b7b7df8fe16b2b7e736eb74f6aaf203924d0ea92d87e179bb5a4c0be43");
         });
 
     }
 
 }
-
