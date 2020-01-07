@@ -158,10 +158,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
-        String content = fileHandler.encode(file);
-        if (!file.delete()) {
-            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
-        }
+        String content = fileHandler.encodeAndDelete(file);
         return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 
@@ -176,10 +173,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
-        String content = fileHandler.encode(file);
-        if (!file.delete()) {
-            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
-        }
+        String content = fileHandler.encodeAndDelete(file);
         return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 

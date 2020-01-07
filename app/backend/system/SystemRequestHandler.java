@@ -52,6 +52,7 @@ import backend.models.User;
 import backend.security.SessionHandler;
 import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
+import play.mvc.Results;
 
 
 public class SystemRequestHandler implements ActionCreator {
@@ -71,7 +72,7 @@ public class SystemRequestHandler implements ActionCreator {
     }
 
     @Override
-    public Action createAction(Http.Request request, Method actionMethod) {
+    public Action.Simple createAction(Http.Request request, Method actionMethod) {
         Optional<Session> os = sessionHandler.getSession(request);
         Optional<String> ot = sessionHandler.getSessionToken(request);
         boolean temporalStudent = os.isPresent() && os.get().isTemporalStudent();
@@ -87,22 +88,30 @@ public class SystemRequestHandler implements ActionCreator {
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session);
-            boolean isStudent = hasRole(Role.Name.STUDENT, session);
+            boolean isStudent = isStudent(session);
             if ((user == null || !isStudent) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
-            } else {
+            } else if (user != null){
                 // requests are candidates for extra processing
                 return propagateAction(getReservationHeaders(request, user));
+            } else {
+                return new Action.Simple() {
+                    @Override
+                    public CompletionStage<Result> call(Http.Request request) {
+                        return CompletableFuture.supplyAsync(Results::forbidden);
+                    }
+                };
             }
         });
     }
 
-    private boolean hasRole(Role.Name name, Session session) {
-        return session != null && session.getLoginRole() != null && name.toString().equals(session.getLoginRole());
+    private boolean isStudent(Session session) {
+        return session != null && session.getLoginRole() != null &&
+                Role.Name.STUDENT.toString().equals(session.getLoginRole());
     }
 
-    private Optional<Action> validateSession(Session session, String token) {
+    private Optional<Action.Simple> validateSession(Session session, String token) {
         if (session == null) {
             if (token == null) {
                 logger.debug("User not logged in");
@@ -144,11 +153,11 @@ public class SystemRequestHandler implements ActionCreator {
         return headers;
     }
 
-    private Action propagateAction() {
+    private Action.Simple propagateAction() {
         return propagateAction(Collections.emptyMap());
     }
 
-    private Action propagateAction(Map<String, String> headers) {
+    private Action.Simple propagateAction(Map<String, String> headers) {
         return new Action.Simple() {
             @Override
             public CompletionStage<Result> call(Http.Request request) {
@@ -187,7 +196,8 @@ public class SystemRequestHandler implements ActionCreator {
 
         if (requiresUserAgentAuth && enrolment.getExam() != null) {
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
-            Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
+            Optional<Result> error =
+                    byodConfigHandler.checkUserAgent(request, config.getConfigKey());
             if (error.isPresent()) {
                 String msg = ISODateTimeFormat.dateTime().print(
                         new DateTime(config.getExaminationEvent().getStart()));
@@ -259,7 +269,7 @@ public class SystemRequestHandler implements ActionCreator {
 
     private DateTime getStartTime(ExamEnrolment enrolment) {
         return enrolment.getReservation() != null ? enrolment.getReservation().getStartAt() :
-        enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+                enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
     }
 
     private boolean isInsideBounds(ExamEnrolment ee, DateTime earliest, DateTime latest) {
