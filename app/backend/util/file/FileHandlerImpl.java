@@ -50,7 +50,7 @@ public class FileHandlerImpl implements FileHandler {
     }
 
     @Override
-    public String encode(File file) {
+    public String encodeAndDelete(File file) {
         String content = Base64.getEncoder().encodeToString(read(file));
         if (!file.delete()) {
             logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
