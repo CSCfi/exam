@@ -327,14 +327,18 @@ public class SessionController extends BaseController {
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
         session.setValid(true);
-        // If user has just one role, set it as the one used for login
-        if (user.getRoles().size() == 1) {
+        // If (regular) user has just one role, set it as the one used for login
+        if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
             session.setLoginRole(user.getRoles().get(0).getName());
         }
-        session.setTemporalStudent(isTemporaryVisitor);
-        String token = createSession(session, request);
         List<Role> roles = isTemporaryVisitor ?
-                Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() : user.getRoles();
+                Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() :
+                user.getRoles();
+        if (isTemporaryVisitor) {
+            session.setTemporalStudent(true);
+            session.setLoginRole(roles.get(0).getName()); // forced login as student
+        }
+        String token = createSession(session, request);
 
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
