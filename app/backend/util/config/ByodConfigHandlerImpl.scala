@@ -103,24 +103,22 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   override def getEncryptedPassword(pwd: String, salt: String): Array[Byte] =
     crypto.encryptData((pwd + salt).getBytes(StandardCharsets.UTF_8), encryptionKey.toCharArray)
 
-  override def checkUserAgent(request: Http.RequestHeader,
-                              examConfigKey: String): Optional[Result] = {
+  override def checkUserAgent(request: Http.RequestHeader, configKey: String): Optional[Result] =
     request.header(CONFIG_KEY_HEADER).asScala match {
       case None => Some(Results.unauthorized("SEB headers missing")).asJava
       case Some(digest) =>
         val absoluteUrl = s"$protocol://${request.host}${request.uri}"
-        DigestUtils.sha256Hex(absoluteUrl + examConfigKey) match {
-          case eck if eck == digest => None.asJava
-          case eck =>
+        DigestUtils.sha256Hex(absoluteUrl + configKey) match {
+          case sha if sha == digest => None.asJava
+          case sha =>
             logger.warn(
               "Config key mismatch for URL {} and exam config key {}. Digest received: {}",
               absoluteUrl,
-              examConfigKey,
-              eck)
+              configKey,
+              sha)
             Some(Results.unauthorized("Wrong configuration key digest")).asJava
         }
     }
-  }
 
   override def calculateConfigKey(hash: String): String = {
     val plist: Node = getTemplate(hash)
