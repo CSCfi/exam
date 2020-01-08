@@ -62,7 +62,6 @@ angular.module('app.question').component('questionBody', {
             };
 
             vm.$onInit = function() {
-
                 /**
                  *  Temporary solution to block claim choice question insertion to collaborative exam
                  */
@@ -73,7 +72,7 @@ angular.module('app.question').component('questionBody', {
                     { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
                 ];
 
-                const basicQuestionTypes = [ 
+                const basicQuestionTypes = [
                     ...collaborativeQuestionTypes,
                     { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
                 ];

@@ -91,6 +91,19 @@ export const QuestionAssessmentComponent: angular.IComponentOptions = {
                         if (this.assessedAnswers.indexOf(answer) === -1) {
                             this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
                             this.assessedAnswers.push(answer);
+
+                            // Make sure that this.reviews gets also updated
+                            const currentQuestionId = this.selectedReview.question.id;
+                            const currentReviewIndex = this.reviews.findIndex(r => r.question.id === currentQuestionId);
+
+                            if (this.reviews[currentReviewIndex]) {
+                                const currentAnswerIndex = this.reviews[currentReviewIndex].answers.findIndex(
+                                    a => a.id === answer.id,
+                                );
+                                if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
+                                    this.reviews[currentReviewIndex].answers[currentAnswerIndex] = angular.copy(answer);
+                                }
+                            }
                         }
                         resolve();
                     })
