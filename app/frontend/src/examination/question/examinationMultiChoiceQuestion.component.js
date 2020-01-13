@@ -34,6 +34,7 @@ angular.module('app.examination').component('examinationMultiChoiceQuestion', {
         sq: '<',
         examHash: '<',
         isPreview: '<',
+        isCollaborative: '<'
     },
     controller: [
         'Examination',
@@ -41,6 +42,11 @@ angular.module('app.examination').component('examinationMultiChoiceQuestion', {
             const vm = this;
 
             vm.$onInit = function() {
+                if(vm.isCollaborative && vm.isPreview) {
+                    // Collaborative exam options have no id in preview, using id from nested option node
+                    vm.sq.options = vm.sq.options.map(opt => ({ ...opt, id: opt.option.id}));
+                }
+
                 const answered = vm.sq.options.filter(function(o) {
                     return o.answered;
                 });

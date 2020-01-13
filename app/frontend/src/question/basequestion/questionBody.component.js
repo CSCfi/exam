@@ -62,32 +62,14 @@ angular.module('app.question').component('questionBody', {
             };
 
             vm.$onInit = function() {
-                /**
-                 *  Temporary solution to block claim choice question insertion to collaborative exam
-                 */
-                const collaborativeQuestionTypes = [
+                
+                vm.questionTypes = [
                     { type: 'essay', name: 'sitnet_toolbar_essay_question' },
                     { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
                     { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
                     { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
-                ];
-
-                const basicQuestionTypes = [
-                    ...collaborativeQuestionTypes,
                     { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
                 ];
-
-                vm.questionTypes = vm.collaborative ? collaborativeQuestionTypes : basicQuestionTypes;
-
-                // TODO: delete the code before this codeblock and uncomment this after
-                // claim choice question functionality has been added to collaborative exam
-                //vm.questionTypes = [
-                //    { type: 'essay', name: 'sitnet_toolbar_essay_question' },
-                //    { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
-                //    { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
-                //    { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
-                //    { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
-                //];
 
                 init();
             };
