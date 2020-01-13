@@ -257,7 +257,8 @@ public class CollaborativeReviewController extends CollaborationController {
                         return internalServerError("sitnet_error_creating_csv_file");
                     }
                     String contentDisposition = fileHandler.getContentDisposition(file);
-                    return ok(fileHandler.encode(file)).withHeader("Content-Disposition", contentDisposition);
+                    return ok(fileHandler.encodeAndDelete(file))
+                            .withHeader("Content-Disposition", contentDisposition);
                 })).getOrElseGet(Function.identity())
         ).getOrElseGet(Function.identity());
     }

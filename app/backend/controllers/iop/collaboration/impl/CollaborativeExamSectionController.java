@@ -257,6 +257,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 esq.setCreated(DateTime.now());
 
                 updateExamQuestion(esq, question);
+                cleanUser(user);
                 AppUtil.setModifier(es, user);
                 es.getSectionQuestions().add(esq);
                 return Optional.empty();
@@ -387,6 +388,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
         section.setSequenceNumber(exam.getExamSections().size());
         section.setExpanded(true);
         section.setId(newId());
+        cleanUser(user);
         AppUtil.setCreator(section, user);
         return section;
     }

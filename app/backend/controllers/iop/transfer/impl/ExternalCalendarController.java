@@ -328,7 +328,7 @@ public class ExternalCalendarController extends CalendarController {
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
-        return externalReservationHandler.removeReservation(reservation, user);
+        return externalReservationHandler.removeReservation(reservation, user, "");
     }
 
     @Restrict(@Group("ADMIN"))

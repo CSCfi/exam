@@ -517,7 +517,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
         assertThat(parsedExam.getId()).isEqualTo(13630); // ID that is in enrolment.json
-
     }
 
     @Test
@@ -629,6 +628,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation().getId()).isNotEqualTo(reservation.getId());
         assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+
+        greenMail.waitForIncomingEmail(5000, 1);
     }
 
 
