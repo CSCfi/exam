@@ -133,7 +133,7 @@
     </div>
 
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="top-row">
+    <div class="top-row" ng-if="$ctrl.room">
         <div class="col-md-12">
             <a ui-sref="availability({id: {{$ctrl.room.id}} })">{{'sitnet_reservations_new' | translate}}</a>
         </div>
