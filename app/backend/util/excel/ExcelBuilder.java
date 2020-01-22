@@ -18,16 +18,16 @@ package backend.util.excel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import backend.models.questions.Question;
 import io.ebean.Ebean;
+import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -44,6 +44,31 @@ public class ExcelBuilder {
 
     public enum CellType {
         DECIMAL, STRING
+    }
+
+    private static final String[] ScoreReportDefaultHeaders = new String[] {
+        "studentInternalId", "student", "studentFirstName",
+        "studentLastName", "studentEmail", "studentId", "examState",
+        "submissionId"
+    };
+
+    private static List<Tuple2<String, CellType>> getScoreReportDefaultCells(
+            User student,
+            Exam exam,
+            Optional<ExamScore> examScore
+    ) {
+        List<Tuple2<String, CellType>> scoreReportCells = new ArrayList<>();
+        scoreReportCells.add(Tuple.of(student.getId().toString(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(student.getEppn(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(student.getFirstName(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(student.getLastName(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(student.getEmail(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(student.getIdentifier(), CellType.STRING));
+        scoreReportCells.add(Tuple.of(exam.getState().name(), CellType.STRING));
+        scoreReportCells.add(
+                Tuple.of(examScore.isPresent() ? examScore.get().getId().toString() : "", CellType.STRING)
+        );
+        return scoreReportCells;
     }
 
     private static void setValue(Cell cell, String value, CellType type) {
@@ -91,6 +116,7 @@ public class ExcelBuilder {
         List<Exam> childExams = Ebean.find(Exam.class)
                 .fetch("examParticipation.user")
                 .fetch("examSections.sectionQuestions.question")
+                .fetch("examRecord.examScore")
                 .where()
                 .eq("parent.id", examId)
                 .in("id", childIds)
@@ -123,66 +149,75 @@ public class ExcelBuilder {
                 .concat(parentQuestionIds.stream(), deletedQuestionIds.stream())
                 .collect(Collectors.toList());
 
-        /* List students for spreadsheet rows */
-        List<User> students = childExams.stream().map(exam -> exam.getExamParticipation().getUser()).collect(Collectors.toList());
-
-        /* Helper hashmap for printing scores to excel */
-        Map<Long, Map<Long, String>> studentScoresByQuestionId = new HashMap<Long, Map<Long, String>>();
-        childExams.stream()
-                .forEach(exam -> {
-                    if(exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
-                        return;
-                    }
-
-                    Long studentId = exam.getExamParticipation().getUser().getId();
-
-                    boolean isGraded = (exam.getState() == Exam.State.GRADED ||
-                            exam.getState() == Exam.State.GRADED_LOGGED ||
-                            exam.getState() == Exam.State.ARCHIVED);
-
-                    Map<Long, String> questionScores = exam
-                            .getExamSections()
-                            .stream()
-                            .flatMap(es -> es.getSectionQuestions().stream())
-                            .collect(Collectors.toMap(
-                                    esq -> getQuestionId(esq),
-                                    esq -> isGraded ? esq.getAssessedScore().toString() : "-"
-                            ));
-                    studentScoresByQuestionId.put(studentId, questionScores);
-                });
-
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Question scores");
 
         /* Create header row */
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("studentId");
-        headerRow.createCell(1).setCellValue("eppn");
+
+        /* Set default header cells */
+        for(int i = 0; i < ScoreReportDefaultHeaders.length; i++) {
+            headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders[i]);
+        }
+
+        /* Set dynamic question column headers */
         for(int i = 0; i < questionIds.size(); i++) {
-            int currentCellIndex = i + 2;
+            // Length of headers is added as "offset" to cell index
+            int currentCellIndex = i + ScoreReportDefaultHeaders.length;
             Long questionId = questionIds.get(i);
             String header = parentQuestionIds.contains(questionId) ? "questionId_" + questionId : "removed";
             headerRow.createCell(currentCellIndex).setCellValue(header);
         }
 
         /* Create score rows */
-        students.forEach(student -> {
-            int rowId = students.indexOf(student) + 1;
-            Long studentId = student.getId();
+        childExams.forEach(exam -> {
+            if(exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
+                return;
+            }
+
+            int rowId = childExams.indexOf(exam) + 1; // Skip header row
+            User student = exam.getExamParticipation().getUser();
+            Optional<ExamScore> examScore = Optional.ofNullable(exam.getExamRecord())
+                    .map(ExamRecord::getExamScore);
+
+            boolean isGraded = (exam.getState() == Exam.State.GRADED ||
+                    exam.getState() == Exam.State.GRADED_LOGGED ||
+                    exam.getState() == Exam.State.ARCHIVED);
+
+            /* Create map of cell tuples, containing score value as string and cell type */
+            Map<Long, Tuple2<String, CellType>> scoreCellsByQuestionIds = exam.getExamSections().stream()
+                    .flatMap(es -> es.getSectionQuestions().stream())
+                    .collect(Collectors.toMap(
+                            esq -> getQuestionId(esq),
+                            esq -> {
+                                String score = isGraded ? getQuestionResultString(esq) : "-";
+                                CellType type = StringUtils.isNumeric(score) ? CellType.DECIMAL : CellType.STRING;
+                                return Tuple.of(score, type);
+                            }
+                    ));
+
             Row dataRow = sheet.createRow(rowId);
-            dataRow.createCell(0).setCellValue(student.getId());
-            dataRow.createCell(1).setCellValue(student.getEppn());
+
+            /* Set default cells to excel file, like student related data etc. */
+            List<Tuple2<String, CellType>> defaultCells = getScoreReportDefaultCells(student, exam, examScore);
+            for(Tuple2<String, CellType> cell : defaultCells) {
+                Cell cellPointer = dataRow.createCell(defaultCells.indexOf(cell));
+                setValue(cellPointer, cell._1, cell._2);
+            }
+
+            /* Set question score cells */
             questionIds.forEach(questionId -> {
-                int cellIndex = questionIds.indexOf(questionId) + 2;
-                Cell cell = dataRow.createCell(cellIndex);
-                String cellValue = studentScoresByQuestionId.get(studentId).get(questionId);
-                CellType cellType = cellValue == "" || cellValue == "-" || cellValue == null ? CellType.STRING : CellType.DECIMAL;
-                setValue(cell, cellValue, cellType);
+                int cellIndex = questionIds.indexOf(questionId) + ScoreReportDefaultHeaders.length;
+                Cell cellPointer = dataRow.createCell(cellIndex);
+                Tuple2<String, CellType> cellTuple = scoreCellsByQuestionIds.get(questionId);
+                if(cellTuple != null) {
+                    setValue(cellPointer, cellTuple._1, cellTuple._2);
+                }
             });
         });
 
         /* Autosize cells */
-        IntStream.range(0, questionIds.size() + 2).forEach(i -> sheet.autoSizeColumn(i, true));
+        IntStream.range(0, questionIds.size() + ScoreReportDefaultHeaders.length).forEach(i -> sheet.autoSizeColumn(i, true));
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
@@ -216,4 +251,18 @@ public class ExcelBuilder {
 
     }
 
+    private static String getQuestionResultString(ExamSectionQuestion question) {
+        if(question.getEvaluationType() == Question.EvaluationType.Selection)  {
+            boolean rejected = question.isRejected();
+            boolean approved = question.isApproved();
+
+            if(rejected && !approved) {
+                return "REJECTED";
+            } else if(!rejected && approved) {
+                return "APPROVED";
+            }
+        }
+
+        return question.getAssessedScore().toString();
+    }
 }
