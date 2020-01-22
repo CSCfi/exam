@@ -16,15 +16,18 @@
 package backend.controllers;
 
 
-import backend.controllers.base.BaseController;
-import backend.models.Course;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.sanitizers.Attrs;
-import backend.util.excel.ExcelBuilder;
-import backend.sanitizers.ExamRecordSanitizer;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -36,18 +39,17 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Collection;
-import java.util.Base64;
-import java.util.stream.Collectors;
 import play.mvc.With;
+
+import backend.controllers.base.BaseController;
+import backend.models.Course;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExamRecordSanitizer;
+import backend.util.excel.ExcelBuilder;
 
 public class ReportController extends BaseController {
 
