@@ -78,7 +78,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     }
 
     private static PathProperties getPath() {
-        String path = "(*, user(id, firstName, lastName, email, eppn)" +
+        String path = "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
                 "exam(id, name, state, instruction, hash, duration, executionType(id, type), " +
                 "examLanguages(code), attachment(id, externalId, fileName)" +
                 "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
@@ -90,7 +90,8 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 "options(*, option(*))" +
                 "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
-                ")), examEnrolments(*, user(firstName, lastName, email, eppn), reservation(*, machine(*, room(*))) )" +
+                ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " +
+                "reservation(*, machine(*, room(*))) )" +
                 "))";
         return PathProperties.parse(path);
     }

@@ -186,7 +186,7 @@ public class CollaborativeReviewController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(eid).map(ce -> {
             Optional<URL> url = parseUrl(ce.getExternalRef(), null);
-            if (!url.isPresent()) {
+            if (url.isEmpty()) {
                 return wrapAsPromise(internalServerError());
             }
             WSRequest wsRequest = wsClient.url(url.get().toString());
@@ -197,7 +197,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 final JsonNode root = response.asJson();
                 final Optional<JsonNode> assessment = stream(root).filter(node -> node.path("_id").asText().equals(aid))
                         .findFirst();
-                if (!assessment.isPresent()) {
+                if (assessment.isEmpty()) {
                     return Results.notFound("Assessment not found!");
                 }
                 final String eppn = assessment.get().path("user").path("eppn").textValue();
@@ -271,7 +271,7 @@ public class CollaborativeReviewController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(id).map(ce -> {
             Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-            if (!url.isPresent()) {
+            if (url.isEmpty()) {
                 return wrapAsPromise(internalServerError());
             }
             WSRequest wsRequest = wsClient.url(url.get().toString());
@@ -361,7 +361,7 @@ public class CollaborativeReviewController extends CollaborationController {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         JsonNode body = request.body().asJson();
@@ -386,7 +386,7 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> updateAssessment(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id).map(ce -> {
             Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-            if (!url.isPresent()) {
+            if (url.isEmpty()) {
                 return wrapAsPromise(internalServerError());
             }
             JsonNode body = request.body().asJson();
@@ -509,7 +509,7 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> updateAssessmentInfo(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id).map(ce -> {
             Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-            if (!url.isPresent()) {
+            if (url.isEmpty()) {
                 return wrapAsPromise(internalServerError());
             }
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
