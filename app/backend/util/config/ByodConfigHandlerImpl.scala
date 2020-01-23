@@ -23,6 +23,7 @@ object ByodConfigHandlerImpl {
   private val QuitPwdPlaceholder  = "*** quitPwd ***"
   private val PasswordEncryption  = "pswd"
   private val ConfigKeyHeader     = "X-SafeExamBrowser-ConfigKeyHash"
+  private val IgnoredKeys         = Seq("originatorVersion")
 }
 class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environment)
     extends ByodConfigHandler {
@@ -56,15 +57,15 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   }
 
   private def nodeToJson(node: Node): Option[JsValue] = node.label match {
+    case "string" | "data" =>
+      val text = if (node.child.nonEmpty) node.child.head.text else ""
+      Some(JsString(text.trim.filterNot(_ == '\n')))
     case "true"    => Some(JsBoolean(true))
     case "false"   => Some(JsBoolean(false))
     case "integer" => Some(JsNumber(node.child.head.text.toInt))
     case "array"   => Some(JsArray(node.child.flatMap(nodeToJson)))
     case "dict"    => dictToJson(node)
-    case l if l == "string" || l == "data" =>
-      val text = if (node.child.nonEmpty) node.child.head.text else ""
-      Some(JsString(text.trim.filterNot(_ == '\n')))
-    case _ => throw new NoSuchElementException
+    case _         => throw new NoSuchElementException
   }
 
   private def dictToJson(dict: Node): Option[JsValue] = dict.child match {
@@ -73,12 +74,12 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
       val json: Seq[(String, JsValue)] = children
         .grouped(2)
         .map(c => (c.head.text, c.last))
-        .filterNot(_._1 == "originatorVersion")
+        .filterNot(c => IgnoredKeys.contains(c._1))
         .map(n => (n._1, nodeToJson(n._2)))
         .filterNot(_._2.isEmpty)
         .map(n => n._1 -> n._2.get)
         .toSeq
-        .sortWith((a, b) => a._1.toLowerCase < b._1.toLowerCase)
+        .sortBy(_._1.toLowerCase)
       Some(JsObject(json))
   }
 
@@ -128,10 +129,8 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
     // Construct a Json-like structure out of .plist and create a digest over it
     // See SEB documentation for details
     dictToJson((plist \ "dict").head) match {
-      case Some(json) =>
-        val unescaped = json.toString.replaceAll("\\\\\\\\", "\\\\")
-        DigestUtils.sha256Hex(unescaped)
-      case None => throw new NoSuchElementException
+      case Some(json) => DigestUtils.sha256Hex(json.toString.replaceAll("\\\\\\\\", "\\\\"))
+      case None       => throw new NoSuchElementException
     }
   }
 }

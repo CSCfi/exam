@@ -24,7 +24,7 @@ public class SectionQuestionSanitizer extends BaseSanitizer {
         Http.Request request = SanitizingHelper.sanitizeOptionalHtml("answerInstructions", body, Attrs.ANSWER_INSTRUCTIONS, req);
         request = SanitizingHelper.sanitizeOptionalHtml("evaluationCriteria", body, Attrs.EVALUATION_CRITERIA, request);
         if (body.has("question")) {
-            request = SanitizingHelper.sanitizeOptionalHtml("question", body.get("question"), Attrs.QUESTION_TEXT, req);
+            request = SanitizingHelper.sanitizeOptionalHtml("question", body.get("question"), Attrs.QUESTION_TEXT, request);
         }
         return request;
     }

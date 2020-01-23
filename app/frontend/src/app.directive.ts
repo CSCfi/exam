@@ -87,8 +87,20 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
 
     link(scope: ClozeTestScope, element: IAugmentedJQuery) {
         const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
-        const replacement = angular.element(scope.content);
+
+        /* 
+            Add span tags with ngNonBindable directive to prevent AngularJS interpolation 
+            (if strings surrounded by multiple curly braces are present).
+        */
+        const regexMultipleCurlyBraces = /\{{2,}(.*?)\}{2,}/g;
+        const escapedContent = scope.content.replace(
+            regexMultipleCurlyBraces,
+            match => `<span ng-non-bindable>${match}</span>`,
+        );
+
+        const replacement = angular.element(escapedContent);
         const inputs = replacement.find('input');
+
         const padding = 2; // add some extra length so that all characters are more likely to fit in the input field
         for (let i = 0; i < inputs.length; ++i) {
             const input = inputs[i];

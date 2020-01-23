@@ -531,6 +531,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
         json.put("requestingOrg", "foobar");
+        json.set("optionalSections", Json.newArray());
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
