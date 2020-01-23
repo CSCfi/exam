@@ -74,6 +74,31 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         return request.get().thenApplyAsync(onSuccess);
     }
 
+    @Restrict({@Group("STUDENT")})
+    public CompletionStage<Result> searchExams(final Optional<String> filter) {
+
+        if(!filter.isPresent() && filter.get().length() <= 0) {
+            return wrapAsPromise(badRequest());
+        }
+
+        Optional<URL> url = parseUrlWithSearchParam(filter.get());
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, Result> onSuccess = response -> findExamsToProcess(response).map(items -> {
+            List<Exam> exams = items.entrySet().stream().map(e -> e.getKey().getExam(e.getValue()))
+                    .filter(this::isEnrollable).collect(Collectors.toList());
+
+            return ok(exams, PathProperties.parse(
+                    "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
+                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
+                            "enrollInstruction)"));
+        }).getOrElseGet(Function.identity());
+        return request.get().thenApplyAsync(onSuccess);
+    }
+
     @Authenticated
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> checkIfEnrolled(Long id, Http.Request request) {
