@@ -950,5 +950,6 @@
   "sitnet_examination_event": "Tenttitilaisuus",
   "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita.",
   "sitnet_exam_question_scores_report": "Kysymyskohtaiset pisteet FI",
-  "sitnet_exam_print_question_scores_report": "Tulosta kysymyskohtaiset pisteet FI"
+  "sitnet_exam_print_question_scores_report": "Tulosta kysymyskohtaiset pisteet FI",
+  "sitnet_collaborative_exam_search_description": "Voit hakea tenttejä tentin nimen tai tentaattorin nimen mukaan. Kirjoita vähintään kolme kirjainta haun käynnistämiseksi. FI"
 }
