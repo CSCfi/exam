@@ -15,10 +15,10 @@
 
 package backend.security;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -56,23 +56,20 @@ class AuthorizationHandler implements DeadboltHandler {
     }
 
     @Override
-    public CompletionStage<Optional<? extends Subject>> getSubject(final Http.RequestHeader request) {
+    public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
+
         Optional<Session> os = sessionHandler.getSession(request);
         User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
         // filter out roles not found in session
         if (user != null) {
-            if (os.get().isTemporalStudent()) {
-                user.getRoles().clear();
-                user.getRoles().add(
-                        Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne()
-                );
-            } else {
-                user.setRoles(user.getRoles().stream()
-                        .filter((r) -> r.getName().equals(os.get().getLoginRole()))
-                        .collect(Collectors.toList()));
-            }
+            Session session = os.get();
+            List<Role> roles = Ebean.find(Role.class).where()
+                    .eq("name", session.getLoginRole()).findList();
+            user.setRoles(roles);
+            return CompletableFuture.supplyAsync(() -> Optional.of(user));
         }
-        return CompletableFuture.supplyAsync(() -> Optional.ofNullable(user));
+        return CompletableFuture.supplyAsync(Optional::empty);
+
     }
 
     @Override

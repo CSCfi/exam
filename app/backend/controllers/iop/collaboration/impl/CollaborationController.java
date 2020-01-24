@@ -58,6 +58,23 @@ public class CollaborationController extends BaseController {
         }
     }
 
+    Optional<URL> parseUrlWithSearchParam(String filter) {
+        try {
+            if(filter == null) {
+                return Optional.empty();
+            }
+
+            String paramStr = String.format("?filter=%s", filter);
+            String url = String.format("%s/api/exams/search%s", ConfigFactory.load().getString("sitnet.integration.iop.host"), paramStr);
+            return Optional.of(new URL(url));
+
+        } catch(MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+
+    }
+
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         return examLoader.downloadExam(ce);
     }
@@ -69,6 +86,14 @@ public class CollaborationController extends BaseController {
 
     CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef) {
         return examLoader.downloadAssessment(examRef, assessmentRef);
+    }
+
+    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // serialization of exam
+    protected void cleanUser(User user) {
+        user.getEnrolments().clear();
+        user.getParticipations().clear();
+        user.getInspections().clear();
     }
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {
@@ -127,7 +152,7 @@ public class CollaborationController extends BaseController {
         return StreamSupport.stream(node.spliterator(), false);
     }
 
-    Either<Result, Map<CollaborativeExam, JsonNode>> findExamsToProcess (WSResponse response) {
+    Either<Result, Map<CollaborativeExam, JsonNode>> findExamsToProcess(WSResponse response) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return Either.left(internalServerError(root.get("message").asText("Connection refused")));

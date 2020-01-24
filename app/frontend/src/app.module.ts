@@ -72,6 +72,7 @@ angular
     .directive('dateValidator', directives.DateValidator.factory())
     .directive('uniqueValue', directives.UniquenessValidator.factory())
     .directive('ckEditor', directives.CkEditor.factory())
+    .directive('clozeTest', directives.ClozeTest.factory())
     .directive('fixedPrecision', directives.FixedPrecision.factory())
     .directive('uiBlur', directives.UiBlur.factory())
     .directive('uiChange', directives.UiChange.factory())
