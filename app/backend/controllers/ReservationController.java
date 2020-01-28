@@ -154,7 +154,7 @@ public class ReservationController extends BaseController {
         ExamEnrolment enrolment = reservation.getEnrolment();
         if (reservation.isNoShow() && enrolment.getExam().isPrivate()) {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
-            // This is needed because student is not able to re-enroll by himself and th.
+            // This is needed because student is not able to re-enroll by himself.
             enrolment.setReservation(null);
             enrolment.update();
             reservation.delete();
