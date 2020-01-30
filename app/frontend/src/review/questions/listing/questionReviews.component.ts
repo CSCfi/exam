@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { QuestionReviewService } from '../questionReview.service';
+
 import { QuestionReview } from '../../review.model';
+import { QuestionReviewService } from '../questionReview.service';
 
 export const QuestionReviewListComponent: angular.IComponentOptions = {
     template: require('./questionReviews.template.html'),
@@ -63,9 +63,10 @@ export const QuestionReviewListComponent: angular.IComponentOptions = {
         selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
         startReview = () =>
-            this.$location
-                .path(`/assessments/${this.examId}/questions`)
-                .search('q', this.selectedReviews.map(i => i.toString()));
+            this.$location.path(`/assessments/${this.examId}/questions`).search(
+                'q',
+                this.selectedReviews.map(i => i.toString()),
+            );
     },
 };
 
