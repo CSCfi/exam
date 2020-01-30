@@ -143,7 +143,7 @@
                     {{'sitnet_remove_reservation' | translate}}
                 </button>
                 <button
-                    ng-if="r.enrolment.exam.state === 'ABORTED' || r.noShow"
+                    ng-if="r.enrolment.exam.state === 'ABORTED'"
                     ng-click="$ctrl.permitRetrial(r)"
                     ng-disabled="!r.enrolment.exam.trialCount || r.retrialPermitted"
                     class="btn btn-primary pull-left"
