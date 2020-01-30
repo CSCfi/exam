@@ -165,7 +165,7 @@ public class EnrolmentController extends BaseController {
             return badRequest();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (isAllowedToParticipate(exam, user, emailComposer)) {
+        if (isAllowedToParticipate(exam, user)) {
             DateTime now = DateTimeUtils.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()

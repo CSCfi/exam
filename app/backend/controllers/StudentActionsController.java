@@ -33,6 +33,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
+import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.libs.Json;
@@ -47,7 +48,6 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamParticipation;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
-import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
@@ -188,7 +188,7 @@ public class StudentActionsController extends CollaborationController {
         }
         Set<ExamParticipation> participations = query.findSet();
         Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
-        Set<CountsAsTrial> trials = new HashSet<>();
+        Set<Model> trials = new HashSet<>();
         trials.addAll(participations);
         trials.addAll(noShows);
         return ok(trials);
