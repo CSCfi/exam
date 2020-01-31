@@ -1,10 +1,11 @@
-import CleanWebpackPlugin from 'clean-webpack-plugin';
-import ForkTsCheckerNotifierWebpackPlugin from 'fork-ts-checker-notifier-webpack-plugin';
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import path from 'path';
-import { ProvidePlugin } from 'webpack';
-
+/* global __dirname */
+const path = require('path');
 const buildPath = path.resolve(__dirname, '../../../public/bundles/');
+const webpack = require('webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 /**
  * Base configuration object for Webpack
  */
@@ -58,7 +59,7 @@ const config = {
             eslint: true,
         }),
         new ForkTsCheckerNotifierWebpackPlugin({ title: 'TypeScript', excludeWarnings: false }),
-        new ProvidePlugin({
+        new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
@@ -71,4 +72,4 @@ const config = {
     },
 };
 
-export default config;
+module.exports = config;
