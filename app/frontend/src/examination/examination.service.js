@@ -96,7 +96,10 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
             return isTextualAnswer(esq, allowEmpty);
         });
         const save = function(question, cb) {
-            self.saveTextualAnswer(question, hash, autosave).then(() => cb(null), err => cb(err));
+            self.saveTextualAnswer(question, hash, autosave).then(
+                () => cb(null),
+                err => cb(err),
+            );
         };
         // Run this in an async loop to make sure we don't get version conflicts
         async.eachSeries(questions, save, () => deferred.resolve());
@@ -106,7 +109,10 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
     self.saveAllTextualAnswersOfExam = exam => {
         const deferred = $q.defer();
         const save = (section, cb) =>
-            self.saveAllTextualAnswersOfSection(section, exam.hash, false, true).then(() => cb(null), err => cb(err));
+            self.saveAllTextualAnswersOfSection(section, exam.hash, false, true).then(
+                () => cb(null),
+                err => cb(err),
+            );
         async.eachSeries(exam.examSections, save, () => deferred.resolve());
         return deferred.promise;
     };
