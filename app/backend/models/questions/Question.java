@@ -295,17 +295,20 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 .filter(n -> {
                     ClaimChoiceOptionType type = SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null);
                     Double defaultScore = n.get("defaultScore").asDouble();
+                    String option = n.get("option").asText();
 
                     if(type == null) {
                         return false;
                     }
 
                     return (
-                        (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0) ||
-                        (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0) ||
-                        (type == ClaimChoiceOptionType.SkipOption)
+                        (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0 && !option.isEmpty()) ||
+                        (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0 && !option.isEmpty()) ||
+                        (type == ClaimChoiceOptionType.SkipOption && defaultScore == 0 && !option.isEmpty())
                     );
                 })
+                .map(n -> SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null))
+                .filter(n -> n != null)
                 .distinct()
                 .limit(3)
                 .count() == 3;

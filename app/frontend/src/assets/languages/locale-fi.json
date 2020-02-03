@@ -951,5 +951,17 @@
   "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita.",
   "sitnet_exam_question_scores_report": "Kysymyskohtaiset pisteet FI",
   "sitnet_exam_print_question_scores_report": "Tulosta kysymyskohtaiset pisteet FI",
-  "sitnet_collaborative_exam_search_description": "Voit hakea tenttejä tentin nimen tai tentaattorin nimen mukaan. Kirjoita vähintään kolme kirjainta haun käynnistämiseksi. FI"
+  "sitnet_collaborative_exam_search_description": "Voit hakea tenttejä tentin nimen tai tentaattorin nimen mukaan. Kirjoita vähintään kolme kirjainta haun käynnistämiseksi. FI",
+  "sitnet_claim_choice_question_instruction": "Väittämä-kysymyksessä tenttijä voi saada väärästä vastauksesta miinuspisteitä, jotka vähennetään koko tentin yhteispisteistä. Tentin yhteispistemäärä ei voi kuitenkaan olla negatiivinen, eli koko tentin pistemääräksi tulee aina vähintään 0. Vastausvaihtoehdot ovat oletuksena Tosi, ja Epätosi, ja En osaa sanoa. Vastausten järjestys tentillä tulee myös olemaan sama, kuin tässä näkymässä. FI",
+  "sitnet_claim_choice_options_description": "Tentin oikea ja väärä vastaus määrittyy vastausvaihtoehdon pistelukeman mukaan: FI",
+  "sitnet_claim_choice_correct_points_description": "Oikean vastauksen pistelukema on aina enemmän kuin 0. FI",
+  "sitnet_claim_choice_incorrect_points_description": "Väärän vastauksen pistelukema on aina joko 0 tai vähemmän. FI",
+  "sitnet_claim_choice_skip_option_description": "En osaa sanoa -vastausta ei voi muokata ja sen pistelukema on aina 0. FI",
+  "sitnet_claim_choice_missing_options_warning": "Korjaa tai lisää puutteelliset vaihtoehdot: FI",
+  "sitnet_claim_choice_default_correct": "Tosi FI",
+  "sitnet_claim_choice_default_incorrect": "Epätosi FI",
+  "sitnet_claim_choice_correct_option_description": "Tämä on oikea vastaus. FI",
+  "sitnet_claim_choice_incorrect_option_description": "Tämä on väärä vastaus. FI",
+  "sitnet_max_points": "Maksimipisteet FI",
+  "sitnet_min_points": "Minimipisteet FI"
 }
