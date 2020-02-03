@@ -63,9 +63,10 @@ export const QuestionReviewListComponent: angular.IComponentOptions = {
         selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
         startReview = () =>
-            this.$location
-                .path(`/assessments/${this.examId}/questions`)
-                .search('q', this.selectedReviews.map(i => i.toString()));
+            this.$location.path(`/assessments/${this.examId}/questions`).search(
+                'q',
+                this.selectedReviews.map(i => i.toString()),
+            );
     },
 };
 

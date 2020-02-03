@@ -210,7 +210,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private PathProperties getPath() {
         String path = "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
-                "requiresUserAgentAuth, anonymous, " +
+                "requiresUserAgentAuth, trialCount, anonymous, " +
                 "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
                 "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
