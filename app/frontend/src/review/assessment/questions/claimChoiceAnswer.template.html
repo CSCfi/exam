@@ -3,59 +3,30 @@
     ng-show="$ctrl.sectionQuestion.reviewExpanded"
     ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'id'"
 >
-    <div ng-if="option.answered">
-        <div ng-if="option.option.claimChoiceType == 'CorrectOption'" class="exam-answered-correct">
+    <div>
+        <div ng-class="$ctrl.getSelectedOptionClass(option)">
             <div class="make-inline pull-left">
-                <img src="Images/icon_correct_answer_radio.png" alt="exam" />
+                <img
+                    ng-if="option.option.claimChoiceType == 'CorrectOption'"
+                    src="Images/icon_correct_answer_radio.png"
+                    alt="exam"
+                />
+                <img
+                    ng-if="option.option.claimChoiceType == 'IncorrectOption'"
+                    src="Images/icon_wrong_answer_radio.png"
+                    alt="exam"
+                />
+                <img
+                    ng-if="option.option.claimChoiceType == 'SkipOption'"
+                    src="Images/icon_correct_answer_radio_grey.png"
+                    alt="exam"
+                />
             </div>
             <div class="make-inline middle-column">
-                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
+                <span class="exam-question-option-text" ng-bind-html="option.option.option"></span>
             </div>
-            <div class="make-inline pull-right">
-                <span class="text-success"> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
-            </div>
-        </div>
-        <div ng-if="option.option.claimChoiceType == 'IncorrectOption'" class="exam-answered-wrong">
-            <div class="make-inline pull-left">
-                <img src="Images/icon_wrong_answer_radio.png" alt="exam" />
-            </div>
-            <div class="make-inline middle-column">
-                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
-            </div>
-            <div class="make-inline pull-right">
-                <span class="text-danger"> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
-            </div>
-        </div>
-        <div ng-if="option.option.claimChoiceType == 'SkipOption'" class="exam-answered-skip">
-            <div class="make-inline pull-left">
-                <img src="Images/icon_correct_answer_radio_grey.png" alt="exam" />
-            </div>
-            <div class="make-inline middle-column">
-                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
-            </div>
-            <div class="make-inline pull-right">
+            <div class="make-inline pull-right answer-score-text">
                 <span> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
-            </div>
-        </div>
-    </div>
-    <div ng-if="!option.answered">
-        <div class="exam-not-answered">
-            <div class="make-inline pull-left">
-                <img src="Images/icon_wrong_answer.png" alt="exam" />
-            </div>
-            <div class="make-inline middle-column">
-                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
-            </div>
-            <div class="make-inline pull-right">
-                <span ng-if="option.option.claimChoiceType === 'CorrectOption'" class="text-success">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}
-                </span>
-                <span ng-if="option.option.claimChoiceType === 'IncorrectOption'" class="text-danger">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}
-                </span>
-                <span ng-if="option.option.claimChoiceType === 'SkipOption'">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}
-                </span>
             </div>
         </div>
     </div>

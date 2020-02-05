@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -82,6 +83,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Transient
     private Double derivedMaxScore;
+
+    @Transient
+    private Double derivedMinScore;
 
     @Column
     private Question.EvaluationType evaluationType;
@@ -161,6 +165,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     public void setDerivedMaxScore() {
         this.derivedMaxScore = getMaxAssessedScore();
     }
+
+    public Double getDerivedMinScore() { return derivedMinScore; }
+
+    public void setDerivedMinScore() { this.derivedMinScore = getMinScore(); }
 
     public String getAnswerInstructions() {
         return answerInstructions;
@@ -257,7 +265,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         } else {
             // This is a little bit tricky. Need to map the original question options with copied ones so they can be
             // associated with both question and exam section question options :)
-            Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
+            Map<Long, MultipleChoiceOption> optionMap;
+
+            if(question.getType() == Question.Type.ClaimChoiceQuestion) {
+                optionMap = new TreeMap<>();
+            } else {
+                optionMap = new HashMap<>();
+            }
+
             blueprint = question.copy(optionMap, setParent);
             if (setParent) {
                 blueprint.setParent(question);

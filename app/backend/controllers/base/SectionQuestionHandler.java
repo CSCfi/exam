@@ -109,6 +109,10 @@ public interface SectionQuestionHandler {
         MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
         if (option != null) {
             option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
+            option.setClaimChoiceType(
+                    SanitizingHelper.parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                            .orElse(null)
+            );
             if (defaults == OptionUpdateOptions.HANDLE_DEFAULTS) {
                 option.setDefaultScore(
                         round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null))

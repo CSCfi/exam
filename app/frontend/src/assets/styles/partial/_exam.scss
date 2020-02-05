@@ -296,6 +296,10 @@
     background-color: #F3FFF5;
     padding: 10px;
     border-radius:4px;
+
+    .answer-score-text {
+      color: #3c763d;
+    }
   }
 
   .exam-answered-wrong {
@@ -303,6 +307,10 @@
     background-color: #FFF6F7;
     padding: 10px;
     border-radius:4px;
+
+    .answer-score-text {
+      color: #a94442;
+    }
   }
 
   .exam-answered-skip {

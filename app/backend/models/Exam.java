@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -634,6 +635,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             AppUtil.setModifier(esCopy, user);
             // Shuffle question options before saving
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                if(type == Question.Type.ClaimChoiceQuestion) {
+                    continue;
+                }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));
@@ -822,6 +827,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
                     esq.setDerivedMaxScore();
+                    // Also set min scores, if question is claim choice question
+                    Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                    if(type == Question.Type.ClaimChoiceQuestion) {
+                        esq.setDerivedMinScore();
+                    }
                     esq.getOptions().forEach(o -> o.setScore(null));
                 });
     }

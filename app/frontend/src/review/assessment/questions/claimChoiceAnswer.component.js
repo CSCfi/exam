@@ -20,4 +20,28 @@ angular.module('app.review').component('rClaimChoiceAnswer', {
     bindings: {
         sectionQuestion: '<',
     },
+    controller: [
+        function() {
+            const vm = this;
+
+            vm.getSelectedOptionClass = function(esqOption) {
+                const { answered = false, option = null } = esqOption;
+
+                if (!answered || !(option && option.claimChoiceType)) {
+                    return 'exam-not-answered';
+                }
+
+                switch (option.claimChoiceType) {
+                    case 'CorrectOption':
+                        return 'exam-answered-correct';
+                    case 'IncorrectOption':
+                        return 'exam-answered-wrong';
+                    case 'SkipOption':
+                        return 'exam-answered-skip';
+                    default:
+                        return 'exam-not-answered';
+                }
+            };
+        },
+    ],
 });
