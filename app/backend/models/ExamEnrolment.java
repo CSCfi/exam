@@ -30,7 +30,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
-import backend.models.api.CountsAsTrial;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
 import backend.models.json.ExternalExam;
@@ -39,7 +38,7 @@ import backend.util.datetime.DateTimeUtils;
 
 
 @Entity
-public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment>, CountsAsTrial {
+public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
 
     @ManyToOne
     @JsonBackReference
@@ -177,18 +176,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
             return 1;
         }
         return reservation.compareTo(other.reservation);
-    }
-
-    @Override
-    @Transient
-    public DateTime getTrialTime() {
-        return reservation == null ? null : reservation.getStartAt();
-    }
-
-    @Override
-    @Transient
-    public boolean isProcessed() {
-        return reservation == null || !reservation.isNoShow();
     }
 
     @Override
