@@ -80,7 +80,6 @@ export const ajsApp = angularJS
     .filter('pagefill', filters.PageFillFilter.factory())
     .filter('adjustdst', filters.AdjustDstFilter.factory())
     .directive('dateValidator', directives.DateValidator.factory())
-    .directive('uniqueValue', directives.UniquenessValidator.factory())
     .directive('ckEditor', directives.CkEditor.factory())
     .directive('fixedPrecision', directives.FixedPrecision.factory())
     .directive('uiBlur', directives.UiBlur.factory())

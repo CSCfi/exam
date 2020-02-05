@@ -289,14 +289,14 @@ export class SessionService {
         const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
         const isTeacher = loginRole != null && loginRole === 'TEACHER';
 
-        Object.assign(user, {
+        return {
+            ...user,
             loginRole: loginRole,
             isTeacher: isTeacher,
             isAdmin: loginRole != null && loginRole === 'ADMIN',
             isStudent: loginRole != null && loginRole === 'STUDENT',
             isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
-        });
-        return user;
+        };
     }
 
     login$ = (username: string, password: string): Observable<User> =>
