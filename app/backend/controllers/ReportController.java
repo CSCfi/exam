@@ -19,6 +19,7 @@ package backend.controllers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,8 +72,8 @@ public class ReportController extends BaseController {
                                                String dept, String start, String end) {
         ExpressionList<T> result = query;
         if (dept != null) {
-            String[] depts = dept.split(",");
-            result = result.in(String.format("%s.department", deptFieldPrefix), (Object[]) depts);
+            List<String> depts = Arrays.asList(dept.split(","));
+            result = result.in(String.format("%s.department", deptFieldPrefix), depts);
         }
         if (start != null) {
             DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());
@@ -87,15 +88,22 @@ public class ReportController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, created")
+                .fetch("externalExam", "id, started")
                 .where()
+                .or()
                 .ne("exam.state", Exam.State.PUBLISHED)
+                .isNotNull("externalExam.started")
+                .endOr()
                 .isNotNull("reservation.machine")
-                .ne("reservation.noShow", true);
-        query = applyFilters(query, "exam.course", "exam.created", dept.orElse(null), start.orElse(null), end.orElse(null));
+                .ne("reservation.noShow", true)
+                .findList()
+                .stream()
+                .filter(ee -> applyEnrolmentFilter(ee, dept, start, end))
+                .collect(Collectors.toList());
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
-        for (ExamEnrolment enrolment : query.findList()) {
+        for (ExamEnrolment enrolment : enrolments) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
             String key = String.format("%d:%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
@@ -137,6 +145,28 @@ public class ReportController extends BaseController {
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
         Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
         DateTime created = e.getCreated();
+        if (start.isPresent()) {
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            result = result && startDate.isBefore(created);
+        }
+        if (end.isPresent()) {
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()).plusDays(1);
+            result = result && endDate.isAfter(created);
+        }
+        return result;
+    }
+
+    private boolean applyEnrolmentFilter(ExamEnrolment ee, Optional<String> dept, Optional<String> start, Optional<String> end) {
+        DateTime created = ee.getExam() != null ? ee.getExam().getCreated() : ee.getExternalExam().getStarted();
+        Boolean result = true;
+        if (dept.isPresent()) {
+            if (ee.getExternalExam() != null) {
+                return false;
+            }
+            List<String> depts = Arrays.asList(dept.get().split(","));
+            Course course = ee.getExam().getCourse();
+            result = course != null && depts.contains(course.getDepartment());
+        }
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             result = result && startDate.isBefore(created);

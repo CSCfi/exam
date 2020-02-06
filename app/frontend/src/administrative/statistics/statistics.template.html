@@ -94,7 +94,7 @@
                         ng-repeat="department in $ctrl.departments"
                         ng-if="department.filtered"
                         type="button"
-                        ng-click="department.filtered = false"
+                        ng-click="$ctrl.setDepartmentFilter(department)"
                         class="btn btn-primary btn-xs"
                         style="margin: 0.2em"
                     >
