@@ -17,13 +17,17 @@ package backend.controllers.iop.collaboration.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import backend.models.questions.MultipleChoiceOption;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -236,7 +240,21 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 }
                 ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
-                question.getOptions().forEach(o -> o.setId(newId()));
+
+                if(question.getType() == Question.Type.ClaimChoiceQuestion) {
+                    // Naturally order generated ids before saving them to question options
+                    // Option ids will be used to retain option order on collaborative exams
+                    List<MultipleChoiceOption> options = question.getOptions();
+                    List<Long> generatedIds = Stream.generate(() -> newId())
+                            .limit(options.size())
+                            .collect(Collectors.toList());
+                    generatedIds.sort(Comparator.naturalOrder());
+                    for(int i = 0; i < options.size(); i++) {
+                        options.get(i).setId(generatedIds.get(i));
+                    }
+                } else {
+                    question.getOptions().forEach(o -> o.setId(newId()));
+                }
                 esq.setId(sectionQuestionId);
                 esq.setQuestion(question);
                 // Assert that the sequence number provided is within limits
