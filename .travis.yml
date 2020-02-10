@@ -23,6 +23,7 @@ before_script:
   - nvm use 10.17.0
 
 script:
+  - rm -rf app/frontend/node_modules
   - npm --prefix app/frontend install
   - npm --prefix app/frontend run-script build
   - sbt test
