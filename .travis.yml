@@ -23,7 +23,7 @@ before_script:
   - nvm use 10.17.0
 
 script:
-  # - rm -rf app/frontend/node_modules
+  - rm -rf app/frontend/node_modules
   - npm --prefix app/frontend install
   - npm --prefix app/frontend run-script build
   - sbt test
@@ -37,4 +37,3 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - $TRAVIS_BUILD_DIR/app/frontend/node_modules
