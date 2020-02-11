@@ -380,6 +380,10 @@ public class ExamSectionController extends BaseController implements SectionQues
                 esq.update();
             }
         }
+        // Update lottery item count if needed
+        if (section.isLotteryOn() && section.getLotteryItemCount() > section.getSectionQuestions().size()) {
+           section.setLotteryItemCount(section.getSectionQuestions().size());
+        }
         section.update();
         return ok(section);
     }
