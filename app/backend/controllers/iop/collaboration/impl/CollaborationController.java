@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -114,9 +115,12 @@ public class CollaborationController extends BaseController {
                 });
     }
 
-    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
-                                       Model resultModel, User sender) {
-        return examLoader.uploadExam(ce, content, isPrePublication, resultModel, sender);
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender) {
+        return examLoader.uploadExam(ce, content, sender);
+    }
+
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender, Model body, PathProperties pp) {
+        return examLoader.uploadExam(ce, content, sender, body, pp);
     }
 
     boolean isAuthorizedToView(Exam exam, User user) {

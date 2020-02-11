@@ -27,11 +27,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import backend.models.questions.MultipleChoiceOption;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Http;
@@ -40,6 +40,7 @@ import play.mvc.Result;
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
 import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
@@ -62,7 +63,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     if (isAuthorizedToView(exam, user)) {
                         ExamSection section = createDraft(exam, user);
                         exam.getExamSections().add(section);
-                        return uploadExam(ce, exam, false, section, user);
+                        return uploadExam(ce, exam, user, section, null);
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
@@ -84,8 +85,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         if (err.isPresent()) {
                             return wrapAsPromise(err.get());
                         }
-                        return uploadExam(ce, exam, false, resultProvider.apply(exam).orElse(null),
-                                user);
+                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), null);
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
@@ -315,6 +315,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                             sibling.setSequenceNumber(num - 1);
                         }
                     }
+                    // Update lottery item count if needed
+                    if (es.isLotteryOn() && es.getLotteryItemCount() > es.getSectionQuestions().size()) {
+                        es.setLotteryItemCount(es.getSectionQuestions().size());
+                    }
                     return Optional.empty();
                 } else {
                     return Optional.of(notFound("sitnet_error_not_found"));
@@ -381,7 +385,9 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         .filter(o -> o.getId() == null)
                                         .forEach(o -> o.setId(newId()));
                                 updateExamQuestion(esq, questionBody);
-                                return uploadExam(ce, exam, false, null, user);
+                                PathProperties pp = PathProperties.parse(
+                                        "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))");
+                                return uploadExam(ce, exam, user, esq, pp);
                             } else {
                                 return wrapAsPromise(notFound("sitnet_error_not_found"));
 
