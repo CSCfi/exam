@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import play.mvc.Result;
 
 import backend.controllers.iop.collaboration.impl.CollaborativeExamLoaderImpl;
@@ -20,8 +21,10 @@ public interface CollaborativeExamLoader {
 
     CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef);
 
-    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
-                                       Model resultModel, User sender);
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender);
+
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender, Model resultModel,
+                                       PathProperties pp);
 
     CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload);
 
