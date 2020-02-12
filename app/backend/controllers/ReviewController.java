@@ -181,7 +181,7 @@ public class ReviewController extends BaseController {
             query = query.eq("state", Exam.State.ABORTED);
         }
         query = query.endJunction();
-        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOne();
+        Exam exam = query.findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
