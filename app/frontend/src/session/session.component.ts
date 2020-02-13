@@ -24,10 +24,10 @@ export const SessionComponent: angular.IComponentOptions = {
     </div>
     <div ng-if="$ctrl.user && (!$ctrl.user.isStudent || $ctrl.user.userAgreementAccepted)">
         <navigation ng-hide="$ctrl.hideNavBar"></navigation>
-        <div id="mainView" class="container-fluid"
+        <main id="mainView" class="container-fluid"
              ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
             <div ui-view/>
-        </div>
+        </main>
     </div>
     `,
     controller: class SessionController implements angular.IComponentController {

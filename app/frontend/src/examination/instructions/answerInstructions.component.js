@@ -43,7 +43,7 @@ angular.module('app.examination').component('answerInstructions', {
         '    </div>' +
         '    <div class="guide-column">' +
         '        <div class="list-group">' +
-        '            <form class="form-inline pad-15" role="form">' +
+        '            <form class="form-inline pad-15">' +
         '                <div class="guide-instruction col-md-12" ng-bind-html="$ctrl.exam.instruction"></div>' +
         '            </form>' +
         '        </div>' +

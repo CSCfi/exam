@@ -384,3 +384,20 @@ export class TeacherList implements IDirective<TeacherListScope> {
         return () => new TeacherList();
     }
 }
+
+export class NgEnter implements IDirective {
+    link(scope, element, attributes) {
+        element.bind('keydown', event => {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                scope.$apply(() => {
+                    scope.$eval(attributes.ngEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    }
+    static factory(): IDirectiveFactory {
+        return () => new NgEnter();
+    }
+}
