@@ -90,12 +90,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                         props: { name: this.exam.name, code: code, scaleChange: resetAutoEvaluationConfig },
                     });
                 },
-                error => {
-                    if (error.data) {
-                        const msg = error.data.message || error.data;
-                        toast.error(this.$translate.instant(msg));
-                    }
-                },
+                error => toast.error(error),
             );
         };
 
