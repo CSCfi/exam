@@ -47,13 +47,21 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   }
 
   private def compress(data: Array[Byte]): Array[Byte] = {
-    val os = new ByteArrayOutputStream
-    try {
-      val gzip = new GZIPOutputStream(os)
-      gzip.write(data)
-      gzip.flush()
-      os.toByteArray
-    } finally os.close()
+    val os   = new ByteArrayOutputStream
+    val gzip = new GZIPOutputStream(os)
+    gzip.write(data)
+    gzip.flush()
+    gzip.close()
+    os.toByteArray
+  }
+
+  private def compressWithHeader(data: Array[Byte]): Array[Byte] = {
+    val header = PasswordEncryption.getBytes(StandardCharsets.UTF_8)
+    val os     = new ByteArrayOutputStream()
+    os.write(header)
+    os.write(data)
+    os.close()
+    compress(os.toByteArray)
   }
 
   private def nodeToJson(node: Node): Option[JsValue] = node.label match {
@@ -90,13 +98,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
     val plaintextPwd = getPlaintextPassword(pwd, salt)
     // Encrypt the config file using unencrypted password
     val cipherText = crypto.encryptData(templateGz, plaintextPwd.toCharArray)
-    val header     = PasswordEncryption.getBytes(StandardCharsets.UTF_8)
-    val os         = new ByteArrayOutputStream()
-    try {
-      os.write(header)
-      os.write(cipherText)
-      compress(os.toByteArray)
-    } finally os.close()
+    compressWithHeader(cipherText)
   }
 
   override def getPlaintextPassword(pwd: Array[Byte], salt: String): String = {
