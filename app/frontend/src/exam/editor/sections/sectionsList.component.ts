@@ -108,10 +108,7 @@ export const SectionsListComponent: ng.IComponentOptions = {
                     deferred.resolve();
                 },
                 error => {
-                    if (error.data) {
-                        const msg = error.data.message || error.data;
-                        toast.error(this.$translate.instant(msg));
-                    }
+                    toast.error(error);
                     deferred.reject();
                 },
             );

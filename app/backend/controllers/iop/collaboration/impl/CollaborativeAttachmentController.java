@@ -174,7 +174,7 @@ public class CollaborativeAttachmentController extends CollaborationController
     @Override
     public boolean setExam(CollaborativeExam collaborativeExam, Exam exam, User user) {
         try {
-            return uploadExam(collaborativeExam, exam, false, null, user)
+            return uploadExam(collaborativeExam, exam, user)
                     .thenApply(result -> result.status() == 200)
                     .toCompletableFuture().get();
         } catch (InterruptedException | ExecutionException e) {

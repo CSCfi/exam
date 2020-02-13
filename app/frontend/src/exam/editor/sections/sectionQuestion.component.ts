@@ -185,7 +185,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                         data.examQuestion,
                         this.parentCtrl.examId,
                         this.parentCtrl.section.id,
-                    ).then(esq => {
+                    ).then((esq: ExamSectionQuestion) => {
                         toast.info(this.$translate.instant('sitnet_question_saved'));
                         // apply changes back to scope
                         ng.extend(this.sectionQuestion, esq);
