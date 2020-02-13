@@ -16,5 +16,5 @@
 
 require('./machines.module');
 require('./machine.component');
-require('./machineList.component');
+require('./machineList.component.ts');
 require('./machines.service');
