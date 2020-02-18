@@ -16,7 +16,9 @@
         </span>
         <span>
             <img
+                tabindex="0"
                 ng-click="$ctrl.showRemainingTime = !$ctrl.showRemainingTime"
+                ng-enter="$ctrl.showRemainingTime = !$ctrl.showRemainingTime"
                 src="Images/icon_clock.svg"
                 alt="clock"
                 onerror="this.onerror=null;this.src='Images/icon_clock.png';"

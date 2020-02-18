@@ -43,8 +43,10 @@
             <span class="pull-right">
                 <span class="padr10 filename-text">{{$ctrl.sq.essayAnswer.attachment.fileName | uppercase}}</span>
                 <a
+                    tabindex="0"
                     class="pointer green_button right-for-section marr15"
                     ng-click="$ctrl.removeQuestionAnswerAttachment()"
+                    ng-enter="$ctrl.removeQuestionAnswerAttachment()"
                 >
                     {{'sitnet_remove_answer_attachment' | translate }}
                     <img
@@ -62,7 +64,12 @@
             <span class="padr10 filename-text" ng-show="!$ctrl.sq.essayAnswer.attachment.fileName">
                 {{'sitnet_no_attachment' | translate }}
             </span>
-            <a class="pointer green_button right-for-section marr30" ng-click="$ctrl.selectFile()">
+            <a
+                tabindex="0"
+                class="pointer green_button right-for-section marr30"
+                ng-click="$ctrl.selectFile()"
+                ng-enter="$ctrl.selectFile()"
+            >
                 {{'sitnet_upload_answer_attachment' | translate }}
                 <img
                     src="Images/icon_attachment.svg"

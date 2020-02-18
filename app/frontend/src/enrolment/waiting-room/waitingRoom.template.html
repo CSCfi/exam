@@ -1,9 +1,9 @@
 <div class="top-row">
     <div class="student-enroll-title-wrap waitingroom">
-        <div ng-show="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_exam_is_about_to_begin' | translate}}</div>
-        <div ng-hide="$ctrl.upcoming" class="student-enroll-title">
+        <h1 ng-show="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_exam_is_about_to_begin' | translate}}</h1>
+        <h1 ng-hide="$ctrl.upcoming" class="student-enroll-title">
             {{'sitnet_you_dont_have_exams_today' | translate}}
-        </div>
+        </h1>
     </div>
 </div>
 <div class="waitingroom-info">
@@ -113,14 +113,14 @@
 
             <div class="student-exam-row" ng-show="$ctrl.roomInstructions">
                 <div class="student-exam-row-infolink">
-                    <b>{{ 'sitnet_room_guidance' | translate}}: </b>
+                    <strong>{{ 'sitnet_room_guidance' | translate}}: </strong>
                 </div>
                 <div class="student-exam-row-infobox">{{ $ctrl.roomInstructions }}</div>
             </div>
 
             <div class="student-exam-row" ng-show="$ctrl.enrolment.exam.enrollInstruction">
                 <div class="student-exam-row-infolink">
-                    <b>{{ 'sitnet_view_instructions' | translate}}:</b>
+                    <strong>{{ 'sitnet_view_instructions' | translate}}:</strong>
                 </div>
                 <div class="student-exam-row-infobox" ng-bind-html="$ctrl.enrolment.exam.enrollInstruction"></div>
             </div>

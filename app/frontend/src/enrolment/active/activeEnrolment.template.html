@@ -88,7 +88,12 @@
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" ng-click="$ctrl.makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
                                         {{'sitnet_student_change_reservation' | translate}}
                                     </a>
                                 </span>
@@ -136,7 +141,12 @@
                             <li ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth">
                                 <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" ng-click="$ctrl.makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
                                 </span>
@@ -147,7 +157,12 @@
                             >
                                 <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" ng-click="$ctrl.makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
                                 </span>
@@ -180,7 +195,12 @@
                             <teacher-list exam="$ctrl.enrolment.exam" />
                         </div>
                         <div>
-                            <a class="message-to-teacher pointer" ng-click="$ctrl.addEnrolmentInformation()">
+                            <a
+                                class="message-to-teacher pointer"
+                                ng-click="$ctrl.addEnrolmentInformation()"
+                                ng-enter="$ctrl.addEnrolmentInformation()"
+                                tabindex="0"
+                            >
                                 <span ng-if="$ctrl.enrolment.information">
                                     <img
                                         class="arrow_icon"
@@ -343,7 +363,11 @@
                     ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth"
                     class="student-message-dialog-button-save"
                 >
-                    <a class="link-button pointer" ng-click="$ctrl.makeReservation()"
+                    <a
+                        class="link-button pointer"
+                        ng-click="$ctrl.makeReservation()"
+                        tabindex="0"
+                        ng-enter="$ctrl.makeReservation()"
                         >{{'sitnet_student_new_reservation' | translate}}</a
                     >
                 </div>
@@ -351,9 +375,14 @@
                     ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.requiresUserAgentAuth && $ctrl.hasUpcomingAlternativeEvents()"
                     class="student-message-dialog-button-save"
                 >
-                    <a class="link-button pointer" ng-click="$ctrl.makeReservation()"
-                        >{{'sitnet_student_new_reservation' | translate}}</a
+                    <a
+                        class="link-button pointer"
+                        ng-click="$ctrl.makeReservation()"
+                        tabindex="0"
+                        ng-enter="$ctrl.makeReservation()"
                     >
+                        {{'sitnet_student_new_reservation' | translate}}
+                    </a>
                 </div>
             </div>
 

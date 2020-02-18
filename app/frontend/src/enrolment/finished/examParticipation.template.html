@@ -58,8 +58,10 @@
             <div class="student-exam-row" ng-if="$ctrl.participation.reviewedExam">
                 <div class="student-exam-row-infolink">
                     <a
+                        tabindex="0"
                         class="infolink pointer"
-                        ng-click="$ctrl.showEvaluation = !$ctrl.showEvaluation; $ctrl.setCommentRead($ctrl.participation.reviewedExam) "
+                        ng-click="$ctrl.showEvaluation = !$ctrl.showEvaluation; $ctrl.setCommentRead($ctrl.participation.reviewedExam)"
+                        ng-enter="$ctrl.showEvaluation = !$ctrl.showEvaluation; $ctrl.setCommentRead($ctrl.participation.reviewedExam)"
                     >
                         <span ng-hide="$ctrl.showEvaluation">{{ 'sitnet_comments_open' | translate}}</span>
                         <span ng-show="$ctrl.showEvaluation">{{ 'sitnet_comments_hide' | translate}}</span>
