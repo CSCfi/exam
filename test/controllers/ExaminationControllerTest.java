@@ -177,6 +177,23 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(403);
     }
 
+    @Test
+    @RunAsStudent
+    public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
+        Result result = get("/app/student/exam/" + exam.getHash());
+        JsonNode node = Json.parse(contentAsString(result));
+        Exam studentExam = deserialize(Exam.class, node);
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
+                .eq("examSection.exam", studentExam)
+                .eq("question.type", Question.Type.ClozeTestQuestion)
+                .findList()
+                .get(0);
+        String answer = "{\"foo\": \"bar";
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(),
+                question.getId()), Json.newObject().put("answer", answer).put("objectVersion", 1L));
+        assertThat(result.status()).isEqualTo(400);
+    }
+
 
     @Test
     @RunAsStudent

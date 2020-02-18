@@ -67,6 +67,7 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.ClozeTestAnswerSanitizer;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.ExamActionRouter;
@@ -286,7 +287,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(ClozeTestAnswerSanitizer.class)
     @Restrict({@Group("STUDENT")})
     public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
