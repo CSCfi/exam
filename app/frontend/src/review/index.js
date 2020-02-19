@@ -59,7 +59,7 @@ require('./listing/dialogs/feedback.component.ts');
 require('./listing/dialogs/noShows.component.ts');
 
 require('./listing/categories/archived.component');
-require('./listing/categories/inProgress.component');
+require('./listing/categories/inProgress.component.ts');
 require('./listing/categories/inLanguageInspection.component');
 require('./listing/categories/graded.component');
 require('./listing/categories/gradedLogged.component');
