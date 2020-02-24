@@ -54,22 +54,42 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li role="presentation" ng-click="$ctrl.filter.ordering='exam.name'">
+                    <li
+                        role="presentation"
+                        ng-click="$ctrl.filter.ordering='exam.name'"
+                        tabindex="0"
+                        ng-enter="$ctrl.filter.ordering='exam.name'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{'sitnet_exam_name_ascending' | translate}}
                         </a>
                     </li>
-                    <li role="presentation" ng-click="$ctrl.filter.ordering='-exam.name'">
+                    <li
+                        role="presentation"
+                        ng-click="$ctrl.filter.ordering='-exam.name'"
+                        tabindex="0"
+                        ng-enter="$ctrl.filter.ordering='-exam.name'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{'sitnet_exam_name_descending' | translate}}
                         </a>
                     </li>
-                    <li role="presentation" ng-click="$ctrl.filter.ordering='ended'">
+                    <li
+                        role="presentation"
+                        ng-click="$ctrl.filter.ordering='ended'"
+                        tabindex="0"
+                        ng-enter="$ctrl.filter.ordering='ended'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{'sitnet_exam_participation_descending' | translate}}
                         </a>
                     </li>
-                    <li role="presentation" ng-click="$ctrl.filter.ordering='-ended'">
+                    <li
+                        role="presentation"
+                        ng-click="$ctrl.filter.ordering='-ended'"
+                        tabindex="0"
+                        ng-enter="$ctrl.filter.ordering='-ended'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{'sitnet_exam_participation_ascending' | translate}}
                         </a>

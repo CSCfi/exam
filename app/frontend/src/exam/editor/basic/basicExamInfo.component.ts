@@ -223,7 +223,8 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                             1,
                         );
                     }),
-                );
+                )
+                .catch(err => toast.error(err.data));
         };
 
         downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);

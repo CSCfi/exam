@@ -432,7 +432,7 @@ GET           /app/reports/departments                                 backend.c
 GET           /app/reports/exams                                       backend.controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/reservations                                backend.controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/responses                                   backend.controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
-POST          /app/reports/questionreport/:id               backend.controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
+POST          /app/reports/questionreport/:id                          backend.controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 
 ########################################################
 GET           /assets/assets/images/nav/*file                          backend.controllers.assets.NavbarAssets.at(path="/public", file)

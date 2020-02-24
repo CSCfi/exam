@@ -23,4 +23,15 @@ public class ByodConfigHandlerTest {
 
     }
 
+    @Test
+    public void testCreateConfigFile() {
+        running(app, () -> {
+            ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
+            byte[] pwd = bch.getEncryptedPassword("password", "salt");
+            byte[] data = bch.getExamConfig("123456", pwd, "salt");
+            // sanity check that we actually have a reasonably sized file content
+            assertThat(data.length).isGreaterThan(1000);
+        });
+    }
+
 }

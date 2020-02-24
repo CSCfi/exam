@@ -233,7 +233,12 @@
         </div>
         <div class="student-exam-header-row" ng-hide="$ctrl.isExternal">
             <div class="calendar-accessibility-link">
-                <a ng-if="$ctrl.sectionSelectionOk()" ng-click="$ctrl.showAccs = !$ctrl.showAccs">
+                <a
+                    ng-if="$ctrl.sectionSelectionOk()"
+                    tabindex="0"
+                    ng-click="$ctrl.showAccs = !$ctrl.showAccs"
+                    ng-enter="$ctrl.showAccs = !$ctrl.showAccs"
+                >
                     {{'sitnet_calendar_room_accessibility_info' | translate}}
                 </a>
                 <span ng-if="!$ctrl.sectionSelectionOk()" class="text text-muted">
@@ -308,6 +313,8 @@
                             role="presentation"
                             ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="$ctrl.selectRoom(room)"
+                            tabindex="0"
+                            ng-enter="$ctrl.selectRoom(room)"
                         >
                             <a
                                 role="menuitem"
@@ -478,8 +485,13 @@
             ng-disabled="!$ctrl.reservation || $ctrl.confirming"
             ng-class="$ctrl.reservation ? 'calendar-button-save-activated' : 'link-button'"
         >
-            <a class="link-button" ng-click="$ctrl.confirmReservation()"
-                >{{'sitnet_student_confirm_reservation' | translate}}
+            <a
+                class="link-button"
+                ng-click="$ctrl.confirmReservation()"
+                tabindex="0"
+                ng-enter="$ctrl.confirmReservation()"
+            >
+                {{'sitnet_student_confirm_reservation' | translate}}
             </a>
         </div>
         <div>

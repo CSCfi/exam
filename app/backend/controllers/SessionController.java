@@ -255,7 +255,8 @@ public class SessionController extends BaseController {
 
     private String parseStudentIdValue(String src) {
         String parts = src.split("studentID:")[1];
-        return parts.split(":")[1];
+        String[] valueParts = parts.split(":");
+        return valueParts.length > 1 ? valueParts[1] : "null";
     }
 
     private String parseUserIdentifier(String src) {

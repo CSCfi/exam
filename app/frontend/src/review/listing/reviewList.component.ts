@@ -16,7 +16,6 @@ import * as angular from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
 
 import { Exam, ExamParticipation } from '../../exam/exam.model';
-import { FileService } from '../../utility/file/file.service';
 
 export const ReviewListComponent: angular.IComponentOptions = {
     template: require('./reviewList.template.html'),
@@ -40,7 +39,7 @@ export const ReviewListComponent: angular.IComponentOptions = {
         private languageInspectedReviews: ExamParticipation[];
         private rejectedReviews: ExamParticipation[];
 
-        constructor(private $uibModal: IModalService, private $http: angular.IHttpService, private Files: FileService) {
+        constructor(private $uibModal: IModalService, private $http: angular.IHttpService) {
             'ngInject';
         }
 
@@ -95,19 +94,6 @@ export const ReviewListComponent: angular.IComponentOptions = {
             this.gradedReviews = angular.copy(this.gradedReviews);
             this.gradedLoggedReviews = angular.copy(this.gradedLoggedReviews);
         };
-
-        getAnswerAttachments = () =>
-            this.$uibModal
-                .open({
-                    backdrop: 'static',
-                    keyboard: true,
-                    animation: true,
-                    component: 'archiveDownload',
-                })
-                .result.then(params =>
-                    this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
-                )
-                .catch(angular.noop);
 
         openAborted = () =>
             this.$uibModal.open({

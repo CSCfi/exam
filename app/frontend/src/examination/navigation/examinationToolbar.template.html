@@ -12,14 +12,14 @@
 
         <!-- RETURN -->
         <div class="" ng-hide="$ctrl.isPreview">
-            <div class="pointer" ng-click="$ctrl.turnExam()">
+            <div class="pointer" tabindex="0" ng-click="$ctrl.turnExam()" ng-enter="$ctrl.turnExam()">
                 <a class="green_button save-and-exit">{{'sitnet_save_and_return_exam' | translate}}</a>
             </div>
         </div>
 
         <!-- ABORT -->
         <div class="button-separator" ng-hide="$ctrl.isPreview">
-            <div class="pointer" ng-click="$ctrl.abortExam()">
+            <div class="pointer" tabindex="0" ng-click="$ctrl.abortExam()" ng-enter="$ctrl.abortExam()">
                 <a class="grey-button abort-and-exit">
                     <img
                         src="Images/icon_exit.svg"
@@ -39,12 +39,17 @@
 
     <!-- ATTACHMENT -->
     <div class="padl20" ng-show="$ctrl.exam.attachment">
-        <div class="row pointer attachment-button" ng-click="$ctrl.downloadExamAttachment()">
+        <div
+            class="row pointer attachment-button"
+            tabindex="0"
+            ng-click="$ctrl.downloadExamAttachment()"
+            ng-enter="$ctrl.downloadExamAttachment()"
+        >
             <a class="green_button left-floater">
                 {{'sitnet_exam_attachment' | translate}}
                 <img
                     src="Images/icon_attachment.svg"
-                    alt=""
+                    alt="attachment"
                     onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
                 />
             </a>
@@ -55,20 +60,24 @@
     <div class="top-padding-2 bottom-padding-2 padl15">
         <ul class="list-muted">
             <li
+                tabindex="0"
                 class="row pointer phase-box"
                 ng-class="!$ctrl.activeSection ? '' : 'notactive'"
                 ng-click="$ctrl.selectGuidePage()"
+                ng-enter="$ctrl.selectGuidePage()"
             >
                 <div class="col-md-11 vcenter">{{'sitnet_exam_guide' | translate}}</div>
             </li>
 
             <li
+                tabindex="0"
                 class="row pointer phase-box"
                 ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
                 ng-class="$ctrl.activeSection.index === section.index ? '' : 'notactive'"
                 ng-click="$ctrl.selectSection(section)"
+                ng-enter="$ctrl.selectSection(section)"
                 popover-placement="left"
-                popover-trigger="'mouseenter'"
+                popover-trigger="'mouseenter focus'"
                 uib-popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
                  {{ $ctrl.getQuestionAmount(section, 'answered')}}, {{'sitnet_questions_total' | translate}}
                  {{ $ctrl.getQuestionAmount(section, 'total') }}"
@@ -113,9 +122,10 @@
         <!-- INSTRUCTIONS -->
         <div class="col-md-12" ng-hide="$ctrl.exam.executionType.type === 'MATURITY'">
             <div
+                tabindex="0"
                 class="row pointer"
                 popover-placement="left"
-                popover-trigger="'mouseenter'"
+                popover-trigger="'mouseenter focus'"
                 uib-popover="{{ $ctrl.displayRoomInstructions() }}"
             >
                 <a class="col-md-1" style="margin-top: 7px;">
@@ -134,7 +144,9 @@
         <!-- MATURITY INSTRUCTIONS -->
         <div
             class="col-md-12"
+            tabindex="0"
             ng-click="$ctrl.showMaturityInstructions()"
+            ng-enter="$ctrl.showMaturityInstructions()"
             ng-show="$ctrl.exam.executionType.type==='MATURITY'"
         >
             <div class="row pointer">
@@ -152,7 +164,7 @@
         </div>
 
         <div class="col-md-12" ng-show="$ctrl.isPreview">
-            <div class="row pointer" ng-click="$ctrl.exitPreview()">
+            <div tabindex="0" class="row pointer" ng-click="$ctrl.exitPreview()" ng-enter="$ctrl.exitPreview()">
                 <a class="col-md-1" style="margin-top: 7px;">
                     <img
                         src="Images/icon_info.svg"
