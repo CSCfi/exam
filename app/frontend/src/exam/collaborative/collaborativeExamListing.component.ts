@@ -59,7 +59,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
             this.examsPredicate = 'examActiveEndDate';
             this.reverse = true;
             this.filter = { text: '' };
-            this.loader = { loading: false };
+            this.loader = { loading: true };
             this.listAllExams();
         }
 
