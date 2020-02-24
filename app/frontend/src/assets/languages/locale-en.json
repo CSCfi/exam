@@ -963,5 +963,10 @@
   "sitnet_claim_choice_correct_option_description": "Tämä on oikea vastaus. EN",
   "sitnet_claim_choice_incorrect_option_description": "Tämä on väärä vastaus. EN",
   "sitnet_max_points": "Maksimipisteet: EN",
-  "sitnet_min_points": "Minimipisteet: EN"
+  "sitnet_min_points": "Minimipisteet: EN",
+  "sitnet_exam_state_translation": "Tentin tila EN",
+  "sitnet_anonymous": "Anonyymi arviointi EN",
+  "sitnet_anonymous_enabled": "Käytössä EN",
+  "sitnet_anonymous_disabled": "Ei käytössä EN",
+  "sitnet_collaborative_exam_search_description_teacher": "Voit hakea tenttejä tentin nimen tai tentaattorin sähköpostin mukaan. EN"
 }

@@ -312,6 +312,7 @@ GET           /integration/iop/student/finishedExams                   backend.c
 
 ################# Collaborative Exam interface #########
 GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.listExams(request: Request)
+GET           /integration/iop/exams/search                            backend.controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(request: Request, filter: java.util.Optional[String])
 POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.createExam(request: Request)
 GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long, request: Request)
 GET           /integration/iop/exams/:id/preview                       backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long, request: Request)
