@@ -35,7 +35,6 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
-import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
 
 import static play.mvc.Results.badRequest;
@@ -51,9 +50,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Inject
     private ConfigReader configReader;
-
-    @Inject
-    private ByodConfigHandler byodConfigHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
 
@@ -163,7 +159,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
         Boolean requiresUserAgentAuth = request.attrs().getOptional(Attrs.REQUIRES_USER_AGENT_AUTH).orElse(false);
-        String settingsPassword = request.attrs().getOptional(Attrs.SETTINGS_PASSWORD).orElse(null);
 
         examName.ifPresent(exam::setName);
         exam.setShared(shared);

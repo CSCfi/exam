@@ -38,6 +38,7 @@ import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -52,7 +53,6 @@ import backend.models.User;
 import backend.security.SessionHandler;
 import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
-import play.mvc.Results;
 
 
 public class SystemRequestHandler implements ActionCreator {

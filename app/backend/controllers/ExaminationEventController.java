@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
-import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.Logger;
@@ -108,7 +107,7 @@ public class ExaminationEventController extends BaseController {
 
     @With(ExaminationEventSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) throws CryptorException {
+    public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
         Optional<ExaminationEventConfiguration> oeec = Ebean.find(ExaminationEventConfiguration.class)
                 .where().idEq(eecid).eq("exam.id", eid).findOneOrEmpty();
         if (oeec.isEmpty()) {
