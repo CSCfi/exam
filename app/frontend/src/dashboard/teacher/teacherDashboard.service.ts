@@ -15,6 +15,7 @@
 
 import * as angular from 'angular';
 import { IHttpResponse } from 'angular';
+import { User } from '../../session/session.service';
 
 export class TeacherDashboardService {
     constructor(
@@ -93,7 +94,7 @@ export class TeacherDashboardService {
                             return periodOk || examinationDatesOk;
                         });
                         endedExams.forEach(ee => {
-                            ee.ownerAggregate = ee.examOwners.map(o => o.firstName + ' ' + o.lastName).join();
+                            ee.ownerAggregate = ee.examOwners.map((o: User) => o.firstName + ' ' + o.lastName).join();
                             const unassessedCount = this.Exam.getReviewablesCount(ee);
                             const unfinishedCount = this.Exam.getGradedCount(ee);
                             if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
