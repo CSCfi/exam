@@ -376,7 +376,7 @@ DELETE        /integration/iop/attachment/exam/:id/statement           backend.c
 GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long, request: Request)
 
 ################# Time interface ######################
-GET           /app/time/:hash                                          backend.controllers.TimeController.getExamRemainingTime(hash: String, request: Request)
+GET           /app/time/:hash                                          backend.controllers.TimeController.getRemainingExamTime(hash: String, request: Request)
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer], request: Request)
