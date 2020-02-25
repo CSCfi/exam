@@ -16,7 +16,7 @@
 import * as ng from 'angular';
 import * as toast from 'toastr';
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, Participation } from '../exam.model';
+import { CollaborativeExam, Participation, CollaborativeExamState } from '../exam.model';
 
 export class CollaborativeExamService {
     exams: CollaborativeExam[];
@@ -56,9 +56,10 @@ export class CollaborativeExamService {
 
     searchExams(searchTerm: string): ng.IPromise<CollaborativeExam[]> {
         const deferred: ng.IDeferred<CollaborativeExam[]> = this.$q.defer();
-        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? searchTerm : '');
-        // This path is used to search from student view only
-        const path = `/integration/iop/enrolment/search${paramStr}`;
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const path = this.Session.getUser().isStudent
+            ? `/integration/iop/enrolment/search${paramStr}`
+            : `/integration/iop/exams/search${paramStr}`;
 
         this.$http.get(path).then(
             (resp: ng.IHttpResponse<CollaborativeExam[]>) => {
@@ -85,5 +86,18 @@ export class CollaborativeExamService {
             },
         );
         return deferred.promise;
+    }
+
+    getExamStateTranslation(exam: CollaborativeExam): string | null {
+        switch (exam.state) {
+            case CollaborativeExamState.DRAFT:
+                return 'sitnet_draft';
+            case CollaborativeExamState.PRE_PUBLISHED:
+                return 'sitnet_pre_published';
+            case CollaborativeExamState.PUBLISHED:
+                return 'sitnet_published';
+            default:
+                return null;
+        }
     }
 }

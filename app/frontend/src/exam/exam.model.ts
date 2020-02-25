@@ -108,10 +108,22 @@ export interface ExamSection {
     optional: boolean;
 }
 
+export enum CollaborativeExamState {
+    DRAFT = 'DRAFT',
+    PUBLISHED = 'PUBLISHED',
+    PRE_PUBLISHED = 'PRE_PUBLISHED',
+}
+
 export interface CollaborativeExam {
     id: number;
+    anonymous: boolean;
     name: string;
     examLanguages: ExamLanguage[];
+    state: CollaborativeExamState;
+    examOwners: User[];
+    executionType: ExamExecutionType;
+    examActiveStartDate: VarDate;
+    examActiveEndDate: VarDate;
 }
 
 export interface Participation {

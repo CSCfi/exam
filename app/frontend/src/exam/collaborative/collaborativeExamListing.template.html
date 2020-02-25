@@ -1,0 +1,164 @@
+<div class="sitnet-header-alt">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_collaborative_exams' | translate}}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <!-- toolbar -->
+    <div class="top-row" ng-if="$ctrl.user.isAdmin">
+        <div class="col-md-12">
+            <a class=" pull-right btn btn-info" ng-click="$ctrl.createExam()">
+                {{'sitnet_toolbar_new_exam' | translate}}
+            </a>
+        </div>
+    </div>
+
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li role="tab" ng-class="{'active': $ctrl.view === 'PUBLISHED'}">
+                <a class="pointer" ng-click="$ctrl.setView('PUBLISHED')">
+                    Julkaistut ja esijulkaistut yhteistentit
+                    <span class="badge">{{ ($ctrl.exams | filter: { listingView: 'PUBLISHED' }).length }}</span>
+                </a>
+            </li>
+            <li role="tab" ng-class="{'active': $ctrl.view === 'EXPIRED'}">
+                <a class="pointer" ng-click="$ctrl.setView('EXPIRED')">
+                    Yhteistentit, joiden voimassaoloaika on päättynyt
+                    <span class="badge">{{ ($ctrl.exams | filter: { listingView: 'EXPIRED' }).length }}</span>
+                </a>
+            </li>
+            <li role="tab" ng-class="{'active': $ctrl.view === 'DRAFTS'}">
+                <a class="pointer" ng-click="$ctrl.setView('DRAFTS')">
+                    Yhteistenttiluonnokset
+                    <span class="badge">{{ ($ctrl.exams | filter: { listingView: 'DRAFTS' }).length }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="detail-row">
+        <div class="col-md-4">
+            <div class="form-group input-group">
+                <input
+                    ng-model="$ctrl.filter.text"
+                    ng-change="$ctrl.search()"
+                    ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                    type="text"
+                    class="form-control search"
+                    placeholder="{{'sitnet_search' | translate }}"
+                    popover-placement="top"
+                    popover-popup-delay="500"
+                    popover-trigger="'mouseenter'"
+                    uib-popover="{{ 'sitnet_collaborative_exam_search_description_teacher' | translate }}"
+                />
+                <div class="input-group-addon search">
+                    <img class="nopad" src="Images/icon_search.png" alt="search-icon" width="49" height="40" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-row" ng-show="$ctrl.loader.loading">
+        <div class="col-md-12">
+            <button class="btn btn-success">
+                {{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <table class="table table-striped table-condensed exams-table">
+                <thead>
+                    <tr>
+                        <th
+                            sort
+                            by="name"
+                            text="sitnet_exam_name"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                        <th
+                            sort
+                            by="stateTranslation"
+                            text="sitnet_exam_state_translation"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                        <th
+                            sort
+                            by="ownerAggregate"
+                            text="sitnet_teachers"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                        <th
+                            sort
+                            by="examActiveStartDate"
+                            text="sitnet_start_time"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                        <th
+                            sort
+                            by="examActiveEndDate"
+                            text="sitnet_end_time"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                        <th
+                            sort
+                            by="anonymous"
+                            text="sitnet_anonymous"
+                            predicate="$ctrl.examsPredicate"
+                            reverse="$ctrl.reverse"
+                        ></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        ng-repeat="exam in $ctrl.exams | filter: { listingView: $ctrl.view } | orderBy:$ctrl.examsPredicate:$ctrl.reverse"
+                    >
+                        <td>
+                            <a
+                                class="exams-info-title bold-button"
+                                ui-sref="collaborativeExamEditor({id: {{exam.id}}, tab: 1})"
+                            >
+                                <span ng-if="exam.name">{{exam.name}}</span>
+                                <span ng-if="!exam.name" class="text-danger">
+                                    {{'sitnet_no_name' | translate | uppercase }}
+                                </span>
+                            </a>
+                        </td>
+                        <td
+                            ng-class="{'sitnet-medium-green-new': exam.state === 'PUBLISHED', 'sitnet-red': exam.state === 'PRE_PUBLISHED'}"
+                        >
+                            {{ $ctrl.getStateTranslation(exam) }}
+                        </td>
+                        <td>
+                            <span ng-repeat="o in exam.examOwners">{{ o.email }}&nbsp;</span>
+                        </td>
+                        <td>
+                            <span ng-if="exam.examActiveStartDate">
+                                {{ exam.examActiveStartDate | date:'dd.MM.yyyy' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span ng-if="exam.examActiveEndDate">
+                                {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span
+                                ng-class="{'sitnet-medium-green-new': exam.anonymous === true, 'sitnet-red': exam.anonymous === false}"
+                            >
+                                {{ $ctrl.getExamAnonymousStatus(exam) | translate }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
