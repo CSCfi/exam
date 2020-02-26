@@ -73,6 +73,7 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExternalCalendarReservationSanitizer;
 import backend.security.Authenticated;
@@ -309,6 +310,10 @@ public class ExternalCalendarController extends CalendarController {
 
         if(hasClaimChoiceQuestion) {
             return wrapAsPromise(forbidden("Exam is not supported for external reservations"));
+        }
+
+        if (enrolment.getExam().getExamSections().stream().anyMatch(ExamSection::isOptional)) {
+            return wrapAsPromise(forbidden("Optional sections not supported for external reservations"));
         }
 
         // Lets do this

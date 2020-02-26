@@ -188,7 +188,7 @@ class EmailComposerImpl implements EmailComposer {
         sendInspectionMessage(linkToInspection, teacherName, examInfo, msg, inspector, sender);
     }
 
-    private class ReviewStats implements Comparable<ReviewStats> {
+    private static class ReviewStats implements Comparable<ReviewStats> {
         int amount;
         DateTime earliestDeadLine;
 

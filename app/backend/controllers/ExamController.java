@@ -31,7 +31,6 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import org.cryptonode.jncryptor.CryptorException;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
