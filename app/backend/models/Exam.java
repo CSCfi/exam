@@ -283,6 +283,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     private String externalRef;
 
+    /* Temporary field, used to block external exam reservations on the front end */
+    @Transient
+    private boolean externalReservationDisabled;
+
+    public void setExternalReservationDisabled(boolean externalReservationDisabled) {
+        this.externalReservationDisabled = externalReservationDisabled;
+    }
+
     private double toFixed(double val) {
         return Double.valueOf(df.format(val));
     }

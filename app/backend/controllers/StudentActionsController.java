@@ -28,6 +28,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 
+import backend.models.questions.Question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -315,6 +316,22 @@ public class StudentActionsController extends CollaborationController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+
+        /* Temporary solution to check if external exam should be disabled */
+        Set<ExamSection> sections = Ebean.find(ExamSection.class)
+                .fetch("sectionQuestions.question", "type")
+                .where()
+                .eq("exam", exam)
+                .findSet();
+
+        if(sections.size() > 0) {
+            boolean hasClaimChoiceQuestion = sections.stream()
+                    .flatMap(es -> es.getSectionQuestions().stream())
+                    .filter(esq -> esq.getQuestion() != null)
+                    .anyMatch(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion);
+            exam.setExternalReservationDisabled(hasClaimChoiceQuestion);
+        }
+
         return ok(exam);
     }
 
