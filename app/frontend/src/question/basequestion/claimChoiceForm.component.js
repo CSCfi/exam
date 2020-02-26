@@ -45,7 +45,7 @@ angular.module('app.question').component('claimChoiceForm', {
                 </div>
                 <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0">
                     <div 
-                        class="col-md-12 form-horizontal question-editor-claim-choice-option"
+                        class="form-horizontal question-editor-claim-choice-option"
                         ng-class="$ctrl.returnOptionClass(opt)"
                         ng-repeat="opt in $ctrl.question.options"
                     >
