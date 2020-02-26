@@ -220,7 +220,7 @@
                     <button
                         class="btn btn-sm btn-success btn-link"
                         ng-click="$ctrl.makeExternalReservation()"
-                        ng-if="$ctrl.isInteroperable && !$ctrl.isCollaborative && !$ctrl.isExternal"
+                        ng-if="$ctrl.isInteroperable && !$ctrl.isCollaborative && !$ctrl.isExternal && !$ctrl.examInfo.externalReservationDisabled"
                     >
                         {{'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>
