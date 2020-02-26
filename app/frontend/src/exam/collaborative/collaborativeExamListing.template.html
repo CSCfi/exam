@@ -107,13 +107,6 @@
                             predicate="$ctrl.examsPredicate"
                             reverse="$ctrl.reverse"
                         ></th>
-                        <th
-                            sort
-                            by="anonymous"
-                            text="sitnet_anonymous"
-                            predicate="$ctrl.examsPredicate"
-                            reverse="$ctrl.reverse"
-                        ></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -147,13 +140,6 @@
                         <td>
                             <span ng-if="exam.examActiveEndDate">
                                 {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
-                            </span>
-                        </td>
-                        <td>
-                            <span
-                                ng-class="{'sitnet-medium-green-new': exam.anonymous === true, 'sitnet-red': exam.anonymous === false}"
-                            >
-                                {{ $ctrl.getExamAnonymousStatus(exam) | translate }}
                             </span>
                         </td>
                     </tr>
