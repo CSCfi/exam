@@ -31,6 +31,7 @@ interface ExamInfo {
     examActiveStartDate: number;
     examActiveEndDate: number;
     examSections: SelectableSection[];
+    externalReservationDisabled?: boolean;
 }
 
 interface AvailableSlot extends Slot {
