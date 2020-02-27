@@ -941,7 +941,7 @@
   "sitnet_update_examination_event": "Edit the exam event",
   "sitnet_examination_type_description": "Exam in an exam room = an exam taken in a supervised exam room. BYOD = Bring Your Own Device, an exam taken with your own device in a lecture hall etc.",
   "sitnet_pick_examination_event": "Choose the exam event",
-  "sitnet_toolbar_claim_choice_question": "Statement",
+  "sitnet_toolbar_claim_choice_question": "New question type (minus points)",
   "sitnet_question_claim_correct": "Correct answer",
   "sitnet_question_claim_incorrect": "Wrong answer",
   "sitnet_question_claim_skip": "I don't know",

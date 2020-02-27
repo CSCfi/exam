@@ -941,7 +941,7 @@
   "sitnet_update_examination_event": "Editera tentamenstillfället",
   "sitnet_examination_type_description": "Akvarietent = tentamen som görs i ett särskilt tentamensutrymme. BYOD = Bring Your Own Device, dvs. tentamen görs på egen dator i en föreläsningssal eller motsvarande",
   "sitnet_pick_examination_event": "Välj tentamenstillfälle",
-  "sitnet_toolbar_claim_choice_question": "Påstående",
+  "sitnet_toolbar_claim_choice_question": "Ny frågtyp (minuspoäng)",
   "sitnet_question_claim_correct": "Rätt svar",
   "sitnet_question_claim_incorrect": "Fel svar",
   "sitnet_question_claim_skip": "Jag kan inte säga",
