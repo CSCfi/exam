@@ -131,7 +131,7 @@
             </li>
             <li
                 ng-show="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'"
-                ng-repeat="option in $ctrl.sectionQuestion.options"
+                ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'option.id'"
             >
                 <img
                     src="Images/icon_correct_answer_radio.png"
