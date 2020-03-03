@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="top-row">
+    <div class="top-row collaborative-exam-table">
         <div class="col-md-12">
             <table class="table table-striped table-condensed exams-table">
                 <thead>
@@ -130,7 +130,7 @@
                             {{ $ctrl.getStateTranslation(exam) }}
                         </td>
                         <td>
-                            <span ng-repeat="o in exam.examOwners">{{ o.email }}&nbsp;</span>
+                            <p ng-repeat="o in exam.examOwners">{{ o.email }}</p>
                         </td>
                         <td>
                             <span ng-if="exam.examActiveStartDate">
