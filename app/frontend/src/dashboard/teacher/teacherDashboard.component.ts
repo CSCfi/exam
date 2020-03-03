@@ -14,8 +14,9 @@
  */
 
 import * as angular from 'angular';
-import { TeacherDashboardService } from './teacherDashboard.service';
+import { ReviewerExam, TeacherDashboardService } from './teacherDashboard.service';
 import { SessionService } from '../../session/session.service';
+import { ExamExecutionType } from '../../exam/exam.model';
 
 interface ExtraColumn {
     text: string;
@@ -33,14 +34,15 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
         finishedExtraColumns: ExtraColumn[];
         archivedExtraColumns: ExtraColumn[];
         draftExtraColumns: ExtraColumn[];
-        finishedExams: any[];
-        filteredFinished: any[];
-        activeExams: any[];
-        filteredActive: any[];
-        archivedExams: any[];
-        filteredArchived: any[];
-        draftExams: any[];
-        filteredDrafts: any[];
+        executionTypes: ExamExecutionType[];
+        finishedExams: ReviewerExam[];
+        filteredFinished: ReviewerExam[];
+        activeExams: ReviewerExam[];
+        filteredActive: ReviewerExam[];
+        archivedExams: ReviewerExam[];
+        filteredArchived: ReviewerExam[];
+        draftExams: ReviewerExam[];
+        filteredDrafts: ReviewerExam[];
 
         constructor(
             private $location: angular.ILocationService,
@@ -105,9 +107,9 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
             });
         }
 
-        changeTab = index => this.$location.search('tab', index);
+        changeTab = (index: number) => this.$location.search('tab', index);
 
-        search(text) {
+        search(text: string) {
             // Use same search parameter for all the 4 result tables
             this.filteredFinished = this.$filter('filter')(this.finishedExams, text);
             this.filteredActive = this.$filter('filter')(this.activeExams, text);
