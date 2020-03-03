@@ -16,6 +16,23 @@
 import * as angular from 'angular';
 import { IHttpResponse } from 'angular';
 import { User } from '../../session/session.service';
+import { Exam, ExamExecutionType } from '../../exam/exam.model';
+
+export interface ReviewerExam extends Exam {
+    ownerAggregate: string;
+    unassessedCount: number;
+    assessedCount: number;
+    reservationCount: number;
+    unfinishedCount: number;
+}
+
+export interface DashboardScope {
+    activeExams: ReviewerExam[];
+    draftExams: ReviewerExam[];
+    finishedExams: ReviewerExam[];
+    archivedExams: ReviewerExam[];
+    executionTypes: ExamExecutionType[];
+}
 
 export class TeacherDashboardService {
     constructor(
@@ -28,9 +45,10 @@ export class TeacherDashboardService {
     }
 
     // Exam is private and has unfinished participants
-    private participationsInFuture = exam => exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
+    private participationsInFuture = (exam: Exam) =>
+        exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
 
-    private hasUpcomingExaminationDates = (exam: { examinationDates: { date: VarDate }[] }) =>
+    private hasUpcomingExaminationDates = (exam: Exam) =>
         exam.examinationDates.some(ed => Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999));
 
     // Printout exams do not have an activity period but have examination dates.
@@ -41,15 +59,20 @@ export class TeacherDashboardService {
         exam.examActiveEndDate = Math.max(...dates);
     }
 
-    populate(scope) {
+    populate(scope: DashboardScope) {
         const deferred = this.$q.defer();
         this.Exam.listExecutionTypes()
-            .then(types => {
+            .then((types: ExamExecutionType[]) => {
                 scope.executionTypes = types;
                 this.$http
                     .get('/app/reviewerexams')
-                    .then((resp: IHttpResponse<any[]>) => {
-                        const reviews = resp.data;
+                    .then((resp: IHttpResponse<ReviewerExam[]>) => {
+                        // deleted or ongoing assessments are not considered
+                        const reviews: ReviewerExam[] = resp.data.map(r => ({
+                            ...r,
+                            children: r.children.filter(c => c.state !== 'DELETED' && c.state !== 'STUDENT_STARTED'),
+                        }));
+
                         scope.draftExams = reviews.filter(
                             r => (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r),
                         );
