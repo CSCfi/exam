@@ -151,7 +151,9 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         toggleAnonymous = () => this.updateExam(false);
 
         toggleAnonymousDisabled = () =>
-            !this.Session.getUser().isAdmin || !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative);
+            !this.Session.getUser().isAdmin ||
+            !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
+            this.collaborative;
 
         togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
 
