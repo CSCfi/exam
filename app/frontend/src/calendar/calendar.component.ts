@@ -122,6 +122,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                 : `/app/student/exam/${this.$stateParams.id}/info`;
             this.$http.get(url).then((resp: ng.IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
+                this.examInfo.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
                 this.$http
                     .get(`/app/calendar/enrolment/${this.$stateParams.id}/reservation`)
                     .then((resp: ng.IHttpResponse<ReservationInfo>) => {
@@ -133,7 +134,6 @@ export const CalendarComponent: ng.IComponentOptions = {
                                 });
                         }
                     });
-                // this.examInfo.examSections.forEach(es => )
                 this.$http.get('/app/settings/reservationWindow').then((resp: ng.IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
                     this.reservationWindowEndDate = moment().add(resp.data.value, 'days');
