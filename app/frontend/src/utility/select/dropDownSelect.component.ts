@@ -54,7 +54,7 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         $onInit() {
             this.options = this.options || [];
             this.placeholder = this.placeholder || '-';
-            this.limitTo = this.limitTo || 15;
+            this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
             this.searchFilter = '';
             this.filterOptions();
         }
@@ -67,7 +67,12 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         }
 
         filterOptions() {
-            this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+            // Show all options, if limit is set to 0
+            if (!this.limitTo || this.limitTo === 0) {
+                this.filteredOptions = this.options.filter(this.labelFilter);
+            } else {
+                this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+            }
         }
 
         selectOption(option: Option) {
