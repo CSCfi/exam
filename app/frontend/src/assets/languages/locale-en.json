@@ -928,7 +928,7 @@
   "sitnet_exam_amount_participations": "Used reservations",
   "sitnet_exam_summary_tab": "Summary of the exam (beta)",
   "sitnet_exam_average_time": "Average duration of exam session",
-  "sitnet_exam_grade_time": "Grade in relation to session time",
+  "sitnet_exam_grade_time": "Total score in relation to session time",
   "sitnet_external_reservations_only": "Reservations to other universities",
   "sitnet_exam_status_deleted": "Deleted",
   "sitnet_exam_add_participants_title": "Add a participant",

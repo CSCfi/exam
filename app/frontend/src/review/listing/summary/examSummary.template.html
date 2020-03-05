@@ -35,8 +35,8 @@
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_amount_questions' | translate}}
             </div>
-            <div class="col-md-6" ng-if="$ctrl.reviews">
-                {{$ctrl.getTotalQuestions()}}
+            <div class="col-md-6" ng-if="$ctrl.exam">
+                {{$ctrl.getQuestionCounts()}}
             </div>
         </div>
         <div class="row col-md-12 margin-20">
@@ -112,9 +112,10 @@
         <canvas
             id="line"
             class="chart chart-line"
-            chart-options="$ctrl.chartOptions"
             chart-data="$ctrl.gradeTimeData"
             chart-labels="$ctrl.gradeTimeLabels"
+            chart-series="$ctrl.chartSeries"
+            chart-options="$ctrl.chartOptions"
         >
         </canvas>
     </div>
