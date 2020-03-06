@@ -47,7 +47,6 @@ import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.QuestionTextSanitizer;
@@ -205,22 +204,26 @@ public class QuestionController extends BaseController implements SectionQuestio
         if (node.has("tags")) {
             for (JsonNode tagNode : node.get("tags")) {
                 // See if we have an identical tag already and use it if that's the case
-                Tag tag = Ebean.find(Tag.class).where()
-                        .disjunction()
-                        .eq("id", tagNode.get("id").asLong())
-                        .conjunction()
-                        .eq("name", tagNode.get("name").asText())
-                        .eq("creator", user)
-                        .endJunction()
-                        .endJunction()
-                        .findOne();
-                if (tag == null) {
-                    tag = new Tag();
-                    tag.setName(tagNode.get("name").asText());
-                    AppUtil.setCreator(tag, user);
-                    AppUtil.setModifier(tag, user);
+                Optional<Tag> tag = Optional.empty();
+                if (tagNode.has("id")) {
+                   tag = Ebean.find(Tag.class).where().idEq(tagNode.get("id").asLong()).findOneOrEmpty();
+                } else {
+                    List<Tag> tags = Ebean.find(Tag.class).where()
+                            .eq("name", tagNode.get("name").asText())
+                            .eq("creator", user)
+                            .findList();
+                    if (!tags.isEmpty()) {
+                        tag = Optional.of(tags.get(0));
+                    }
                 }
-                question.getTags().add(tag);
+                if (tag.isEmpty()) {
+                    Tag newTag = new Tag();
+                    newTag.setName(tagNode.get("name").asText());
+                    AppUtil.setCreator(newTag, user);
+                    AppUtil.setModifier(newTag, user);
+                    tag = Optional.of(newTag);
+                }
+                question.getTags().add(tag.get());
             }
         }
         return question;

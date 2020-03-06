@@ -41,6 +41,7 @@ public class TimeController extends BaseController {
     public Result getRemainingExamTime(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("externalExam")
                 .where()
                 .disjunction()
                 .eq("exam.hash", hash)
