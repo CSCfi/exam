@@ -186,6 +186,7 @@ export interface ExamImpl {
     examInspections: { user: User; ready: boolean }[];
     requiresUserAgentAuth: boolean;
     examinationEventConfigurations: ExaminationEventConfiguration[];
+    totalScore: number;
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object
