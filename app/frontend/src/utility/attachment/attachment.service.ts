@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 
 import { Observable } from '../../../node_modules/rxjs';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
-import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { Exam, ExamSectionQuestion, Question, Participation } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
 import { ReviewQuestion } from '../../review/review.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -78,7 +78,10 @@ export class AttachmentService {
 
     private toPromise = (observable: Observable<any>) =>
         new Promise((resolve, reject) => {
-            observable.subscribe(() => resolve(), err => reject(err));
+            observable.subscribe(
+                () => resolve(),
+                err => reject(err),
+            );
         });
 
     eraseQuestionAttachment = (question: Question) =>
@@ -86,9 +89,10 @@ export class AttachmentService {
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.http
-                .delete(this.collaborativeQuestionAttachmentApi(examId, questionId))
-                .subscribe(() => resolve(), err => reject(err));
+            this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
+                () => resolve(),
+                err => reject(err),
+            );
         });
     }
 
@@ -149,6 +153,23 @@ export class AttachmentService {
             );
         });
     }
+
+    removeExternalFeedbackAttachment = (id: string, ref: string, participation: Participation) => {
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
+        dialog.result.then(() => {
+            this.http.delete<{ rev: string }>(`/integration/iop/attachment/exam/${id}/${ref}/feedback`).subscribe(
+                resp => {
+                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    participation._rev = resp.rev;
+                    delete participation.exam.examFeedback.attachment;
+                },
+                resp => toast.error(resp),
+            );
+        });
+    };
 
     removeStatementAttachment(exam: ExamWithStatement) {
         const dialog = this.dialogs.open(

@@ -23,10 +23,10 @@
                     <a uiSref="enrolments({id: {{ enrolment.exam.id }}, code: '{{ enrolment.exam.course.code }}' })">
                         {{ enrolment.exam.name || enrolment.collaborativeExam.name }}</a
                     >
-                    <small *ngIf="enrolment.exam.anonymous || enrolment.collaborativeExam.anonymous"
+                    <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small
                     >
-                    <small *ngIf="enrolment.exam.requiresUserAgentAuth"
+                    <small *ngIf="enrolment.exam?.requiresUserAgentAuth"
                         >({{ 'sitnet_examination_type_seb' | translate }})</small
                     >
                     <br />
@@ -95,7 +95,12 @@
                             <li *ngIf="enrolment.examinationEventConfiguration && hasUpcomingAlternativeEvents()">
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" (click)="makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        (click)="makeReservation()"
+                                        tabindex="0"
+                                        (ngEnter)="makeReservation()"
+                                    >
                                         {{ 'sitnet_student_change_reservation' | translate }}
                                     </a>
                                 </span>
@@ -145,7 +150,12 @@
                             <li *ngIf="!enrolment.reservation && !enrolment.exam.requiresUserAgentAuth">
                                 <span class="pointer" [hidden]="enrolment.exam.executionType.type !== 'PUBLIC'"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" (click)="makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        (click)="makeReservation()"
+                                        tabindex="0"
+                                        (ngEnter)="makeReservation()"
+                                    >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
                                 </span>
@@ -160,7 +170,12 @@
                             >
                                 <span class="pointer" (hidden)="(enrolment.exam.executionType.type !== 'PUBLIC')"
                                     >&nbsp;&nbsp;
-                                    <a class="text-info" (click)="makeReservation()">
+                                    <a
+                                        class="text-info"
+                                        (click)="makeReservation()"
+                                        tabindex="0"
+                                        (ngEnter)="makeReservation()"
+                                    >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
                                 </span>
@@ -189,7 +204,12 @@
                             <teacher-list [exam]="enrolment.exam"></teacher-list>
                         </div>
                         <div>
-                            <a class="message-to-teacher pointer" (click)="addEnrolmentInformation()">
+                            <a
+                                class="message-to-teacher pointer"
+                                (click)="addEnrolmentInformation()"
+                                tabindex="0"
+                                (ngEnter)="addEnrolmentInformation()"
+                            >
                                 <span *ngIf="enrolment.information">
                                     <img
                                         class="arrow_icon"
@@ -354,9 +374,13 @@
                     *ngIf="!enrolment.reservation && !enrolment.exam.requiresUserAgentAuth"
                     class="student-message-dialog-button-save"
                 >
-                    <a class="link-button pointer" (click)="makeReservation()">{{
-                        'sitnet_student_new_reservation' | translate
-                    }}</a>
+                    <a
+                        class="link-button pointer"
+                        (click)="makeReservation()"
+                        tabindex="0"
+                        (ngEnter)="makeReservation()"
+                        >{{ 'sitnet_student_new_reservation' | translate }}</a
+                    >
                 </div>
                 <div
                     *ngIf="
@@ -366,15 +390,19 @@
                     "
                     class="student-message-dialog-button-save"
                 >
-                    <a class="link-button pointer" (click)="makeReservation()">{{
-                        'sitnet_student_new_reservation' | translate
-                    }}</a>
+                    <a
+                        class="link-button pointer"
+                        (click)="makeReservation()"
+                        tabindex="0"
+                        (ngEnter)="makeReservation()"
+                        >{{ 'sitnet_student_new_reservation' | translate }}</a
+                    >
                 </div>
             </div>
 
             <div class="student-exam-row-infobox" [hidden]="!showInstructions">
                 <div
-                    [innerHtml]="enrolment.exam.enrollInstruction || enrolment.collaborativeExam.enrollInstruction"
+                    [innerHtml]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction"
                 ></div>
             </div>
         </div>

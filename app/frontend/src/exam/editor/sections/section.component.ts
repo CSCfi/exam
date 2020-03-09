@@ -77,7 +77,7 @@ export const SectionComponent: ng.IComponentOptions = {
                 return this.Question.calculateMaxPoints(question);
             }
             if (type === 'ClaimChoiceQuestion') {
-                return this.Question.scoreClaimChoiceAnswer(question);
+                return this.Question.getCorrectClaimChoiceOptionScore(question);
             }
             return null;
         };
@@ -256,7 +256,7 @@ export const SectionComponent: ng.IComponentOptions = {
                         `/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`,
                     ),
                 )
-                .then(() => {
+                .then((resp: ng.IHttpResponse<ExamSection>) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
                     toast.info(this.$translate.instant('sitnet_question_removed'));
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
@@ -264,6 +264,8 @@ export const SectionComponent: ng.IComponentOptions = {
                         this.section.lotteryOn = false;
                         this.section.lotteryItemCount = 1;
                         this.updateSection(true);
+                    } else if (this.section.lotteryOn) {
+                        this.section.lotteryItemCount = resp.data.lotteryItemCount;
                     }
                 })
                 .catch(resp => toast.error(resp.data));

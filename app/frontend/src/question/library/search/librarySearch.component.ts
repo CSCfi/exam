@@ -187,7 +187,11 @@ export class LibrarySearchComponent implements OnInit {
         const examIds = this.getExamIds();
         const courseIds = this.getCourseIds();
         const sectionIds = this.getSectionIds();
-        this.Library.listTags(courseIds, sectionIds, tags.map(t => t.id)).subscribe(response => {
+        this.Library.listTags(
+            courseIds,
+            sectionIds,
+            tags.map(t => t.id),
+        ).subscribe(response => {
             tags = this.union(
                 tags,
                 response.map(r => ({ id: r.id, name: r.name, object: r, filtered: false, isSectionTag: false })),

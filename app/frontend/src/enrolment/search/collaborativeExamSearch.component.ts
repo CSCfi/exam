@@ -14,12 +14,13 @@
  */
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash';
-import * as toastr from 'toastr';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { CollaborativeExam } from '../../exam/exam.model';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentService } from '../enrolment.service';
+import { tap, finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
@@ -29,45 +30,56 @@ interface CollaborativeExamInfo extends CollaborativeExam {
 
 @Component({
     selector: 'collaborative-exam-search',
-    template: `
-        <div id="dashboard">
-            <div>
-                <div class="student-details-title-wrap padtop padleft">
-                    <div class="student-exam-search-title">{{ 'sitnet_collaborative_exams' | translate }}</div>
-                </div>
-            </div>
-            <div class="exams-list marr30 list-item" *ngFor="let exam of exams">
-                <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
-            </div>
-        </div>
-    `,
+    template: require('./collaborativeExamSearch.component.html'),
 })
 export class CollaborativeExamSearchComponent implements OnInit {
     exams: CollaborativeExamInfo[];
+    filter: { text: string };
+    loader: { loading: boolean };
+    filterChanged: Subject<string> = new Subject<string>();
 
     constructor(
         private Enrolment: EnrolmentService,
         private Language: LanguageService,
         private CollaborativeExam: CollaborativeExamService,
-    ) {}
+    ) {
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+    }
 
     ngOnInit() {
-        this.CollaborativeExam.listExams().subscribe((exams: CollaborativeExam[]) => {
-            this.exams = exams.map(e =>
-                _.assign(e, {
-                    reservationMade: false,
-                    enrolled: false,
-                    languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
-                }),
-            );
-            this.exams.forEach(e => {
-                this.Enrolment.getEnrolments(e.id, true).subscribe(
-                    enrolments => {
-                        e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
-                        e.enrolled = enrolments.length > 0;
-                    },
-                    err => toastr.error(err.data),
-                );
+        this.filter = { text: '' };
+        this.loader = { loading: false };
+    }
+
+    search = (text: string) => this.filterChanged.next(text);
+
+    private doSearch = (text: string) => {
+        if (text.length <= 2) {
+            return;
+        }
+        this.filter.text = text;
+        this.loader = { loading: true };
+
+        this.CollaborativeExam.searchExams(text)
+            .pipe(
+                tap(exams => this.updateExamList(exams)),
+                finalize(() => (this.loader = { loading: false })),
+            )
+            .subscribe();
+    };
+
+    updateExamList(exams: CollaborativeExam[]) {
+        this.exams = exams.map(e =>
+            _.assign(e, {
+                reservationMade: false,
+                enrolled: false,
+                languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
+            }),
+        );
+        this.exams.forEach(e => {
+            this.Enrolment.getEnrolments(e.id, true).subscribe(enrolments => {
+                e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+                e.enrolled = enrolments.length > 0;
             });
         });
     }

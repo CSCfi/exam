@@ -29,12 +29,18 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Query;
@@ -44,18 +50,21 @@ import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.db.ebean.Transactional;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
-import backend.controllers.SettingsController;
 import backend.controllers.ExaminationController;
+import backend.controllers.SettingsController;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.impl.AutoEvaluationHandler;
+import backend.impl.EmailComposer;
 import backend.impl.NoShowHandler;
 import backend.models.Attachment;
 import backend.models.AutoEvaluationConfig;
@@ -88,6 +97,12 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private ExternalAttachmentLoader externalAttachmentLoader;
+
+    @Inject
+    private ActorSystem actor;
+
+    @Inject
+    private EmailComposer emailComposer;
 
     private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
@@ -142,7 +157,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Transactional
     public CompletionStage<Result> addExamForAssessment(String ref, Http.Request request) throws IOException {
         Optional<ExamEnrolment> option = getPrototype(ref);
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
@@ -172,6 +187,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
             int deadlineDays = Integer.parseInt(settings.getValue());
             DateTime deadline = ee.getFinished().plusDays(deadlineDays);
             ep.setDeadline(deadline);
+            if (clone.isPrivate()) {
+                notifyTeachers(clone);
+            }
             autoEvaluationHandler.autoEvaluate(clone);
         }
         ep.save();
@@ -181,9 +199,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return wrapAsPromise(created());
     }
 
+    private void notifyTeachers(Exam exam) {
+        Set<User> recipients = Stream.concat(exam.getParent().getExamOwners().stream(),
+                exam.getExamInspections().stream().map(ExamInspection::getUser))
+                .collect(Collectors.toSet());
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                actor.dispatcher());
+    }
+
     private PathProperties getPath() {
-        String path = "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, anonymous, "  +
-                "course(id, code, name), executionType(id, type), " + // (
+        String path = "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
+                "requiresUserAgentAuth, trialCount, anonymous, " +
+                "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
                 "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName)), " +
@@ -201,7 +229,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @SubjectNotPresent
     public CompletionStage<Result> provideEnrolment(String ref) {
         Optional<ExamEnrolment> option = getPrototype(ref);
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
@@ -239,10 +267,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
         URL url = parseUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
-            JsonNode root = response.asJson();
             if (response.getStatus() != Http.Status.OK) {
                 return null;
             }
+            JsonNode root = response.asJson();
             // Create external exam!
             Exam document = JsonDeserializer.deserialize(Exam.class, root);
             // Set references so that:
@@ -254,8 +282,20 @@ public class ExternalExamController extends BaseController implements ExternalEx
             String ref = UUID.randomUUID().toString();
             document.setHash(ref);
 
+            // Filter out optional sections
+            ArrayNode optionalSectionsNode = root.has("optionalSections") ?
+                    (ArrayNode)root.get("optionalSections") :
+                    Json.newArray();
+            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
+                    .map(JsonNode::asLong)
+                    .collect(Collectors.toSet());
+            document.setExamSections(document.getExamSections().stream()
+                    .filter(es -> !es.isOptional() || ids.contains(es.getId()))
+                    .collect(Collectors.toSet()));
+
             // Shuffle multi-choice options
-            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
+            document.getExamSections().stream()
+                    .flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));

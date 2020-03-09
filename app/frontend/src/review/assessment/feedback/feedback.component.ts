@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, Inject } from '@angular/core';
+import { StateParams } from '@uirouter/core';
 
 import { Participation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
@@ -37,6 +38,7 @@ export class FeedbackComponent {
     hideEditor = false;
 
     constructor(
+        @Inject('$stateParams') private stateParams: StateParams,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
@@ -74,7 +76,25 @@ export class FeedbackComponent {
         );
     };
 
-    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
+    downloadFeedbackAttachment = () => {
+        const attachment = this.exam.examFeedback.attachment;
+        if (!attachment) {
+            return;
+        }
+        this.collaborative && attachment.externalId
+            ? this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName)
+            : this.Attachment.downloadFeedbackAttachment(this.exam);
+    };
 
-    removeFeedbackAttachment = () => this.Attachment.removeFeedbackAttachment(this.exam);
+    removeFeedbackAttachment = () => {
+        if (this.collaborative) {
+            this.Attachment.removeExternalFeedbackAttachment(
+                this.stateParams.id,
+                this.stateParams.ref,
+                this.participation,
+            );
+        } else {
+            this.Attachment.removeFeedbackAttachment(this.exam);
+        }
+    };
 }

@@ -66,7 +66,7 @@ angular.module('app.administrative.statistics').component('roomStatistics', {
                 let total = 0;
 
                 const isWithinBounds = function(p) {
-                    const date = new Date(p.exam.created);
+                    const date = new Date(p.exam ? p.exam.created : p.externalExam.started);
                     const current = new Date(month);
                     const min = new Date(current.getFullYear(), current.getMonth(), 1);
                     const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
@@ -117,7 +117,7 @@ angular.module('app.administrative.statistics').component('roomStatistics', {
                     if (vm.participations.hasOwnProperty(k)) {
                         dates = dates.concat(
                             vm.participations[k].map(function(p) {
-                                return p.exam.created;
+                                return p.exam ? p.exam.created : p.externalExam.started;
                             }),
                         );
                     }

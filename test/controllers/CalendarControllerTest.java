@@ -47,8 +47,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
     private void setWorkingHours() {
-        String[] dates = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
-        String weekday = dates[DateTime.now().getDayOfWeek()];
+        String[] dates = {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"};
+        int d = DateTime.now().getDayOfWeek() - 1;
+        String weekday = dates[d];
         DefaultWorkingHours dwh = new DefaultWorkingHours();
         dwh.setWeekday(weekday);
         dwh.setRoom(room);

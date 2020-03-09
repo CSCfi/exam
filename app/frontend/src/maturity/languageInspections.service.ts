@@ -58,9 +58,10 @@ export class LanguageInspectionService {
             this.translate.instant('sitnet_confirm_assign_inspection'),
         );
         dialog.result.then(() => {
-            this.http
-                .put(`/app/inspection/${inspection.id}`, {})
-                .subscribe(() => this.state.go('assessment', { id: inspection.exam.id }), err => toast.error(err.data));
+            this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe(
+                () => this.state.go('assessment', { id: inspection.exam.id }),
+                err => toast.error(err.data),
+            );
         });
     };
 }

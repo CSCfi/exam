@@ -204,7 +204,13 @@
                     <button
                         class="btn btn-sm btn-link"
                         (click)="makeExternalReservation()"
-                        *ngIf="isInteroperable && !isCollaborative && !isExternal"
+                        *ngIf="
+                            isInteroperable &&
+                            !isCollaborative &&
+                            !isExternal &&
+                            !hasOptionalSections() &&
+                            !examInfo.externalReservationDisabled
+                        "
                     >
                         {{ 'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>
@@ -219,7 +225,12 @@
         <div class="col-md-12" [hidden]="isExternal">
             <div class="row calendar-accessibility-link">
                 <span class="col-md-12">
-                    <a *ngIf="sectionSelectionOk()" (click)="showAccs = !showAccs">
+                    <a
+                        *ngIf="sectionSelectionOk()"
+                        tabindex="0"
+                        (click)="showAccs = !showAccs"
+                        (ngEnter)="showAccs = !showAccs"
+                    >
                         {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                     </a>
                     <span *ngIf="!sectionSelectionOk()" class="text text-muted">
@@ -292,6 +303,8 @@
                                 role="presentation"
                                 [ngClass]="room.outOfService ? 'disabled' : ''"
                                 (click)="selectRoom(room)"
+                                tabindex="0"
+                                (ngEnter)="selectRoom(room)"
                             >
                                 <a
                                     ngbDropdownItem
@@ -450,6 +463,8 @@
                 [disabled]="!reservation || confirming"
                 class="btn btn-primary pull-right"
                 (click)="confirmReservation()"
+                tabindex="0"
+                (ngEnter)="confirmReservation()"
             >
                 {{ 'sitnet_student_confirm_reservation' | translate }}
             </button>

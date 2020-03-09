@@ -218,7 +218,7 @@ GET           /app/reservations/teachers                               backend.c
 GET           /app/reservations/examrooms                              backend.controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                  backend.controllers.ReservationController.getExams(request: Request)
 GET           /app/reservations                                        backend.controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], externalRef: java.util.Optional[String], request: Request)
-DELETE        /app/reservations/:id                                    backend.controllers.ReservationController.removeReservation(id: Long, msg: java.util.Optional[String])
+DELETE        /app/reservations/:id                                    backend.controllers.ReservationController.removeReservation(id: Long, request: Request)
 PUT           /app/reservations/:id                                    backend.controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                           backend.controllers.ReservationController.findAvailableMachines(id: Long)
 PUT           /app/reservations/:id/machine                            backend.controllers.ReservationController.updateMachine(id: Long, request: Request)
@@ -281,6 +281,9 @@ GET           /integration/reservations                                backend.c
 GET           /integration/rooms                                       backend.controllers.integration.ReservationAPIController.getRooms
 GET           /integration/rooms/:id/openinghours                      backend.controllers.integration.ReservationAPIController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
 
+# reports
+GET           /integration/reports                                     backend.controllers.integration.ReportAPIController.getExamEnrolments(start: java.util.Optional[String], end: java.util.Optional[String])
+
 ################# Transferred exam ######################
 PUT           /integration/iop/facilities/:id                          backend.controllers.iop.transfer.impl.FacilityController.updateFacility(id: Long)
 GET           /integration/iop/organisations                           backend.controllers.iop.transfer.impl.OrganisationController.listOrganisations
@@ -308,6 +311,7 @@ GET           /integration/iop/student/finishedExams                   backend.c
 
 ################# Collaborative Exam interface #########
 GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.listExams(request: Request)
+GET           /integration/iop/exams/search                            backend.controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(request: Request, filter: java.util.Optional[String])
 POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.createExam(request: Request)
 GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long, request: Request)
 GET           /integration/iop/exams/:id/preview                       backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long, request: Request)
@@ -329,6 +333,7 @@ PUT           /integration/iop/exams/:eid/reorder                      backend.c
 PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 ################# Collaborative Exam enrolment interface #########
 GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.listExams
+GET           /integration/iop/enrolment/search                        backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: java.util.Optional[String])
 GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long, request: Request)
 POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long, request: Request)
 ################# Collaborative Exam reservation interface #########
@@ -343,6 +348,7 @@ PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.c
 PUT           /integration/iop/reviews/:id/:ref/question/:qid/force    backend.controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
 PUT           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String, request: Request)
+POST          /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/info                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
 POST          /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
@@ -361,16 +367,15 @@ POST          /integration/iop/attachment/exam                         backend.c
 DELETE        /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteExamAttachment(id: Long, request: Request)
 GET           /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExamAttachment(id: Long, request: Request)
 
-POST          /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addFeedbackAttachment(id: Long, request: Request)
-DELETE        /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteFeedbackAttachment(id: Long, request: Request)
-GET           /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadFeedbackAttachment(id: Long, request: Request)
+POST          /integration/iop/attachment/exam/:id/:ref/feedback       backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAssessmentAttachment(id: Long, ref: String, request: Request)
+DELETE        /integration/iop/attachment/exam/:id/:ref/feedback       backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteAssessmentAttachment(id: Long, ref: String, request: Request)
 
 POST          /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addStatementAttachment(id: Long, request: Request)
 DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long, request: Request)
 GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long, request: Request)
 
 ################# Time interface ######################
-GET           /app/time/:hash                                          backend.controllers.TimeController.getExamRemainingTime(hash: String, request: Request)
+GET           /app/time/:hash                                          backend.controllers.TimeController.getRemainingExamTime(hash: String, request: Request)
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer], request: Request)
@@ -426,6 +431,7 @@ GET           /app/reports/departments                                 backend.c
 GET           /app/reports/exams                                       backend.controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/reservations                                backend.controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/responses                                   backend.controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+POST          /app/reports/questionreport/:id                          backend.controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 
 ########################################################
 GET           /assets/assets/images/nav/*file                          backend.controllers.assets.NavbarAssets.at(path="/public", file)

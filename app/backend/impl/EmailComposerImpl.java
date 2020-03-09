@@ -188,7 +188,7 @@ class EmailComposerImpl implements EmailComposer {
         sendInspectionMessage(linkToInspection, teacherName, examInfo, msg, inspector, sender);
     }
 
-    private class ReviewStats implements Comparable<ReviewStats> {
+    private static class ReviewStats implements Comparable<ReviewStats> {
         int amount;
         DateTime earliestDeadLine;
 
@@ -784,7 +784,7 @@ class EmailComposerImpl implements EmailComposer {
         return exam.getExamEnrolments().stream()
                 .filter(ee -> {
                     Reservation reservation = ee.getReservation();
-                    return reservation != null && reservation.getEndAt().isBefore(DateTime.now());
+                    return reservation != null && reservation.getEndAt().isAfter(DateTime.now());
                 })
                 .sorted()
                 .collect(Collectors.toList());

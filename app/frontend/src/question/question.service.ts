@@ -342,6 +342,34 @@ export class QuestionService {
         options.forEach(o => (o.correctOption = o === option));
     };
 
+    getInvalidClaimOptionTypes = (options: MultipleChoiceOption[]) => {
+        const invalidOptions: string[] = [];
+
+        const hasCorrectOption = options.some(
+            opt => opt.claimChoiceType === 'CorrectOption' && opt.defaultScore > 0 && opt.option,
+        );
+        const hasIncorrectOption = options.some(
+            opt => opt.claimChoiceType === 'IncorrectOption' && opt.defaultScore <= 0 && opt.option,
+        );
+        const hasSkipOption = options.some(
+            opt => opt.claimChoiceType === 'SkipOption' && opt.defaultScore === 0 && opt.option,
+        );
+
+        if (!hasCorrectOption) {
+            invalidOptions.push('CorrectOption');
+        }
+
+        if (!hasIncorrectOption) {
+            invalidOptions.push('IncorrectOption');
+        }
+
+        if (!hasSkipOption) {
+            invalidOptions.push('SkipOption');
+        }
+
+        return invalidOptions;
+    };
+
     addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
         const data = {
             uid: uid,

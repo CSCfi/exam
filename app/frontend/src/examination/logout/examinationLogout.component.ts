@@ -17,21 +17,16 @@ import * as angular from 'angular';
 
 export const ExaminationLogoutComponent: angular.IComponentOptions = {
     template: `
-        <div id="sitnet-header" class="header">
-            <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{'sitnet_end_of_exam' | translate}}</span>
-            </div>
-        </div>
-        <div id="dashboard">
-            <div class="exam-logout-wrapper">
-                <h3 ng-if="!$ctrl.quitLinkEnabled" class="text-info" style="text-align: center">
-                <h3 ng-if="$ctrl.quitLinkEnabled" class="text-info" style="text-align: center">
-                    {{$ctrl.reasonPhrase | translate}}
-                </h3>
-                <a ng-if="$ctrl.quitLinkEnabled" class="text-info" style="text-align: center"
-                    ng-href="{{$ctrl.quitLink}}">{{'sitnet_quit_seb' | translate}}
-                </a>
-            </div>
+        <div class="jumbotron">
+            <h1>{{'sitnet_end_of_exam' | translate}}</h2>
+            <h2>
+                {{$ctrl.reasonPhrase | translate}}
+            </h2>
+            <h3>
+                <u>
+                    <a ng-if="$ctrl.quitLink" ng-href="{{$ctrl.quitLink}}">{{'sitnet_quit_seb' | translate}}</a>
+                </u>
+            </h3>
         </div>
     `,
     controller: class ExaminationLogoutController implements angular.IComponentController {
@@ -49,6 +44,12 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
             'ngInject';
         }
 
+        private logout = () =>
+            this.$timeout(() => {
+                this.$rootScope.$broadcast('examEnded');
+                this.$state.go('logout');
+            }, 8000);
+
         $onInit = () => {
             this.reasonPhrase = this.$stateParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
             this.quitLinkEnabled = this.$stateParams.quitLinkEnabled === 'true';
@@ -59,18 +60,12 @@ export const ExaminationLogoutComponent: angular.IComponentOptions = {
                     .then((resp: angular.IHttpResponse<{ quitLink: string }>) => {
                         this.quitLink = resp.data.quitLink;
                     })
-                    .catch(() => {
+                    .catch(
                         // Fetching quit link failed for some reason, just log out
-                        this.$timeout(() => {
-                            this.$rootScope.$broadcast('examEnded');
-                            this.$state.go('logout');
-                        }, 4000);
-                    });
+                        () => this.logout(),
+                    );
             } else {
-                this.$timeout(() => {
-                    this.$rootScope.$broadcast('examEnded');
-                    this.$state.go('logout');
-                }, 8000);
+                this.logout();
             }
         };
     },

@@ -148,7 +148,10 @@ export class FileService {
                         fd.append(k, params[k]);
                     }
                 }
-                this.http.post<Attachment>(url, fd).subscribe(resp => resolve(resp), resp => reject(resp));
+                this.http.post<Attachment>(url, fd).subscribe(
+                    resp => resolve(resp),
+                    resp => reject(resp),
+                );
             }
         });
     }

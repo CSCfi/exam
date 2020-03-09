@@ -25,10 +25,10 @@ export const AppComponent: angular.IComponentOptions = {
         </div>
         <div ng-if="$ctrl.user">
             <navigation [hidden]="$ctrl.hideNavBar"></navigation>
-            <div id="mainView" class="container-fluid"
+            <main id="mainView" class="container-fluid"
                 ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
                 <div class="ui-view"></div>
-            </div>
+            </main>
         </div>
         `,
     controller: class AppController implements angular.IComponentController {

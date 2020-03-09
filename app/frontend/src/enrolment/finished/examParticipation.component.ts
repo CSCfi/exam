@@ -23,6 +23,7 @@ import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
 import { SessionService } from '../../session/session.service';
 import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
+import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
 
 @Component({
     selector: 'exam-participation',
@@ -40,6 +41,7 @@ export class ExamParticipationComponent implements OnInit {
         private Exam: ExamService,
         private Session: SessionService,
         private Assessment: AssessmentService,
+        private CollaborativeAssessment: CollaborativeAssesmentService,
     ) {}
 
     ngOnInit() {
@@ -67,7 +69,21 @@ export class ExamParticipationComponent implements OnInit {
     }
 
     setCommentRead = (exam: Exam) => {
-        return this.Assessment.setCommentRead(exam);
+        if (
+            this.collaborative &&
+            this.participation.exam.examFeedback &&
+            !this.participation.exam.examFeedback.feedbackStatus
+        ) {
+            this.CollaborativeAssessment.setCommentRead(
+                this.participation.collaborativeExam.id,
+                this.participation._id,
+                this.participation._rev,
+            ).subscribe(() => {
+                this.participation.exam.examFeedback.feedbackStatus = true;
+            });
+        } else {
+            this.Assessment.setCommentRead(exam);
+        }
     };
 
     private loadReview = (exam: ReviewedExam) =>

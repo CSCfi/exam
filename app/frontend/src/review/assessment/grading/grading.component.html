@@ -97,9 +97,8 @@
         </button>
     </div>
 </div>
-<div class="marb10 ">&nbsp;</div>
 
-<div class="review-grade-row marb20 " [hidden]="getTeacherCount() === 0">
+<div class="review-grade-row" [hidden]="getTeacherCount() === 0">
     <div ng-hide="$ctrl.isReadOnly()">
         <div class="col-md-2 general-info-title">
             {{ 'sitnet_send_to_other_reviewers' | translate }}:
@@ -122,18 +121,19 @@
     </div>
 </div>
 
-<div class="review-grade-section" [hidden]="!isReadOnly()">
+<div class="review-grade-row marb20" [hidden]="!isReadOnly()">
     <div class="col-md-2 general-info-title">
         {{ 'sitnet_teachers_comment' | translate }}
         <span *ngIf="isCommentRead()">({{ 'sitnet_teachers_comment_read' | translate | lowercase }})</span>
         <span *ngIf="!isCommentRead()">({{ 'sitnet_teachers_comment_notread' | translate | lowercase }})</span>:
     </div>
     <div
-        [ngClass]="isCommentRead() ? 'col-md-8 general-info-content' : 'sitnet-text-alarm'"
+        class="col-md-10"
+        [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
         mathjax
         [innerHtml]="exam.examFeedback.comment"
     ></div>
-    <div *ngIf="exam.examFeedback.attachment" class="col-md-2 general-info-content">
+    <div *ngIf="exam.examFeedback.attachment" class="col-md-offset-2 col-md-10 general-info-content">
         <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
             {{ exam.examFeedback.attachment.fileName }}
         </a>

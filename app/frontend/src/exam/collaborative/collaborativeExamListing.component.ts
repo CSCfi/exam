@@ -18,30 +18,100 @@ import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
-import { CollaborativeExam } from '../exam.model';
+import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
+import { tap, finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+
+enum ListingView {
+    PUBLISHED = 'PUBLISHED',
+    EXPIRED = 'EXPIRED',
+    DRAFTS = 'DRAFTS',
+    OTHER = 'OTHER',
+}
+
+interface ListedCollaborativeExam extends CollaborativeExam {
+    listingView: ListingView;
+    ownerAggregate: string;
+    stateTranslation: string;
+}
 
 @Component({
     selector: 'collaborative-exam-listing',
     template: require('./collaborativeExamListing.component.html'),
 })
 export class CollaborativeExamListingComponent implements OnInit {
-    exams: CollaborativeExam[];
+    exams: ListedCollaborativeExam[];
     user: User;
+    view: ListingView;
+    examsPredicate: string;
+    reverse: boolean;
+    filter: { text: string };
+    loader: { loading: boolean };
+    filterChanged: Subject<string> = new Subject<string>();
 
     constructor(
         private state: StateService,
         private translate: TranslateService,
         private Session: SessionService,
         private CollaborativeExam: CollaborativeExamService,
-    ) {}
+    ) {
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+    }
 
     ngOnInit() {
+        this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
-        this.CollaborativeExam.listExams().subscribe(
-            (exams: CollaborativeExam[]) => (this.exams = exams),
-            err => toast.error(err.data),
-        );
+        this.examsPredicate = 'examActiveEndDate';
+        this.reverse = true;
+        this.filter = { text: '' };
+        this.loader = { loading: false };
+        this.listAllExams();
+    }
+
+    listAllExams = () =>
+        this.CollaborativeExam.listExams()
+            .pipe(
+                tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
+                finalize(() => (this.loader = { loading: false })),
+            )
+            .subscribe();
+
+    returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
+        const listedExams: ListedCollaborativeExam[] = exams
+            .map(e => {
+                const ownerAggregate = e.examOwners.map(o => o.email).join();
+                const stateTranslation = this.getStateTranslation(e);
+                const listingView = this.determineListingView(e);
+
+                return { ...e, ownerAggregate, stateTranslation, listingView };
+            })
+            .filter(e => e.listingView !== ListingView.OTHER);
+
+        return listedExams;
+    }
+
+    determineListingView(exam: CollaborativeExam) {
+        if (
+            exam.state === CollaborativeExamState.PUBLISHED &&
+            Date.now() > new Date(exam.examActiveEndDate).getTime()
+        ) {
+            return ListingView.EXPIRED;
+        }
+
+        if (exam.state === CollaborativeExamState.PUBLISHED || exam.state === CollaborativeExamState.PRE_PUBLISHED) {
+            return ListingView.PUBLISHED;
+        }
+
+        if (exam.state === CollaborativeExamState.DRAFT) {
+            return ListingView.DRAFTS;
+        }
+
+        return ListingView.OTHER;
+    }
+
+    setView(view: ListingView) {
+        this.view = view;
     }
 
     createExam() {
@@ -53,4 +123,37 @@ export class CollaborativeExamListingComponent implements OnInit {
             err => toast.error(err.data),
         );
     }
+
+    getStateTranslation(exam: CollaborativeExam): string {
+        const translationStr = this.CollaborativeExam.getExamStateTranslation(exam);
+        if (translationStr) {
+            return this.translate.instant(translationStr);
+        }
+        return '';
+    }
+
+    getExamAnonymousStatus(exam: CollaborativeExam) {
+        return exam.anonymous ? 'sitnet_anonymous_enabled' : 'sitnet_anonymous_disabled';
+    }
+
+    search = (text: string) => this.filterChanged.next(text);
+
+    private doSearch = (text: string) => {
+        this.filter.text = text;
+        this.loader = { loading: true };
+
+        if (text.length === 0) {
+            this.listAllExams();
+            return;
+        }
+
+        this.CollaborativeExam.searchExams(text)
+            .pipe(
+                tap(
+                    exams => (this.exams = this.returnListedCollaborativeExams(exams)),
+                    finalize(() => (this.loader = { loading: false })),
+                ),
+            )
+            .subscribe();
+    };
 }

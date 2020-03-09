@@ -40,10 +40,6 @@ public interface CalendarHandler {
     int getReservationWindowSize();
     boolean isDoable(Reservation reservation, Collection<Integer> aids);
 
-    class ReservationArgs {
-
-    }
-
     class TimeSlot {
         private final Interval interval;
         private final String start;

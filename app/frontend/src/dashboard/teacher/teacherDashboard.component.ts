@@ -18,7 +18,13 @@ import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ExamExecutionType } from '../../exam/exam.model';
 import { SessionService, User } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
-import { TeacherDashboardService } from './teacherDashboard.service';
+import {
+    TeacherDashboardService,
+    FinalizedExam,
+    ActiveExam,
+    ArchivedExam,
+    DraftExam,
+} from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;
@@ -38,14 +44,14 @@ export class TeacherDashboardComponent implements OnInit {
     finishedExtraColumns: ExtraColumn[];
     archivedExtraColumns: ExtraColumn[];
     draftExtraColumns: ExtraColumn[];
-    finishedExams: any[];
-    filteredFinished: any[];
-    activeExams: any[];
-    filteredActive: any[];
-    archivedExams: any[];
-    filteredArchived: any[];
-    draftExams: any[];
-    filteredDrafts: any[];
+    finishedExams: FinalizedExam[];
+    filteredFinished: FinalizedExam[];
+    activeExams: ActiveExam[];
+    filteredActive: ActiveExam[];
+    archivedExams: ArchivedExam[];
+    filteredArchived: ArchivedExam[];
+    draftExams: DraftExam[];
+    filteredDrafts: DraftExam[];
 
     constructor(
         private TeacherDashboard: TeacherDashboardService,

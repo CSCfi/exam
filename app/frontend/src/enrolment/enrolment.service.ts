@@ -238,7 +238,7 @@ export class EnrolmentService {
         modalRef.result.catch(err => toast.error(err));
     };
 
-    showMaturityInstructions = (enrolment: ExamEnrolment) => {
+    showMaturityInstructions = (enrolment: { exam: Exam }) => {
         this.getMaturityInstructions(enrolment.exam).subscribe(instructions => {
             const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',

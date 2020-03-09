@@ -35,6 +35,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
+import play.db.ebean.Transactional;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -86,6 +87,7 @@ public class ExamRecordController extends BaseController {
     // Instead assure that all required exam fields are set
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Transactional
     public Result addExamRecord(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         final Optional<Exam> optionalExam  = Ebean.find(Exam.class)
@@ -95,7 +97,7 @@ public class ExamRecordController extends BaseController {
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
                 .findOneOrEmpty();
-        if (!optionalExam.isPresent()) {
+        if (optionalExam.isEmpty()) {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -135,7 +137,7 @@ public class ExamRecordController extends BaseController {
                 .fetch("parent.creator")
                 .where()
                 .idEq(Long.parseLong(df.get("id"))).findOneOrEmpty();
-        if (!optionalExam.isPresent()) {
+        if (optionalExam.isEmpty()) {
             return notFound("sitnet_error_exam_not_found");
         }
         Exam exam = optionalExam.get();
@@ -158,10 +160,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
-        String content = fileHandler.encode(file);
-        if (!file.delete()) {
-            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
-        }
+        String content = fileHandler.encodeAndDelete(file);
         return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 
@@ -176,10 +175,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
-        String content = fileHandler.encode(file);
-        if (!file.delete()) {
-            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
-        }
+        String content = fileHandler.encodeAndDelete(file);
         return ok(content).withHeader("Content-Disposition", contentDisposition);
     }
 
@@ -242,34 +238,6 @@ public class ExamRecordController extends BaseController {
         return record;
     }
 
-    //FIXME: exam's answerLanguage should be a FK to Language. In the mean time lets have this hack in place.
-    private static String getLanguageCode(String language) {
-        String code;
-        switch (language.toLowerCase()) {
-            case "fi":
-            case "suomi":
-            case "finska":
-            case "finnish":
-                code = "fi";
-                break;
-            case "en":
-            case "englanti":
-            case "engelska":
-            case "english":
-                code = "en";
-                break;
-            case "sv":
-            case "ruotsi":
-            case "svenska":
-            case "swedish":
-                code = "sv";
-                break;
-            default:
-                code = "en";
-        }
-        return code;
-    }
-
     private static ExamScore createScore(ExamRecord record, DateTime examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
@@ -297,7 +265,7 @@ public class ExamRecordController extends BaseController {
         score.setCourseUnitCode(exam.getCourse().getCode());
         score.setCourseUnitLevel(exam.getCourse().getLevel());
         score.setCourseUnitType(exam.getCourse().getCourseUnitType());
-        score.setCreditLanguage(getLanguageCode(exam.getAnswerLanguage()));
+        score.setCreditLanguage(exam.getAnswerLanguage());
         score.setCreditType(exam.getCreditType().getType());
         score.setIdentifier(exam.getCourse().getIdentifier());
         GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();

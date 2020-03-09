@@ -20,12 +20,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,7 +39,9 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
+import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
 import backend.models.ExamType;
@@ -57,6 +61,10 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Inject
     private ConfigReader configReader;
+    @Inject
+    private ActorSystem as;
+    @Inject
+    private EmailComposer composer;
 
     private Exam prepareDraft(User user) {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
@@ -116,6 +124,35 @@ public class CollaborativeExamController extends CollaborationController {
         }).getOrElseGet(Function.identity());
 
         return wsRequest.get().thenApplyAsync(onSuccess);
+    }
+
+    @Authenticated
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
+        if(filter.isEmpty() || filter.get().isEmpty()) {
+            return wrapAsPromise(badRequest());
+        }
+
+        Optional<URL> url = parseUrlWithSearchParam(filter.get());
+        if(url.isEmpty()) {
+            return wrapAsPromise(internalServerError("sitnet_internal_error"));
+        }
+
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        WSRequest wsRequest = wsClient.url(url.get().toString());
+
+        Function<WSResponse, Result> onSuccess = response -> findExamsToProcess(response).map(items -> {
+            List<JsonNode> exams = items.entrySet().stream()
+                    .map(e -> e.getKey().getExam(e.getValue()))
+                    .filter(e -> isAuthorizedToView(e, user))
+                    .map(this::serialize)
+                    .collect(Collectors.toList());
+
+            return ok(Json.newArray().addAll(exams));
+        }).getOrElseGet(Function.identity());
+
+        return wsRequest.get().thenApplyAsync(onSuccess);
+
     }
 
     private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
@@ -221,7 +258,18 @@ public class CollaborativeExamController extends CollaborationController {
                         boolean isPrePublication =
                                 previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
                         examUpdater.update(exam, request, user.getLoginRole());
-                        return uploadExam(ce, exam, isPrePublication, null, user);
+                        return uploadExam(ce, exam, user).thenApplyAsync(result2 -> {
+                            if (result2.status() == 200 && isPrePublication) {
+                                Set<String> receivers = exam.getExamOwners().stream()
+                                        .map(User::getEmail)
+                                        .collect(Collectors.toSet());
+                                as.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                                        () -> composer.composeCollaborativeExamAnnouncement(receivers, user, exam),
+                                        as.dispatcher()
+                                );
+                            }
+                            return result2;
+                        });
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
@@ -239,8 +287,7 @@ public class CollaborativeExamController extends CollaborationController {
                 if (result.isPresent()) {
                     Exam exam = result.get();
                     Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
-                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
-                            null, user);
+                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, user);
                 }
                 return wrapAsPromise(notFound());
             });
@@ -258,7 +305,7 @@ public class CollaborativeExamController extends CollaborationController {
                     Exam exam = result.get();
                     User owner = createOwner(request.attrs().get(Attrs.EMAIL));
                     exam.getExamOwners().add(owner);
-                    return uploadExam(ce, exam, false, owner, user);
+                    return uploadExam(ce, exam, user, owner, null);
                 }
                 return wrapAsPromise(notFound());
             });
@@ -276,7 +323,7 @@ public class CollaborativeExamController extends CollaborationController {
                     User owner = new User();
                     owner.setId(oid);
                     exam.getExamOwners().remove(owner);
-                    return uploadExam(ce, exam, false, null, user);
+                    return uploadExam(ce, exam,user);
                 }
                 return wrapAsPromise(notFound());
             });
@@ -288,14 +335,6 @@ public class CollaborativeExamController extends CollaborationController {
         user.setId(newId());
         user.setEmail(email);
         return user;
-    }
-
-    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
-    // serialization of exam
-    private void cleanUser(User user) {
-        user.getEnrolments().clear();
-        user.getParticipations().clear();
-        user.getInspections().clear();
     }
 
 }

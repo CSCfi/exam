@@ -517,7 +517,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
         assertThat(parsedExam.getId()).isEqualTo(13630); // ID that is in enrolment.json
-
     }
 
     @Test
@@ -532,6 +531,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
         json.put("requestingOrg", "foobar");
+        json.set("optionalSections", Json.newArray());
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
@@ -629,6 +629,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation().getId()).isNotEqualTo(reservation.getId());
         assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+
+        greenMail.waitForIncomingEmail(5000, 1);
     }
 
 

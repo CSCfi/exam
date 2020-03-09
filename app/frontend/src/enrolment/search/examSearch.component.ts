@@ -34,21 +34,16 @@ export class ExamSearchComponent implements OnInit {
     permissionCheck: { active: boolean };
 
     constructor(private http: HttpClient, private Language: LanguageService) {
-        this.filterChanged
-            .pipe(
-                debounceTime(500),
-                distinctUntilChanged(),
-            )
-            .subscribe(txt => {
-                if (this.permissionCheck.active === false) {
-                    if (txt) {
-                        this.loader.loading = true;
-                        this.doSearch();
-                    } else {
-                        this.exams = [];
-                    }
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(txt => {
+            if (this.permissionCheck.active === false) {
+                if (txt) {
+                    this.loader.loading = true;
+                    this.doSearch();
+                } else {
+                    this.exams = [];
                 }
-            });
+            }
+        });
     }
 
     ngOnInit() {
@@ -66,25 +61,27 @@ export class ExamSearchComponent implements OnInit {
     search = (txt: string) => this.filterChanged.next(txt);
 
     private doSearch = () =>
-        this.http.get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } }).subscribe(
-            exams => {
-                exams.forEach(exam => {
-                    if (!exam.examLanguages) {
-                        console.warn('No languages for exam #' + exam.id);
-                        exam.examLanguages = [];
-                    }
-                    exam.languages = exam.examLanguages.map(lang => this.Language.getLanguageNativeName(lang.code));
-                });
-                this.exams = exams;
-                this.checkEnrolment();
-            },
-            err => {
-                toast.error(err.data);
-            },
-            () => {
-                this.loader.loading = false;
-            },
-        );
+        this.http
+            .get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } })
+            .subscribe(
+                exams => {
+                    exams.forEach(exam => {
+                        if (!exam.examLanguages) {
+                            console.warn('No languages for exam #' + exam.id);
+                            exam.examLanguages = [];
+                        }
+                        exam.languages = exam.examLanguages.map(lang => this.Language.getLanguageNativeName(lang.code));
+                    });
+                    this.exams = exams;
+                    this.checkEnrolment();
+                },
+                err => {
+                    toast.error(err.data);
+                },
+                () => {
+                    this.loader.loading = false;
+                },
+            );
 
     private checkEnrolment = () => {
         this.exams.forEach(exam => {

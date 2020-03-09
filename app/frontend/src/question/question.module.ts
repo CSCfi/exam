@@ -14,6 +14,7 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
@@ -25,7 +26,7 @@ import { LibrarySearchComponent } from './library/search/librarySearch.component
 import { QuestionService } from './question.service';
 
 @NgModule({
-    imports: [UtilityModule, NgbModule, OrderModule],
+    imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
     declarations: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent, QuestionBodyComponent],
     entryComponents: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],

@@ -335,7 +335,11 @@ export class SessionService {
     private processLogin$(user: User): Observable<User> {
         this.token = user.token;
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
-            iif(() => u.isStudent && !u.userAgreementAccepted, defer(() => this.openUserAgreementModal$(u)), of(u));
+            iif(
+                () => u.isStudent && !u.userAgreementAccepted,
+                defer(() => this.openUserAgreementModal$(u)),
+                of(u),
+            );
         return user.loginRole
             ? userAgreementConfirmation$(user)
             : this.openRoleSelectModal$(user).pipe(switchMap(u => userAgreementConfirmation$(u)));

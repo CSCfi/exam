@@ -252,7 +252,7 @@
             <a class="pointer preview" (click)="previewExam(3)"> {{ 'sitnet_preview' | translate }}</a>
         </div>
         <div class="review-attachment-button exam-questions-buttons marl10">
-            <a class="pointer" (click)="updateExam$() | async"> {{ 'sitnet_save' | translate }}</a>
+            <a class="pointer" (click)="updateExam()"> {{ 'sitnet_save' | translate }}</a>
         </div>
         <div [hidden]="exam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
             <a class="pointer" (click)="saveAndPublishExam()">

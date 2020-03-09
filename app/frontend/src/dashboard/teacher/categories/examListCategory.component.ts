@@ -64,16 +64,11 @@ export class ExamListCategoryComponent implements OnInit {
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
-        this.filterChanged
-            .pipe(
-                debounceTime(500),
-                distinctUntilChanged(),
-            )
-            .subscribe(text => {
-                this.filterText = text;
-                this.$location.search('filter', this.filterText);
-                this.onFilterChange.emit(this.filterText);
-            });
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
+            this.filterText = text;
+            this.$location.search('filter', this.filterText);
+            this.onFilterChange.emit(this.filterText);
+        });
     }
 
     ngOnInit() {
@@ -104,13 +99,15 @@ export class ExamListCategoryComponent implements OnInit {
     getExecutionTypeTranslation = (exam: Exam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
 
     copyExam = (exam: Exam, type: string) => {
-        this.http.post<{ id: number }>(`/app/exams/${exam.id}`, { type: type }).subscribe(
-            resp => {
-                toast.success(this.translate.instant('sitnet_exam_copied'));
-                this.location.go(`/exams/${resp.id}/1`);
-            },
-            resp => toast.error(resp.data),
-        );
+        this.http
+            .post<{ id: number }>(`/app/exams/${exam.id}`, { type: type })
+            .subscribe(
+                resp => {
+                    toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.location.go(`/exams/${resp.id}/1`);
+                },
+                resp => toast.error(resp.data),
+            );
     };
 
     deleteExam = (exam: Exam) => {

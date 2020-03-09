@@ -42,6 +42,7 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
     labelFilter: (_: Option) => boolean;
 
     ngOnInit() {
+        this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
         this.filterOptions();
     }
 
@@ -52,7 +53,14 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
         }
     }
 
-    filterOptions = () => (this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo));
+    filterOptions = () => {
+        // Show all options, if limit is set to 0
+        if (!this.limitTo || this.limitTo === 0) {
+            this.filteredOptions = this.options.filter(this.labelFilter);
+        } else {
+            this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+        }
+    };
 
     selectOption = (option: Option) => {
         this.selected = option;

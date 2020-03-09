@@ -46,9 +46,10 @@ export class ExamInspectorSelectorComponent implements OnInit {
     }
 
     private getInspectors = () =>
-        this.http
-            .get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`)
-            .subscribe(inspections => (this.examInspections = inspections), err => toast.error(err.data));
+        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe(
+            inspections => (this.examInspections = inspections),
+            err => toast.error(err.data),
+        );
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -72,7 +73,8 @@ export class ExamInspectorSelectorComponent implements OnInit {
     setInspector = (event: NgbTypeaheadSelectItemEvent) => (this.newInspector.id = event.item.id);
 
     removeInspector = (id: number) =>
-        this.http
-            .delete(`/app/exams/inspector/${id}`)
-            .subscribe(() => this.getInspectors(), err => toast.error(err.data));
+        this.http.delete(`/app/exams/inspector/${id}`).subscribe(
+            () => this.getInspectors(),
+            err => toast.error(err.data),
+        );
 }

@@ -28,11 +28,13 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 
+import backend.models.questions.Question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
+import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.libs.Json;
@@ -47,7 +49,6 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamParticipation;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
-import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
@@ -188,7 +189,7 @@ public class StudentActionsController extends CollaborationController {
         }
         Set<ExamParticipation> participations = query.findSet();
         Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
-        Set<CountsAsTrial> trials = new HashSet<>();
+        Set<Model> trials = new HashSet<>();
         trials.addAll(participations);
         trials.addAll(noShows);
         return ok(trials);
@@ -315,6 +316,22 @@ public class StudentActionsController extends CollaborationController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+
+        /* Temporary solution to check if external exam should be disabled */
+        Set<ExamSection> sections = Ebean.find(ExamSection.class)
+                .fetch("sectionQuestions.question", "type")
+                .where()
+                .eq("exam", exam)
+                .findSet();
+
+        if(sections.size() > 0) {
+            boolean hasClaimChoiceQuestion = sections.stream()
+                    .flatMap(es -> es.getSectionQuestions().stream())
+                    .filter(esq -> esq.getQuestion() != null)
+                    .anyMatch(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion);
+            exam.setExternalReservationDisabled(hasClaimChoiceQuestion);
+        }
+
         return ok(exam);
     }
 

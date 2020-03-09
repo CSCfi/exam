@@ -36,15 +36,10 @@ export class ReviewedInspectionsComponent implements OnInit {
     filterChanged = new Subject<string>();
 
     constructor(private LanguageInspections: LanguageInspectionService) {
-        this.filterChanged
-            .pipe(
-                debounceTime(500),
-                distinctUntilChanged(),
-            )
-            .subscribe(text => {
-                this.filterText = text;
-                this.filteredInspections = this.inspections.filter(i => JSON.stringify(i).match(this.filterText));
-            });
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
+            this.filterText = text;
+            this.filteredInspections = this.inspections.filter(i => JSON.stringify(i).match(this.filterText));
+        });
     }
 
     ngOnInit() {

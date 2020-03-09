@@ -27,6 +27,7 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         lotteryOn: '<',
         examId: '<',
         sectionQuestion: '<',
+        collaborative: '<',
     },
     controller: class QuestionBodyController implements angular.IComponentController, angular.IOnInit {
         question: ReverseQuestion | QuestionDraft;
@@ -34,6 +35,7 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         lotteryOn: boolean;
         examId: number;
         sectionQuestion: ExamSectionQuestion;
+        collaborative: boolean;
 
         isInPublishedExam: boolean;
         examNames: string[];
@@ -65,14 +67,19 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         };
 
         $onInit() {
-            this.questionTypes = [
+            const collaborativeQuestionTypes = [
                 { type: 'essay', name: 'sitnet_toolbar_essay_question' },
                 { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
                 { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
                 { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
+            ];
+
+            const basicQuestionTypes = [
+                ...collaborativeQuestionTypes,
                 { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
             ];
 
+            this.questionTypes = this.collaborative ? collaborativeQuestionTypes : basicQuestionTypes;
             this.init();
         }
 
@@ -84,13 +91,11 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         showWarning = () => this.examNames.length > 1;
 
         listQuestionOwners = (filter: unknown, criteria: string) =>
-            this.$http
-                .get('/app/users/question/owners/TEACHER', { params: { q: criteria } })
-                .then(
-                    (resp: angular.IHttpResponse<User[]>) =>
-                        resp.data.filter(u => this.currentOwners.map(o => o.id).indexOf(u.id) === -1).slice(0, 15),
-                    err => toastr.error(err.data),
-                );
+            this.$http.get('/app/users/question/owners/TEACHER', { params: { q: criteria } }).then(
+                (resp: angular.IHttpResponse<User[]>) =>
+                    resp.data.filter(u => this.currentOwners.map(o => o.id).indexOf(u.id) === -1).slice(0, 15),
+                err => toastr.error(err.data),
+            );
 
         setQuestionOwner = (user: User) =>
             // Using template to store the selected user

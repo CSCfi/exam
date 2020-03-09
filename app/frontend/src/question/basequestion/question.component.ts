@@ -108,6 +108,10 @@ export class QuestionComponent implements OnInit {
     hasNoCorrectOption = () =>
         this.question.type === 'MultipleChoiceQuestion' && this.question.options.every(o => !o.correctOption);
 
+    hasInvalidClaimChoiceOptions = () =>
+        this.question.type === 'ClaimChoiceQuestion' &&
+        this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
+
     saveQuestion = () => {
         this.question.questionOwners = this.currentOwners;
         const fn = (q: Question | QuestionDraft) => {

@@ -28,8 +28,9 @@ export const TagPickerComponent: angular.IComponentOptions = {
             <div class="col-md-9 padr0">
                 <input id="newTag" name="newTag" maxlength="30" lowercase
                     class="form-control wdth-30 make-inline"
-                    ng-model="$ctrl.question.newTag"
+                    ng-model="$ctrl.tagName"
                     uib-typeahead="t as t.name for t in $ctrl.getTags($viewValue)"
+                    typeahead-on-select="$ctrl.onTagSelect($item)"
                     typeahead-min-length="2"/>
                 <span>
                 <button ng-click="$ctrl.addTag()" 
@@ -58,6 +59,7 @@ export const TagPickerComponent: angular.IComponentOptions = {
         question: Question & { newTag: Tag };
         tooltipIcon: unknown;
         removalIcon: unknown;
+        tagName: string;
 
         constructor(private $http: angular.IHttpService) {
             'ngInject';
@@ -89,9 +91,12 @@ export const TagPickerComponent: angular.IComponentOptions = {
                     });
             });
 
+        onTagSelect = (tag: Tag) => (this.question.newTag = tag);
+
         addTag = () => {
             this.question.tags.push(this.question.newTag);
             delete this.question.newTag;
+            delete this.tagName;
         };
 
         removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);

@@ -13,17 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models.api;
+package backend.util.scala
 
+import io.ebean.Model
+import play.api.mvc.{InjectedController, Result}
+import play.libs.{Json => JavaJson}
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.joda.time.DateTime;
+import scala.collection.JavaConverters._
 
-public interface CountsAsTrial {
+trait JavaJsonResultProducer {
+  self: InjectedController =>
 
-    @JsonIgnore
-    DateTime getTrialTime();
+  implicit class JavaModelToResult[T <: Model](model: T) {
+    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model).toString)
+  }
+  implicit class JavaModelsToResult[T <: Model](model: Iterable[T]) {
+    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model.asJava).toString)
+  }
 
-    @JsonIgnore
-    boolean isProcessed();
 }

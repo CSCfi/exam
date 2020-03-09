@@ -49,11 +49,9 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     };
 
     removeOwner = (id: number) => {
-        this.http
-            .delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`)
-            .subscribe(
-                () => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)),
-                resp => toast.error(resp.data),
-            );
+        this.http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
+            () => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)),
+            resp => toast.error(resp.data),
+        );
     };
 }

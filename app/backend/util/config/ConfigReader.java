@@ -3,13 +3,11 @@ package backend.util.config;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.ImplementedBy;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import backend.models.Role;
 
-@ImplementedBy(ConfigReaderImpl.class)
 public interface ConfigReader {
 
     DateTimeZone getDefaultTimeZone();

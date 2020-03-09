@@ -15,7 +15,8 @@
 import * as ng from 'angular';
 import * as _ from 'lodash';
 
-import { Exam, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
+import { Exam, ExamParticipation } from '../../../exam/exam.model';
+import { FileService } from '../../../utility/file/file.service';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
@@ -25,31 +26,46 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
     },
     controller: class ExamSummaryController implements ng.IComponentController, ng.IOnInit, ng.IOnChanges {
         exam: Exam;
-        reviews: any[];
+        reviews: ExamParticipation[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
-        gradeTimeData: string[];
-        gradeTimeLabels: string[];
+        gradeTimeData: number[][];
+        gradeTimeLabels: number[];
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
         chartOptions: any;
+        chartSeries: any;
+
+        constructor(
+            private Files: FileService,
+            private $filter: ng.IFilterService,
+            private $translate: ng.translate.ITranslateService,
+        ) {
+            'ngInject';
+        }
 
         private refresh = () => {
             this.buildGradeDistribution();
-            this.gradedCount = this.reviews.filter(r => r.exam.grade).length;
+            this.gradedCount = this.reviews.filter(r => r.exam.gradedTime).length;
             this.buildGradeTime();
+            this.chartSeries = [this.$translate.instant('sitnet_word_points')];
             this.chartOptions = {
-                elements: {
-                    line: {
-                        tension: 0,
-                    },
-                },
                 scales: {
                     xAxes: [
                         {
+                            display: true,
                             scaleLabel: {
                                 display: true,
-                                labelString: 'min',
+                                labelString: this.$translate.instant('sitnet_minutes'),
+                            },
+                        },
+                    ],
+                    yAxes: [
+                        {
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: this.$translate.instant('sitnet_word_points').toLowerCase(),
                             },
                         },
                     ],
@@ -70,18 +86,28 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         getTotalFeedback = () =>
             this.getReadFeedback() +
-            this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === false).length;
+            this.reviews.filter(
+                r =>
+                    r.exam.examFeedback &&
+                    (r.exam.state === 'GRADED_LOGGED' || r.exam.state === 'ARCHIVED' || r.exam.state === 'REJECTED') &&
+                    r.exam.examFeedback.feedbackStatus === false,
+            ).length;
 
         getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;
 
-        getTotalQuestions = () => {
-            const sections: ExamSection[] = this.reviews.map(r => r.exam.examSections);
-            const questions: ExamSectionQuestion[][] = sections.map(s => s.sectionQuestions);
-            return _.flatMap(questions).length;
+        getQuestionCounts = () => {
+            const effectiveCount = this.exam.examSections.reduce(
+                (sum, es) => sum + (es.lotteryOn ? es.lotteryItemCount : es.sectionQuestions.length),
+                0,
+            );
+            const totalCount = this.exam.examSections.reduce((sum, es) => sum + es.sectionQuestions.length, 0);
+            return `${effectiveCount} (${totalCount})`;
         };
 
         buildGradeDistribution = () => {
-            const grades: string[] = this.reviews.filter(r => r.exam.grade).map(r => r.exam.grade.name);
+            const grades: string[] = this.reviews
+                .filter(r => r.exam.gradedTime)
+                .map(r => (r.exam.grade ? r.exam.grade.name : this.$translate.instant('sitnet_no_grading')));
             this.gradeDistribution = _.countBy(grades);
             this.gradeDistributionData = Object.values(this.gradeDistribution);
             this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
@@ -89,15 +115,31 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         getAverageTime = () => {
             const durations = this.reviews.map(r => r.duration);
-            return durations.reduce((a, b) => a + b, 0) / durations.length;
+            return durations.reduce((sum, b) => sum + b, 0) / durations.length;
         };
 
         buildGradeTime = () => {
-            const gradeTimes: any[] = this.reviews
+            const gradeTimes: { duration: number; score: number }[] = this.reviews
                 .sort((a, b) => (a.duration > b.duration ? 1 : -1))
-                .map(r => [r.duration, r.exam.grade.name]);
-            this.gradeTimeLabels = gradeTimes.map(g => g[0]);
-            this.gradeTimeData = gradeTimes.map(g => g[1]);
+                .map(r => ({ duration: r.duration, score: r.exam.totalScore }));
+            this.gradeTimeLabels = gradeTimes.map(g => g.duration);
+            this.gradeTimeData = [gradeTimes.map(g => g.score)];
+        };
+
+        printQuestionScoresReport = () => {
+            const ids = this.reviews.map(r => r.exam.id);
+            if (ids.length > 0) {
+                const url = '/app/reports/questionreport/' + this.exam.id;
+                this.Files.download(
+                    url,
+                    this.$translate.instant('sitnet_grading_info') +
+                        '_' +
+                        this.$filter('date')(Date.now(), 'dd-MM-yyyy') +
+                        '.xlsx',
+                    { childIds: ids },
+                    true,
+                );
+            }
         };
     },
 };

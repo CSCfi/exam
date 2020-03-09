@@ -67,6 +67,7 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.ClozeTestAnswerSanitizer;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.ExamActionRouter;
@@ -130,10 +131,10 @@ public class ExaminationController extends BaseController {
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
             Optional<Exam> possibleClone = getPossibleClone(hash, user, ce);
             // no exam found for hash
-            if (!optionalPrototype.isPresent() && !possibleClone.isPresent()) {
+            if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
                 return notFound();
             }
-            if (!possibleClone.isPresent()) {
+            if (possibleClone.isEmpty()) {
                 // Exam not started yet, create new exam for student
                 Exam prototype = optionalPrototype.get();
                 ExamEnrolment enrolment = getEnrolment(user, prototype, ce);
@@ -286,7 +287,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(ClozeTestAnswerSanitizer.class)
     @Restrict({@Group("STUDENT")})
     public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).orElseGet(() -> {
@@ -462,7 +463,7 @@ public class ExaminationController extends BaseController {
                 "examInspections(*, user(id, firstName, lastName))" +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
                 "examMaterials(name, author, isbn), " +
-                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, derivedMinScore, " + // (((
                 "question(id, type, question, attachment(id, fileName))" +
                 "options(id, answered, option(id, option))" +
                 "essayAnswer(id, answer, objectVersion, attachment(fileName))" +

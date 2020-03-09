@@ -153,6 +153,13 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         return this.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
     };
 
+    toggleAnonymous = () => this.updateExam(false);
+
+    toggleAnonymousDisabled = () =>
+        !this.Session.getUser().isAdmin ||
+        !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
+        this.collaborative;
+
     checkScaleDisabled = (scale: GradeScale) => {
         if (!scale || !this.exam.course || !this.exam.course.gradeScale) {
             return false;
@@ -167,11 +174,6 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     showAnonymousReview = () =>
         this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
-
-    toggleAnonymous = () => this.updateExam(false);
-
-    toggleAnonymousDisabled = () =>
-        !this.Session.getUser().isAdmin || !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative);
 
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then(data => {
@@ -218,12 +220,15 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
             this.translate.instant('sitnet_remove_examination_event'),
             this.translate.instant('sitnet_are_you_sure'),
         ).result.then(() =>
-            this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(() => {
-                this.exam.examinationEventConfigurations.splice(
-                    this.exam.examinationEventConfigurations.indexOf(configuration),
-                    1,
-                );
-            }),
+            this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
+                () => {
+                    this.exam.examinationEventConfigurations.splice(
+                        this.exam.examinationEventConfigurations.indexOf(configuration),
+                        1,
+                    );
+                },
+                resp => toast.error(resp.error),
+            ),
         );
     };
 

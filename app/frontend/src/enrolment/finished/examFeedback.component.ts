@@ -24,10 +24,17 @@ import { ReviewedExam, Scores } from '../enrolment.model';
 export class ExamFeedbackComponent {
     @Input() assessment: ReviewedExam;
     @Input() scores: Scores;
+    @Input() collaborative: boolean;
 
     constructor(private Attachment: AttachmentService) {}
 
-    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.assessment);
-
+    downloadFeedbackAttachment = () => {
+        const attachment = this.assessment.examFeedback.attachment;
+        if (this.collaborative && attachment && attachment.externalId) {
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        } else {
+            this.Attachment.downloadFeedbackAttachment(this.assessment);
+        }
+    };
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
 }

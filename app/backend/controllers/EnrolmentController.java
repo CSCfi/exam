@@ -165,7 +165,7 @@ public class EnrolmentController extends BaseController {
             return badRequest();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (isAllowedToParticipate(exam, user, emailComposer)) {
+        if (isAllowedToParticipate(exam, user)) {
             DateTime now = DateTimeUtils.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()
@@ -270,9 +270,9 @@ public class EnrolmentController extends BaseController {
                     .eq("exam.parent.id", exam.getId())
                     .endOr()
                     .findList().stream().filter(ee ->
-                        (ee.getUser() != null && ee.getUser().equals(user)) ||
-                                (ee.getPreEnrolledUserEmail() != null &&
-                                        ee.getPreEnrolledUserEmail().equals(user.getEmail()))
+                            (ee.getUser() != null && ee.getUser().equals(user)) ||
+                                    (ee.getPreEnrolledUserEmail() != null &&
+                                            ee.getPreEnrolledUserEmail().equals(user.getEmail()))
                     ).collect(Collectors.toList());
 
 
@@ -298,7 +298,7 @@ public class EnrolmentController extends BaseController {
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments.stream()
                     .filter(ee -> ee.getReservation() != null && ee.getReservation().toInterval().isAfterNow())
-                            .collect(Collectors.toList());
+                    .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
                 logger.error("Several enrolments with future reservations found for user {} and exam {}",
                         user, exam.getId());
@@ -308,11 +308,12 @@ public class EnrolmentController extends BaseController {
             if (!enrolmentsWithFutureReservations.isEmpty()) {
                 ExamEnrolment enrolment = enrolmentsWithFutureReservations.get(0);
                 Reservation reservation = enrolment.getReservation();
-                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
-                    enrolment.delete();
-                    ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-                    return ok(newEnrolment);
-                });
+                return externalReservationHandler.removeReservation(reservation, user, "")
+                        .thenApplyAsync(result -> {
+                            enrolment.delete();
+                            ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                            return ok(newEnrolment);
+                        });
             }
             List<ExamEnrolment> enrolmentsWithFutureExaminatioEvents = enrolments.stream()
                     .filter(e -> e.getExaminationEventConfiguration() != null &&

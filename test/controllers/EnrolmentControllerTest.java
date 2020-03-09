@@ -15,6 +15,8 @@ import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetup;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
@@ -24,6 +26,7 @@ import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -52,6 +55,10 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     private ExamRoom room;
 
     private static Server server;
+
+    @Rule
+    public final GreenMailRule greenMail =
+            new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
     public static class CourseInfoServlet extends HttpServlet {
 
@@ -107,6 +114,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
         assertThat(ee.getUser().getEmail()).isEqualTo(email);
         assertThat(ee.getPreEnrolledUserEmail()).isNull();
+
+        greenMail.waitForIncomingEmail(2000, 1);
     }
 
     @Test
@@ -129,6 +138,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
         assertThat(ee.getUser().getEppn()).isEqualTo(eppn);
         assertThat(ee.getPreEnrolledUserEmail()).isNull();
+
+        greenMail.waitForIncomingEmail(2000, 1);
     }
 
     @Test

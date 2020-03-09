@@ -69,7 +69,11 @@ export class TeacherDashboardService {
             map(resp => {
                 const dashboard = new Dashboard();
                 dashboard.executionTypes = resp[0];
-                const reviews = resp[1];
+                const reviews = resp[1].map(r => ({
+                    ...r,
+                    children: r.children.filter(c => c.state !== 'DELETED' && c.state !== 'STUDENT_STARTED'),
+                }));
+
                 const draftExams = reviews.filter(
                     r => (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r),
                 );

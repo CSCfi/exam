@@ -41,7 +41,12 @@
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_machine' | translate }}</strong>
-                <dropdown-select *ngIf="machineOptions" [options]="machineOptions" (onSelect)="machineChanged($event)">
+                <dropdown-select
+                    *ngIf="machineOptions"
+                    [options]="machineOptions"
+                    (onSelect)="machineChanged($event)"
+                    (limitTo)="(0)"
+                >
                 </dropdown-select>
             </div>
             <div class="col-md-3">

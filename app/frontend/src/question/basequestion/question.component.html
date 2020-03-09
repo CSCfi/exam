@@ -24,13 +24,19 @@
                     [lotteryOn]="lotteryOn"
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
+                    [collaborative]="collaborative"
                 ></question-body>
             </form>
             <!-- buttons -->
             <div class="mart20">
                 <div class="question-cancel">
                     <button
-                        [disabled]="!questionForm.valid || !question.type || hasNoCorrectOption()"
+                        [disabled]="
+                            !questionForm.valid ||
+                            !question.type ||
+                            hasNoCorrectOption() ||
+                            hasInvalidClaimChoiceOptions()
+                        "
                         (click)="saveQuestion()"
                         type="submit"
                         class="btn btn-success bigbutton"

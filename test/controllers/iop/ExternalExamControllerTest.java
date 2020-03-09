@@ -49,13 +49,13 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.Language;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.util.AppUtil;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -72,7 +72,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private static File testImage = getTestFile("test_files/test_image.png");
     private static AttachmentServlet attachmentServlet;
 
-    private static Exam exam;
+    private Exam exam;
     private ExamEnrolment enrolment;
     private Reservation reservation = new Reservation();
 
@@ -159,6 +159,8 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.setHash(HASH);
+        User owner = Ebean.find(User.class, 2L);
+        exam.getExamOwners().add(owner);
         exam.update();
         User user = Ebean.find(User.class, 1L);
         user.setLanguage(Ebean.find(Language.class, "en"));
@@ -218,6 +220,8 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         JsonNode node = om.readTree(new File("test/resources/externalExamAttainment.json"));
         Result result = request(Helpers.POST, "/integration/iop/exams/" + RESERVATION_REF, node);
         assertThat(result.status()).isEqualTo(201);
+        greenMail.purgeEmailFromAllMailboxes();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 2)).isTrue();
 
         Exam attainment = Ebean.find(Exam.class).where().eq("parent", exam).findOne();
         assertThat(attainment).isNotNull();

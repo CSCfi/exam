@@ -13,9 +13,30 @@
             <span>{{ $ctrl.exam.course.code }}</span>
         </div>
         <div class="language-selector">
-            <a class="exam-clock-text" ng-click="$ctrl.switchLanguage('fi')">FI</a>
-            <a class="exam-clock-text" ng-click="$ctrl.switchLanguage('sv')">SV</a>
-            <a class="exam-clock-text" ng-click="$ctrl.switchLanguage('en')">EN</a>
+            <a
+                tabindex="0"
+                class="exam-clock-text"
+                ng-click="$ctrl.switchLanguage('fi')"
+                ng-enter="$ctrl.switchLanguage('fi')"
+            >
+                FI
+            </a>
+            <a
+                tabindex="0"
+                class="exam-clock-text"
+                ng-click="$ctrl.switchLanguage('sv')"
+                ng-enter="$ctrl.switchLanguage('sv')"
+            >
+                SV
+            </a>
+            <a
+                tabindex="0"
+                class="exam-clock-text"
+                ng-click="$ctrl.switchLanguage('en')"
+                ng-enter="$ctrl.switchLanguage('en')"
+            >
+                EN
+            </a>
             <span class="exam-header-title divider"></span>
         </div>
         <examination-clock ng-if="!$ctrl.isPreview" exam-hash="$ctrl.exam.hash" on-timeout="$ctrl.informTimeout()">

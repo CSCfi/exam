@@ -119,6 +119,7 @@ export interface EssayAnswer {
 
 export interface MultipleChoiceOption {
     id: number;
+    option: string;
     correctOption: boolean;
     defaultScore: number;
     claimChoiceType: string;
@@ -182,11 +183,22 @@ export interface ExamSection {
     optional: boolean;
 }
 
+export enum CollaborativeExamState {
+    DRAFT = 'DRAFT',
+    PUBLISHED = 'PUBLISHED',
+    PRE_PUBLISHED = 'PRE_PUBLISHED',
+}
+
 export interface CollaborativeExam {
     id: number;
+    anonymous: boolean;
     name: string;
     examLanguages: ExamLanguage[];
-    state: string;
+    state: CollaborativeExamState;
+    examOwners: User[];
+    executionType: ExamExecutionType;
+    examActiveStartDate: VarDate;
+    examActiveEndDate: VarDate;
 }
 
 export interface Participation {
@@ -270,7 +282,6 @@ export interface ExamImpl {
     customCredit: number;
     softwares: Software[];
     maxScore: number;
-    totalScore: number;
     approvedAnswerCount: number;
     rejectedAnswerCount: number;
     additionalInfo: string;
@@ -279,6 +290,7 @@ export interface ExamImpl {
     languageInspection?: LanguageInspection;
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
+    totalScore: number;
 }
 
 export interface Exam extends ExamImpl {
@@ -288,4 +300,6 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    duration: number;
+    displayName?: string;
 }

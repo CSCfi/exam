@@ -183,7 +183,7 @@
                     </td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pagefill: questions.length:currentPage:pageSize">
+                <tr *ngFor="let r of [] | pageFill: questions.length:currentPage:pageSize">
                     <td colspan="9">&nbsp;</td>
                     <td *ngIf="user.isAdmin"></td>
                 </tr>

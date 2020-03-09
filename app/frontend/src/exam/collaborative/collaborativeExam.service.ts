@@ -14,7 +14,7 @@
  */
 
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, Participation } from '../exam.model';
+import { CollaborativeExam, Participation, CollaborativeExamState } from '../exam.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -34,4 +34,26 @@ export class CollaborativeExamService {
     };
 
     createExam = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/integration/iop/exams', {});
+
+    searchExams = (searchTerm: string): Observable<CollaborativeExam[]> => {
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        // This path is used to search from student view only
+        const path = this.Session.getUser().isStudent
+            ? `/integration/iop/enrolment/search${paramStr}`
+            : `/integration/iop/exams/search${paramStr}`;
+        return this.http.get<CollaborativeExam[]>(path);
+    };
+
+    getExamStateTranslation = (exam: CollaborativeExam): string | null => {
+        switch (exam.state) {
+            case CollaborativeExamState.DRAFT:
+                return 'sitnet_draft';
+            case CollaborativeExamState.PRE_PUBLISHED:
+                return 'sitnet_pre_published';
+            case CollaborativeExamState.PUBLISHED:
+                return 'sitnet_published';
+            default:
+                return null;
+        }
+    };
 }

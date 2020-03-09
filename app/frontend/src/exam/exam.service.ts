@@ -48,13 +48,15 @@ export class ExamService {
         exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
     createExam = (executionType: string) => {
-        this.http.post<Exam>('/app/exams', { executionType: executionType }).subscribe(
-            response => {
-                toast.info(this.translate.instant('sitnet_exam_added'));
-                this.State.go('courseSelector', { id: response.id });
-            },
-            err => toast.error(err.data),
-        );
+        this.http
+            .post<Exam>('/app/exams', { executionType: executionType })
+            .subscribe(
+                response => {
+                    toast.info(this.translate.instant('sitnet_exam_added'));
+                    this.State.go('courseSelector', { id: response.id });
+                },
+                err => toast.error(err.data),
+            );
     };
 
     updateExam$ = (exam: Exam, overrides: any = {}, collaborative = false): Observable<Exam> => {

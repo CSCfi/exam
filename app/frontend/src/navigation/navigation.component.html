@@ -1,4 +1,4 @@
-<div *ngIf="user" id="vmenu" class="hidden-print">
+<nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
     <div class="nav-container">
         <div class="nav-header">
             <div class="logo">
@@ -36,7 +36,11 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
-                        <img width="18" src="/assets/assets/images/nav/{{ link.iconPng }}" alt="" />
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
@@ -49,7 +53,11 @@
                         >
                             <a uiSref="{{ subitem.state }}">
                                 <div>
-                                    <img width="18" src="/assets/assets/images/nav/{{ subitem.iconPng }}" alt="" />
+                                    <img
+                                        width="18"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
+                                        alt="{{ link.state | translate }}"
+                                    />
                                     {{ subitem.name | translate }}
                                 </div>
                             </a>
@@ -63,7 +71,11 @@
             <ul class="links">
                 <li [ngClass]="{ selected: isActive(link) }" *ngFor="let link of links" [hidden]="!link.visible">
                     <a uiSref="{{ link.state }}">
-                        <img width="18" src="/assets/assets/images/nav/{{ link.iconPng }}" alt="" />
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                 </li>
@@ -74,7 +86,7 @@
             <div class="user">
                 <div class="user-name">
                     <div class="user-logo">
-                        <img src="/assets/assets/images/icon_menu_user.png" alt="" />
+                        <img src="/assets/assets/images/icon_menu_user.png" alt="User logo" />
                     </div>
                     <div class="user-data">
                         {{ user.firstName }}&nbsp;{{ user.lastName }}
@@ -88,15 +100,15 @@
         <div class="nav-footer">
             <div class="locale-bar">
                 <span class="locale-item">
-                    <a (click)="switchLanguage('fi')">FI</a>
+                    <a (click)="switchLanguage('fi')" tabindex="0" (ngEnter)="switchLanguage('fi')">FI</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('sv')">SV</a>
+                    <a (click)="switchLanguage('sv')" tabindex="0" (ngEnter)="switchLanguage('sv')">SV</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('en')">EN</a>
+                    <a (click)="switchLanguage('en')" tabindex="0" (ngEnter)="switchLanguage('en')">EN</a>
                 </span>
             </div>
         </div>
     </div>
-</div>
+</nav>

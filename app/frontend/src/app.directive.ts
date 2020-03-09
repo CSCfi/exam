@@ -39,6 +39,61 @@ export class DateValidator implements IDirective {
     }
 }
 
+interface ClozeTestScope extends IScope {
+    results: Record<string, any>;
+    content: string;
+    editable: boolean;
+}
+export class ClozeTest implements IDirective<ClozeTestScope> {
+    restrict = 'E';
+    scope = {
+        results: '=',
+        content: '=',
+        editable: '=?',
+    };
+
+    constructor(private $compile: angular.ICompileService) {}
+
+    link(scope: ClozeTestScope, element: IAugmentedJQuery) {
+        const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
+
+        /* 
+            Add span tags with ngNonBindable directive to prevent AngularJS interpolation 
+            (if strings surrounded by multiple curly braces are present).
+        */
+        const regexMultipleCurlyBraces = /\{{2,}(.*?)\}{2,}/g;
+        const escapedContent = scope.content.replace(
+            regexMultipleCurlyBraces,
+            match => `<span ng-non-bindable>${match}</span>`,
+        );
+
+        const replacement = angular.element(escapedContent);
+        const inputs = replacement.find('input');
+
+        const padding = 2; // add some extra length so that all characters are more likely to fit in the input field
+        for (let i = 0; i < inputs.length; ++i) {
+            const input = inputs[i];
+            const id = input.getAttribute('id');
+            const answer = scope.results ? scope.results[input.id] : null;
+            if (answer) {
+                input.setAttribute('size', answer.length + padding);
+            }
+            input.setAttribute('ng-model', 'results.' + id);
+            if (!editable) {
+                input.setAttribute('ng-disabled', 'true');
+            }
+        }
+        element.replaceWith(replacement);
+        this.$compile(replacement)(scope);
+    }
+
+    static factory(): IDirectiveFactory {
+        const directive = ($compile: angular.ICompileService) => new ClozeTest($compile);
+        directive.$inject = ['$compile'];
+        return directive;
+    }
+}
+
 interface CkEditorScope extends IScope {
     enableClozeTest: boolean;
 }
@@ -297,5 +352,22 @@ export class TeacherList implements IDirective<TeacherListScope> {
 
     static factory(): IDirectiveFactory {
         return () => new TeacherList();
+    }
+}
+
+export class NgEnter implements IDirective {
+    link(scope: IScope, element: IAugmentedJQuery, attributes: IAttributes) {
+        element.bind('keydown', event => {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                scope.$apply(() => {
+                    scope.$eval(attributes.ngEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    }
+    static factory(): IDirectiveFactory {
+        return () => new NgEnter();
     }
 }

@@ -37,6 +37,7 @@ type ExamInfo = {
     examActiveStartDate: number;
     examActiveEndDate: number;
     examSections: SelectableSection[];
+    externalReservationDisabled?: boolean;
 };
 type AvailableSlot = Slot & { availableMachines: number };
 type FilteredAccessibility = Accessibility & { filtered: boolean };
@@ -130,7 +131,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.http
             .get<ExamInfo>(url)
             .pipe(
-                tap(resp => (this.examInfo = resp)),
+                tap(resp => {
+                    resp.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
+                    this.examInfo = resp;
+                }),
                 switchMap(() => this.http.get<{ value: number }>('/app/settings/reservationWindow')),
                 tap(resp => {
                     this.reservationWindowSize = resp.value;

@@ -119,7 +119,7 @@ public class CalendarController extends BaseController {
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
+        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user)) {
             return Optional.of(forbidden("sitnet_no_trials_left"));
         }
         // Check that at least one section will end up in the exam
@@ -196,7 +196,7 @@ public class CalendarController extends BaseController {
 
             Optional<ExamMachine> machine =
                     calendarHandler.getRandomMachine(room, enrolment.getExam(), start, end, aids);
-            if (!machine.isPresent()) {
+            if (machine.isEmpty()) {
                 return wrapAsPromise(forbidden("sitnet_no_machines_available"));
             }
 
@@ -219,7 +219,7 @@ public class CalendarController extends BaseController {
             if (oldReservation != null) {
                 String externalReference = oldReservation.getExternalRef();
                 if (externalReference != null) {
-                    return externalReservationHandler.removeReservation(oldReservation, user)
+                    return externalReservationHandler.removeReservation(oldReservation, user, "")
                             .thenCompose(result -> {
                                 // Refetch enrolment
                                 ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());

@@ -31,6 +31,8 @@ public enum Attrs {
     public static final TypedKey<String> INSTRUCTION = TypedKey.create("instruction");
     public static final TypedKey<String> LANG = TypedKey.create("lang");
     public static final TypedKey<Long> ROOM_ID = TypedKey.create("roomId");
+    public static final TypedKey<String> ROOM_REF = TypedKey.create("roomId");
+    public static final TypedKey<String> ORG_REF = TypedKey.create("orgId");
     public static final TypedKey<Long> EXAM_ID = TypedKey.create("examId");
     public static final TypedKey<Integer> GRADE_ID = TypedKey.create("gradeId");
     public static final TypedKey<Collection<Integer>> ACCESSABILITES = TypedKey.create("accessabilities");

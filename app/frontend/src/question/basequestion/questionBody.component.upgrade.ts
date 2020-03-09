@@ -26,6 +26,7 @@ export class QuestionBodyComponent extends UpgradeComponent {
     @Input() lotteryOn: boolean;
     @Input() examId: number;
     @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() collaborative: boolean;
 
     constructor(elementRef: ElementRef, injector: Injector) {
         super('questionBody', elementRef, injector);

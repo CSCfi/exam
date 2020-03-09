@@ -1,9 +1,11 @@
 package controllers;
 
-import backend.models.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import javax.mail.internet.MimeMessage;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -11,12 +13,7 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-
+import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,9 +22,21 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.mail.internet.MimeMessage;
-import java.util.HashSet;
-import java.util.Iterator;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamMachine;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.GradeEvaluation;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -168,6 +177,23 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(403);
     }
 
+    @Test
+    @RunAsStudent
+    public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
+        Result result = get("/app/student/exam/" + exam.getHash());
+        JsonNode node = Json.parse(contentAsString(result));
+        Exam studentExam = deserialize(Exam.class, node);
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
+                .eq("examSection.exam", studentExam)
+                .eq("question.type", Question.Type.ClozeTestQuestion)
+                .findList()
+                .get(0);
+        String answer = "{\"foo\": \"bar";
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(),
+                question.getId()), Json.newObject().put("answer", answer).put("objectVersion", 1L));
+        assertThat(result.status()).isEqualTo(400);
+    }
+
 
     @Test
     @RunAsStudent
@@ -221,6 +247,8 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         Exam turnedExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(turnedExam.getGrade()).isNotNull();
         assertThat(turnedExam.getState()).isEqualTo(Exam.State.GRADED);
+
+        greenMail.waitForIncomingEmail(20000, 1);
     }
 
     private Exam createPrivateStudentExam() {

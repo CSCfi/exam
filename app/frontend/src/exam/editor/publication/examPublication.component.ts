@@ -62,9 +62,10 @@ export class ExamPublicationComponent implements OnInit {
         this.autoEvaluation = {
             enabled: !!this.exam.autoEvaluationConfig,
         };
-        this.http
-            .get<{ examDurations: number[] }>('/app/settings/durations')
-            .subscribe(data => (this.examDurations = data.examDurations), error => toast.error(error.data));
+        this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
+            data => (this.examDurations = data.examDurations),
+            error => toast.error(error.data),
+        );
     }
 
     addExaminationDate = (date: Date) => {
@@ -128,6 +129,8 @@ export class ExamPublicationComponent implements OnInit {
             }),
         );
     };
+
+    updateExam = () => this.updateExam$().subscribe();
 
     setExamDuration = (duration: number) => {
         this.exam.duration = duration;

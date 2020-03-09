@@ -1,18 +1,71 @@
-<div id="sitnet-header" class="header">
+<div class="sitnet-header-alt">
     <div class="col-md-12 header-wrapper">
         <span class="header-text">{{ 'sitnet_collaborative_exams' | translate }}</span>
     </div>
 </div>
 <div id="dashboard">
     <!-- toolbar -->
-    <div class="top-row" ng-if="$ctrl.user.isAdmin">
+    <div class="top-row" *ngIf="user.isAdmin">
         <div class="col-md-12">
-            <button class=" pull-right btn btn-info" (click)="createExam()">
+            <a class=" pull-right btn btn-info" (click)="createExam()">
                 {{ 'sitnet_toolbar_new_exam' | translate }}
+            </a>
+        </div>
+    </div>
+
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li role="tab" [ngClass]="{ active: view === 'PUBLISHED' }">
+                <a class="pointer" (click)="setView('PUBLISHED')">
+                    Julkaistut ja esijulkaistut yhteistentit
+                    <span class="badge">{{ (exams | filter: { listingView: 'PUBLISHED' }).length }}</span>
+                </a>
+            </li>
+            <li role="tab" [ngClass]="{ active: view === 'EXPIRED' }">
+                <a class="pointer" (click)="setView('EXPIRED')">
+                    Yhteistentit, joiden voimassaoloaika on päättynyt
+                    <span class="badge">{{ (exams | filter: { listingView: 'EXPIRED' }).length }}</span>
+                </a>
+            </li>
+            <li role="tab" [ngClass]="{ active: view === 'DRAFTS' }">
+                <a class="pointer" (click)="setView('DRAFTS')">
+                    Yhteistenttiluonnokset
+                    <span class="badge">{{ (exams | filter: { listingView: 'DRAFTS' }).length }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="detail-row">
+        <div class="col-md-4">
+            <div class="form-group input-group">
+                <input
+                    [(ngModel)]="filter.text"
+                    (ngModelChange)="search($event)"
+                    type="text"
+                    class="form-control search"
+                    placeholder="{{ 'sitnet_search' | translate }}"
+                    ngbPopover="{{ 'sitnet_collaborative_exam_search_description_teacher' | translate }}"
+                    placement="top"
+                    trigger="mouseenter"
+                />
+                <div class="input-group-addon search">
+                    <img class="nopad" src="Images/icon_search.png" alt="search-icon" width="49" height="40" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-row" ng-show="loader.loading">
+        <div class="col-md-12">
+            <button class="btn btn-success">
+                {{ 'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
             </button>
         </div>
     </div>
-    <div class="top-row">
+
+    <div class="top-row collaborative-exam-table">
         <div class="col-md-12">
             <table class="table table-striped table-condensed exams-table">
                 <thead>
@@ -21,34 +74,82 @@
                             <table-sort
                                 by="name"
                                 text="sitnet_exam_name"
-                                [predicate]="predicate"
+                                [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('name')"
                             ></table-sort>
                         </th>
                         <th>
                             <table-sort
+                                by="stateTranslation"
+                                text="sitnet_exam_state_translation"
+                                [predicate]="examsPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('stateTranslation')"
+                            ></table-sort>
+                        </th>
+                        <th>
+                            <table-sort
                                 by="ownerAggregate"
                                 text="sitnet_teachers"
-                                [predicate]="predicate"
+                                [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('ownerAggregate')"
+                            ></table-sort>
+                        </th>
+                        <th>
+                            <table-sort
+                                by="examActiveStartDate"
+                                text="sitnet_start_time"
+                                [predicate]="examsPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('examActiveStartDate')"
+                            ></table-sort>
+                        </th>
+                        <th>
+                            <table-sort
+                                by="examActiveEndDate"
+                                text="sitnet_exam_end_time"
+                                [predicate]="examsPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('examActiveEndDate')"
                             ></table-sort>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let exam of exams | orderBy: predicate:reverse:'case-insensitive'">
+                    <tr *ngFor="let exam of exams | filter: { listingView: view } | orderBy: examsPredicate:reverse">
                         <td>
-                            <a class="exams-info-title bold-button" uiSref="collaborativeExamEditor({id: exam.id})">
+                            <a
+                                class="exams-info-title bold-button"
+                                uiSref="collaborativeExamEditor({id: {{ exam.id }}, tab: 1})"
+                            >
                                 <span *ngIf="exam.name">{{ exam.name }}</span>
                                 <span *ngIf="!exam.name" class="text-danger">
                                     {{ 'sitnet_no_name' | translate | uppercase }}
                                 </span>
                             </a>
                         </td>
+                        <td
+                            [ngClass]="{
+                                'sitnet-medium-green-new': exam.state === 'PUBLISHED',
+                                'sitnet-red': exam.state === 'PRE_PUBLISHED'
+                            }"
+                        >
+                            {{ getStateTranslation(exam) }}
+                        </td>
                         <td>
-                            <span *ngFor="let o of exam.examOwners">{{ o.email }}&nbsp;</span>
+                            <p *ngFor="let o of exam.examOwners">{{ o.email }}</p>
+                        </td>
+                        <td>
+                            <span *ngIf="exam.examActiveStartDate">
+                                {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span *ngIf="exam.examActiveEndDate">
+                                {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                            </span>
                         </td>
                     </tr>
                 </tbody>

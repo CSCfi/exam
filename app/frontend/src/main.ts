@@ -12,8 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-// These two moduls must be imported first. Otherwise the whole app breaks.
+// These must be imported first, in this order. Otherwise the whole app breaks.
+import 'core-js/stable';
 import 'reflect-metadata';
+import 'regenerator-runtime/runtime';
 import 'zone.js';
 
 import { registerLocaleData } from '@angular/common';
@@ -22,7 +24,7 @@ import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { NgZone } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { UIRouter, UrlService, Trace } from '@uirouter/core';
+import { Trace, UIRouter, UrlService } from '@uirouter/core';
 
 import { AppModule } from './app.module';
 import { ajsApp } from './app.module.ajs';

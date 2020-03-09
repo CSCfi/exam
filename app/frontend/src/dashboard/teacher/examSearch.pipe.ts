@@ -24,12 +24,13 @@ export class ExamSearchPipe implements PipeTransform {
         return `${code} ${owners} ${exam.name}`;
     };
 
-    transform = (exams: Exam[], filter: string): Exam[] =>
-        !filter
+    transform<T extends Exam>(exams: T[], filter: string): T[] {
+        return !filter
             ? exams
             : exams.filter(e =>
                   this.getAggregate(e)
                       .toLowerCase()
                       .includes(filter.toLowerCase()),
               );
+    }
 }

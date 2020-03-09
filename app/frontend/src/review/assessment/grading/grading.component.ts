@@ -208,7 +208,14 @@ export class GradingComponent implements OnInit {
         }
     };
 
-    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
+    downloadFeedbackAttachment = () => {
+        const attachment = this.exam.examFeedback.attachment;
+        if (this.collaborative && attachment && attachment.externalId) {
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        } else {
+            this.Attachment.downloadFeedbackAttachment(this.exam);
+        }
+    };
 
     setGrade = () => {
         if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {

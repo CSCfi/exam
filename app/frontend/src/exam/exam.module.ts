@@ -22,6 +22,7 @@ import { BasicExamInfoComponent } from './editor/basic/basicExamInfo.component';
 import { ExamCourseComponent } from './editor/basic/examCourse.component';
 import { ExamInspectorSelectorComponent } from './editor/basic/examInspectorSelector.component';
 import { ExamOwnerSelectorComponent } from './editor/basic/examOwnerSelector.component';
+import { SoftwareSelectorComponent } from './editor/basic/softwareSelector.component';
 import { CoursePickerComponent } from './editor/common/coursePicker.component';
 import { CoursePickerService } from './editor/common/coursePicker.service';
 import { LanguageSelectorComponent } from './editor/common/languageSelector.component';
@@ -30,6 +31,7 @@ import { NewExamComponent } from './editor/creation/newExam.component';
 import { AutoEvaluationComponent } from './editor/publication/autoEvaluation.component';
 import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborativeExamOwnerSelector.component';
 import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
+import { ExamPreParticipantSelectorComponent } from './editor/publication/examPreParticipantSelector.component';
 import { ExamPublicationComponent } from './editor/publication/examPublication.component';
 import { PublicationDialogComponent } from './editor/publication/publicationDialog.component';
 import { PublicationErrorDialogComponent } from './editor/publication/publicationErrorDialog.component';
@@ -58,6 +60,8 @@ import { ExamService } from './exam.service';
         PublicationDialogComponent,
         PublicationErrorDialogComponent,
         PublicationRevocationDialogComponent,
+        SoftwareSelectorComponent,
+        ExamPreParticipantSelectorComponent,
     ],
     entryComponents: [BasicExamInfoComponent, ExamPublicationComponent, NewExamComponent, SectionsListComponent],
     providers: [ExamService, CoursePickerService, CollaborativeExamService],

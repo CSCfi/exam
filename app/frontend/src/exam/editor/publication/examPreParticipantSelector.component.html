@@ -23,7 +23,7 @@
         <div class="col-md-9">
             <ul class="list-inline mart10">
                 <!-- Students pre-enrolled for the exam -->
-                <li class="marl10" *ngFor="enrolment; in: enrolments">
+                <li class="marl10" *ngFor="let enrolment of enrolments">
                     {{ enrolment.preEnrolledUserEmail }}
                     <button
                         class="reviewer-remove"

@@ -55,22 +55,42 @@
                     <span class="caret"></span>
                 </button>
                 <ul ngbDropdownMenu role="menu">
-                    <li role="presentation" (click)="filter.ordering = 'exam.name'">
+                    <li
+                        role="presentation"
+                        (click)="filter.ordering = 'exam.name'"
+                        tabindex="0"
+                        (ngEnter)="filter.ordering = 'exam.name'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_name_ascending' | translate }}
                         </a>
                     </li>
-                    <li role="presentation" (click)="filter.ordering = '-exam.name'">
+                    <li
+                        role="presentation"
+                        (click)="filter.ordering = '-exam.name'"
+                        tabindex="0"
+                        (ngEnter)="filter.ordering = '-exam.name'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_name_descending' | translate }}
                         </a>
                     </li>
-                    <li role="presentation" (click)="filter.ordering = 'ended'">
+                    <li
+                        role="presentation"
+                        (click)="filter.ordering = 'ended'"
+                        tabindex="0"
+                        (ngEnter)="filter.ordering = 'ended'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_participation_descending' | translate }}
                         </a>
                     </li>
-                    <li role="presentation" (click)="filter.ordering = '-ended'">
+                    <li
+                        role="presentation"
+                        (click)="filter.ordering = '-ended'"
+                        tabindex="0"
+                        (ngEnter)="filter.ordering = '-ended'"
+                    >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_participation_ascending' | translate }}
                         </a>

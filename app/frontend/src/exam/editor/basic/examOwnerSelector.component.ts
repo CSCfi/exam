@@ -83,12 +83,14 @@ export class ExamOwnerSelectorComponent implements OnInit {
     };
 
     removeOwner = (id: number) =>
-        this.http
-            .delete(`/app/exam/${this.exam.id}/owner/${id}`)
-            .subscribe(() => this.getExamOwners(), err => toast.error(err.data));
+        this.http.delete(`/app/exam/${this.exam.id}/owner/${id}`).subscribe(
+            () => this.getExamOwners(),
+            err => toast.error(err.data),
+        );
 
     private getExamOwners = () =>
-        this.http
-            .get<User[]>(`/app/exam/${this.exam.id}/owners`)
-            .subscribe(owners => (this.examOwners = owners), err => toast.error(err.data));
+        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(
+            owners => (this.examOwners = owners),
+            err => toast.error(err.data),
+        );
 }

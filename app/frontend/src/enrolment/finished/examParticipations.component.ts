@@ -32,12 +32,7 @@ export class ExamParticipationsComponent implements OnInit {
     filterChanged: Subject<string> = new Subject<string>();
 
     constructor(private http: HttpClient) {
-        this.filterChanged
-            .pipe(
-                debounceTime(500),
-                distinctUntilChanged(),
-            )
-            .subscribe(this.doSearch);
+        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
     }
 
     ngOnInit() {
@@ -48,13 +43,15 @@ export class ExamParticipationsComponent implements OnInit {
 
     private doSearch = (text: string) => {
         this.filter.text = text;
-        this.http.get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe(
-            data => {
-                data.filter(p => !p.ended).forEach(p => (p.ended = p.reservation.endAt));
-                this.participations = data;
-            },
-            err => toast.error(err.data),
-        );
+        this.http
+            .get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
+            .subscribe(
+                data => {
+                    data.filter(p => !p.ended).forEach(p => (p.ended = p.reservation.endAt));
+                    this.participations = data;
+                },
+                err => toast.error(err.data),
+            );
     };
 
     pageSelected = (page: number) => (this.currentPage = page);
