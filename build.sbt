@@ -126,17 +126,11 @@ webDriverUpdate := {
       .run())
 }
 
-test in Test := {
+/*test in Test := {
   if (karmaTest.value.get.exitValue() != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
-}
-
-def foo = Def.sequential(
-  protractorInstall,
-  npmInstall,
-  webDriverUpdate
-)
+}*/
 
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   if (!skipUiTests.equals("true") && npmInstall.value.get
@@ -163,4 +157,4 @@ def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   }
 }
 
-PlayKeys.playRunHooks ++= uiTestTask.value
+// PlayKeys.playRunHooks ++= uiTestTask.value
