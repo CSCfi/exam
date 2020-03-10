@@ -1665,6 +1665,11 @@
     .claim-choice-option-description {
       color: #358F45;
     }
+
+    input:disabled {
+      color: gray;
+      cursor: not-allowed;
+    }
   }
 
   .claim-choice-incorrect-answer {
@@ -1674,11 +1679,17 @@
     .claim-choice-option-description {
       color: #ED4459;
     }
+
+    input:disabled {
+      color: gray;
+      cursor: not-allowed;
+    }
   }
 
   .claim-choice-skip-answer {
     input:disabled {
       color: gray;
+      cursor: not-allowed;
     }
   }
 

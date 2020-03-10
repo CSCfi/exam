@@ -159,6 +159,14 @@ angular.module('app.question').component('examQuestion', {
                 return Question.calculateMaxPoints(vm.examQuestion);
             };
 
+            vm.returnOptionClass = function(option) {
+                return Question.returnClaimChoiceOptionClass(option);
+            }
+
+            vm.returnOptionDescriptionTranslation = function(option) {
+                return Question.returnOptionDescriptionTranslation(option);
+            }
+
             const routingWatcher = $scope.$on('$stateChangeStart', function(event, toState, toParams) {
                 if (window.onbeforeunload) {
                     event.preventDefault();

@@ -157,35 +157,11 @@ angular.module('app.question').component('claimChoiceForm', {
             };
 
             vm.returnOptionDescriptionTranslation = function(option) {
-                if (!option) {
-                    return '';
-                }
-
-                switch (option.claimChoiceType) {
-                    case 'CorrectOption':
-                        return $translate.instant('sitnet_claim_choice_correct_option_description');
-                    case 'IncorrectOption':
-                        return $translate.instant('sitnet_claim_choice_incorrect_option_description');
-                    default:
-                        return '';
-                }
+                return Question.returnOptionDescriptionTranslation(option);
             };
 
             vm.returnOptionClass = function(option) {
-                if (!option) {
-                    return;
-                }
-
-                switch (option.claimChoiceType) {
-                    case 'CorrectOption':
-                        return 'claim-choice-correct-answer';
-                    case 'IncorrectOption':
-                        return 'claim-choice-incorrect-answer';
-                    case 'SkipOption':
-                        return 'claim-choice-skip-answer';
-                    default:
-                        return;
-                }
+                return Question.returnClaimChoiceOptionClass(option);
             };
 
             vm.validate = function() {

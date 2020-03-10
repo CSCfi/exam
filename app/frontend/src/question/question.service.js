@@ -470,6 +470,38 @@ function QuestionService(
 
         return invalidOptions;
     };
+
+    this.returnClaimChoiceOptionClass = option => {
+        if (!option) {
+            return;
+        }
+
+        switch (option.claimChoiceType) {
+            case 'CorrectOption':
+                return 'claim-choice-correct-answer';
+            case 'IncorrectOption':
+                return 'claim-choice-incorrect-answer';
+            case 'SkipOption':
+                return 'claim-choice-skip-answer';
+            default:
+                return '';
+        }
+    };
+
+    this.returnOptionDescriptionTranslation = option => {
+        if (!option) {
+            return '';
+        }
+
+        switch (option.claimChoiceType) {
+            case 'CorrectOption':
+                return $translate.instant('sitnet_claim_choice_correct_option_description');
+            case 'IncorrectOption':
+                return $translate.instant('sitnet_claim_choice_incorrect_option_description');
+            default:
+                return '';
+        }
+    };
 }
 
 angular
