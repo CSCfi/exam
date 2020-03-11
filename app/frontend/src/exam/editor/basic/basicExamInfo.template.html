@@ -303,10 +303,10 @@
                     class="form-control"
                     ck-editor
                     enable-cloze-test="false"
+                    on-blur="$ctrl.updateExam()"
                     rows="4"
                     cols="150"
                     ng-model="$ctrl.exam.instruction"
-                    ui-change="$ctrl.updateExam()"
                     placeholder="{{'sitnet_placeholder_write_instruction' | translate}}"
                 >
                 </textarea>
@@ -335,10 +335,10 @@
                     class="form-control"
                     ck-editor
                     enable-cloze-test="false"
+                    on-blur="$ctrl.updateExam()"
                     rows="4"
                     cols="150"
                     ng-model="$ctrl.exam.enrollInstruction"
-                    ui-change="$ctrl.updateExam()"
                     placeholder="{{'sitnet_placeholder_write_instruction' | translate}}"
                 >
                 </textarea>
