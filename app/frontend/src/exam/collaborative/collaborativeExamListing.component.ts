@@ -90,7 +90,8 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
 
         determineListingView(exam: CollaborativeExam) {
             if (
-                exam.state === CollaborativeExamState.PUBLISHED &&
+                (exam.state === CollaborativeExamState.PUBLISHED ||
+                    exam.state === CollaborativeExamState.PRE_PUBLISHED) &&
                 Date.now() > new Date(exam.examActiveEndDate).getTime()
             ) {
                 return ListingView.EXPIRED;
