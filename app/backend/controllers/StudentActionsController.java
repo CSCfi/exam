@@ -28,7 +28,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 
-import backend.models.questions.Question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -50,6 +49,7 @@ import backend.models.ExamParticipation;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
@@ -294,7 +294,7 @@ public class StudentActionsController extends CollaborationController {
         });
         return ok(enrolments.stream().filter(ee -> {
             Exam exam = ee.getExam();
-            if (exam != null) {
+            if (exam != null && exam.getExamActiveEndDate() != null) {
                 return exam.getExamActiveEndDate().isAfterNow() && exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED);
             }
             CollaborativeExam ce = ee.getCollaborativeExam();
