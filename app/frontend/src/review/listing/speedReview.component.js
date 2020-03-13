@@ -69,7 +69,7 @@ angular.module('app.review').component('speedReview', {
                 $modal.open({
                     backdrop: 'static',
                     keyboard: true,
-                    component: 'reviewFeedback',
+                    component: 'speedReviewFeedback',
                     resolve: {
                         exam: () => exam,
                     },
