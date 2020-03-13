@@ -950,7 +950,7 @@
   "sitnet_enrolments_exist_for_examination_event": "Editing of time and password prevented because there are registrations for the event.",
   "sitnet_exam_question_scores_report": "Question specific points",
   "sitnet_exam_print_question_scores_report": "Print the question specific points",
-  "sitnet_collaborative_exam_search_description": "You can search exams by exam name or by examiner name. Type at least three letters to begin search.",
+  "sitnet_collaborative_exam_search_description": "You can search exams by exam name. Type at least three letters to begin search.",
   "sitnet_claim_choice_question_instruction": "Statement question: Student can get negative points for a wrong answer which will affect the total points of the exam. However, the total points cannot go below zero. Default answer options are: Correct, Wrong and I don't know. Student will see the answer options in this order (it will not be randomized).",
   "sitnet_claim_choice_options_description": "Correct and wrong answer is determined by the score per answer option (>0 correct and <=0 wrong): ",
   "sitnet_claim_choice_correct_points_description": "The score for a correct answer is always more than zero (>0)",

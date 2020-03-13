@@ -59,13 +59,13 @@ public class CollaborationController extends BaseController {
         }
     }
 
-    Optional<URL> parseUrlWithSearchParam(String filter) {
+    Optional<URL> parseUrlWithSearchParam(String filter, boolean anonymous) {
         try {
             if(filter == null) {
                 return Optional.empty();
             }
 
-            String paramStr = String.format("?filter=%s", filter);
+            String paramStr = String.format("?filter=%s&anonymous=%s", filter, anonymous);
             String url = String.format("%s/api/exams/search%s", ConfigFactory.load().getString("sitnet.integration.iop.host"), paramStr);
             return Optional.of(new URL(url));
 
