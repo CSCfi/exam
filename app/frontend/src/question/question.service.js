@@ -133,6 +133,12 @@ function QuestionService(
         return parseFloat(points.toFixed(2));
     };
 
+    this.getMinimumOptionScore = sectionQuestion => {
+        const optionScores = sectionQuestion.options.map(o => o.score);
+        const scores = [0, ...optionScores]; // Make sure 0 is included
+        return Math.min(...scores);
+    };
+
     this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
         if (!sectionQuestion.options) {
             return 0;

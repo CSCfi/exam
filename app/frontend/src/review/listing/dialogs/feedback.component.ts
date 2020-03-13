@@ -16,14 +16,14 @@ import * as angular from 'angular';
 
 import { Exam } from '../../../exam/exam.model';
 
-export const FeedbackComponent: angular.IComponentOptions = {
+export const SpeedReviewFeedbackComponent: angular.IComponentOptions = {
     template: require('./feedback.template.html'),
     bindings: {
         close: '&',
         dismiss: '&',
         resolve: '<',
     },
-    controller: class FeedbackController implements angular.IComponentController {
+    controller: class SpeedReviewFeedbackController implements angular.IComponentController {
         resolve: { exam: Exam };
         exam: Exam;
         close: () => unknown;
@@ -52,4 +52,4 @@ export const FeedbackComponent: angular.IComponentOptions = {
     },
 };
 
-angular.module('app.review').component('feedback', FeedbackComponent);
+angular.module('app.review').component('speedReviewFeedback', SpeedReviewFeedbackComponent);
