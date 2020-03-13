@@ -64,7 +64,7 @@
     "@types/moment-timezone": "^0.5.9",
     "@types/node": "^8.10.42",
     "@types/toastr": "^2.1.36",
-    "acorn": "^6.3.0",
+    "acorn": "^6.4.1",
     "angular-mocks": "^1.7.7",
     "awesome-typescript-loader": "^5.2.0",
     "babel-loader": "^8.0.5",
