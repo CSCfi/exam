@@ -950,7 +950,7 @@
   "sitnet_enrolments_exist_for_examination_event": "Editering av tidpunkt eller lösenord är inte tillåtet pga. att det finns anmälda till tentamentstillfället.",
   "sitnet_exam_question_scores_report": "Frågespecifika poäng",
   "sitnet_exam_print_question_scores_report": "Printa frågespecifika poäng",
-  "sitnet_collaborative_exam_search_description": "Du kan söka tentamina på tentamens eller lärarens namn.  Skriv minst tre bokstäver för att starta sökningen.",
+  "sitnet_collaborative_exam_search_description": "Du kan söka tentamina på tentamens namn.  Skriv minst tre bokstäver för att starta sökningen.",
   "sitnet_claim_choice_question_instruction": "I Påstående-frågor kan tentanden får minuspoäng för fel svar, vilka dras av från totalpoängen för tentamen. Totalpoängen för en tentamen kan däremot inte bli negativ, dvs. totalpoängen för hela tentamen måste alltid bli minst 0. Svarsalternativen är som förhandsvalda Sant och Falskt och Kan inte säga. Ordningsföljden på svarsalternativen i tentamen måste också vara samma som i den här vyn.",
   "sitnet_claim_choice_options_description": "Rätt och fel svar för tentamen definieras enligt poängtalet för svarsalternativet: ",
   "sitnet_claim_choice_correct_points_description": "Poängtalet för rätt svar är alltid mer än 0.",
