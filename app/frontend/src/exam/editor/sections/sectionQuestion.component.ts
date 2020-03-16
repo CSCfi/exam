@@ -60,8 +60,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
 
         getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-        getIncorrectClaimChoiceOptionScore = () =>
-            this.Question.getIncorrectClaimChoiceOptionScore(this.sectionQuestion);
+        getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
 
         sanitizeQuestion = () => this.$sce.trustAsHtml(this.sectionQuestion.question.question);
 

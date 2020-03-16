@@ -133,11 +133,19 @@ function QuestionService(
         return parseFloat(points.toFixed(2));
     };
 
-    this.getCorrectClaimChoiceOptionDefaultScore = question => {
-        if (!question.options) {
+    this.getMinimumOptionScore = sectionQuestion => {
+        const optionScores = sectionQuestion.options.map(o => o.score);
+        const scores = [0, ...optionScores]; // Make sure 0 is included
+        return Math.min(...scores);
+    };
+
+    this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
+        if (!sectionQuestion.options) {
             return 0;
         }
-        const correctOption = question.options.filter(o => o.correctOption && o.claimChoiceType === 'CorrectOption');
+        const correctOption = sectionQuestion.options.filter(
+            o => o.correctOption && o.claimChoiceType === 'CorrectOption',
+        );
         if (correctOption.length === 1) {
             return correctOption[0].defaultScore;
         } else {
@@ -152,15 +160,6 @@ function QuestionService(
 
         const optionScores = sectionQuestion.options.map(o => o.score);
         return Math.max(0, ...optionScores);
-    };
-
-    this.getIncorrectClaimChoiceOptionScore = sectionQuestion => {
-        if (!sectionQuestion.options) {
-            return 0;
-        }
-
-        const optionScores = sectionQuestion.options.map(o => o.score);
-        return Math.min(0, ...optionScores);
     };
 
     this.scoreClozeTestAnswer = sectionQuestion => {

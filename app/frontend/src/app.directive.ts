@@ -127,11 +127,13 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
 
 interface CkEditorScope extends IScope {
     enableClozeTest: boolean;
+    onBlur?: () => any;
 }
 export class CkEditor implements IDirective<CkEditorScope> {
     require = 'ngModel';
     scope = {
         enableClozeTest: '=?',
+        onBlur: '&',
     };
 
     constructor(private $translate: angular.translate.ITranslateService) {}
@@ -157,6 +159,14 @@ export class CkEditor implements IDirective<CkEditorScope> {
         ck.on('dataReady', _.debounce(updateModel, 500));
         ck.on('key', _.debounce(updateModel, 500));
         ck.on('mode', updateModel); // Editing mode change
+        ck.on('blur', () => {
+            _.defer(() => {
+                updateModel();
+                if (scope.onBlur) {
+                    scope.onBlur();
+                }
+            });
+        });
 
         ngModel.$render = () => {
             modelValue = ngModel.$modelValue;
@@ -389,10 +399,7 @@ export class NgEnter implements IDirective {
     link(scope, element, attributes) {
         element.bind('keydown', event => {
             if (event.key === 'Enter' || event.keyCode === 13) {
-                scope.$apply(() => {
-                    scope.$eval(attributes.ngEnter);
-                });
-
+                scope.$apply(() => scope.$eval(attributes.ngEnter));
                 event.preventDefault();
             }
         });

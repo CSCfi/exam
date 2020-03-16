@@ -298,7 +298,7 @@ public class ReviewController extends BaseController {
             return forbidden("Not allowed to update grading of this exam");
         }
         Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
-        if (forcedScore != null && (forcedScore < 0 || forcedScore > question.getMaxAssessedScore())) {
+        if (forcedScore != null && (forcedScore < question.getMinScore() || forcedScore > question.getMaxAssessedScore())) {
             return badRequest("score out of acceptable range");
         }
         question.setForcedScore(forcedScore);

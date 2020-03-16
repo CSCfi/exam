@@ -950,7 +950,7 @@
   "sitnet_enrolments_exist_for_examination_event": "Muokkaus ajankohdan ja salasanan osalta estetty koska tilaisuuteen on ilmoittautuneita",
   "sitnet_exam_question_scores_report": "Kysymyskohtaiset pisteet",
   "sitnet_exam_print_question_scores_report": "Tulosta kysymyskohtaiset pisteet",
-  "sitnet_collaborative_exam_search_description": "Voit hakea tenttejä tentin nimen tai tentaattorin nimen mukaan. Kirjoita vähintään kolme kirjainta haun käynnistämiseksi",
+  "sitnet_collaborative_exam_search_description": "Voit hakea tenttejä tentin nimen mukaan. Kirjoita vähintään kolme kirjainta haun käynnistämiseksi",
   "sitnet_claim_choice_question_instruction": "Uudessa kysymystyypissä tenttijä voi saada väärästä vastauksesta miinuspisteitä, jotka vähennetään koko tentin yhteispisteistä. Tentin yhteispistemäärä ei voi kuitenkaan olla negatiivinen, eli koko tentin pistemääräksi tulee aina vähintään 0. Vastausvaihtoehdot ovat oletuksena Tosi, ja Epätosi, ja En osaa sanoa. Vastausten järjestys tentillä tulee myös olemaan sama, kuin tässä näkymässä.",
   "sitnet_claim_choice_options_description": "Tentin oikea ja väärä vastaus määrittyy vastausvaihtoehdon pistelukeman mukaan:",
   "sitnet_claim_choice_correct_points_description": "Oikean vastauksen pistelukema on aina enemmän kuin 0.",

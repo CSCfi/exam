@@ -70,7 +70,7 @@
     "@types/toastr": "^2.1.37",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
-    "acorn": "^7.1.0",
+    "acorn": "^7.1.1",
     "angular-mocks": "^1.7.9",
     "babel-loader": "^8.0.6",
     "babel-plugin-angularjs-annotate": "^0.8.2",
