@@ -157,11 +157,11 @@ angular.module('app.question').component('claimChoiceForm', {
             };
 
             vm.returnOptionDescriptionTranslation = function(option) {
-                return Question.returnOptionDescriptionTranslation(option);
+                return Question.returnOptionDescriptionTranslation(option.claimChoiceType);
             };
 
             vm.returnOptionClass = function(option) {
-                return Question.returnClaimChoiceOptionClass(option);
+                return Question.returnClaimChoiceOptionClass(option.claimChoiceType);
             };
 
             vm.validate = function() {

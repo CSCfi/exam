@@ -199,3 +199,24 @@ export interface ExamParticipation {
     exam: Exam;
     duration: number;
 }
+
+export enum ClaimChoiceOptionType {
+    CorrectOption = 'CorrectOption',
+    IncorrectOption = 'IncorrectOption',
+    SkipOption = 'SkipOption',
+}
+
+export interface MultipleChoiceOption {
+    id: number;
+    option: string;
+    correctOption: boolean;
+    defaultScore: number;
+    claimChoiceType?: ClaimChoiceOptionType;
+}
+
+export interface ExamSectionQuestionOption {
+    id: number;
+    option: MultipleChoiceOption;
+    answered: boolean;
+    score: number;
+}

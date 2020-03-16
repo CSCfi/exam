@@ -308,9 +308,27 @@
 
                 <!-- Type specific content - claim choice option -->
                 <div ng-if="$ctrl.question.type === 'ClaimChoiceQuestion'">
+                    <div class="col-md-9 col-md-offset-3">
+                        <p>{{ 'sitnet_claim_choice_question_instruction' | translate }}</p>
+                        <p>{{ 'sitnet_claim_choice_options_description' | translate }}</p>
+                        <ul>
+                            <li>{{ 'sitnet_claim_choice_correct_points_description' | translate }}</li>
+                            <li>{{ 'sitnet_claim_choice_incorrect_points_description' | translate }}</li>
+                            <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
+                        </ul>
+                        <br />
+                        <span>
+                            <i ng-if="$ctrl.showWarning" class="fa fa-exclamation-circle reddish"></i>
+                            <small ng-if="$ctrl.showWarning"
+                                >{{'sitnet_shared_question_property_info' | translate}}</small
+                            >
+                        </span>
+                    </div>
                     <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0 claim-choice-option-labels">
                         <div class="claim-choice-option-label">
-                            <span class="question-option-title">{{'sitnet_question_options' | translate | uppercase}}</span>
+                            <span class="question-option-title"
+                                >{{'sitnet_question_options' | translate | uppercase}}</span
+                            >
                         </div>
                         <div class="claim-choice-option-label points">
                             <span class="question-option-title">
@@ -318,37 +336,45 @@
                             </span>
                         </div>
                     </div>
-                    <div
-                        class="col-md-9 col-md-offset-3 margin-10 padl0 padr0"
-                    >
+                    <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0">
                         <div
                             class="form-horizontal question-editor-claim-choice-option"
                             ng-repeat="opt in $ctrl.examQuestion.options"
-                            ng-class="$ctrl.returnOptionClass(opt.option)"
+                            ng-class="$ctrl.returnOptionClass(opt)"
                         >
                             <div class="claim-choice-option-inputs">
                                 <input
-                                    ng-model="opt.option.option" 
-                                    type="text" 
+                                    ng-model="opt.option.option"
+                                    type="text"
                                     class="question-option-input"
                                     required="true"
                                     ng-disabled="$ctrl.lotteryOn || opt.option.claimChoiceType === 'SkipOption'"
                                 />
                                 <input
-                                    name="maxScore" 
+                                    name="maxScore"
                                     class="question-option-input points"
-                                    type="number" 
-                                    lang="en" 
+                                    type="number"
+                                    lang="en"
                                     fixed-precision
                                     ng-model="opt.score"
                                     required="true"
-                                    ng-disabled="true"
+                                    ng-disabled="$ctrl.lotteryOn || opt.option.claimChoiceType === 'SkipOption'"
+                                    ng-change="$ctrl.validate()"
                                 />
                             </div>
-                            <div 
-                                class="claim-choice-option-description" 
-                                ng-bind="$ctrl.returnOptionDescriptionTranslation(opt.option)"
+                            <div
+                                class="claim-choice-option-description"
+                                ng-bind="$ctrl.returnOptionDescriptionTranslation(opt)"
                             ></div>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
+                        <div class="claim-choice-warning" ng-if="$ctrl.commaSeparatedMissingOpts">
+                            <i class="fa fa-exclamation-triangle" style="color:#ED4459;"></i>
+                            <span style="color:#ED4459;">
+                                {{ 'sitnet_claim_choice_missing_options_warning' | translate }} {{
+                                $ctrl.commaSeparatedMissingOpts }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -584,7 +610,7 @@
             <div class="mart20">
                 <div class="question-cancel">
                     <button
-                        ng-disabled="!questionForm.$valid"
+                        ng-disabled="!questionForm.$valid || $ctrl.hasInvalidClaimChoiceOptions()"
                         ng-click="$ctrl.save()"
                         type="submit"
                         class="btn btn-success bigbutton"

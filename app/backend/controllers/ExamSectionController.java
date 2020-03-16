@@ -48,6 +48,7 @@ import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
@@ -472,6 +473,40 @@ public class ExamSectionController extends BaseController implements SectionQues
         return StreamSupport.stream(an.spliterator(), false).anyMatch(n -> n.get("score").asDouble() > 0);
     }
 
+    private boolean hasValidClaimChoiceOptions(ArrayNode an) {
+        boolean hasCorrectOption = StreamSupport.stream(an.spliterator(), false)
+                .anyMatch(n -> {
+                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                            "claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                            .orElse(null);
+                    Double score = n.get("score").asDouble();
+
+                    return type != ClaimChoiceOptionType.SkipOption && score > 0;
+                });
+
+        boolean hasIncorrectOption = StreamSupport.stream(an.spliterator(), false)
+                .anyMatch(n -> {
+                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                            "claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                            .orElse(null);
+                    Double score = n.get("score").asDouble();
+
+                    return type != ClaimChoiceOptionType.SkipOption && score <= 0;
+                });
+
+        boolean hasSkipOption = StreamSupport.stream(an.spliterator(), false)
+                .anyMatch(n -> {
+                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                            "claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                            .orElse(null);
+                    Double score = n.get("score").asDouble();
+
+                    return type == ClaimChoiceOptionType.SkipOption && score == 0;
+                });
+
+        return hasCorrectOption && hasIncorrectOption && hasSkipOption;
+    }
+
     @Authenticated
     @With(SectionQuestionSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -501,6 +536,11 @@ public class ExamSectionController extends BaseController implements SectionQues
                 !hasPositiveOptionScore((ArrayNode) body.get("options"))) {
             return badRequest("sitnet_correct_option_required");
         }
+
+        if (question.getType() == Question.Type.ClaimChoiceQuestion && !hasValidClaimChoiceOptions((ArrayNode) body.get("options"))) {
+            return badRequest("sitnet_incorrect_claim_question_options");
+        }
+
         // Update question: text
         question.setQuestion(request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null));
         question.update();

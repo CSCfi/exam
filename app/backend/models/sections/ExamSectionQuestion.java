@@ -18,6 +18,7 @@ package backend.models.sections;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.List;
@@ -416,14 +417,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                         .filter(score -> score != null && score > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
             case ClaimChoiceQuestion:
-                Optional<ExamSectionQuestionOption> correctOption = options.stream()
-                        .filter(o -> o.getOption().getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption)
-                        .findFirst();
-                if (correctOption.isPresent()) {
-                    return correctOption.get().getScore();
-                } else {
-                    return 0.0;
-                }
+                return options.stream()
+                        .map(ExamSectionQuestionOption::getScore)
+                        .max(Comparator.comparing(Double::valueOf))
+                        .orElse(0.0);
         }
         return 0.0;
     }
@@ -437,9 +434,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .reduce(0.0, (sum, x) -> sum += x);
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options.stream()
-                    .filter(o -> !o.getOption().isCorrectOption() && o.getScore() != null)
-                    .mapToDouble(o -> o.getScore())
-                    .min()
+                    .map(ExamSectionQuestionOption::getScore)
+                    .min(Comparator.comparing(Double::valueOf))
                     .orElse(0.0);
         }
         return 0.0;

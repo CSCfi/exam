@@ -7,17 +7,17 @@
         <div ng-class="$ctrl.getSelectedOptionClass(option)">
             <div class="make-inline pull-left">
                 <img
-                    ng-if="option.option.claimChoiceType == 'CorrectOption'"
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'CorrectOption'"
                     src="Images/icon_correct_answer_radio.png"
                     alt="exam"
                 />
                 <img
-                    ng-if="option.option.claimChoiceType == 'IncorrectOption'"
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'IncorrectOption'"
                     src="Images/icon_wrong_answer_radio.png"
                     alt="exam"
                 />
                 <img
-                    ng-if="option.option.claimChoiceType == 'SkipOption'"
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'SkipOption'"
                     src="Images/icon_correct_answer_radio_grey.png"
                     alt="exam"
                 />

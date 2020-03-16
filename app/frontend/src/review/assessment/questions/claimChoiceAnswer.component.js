@@ -21,17 +21,18 @@ angular.module('app.review').component('rClaimChoiceAnswer', {
         sectionQuestion: '<',
     },
     controller: [
-        function() {
+        'Question',
+        function(Question) {
             const vm = this;
 
-            vm.getSelectedOptionClass = function(esqOption) {
-                const { answered = false, option = null } = esqOption;
+            vm.getSelectedOptionClass = function(examOption) {
+                const { answered = false, option = null } = examOption;
 
                 if (!answered || !(option && option.claimChoiceType)) {
                     return 'exam-not-answered';
                 }
 
-                switch (option.claimChoiceType) {
+                switch (vm.determineClaimOptionType(examOption)) {
                     case 'CorrectOption':
                         return 'exam-answered-correct';
                     case 'IncorrectOption':
@@ -41,6 +42,10 @@ angular.module('app.review').component('rClaimChoiceAnswer', {
                     default:
                         return 'exam-not-answered';
                 }
+            };
+
+            vm.determineClaimOptionType = function(examOption) {
+                return Question.determineClaimOptionTypeForExamQuestionOption(examOption);
             };
         },
     ],
