@@ -967,5 +967,6 @@
   "sitnet_anonymous": "Anonyymi arviointi",
   "sitnet_anonymous_enabled": "Käytössä",
   "sitnet_anonymous_disabled": "Ei käytössä",
-  "sitnet_collaborative_exam_search_description_teacher": "Voit hakea tenttejä tentin nimen tai tentaattorin sähköpostin mukaan."
+  "sitnet_collaborative_exam_search_description_teacher": "Voit hakea tenttejä tentin nimen tai tentaattorin sähköpostin mukaan.",
+  "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot FI"
 }

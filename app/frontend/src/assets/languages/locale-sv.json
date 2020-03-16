@@ -967,5 +967,6 @@
   "sitnet_anonymous": "Anonym bedömning",
   "sitnet_anonymous_enabled": "I bruk",
   "sitnet_anonymous_disabled": "Inte i bruk",
-  "sitnet_collaborative_exam_search_description_teacher": "Du kan söka tentamina antingen på tentens namn eller på lärarens e-postadress."
+  "sitnet_collaborative_exam_search_description_teacher": "Du kan söka tentamina antingen på tentens namn eller på lärarens e-postadress.",
+  "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot SV"
 }
