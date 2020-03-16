@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 
 import { IModalService } from 'angular-ui-bootstrap';
 
-import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import { ExamSection, ExamSectionQuestion, Question, ExamSectionQuestionOption } from '../../exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 
@@ -59,6 +59,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
 
         getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+
+        getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
 
         sanitizeQuestion = () => this.$sce.trustAsHtml(this.sectionQuestion.question.question);
 
@@ -192,6 +194,10 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                     });
                 });
         };
+
+        determineClaimOptionType(examOption: ExamSectionQuestionOption) {
+            return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
+        }
     },
 };
 

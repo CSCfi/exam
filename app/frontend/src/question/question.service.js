@@ -148,10 +148,7 @@ function QuestionService(
         );
         if (correctOption.length === 1) {
             return correctOption[0].defaultScore;
-        } else if (correctOption.length === 0) {
-            return 0;
         } else {
-            console.error('Correct option missing on claim choice question!');
             return 0;
         }
     };
@@ -160,17 +157,9 @@ function QuestionService(
         if (!sectionQuestion.options) {
             return 0;
         }
-        const correctOption = sectionQuestion.options.filter(
-            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
-        );
-        if (correctOption.length === 1) {
-            return correctOption[0].score;
-        } else if (correctOption.length === 0) {
-            return 0;
-        } else {
-            console.error('Correct option missing on claim choice question!');
-            return 0;
-        }
+
+        const optionScores = sectionQuestion.options.map(o => o.score);
+        return Math.max(0, ...optionScores);
     };
 
     this.scoreClozeTestAnswer = sectionQuestion => {
@@ -461,6 +450,81 @@ function QuestionService(
         const hasSkipOption = options.some(
             opt => opt.claimChoiceType === 'SkipOption' && opt.defaultScore === 0 && opt.option,
         );
+
+        if (!hasCorrectOption) {
+            invalidOptions.push('CorrectOption');
+        }
+
+        if (!hasIncorrectOption) {
+            invalidOptions.push('IncorrectOption');
+        }
+
+        if (!hasSkipOption) {
+            invalidOptions.push('SkipOption');
+        }
+
+        return invalidOptions;
+    };
+
+    this.returnClaimChoiceOptionClass = optionType => {
+        switch (optionType) {
+            case 'CorrectOption':
+                return 'claim-choice-correct-answer';
+            case 'IncorrectOption':
+                return 'claim-choice-incorrect-answer';
+            case 'SkipOption':
+                return 'claim-choice-skip-answer';
+            default:
+                return '';
+        }
+    };
+
+    this.returnOptionDescriptionTranslation = optionType => {
+        switch (optionType) {
+            case 'CorrectOption':
+                return $translate.instant('sitnet_claim_choice_correct_option_description');
+            case 'IncorrectOption':
+                return $translate.instant('sitnet_claim_choice_incorrect_option_description');
+            default:
+                return '';
+        }
+    };
+
+    this.determineClaimOptionTypeForExamQuestionOption = examOption => {
+        const parentOption = examOption.option;
+        if (parentOption.claimChoiceType === 'SkipOption') {
+            return 'SkipOption';
+        }
+
+        if (examOption.score <= 0) {
+            return 'IncorrectOption';
+        }
+
+        if (examOption.score > 0) {
+            return 'CorrectOption';
+        }
+
+        return null;
+    };
+
+    this.getInvalidDistributedClaimOptionTypes = options => {
+        let invalidOptions = [];
+
+        const hasCorrectOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'CorrectOption' && opt.score > 0 && parentOption.option;
+        });
+        const hasIncorrectOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'IncorrectOption' && opt.score <= 0 && parentOption.option;
+        });
+        const hasSkipOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'SkipOption' && opt.score === 0 && parentOption.option;
+        });
 
         if (!hasCorrectOption) {
             invalidOptions.push('CorrectOption');

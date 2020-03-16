@@ -967,5 +967,6 @@
   "sitnet_anonymous": "Anonymous grading",
   "sitnet_anonymous_enabled": "In use",
   "sitnet_anonymous_disabled": "Not in use",
-  "sitnet_collaborative_exam_search_description_teacher": "You can search by exam name or teacher's email"
+  "sitnet_collaborative_exam_search_description_teacher": "You can search by exam name or teacher's email",
+  "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot EN"
 }
