@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 
 import io.ebean.Ebean;
@@ -147,6 +146,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .eq("room.id", room.getId())
                 .ne("outOfService", true)
                 .ne("archived", true)
+                .isNotEmpty("ipAddress")
+                .isNotEmpty("name")
                 .findList();
         Iterator<ExamMachine> it = candidates.listIterator();
         while (it.hasNext()) {
