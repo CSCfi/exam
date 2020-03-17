@@ -180,7 +180,7 @@ export default function configs(
                 collaborative: () => true,
             },
         })
-        .state('questionAssessment', { url: '/assessments/{id}/questions', component: 'questionAssessment' })
+        .state('questionAssessment', { url: '/assessments/{id}/questions?q', component: 'questionAssessment' })
         .state('reservations', { url: '/reservations', component: 'teacherReservations' })
         .state('examReservations', { url: '/reservations/{eid}', component: 'teacherReservations' })
         .state('exams', { url: '/exams', component: 'examList' })
