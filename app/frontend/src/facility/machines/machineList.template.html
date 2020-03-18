@@ -12,9 +12,9 @@
             popover-trigger="'mouseenter'"
             uib-popover="{{ 'sitnet_status_machine_available' | translate }}"
         >
-            <button class="btn btn-success btn-xs">
-                {{ $ctrl.room.examMachines.length - $ctrl.countMachineAlerts() - $ctrl.countMachineNotices() }}
-            </button>
+            <span class="label label-success">
+                {{$ctrl.room.examMachines.length - $ctrl.countMachineAlerts() - $ctrl.countMachineNotices()}}
+            </span>
         </span>
         <span
             popover-placement="top"
@@ -22,9 +22,9 @@
             popover-trigger="'mouseenter'"
             uib-popover="{{ 'sitnet_status_notice' | translate }}"
         >
-            <button class="btn btn-warning btn-xs">
-                {{ $ctrl.countMachineNotices() }}
-            </button>
+            <span class="label label-warning marl10">
+                {{$ctrl.countMachineNotices()}}
+            </span>
         </span>
         <span
             popover-placement="top"
@@ -32,9 +32,9 @@
             popover-trigger="'mouseenter'"
             uib-popover="{{ 'sitnet_status_inservice' | translate }}"
         >
-            <button class="btn btn-danger btn-xs">
-                {{ $ctrl.countMachineAlerts() }}
-            </button>
+            <span class="label label-danger marl10">
+                {{$ctrl.countMachineAlerts()}}
+            </span>
         </span>
         <a
             class="fa-stack fa-lg"
