@@ -150,7 +150,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .findList();
         return candidates.stream()
                 .filter(em -> isMachineAccessibilitySatisfied(em, access) &&
-                        em.hasRequiredSoftware(exam))
+                        (exam == null || em.hasRequiredSoftware(exam)))
                 .collect(Collectors.toList());
     }
 
