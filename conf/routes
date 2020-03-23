@@ -396,6 +396,7 @@ GET           /app/tags                                                backend.c
 GET           /app/config                                              backend.controllers.SettingsController.getConfig
 GET           /app/settings/agreement                                  backend.controllers.SettingsController.getUserAgreement
 PUT           /app/settings/agreement                                  backend.controllers.SettingsController.updateUserAgreement(request: Request)
+GET           /app/settings/byod                                       backend.controllers.SettingsController.isByodExaminationSupported
 GET           /app/settings/deadline                                   backend.controllers.SettingsController.getDeadline
 PUT           /app/settings/deadline                                   backend.controllers.SettingsController.setDeadline(request: Request)
 GET           /app/settings/reservationWindow                          backend.controllers.SettingsController.getReservationWindowSize

@@ -169,7 +169,7 @@
         <software-selector exam="$ctrl.exam" ng-if="!$ctrl.collaborative"></software-selector>
 
         <!-- EXAMINATION TYPE PICKER -->
-        <div class="row col-md-12 margin-20">
+        <div ng-if="$ctrl.byodExaminationSupported" class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_examination_type' | translate}}
                 <sup>

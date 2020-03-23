@@ -88,6 +88,11 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public boolean isByodExaminationSupported() {
+        return ConfigFactory.load().getBoolean("sitnet.byod.active");
+    }
+
+    @Override
     public boolean isCourseSearchActive() {
         return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
     }
