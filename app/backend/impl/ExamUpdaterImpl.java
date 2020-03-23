@@ -179,11 +179,10 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         });
         exam.setTrialCount(trialCount);
-        // exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
-        exam.setRequiresUserAgentAuth(requiresUserAgentAuth);
+        exam.setRequiresUserAgentAuth(configReader.isByodExaminationSupported() ? requiresUserAgentAuth : false);
         if (loginRole == Role.Name.ADMIN &&
                 ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
                 !hasFutureReservations(exam)) {

@@ -37,12 +37,14 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         onNextTabSelected: () => any;
 
         gradeScaleSetting: { overridable: boolean };
+        byodExaminationSupported = false;
         examTypes: ExamExecutionType[];
         gradeScales: GradeScale[];
         pwdInputType = 'password';
 
         constructor(
             private $scope: ng.IScope,
+            private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
             private dialogs: angular.dialogservice.IDialogService,
@@ -61,6 +63,12 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         $onInit = () => {
+            this.$http
+                .get('/app/settings/byod')
+                .then(
+                    (resp: ng.IHttpResponse<{ isByodExaminationSupported: boolean }>) =>
+                        (this.byodExaminationSupported = resp.data.isByodExaminationSupported),
+                );
             this.refreshExamTypes();
             this.refreshGradeScales();
             this.SettingsResource.gradeScale.get(data => {
