@@ -655,7 +655,7 @@
   "sitnet_statement_attachment": "Bilaga till utlåtandet",
   "sitnet_monthly_language_inspection_report": "Språkgranskningens månatliga rapport",
   "sitnet_not_reviewed": "Obedömd",
-  "sitnet_search_by_question_text": "Sök enligt frågans text",
+  "sitnet_search_by_question_text": "Sök enligt frågans text eller frågans id",
   "sitnet_search_by_owner": "Sök enligt ägare",
   "sitnet_choose_visible": "Välj synliga prestationer",
   "sitnet_choose_all": "Välj alla prestationer",
