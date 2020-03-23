@@ -655,7 +655,7 @@
   "sitnet_statement_attachment": "Lausunnon liitetiedosto",
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti",
   "sitnet_not_reviewed": "Arvioimatta",
-  "sitnet_search_by_question_text": "Hae kysymystekstin mukaan",
+  "sitnet_search_by_question_text": "Hae kysymystekstin tai kysymyksen id:n mukaan",
   "sitnet_search_by_owner": "Hae omistajan nimen mukaan",
   "sitnet_choose_visible": "Valitse näkyvät suoritukset",
   "sitnet_choose_all": "Valitse kaikki tentin suoritukset",
