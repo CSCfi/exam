@@ -1,13 +1,17 @@
 package backend.util.xml
 
+import java.io.File
+import java.nio.file.Files
+import java.util.Base64
+
 import backend.models.Tag
 import backend.models.questions.{MultipleChoiceOption, Question}
 import org.apache.commons.text.StringEscapeUtils
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.xml.parsing.ConstructingParser
 import scala.xml._
+import scala.xml.parsing.ConstructingParser
 
 class MoodleXmlConverterImpl extends MoodleXmlConverter {
 
@@ -17,23 +21,24 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
     case _                   => "multichoice"
   }
 
-  def convertEssay(question: Question): Node = <answer fraction="0"><text></text></answer>
+  private def convertEssay(question: Question): Node = <answer fraction="0"><text></text></answer>
 
-  def convertMultiChoiceOption(option: MultipleChoiceOption): Node = {
+  private def convertMultiChoiceOption(option: MultipleChoiceOption): Node = {
     val fraction = if (option.isCorrectOption) 100 else 0
     <answer fraction={fraction.toString}>
         <text>{option.getOption}</text>
     </answer>
   }
 
-  def convertWeightedMultiChoiceOption(option: MultipleChoiceOption, maxScore: Double): Node = {
+  private def convertWeightedMultiChoiceOption(option: MultipleChoiceOption,
+                                               maxScore: Double): Node = {
     val fraction = option.getDefaultScore / maxScore * 100
     <answer fraction={fraction.toString}>
         <text>{option.getOption}</text>
     </answer>
   }
 
-  def convertByType(question: Question): NodeBuffer = question.getType.toString match {
+  private def convertByType(question: Question): NodeBuffer = question.getType.toString match {
     case "MultipleChoiceQuestion" =>
       val config =
         <shuffleanswers>1</shuffleanswers>
@@ -60,23 +65,35 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
             {criteria}
           </text>
         </graderinfo>
-      new NodeBuffer += config += convertEssay(question)
+        <attachments>1</attachments>
+      config ++= convertEssay(question)
   }
 
-  def stripHtml(html: String): String = XML.loadString(StringEscapeUtils.unescapeHtml4(html)).text
+  private def stripHtml(html: String): String =
+    XML.loadString(StringEscapeUtils.unescapeHtml4(html)).text
 
-  def isEmpty(x: String) = x == null || x.isEmpty
+  private def isEmpty(x: String) = x == null || x.isEmpty
 
-  def convert(tag: Tag): Node =
-    <tag>
-        <text>{tag.getName}</text>
-    </tag>
+  private def convert(tag: Tag): Node = <tag><text>{tag.getName}</text></tag>
 
-  def maxScore(question: Question): Double =
+  private def maxScore(question: Question): Double =
     if (question.getDefaultEvaluationType == Question.EvaluationType.Selection) 1
     else question.getMaxDefaultScore()
 
-  def convert(question: Question): Node = {
+  private def attachment(question: Question): Option[(String, Node)] =
+    question.getAttachment match {
+      case null => None
+      case a =>
+        val file     = new File(a.getFilePath)
+        val data     = Files.readAllBytes(file.toPath)
+        val b64      = Base64.getEncoder.encodeToString(data)
+        val filename = a.getFileName
+        val ref =
+          s"""<br />Attachment: <a href="@@PLUGINFILE@@/$filename">${filename.toUpperCase}</a>"""
+        Some(ref, <file name={a.getFileName} path="/" encoding="base64">{b64}</file>)
+    }
+
+  private def convert(question: Question): Node = {
     val text = question.getQuestion.replace(" class=\"math-tex\"", "")
     val instructions = question.getDefaultAnswerInstructions match {
       case i if isEmpty(i) => ""
@@ -86,7 +103,9 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
       case null => ""
       case c    => s"<br /> Expected word count: $c"
     }
-    val questionText = s"$text $instructions $wc"
+    val att          = attachment(question)
+    val ref          = att.map(_._1).getOrElse("")
+    val questionText = s"$text $instructions $wc $ref"
     val name         = stripHtml(s"<p>$text</p>")
     <question type={moodleType(question)}>
         <name>
@@ -96,6 +115,7 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
             <text>
                 {PCData(questionText)}
             </text>
+            {att.map(_._2).getOrElse("")}
         </questiontext>
         <defaultgrade>{maxScore(question)}</defaultgrade>
         <tags>

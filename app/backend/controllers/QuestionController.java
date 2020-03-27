@@ -15,7 +15,6 @@
 
 package backend.controllers;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,15 +55,12 @@ import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
-import backend.util.file.FileHandler;
 import backend.util.xml.MoodleXmlConverter;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
 
     @Inject
     private MoodleXmlConverter xmlConverter;
-    @Inject
-    private FileHandler fileHandler;
 
     private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
@@ -403,7 +399,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result exportQuestions(Http.Request request) throws IOException {
+    public Result exportQuestions(Http.Request request) {
         JsonNode body = request.body().asJson();
         ArrayNode node = (ArrayNode) body.get("params").get("ids");
         Set<Long> ids = StreamSupport.stream(node.spliterator(), false)

@@ -384,7 +384,6 @@ public class AttachmentController extends BaseController implements LocalAttachm
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
-
         User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
                 .isNotNull("languageInspection.statement.attachment");
