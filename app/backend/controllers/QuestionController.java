@@ -15,6 +15,7 @@
 
 package backend.controllers;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -39,6 +41,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.collection.JavaConverters;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.base.SectionQuestionHandler;
@@ -53,8 +56,15 @@ import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
+import backend.util.file.FileHandler;
+import backend.util.xml.MoodleXmlConverter;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
+
+    @Inject
+    private MoodleXmlConverter xmlConverter;
+    @Inject
+    private FileHandler fileHandler;
 
     private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
@@ -335,7 +345,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
-                .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
+                .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())
                 .forEach(o -> createOption(question, o, user));
     }
 
@@ -390,6 +400,24 @@ public class QuestionController extends BaseController implements SectionQuestio
         AppUtil.setModifier(question, modifier);
         question.getQuestionOwners().add(user);
         question.update();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result exportQuestions(Http.Request request) throws IOException {
+        JsonNode body = request.body().asJson();
+        ArrayNode node = (ArrayNode) body.get("params").get("ids");
+        Set<Long> ids = StreamSupport.stream(node.spliterator(), false)
+                .map(JsonNode::asLong).collect(Collectors.toSet());
+        List<Question> questions = Ebean.find(Question.class).where().idIn(ids).findList().stream()
+                .filter(q -> q.getType() != Question.Type.ClaimChoiceQuestion &&
+                        q.getType() != Question.Type.ClozeTestQuestion)
+                .collect(Collectors.toList());
+        String document = xmlConverter.convert(
+                JavaConverters.collectionAsScalaIterableConverter(questions).asScala().toSeq()
+        );
+        return ok(document)
+                .withHeader("Content-Disposition", "attachment; filename=\"moodle-quiz.xml\"")
+                .as("application/xml");
     }
 
 }
