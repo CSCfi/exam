@@ -89,8 +89,10 @@ angular.module('app.exam.editor').component('examParticipantSelector', {
                 );
             };
 
-            vm.isActualEnrolment = function(enrolment) {
-                return !enrolment.preEnrolledUserEmail;
+            vm.renderParticipantLabel = function(enrolment) {
+                return enrolment.preEnrolledUserEmail
+                    ? enrolment.preEnrolledUserEmail
+                    : enrolment.user.firstName + ' ' + enrolment.user.lastName;
             };
         },
     ],
