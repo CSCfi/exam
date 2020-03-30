@@ -2,6 +2,7 @@ app/backend/views/index.scala.html
 conf/local.conf
 node_modules
 project/project
+project/metals.sbt
 target
 *.idea
 public/bundles
@@ -11,3 +12,5 @@ default-drop-all.sql
 default-create-all.sql
 /data/
 *.sc
+.bloop
+.metals
