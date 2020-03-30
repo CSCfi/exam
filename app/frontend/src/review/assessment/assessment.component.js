@@ -23,13 +23,14 @@ angular.module('app.review').component('assessment', {
     controller: [
         '$stateParams',
         '$http',
+        '$state',
         'Assessment',
         'CollaborativeAssessment',
         'ExamRes',
         'Question',
         'Session',
         'Exam',
-        function($stateParams, $http, Assessment, CollaborativeAssessment, ExamRes, Question, Session, Exam) {
+        function($stateParams, $http, $state, Assessment, CollaborativeAssessment, ExamRes, Question, Session, Exam) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -124,6 +125,11 @@ angular.module('app.review').component('assessment', {
 
             const getResource = function(path) {
                 return vm.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+            };
+
+            vm.goToAssessment = function(event) {
+                event.preventDefault();
+                $state.go('examEditor', { id: vm.exam.parent.id, tab: 4 });
             };
         },
     ],
