@@ -24,8 +24,8 @@
         <div class="col-md-9">
             <ul class="list-inline mart10">
                 <!-- Students not having finished the exam -->
-                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments | filter:$ctrl.isActualEnrolment">
-                    {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments">
+                    {{ $ctrl.renderParticipantLabel(enrolment) }}
                     <span ng-if="enrolment.user.userIdentifier">({{enrolment.user.userIdentifier}})</span>
                     <button
                         class="reviewer-remove"
