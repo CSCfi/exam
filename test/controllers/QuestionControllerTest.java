@@ -247,7 +247,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         List<Long> ids = Ebean.find(Question.class).findList().stream().map(Question::getId).collect(Collectors.toList());
         ArrayNode an = Json.newArray();
         ids.forEach(an::add);
-        Result result = request(Helpers.POST, "/app/questions/export", Json.newObject().set("ids", an));
+        JsonNode params = Json.newObject().set("params", Json.newObject().set("ids", an));
+        Result result = request(Helpers.POST, "/app/questions/export", params);
         assertThat(result.status()).isEqualTo(200);
     }
 
