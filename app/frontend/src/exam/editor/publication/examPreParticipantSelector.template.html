@@ -22,9 +22,10 @@
         <div class="col-md-3 exam-basic-title"></div>
         <div class="col-md-9">
             <ul class="list-inline mart10">
-                <!-- Students pre-enrolled for the exam -->
-                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments | filter:$ctrl.isPreEnrolment">
-                    {{ enrolment.preEnrolledUserEmail }}
+                <!-- Students not having finished the exam -->
+                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments">
+                    {{ $ctrl.renderParticipantLabel(enrolment) }}
+                    <span ng-if="enrolment.user.userIdentifier">({{enrolment.user.userIdentifier}})</span>
                     <button
                         class="reviewer-remove"
                         ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
@@ -38,6 +39,11 @@
                             onerror="this.onerror=null;this.src='Images/icon_remove.png'"
                         />
                     </button>
+                </li>
+                <!-- Students that have finished the exam -->
+                <li class="marl10" ng-repeat="participant in $ctrl.exam.participants">
+                    {{ participant.user.firstName }} {{ participant.user.lastName }}
+                    <span ng-if="participant.user.userIdentifier">({{participant.user.userIdentifier}})</span>
                 </li>
             </ul>
         </div>
