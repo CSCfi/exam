@@ -243,6 +243,17 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
+    public void testExportQuestionToMoodle() {
+        List<Long> ids = Ebean.find(Question.class).findList().stream().map(Question::getId).collect(Collectors.toList());
+        ArrayNode an = Json.newArray();
+        ids.forEach(an::add);
+        JsonNode params = Json.newObject().set("params", Json.newObject().set("ids", an));
+        Result result = request(Helpers.POST, "/app/questions/export", params);
+        assertThat(result.status()).isEqualTo(200);
+    }
+
+    @Test
+    @RunAsTeacher
     public void testClaimChoiceQuestionCreateAndUpdate() {
 
         JsonNode correctOption = createClaimChoiceOptionJson("Oikea", 1d, true, "CorrectOption");

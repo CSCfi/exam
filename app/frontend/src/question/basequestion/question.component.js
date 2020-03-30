@@ -113,10 +113,10 @@ angular.module('app.question').component('question', {
                 vm.question.questionOwners = vm.currentOwners;
                 const fn = function(q) {
                     clearListeners();
-                    if (vm.onSave) {
+                    if (vm.examId) {
                         vm.onSave({ question: q });
                     } else {
-                        $state.go('questions');
+                        $state.go('library');
                     }
                 };
 
@@ -147,10 +147,10 @@ angular.module('app.question').component('question', {
                 toast.info($translate.instant('sitnet_canceled'));
                 // Call off the event listener so it won't ask confirmation now that we are going away
                 clearListeners();
-                if (vm.onCancel) {
+                if (vm.examId) {
                     vm.onCancel();
                 } else {
-                    $state.go('questions');
+                    $state.go('library');
                 }
             };
 
