@@ -178,17 +178,7 @@ grades:
     name: REJECTED
     gradeScale: *approvedrejected
 
-################################################################
-
-attachments:
-
-  - &att1 !!backend.models.Attachment
-    fileName: pika.ohje
-    filePath: /weepee/csc/sitnet/data/attachments/question/20/pika.ohje
-    mimeType: application/octet-stream
-
 ######################################################################
-
 
 question-essay:
 
@@ -269,7 +259,6 @@ question-multiple-choice:
     creator: *olli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    attachment: *att1
     options:
         - !!backend.models.questions.MultipleChoiceOption {option: 3, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: 42, correctOption: true}
