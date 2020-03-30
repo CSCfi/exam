@@ -15,7 +15,6 @@
 
 package backend.system.actors;
 
-import java.util.Collections;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -94,7 +93,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     private void notifyStudent(Exam exam) {
         User student = exam.getCreator();
         try {
-            composer.composeInspectionReady(student, null, exam, Collections.emptySet());
+            composer.composeInspectionReady(student, null, exam);
             logger.debug("Mail sent to {}", student.getEmail());
             exam.setAutoEvaluationNotified(DateTime.now());
             exam.update();
