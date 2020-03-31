@@ -228,15 +228,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         Question blueprint = question.copy(optionMap, true);
         blueprint.setParent(question);
         blueprint.save();
-        optionMap.forEach((k, optionCopy) -> {
-            optionCopy.setQuestion(blueprint);
-            optionCopy.save();
-            Optional<ExamSectionQuestionOption> esqoo = options.stream()
-                    .filter(o -> o.getOption().getId().equals(k))
-                    .findFirst();
-            if (esqoo.isPresent()) {
-                ExamSectionQuestionOption esqo = esqoo.get();
-                ExamSectionQuestionOption esqoCopy = esqo.copyWithAnswer();
+        options.forEach(option -> {
+            Optional<MultipleChoiceOption> parentOption = Optional.ofNullable(option.getOption()).filter(opt -> opt.getId() != null);
+            if(parentOption.isPresent()) {
+                MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
+                optionCopy.setQuestion(blueprint);
+                optionCopy.save();
+                ExamSectionQuestionOption esqoCopy = option.copyWithAnswer();
                 esqoCopy.setOption(optionCopy);
                 esqCopy.getOptions().add(esqoCopy);
             } else {
@@ -244,6 +242,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 throw new RuntimeException();
             }
         });
+
         esqCopy.setQuestion(blueprint);
         // Essay Answer
         if (essayAnswer != null) {

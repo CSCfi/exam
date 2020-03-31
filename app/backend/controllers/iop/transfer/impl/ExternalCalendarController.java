@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
-import backend.models.questions.Question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -286,7 +285,6 @@ public class ExternalCalendarController extends CalendarController {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
-                .fetch("exam.examSections.sectionQuestions.question", "type")
                 .fetch("exam.examSections.examMaterials")
                 .where()
                 .eq("user.id", user.getId())
@@ -300,16 +298,6 @@ public class ExternalCalendarController extends CalendarController {
         Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
-        }
-
-        /* Temporary solution to block enrolments for external exams if claim choice question is present */
-        boolean hasClaimChoiceQuestion = enrolment.getExam().getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion() != null)
-                .anyMatch(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion);
-
-        if(hasClaimChoiceQuestion) {
-            return wrapAsPromise(forbidden("Exam is not supported for external reservations"));
         }
 
         if (enrolment.getExam().getExamSections().stream().anyMatch(ExamSection::isOptional)) {

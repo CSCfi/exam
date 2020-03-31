@@ -25,10 +25,14 @@ angular.module('app.review').component('rClaimChoiceAnswer', {
         function(Question) {
             const vm = this;
 
+            vm.$onInit = function() {
+                vm.sectionQuestion.options.sort((a, b) => a.option.id - b.option.b).reverse();
+            };
+
             vm.getSelectedOptionClass = function(examOption) {
                 const { answered = false, option = null } = examOption;
 
-                if (!answered || !(option && option.claimChoiceType)) {
+                if (!answered) {
                     return 'exam-not-answered';
                 }
 

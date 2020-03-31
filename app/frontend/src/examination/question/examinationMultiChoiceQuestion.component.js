@@ -38,6 +38,7 @@ angular.module('app.examination').component('examinationMultiChoiceQuestion', {
         examHash: '<',
         isPreview: '<',
         isCollaborative: '<',
+        orderOptions: '<',
     },
     controller: [
         'Examination',
@@ -45,9 +46,9 @@ angular.module('app.examination').component('examinationMultiChoiceQuestion', {
             const vm = this;
 
             vm.$onInit = function() {
-                if (vm.sq.question.type === 'ClaimChoiceQuestion' && !vm.isCollaborative) {
+                if (vm.sq.question.type === 'ClaimChoiceQuestion' && !vm.isCollaborative && vm.orderOptions) {
                     vm.sq.options.sort((a, b) => a.option.id - b.option.id);
-                } else {
+                } else if (vm.orderOptions) {
                     vm.sq.options.sort((a, b) => a.id - b.id);
                 }
 

@@ -30,7 +30,9 @@ import backend.util.json.JsonDeserializer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -274,5 +276,31 @@ public class ExternalExaminationControllerTest extends IntegrationTestCase {
         }
         return Json.newObject().set("oids", array);
     }
+
+    @Test
+    @RunAsStudent
+    public void testAnswerSkipOnClaimChoiceQuestion() throws Exception {
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
+        JsonNode node = Json.parse(contentAsString(result));
+        Exam studentExam = deserialize(Exam.class, node);
+
+        ExamSectionQuestion question = studentExam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion)
+                .findFirst()
+                .get();
+
+        List<ExamSectionQuestionOption> options = new ArrayList<>(question.getOptions());
+
+        assertThat(options.get(0).getOption().getOption()).isEqualTo("Tosi");
+        assertThat(options.get(1).getOption().getOption()).isEqualTo("Epätosi");
+        assertThat(options.get(2).getOption().getOption()).isEqualTo("En osaa sanoa");
+
+        result = request(Helpers.POST, String.format("/app/iop/student/exam/%s/question/%d/option", enrolment.getExternalExam().getHash(),
+                question.getId()), createMultipleChoiceAnswerData(options.get(2)), true);
+        assertThat(result.status()).isEqualTo(200);
+    }
+
+
 
 }

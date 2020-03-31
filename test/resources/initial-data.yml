@@ -450,6 +450,20 @@ question-weighted-multiple-choice:
 
 ######################################################################
 
+question-claim-choice:
+
+  - &claim1 !!backend.models.questions.Question
+      type: ClaimChoiceQuestion
+      question: Suomen pääkaupunki on Helsinki
+      creator: *olli
+      created: 2014-01-18 12:30:05.123
+      options:
+        - &tosi !!backend.models.questions.MultipleChoiceOption {option: Tosi, defaultScore: 1, claimChoiceType: CorrectOption}
+        - &epatosi !!backend.models.questions.MultipleChoiceOption {option: Epätosi, defaultScore: -1, claimChoiceType: IncorrectOption}
+        - &eos !!backend.models.questions.MultipleChoiceOption {option: En osaa sanoa, defaultScore: 0, claimChoiceType: SkipOption}
+
+######################################################################
+
 courses:
 
   - &alkeet !!backend.models.Course
@@ -838,6 +852,11 @@ exam-sections:
     sequenceNumber: 2
     exam: *ooad
 
+  - &claimsection !!backend.models.sections.ExamSection
+    name: Väittämä-osio
+    sequenceNumber: 3
+    exam: *alkeidenperusteetGraded
+
 ######################################################################
 
 section-questions:
@@ -1189,6 +1208,15 @@ section-questions:
       - !!backend.models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
       - !!backend.models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
       - !!backend.models.sections.ExamSectionQuestionOption {option: *molemmat, score: -2}
+
+  - !!backend.models.sections.ExamSectionQuestion
+    examSection: *claimsection
+    question: *claim1
+    sequenceNumber: 0
+    options:
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *eos, score: 0}
 
 ################################################################
 

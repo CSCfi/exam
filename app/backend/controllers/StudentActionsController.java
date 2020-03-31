@@ -49,7 +49,6 @@ import backend.models.ExamParticipation;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
-import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
@@ -315,21 +314,6 @@ public class StudentActionsController extends CollaborationController {
                 .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
-        }
-
-        /* Temporary solution to check if external exam should be disabled */
-        Set<ExamSection> sections = Ebean.find(ExamSection.class)
-                .fetch("sectionQuestions.question", "type")
-                .where()
-                .eq("exam", exam)
-                .findSet();
-
-        if(sections.size() > 0) {
-            boolean hasClaimChoiceQuestion = sections.stream()
-                    .flatMap(es -> es.getSectionQuestions().stream())
-                    .filter(esq -> esq.getQuestion() != null)
-                    .anyMatch(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion);
-            exam.setExternalReservationDisabled(hasClaimChoiceQuestion);
         }
 
         return ok(exam);
