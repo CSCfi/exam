@@ -968,5 +968,6 @@
   "sitnet_anonymous_enabled": "I bruk",
   "sitnet_anonymous_disabled": "Inte i bruk",
   "sitnet_collaborative_exam_search_description_teacher": "Du kan söka tentamina antingen på tentens namn eller på lärarens e-postadress.",
-  "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot SV"
+  "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot SV",
+  "sitnet_export_questions": "Siirrä kysymykset Moodlen XML-formaattiin (ainoastaan esseet ja monivalinnat) SV"
 }
