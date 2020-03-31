@@ -72,7 +72,6 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExternalCalendarReservationSanitizer;
 import backend.security.Authenticated;
@@ -299,11 +298,6 @@ public class ExternalCalendarController extends CalendarController {
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
-
-        if (enrolment.getExam().getExamSections().stream().anyMatch(ExamSection::isOptional)) {
-            return wrapAsPromise(forbidden("Optional sections not supported for external reservations"));
-        }
-
         // Lets do this
         URL url = parseUrl(orgRef, roomRef);
         String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
