@@ -34,7 +34,7 @@ public interface EmailComposer {
     /**
      * Message sent to student when review is ready.
      */
-    void composeInspectionReady(User student, User reviewer, Exam exam, Set<User> cc);
+    void composeInspectionReady(User student, User reviewer, Exam exam);
 
     /**
      * Message sent to other inspectors when review is ready.
