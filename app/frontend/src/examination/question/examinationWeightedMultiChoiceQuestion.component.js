@@ -20,7 +20,7 @@ angular.module('app.examination').component('examinationWeightedMultiChoiceQuest
         '<div class="bottom-padding-2">' +
         '    <fieldset>' +
         '        <legend style="visibility: hidden;">answer options for multiple choice question</legend>' +
-        '        <div ng-repeat="sqo in $ctrl.sq.options | orderBy: \'id\'" class="exam-answer-options">' +
+        '        <div ng-repeat="sqo in $ctrl.sq.options" class="exam-answer-options">' +
         '            <input type="checkbox" aria-label="option" name="selectedOption"' +
         '                ng-checked="sqo.answered" ng-model="sqo.answered"' +
         '                ng-change="$ctrl.saveOption()"/>' +
@@ -35,11 +35,18 @@ angular.module('app.examination').component('examinationWeightedMultiChoiceQuest
         sq: '<',
         examHash: '<',
         isPreview: '<',
+        orderOptions: '<',
     },
     controller: [
         'Examination',
         function(Examination) {
             const vm = this;
+
+            vm.$onInit = function() {
+                if (vm.orderOptions) {
+                    vm.sq.options.sort((a, b) => a.id - b.id);
+                }
+            };
 
             vm.saveOption = function() {
                 Examination.saveOption(vm.examHash, vm.sq, vm.isPreview);
