@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,10 +56,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
-import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -72,7 +71,6 @@ import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamType;
@@ -91,7 +89,6 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
-
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
@@ -731,11 +728,8 @@ public class ReviewController extends BaseController {
     }
 
     private void notifyPartiesAboutPrivateExamRejection(User user, Exam exam) {
-        final Set<User> examinators = exam.getExecutionType().getType().equals(
-                ExamExecutionType.Type.MATURITY.toString())
-                ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
             logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }

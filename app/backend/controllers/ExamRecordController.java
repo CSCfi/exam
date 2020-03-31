@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -120,7 +119,7 @@ public class ExamRecordController extends BaseController {
             record.setExamScore(score);
             record.save();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeInspectionReady(exam.getCreator(), user, exam, Collections.emptySet());
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
                 logger.info("Inspection ready notification email sent to {}", user.getEmail());
             }, actor.dispatcher());
             return ok();
