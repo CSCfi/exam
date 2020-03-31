@@ -1,7 +1,9 @@
 package controllers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import javax.mail.internet.MimeMessage;
 
 import base.IntegrationTestCase;
@@ -34,6 +36,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
@@ -352,6 +355,31 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         ExamParticipation participation = Ebean.find(ExamParticipation.class).where().eq("exam.id", studentExam.getId()).findOne();
         assertThat(participation.getStarted()).isNotNull();
         assertThat(participation.getUser().getId()).isEqualTo(user.getId());
+    }
+
+    @Test
+    @RunAsStudent
+    public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() throws Exception {
+        Result result = get("/app/student/exam/" + exam.getHash());
+        JsonNode node = Json.parse(contentAsString(result));
+        Exam studentExam = deserialize(Exam.class, node);
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
+                .eq("examSection.exam", studentExam)
+                .eq("question.type", Question.Type.ClaimChoiceQuestion)
+                .findList()
+                .get(0);
+        List<ExamSectionQuestionOption> options = new ArrayList<>(question.getOptions());
+
+        // Check that option order is the same as in original question, although scores have been changed for exam options
+        assertThat(options.get(0).getScore()).isEqualTo(-1);
+        assertThat(options.get(0).getOption().getClaimChoiceType()).isEqualTo(ClaimChoiceOptionType.CorrectOption);
+        assertThat(options.get(1).getScore()).isEqualTo(1);
+        assertThat(options.get(1).getOption().getClaimChoiceType()).isEqualTo(ClaimChoiceOptionType.IncorrectOption);
+        assertThat(options.get(2).getOption().getClaimChoiceType()).isEqualTo(ClaimChoiceOptionType.SkipOption);
+
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), createMultipleChoiceAnswerData(options.get(2)));
+        assertThat(result.status()).isEqualTo(200);
     }
 
 }

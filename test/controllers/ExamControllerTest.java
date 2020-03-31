@@ -125,7 +125,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, getExamFields());
-        assertPathCounts(node, 3, getExamSectionFieldsOfExam("*"));
+        assertPathCounts(node, 4, getExamSectionFieldsOfExam("*"));
         assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
         assertPathCounts(node, 4, "examLanguages[*].code");
 
