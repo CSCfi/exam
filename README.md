@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/CSCfi/exam.svg?branch=dev)](https://travis-ci.org/CSCfi/exam)
 
-EXAM Quickstart for developers (testing)
+EXAM Quickstart for developers (testing 2)
 =====================================
 
 1.  Prerequisites: install sbt, node (^ 8) and postgresql (^ 9.4). Note that JDK11 is required.
