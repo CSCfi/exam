@@ -466,6 +466,17 @@ function QuestionService(
         return invalidOptions;
     };
 
+    this.getOptionTypeTranslation = type => {
+        switch (type) {
+            case 'CorrectOption':
+                return 'sitnet_question_claim_correct';
+            case 'IncorrectOption':
+                return 'sitnet_question_claim_incorrect';
+            case 'SkipOption':
+                return 'sitnet_question_claim_skip';
+        }
+    };
+
     this.returnClaimChoiceOptionClass = optionType => {
         switch (optionType) {
             case 'CorrectOption':

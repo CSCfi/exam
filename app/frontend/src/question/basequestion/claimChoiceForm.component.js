@@ -79,10 +79,13 @@ angular.module('app.question').component('claimChoiceForm', {
                     </div>
                 </div>
                 <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
-                    <div class="claim-choice-warning" ng-if="$ctrl.commaSeparatedMissingOpts">
+                    <div class="claim-choice-warning" ng-if="$ctrl.missingOptions.length > 0">
                         <i class="fa fa-exclamation-triangle" style="color:#ED4459;"></i>
                         <span style="color:#ED4459;">
-                            {{ 'sitnet_claim_choice_missing_options_warning' | translate }} {{ $ctrl.commaSeparatedMissingOpts }}
+                            {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
+                            <span ng-repeat="opt in $ctrl.missingOptions">
+                                {{ opt | translate }}{{ $last ? '' : ',' }}
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -99,7 +102,7 @@ angular.module('app.question').component('claimChoiceForm', {
         function($translate, Question) {
             const vm = this;
 
-            vm.commaSeparatedMissingOpts = null;
+            vm.missingOptions = [];
 
             vm.$onInit = function() {
                 const { state, question } = vm.question;
@@ -165,18 +168,9 @@ angular.module('app.question').component('claimChoiceForm', {
             };
 
             vm.validate = function() {
-                const missingOpts = Question.getInvalidClaimOptionTypes(vm.question.options)
+                vm.missingOptions = Question.getInvalidClaimOptionTypes(vm.question.options)
                     .filter(type => type !== 'SkipOption')
-                    .map(type => {
-                        switch (type) {
-                            case 'CorrectOption':
-                                return $translate.instant('sitnet_question_claim_correct');
-                            case 'IncorrectOption':
-                                return $translate.instant('sitnet_question_claim_incorrect');
-                        }
-                    });
-
-                vm.commaSeparatedMissingOpts = missingOpts.length > 0 ? missingOpts.join(', ') : null;
+                    .map(optionType => Question.getOptionTypeTranslation(optionType));
             };
         },
     ],

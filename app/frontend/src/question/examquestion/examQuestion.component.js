@@ -35,7 +35,7 @@ angular.module('app.question').component('examQuestion', {
 
             const vm = this;
 
-            vm.commaSeparatedMissingOpts = null;
+            vm.missingOptions = [];
 
             const init = function() {
                 Question.questionsApi.get({ id: vm.examQuestion.question.id }, function(data) {
@@ -209,18 +209,9 @@ angular.module('app.question').component('examQuestion', {
             };
 
             vm.validate = function() {
-                const missingOpts = Question.getInvalidDistributedClaimOptionTypes(vm.examQuestion.options)
+                vm.missingOptions = Question.getInvalidDistributedClaimOptionTypes(vm.examQuestion.options)
                     .filter(type => type !== 'SkipOption')
-                    .map(type => {
-                        switch (type) {
-                            case 'CorrectOption':
-                                return $translate.instant('sitnet_question_claim_correct');
-                            case 'IncorrectOption':
-                                return $translate.instant('sitnet_question_claim_incorrect');
-                        }
-                    });
-
-                vm.commaSeparatedMissingOpts = missingOpts.length > 0 ? missingOpts.join(', ') : null;
+                    .map(optionType => Question.getOptionTypeTranslation(optionType));
             };
 
             vm.hasInvalidClaimChoiceOptions = function() {
