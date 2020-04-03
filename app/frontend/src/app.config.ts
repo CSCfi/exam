@@ -93,7 +93,7 @@ export default function configs(
             },
         })
         .state('calendar', {
-            url: '/calendar/{id}',
+            url: '/calendar/{id}?selected',
             component: 'calendar',
             resolve: {
                 isExternal: () => false,
@@ -101,7 +101,7 @@ export default function configs(
             },
         })
         .state('externalCalendar', {
-            url: '/iop/calendar/{id}',
+            url: '/iop/calendar/{id}?selected',
             component: 'calendar',
             resolve: {
                 isExternal: () => true,

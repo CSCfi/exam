@@ -125,13 +125,14 @@ export const CalendarComponent: ng.IComponentOptions = {
                 this.$http
                     .get(`/app/calendar/enrolment/${this.$stateParams.id}/reservation`)
                     .then((resp: ng.IHttpResponse<ReservationInfo>) => {
-                        if (resp.data.optionalSections) {
-                            this.examInfo.examSections
-                                .filter(es => es.optional)
-                                .forEach(es => {
-                                    es.selected = resp.data.optionalSections.map(es => es.id).indexOf(es.id) > -1;
-                                });
-                        }
+                        this.examInfo.examSections
+                            .filter(es => es.optional)
+                            .forEach(es => {
+                                es.selected =
+                                    (resp.data.optionalSections &&
+                                        resp.data.optionalSections.map(es => es.id).indexOf(es.id) > -1) ||
+                                    (this.$stateParams.selected && this.$stateParams.selected.indexOf(es.id) > -1);
+                            });
                     });
                 this.$http.get('/app/settings/reservationWindow').then((resp: ng.IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
@@ -233,11 +234,18 @@ export const CalendarComponent: ng.IComponentOptions = {
                     this.$translate.instant('sitnet_confirm_external_reservation'),
                 )
                 .result.then(() => {
-                    this.$state.go('externalCalendar', { id: this.$stateParams.id });
+                    this.$state.go('externalCalendar', {
+                        id: this.$stateParams.id,
+                        selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+                    });
                 });
         };
 
-        makeInternalReservation = () => this.$state.go('calendar', { id: this.$stateParams.id });
+        makeInternalReservation = () =>
+            this.$state.go('calendar', {
+                id: this.$stateParams.id,
+                selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+            });
 
         private adjust = (date: string, tz: string): string => {
             const adjusted: moment.Moment = moment.tz(date, tz);

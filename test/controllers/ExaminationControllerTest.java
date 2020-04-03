@@ -107,9 +107,8 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getName()).isEqualTo(exam.getName());
         assertThat(studentExam.getCourse().getId()).isEqualTo(exam.getCourse().getId());
         assertThat(studentExam.getInstruction()).isEqualTo(exam.getInstruction());
-        assertThat(studentExam.getExamSections()).hasSize(exam.getExamSections().size());
-        assertThat(studentExam.getExamSections().iterator().next().getSectionQuestions()).hasSize(
-                exam.getExamSections().iterator().next().getSectionQuestions().size());
+        int esSize = (int) exam.getExamSections().stream().filter(es -> !es.isOptional()).count();
+        assertThat(studentExam.getExamSections()).hasSize(esSize);
         assertThat(studentExam.getHash()).isNotEqualTo(exam.getHash());
         assertThat(studentExam.getExamLanguages()).hasSize(exam.getExamLanguages().size());
 

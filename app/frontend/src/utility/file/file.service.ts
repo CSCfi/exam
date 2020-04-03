@@ -41,13 +41,22 @@ export class FileService {
     }
 
     download(url: string, filename: string, params?: any, post?: boolean) {
-        const res = post ? this.$http.post : this.$http.get;
-        res(url, { params: params })
-            .then((resp: IHttpResponse<string>) => {
-                const contentType = resp.headers()['content-type'].split(';')[0];
-                this._saveFile(resp.data, filename, contentType);
-            })
-            .catch(resp => toast.error(resp.data || resp));
+        const cb = (resp: IHttpResponse<string>) => {
+            const contentType = resp.headers()['content-type'].split(';')[0];
+            this._saveFile(resp.data, filename, contentType);
+        };
+        const errCb = resp => toast.error(resp.data || resp);
+        if (post) {
+            this.$http
+                .post(url, { params: params })
+                .then(cb)
+                .catch(errCb);
+        } else {
+            this.$http
+                .get(url)
+                .then(cb)
+                .catch(errCb);
+        }
     }
 
     open(file: Blob) {
