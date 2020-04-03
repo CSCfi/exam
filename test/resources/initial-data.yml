@@ -790,6 +790,7 @@ exam-sections:
   - &alkeet_mv_osio1 !!backend.models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
+    optional: true
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio2 !!backend.models.sections.ExamSection
