@@ -72,6 +72,7 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExternalCalendarReservationSanitizer;
 import backend.security.Authenticated;
@@ -271,7 +272,6 @@ public class ExternalCalendarController extends CalendarController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        JsonNode node = request.body().asJson();
         String orgRef = request.attrs().get(Attrs.ORG_REF);
         String roomRef = request.attrs().get(Attrs.ROOM_REF);
         DateTime start = request.attrs().get(Attrs.START_DATE);
@@ -316,7 +316,7 @@ public class ExternalCalendarController extends CalendarController {
             if (response.getStatus() != Http.Status.CREATED) {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
-            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
+            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef, sectionIds).thenApplyAsync(err -> {
                 if (err.isEmpty()) {
                     return created(root.get("id"));
                 }
@@ -414,13 +414,16 @@ public class ExternalCalendarController extends CalendarController {
     // helpers ->
 
     private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
-                                                                         User user, String orgRef, String roomRef) {
+                                                                         User user, String orgRef, String roomRef, Collection<Long> sectionIds) {
         Reservation oldReservation = enrolment.getReservation();
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
+        Set<ExamSection> sections = sectionIds.isEmpty() ?
+                Collections.emptySet() : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        reservation.setOptionalSections(sections);
 
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {
