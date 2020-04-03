@@ -61,6 +61,7 @@ angular.module('app.question').component('question', {
         collaborative: '<',
         examId: '<',
         sectionQuestion: '<',
+        nextState: '<?',
         onSave: '&?',
         onCancel: '&?',
     },
@@ -75,6 +76,7 @@ angular.module('app.question').component('question', {
             const vm = this;
 
             vm.$onInit = function() {
+                vm.nextState = vm.nextState || $stateParams.next;
                 vm.currentOwners = [];
                 if (vm.newQuestion) {
                     vm.question = Question.getQuestionDraft();
@@ -113,10 +115,10 @@ angular.module('app.question').component('question', {
                 vm.question.questionOwners = vm.currentOwners;
                 const fn = function(q) {
                     clearListeners();
-                    if (vm.examId) {
-                        vm.onSave({ question: q });
+                    if (vm.nextState) {
+                        $state.go(vm.nextState);
                     } else {
-                        $state.go('library');
+                        vm.onSave({ question: q });
                     }
                 };
 
@@ -147,10 +149,10 @@ angular.module('app.question').component('question', {
                 toast.info($translate.instant('sitnet_canceled'));
                 // Call off the event listener so it won't ask confirmation now that we are going away
                 clearListeners();
-                if (vm.examId) {
-                    vm.onCancel();
+                if (vm.nextState) {
+                    $state.go(vm.nextState);
                 } else {
-                    $state.go('library');
+                    vm.onCancel();
                 }
             };
 

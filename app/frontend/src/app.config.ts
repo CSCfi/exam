@@ -56,10 +56,11 @@ export default function configs(
             component: 'question',
             resolve: {
                 newQuestion: () => false,
+                nextState: () => 'library',
             },
         })
         .state('newQuestion', {
-            url: '/questions/newQuestion',
+            url: '/questions/newQuestion?next',
             component: 'question',
             resolve: {
                 newQuestion: () => true,
