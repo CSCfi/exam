@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
+
 
 angular.module('app.exam.editor').component('examParticipantSelector', {
     template: require('./examParticipantSelector.template.html'),
@@ -90,9 +90,11 @@ angular.module('app.exam.editor').component('examParticipantSelector', {
             };
 
             vm.renderParticipantLabel = function(enrolment) {
-                return enrolment.preEnrolledUserEmail
-                    ? enrolment.preEnrolledUserEmail
-                    : enrolment.user.firstName + ' ' + enrolment.user.lastName;
+                if (enrolment.preEnrolledUserEmail || enrolment.user) {
+                    return enrolment.preEnrolledUserEmail
+                        ? enrolment.preEnrolledUserEmail
+                        : enrolment.user.firstName + ' ' + enrolment.user.lastName;
+                }
             };
         },
     ],
