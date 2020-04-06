@@ -731,7 +731,7 @@
   "sitnet_unrestricted": "Obegränsad",
   "sitnet_question_removal_disallowed": "Du kan inte radera denna fråga, den används i publicerade tentamina",
   "sitnet_action_disabled_lottery_on": "Du kan inte göra det för att utlottning är i bruk",
-  "sitnet_shared_question_property_info": "Tilavaatimukset ja liitteet",
+  "sitnet_shared_question_property_info": "Ändringarna uppdateras till alla tentamen där denna fråga används.",
   "sitnet_exam_requirements": "Specialkrav för datorer och bilagan till tentamen",
   "sitnet_interoperable": "Bokning vid annan högskola",
   "sitnet_external_reservation": "Anmälan till tentamen vid en utomstående utbildningsorganisation",
