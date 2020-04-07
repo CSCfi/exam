@@ -348,7 +348,7 @@ export class SessionService {
                         toastr.error(resp.data);
                     });
             })
-            .catch(() => this.$state.go('logout'));
+            .catch(() => this.logout());
     }
 
     private openRoleSelectModal(user: User) {
