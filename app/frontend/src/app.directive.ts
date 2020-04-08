@@ -19,6 +19,7 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
+import { Exam } from './exam/exam.model';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
@@ -363,11 +364,9 @@ export class Sort implements IDirective<SortScope> {
 
 // TODO: turn into a component
 interface TeacherListScope extends IScope {
-    exam: {
-        examOwners: { firstName: string; lastName: string }[];
-        examInspections: { firstName: string; lastName: string }[];
-    };
+    exam: Exam;
     useParent: boolean;
+    display: () => string;
 }
 export class TeacherList implements IDirective<TeacherListScope> {
     restrict = 'E';
@@ -378,17 +377,24 @@ export class TeacherList implements IDirective<TeacherListScope> {
         useParent: '<?',
     };
     template = `
-    <div>
-        <span ng-if="!useParent" ng-repeat="owner in exam.examOwners">
-            <strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>
-        </span>
-        <span ng-if="useParent" ng-repeat="owner in exam.parent.examOwners">
-            <strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>
-        </span>
-        <span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}
-            {{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}
-        </span>
+    <div ng-bind-html="display()">
     </div>`;
+
+    link(scope: TeacherListScope) {
+        scope.display = () => {
+            const owners = scope.useParent && scope.exam.parent ? scope.exam.parent.examOwners : scope.exam.examOwners;
+            const inspectors = scope.exam.examInspections.map(ei => ei.user);
+            const inspectorHtml = inspectors.map(i => `${i.firstName} ${i.lastName}`).join(', ');
+            if (owners.length > 0) {
+                const ownerHtml = `<strong>${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}</strong>`;
+                return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
+            } else if (inspectors.length > 0) {
+                return inspectorHtml;
+            } else {
+                return '';
+            }
+        };
+    }
 
     static factory(): IDirectiveFactory {
         return () => new TeacherList();

@@ -288,11 +288,11 @@ public class ReviewController extends BaseController {
         }
         ExamSectionQuestion question = oeq.get();
         Exam exam = question.getExamSection().getExam();
-        if (isDisallowedToModify(exam, request.attrs().get(Attrs.AUTHENTICATED_USER), exam.getState())) {
-            return forbidden();
+        if (isDisallowedToScore(exam, request.attrs().get(Attrs.AUTHENTICATED_USER))) {
+            return forbidden("No permission to update scoring of this exam");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
-            return forbidden("Not allowed to update grading of this exam");
+            return forbidden("Not allowed to update scoring of this exam");
         }
         Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
         if (forcedScore != null && (forcedScore < question.getMinScore() || forcedScore > question.getMaxAssessedScore())) {
@@ -708,6 +708,10 @@ public class ReviewController extends BaseController {
     private boolean isDisallowedToModify(Exam exam, User user, Exam.State newState) {
         return !exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN) &&
                 !isRejectedInLanguageInspection(exam, user, newState);
+    }
+
+    private boolean isDisallowedToScore(Exam exam , User user) {
+        return !exam.getParent().isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN);
     }
 
     private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {

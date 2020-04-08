@@ -94,7 +94,7 @@ angular.module('app.review').component('rGrading', {
                     return (
                         vm.exam.examInspections
                             .map(function(inspection) {
-                                return inspection.user.id;
+                                return inspection.user ? inspection.user.id : -1;
                             })
                             .indexOf(owner.id) === -1
                     );
