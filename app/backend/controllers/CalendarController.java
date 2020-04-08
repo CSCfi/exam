@@ -146,7 +146,6 @@ public class CalendarController extends BaseController {
                 .eq("exam.id", id)
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .gt("reservation.startAt", now.toDate())
-                .isNull("reservation.externalReservation")
                 .findOneOrEmpty();
         return enrolment.map(e -> ok(e.getReservation())).orElse(ok());
     }
