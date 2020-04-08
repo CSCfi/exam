@@ -217,24 +217,26 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                             console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
                         },
                     );
-                });
+                })
+                .catch(angular.noop);
         };
 
         removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-            this.dialogs
-                .confirm(
-                    this.$translate.instant('sitnet_remove_examination_event'),
-                    this.$translate.instant('sitnet_are_you_sure'),
-                )
-                .result.then(() =>
-                    this.Exam.removeExaminationEvent(this.exam.id, configuration).then(() => {
-                        this.exam.examinationEventConfigurations.splice(
-                            this.exam.examinationEventConfigurations.indexOf(configuration),
-                            1,
-                        );
-                    }),
-                )
-                .catch(err => toast.error(err.data));
+            if (configuration.examEnrolments.length > 0) {
+                return;
+            }
+            const dialog = this.dialogs.confirm(
+                this.$translate.instant('sitnet_remove_examination_event'),
+                this.$translate.instant('sitnet_are_you_sure'),
+            );
+            dialog.result.then(() =>
+                this.Exam.removeExaminationEvent(this.exam.id, configuration).then(() => {
+                    this.exam.examinationEventConfigurations.splice(
+                        this.exam.examinationEventConfigurations.indexOf(configuration),
+                        1,
+                    );
+                }),
+            );
         };
 
         downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);

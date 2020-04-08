@@ -222,21 +222,21 @@
             </div>
             <div class="col-md-6">
                 <ul class="list-inline">
-                    <li ng-repeat="config in $ctrl.exam.examinationEventConfigurations" class="pointer">
-                        <span ng-click="$ctrl.modifyExaminationEvent(config)"
+                    <li ng-repeat="config in $ctrl.exam.examinationEventConfigurations">
+                        <span ng-click="$ctrl.modifyExaminationEvent(config)" class="pointer"
                             >{{ config.examinationEvent.start | date }}</span
                         >
-                        <button
-                            class="reviewer-remove"
+                        <span
+                            ng-if="config.examEnrolments.length === 0"
                             ng-click="$ctrl.removeExaminationEvent(config)"
-                            title="{{'sitnet_remove' | translate}}"
+                            class="text text-danger pointer"
                         >
-                            <img
-                                src="Images/icon_remove.svg"
-                                alt="exam"
-                                onerror="this.onerror=null;this.src='Images/icon_remove.png'"
-                            />
-                        </button>
+                            <i title="{{'sitnet_remove' | translate}}" class="fa fa-remove"></i
+                        ></span>
+
+                        <span ng-if="config.examEnrolments.length > 0" class="text text-muted">
+                            <i title="{{'sitnet_event_enrolments_exist' | translate}}" class="fa fa-remove"></i>
+                        </span>
                     </li>
                 </ul>
             </div>
