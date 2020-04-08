@@ -24,7 +24,6 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <h1 class="student-enroll-title">
-                    <i class="fa fa-book marr10"></i>
                     <span ng-if="!$ctrl.resolve.config">{{'sitnet_add_examination_event' | translate}}</span>
                     <span ng-if="$ctrl.resolve.config">{{'sitnet_update_examination_event' | translate}}</span>
                 </h1>

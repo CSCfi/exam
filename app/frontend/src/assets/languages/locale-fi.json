@@ -969,5 +969,7 @@
   "sitnet_anonymous_disabled": "Ei käytössä",
   "sitnet_collaborative_exam_search_description_teacher": "Voit hakea tenttejä tentin nimen tai tentaattorin sähköpostin mukaan.",
   "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot",
-  "sitnet_export_questions": "Siirrä kysymykset Moodlen XML-formaattiin (ainoastaan esseet ja monivalinnat)"
+  "sitnet_export_questions": "Siirrä kysymykset Moodlen XML-formaattiin (ainoastaan esseet ja monivalinnat)",
+  "sitnet_remove_examination_event": "Poista tenttitilaisuus",
+  "sitnet_event_enrolments_exist": "Tilaisuuteen on ilmoittautuneita. Tilaisuuden poistaminen ei ole mahdollista"
 }
