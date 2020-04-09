@@ -8,8 +8,8 @@ import backend.models.Tag
 import backend.models.questions.{MultipleChoiceOption, Question}
 import org.apache.commons.text.StringEscapeUtils
 
-import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 import scala.xml._
 import scala.xml.parsing.ConstructingParser
 

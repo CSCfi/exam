@@ -24,10 +24,10 @@ import io.ebean.Ebean
 import play.api.cache.SyncCacheApi
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 
-import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: SyncCacheApi)
     extends InjectedController

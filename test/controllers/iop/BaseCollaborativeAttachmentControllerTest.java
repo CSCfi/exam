@@ -24,7 +24,6 @@ import java.util.Base64;
 import javax.servlet.MultipartConfigElement;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import base.IntegrationTestCase;
 import helpers.AttachmentServlet;
@@ -47,9 +46,9 @@ import play.test.Helpers;
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -129,7 +128,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
         assertThat(result.header("Content-Disposition").orElse(null))
                 .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
         ActorSystem actorSystem = ActorSystem.create("TestSystem");
-        Materializer mat = ActorMaterializer.create(actorSystem);
+        Materializer mat = Materializer.createMaterializer(actorSystem);
         final String content = Helpers.contentAsString(result, mat);
         final byte[] decoded = Base64.getDecoder().decode(content);
         File f = new File(testUpload + "/image.png");
