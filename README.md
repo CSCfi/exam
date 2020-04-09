@@ -3,9 +3,9 @@
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install sbt, node (^ 8) and postgresql (^ 9.4). Note that JDK11 is required.
+1.  Prerequisites: install SBT, Java (11), Node (>= 10) and PostgreSQL (>= 9.4).
 
-2.  Create postgresql database
+2.  Create PostgreSQL database
 
         $ createuser -SPRD sitnet
         $ createdb sitnet --owner=sitnet
@@ -36,7 +36,7 @@ EXAM Quickstart for developers
 
         $ sbt -Dconfig.file=conf/dev.conf -DwithoutWebpackServer=true
 
-    In which case you can manage the server yourself in a separate terminal like this
+    in which case you can manage the server yourself in a separate terminal like this
 
         $ cd app/frontend
         $ npm start    
