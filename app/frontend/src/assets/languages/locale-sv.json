@@ -970,6 +970,6 @@
   "sitnet_collaborative_exam_search_description_teacher": "Du kan söka tentamina antingen på tentens namn eller på lärarens e-postadress.",
   "sitnet_incorrect_claim_question_options": "Felaktiga svarsalternativ.",
   "sitnet_export_questions": "Överför frågorna till Moodles XML-format (gäller endast essä- och flervalsfrågor)",
-  "sitnet_remove_examination_event": "Poista tenttitilaisuus SV",
-  "sitnet_event_enrolments_exist": "Tilaisuuteen on ilmoittautuneita. Tilaisuuden poistaminen ei ole mahdollista SV"
+  "sitnet_remove_examination_event": "Remove exam event.",
+  "sitnet_event_enrolments_exist": "It is not possible to remove the exam event, because there are enrolments for the event."
 }
