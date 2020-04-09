@@ -42,7 +42,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private static final String CLOZE_SELECTOR = "span[cloze=true]";
 
-    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\]");
+    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\\\/]");
 
     @Column(columnDefinition = "TEXT")
     private String answer;
