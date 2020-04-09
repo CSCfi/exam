@@ -418,6 +418,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case ClaimChoiceQuestion:
                 return options.stream()
                         .map(ExamSectionQuestionOption::getScore)
+                        .filter(score -> score != null)
                         .max(Comparator.comparing(Double::valueOf))
                         .orElse(0.0);
         }
@@ -434,6 +435,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options.stream()
                     .map(ExamSectionQuestionOption::getScore)
+                    .filter(score -> score != null)
                     .min(Comparator.comparing(Double::valueOf))
                     .orElse(0.0);
         }
