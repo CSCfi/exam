@@ -259,10 +259,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return getPrototype(ref).map(e -> {
             noShowHandler.handleNoShowAndNotify(e.getReservation());
             return ok();
-        }).orElseGet(() -> {
-            logger.error("No reservation found with ref {}", ref);
-            return notFound();
-        });
+        }).orElse(notFound());
     }
 
     @Override

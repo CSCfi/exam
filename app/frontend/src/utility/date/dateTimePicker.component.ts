@@ -25,8 +25,6 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         </div>
         `,
     bindings: {
-        initialTime: '<?',
-        disabled: '<',
         onUpdate: '&',
         hourStep: '<?',
         minuteStep: '<?',

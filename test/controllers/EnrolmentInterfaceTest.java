@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;

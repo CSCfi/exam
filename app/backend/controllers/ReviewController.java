@@ -56,7 +56,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
-import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;

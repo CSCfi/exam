@@ -40,7 +40,6 @@ import play.test.Helpers;
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamInspection;
-
 import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.Grade;
