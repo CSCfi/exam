@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -57,6 +58,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.CalendarController;
@@ -72,8 +74,9 @@ import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.ExternalCalendarReservationSanitizer;
 import backend.security.Authenticated;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -84,6 +87,9 @@ public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private CalendarHandler calendarHandler;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static Logger.ALogger logger = Logger.of(ExternalCalendarController.class);
 
@@ -156,7 +162,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         Optional<ExamMachine> machine =
                 calendarHandler.getRandomMachine(room, null, start, end, Collections.emptyList());
-        if (!machine.isPresent()) {
+        if (machine.isEmpty()) {
             return forbidden("sitnet_no_machines_available");
         }
         // We are good to go :)
@@ -258,23 +264,21 @@ public class ExternalCalendarController extends CalendarController {
 
     // Actions invoked directly by logged in users
     @Authenticated
+    @With(ExternalCalendarReservationSanitizer.class)
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
-        if (!ConfigUtil.isVisitingExaminationSupported()) {
+        if (!configReader.isVisitingExaminationSupported()) {
             return wrapAsPromise(forbidden("Feature not enabled in the installation"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        JsonNode node = request.body().asJson();
-        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
-        String orgRef = node.get("orgId").asText();
-        String roomRef = node.get("roomId").asText();
-        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
-        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("end").asText());
-        Long examId = node.get("examId").asLong();
-        if (start.isBeforeNow() || end.isBefore(start)) {
-            return wrapAsPromise(badRequest("invalid dates"));
-        }
+        String orgRef = request.attrs().get(Attrs.ORG_REF);
+        String roomRef = request.attrs().get(Attrs.ROOM_REF);
+        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime end = request.attrs().get(Attrs.END_DATE);
+        Long examId = request.attrs().get(Attrs.EXAM_ID);
+        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+
         //TODO: See if this offset thing works as intended
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
@@ -290,20 +294,21 @@ public class ExternalCalendarController extends CalendarController {
                 .gt("reservation.startAt", now.toDate())
                 .endOr()
                 .findOne();
-        Optional<Result> error = checkEnrolment(enrolment, user, Collections.emptyList());
+        Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
-        if (enrolment.getExam().getExamSections().stream().anyMatch(ExamSection::isOptional)) {
-            return wrapAsPromise(forbidden("Optional sections not supported for external reservations"));
-        }
         // Lets do this
         URL url = parseUrl(orgRef, roomRef);
+        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
         ObjectNode body = Json.newObject();
         body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
+        body.set("optionalSections", sectionIds.stream()
+                .collect(Collector.of(Json::newArray, ArrayNode::add, ArrayNode::add))
+        );
 
         WSRequest wsRequest = wsClient.url(url.toString());
         return wsRequest.post(body).thenComposeAsync(response -> {
@@ -311,8 +316,8 @@ public class ExternalCalendarController extends CalendarController {
             if (response.getStatus() != Http.Status.CREATED) {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
-            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
-                if (!err.isPresent()) {
+            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef, sectionIds).thenApplyAsync(err -> {
+                if (err.isEmpty()) {
                     return created(root.get("id"));
                 }
                 return internalServerError();
@@ -325,7 +330,7 @@ public class ExternalCalendarController extends CalendarController {
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
-        return externalReservationHandler.removeReservation(reservation, user);
+        return externalReservationHandler.removeReservation(reservation, user, "");
     }
 
     @Restrict(@Group("ADMIN"))
@@ -337,7 +342,7 @@ public class ExternalCalendarController extends CalendarController {
                 .eq("externalRef", ref)
                 .isNull("enrolment")
                 .findOneOrEmpty();
-        if (!or.isPresent()) {
+        if (or.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> notFound(String.format("No reservation with ref %s.", ref)));
         }
 
@@ -347,7 +352,7 @@ public class ExternalCalendarController extends CalendarController {
             return CompletableFuture.supplyAsync(() -> forbidden("sitnet_reservation_in_effect"));
         }
         String roomRef = reservation.getMachine().getRoom().getExternalRef();
-        URL url = parseUrl(ConfigUtil.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
+        URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
         WSRequest wsRequest = wsClient.url(url.toString());
 
         Function<WSResponse, Result> onSuccess = response -> {
@@ -409,13 +414,16 @@ public class ExternalCalendarController extends CalendarController {
     // helpers ->
 
     private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
-                                                                         User user, String orgRef, String roomRef) {
+                                                                         User user, String orgRef, String roomRef, Collection<Long> sectionIds) {
         Reservation oldReservation = enrolment.getReservation();
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
+        Set<ExamSection> sections = sectionIds.isEmpty() ?
+                Collections.emptySet() : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        reservation.setOptionalSections(sections);
 
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {
@@ -457,7 +465,7 @@ public class ExternalCalendarController extends CalendarController {
         if (oldReservation != null) {
             if (oldReservation.getExternalReservation() != null) {
                 return externalReservationHandler.removeExternalReservation(oldReservation).thenApply(err -> {
-                    if (!err.isPresent()) {
+                    if (err.isEmpty()) {
                         Ebean.delete(oldReservation);
                         postProcessRemoval(reservation, enrolment, user, machineNode);
                     }
@@ -540,7 +548,7 @@ public class ExternalCalendarController extends CalendarController {
         int windowSize = calendarHandler.getReservationWindowSize();
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
-                ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
+                configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser()).plusMillis(offset).toLocalDate();

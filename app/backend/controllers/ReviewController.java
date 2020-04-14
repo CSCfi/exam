@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +58,9 @@ import org.jsoup.Jsoup;
 import play.Logger;
 import play.libs.Files.TemporaryFile;
 import play.data.DynamicForm;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
+import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -70,7 +72,6 @@ import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamType;
@@ -89,7 +90,6 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
-
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
@@ -110,6 +110,9 @@ public class ReviewController extends BaseController {
 
     @Inject
     protected ActorSystem actor;
+
+    @Inject
+    protected MessagesApi messaging;
 
     private static final Logger.ALogger logger = Logger.of(ReviewController.class);
 
@@ -176,13 +179,14 @@ public class ReviewController extends BaseController {
             query = query.eq("state", Exam.State.ABORTED);
         }
         query = query.endJunction();
-        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOne();
+        Exam exam = query.findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
@@ -193,7 +197,7 @@ public class ReviewController extends BaseController {
                         esq.setClozeTestAnswer(cta);
                         esq.update();
                     }
-                    esq.getClozeTestAnswer().setQuestionWithResults(esq);
+                    esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
                 });
         return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
     }
@@ -207,8 +211,8 @@ public class ReviewController extends BaseController {
                 "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
                 "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-                "languageInspection(*), examLanguages(*), " +
-                "parent(examOwners(firstName, lastName, email)), " +
+                "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
+                "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
                 "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
                 ")");
         Query<Exam> query = Ebean.find(Exam.class);
@@ -280,19 +284,19 @@ public class ReviewController extends BaseController {
                 .idEq(id)
                 .ne("question.type", Question.Type.EssayQuestion)
                 .findOneOrEmpty();
-        if (!oeq.isPresent()) {
+        if (oeq.isEmpty()) {
             return notFound("question not found");
         }
         ExamSectionQuestion question = oeq.get();
         Exam exam = question.getExamSection().getExam();
-        if (isDisallowedToModify(exam, request.attrs().get(Attrs.AUTHENTICATED_USER), exam.getState())) {
-            return forbidden();
+        if (isDisallowedToScore(exam, request.attrs().get(Attrs.AUTHENTICATED_USER))) {
+            return forbidden("No permission to update scoring of this exam");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
-            return forbidden("Not allowed to update grading of this exam");
+            return forbidden("Not allowed to update scoring of this exam");
         }
         Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
-        if (forcedScore != null && (forcedScore < 0 || forcedScore > question.getMaxAssessedScore())) {
+        if (forcedScore != null && (forcedScore < question.getMinScore() || forcedScore > question.getMaxAssessedScore())) {
             return badRequest("score out of acceptable range");
         }
         question.setForcedScore(forcedScore);
@@ -309,7 +313,7 @@ public class ReviewController extends BaseController {
                 .idEq(id)
                 .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
                 .findOneOrEmpty();
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
@@ -489,6 +493,30 @@ public class ReviewController extends BaseController {
         if (commentText.isPresent()) {
             AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setComment(commentText.get());
+        }
+        comment.update();
+        return ok(comment);
+    }
+
+    @Authenticated
+    @With(CommentSanitizer.class)
+    @Restrict({@Group("STUDENT")})
+    public Result setCommentStatusRead(Long eid, Long cid, Http.Request request) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
+            return forbidden();
+        }
+        Comment comment = Ebean.find(Comment.class, cid);
+        if (comment == null) {
+            return notFound();
+        }
+        Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
+        if (feedbackStatus.isPresent()) {
+            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setFeedbackStatus(feedbackStatus.get());
         }
         comment.update();
         return ok(comment);
@@ -683,6 +711,10 @@ public class ReviewController extends BaseController {
                 !isRejectedInLanguageInspection(exam, user, newState);
     }
 
+    private boolean isDisallowedToScore(Exam exam , User user) {
+        return !exam.getParent().isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN);
+    }
+
     private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {
         exam.setState(newState);
         // set grading info only if exam is really graded, not just modified
@@ -701,11 +733,8 @@ public class ReviewController extends BaseController {
     }
 
     private void notifyPartiesAboutPrivateExamRejection(User user, Exam exam) {
-        final Set<User> examinators = exam.getExecutionType().getType().equals(
-                ExamExecutionType.Type.MATURITY.toString())
-                ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
             logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }
@@ -729,6 +758,8 @@ public class ReviewController extends BaseController {
                 .fetch("examEnrolments.reservation")
                 .fetch("examEnrolments.reservation.machine")
                 .fetch("examEnrolments.reservation.machine.room")
+                .fetch("examEnrolments.examinationEventConfiguration")
+                .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
                 .fetch("examInspections")
                 .fetch("examInspections.user")
                 .fetch("examParticipation")
@@ -740,7 +771,7 @@ public class ReviewController extends BaseController {
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, claimChoiceType")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")

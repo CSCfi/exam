@@ -16,82 +16,142 @@
 import * as angular from 'angular';
 import * as toast from 'toastr';
 import { CollaborativeExamService } from './collaborativeExam.service';
-import { CollaborativeExam } from '../exam.model';
+import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
 import { User, SessionService } from '../../session/session.service';
+import { StateService } from '@uirouter/core';
+
+enum ListingView {
+    PUBLISHED = 'PUBLISHED',
+    EXPIRED = 'EXPIRED',
+    DRAFTS = 'DRAFTS',
+    OTHER = 'OTHER',
+}
+
+interface ListedCollaborativeExam extends CollaborativeExam {
+    listingView: ListingView;
+    ownerAggregate: string;
+    stateTranslation: string;
+}
 
 export const CollaborativeExamListingComponent: angular.IComponentOptions = {
-    template: `
-        <div id="sitnet-header" class="header">
-            <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{'sitnet_collaborative_exams' | translate}}</span>
-            </div>
-        </div>
-        <div id="dashboard">
-            <!-- toolbar -->
-            <div class="top-row" ng-if="$ctrl.user.isAdmin">
-                <div class="col-md-12">
-                    <button class=" pull-right btn btn-info" ng-click="$ctrl.createExam()">
-                        {{'sitnet_toolbar_new_exam' | translate}}
-                    </a>
-                </div>
-            </div>
-            <div class="top-row">
-                <div class="col-md-12">
-                    <table class="table table-striped table-condensed exams-table">
-                        <thead>
-                        <tr>
-                            <th sort by="name" text="sitnet_exam_name" predicate="$ctrl.predicate"
-                                reverse="$ctrl.reverse"></th>
-                            <th sort by="ownerAggregate" text="sitnet_teachers"
-                                predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="exam in $ctrl.exams | orderBy:$ctrl.predicate:$ctrl.reverse">
-                            <td>
-                                <a class="exams-info-title bold-button" href="/exams/collaborative/{{exam.id}}/1">
-                                    <span ng-if="exam.name">{{exam.name}}</span>
-                                    <span ng-if="!exam.name" class="text-danger">
-                                        {{'sitnet_no_name' | translate | uppercase }}
-                                    </span>
-                                </a>
-                            </td>
-                            <td>
-                                <span ng-repeat="o in exam.examOwners">{{ o.email }}&nbsp;</span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        `,
+    template: require('./collaborativeExamListing.template.html'),
     controller: class CollaborativeExamListingController implements angular.IComponentController {
-
-        exams: CollaborativeExam[];
+        exams: ListedCollaborativeExam[];
         user: User;
+        view: ListingView;
+        examsPredicate: string;
+        reverse: boolean;
+        filter: { text: string };
+        loader: { loading: boolean };
 
         constructor(
-            private $location: angular.ILocationService,
+            private $state: StateService,
             private $translate: angular.translate.ITranslateService,
             private Session: SessionService,
-            private CollaborativeExam: CollaborativeExamService) {
+            private CollaborativeExam: CollaborativeExamService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
+            this.view = ListingView.PUBLISHED;
             this.user = this.Session.getUser();
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams;
-            }).catch(angular.noop);
+            this.examsPredicate = 'examActiveEndDate';
+            this.reverse = true;
+            this.filter = { text: '' };
+            this.loader = { loading: true };
+            this.listAllExams();
+        }
+
+        listAllExams() {
+            this.CollaborativeExam.listExams()
+                .then((exams: CollaborativeExam[]) => {
+                    this.exams = this.returnListedCollaborativeExams(exams);
+                })
+                .catch(angular.noop)
+                .finally(() => {
+                    this.loader = { loading: false };
+                });
+        }
+
+        returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
+            const listedExams: ListedCollaborativeExam[] = exams
+                .map(e => {
+                    const ownerAggregate = e.examOwners.map(o => o.email).join();
+                    const stateTranslation = this.getStateTranslation(e);
+                    const listingView = this.determineListingView(e);
+
+                    return { ...e, ownerAggregate, stateTranslation, listingView };
+                })
+                .filter(e => e.listingView !== ListingView.OTHER);
+
+            return listedExams;
+        }
+
+        determineListingView(exam: CollaborativeExam) {
+            if (
+                (exam.state === CollaborativeExamState.PUBLISHED ||
+                    exam.state === CollaborativeExamState.PRE_PUBLISHED) &&
+                Date.now() > new Date(exam.examActiveEndDate).getTime()
+            ) {
+                return ListingView.EXPIRED;
+            }
+
+            if (
+                exam.state === CollaborativeExamState.PUBLISHED ||
+                exam.state === CollaborativeExamState.PRE_PUBLISHED
+            ) {
+                return ListingView.PUBLISHED;
+            }
+
+            if (exam.state === CollaborativeExamState.DRAFT) {
+                return ListingView.DRAFTS;
+            }
+
+            return ListingView.OTHER;
+        }
+
+        setView(view: ListingView) {
+            this.view = view;
         }
 
         createExam() {
-            this.CollaborativeExam.createExam().then((exam: CollaborativeExam) => {
-                toast.info(this.$translate.instant('sitnet_exam_created'));
-                this.$location.path(`/exams/collaborative/${exam.id}/1`);
-            }).catch(resp => toast.error(resp.data));
+            this.CollaborativeExam.createExam()
+                .then((exam: CollaborativeExam) => {
+                    toast.info(this.$translate.instant('sitnet_exam_created'));
+                    this.$state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
+                })
+                .catch(resp => toast.error(resp.data));
         }
 
-    }
+        getStateTranslation(exam: CollaborativeExam): string {
+            const translationStr = this.CollaborativeExam.getExamStateTranslation(exam);
+            if (translationStr) {
+                return this.$translate.instant(translationStr);
+            }
+            return '';
+        }
+
+        getExamAnonymousStatus(exam: CollaborativeExam) {
+            return exam.anonymous ? 'sitnet_anonymous_enabled' : 'sitnet_anonymous_disabled';
+        }
+
+        search() {
+            const { text } = this.filter;
+            this.loader = { loading: true };
+
+            if (text.length === 0) {
+                this.listAllExams();
+                return;
+            }
+
+            this.CollaborativeExam.searchExams(text)
+                .then((exams: CollaborativeExam[]) => {
+                    this.exams = this.returnListedCollaborativeExams(exams);
+                })
+                .finally(() => {
+                    this.loader = { loading: false };
+                });
+        }
+    },
 };

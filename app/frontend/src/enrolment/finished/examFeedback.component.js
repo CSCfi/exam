@@ -12,34 +12,32 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('examFeedback', {
-        template: require('./examFeedback.template.html'),
-        bindings: {
-            assessment: '<',
-            scores: '<'
-        },
-        controller: ['Attachment',
-            function (Attachment) {
+angular.module('app.enrolment').component('examFeedback', {
+    template: require('./examFeedback.template.html'),
+    bindings: {
+        assessment: '<',
+        scores: '<',
+        collaborative: '<',
+    },
+    controller: [
+        'Attachment',
+        function(Attachment) {
+            const vm = this;
 
-                const vm = this;
-
-                vm.downloadFeedbackAttachment = function () {
+            vm.downloadFeedbackAttachment = function() {
+                if (vm.collaborative) {
+                    const attachment = vm.assessment.examFeedback.attachment;
+                    Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                } else {
                     Attachment.downloadFeedbackAttachment(vm.assessment);
-                };
-
-                vm.downloadStatementAttachment = function () {
-                    Attachment.downloadStatementAttachment(vm.assessment);
                 }
+            };
 
-            }
-
-        ]
-    });
-
-
-
-
+            vm.downloadStatementAttachment = function() {
+                Attachment.downloadStatementAttachment(vm.assessment);
+            };
+        },
+    ],
+});

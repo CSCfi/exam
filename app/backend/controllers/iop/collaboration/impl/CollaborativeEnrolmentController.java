@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -20,7 +19,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
@@ -31,9 +29,6 @@ import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
-
-    @Inject
-    private EmailComposer composer;
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeEnrolmentController.class);
 
@@ -47,7 +42,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         if (exam == null || !isEnrollable(exam)) {
             return Either.left(notFound("sitnet_error_exam_not_found"));
         }
-        if (!isAllowedToParticipate(exam, user, composer)) {
+        if (!isAllowedToParticipate(exam, user)) {
             return Either.left(forbidden("sitnet_no_trials_left"));
         }
         return Either.right(exam);
@@ -57,7 +52,32 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> listExams() {
         Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
+            return wrapAsPromise(internalServerError());
+        }
+
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, Result> onSuccess = response -> findExamsToProcess(response).map(items -> {
+            List<Exam> exams = items.entrySet().stream().map(e -> e.getKey().getExam(e.getValue()))
+                    .filter(this::isEnrollable).collect(Collectors.toList());
+
+            return ok(exams, PathProperties.parse(
+                    "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
+                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
+                            "enrollInstruction)"));
+        }).getOrElseGet(Function.identity());
+        return request.get().thenApplyAsync(onSuccess);
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public CompletionStage<Result> searchExams(final Optional<String> filter) {
+
+        if(filter.isEmpty() || filter.get().isEmpty()) {
+            return wrapAsPromise(badRequest());
+        }
+
+        Optional<URL> url = parseUrlWithSearchParam(filter.get(), true);
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
 
@@ -136,7 +156,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         return Optional.empty();
     }
 
-    private Result doCreateEnrolment(CollaborativeExam ce, Exam exam, User user) {
+    private Result doCreateEnrolment(CollaborativeExam ce, User user) {
         // Begin manual transaction
         Ebean.beginTransaction();
         try {
@@ -179,15 +199,15 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
                     if (!isEnrollable(exam)) {
                         return notFound("sitnet_error_exam_not_found");
                     }
-                    if (isAllowedToParticipate(exam, user, composer)) {
-                        return doCreateEnrolment(ce, exam, user);
+                    if (isAllowedToParticipate(exam, user)) {
+                        return doCreateEnrolment(ce, user);
                     }
                     return forbidden();
                 });

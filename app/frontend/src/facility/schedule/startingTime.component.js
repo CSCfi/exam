@@ -16,62 +16,62 @@
 import angular from 'angular';
 import moment from 'moment';
 
-angular.module('app.facility.schedule')
-    .component('startingTime', {
-        template: require('./startingTime.template.html'),
-        bindings: {
-            roomIds: '<',
-            startingHours: '<'
-        },
-        controller: ['Room', function (Room) {
+angular.module('app.facility.schedule').component('startingTime', {
+    template: require('./startingTime.template.html'),
+    bindings: {
+        roomIds: '<',
+        startingHours: '<',
+    },
+    controller: [
+        'Room',
+        function(Room) {
             const vm = this;
 
-            vm.$onInit = function () {
-                vm.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
-                    return {startingHour: i + ":00", selected: true};
+            vm.$onInit = function() {
+                vm.examStartingHours = [...Array(24)].map(function(x, i) {
+                    return { startingHour: i + ':00', selected: true };
                 });
                 if (vm.startingHours && vm.startingHours.length > 0) {
-                    let startingHours = vm.startingHours.map(function (hour) {
+                    let startingHours = vm.startingHours.map(function(hour) {
                         return moment(hour.startingHour);
                     });
                     vm.examStartingHourOffset = startingHours[0].minute();
-                    startingHours = startingHours.map(function (hour) {
-                        return hour.format("H:mm");
+                    startingHours = startingHours.map(function(hour) {
+                        return hour.format('H:mm');
                     });
                     vm.setStartingHourOffset();
-                    vm.examStartingHours.forEach(function (hour) {
+                    vm.examStartingHours.forEach(function(hour) {
                         hour.selected = startingHours.indexOf(hour.startingHour) !== -1;
                     });
                 }
             };
 
-            vm.updateStartingHours = function () {
-                Room.updateStartingHours(vm.examStartingHours, vm.examStartingHourOffset, vm.roomIds)
-                    .then(function () {
-                        if (vm.startingHours) {
-                            vm.startingHours = vm.examStartingHours;
-                        }
-                    });
+            vm.updateStartingHours = function() {
+                Room.updateStartingHours(vm.examStartingHours, vm.examStartingHourOffset, vm.roomIds).then(function() {
+                    if (vm.startingHours) {
+                        vm.startingHours = vm.examStartingHours;
+                    }
+                });
             };
 
-            vm.toggleAllExamStartingHours = function () {
-                const anySelected = vm.examStartingHours.some(function (hours) {
+            vm.toggleAllExamStartingHours = function() {
+                const anySelected = vm.examStartingHours.some(function(hours) {
                     return hours.selected;
                 });
-                vm.examStartingHours.forEach(function (hours) {
+                vm.examStartingHours.forEach(function(hours) {
                     hours.selected = !anySelected;
                 });
             };
 
-            vm.setStartingHourOffset = function () {
+            vm.setStartingHourOffset = function() {
                 vm.examStartingHourOffset = vm.examStartingHourOffset || 0;
-                vm.examStartingHours.forEach(function (hours) {
+                vm.examStartingHours.forEach(function(hours) {
                     hours.startingHour = hours.startingHour.split(':')[0] + ':' + zeropad(vm.examStartingHourOffset);
                 });
             };
 
-            vm.anyStartingHoursSelected = function () {
-                return vm.examStartingHours.some(function (hours) {
+            vm.anyStartingHoursSelected = function() {
+                return vm.examStartingHours.some(function(hours) {
                     return hours.selected;
                 });
             };
@@ -80,5 +80,6 @@ angular.module('app.facility.schedule')
                 n += '';
                 return n.length > 1 ? n : '0' + n;
             }
-        }]
-    });
+        },
+    ],
+});

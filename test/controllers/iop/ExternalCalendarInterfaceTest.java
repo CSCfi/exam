@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletOutputStream;
@@ -18,8 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -155,15 +155,15 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         // Check this shit
         String baseUrl2 = String.format("/api/organisations/test-org/facilities/%s", ROOM_REF);
         server = RemoteServerHelper.createAndStartServer(31247,
-                ImmutableMap.of(
-                        SlotServlet.class, ImmutableList.of(String.format("%s/slots", baseUrl)),
-                        ReservationServlet.class, ImmutableList.of(String.format("%s/reservations", baseUrl)),
-                        ReservationRemovalServlet.class, ImmutableList.of(
+                Map.of(
+                        SlotServlet.class, List.of(String.format("%s/slots", baseUrl)),
+                        ReservationServlet.class, List.of(String.format("%s/reservations", baseUrl)),
+                        ReservationRemovalServlet.class, List.of(
                                 String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
                                 String.format("%s/reservations/%s/force", baseUrl2, RESERVATION_REF)
                         ),
-                        EnrolmentServlet.class, ImmutableList.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
-                        AttachmentServlet.class, ImmutableList.of("/api/attachments/*")
+                        EnrolmentServlet.class, List.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
+                        AttachmentServlet.class, List.of("/api/attachments/*")
                 )
         );
     }
@@ -517,7 +517,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
         assertThat(parsedExam.getId()).isEqualTo(13630); // ID that is in enrolment.json
-
     }
 
     @Test
@@ -532,6 +531,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
         json.put("requestingOrg", "foobar");
+        json.set("sectionIds", Json.newArray().add(1));
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
@@ -541,10 +541,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(created).isNotNull();
+        assertThat(created.getOptionalSections()).hasSize(1);
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();
         assertThat(external.getRoomInstructionEN()).isEqualTo("information in English here");
         assertThat(external.getMailAddress().getCity()).isEqualTo("Paris");
+
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
@@ -629,6 +631,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation().getId()).isNotEqualTo(reservation.getId());
         assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+
+        greenMail.waitForIncomingEmail(5000, 1);
     }
 
 

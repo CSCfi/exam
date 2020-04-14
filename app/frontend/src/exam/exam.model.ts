@@ -1,3 +1,4 @@
+import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { User } from '../session/session.service';
 
 export interface Grade {
@@ -107,16 +108,41 @@ export interface ExamSection {
     optional: boolean;
 }
 
+export enum CollaborativeExamState {
+    DRAFT = 'DRAFT',
+    PUBLISHED = 'PUBLISHED',
+    PRE_PUBLISHED = 'PRE_PUBLISHED',
+}
+
 export interface CollaborativeExam {
     id: number;
+    anonymous: boolean;
     name: string;
     examLanguages: ExamLanguage[];
+    state: CollaborativeExamState;
+    examOwners: User[];
+    executionType: ExamExecutionType;
+    examActiveStartDate: VarDate;
+    examActiveEndDate: VarDate;
 }
 
 export interface Participation {
     id: number;
     exam: Exam;
     _rev: string;
+}
+
+export interface ExaminationEvent {
+    id?: number;
+    start: Date;
+    description: string;
+}
+
+export interface ExaminationEventConfiguration {
+    id?: number;
+    settingsPassword: string;
+    examinationEvent: ExaminationEvent;
+    examEnrolments: ExamEnrolment[];
 }
 
 export interface ExamImpl {
@@ -146,16 +172,21 @@ export interface ExamImpl {
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
     subjectToLanguageInspection: boolean | null;
+    languageInspection: { finishedAt: string };
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
-    examFeedback: { comment: string };
+    examFeedback: { comment: string; feedbackStatus: boolean; attachment?: Attachment };
     grade: Grade;
     gradeless: boolean;
+    gradedTime: string;
     creditType: { type: string };
     customCredit: number;
     additionalInfo: string;
-    examInspections: { user: User, ready: boolean }[];
+    examInspections: { user: User; ready: boolean }[];
+    requiresUserAgentAuth: boolean;
+    examinationEventConfigurations: ExaminationEventConfiguration[];
+    totalScore: number;
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object
@@ -163,3 +194,29 @@ export interface Exam extends ExamImpl {
     answerLanguage?: ExamLanguage;
 }
 
+export interface ExamParticipation {
+    id: number;
+    exam: Exam;
+    duration: number;
+}
+
+export enum ClaimChoiceOptionType {
+    CorrectOption = 'CorrectOption',
+    IncorrectOption = 'IncorrectOption',
+    SkipOption = 'SkipOption',
+}
+
+export interface MultipleChoiceOption {
+    id: number;
+    option: string;
+    correctOption: boolean;
+    defaultScore: number;
+    claimChoiceType?: ClaimChoiceOptionType;
+}
+
+export interface ExamSectionQuestionOption {
+    id: number;
+    option: MultipleChoiceOption;
+    answered: boolean;
+    score: number;
+}

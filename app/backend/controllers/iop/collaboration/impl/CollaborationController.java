@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -47,8 +47,6 @@ public class CollaborationController extends BaseController {
     @Inject
     protected CollaborativeExamLoader examLoader;
 
-    private Random random = new Random();
-
     private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
 
     Optional<URL> parseUrl() {
@@ -61,8 +59,42 @@ public class CollaborationController extends BaseController {
         }
     }
 
+    Optional<URL> parseUrlWithSearchParam(String filter, boolean anonymous) {
+        try {
+            if(filter == null) {
+                return Optional.empty();
+            }
+
+            String paramStr = String.format("?filter=%s&anonymous=%s", filter, anonymous);
+            String url = String.format("%s/api/exams/search%s", ConfigFactory.load().getString("sitnet.integration.iop.host"), paramStr);
+            return Optional.of(new URL(url));
+
+        } catch(MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+
+    }
+
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         return examLoader.downloadExam(ce);
+    }
+
+    protected CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
+
+        return examLoader.uploadAssessment(ce, ref, payload);
+    }
+
+    CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef) {
+        return examLoader.downloadAssessment(examRef, assessmentRef);
+    }
+
+    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // serialization of exam
+    protected void cleanUser(User user) {
+        user.getEnrolments().clear();
+        user.getParticipations().clear();
+        user.getInspections().clear();
     }
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {
@@ -83,9 +115,12 @@ public class CollaborationController extends BaseController {
                 });
     }
 
-    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
-                                       Model resultModel, User sender) {
-        return examLoader.uploadExam(ce, content, isPrePublication, resultModel, sender);
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender) {
+        return examLoader.uploadExam(ce, content, sender);
+    }
+
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender, Model body, PathProperties pp) {
+        return examLoader.uploadExam(ce, content, sender, body, pp);
     }
 
     boolean isAuthorizedToView(Exam exam, User user) {
@@ -121,7 +156,7 @@ public class CollaborationController extends BaseController {
         return StreamSupport.stream(node.spliterator(), false);
     }
 
-    Either<Result, Map<CollaborativeExam, JsonNode>> findExamsToProcess (WSResponse response) {
+    Either<Result, Map<CollaborativeExam, JsonNode>> findExamsToProcess(WSResponse response) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return Either.left(internalServerError(root.get("message").asText("Connection refused")));

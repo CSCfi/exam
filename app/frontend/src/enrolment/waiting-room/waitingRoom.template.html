@@ -1,12 +1,14 @@
 <div class="top-row">
     <div class="student-enroll-title-wrap waitingroom">
-        <div ng-show="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_exam_is_about_to_begin' | translate}}</div>
-        <div ng-hide="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_you_dont_have_exams_today' | translate}}</div>
+        <h1 ng-show="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_exam_is_about_to_begin' | translate}}</h1>
+        <h1 ng-hide="$ctrl.upcoming" class="student-enroll-title">
+            {{'sitnet_you_dont_have_exams_today' | translate}}
+        </h1>
     </div>
 </div>
 <div class="waitingroom-info">
     <div class="text-info" ng-show="$ctrl.upcoming">
-        <img class="arrow_icon" alt="info icon" src="Images/icon_info.png"> {{ 'sitnet_redirect_to_exam_notice' |
+        <img class="arrow_icon" alt="info icon" src="Images/icon_info.png" /> {{ 'sitnet_redirect_to_exam_notice' |
         translate }}
     </div>
 </div>
@@ -14,19 +16,28 @@
 <div id="dashboard" ng-show="$ctrl.upcoming">
     <div class="student-enrolment-wrapper waitingroom">
         <div class="col-md-12">
-
             <div class="student-exam-header-row">
                 <div>
                     <!-- calendar box -->
-                    <div class="student-enrolment-date-box">
+                    <div ng-if="$ctrl.enrolment.reservation" class="student-enrolment-date-box">
                         {{ $ctrl.enrolment.reservation.startAt | date:'dd' }}
-                        <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 |
-                            uppercase }}</span>
+                        <span class="month-name"
+                            >{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span
+                        >
+                    </div>
+                    <div ng-if="$ctrl.enrolment.examinationEventConfiguration" class="student-enrolment-date-box">
+                        {{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'dd' }}
+                        <span class="month-name"
+                            >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'MMM' |
+                            limitTo:3 | uppercase }}</span
+                        >
                     </div>
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
                         {{$ctrl.enrolment.exam.name}}
-                        <span ng-if="$ctrl.enrolment.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                        <span ng-if="$ctrl.enrolment.exam.anonymous"
+                            >({{ 'sitnet_anonymous_review' | translate }})</span
+                        >
                         <br />
                         <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     </div>
@@ -53,11 +64,10 @@
                                 <teacher-list exam="$ctrl.enrolment.exam" />
                             </div>
                         </div>
-
                     </div>
                 </div>
                 <div class="col-md-12" style="padding-top:10px;">
-                    <div class="row">
+                    <div ng-if="$ctrl.enrolment.reservation" class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                             {{ 'sitnet_exam_room' | translate }}:
                         </div>
@@ -73,25 +83,44 @@
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                             {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
-                            {{$ctrl.enrolment.reservation.occasion.startAt}}
-                            - {{$ctrl.enrolment.reservation.occasion.endAt}}
+                            {{$ctrl.enrolment.reservation.occasion.startAt}} -
+                            {{$ctrl.enrolment.reservation.occasion.endAt}}
+                        </div>
+                    </div>
+                    <div ng-if="$ctrl.enrolment.examinationEventConfiguration" class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_examination_event' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.description }}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_begin' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{$ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | adjustdst |
+                            date:'dd.MM.yyyy HH:mm'}}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_exam_duration' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{ $ctrl.enrolment.exam.duration }} {{ 'sitnet_minutes' | translate }}
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="student-exam-row" ng-show="$ctrl.roomInstructions">
                 <div class="student-exam-row-infolink">
-                    <b>{{ 'sitnet_room_guidance' | translate}}:
-                    </b>
+                    <strong>{{ 'sitnet_room_guidance' | translate}}: </strong>
                 </div>
                 <div class="student-exam-row-infobox">{{ $ctrl.roomInstructions }}</div>
             </div>
 
             <div class="student-exam-row" ng-show="$ctrl.enrolment.exam.enrollInstruction">
                 <div class="student-exam-row-infolink">
-                    <b>{{ 'sitnet_view_instructions' | translate}}:</b>
+                    <strong>{{ 'sitnet_view_instructions' | translate}}:</strong>
                 </div>
                 <div class="student-exam-row-infobox" ng-bind-html="$ctrl.enrolment.exam.enrollInstruction"></div>
             </div>

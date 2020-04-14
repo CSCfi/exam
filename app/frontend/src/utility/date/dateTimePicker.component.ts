@@ -14,17 +14,14 @@
  */
 import * as angular from 'angular';
 
-
-declare function require(name: string): any;
-
 export const DateTimePickerComponent: angular.IComponentOptions = {
     template: `
         <div id="datetimepicker" class="datetimepicker-wrapper">
-            <date-picker on-update="$ctrl.onDateUpdate(date)"><date-picker/>
+            <date-picker initial-date="$ctrl.initialTime" on-update="$ctrl.onDateUpdate(date)" disabled="$ctrl.disabled"><date-picker/>
         </div>
-        <div id="datetimepicker" class="datetimepicker-wrapper"
-            ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" style="display:inline-block">
-            <div uib-timepicker show-meridian="false" hour-step="$ctrl.hourStep" minute-step="$ctrl.minuteStep">
+        <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+            <div uib-timepicker ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" ng-disabled="$ctrl.disabled"
+                show-meridian="false" hour-step="$ctrl.hourStep" minute-step="$ctrl.minuteStep">
         </div>
         `,
     bindings: {
@@ -32,12 +29,13 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
         disabled: '<',
         onUpdate: '&',
         hourStep: '<?',
-        minuteStep: '<?'
+        minuteStep: '<?',
+        initialTime: '<?',
+        disabled: '<?',
     },
     controller: class DateTimePickerController implements angular.IComponentController {
-
-        onUpdate: ({ date: Date }) => any;
-        date: Date = new Date();
+        onUpdate: ({ date: Date }) => unknown;
+        date: Date;
         hourStep: number;
         minuteStep: number;
         time: Date;
@@ -51,7 +49,7 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.time.setMinutes(dt.getMinutes());
             this.time.setSeconds(0);
             this.time.setMilliseconds(0);
-        }
+        };
 
         $onInit() {
             this.time = new Date();
@@ -78,5 +76,5 @@ export const DateTimePickerComponent: angular.IComponentOptions = {
             this.date.setMilliseconds(0);
             this.onUpdate({ date: this.date });
         }
-    }
+    },
 };

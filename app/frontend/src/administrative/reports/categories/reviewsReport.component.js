@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.reports')
-    .component('reviewsReport', {
-        template: `
+angular.module('app.administrative.reports').component('reviewsReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_graded_exams' | translate}}
@@ -49,24 +47,25 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        controller: ['$filter', 'Files', function ($filter, Files) {
-
+    controller: [
+        '$filter',
+        'Files',
+        function($filter, Files) {
             const vm = this;
 
-            vm.getReviewsByDate = function () {
+            vm.getReviewsByDate = function() {
                 const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
                 const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
                 Files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
             };
 
-            vm.startDateChanged = function (date) {
+            vm.startDateChanged = function(date) {
                 vm.startDate = date;
             };
 
-            vm.endDateChanged = function (date) {
+            vm.endDateChanged = function(date) {
                 vm.endDate = date;
             };
-
-        }]
-    });
-
+        },
+    ],
+});

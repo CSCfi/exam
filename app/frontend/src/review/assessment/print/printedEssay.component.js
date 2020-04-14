@@ -15,37 +15,36 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('printedEssay', {
-        template: require('./templates/essay.html'),
-        bindings: {
-            sectionQuestion: '<'
+angular.module('app.review').component('printedEssay', {
+    template: require('./templates/essay.html'),
+    bindings: {
+        sectionQuestion: '<',
+    },
+    controller: [
+        'Assessment',
+        function(Assessment) {
+            const vm = this;
+
+            vm.getScore = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return vm.sectionQuestion.essayAnswer.evaluatedScore || 0;
+            };
+
+            vm.getWordCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
+            };
+
+            vm.getCharacterCount = function() {
+                if (!vm.sectionQuestion.essayAnswer) {
+                    return 0;
+                }
+                return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
+            };
         },
-        controller: ['Assessment',
-            function (Assessment) {
-
-                const vm = this;
-
-                vm.getScore = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return vm.sectionQuestion.essayAnswer.evaluatedScore || 0;
-                };
-
-                vm.getWordCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countWords(vm.sectionQuestion.essayAnswer.answer);
-                };
-
-                vm.getCharacterCount = function () {
-                    if (!vm.sectionQuestion.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countCharacters(vm.sectionQuestion.essayAnswer.answer);
-                };
-            }
-        ]
-    });
+    ],
+});

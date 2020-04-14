@@ -5,13 +5,21 @@
 </div>
 <div id="dashboard">
     <div class="main-row">
-        <div class="detail-row-tall"
-             ng-repeat="room in $ctrl.rooms | filter: $ctrl.massEditedRoomFilter | orderBy:'name'">
+        <div
+            class="detail-row-tall"
+            ng-repeat="room in $ctrl.rooms | filter: $ctrl.massEditedRoomFilter | orderBy:'name'"
+        >
             <div class="col-md-12">
                 <b>{{room.name}}</b>
             </div>
-            <exception-list room="room" on-create="$ctrl.addException(exception)" on-delete="$ctrl.deleteException(exception)"
-                            filter="$ctrl.massEditedExceptionFilter" hide-button="true" hide-title="true"></exception-list>
+            <exception-list
+                room="room"
+                on-create="$ctrl.addException(exception)"
+                on-delete="$ctrl.deleteException(exception)"
+                filter="$ctrl.massEditedExceptionFilter"
+                hide-button="true"
+                hide-title="true"
+            ></exception-list>
         </div>
     </div>
     <div class="main-row">

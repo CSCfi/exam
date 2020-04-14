@@ -36,12 +36,13 @@ import backend.models.Exam;
 import backend.models.User;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;
 
 public interface BaseAttachmentInterface<T> {
+
     CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);
 
     CompletionStage<Result> addAttachmentToQuestion(Http.Request request);
@@ -63,6 +64,8 @@ public interface BaseAttachmentInterface<T> {
     CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request);
 
     CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request);
+
+    ConfigReader getConfigReader();
 
     default User getUser(Http.Request request) {
         return request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -106,7 +109,7 @@ public interface BaseAttachmentInterface<T> {
         }
         TemporaryFile file = filePart.getRef();
         Optional<String> contentLength = request.header("Content-Length");
-        if (!contentLength.isPresent() ||  Long.parseLong(contentLength.get()) > ConfigUtil.getMaxFileSize()) {
+        if (!contentLength.isPresent() ||  Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
             throw new IllegalArgumentException("sitnet_file_too_large");
         }
         return new MultipartForm(filePart, body.asFormUrlEncoded());

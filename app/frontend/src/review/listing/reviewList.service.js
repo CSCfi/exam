@@ -12,192 +12,151 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import _ from 'lodash';
 import toast from 'toastr';
 
-angular.module('app.review')
-    .service('ReviewList', ['$q', '$http', '$translate', 'Exam', 'ExamRes',
-        function ($q, $http, $translate, Exam, ExamRes) {
-
-            const self = this;
-
-            self.getDisplayName = function (review, collaborative = false) {
-                return review.user ? `${review.user.lastName} ${review.user.firstName}` :
-                    collaborative ? review._id : review.exam.id;
-            };
-
-            self.gradeExam = function (exam) {
-                if (!exam.grade || !exam.grade.id) {
-                    exam.grade = {};
+class ReviewListService {
+    constructor($q, $http, $translate, Exam, ExamRes) {
+        this.getDisplayName = (review, collaborative = false) => {
+            return review.user
+                ? `${review.user.lastName} ${review.user.firstName}`
+                : collaborative
+                ? review._id
+                : review.exam.id;
+        };
+        this.gradeExam = exam => {
+            if (!exam.grade || !exam.grade.id) {
+                exam.grade = {};
+            }
+            if (!exam.selectedGrade) {
+                exam.selectedGrade = {};
+            }
+            const scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
+            scale.grades = scale.grades || [];
+            exam.selectableGrades = scale.grades.map(grade => {
+                grade.type = grade.name;
+                grade.name = Exam.getExamGradeDisplayName(grade.name);
+                if (exam.grade && exam.grade.id === grade.id) {
+                    exam.grade.type = grade.type;
+                    exam.selectedGrade = grade;
                 }
-                if (!exam.selectedGrade) {
-                    exam.selectedGrade = {};
-                }
-                const scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
-                scale.grades = scale.grades || [];
-                exam.selectableGrades = scale.grades.map(function (grade) {
-                    grade.type = grade.name;
-                    grade.name = Exam.getExamGradeDisplayName(grade.name);
-                    if (exam.grade && exam.grade.id === grade.id) {
-                        exam.grade.type = grade.type;
-                        exam.selectedGrade = grade;
-                    }
-                    return grade;
-                });
-                const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
-                if (exam.gradeless && !exam.selectedGrade) {
-                    exam.selectedGrade = noGrade;
-                }
-                exam.selectableGrades.push(noGrade);
+                return grade;
+            });
+            const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
+            if (exam.gradeless && !exam.selectedGrade) {
+                exam.selectedGrade = noGrade;
+            }
+            exam.selectableGrades.push(noGrade);
+        };
+        this.filterReview = (filter, review) => {
+            if (!filter) {
+                return true;
+            }
+            const s = filter.toLowerCase();
+            const name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
+            return (
+                name.toLowerCase().indexOf(s) > -1 ||
+                _.get(review, 'user.email', '')
+                    .toLowerCase()
+                    .indexOf(s) > -1
+            );
+        };
+        this.filterByState = (reviews, states) => {
+            return reviews.filter(r => {
+                return states.indexOf(r.exam.state) > -1;
+            });
+        };
+        this.prepareView = (items, setup) => {
+            items.forEach(setup);
+            return {
+                items: items,
+                filtered: items,
+                toggle: items.length > 0,
+                pageSize: 30,
             };
-
-            self.filterReview = function (filter, review) {
-                if (!filter) {
-                    return true;
-                }
-                const s = filter.toLowerCase();
-                const name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
-                return name.toLowerCase().indexOf(s) > -1
-                    || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
-            };
-
-            self.filterByState = function (reviews, states) {
-                return reviews.filter(function (r) {
-                    return states.indexOf(r.exam.state) > -1;
-                });
-            };
-
-            self.prepareView = function (items, setup) {
-                items.forEach(setup);
-                return {
-                    items: items,
-                    filtered: items,
-                    toggle: items.length > 0,
-                    pageSize: 30
-                };
-            };
-
-            self.applyFilter = function (filter, items) {
-                if (!filter) {
-                    return items;
-                }
-                return items.filter(function (i) {
-                    return self.filterReview(filter, i);
-                });
-            };
-
-            const getSelectedReviews = function (items) {
-                const objects = items.filter(function (i) {
-                    return i.selected;
-                });
-                if (objects.length === 0) {
-                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
-                    return;
-                }
-                return objects;
-            };
-
-            const resetSelections = function (scope, view) {
-                let prev, next;
-                for (let k in scope) {
-                    if (scope.hasOwnProperty(k)) {
-                        if (k === view) {
-                            scope[k] = !scope[k];
-                            next = scope[k];
-                        } else {
-                            if (scope[k]) {
-                                prev = true;
-                            }
-                            scope[k] = false;
-                        }
-                    }
-                }
-                return prev && next;
-            };
-
-            self.selectAll = function (scope, items) {
-                const override = resetSelections(scope, 'all');
-                items.forEach(function (i) {
-                    i.selected = !i.selected || override;
-                });
-            };
-
-            self.selectPage = function (scope, items, selector) {
-                const override = resetSelections(scope, 'page');
-                const boxes = angular.element('.' + selector);
-                const ids = [];
-                angular.forEach(boxes, function (input) {
-                    ids.push(parseInt(angular.element(input).val()));
-                });
-                // init all as not selected
-                if (override) {
-                    items.forEach(function (i) {
-                        i.selected = false;
-                    });
-                }
-                const pageItems = items.filter(function (i) {
-                    return ids.indexOf(i.exam.id) > -1;
-                });
-                pageItems.forEach(function (pi) {
-                    pi.selected = !pi.selected || override;
-                });
-            };
-
-            self.getSelectedReviews = function (items) {
-                const objects = items.filter(function (i) {
-                    return i.selected;
-                });
-                if (objects.length === 0) {
-                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
-                    return;
-                }
-                return objects;
-            };
-
-            const send = function (review, examId, state) {
-                const deferred = $q.defer();
-                const exam = review.exam;
-
-                if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
-                    const examToRecord = {
-                        'id': exam.id,
-                        'state': state,
-                        'grade': exam.grade,
-                        'customCredit': exam.customCredit,
-                        'totalScore': exam.totalScore,
-                        'creditType': exam.creditType,
-                        'answerLanguage': exam.answerLanguage
-                    };
-                    if (examId) {
-                        const url = `/integration/iop/reviews/${examId}/${review._id}/record`;
-                        examToRecord.rev = review._rev;
-                        $http.put(url, examToRecord).then(function (resp) {
-                            review._rev = resp.data.rev;
-                            deferred.resolve();
-                        });
+        };
+        this.applyFilter = (filter, items) => {
+            if (!filter) {
+                return items;
+            }
+            return items.filter(i => {
+                return this.filterReview(filter, i);
+            });
+        };
+        const resetSelections = (scope, view) => {
+            let prev, next;
+            for (const k in scope) {
+                if (Object.prototype.hasOwnProperty.call(scope, k)) {
+                    if (k === view) {
+                        scope[k] = !scope[k];
+                        next = scope[k];
                     } else {
-                        const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
-                        resource.add(examToRecord, function () {
-                            deferred.resolve();
-                        });
+                        if (scope[k]) {
+                            prev = true;
+                        }
+                        scope[k] = false;
                     }
-                } else {
-                    toast.error($translate.instant('sitnet_failed_to_record_review'));
-                    deferred.reject();
                 }
-                return deferred.promise;
             }
-
-            self.sendToArchive = function (review, examId) {
-                send(review, examId, 'ARCHIVED');
+            return prev && next;
+        };
+        this.selectAll = (scope, items) => {
+            const override = resetSelections(scope, 'all');
+            items.forEach(i => (i.selected = !i.selected || override));
+        };
+        this.selectPage = (scope, items, selector) => {
+            const override = resetSelections(scope, 'page');
+            const boxes = angular.element('.' + selector);
+            const ids = [];
+            boxes.each((idx, input) => ids.push(parseInt(angular.element(input).val())));
+            // init all as not selected
+            if (override) {
+                items.forEach(i => (i.selected = false));
             }
+            items.filter(i => ids.indexOf(i.exam.id) > -1).forEach(pi => (pi.selected = !pi.selected || override));
+        };
+        this.getSelectedReviews = items => {
+            const objects = items.filter(i => i.selected);
+            if (objects.length === 0) {
+                toast.warning($translate.instant('sitnet_choose_atleast_one'));
+                return;
+            }
+            return objects;
+        };
+        const send = (review, examId, state) => {
+            const deferred = $q.defer();
+            const exam = review.exam;
+            if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
+                const examToRecord = {
+                    id: exam.id,
+                    state: state,
+                    grade: exam.grade,
+                    customCredit: exam.customCredit,
+                    totalScore: exam.totalScore,
+                    creditType: exam.creditType,
+                    answerLanguage: exam.answerLanguage,
+                };
+                if (examId) {
+                    const url = `/integration/iop/reviews/${examId}/${review._id}/record`;
+                    examToRecord.rev = review._rev;
+                    $http.put(url, examToRecord).then(function(resp) {
+                        review._rev = resp.data.rev;
+                        deferred.resolve();
+                    });
+                } else {
+                    const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+                    resource.add(examToRecord, () => deferred.resolve());
+                }
+            } else {
+                toast.error($translate.instant('sitnet_failed_to_record_review'));
+                deferred.reject();
+            }
+            return deferred.promise;
+        };
+        this.sendToArchive = (review, examId) => send(review, examId, 'ARCHIVED');
+        this.sendToRegistry = (review, examId) => send(review, examId, 'GRADED_LOGGED');
+    }
+}
 
-            self.sendToRegistry = function (review, examId) {
-                send(review, examId, 'GRADED_LOGGED');
-            };
-
-
-        }]);
-
+angular.module('app.review').service('ReviewList', ['$q', '$http', '$translate', 'Exam', 'ExamRes', ReviewListService]);

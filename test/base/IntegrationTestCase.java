@@ -323,6 +323,7 @@ public class IntegrationTestCase {
             Ebean.saveAll(all.get("question-essay"));
             Ebean.saveAll(all.get("question-multiple-choice"));
             Ebean.saveAll(all.get("question-weighted-multiple-choice"));
+            Ebean.saveAll(all.get("question-claim-choice"));
             Ebean.saveAll(all.get("question-clozetest"));
             Ebean.saveAll(all.get("softwares"));
             Ebean.saveAll(all.get("courses"));

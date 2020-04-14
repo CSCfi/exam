@@ -12,69 +12,81 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as toast from 'toastr';
 
-angular.module('app.exam.editor')
-    .component('coursePicker', {
-        template: require('./coursePicker.template.html'),
-        bindings: {
-            course: '<',
-            onUpdate: '&'
-        },
-        controller: ['$translate', 'Course',
-            function ($translate, Course) {
+import { Course } from '../../exam.model';
 
-                const vm = this;
+export const CoursePickerComponent: angular.IComponentOptions = {
+    template: require('./coursePicker.template.html'),
+    bindings: {
+        course: '<',
+        onUpdate: '&',
+    },
+    controller: class CoursePickerController implements angular.IComponentController, angular.IOnInit {
+        course: Course;
+        onUpdate: (_: { course: { name: string; code: string } }) => any;
+        filter: { name: string; code: string };
+        loadingCoursesByCode: boolean;
+        loadingCoursesByName: boolean;
 
-                vm.$onInit = function () {
-                    vm.filter = {
-                        name: vm.course ? vm.course.name : '',
-                        code: vm.course ? vm.course.code : ''
-                    };
-                };
+        constructor(
+            private $q: angular.IQService,
+            private $translate: angular.translate.ITranslateService,
+            private $http: angular.IHttpService,
+        ) {
+            'ngInject';
+        }
 
-                vm.getCourses = (filter: string, criteria: string) => {
-                    toggleLoadingIcon(filter, true);
-                    setInputValue(filter, criteria);
-                    return Course.courseApi.query({ filter: filter, q: criteria }).$promise.then(
-                        function (courses) {
-                            toggleLoadingIcon(filter, false);
-                            if (courses.length === 0) {
-                                toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + criteria + ' )');
-                            }
-                            return courses;
-                        },
-                        function () {
-                            toggleLoadingIcon(filter, false);
-                            toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + criteria + ' )');
-                            return [];
-                        }
-                    );
-                };
+        $onInit = () => {
+            this.filter = {
+                name: this.course ? this.course.name : '',
+                code: this.course ? this.course.code : '',
+            };
+        };
 
-                vm.onCourseSelect = function (selection) {
-                    vm.filter = { name: selection.name, code: selection.code };
-                    vm.onUpdate({ course: selection });
-                };
-
-                function toggleLoadingIcon(filter, isOn) {
-                    if (filter && filter === 'code') {
-                        vm.loadingCoursesByCode = isOn;
-                    } else if (filter && filter === 'name') {
-                        vm.loadingCoursesByName = isOn;
+        getCourses = (filter: string, criteria: string): angular.IPromise<Course[]> => {
+            this.toggleLoadingIcon(filter, true);
+            this.setInputValue(filter, criteria);
+            const deferred: angular.IDeferred<Course[]> = this.$q.defer();
+            this.$http
+                .get('/app/courses', { params: { filter: filter, q: criteria } })
+                .then((resp: angular.IHttpResponse<Course[]>) => {
+                    this.toggleLoadingIcon(filter, false);
+                    if (resp.data.length === 0) {
+                        toast.error(`${this.$translate.instant('sitnet_course_not_found')} ( ${criteria} )`);
                     }
-                }
+                    return deferred.resolve(resp.data);
+                })
+                .catch(() => {
+                    this.toggleLoadingIcon(filter, false);
+                    toast.error(`${this.$translate.instant('sitnet_course_not_found')} ( ${criteria} )`);
+                    return deferred.resolve([]);
+                });
+            return deferred.promise;
+        };
 
-                function setInputValue(filter, value) {
-                    if (filter === 'code') {
-                        vm.filter = { code: value };
-                    } else if (filter === 'name') {
-                        vm.filter = { name: value };
-                    }
-                }
+        onCourseSelect = (selection: { name: string; code: string }) => {
+            this.filter = { name: selection.name, code: selection.code };
+            this.onUpdate({ course: selection });
+        };
 
-            }]
-    });
+        toggleLoadingIcon = (filter: string, isOn: boolean) => {
+            if (filter && filter === 'code') {
+                this.loadingCoursesByCode = isOn;
+            } else if (filter && filter === 'name') {
+                this.loadingCoursesByName = isOn;
+            }
+        };
 
+        setInputValue = (filter: string, value: string) => {
+            if (filter === 'code') {
+                this.filter = { code: value, name: '' };
+            } else if (filter === 'name') {
+                this.filter = { name: value, code: '' };
+            }
+        };
+    },
+};
+
+angular.module('app.exam.editor').component('coursePicker', CoursePickerComponent);

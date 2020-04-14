@@ -11,7 +11,7 @@
     </div>
     <div class="main-row">
         <div class="col-md-10 essay-answer-item">
-            <a href="/assessments/{{$ctrl.answer.examSection.exam.id}}" target="_blank">
+            <a ui-sref="assessment({id: {{$ctrl.answer.examSection.exam.id}} })" target="_blank">
                 <strong>
                     {{$ctrl.name}}
                     <span ng-if="$ctrl.answer.examSection.exam.creator.userIdentifier">
@@ -22,10 +22,18 @@
         </div>
         <div class="col-md-2 essay-answer-item">
             <a class="pull-right" ng-click="$ctrl.answer.expanded = !$ctrl.answer.expanded" class="pointer-hand">
-                <img ng-show="!$ctrl.answer.expanded" src="Images/icon_list_show_right.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
-                <img ng-show="$ctrl.answer.expanded" src="Images/icon_list_show_down.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
+                <img
+                    ng-show="!$ctrl.answer.expanded"
+                    src="Images/icon_list_show_right.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
+                />
+                <img
+                    ng-show="$ctrl.answer.expanded"
+                    src="Images/icon_list_show_down.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
+                />
             </a>
         </div>
     </div>
@@ -67,29 +75,38 @@
                     <strong>{{'sitnet_answer_length' | translate | uppercase }}</strong>
                 </div>
                 <div class="detail-row">
-                    {{ $ctrl.getWordCount() }} {{'sitnet_words' | translate }},
-                    {{ 'sitnet_approximately' | translate }}
+                    {{ $ctrl.getWordCount() }} {{'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
                     {{ $ctrl.getCharacterCount() }} {{'sitnet_characters' | translate}}
                 </div>
                 <div class="detail-row">
-                    {{ 'sitnet_essay_length_recommendation' | translate}}:
-                    {{ $ctrl.answer.expectedWordCount }}
-                    ({{ 'sitnet_approximately' | translate}} {{$ctrl.answer.expectedWordCount * 8}}
-                    {{'sitnet_characters' | translate}})
+                    {{ 'sitnet_essay_length_recommendation' | translate}}: {{ $ctrl.answer.expectedWordCount }} ({{
+                    'sitnet_approximately' | translate}} {{$ctrl.answer.expectedWordCount * 8}} {{'sitnet_characters' |
+                    translate}})
                 </div>
             </div>
             <div class="col-md-2 essay-answer-checkbox-item">
                 <div class="main-row">
-                    <strong>{{'sitnet_word_points' | translate | uppercase}}
-                        &nbsp;<small>[{{0}}-{{$ctrl.displayMaxScore()}}]</small>
+                    <strong
+                        >{{'sitnet_word_points' | translate | uppercase}} &nbsp;<small
+                            >[{{0}}-{{$ctrl.displayMaxScore()}}]</small
+                        >
                     </strong>
                 </div>
                 <div class="detail-row">
                     <div ng-if="$ctrl.answer.evaluationType === 'Points'">
                         <form name="essayPoints">
-                            <input id="score" name="score" type="number" lang="en" class="form-control"
-                                ng-model="$ctrl.answer.essayAnswer.temporaryScore" size="5" onclick="this.focus();"
-                                ng-disabled="!$ctrl.editable" min="0" max="{{$ctrl.answer.maxScore}}" />
+                            <input
+                                name="score"
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                ng-model="$ctrl.answer.essayAnswer.temporaryScore"
+                                size="5"
+                                onclick="this.focus();"
+                                ng-disabled="!$ctrl.editable"
+                                min="0"
+                                max="{{$ctrl.answer.maxScore}}"
+                            />
                             <small ng-show="essayPoints.$invalid" class="alert-danger">
                                 <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate
                                 }}
@@ -97,8 +114,11 @@
                         </form>
                     </div>
                     <div ng-if="$ctrl.answer.evaluationType === 'Selection'">
-                        <select class="form-control" ng-model="$ctrl.answer.essayAnswer.textualScore"
-                            ng-disabled="!$ctrl.editable">
+                        <select
+                            class="form-control"
+                            ng-model="$ctrl.answer.essayAnswer.textualScore"
+                            ng-disabled="!$ctrl.editable"
+                        >
                             <option value="1" ng-selected="$ctrl.answer.essayAnswer.textualScore == 1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
@@ -114,15 +134,19 @@
         <div class="main-row">
             <span class="col-md-12 checkbox">
                 <label>
-                    <input type="checkbox" ng-model="$ctrl.answer.selected"
-                        ng-disabled="!$ctrl.editable || !$ctrl.isAssessed()">
+                    <input
+                        type="checkbox"
+                        ng-model="$ctrl.answer.selected"
+                        ng-disabled="!$ctrl.editable || !$ctrl.isAssessed()"
+                    />
                     {{$ctrl.action | translate }}
                 </label>
-                <i ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected"
-                    class="marl10 pointer fa fa-lg fa-share text-success" ng-click="$ctrl.saveScore()"></i>
+                <i
+                    ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected"
+                    class="marl10 pointer fa fa-lg fa-share text-success"
+                    ng-click="$ctrl.saveScore()"
+                ></i>
             </span>
         </div>
-
     </div>
-
 </div>

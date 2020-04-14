@@ -27,47 +27,59 @@ interface CollaborativeExamInfo extends CollaborativeExam {
 }
 
 export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
-    template: `
-    <div id="dashboard">
-        <div>
-            <div class="student-details-title-wrap padtop padleft">
-                <div class="student-exam-search-title">{{'sitnet_collaborative_exams' | translate}}</div>
-            </div>
-        </div>
-        <div class="exams-list marr30 list-item" ng-repeat="exam in $ctrl.exams">
-            <exam-search-result exam="exam" collaborative="true"></exam-search-result>
-        </div>
-    </div>
-    `,
+    template: require('./collaborativeExamSearch.template.html'),
     controller: class CollaborativeExamSearchController implements angular.IComponentController {
-
         exams: CollaborativeExamInfo[];
+        filter: { text: string };
+        loader: { loading: boolean };
 
         constructor(
             private Enrolment: EnrolmentService,
             private Language: any,
-            private CollaborativeExam: CollaborativeExamService) {
+            private CollaborativeExam: CollaborativeExamService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
-            this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
-                this.exams = exams.map(e =>
-                    _.assign(e, {
-                        reservationMade: false,
-                        enrolled: false,
-                        languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
-                    }));
-                this.exams.forEach(e => {
-                    this.Enrolment.getEnrolments(e.id, true).then(enrolments => {
-                        e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
-                        e.enrolled = enrolments.length > 0;
-                    }).catch(angular.noop);
-                });
-            }).catch(angular.noop);
+            this.filter = { text: '' };
+            this.loader = { loading: false };
         }
 
-    }
+        search = () => {
+            const { text } = this.filter;
+
+            if (text.length <= 2) {
+                return;
+            }
+
+            this.loader = { loading: true };
+            this.CollaborativeExam.searchExams(text)
+                .then((exams: CollaborativeExam[]) => this.updateExamList(exams))
+                .catch(angular.noop)
+                .finally(() => {
+                    this.loader = { loading: false };
+                });
+        };
+
+        updateExamList(exams: CollaborativeExam[]) {
+            this.exams = exams.map(e =>
+                _.assign(e, {
+                    reservationMade: false,
+                    enrolled: false,
+                    languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
+                }),
+            );
+            this.exams.forEach(e => {
+                this.Enrolment.getEnrolments(e.id, true)
+                    .then(enrolments => {
+                        e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+                        e.enrolled = enrolments.length > 0;
+                    })
+                    .catch(angular.noop);
+            });
+        }
+    },
 };
 
 angular.module('app.enrolment').component('collaborativeExamSearch', CollaborativeExamSearchComponent);

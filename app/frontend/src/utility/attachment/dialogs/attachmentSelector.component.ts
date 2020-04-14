@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
+
 import { FileService } from '../../file/file.service';
 
 declare function require(name: string): any;
@@ -31,39 +31,35 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
     bindings: {
         close: '&',
         dismiss: '&',
-        resolve: '<'
+        resolve: '<',
     },
     controller: class AttachmentSelectorController implements angular.IComponentController {
         close: (r: FileResult) => void;
         dismiss: (r: CancelResult) => void;
-        resolve: { isTeacherModal: boolean, title: string };
+        resolve: { isTeacherModal: boolean; title: string };
         title: string;
         isTeacherModal: boolean;
         maxFileSize: number;
         attachmentFile: File;
 
-        constructor(
-            private $scope: angular.IScope,
-            private Files: FileService
-        ) {
+        constructor(private Files: FileService) {
             'ngInject';
         }
 
         $onInit() {
             this.title = this.resolve.title || 'sitnet_attachment_selection';
             this.isTeacherModal = this.resolve.isTeacherModal;
-            this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
+            this.Files.getMaxFilesize().then(data => (this.maxFileSize = data.filesize));
         }
 
         ok() {
             this.close({
-                $value: { 'attachmentFile': this.attachmentFile }
+                $value: { attachmentFile: this.attachmentFile },
             });
         }
 
         cancel() {
             this.dismiss({ $value: 'cancel' });
         }
-
-    }
+    },
 };

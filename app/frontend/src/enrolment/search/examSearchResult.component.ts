@@ -12,8 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
+
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
 
@@ -21,16 +22,14 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
     template: require('./examSearchResult.template.html'),
     bindings: {
         exam: '<',
-        collaborative: '<'
+        collaborative: '<',
     },
     controller: class ExamSearchResultController implements angular.IComponentController {
         exam: Exam;
         collaborative: boolean;
         enrolling: boolean;
 
-        constructor(
-            private $location: angular.ILocationService,
-            private Enrolment: EnrolmentService) {
+        constructor(private $state: StateService, private Enrolment: EnrolmentService) {
             'ngInject';
         }
 
@@ -40,15 +39,18 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
             }
             this.enrolling = true;
             this.Enrolment.checkAndEnroll(this.exam, this.collaborative)
-                .then(() => this.enrolling = false)
+                .then(() => (this.enrolling = false))
                 .catch(angular.noop);
-        }
+        };
 
-        makeReservation = () =>
-            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id)
-
-
-    }
+        makeReservation = () => {
+            if (this.exam.requiresUserAgentAuth) {
+                this.$state.go('dashboard');
+            } else {
+                this.$state.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
+            }
+        };
+    },
 };
 
 angular.module('app.enrolment').component('examSearchResult', ExamSearchResultComponent);

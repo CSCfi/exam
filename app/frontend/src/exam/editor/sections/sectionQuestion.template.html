@@ -1,16 +1,24 @@
 <div class="student-enrolment-wrapper review-view">
-
     <div class="review-points-exam">
         <strong>#{{$ctrl.sectionQuestion.question.id}}</strong>
-        <a ng-if="$ctrl.sectionQuestion.question.attachment.id || $ctrl.sectionQuestion.question.attachment.externalId" class="pointer attachment-link pull-right" popover-placement="left"
-            popover-trigger="'mouseenter'" uib-popover="{{$ctrl.sectionQuestion.question.attachment.fileName}}" ng-click="$ctrl.downloadQuestionAttachment()">
+        <a
+            ng-if="$ctrl.sectionQuestion.question.attachment.id || $ctrl.sectionQuestion.question.attachment.externalId"
+            class="pointer attachment-link pull-right"
+            popover-placement="left"
+            popover-trigger="'mouseenter'"
+            uib-popover="{{$ctrl.sectionQuestion.question.attachment.fileName}}"
+            ng-click="$ctrl.downloadQuestionAttachment()"
+        >
             <i class="fa fa-paperclip fa-fw"></i>
         </a>
     </div>
     <!-- question points -->
-    <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.evaluationType === 'Points'
+    <div
+        class="review-points-exam"
+        ng-if="$ctrl.sectionQuestion.evaluationType === 'Points'
                  || $ctrl.sectionQuestion.question.type === 'ClozeTestQuestion'
-                 || $ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'">
+                 || $ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+    >
         0 / {{ $ctrl.sectionQuestion.maxScore }} {{ 'sitnet_unit_points' | translate }}
     </div>
     <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.evaluationType === 'Selection'">
@@ -19,14 +27,30 @@
     <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
         0 / {{ $ctrl.calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
     </div>
+    <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'">
+        {{ $ctrl.getMinimumOptionScore() }} / {{ $ctrl.getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' |
+        translate }}
+    </div>
 
     <!-- Question -->
     <div class="marl10 make-inline">
         <div class="review-question-title make-inline" ng-bind-html="$ctrl.sanitizeQuestion()" mathjax></div>
-        <a ng-click="$ctrl.sectionQuestion.expanded = !$ctrl.sectionQuestion.expanded" class="pointer-hand" ng-show="$ctrl.sectionQuestion.answerInstructions || $ctrl.sectionQuestion.options.length > 0">
-            <img ng-show="!$ctrl.sectionQuestion.expanded" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
+        <a
+            ng-click="$ctrl.sectionQuestion.expanded = !$ctrl.sectionQuestion.expanded"
+            class="pointer-hand"
+            ng-show="$ctrl.sectionQuestion.answerInstructions || $ctrl.sectionQuestion.options.length > 0"
+        >
+            <img
+                ng-show="!$ctrl.sectionQuestion.expanded"
+                src="Images/icon_list_show_right.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
             />
-            <img ng-show="$ctrl.sectionQuestion.expanded" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
+            <img
+                ng-show="$ctrl.sectionQuestion.expanded"
+                src="Images/icon_list_show_down.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
             />
         </a>
     </div>
@@ -35,41 +59,98 @@
     <div class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
         <a href class="pull-right dropdown-toggle exam-settings-link" uib-dropdown-toggle>
             <span class="exam-section-question-settings">{{'sitnet_settings' | translate}}</span>
-            <img src="Images/icon_settings.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_settings.png'" />
+            <img
+                src="Images/icon_settings.png"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/icon_settings.png'"
+            />
         </a>
         <ul class="dropdown-menu">
             <li>
-                <a ng-click="$ctrl.editQuestion()">
-                    {{'sitnet_edit' | translate}}</a>
+                <a ng-click="$ctrl.editQuestion()"> {{'sitnet_edit' | translate}}</a>
             </li>
             <li>
                 <a ng-click="$ctrl.removeQuestion()">{{'sitnet_remove' | translate}}</a>
             </li>
         </ul>
-
     </div>
 
-
     <div class="col-md-12" ng-show="$ctrl.sectionQuestion.expanded">
-        <img src="Images/icon_info.png" ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0" alt="exam" onerror="this.onerror=null;this.src='Images/icon_info.png'"
+        <img
+            src="Images/icon_info.png"
+            ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0"
+            alt="exam"
+            onerror="this.onerror=null;this.src='Images/icon_info.png'"
         />
         <span ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0" class="padl10">
-            {{$ctrl.sectionQuestion.answerInstructions}}</span>
+            {{$ctrl.sectionQuestion.answerInstructions}}</span
+        >
         <ul class="exam-section-question-options">
-            <li ng-show="$ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'" ng-repeat="option in $ctrl.sectionQuestion.options">
-                <img src="Images/icon_correct_answer.png" ng-show="option.option.correctOption" alt="exam" onerror="this.onerror=null;this.src='Images/icon_correct_answer.png'"
+            <li
+                ng-show="$ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                ng-repeat="option in $ctrl.sectionQuestion.options"
+            >
+                <img
+                    src="Images/icon_correct_answer.png"
+                    ng-show="option.option.correctOption"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_correct_answer.png'"
                 />
-                <img src="Images/icon_wrong_answer.png" ng-show="!option.option.correctOption" alt="exam" onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
+                <img
+                    src="Images/icon_wrong_answer.png"
+                    ng-show="!option.option.correctOption"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text">{{option.option.option}}</span>
             </li>
-            <li ng-show="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'" ng-repeat="option in $ctrl.sectionQuestion.options">
-                <img src="Images/icon_correct_answer_checkbox.png" ng-show="option.score >= 0" alt="exam" onerror="this.onerror=null;this.src='Images/icon_correct_answer_checkbox.png'"
+            <li
+                ng-show="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                ng-repeat="option in $ctrl.sectionQuestion.options"
+            >
+                <img
+                    src="Images/icon_correct_answer_checkbox.png"
+                    ng-show="option.score >= 0"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_correct_answer_checkbox.png'"
                 />
-                <img src="Images/icon_wrong_answer_checkbox.png" ng-show="option.score < 0" alt="exam" onerror="this.onerror=null;this.src='Images/icon_wrong_answer_checkbox.png'"
+                <img
+                    src="Images/icon_wrong_answer_checkbox.png"
+                    ng-show="option.score < 0"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_wrong_answer_checkbox.png'"
                 />
                 <span class="exam-question-option-text">{{option.option.option}}</span>
-                <span class="exam-question-option-text pull-right">{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
+                <span class="exam-question-option-text pull-right"
+                    >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                >
+            </li>
+            <li
+                ng-show="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'"
+                ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'option.id'"
+            >
+                <img
+                    src="Images/icon_correct_answer_radio.png"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'CorrectOption'"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
+                />
+                <img
+                    src="Images/icon_wrong_answer_radio.png"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'IncorrectOption'"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
+                />
+                <img
+                    src="Images/icon_wrong_answer.png"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'SkipOption'"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
+                />
+                <span class="exam-question-option-text">{{option.option.option}}</span>
+                <span class="exam-question-option-text pull-right"
+                    >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                >
             </li>
         </ul>
     </div>

@@ -1,9 +1,15 @@
 <div>
     <div class="form-group input-group search tab-search">
-        <input ng-model="$ctrl.filterText" type="text" ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
-            class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}" ng-change="$ctrl.search()">
+        <input
+            ng-model="$ctrl.filterText"
+            type="text"
+            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+            class="form-control search"
+            placeholder="{{'sitnet_exam_search_description' | translate }}"
+            ng-change="$ctrl.search()"
+        />
         <div class="input-group-addon search">
-            <img class="nopad" src="Images/icon_search.png" width="49" height="40">
+            <img class="nopad" src="Images/icon_search.png" width="49" height="40" />
         </div>
     </div>
     <div>
@@ -11,14 +17,55 @@
             <table class="table table-striped exams-table">
                 <thead>
                     <tr>
-                        <th class="with-top" sort by="name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                        <th class="with-top" sort by="course.code" text="sitnet_course_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                        <th class="with-top" sort by="executionType.type" text="sitnet_exam_type" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                        <th class="with-top" sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                        <th ng-repeat="column in $ctrl.extraColumns" class="with-top with-space" sort by="{{column.property}}" text="{{column.text}}"
-                            predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse">
-                        </th>
-                        <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                        <th
+                            class="with-top"
+                            sort
+                            by="name"
+                            text="sitnet_exam_name"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
+                        <th
+                            class="with-top"
+                            sort
+                            by="course.code"
+                            text="sitnet_course_code"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
+                        <th
+                            class="with-top"
+                            sort
+                            by="executionType.type"
+                            text="sitnet_exam_type"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
+                        <th
+                            class="with-top"
+                            sort
+                            by="examActiveEndDate"
+                            text="sitnet_exam_validity"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
+                        <th
+                            ng-repeat="column in $ctrl.extraColumns"
+                            class="with-top with-space"
+                            sort
+                            by="{{column.property}}"
+                            text="{{column.text}}"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
+                        <th
+                            class="with-top"
+                            sort
+                            by="ownerAggregate"
+                            text="sitnet_teachers"
+                            predicate="$ctrl.sorting.predicate"
+                            reverse="$ctrl.sorting.reverse"
+                        ></th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
                     </tr>
@@ -26,15 +73,22 @@
 
                 <tbody>
                     <tr ng-repeat="exam in $ctrl.items | orderBy:$ctrl.sorting.predicate:$ctrl.sorting.reverse">
-
                         <td ng-if="exam.name" class="table-column-examname">
-                            <a ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/1">{{ exam.name }}</a>
+                            <a ng-if="$ctrl.isOwner(exam)" ui-sref="examEditor({id: {{exam.id}}, tab: 1 })"
+                                >{{ exam.name }}</a
+                            >
                             <span ng-if="!$ctrl.isOwner(exam)">{{ exam.name }}</span>
                         </td>
                         <td ng-if="!exam.name" class="table-column-examname">
-                            <a class="text-danger" ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/1">{{ 'sitnet_no_name'
-                                | translate }}</a>
-                            <span class="text-danger" ng-if="!$ctrl.isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
+                            <a
+                                class="text-danger"
+                                ng-if="$ctrl.isOwner(exam)"
+                                ui-sref="examEditor({id: {{exam.id}}, tab: 1 })"
+                                >{{ 'sitnet_no_name' | translate }}
+                            </a>
+                            <span class="text-danger" ng-if="!$ctrl.isOwner(exam)">
+                                {{ 'sitnet_no_name' | translate }}
+                            </span>
                         </td>
                         <td>
                             <span class="exam-code">{{ exam.course.code }}</span>
@@ -44,14 +98,25 @@
                         </td>
                         <td class="table-column-open-until">
                             <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
-                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate |
+                                date:'dd.MM.yyyy'}}
                             </span>
                         </td>
 
                         <td ng-repeat="column in $ctrl.extraColumns" class="table-column-enroll-participation">
                             <span class="exam-count">
-                                <a ng-if="(!column.checkOwnership || $ctrl.isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'" href="{{ column.link.replace('__', exam.id)}}">{{exam[column.property]}}</a>
-                                <span ng-if="(!$ctrl.isOwner(exam) && column.checkOwnership) && exam.executionType.type !== 'PRINTOUT'" class="exam-count-not-active">{{exam[column.property]}}</span>
+                                <a
+                                    ng-if="(!column.checkOwnership || $ctrl.isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'"
+                                    href="{{ column.link.replace('__', exam.id)}}"
+                                >
+                                    {{exam[column.property]}}
+                                </a>
+                                <span
+                                    ng-if="(!$ctrl.isOwner(exam) && column.checkOwnership) && exam.executionType.type !== 'PRINTOUT'"
+                                    class="exam-count-not-active"
+                                >
+                                    {{exam[column.property]}}
+                                </span>
                             </span>
                             <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                         </td>
@@ -61,15 +126,27 @@
                         </td>
                         <td class="text-center">
                             <a ng-if="$ctrl.isOwner(exam)" ng-click="$ctrl.deleteExam(exam)" class="pointer">
-                                <img src="Images/icon_trashcan.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_trashcan.png'" popover-placement="left"
-                                    popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_remove' | translate}}" />
+                                <img
+                                    src="Images/icon_trashcan.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='Images/icon_trashcan.png'"
+                                    popover-placement="left"
+                                    popover-trigger="'mouseenter'"
+                                    uib-popover="{{'sitnet_exam_remove' | translate}}"
+                                />
                             </a>
                         </td>
                         <td class="text-center">
                             <span ng-if="$ctrl.isOwner(exam)" class="dropdown pointer" uib-dropdown>
                                 <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                    <img src="Images/icon_copy.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_copy.png'" popover-placement="left"
-                                        popover-trigger="'mouseenter'" uib-popover="{{'sitnet_copy' | translate}}" />
+                                    <img
+                                        src="Images/icon_copy.svg"
+                                        alt="exam"
+                                        onerror="this.onerror=null;this.src='Images/icon_copy.png'"
+                                        popover-placement="left"
+                                        popover-trigger="'mouseenter'"
+                                        uib-popover="{{'sitnet_copy' | translate}}"
+                                    />
                                 </a>
                                 <ul class="dropdown-menu pull-right" style="min-width: 17em">
                                     <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
@@ -85,7 +162,6 @@
                     <tr ng-if="$ctrl.items.length === 0">
                         <td colspan="8">{{'sitnet_exam_no_result' | translate}}</td>
                     </tr>
-
                 </tbody>
             </table>
         </div>

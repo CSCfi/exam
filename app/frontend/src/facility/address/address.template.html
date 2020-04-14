@@ -4,29 +4,46 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" name="street" class="form-control ng-pristine ng-valid"
-                           ng-model="$ctrl.address.street"
-                           required ng-pattern="/^(?!\s*$).+/"
-                           ui-change="addressForm.street.$valid ? $ctrl.updateAddress() : false">
-                        <span class="input-group-addon">
-                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
-                               uib-popover="{{'sitnet_exam_room_address_street' | translate}}"></i>
-                        </span>
+                    <input
+                        type="text"
+                        name="street"
+                        class="form-control ng-pristine ng-valid"
+                        ng-model="$ctrl.address.street"
+                        required
+                        ng-pattern="/^(?!\s*$).+/"
+                        ui-change="addressForm.street.$valid ? $ctrl.updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            popover-placement="left"
+                            popover-trigger="'mouseenter'"
+                            uib-popover="{{'sitnet_exam_room_address_street' | translate}}"
+                        ></i>
+                    </span>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_zip' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" name="zip" class="form-control ng-pristine ng-valid"
-                           ng-model="$ctrl.address.zip"
-                           required ng-pattern="/^\d*(\.\d+)?$/"
-                           ui-change="addressForm.zip.$valid ? $ctrl.updateAddress() : false">
-                            <span class="input-group-addon">
-                                <i class="fa fa-question-circle fa-fw" popover-placement="left"
-                                   popover-trigger="'mouseenter'"
-                                   uib-popover="{{'sitnet_exam_room_address_zip' | translate}}"></i>
-                            </span>
+                    <input
+                        type="text"
+                        name="zip"
+                        class="form-control ng-pristine ng-valid"
+                        ng-model="$ctrl.address.zip"
+                        required
+                        ng-pattern="/^\d*(\.\d+)?$/"
+                        ui-change="addressForm.zip.$valid ? $ctrl.updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            popover-placement="left"
+                            popover-trigger="'mouseenter'"
+                            uib-popover="{{'sitnet_exam_room_address_zip' | translate}}"
+                        ></i>
+                    </span>
                 </div>
             </div>
         </div>
@@ -34,17 +51,25 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_city' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" name="city" class="form-control ng-pristine ng-valid"
-                           ng-model="$ctrl.address.city"
-                           required ng-pattern="/^(?!\s*$).+/"
-                           ui-change="addressForm.city.$valid ? $ctrl.updateAddress() : false">
-                        <span class="input-group-addon">
-                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
-                               uib-popover="{{'sitnet_exam_room_address_city' | translate}}"></i>
-                        </span>
+                    <input
+                        type="text"
+                        name="city"
+                        class="form-control ng-pristine ng-valid"
+                        ng-model="$ctrl.address.city"
+                        required
+                        ng-pattern="/^(?!\s*$).+/"
+                        ui-change="addressForm.city.$valid ? $ctrl.updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            popover-placement="left"
+                            popover-trigger="'mouseenter'"
+                            uib-popover="{{'sitnet_exam_room_address_city' | translate}}"
+                        ></i>
+                    </span>
                 </div>
             </div>
         </div>
     </form>
-
 </div>

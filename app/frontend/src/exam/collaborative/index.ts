@@ -13,9 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
+
 import { CollaborativeExamService } from './collaborativeExam.service';
 import { CollaborativeExamListingComponent } from './collaborativeExamListing.component';
 
-export default angular.module('app.exam.collaborative', [])
+export default angular
+    .module('app.exam.collaborative', [])
     .service('CollaborativeExam', CollaborativeExamService)
     .component('collaborativeExamListing', CollaborativeExamListingComponent).name;

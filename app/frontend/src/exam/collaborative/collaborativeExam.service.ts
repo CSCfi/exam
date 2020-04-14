@@ -16,53 +16,88 @@
 import * as ng from 'angular';
 import * as toast from 'toastr';
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, Participation } from '../exam.model';
+import { CollaborativeExam, Participation, CollaborativeExamState } from '../exam.model';
 
 export class CollaborativeExamService {
-
     exams: CollaborativeExam[];
 
-    constructor(
-        private $http: ng.IHttpService,
-        private $q: ng.IQService,
-        private Session: SessionService) {
-
+    constructor(private $http: ng.IHttpService, private $q: ng.IQService, private Session: SessionService) {
         'ngInject';
     }
 
     listStudentParticipations(): ng.IPromise<Participation[]> {
         const deferred: ng.IDeferred<Participation[]> = this.$q.defer();
-        this.$http.get('/integration/iop/student/finishedExams')
-            .then((resp: ng.IHttpResponse<Participation[]>) => {
+        this.$http.get('/integration/iop/student/finishedExams').then(
+            (resp: ng.IHttpResponse<Participation[]>) => {
                 deferred.resolve(resp.data);
-            }, err => {
+            },
+            err => {
                 toast.error(err.data);
                 deferred.reject(err);
-            });
+            },
+        );
         return deferred.promise;
     }
 
     listExams(): ng.IPromise<CollaborativeExam[]> {
         const deferred: ng.IDeferred<CollaborativeExam[]> = this.$q.defer();
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
-        this.$http.get(path).then((resp: ng.IHttpResponse<CollaborativeExam[]>) => {
-            deferred.resolve(resp.data);
-        }, err => {
-            toast.error(err.data);
-            deferred.reject(err);
-        });
+        this.$http.get(path).then(
+            (resp: ng.IHttpResponse<CollaborativeExam[]>) => {
+                deferred.resolve(resp.data);
+            },
+            err => {
+                toast.error(err.data);
+                deferred.reject(err);
+            },
+        );
+        return deferred.promise;
+    }
+
+    searchExams(searchTerm: string): ng.IPromise<CollaborativeExam[]> {
+        const deferred: ng.IDeferred<CollaborativeExam[]> = this.$q.defer();
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const path = this.Session.getUser().isStudent
+            ? `/integration/iop/enrolment/search${paramStr}`
+            : `/integration/iop/exams/search${paramStr}`;
+
+        this.$http.get(path).then(
+            (resp: ng.IHttpResponse<CollaborativeExam[]>) => {
+                deferred.resolve(resp.data);
+            },
+            err => {
+                toast.error(err.data);
+                deferred.reject(err);
+            },
+        );
+
         return deferred.promise;
     }
 
     createExam(): ng.IPromise<CollaborativeExam> {
         const deferred: ng.IDeferred<CollaborativeExam> = this.$q.defer();
-        this.$http.post('/integration/iop/exams', {}).then((resp: ng.IHttpResponse<CollaborativeExam>) => {
-            deferred.resolve(resp.data);
-        }, err => {
-            toast.error(err.data);
-            deferred.reject(err);
-        });
+        this.$http.post('/integration/iop/exams', {}).then(
+            (resp: ng.IHttpResponse<CollaborativeExam>) => {
+                deferred.resolve(resp.data);
+            },
+            err => {
+                toast.error(err.data);
+                deferred.reject(err);
+            },
+        );
         return deferred.promise;
     }
 
+    getExamStateTranslation(exam: CollaborativeExam): string | null {
+        switch (exam.state) {
+            case CollaborativeExamState.DRAFT:
+                return 'sitnet_draft';
+            case CollaborativeExamState.PRE_PUBLISHED:
+                return 'sitnet_pre_published';
+            case CollaborativeExamState.PUBLISHED:
+                return 'sitnet_published';
+            default:
+                return null;
+        }
+    }
 }

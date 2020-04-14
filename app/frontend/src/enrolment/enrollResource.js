@@ -15,48 +15,58 @@
 
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .factory('EnrollRes', ['$resource', function ($resource) {
+angular.module('app.enrolment').factory('EnrollRes', [
+    '$resource',
+    function($resource) {
         return {
-            list: $resource("/app/enrolments"),
-            enrolment: $resource("/app/enrolments/:id", { id: "@id" }, { "remove": { method: "DELETE" } }),
-            enroll: $resource("/app/enrolments/:id",
+            list: $resource('/app/enrolments'),
+            enrolment: $resource('/app/enrolments/:id', { id: '@id' }, { remove: { method: 'DELETE' } }),
+            enroll: $resource(
+                '/app/enrolments/:id',
                 {
-                    id: "@id"
+                    id: '@id',
                 },
                 {
-                    "create": { method: "POST", params: { id: "@id" } }
-                }),
-            enrollStudent: $resource('/app/enrolments/student/:eid',
+                    create: { method: 'POST', params: { id: '@id' } },
+                },
+            ),
+            enrollStudent: $resource(
+                '/app/enrolments/student/:eid',
                 {
-                    eid: '@eid'
+                    eid: '@eid',
                 },
                 {
-                    'create': { method: 'POST', params: { eid: '@eid' } }
-                }),
-            unenrollStudent: $resource('/app/enrolments/student/:id', { id: '@id' }, { 'remove': { method: 'DELETE' } }),
-            reservations: $resource('/app/machines/:id/reservations',
+                    create: { method: 'POST', params: { eid: '@eid' } },
+                },
+            ),
+            unenrollStudent: $resource('/app/enrolments/student/:id', { id: '@id' }, { remove: { method: 'DELETE' } }),
+            reservations: $resource(
+                '/app/machines/:id/reservations',
                 {
-                    id: '@id'
+                    id: '@id',
                 },
                 {
-                    'get': { method: 'GET', isArray: true }
-                }),
-            enrolmentsByReservation: $resource('/app/enrolments/reservation/:id',
+                    get: { method: 'GET', isArray: true },
+                },
+            ),
+            enrolmentsByReservation: $resource(
+                '/app/enrolments/reservation/:id',
                 {
-                    code: '@id'
+                    code: '@id',
                 },
                 {
-                    'get': { method: 'GET', isArray: true, params: { code: '@code' } }
-                }),
-            check: $resource('/app/enrolments/exam/:id',
+                    get: { method: 'GET', isArray: true, params: { code: '@code' } },
+                },
+            ),
+            check: $resource(
+                '/app/enrolments/exam/:id',
                 {
-                    code: '@id'
+                    code: '@id',
                 },
                 {
-                    'get': { method: 'GET', isArray: true, params: { id: '@id' } }
-                }
-            )
+                    get: { method: 'GET', isArray: true, params: { id: '@id' } },
+                },
+            ),
         };
-    }]);
-
+    },
+]);

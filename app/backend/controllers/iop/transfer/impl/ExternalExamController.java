@@ -33,12 +33,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Query;
@@ -48,6 +50,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.db.ebean.Transactional;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -55,8 +58,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
+import backend.controllers.ExaminationController;
 import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
@@ -154,7 +157,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Transactional
     public CompletionStage<Result> addExamForAssessment(String ref, Http.Request request) throws IOException {
         Optional<ExamEnrolment> option = getPrototype(ref);
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
@@ -207,15 +210,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private PathProperties getPath() {
         String path = "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
-                "requiresUserAgentAuth, anonymous, "  +
+                "requiresUserAgentAuth, trialCount, anonymous, " +
                 "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
                 "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
-                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
+                "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore)), " +
+                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
                 "options(id, answered, score, option(id, option)), " +
                 "essayAnswer(id, answer, objectVersion, attachment(*)), " +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
@@ -226,7 +229,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @SubjectNotPresent
     public CompletionStage<Result> provideEnrolment(String ref) {
         Optional<ExamEnrolment> option = getPrototype(ref);
-        if (!option.isPresent()) {
+        if (option.isEmpty()) {
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
@@ -267,10 +270,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
         URL url = parseUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
-            JsonNode root = response.asJson();
             if (response.getStatus() != Http.Status.OK) {
                 return null;
             }
+            JsonNode root = response.asJson();
             // Create external exam!
             Exam document = JsonDeserializer.deserialize(Exam.class, root);
             // Set references so that:
@@ -282,8 +285,24 @@ public class ExternalExamController extends BaseController implements ExternalEx
             String ref = UUID.randomUUID().toString();
             document.setHash(ref);
 
+            // Filter out optional sections
+            ArrayNode optionalSectionsNode = root.has("optionalSections") ?
+                    (ArrayNode)root.get("optionalSections") :
+                    Json.newArray();
+            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
+                    .map(JsonNode::asLong)
+                    .collect(Collectors.toSet());
+            document.setExamSections(document.getExamSections().stream()
+                    .filter(es -> !es.isOptional() || ids.contains(es.getId()))
+                    .collect(Collectors.toSet()));
+
             // Shuffle multi-choice options
-            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
+            document.getExamSections().stream()
+                    .flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
+                Question.Type questionType = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                if(questionType == Question.Type.ClaimChoiceQuestion) {
+                    return;
+                }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));
@@ -323,7 +342,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private static Query<ExamEnrolment> createQuery() {
         Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
-        PathProperties props = StudentExamController.getPath(true);
+        PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
     }

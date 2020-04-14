@@ -16,7 +16,6 @@
 package backend.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +61,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
                 exam.update();
                 User student = exam.getCreator();
                 actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
-                        () -> composer.composeInspectionReady(student, null, exam, Collections.emptySet()),
+                        () -> composer.composeInspectionReady(student, null, exam),
                         actor.dispatcher());
                 logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
             }
@@ -131,7 +130,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
             prev = ge;
         }
         Optional<GradeScale> scale = resolveScale(exam);
-        if (!scale.isPresent() || !scale.get().getGrades().contains(grade)) {
+        if (scale.isEmpty() || !scale.get().getGrades().contains(grade)) {
             throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
         }
         return grade;

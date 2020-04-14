@@ -1,5 +1,4 @@
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
@@ -8,7 +7,7 @@
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a href="/questions/newQuestion/1" class="pointer">
+                        <a ui-sref="newQuestion({next: 'library'})" class="pointer">
                             {{'sitnet_toolbar_new_question' | translate}}
                         </a>
                     </div>
@@ -18,15 +17,32 @@
     </div>
 
     <div class="reservation-border">
-
         <library-search on-update="$ctrl.resultsUpdated(results)"></library-search>
+        <div ng-if="$ctrl.selections.length > 0" class="padl30 questions-selections-box">
+            <div class="make-inline">
+                <span class="padr10">{{$ctrl.selections.length}} {{'sitnet_questions_selected' | translate}}</span>
+            </div>
 
-        <library-owner-selection selections="$ctrl.selections" owner-updated="$ctrl.ownerUpdated()"></library-owner-selection>
+            <div class="row margin-20">
+                <div class="col-md-3">
+                    <library-owner-selection
+                        selections="$ctrl.selections"
+                        owner-updated="$ctrl.ownerUpdated()"
+                    ></library-owner-selection>
+                </div>
+                <div class="col-md-9">
+                    <library-export selections="$ctrl.selections"></library-export>
+                </div>
+            </div>
+        </div>
 
-        <library-results questions="$ctrl.questions" on-copy="$ctrl.questionCopied(copy)"
-                         on-selection="$ctrl.questionSelected(selections)">
-        </library-results>
-
+        <div class="row margin-20">
+            <library-results
+                questions="$ctrl.questions"
+                on-copy="$ctrl.questionCopied(copy)"
+                on-selection="$ctrl.questionSelected(selections)"
+            >
+            </library-results>
+        </div>
     </div>
-
 </div>

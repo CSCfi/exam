@@ -31,6 +31,8 @@ public enum Attrs {
     public static final TypedKey<String> INSTRUCTION = TypedKey.create("instruction");
     public static final TypedKey<String> LANG = TypedKey.create("lang");
     public static final TypedKey<Long> ROOM_ID = TypedKey.create("roomId");
+    public static final TypedKey<String> ROOM_REF = TypedKey.create("roomId");
+    public static final TypedKey<String> ORG_REF = TypedKey.create("orgId");
     public static final TypedKey<Long> EXAM_ID = TypedKey.create("examId");
     public static final TypedKey<Integer> GRADE_ID = TypedKey.create("gradeId");
     public static final TypedKey<Collection<Integer>> ACCESSABILITES = TypedKey.create("accessabilities");
@@ -53,12 +55,16 @@ public enum Attrs {
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
+    public static final TypedKey<Boolean> FEEDBACK_STATUS = TypedKey.create("feedbackStatus");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
+    public static final TypedKey<Boolean> REQUIRES_USER_AGENT_AUTH = TypedKey.create("requiresUserAgentAuth");
+    public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
     public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");
     public static final TypedKey<String> ESSAY_ANSWER = TypedKey.create("essayAnswer");
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
+    public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
 }

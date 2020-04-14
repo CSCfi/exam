@@ -5,79 +5,172 @@
                 <!-- calendar box -->
                 <div class="student-enrolment-date-box" ng-if="$ctrl.enrolment.reservation">
                     {{ $ctrl.enrolment.reservation.startAt | date:'dd' }}
-                    <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 |
-                        uppercase }}</span>
+                    <span class="month-name"
+                        >{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span
+                    >
                 </div>
+                <div class="student-enrolment-date-box" ng-if="$ctrl.enrolment.examinationEventConfiguration">
+                    {{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'dd' }}
+                    <span class="month-name"
+                        >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start | date:'MMM' |
+                        limitTo:3 | uppercase }}</span
+                    >
+                </div>
+
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
-                    <a href="/enroll/exam/{{ $ctrl.enrolment.exam.id }}?code={{ $ctrl.enrolment.exam.course.code }}">
-                        {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a>
-                    <span ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous">({{
-                        'sitnet_anonymous_review' | translate }})</span>
+                    <a
+                        ui-sref="enrolments({id: {{ $ctrl.enrolment.exam.id }}, code: '{{$ctrl.enrolment.exam.course.code}}' })"
+                    >
+                        {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a
+                    >
+                    <small ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"
+                        >({{ 'sitnet_anonymous_review' | translate }})</small
+                    >
+                    <small ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth"
+                        >({{ 'sitnet_examination_type_seb' | translate }})</small
+                    >
                     <br />
-                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && $ctrl.enrolment.reservation"
-                        class="exam-ready">{{'sitnet_state_ready'
-                        | translate}}</span>
-                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !$ctrl.enrolment.reservation"
-                        class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title'
-                        | translate}}</span>
-                    <span ng-if="$ctrl.enrolment.exam.state === 'STUDENT_STARTED'" class="exam-ready">{{'sitnet_state_started'
-                        | translate}}</span>
+                    <span
+                        ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && ($ctrl.enrolment.reservation || $ctrl.enrolment.examinationEventConfiguration)"
+                        class="exam-ready"
+                        >{{'sitnet_state_ready' | translate}}</span
+                    >
+                    <span
+                        ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !$ctrl.enrolment.reservation && !$ctrl.enrolment.examinationEventConfiguration"
+                        class="exam-needs-reservation"
+                        >{{'sitnet_state_needs_reservation_title' | translate}}</span
+                    >
+                    <span ng-if="$ctrl.enrolment.exam.state === 'STUDENT_STARTED'" class="exam-ready"
+                        >{{'sitnet_state_started' | translate}}</span
+                    >
                 </div>
 
                 <!-- settings menu -->
-                <div ng-if="$ctrl.enrolment.reservation || $ctrl.enrolment.exam.executionType.type === 'PUBLIC' || $ctrl.enrolment.collaborativeExam"
-                    class="student-exam-settings">
+                <div
+                    ng-if="$ctrl.enrolment.reservation || $ctrl.enrolment.exam.executionType.type === 'PUBLIC' || $ctrl.enrolment.collaborativeExam"
+                    class="student-exam-settings"
+                >
                     <span uib-dropdown>
                         <a href id="simple-dropdown" uib-dropdown-toggle>
-                            <img class="arrow_icon" alt="{{ 'sitnet_change_enrolment_info' | translate }}"
-                                src="Images/settings_dots.png" popover-placement="left" popover-trigger="'mouseenter'"
-                                uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}">
+                            <img
+                                class="arrow_icon"
+                                alt="{{ 'sitnet_change_enrolment_info' | translate }}"
+                                src="Images/settings_dots.png"
+                                popover-placement="left"
+                                popover-trigger="'mouseenter'"
+                                uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}"
+                            />
                         </a>
                         <ul class="dropdown-menu settings" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                            <!-- enrolment with reservation, allow changing -->
                             <li ng-if="$ctrl.enrolment.reservation">
-                                <span class="pointer">&nbsp;&nbsp;
-                                    <a ng-if="$ctrl.enrolment.reservation.machine" class="text-info"
-                                        href="{{$ctrl.getLinkToCalendar()}}">{{'sitnet_student_change_reservation'
-                                        | translate}}
-                                    </a>
-                                    <a ng-if="$ctrl.enrolment.reservation.externalReservation" class="text-info"
-                                        href="/iop/calendar/{{ $ctrl.enrolment.exam.id }}">{{'sitnet_student_change_reservation'
-                                        | translate}}
-                                    </a>
-                                </span>
-                            </li>
-                            <li ng-if="$ctrl.enrolment.reservation">
-                                <span class="pointer">&nbsp;&nbsp;
-                                    <a ng-if="$ctrl.enrolment.reservation" class="text-danger pointer"
-                                        ng-click="$ctrl.removeReservation()">{{'sitnet_student_remove_reservation'
-                                        | translate}}
-                                    </a>
-                                </span>
-                            </li>
-                            <li>
                                 <span class="pointer"
-                                    ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC' && !$ctrl.enrolment.collaborativeExam">&nbsp;&nbsp;
-                                    <a popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        ng-if="$ctrl.enrolment.reservation.machine"
+                                        class="text-info"
+                                        ui-sref="{{$ctrl.getNextState()}}({ id: {{$ctrl.getNextStateParams()}} })"
+                                    >
+                                        {{'sitnet_student_change_reservation' | translate}}
+                                    </a>
+                                    <a
+                                        ng-if="$ctrl.enrolment.reservation.externalReservation"
+                                        class="text-info"
+                                        ui-sref="externalCalendar({ id: {{$ctrl.enrolment.exam.id}} })"
+                                        >{{'sitnet_student_change_reservation' | translate}}
+                                    </a>
+                                </span>
+                            </li>
+                            <!-- enrolment with examination event, allow changing -->
+                            <li
+                                ng-if="$ctrl.enrolment.examinationEventConfiguration && $ctrl.hasUpcomingAlternativeEvents()"
+                            >
+                                <span class="pointer"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
+                                        {{'sitnet_student_change_reservation' | translate}}
+                                    </a>
+                                </span>
+                            </li>
+                            <!-- enrolment with reservation, allow reservation removal -->
+                            <li ng-if="$ctrl.enrolment.reservation">
+                                <span class="pointer"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        ng-if="$ctrl.enrolment.reservation"
+                                        class="text-danger pointer"
+                                        ng-click="$ctrl.removeReservation()"
+                                        >{{'sitnet_student_remove_reservation' | translate}}
+                                    </a>
+                                </span>
+                            </li>
+                            <!-- enrolment with examination event, allow event removal -->
+                            <li ng-if="$ctrl.enrolment.examinationEventConfiguration">
+                                <span class="pointer"
+                                    >&nbsp;&nbsp;
+                                    <a class="text-danger pointer" ng-click="$ctrl.removeReservation()"
+                                        >{{'sitnet_student_remove_reservation' | translate}}
+                                    </a>
+                                </span>
+                            </li>
+                            <!-- enrolment without reservation or examination event, allow unenrolling (if other conditions pass) -->
+                            <li
+                                ng-if="(!$ctrl.enrolment.reservation && !$ctrl.enrolment.examinationEventConfiguration) && 
+                                ($ctrl.enrolment.exam.executionType.type === 'PUBLIC' || $ctrl.enrolment.collaborativeExam)"
+                            >
+                                <span class="pointer"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        popover-placement="top"
+                                        popover-popup-delay="500"
+                                        popover-trigger="'mouseenter'"
                                         uib-popover="{{ 'sitnet_remove' | translate }}"
-                                        ng-click="$ctrl.removeEnrolment()">
+                                        ng-click="$ctrl.removeEnrolment()"
+                                    >
                                         {{ 'sitnet_student_remove_enrolment' | translate }}
                                     </a>
                                 </span>
                             </li>
-                            <li ng-if="!$ctrl.enrolment.reservation">
-                                <span class="pointer"
-                                    ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'">&nbsp;&nbsp;
-                                    <a ng-if="!$ctrl.enrolment.reservation" class="text-info"
-                                        href="{{$ctrl.getLinkToCalendar()}}">
-                                        {{ 'sitnet_student_new_reservation' | translate }}</a>
+                            <!-- enrolment without reservation, allow making reservation -->
+                            <li ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth">
+                                <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
+                                        {{ 'sitnet_student_new_reservation' | translate }}</a
+                                    >
+                                </span>
+                            </li>
+                            <!-- enrolment without examination event, allow making reservation -->
+                            <li
+                                ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.requiresUserAgentAuth && $ctrl.hasUpcomingAlternativeEvents()"
+                            >
+                                <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
+                                    >&nbsp;&nbsp;
+                                    <a
+                                        class="text-info"
+                                        ng-click="$ctrl.makeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.makeReservation()"
+                                    >
+                                        {{ 'sitnet_student_new_reservation' | translate }}</a
+                                    >
                                 </span>
                             </li>
                         </ul>
                     </span>
                 </div>
             </div>
-
         </div>
 
         <div class="row">
@@ -102,16 +195,27 @@
                             <teacher-list exam="$ctrl.enrolment.exam" />
                         </div>
                         <div>
-                            <a class="message-to-teacher pointer" ng-click="$ctrl.addEnrolmentInformation()">
+                            <a
+                                class="message-to-teacher pointer"
+                                ng-click="$ctrl.addEnrolmentInformation()"
+                                ng-enter="$ctrl.addEnrolmentInformation()"
+                                tabindex="0"
+                            >
                                 <span ng-if="$ctrl.enrolment.information">
-                                    <img class="arrow_icon" alt="edit message to teacher" src="Images/icon_message.png">
-                                    {{ 'sitnet_student_edit' |
-                                    translate }}
+                                    <img
+                                        class="arrow_icon"
+                                        alt="edit message to teacher"
+                                        src="Images/icon_message.png"
+                                    />
+                                    {{ 'sitnet_student_edit' | translate }}
                                 </span>
                                 <span ng-if="!$ctrl.enrolment.information">
-                                    <img class="arrow_icon" src="Images/icon_message.png" alt="add message to teacher">
-                                    {{ 'sitnet_student_add' |
-                                    translate }}
+                                    <img
+                                        class="arrow_icon"
+                                        src="Images/icon_message.png"
+                                        alt="add message to teacher"
+                                    />
+                                    {{ 'sitnet_student_add' | translate }}
                                 </span>
                             </a>
                         </div>
@@ -125,11 +229,13 @@
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" ng-if="$ctrl.enrolment.reservation.machine">
                         {{ $ctrl.enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; {{
-                        $ctrl.enrolment.reservation.machine.room.name
-                        }} ({{ $ctrl.enrolment.reservation.machine.room.roomCode }})
+                        $ctrl.enrolment.reservation.machine.room.name }} ({{
+                        $ctrl.enrolment.reservation.machine.room.roomCode }})
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3"
-                        ng-if="$ctrl.enrolment.reservation.externalReservation">
+                    <div
+                        class="col-xs-6 col-sm-6 col-md-3 col-lg-3"
+                        ng-if="$ctrl.enrolment.reservation.externalReservation"
+                    >
                         <span ng-if="$ctrl.enrolment.reservation.externalReservation.orgName">
                             <strong>{{ 'sitnet_faculty_name' | translate | uppercase }}:</strong>
                             {{ $ctrl.enrolment.reservation.externalReservation.orgName }} ({{
@@ -140,13 +246,13 @@
                         <strong>{{ 'sitnet_room_building_name' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.buildingName }}<br />
                         <strong>{{ 'sitnet_exam_room' | translate | uppercase }}:</strong>
-                        {{ $ctrl.enrolment.reservation.externalReservation.roomName }}
-                        ({{ $ctrl.enrolment.reservation.externalReservation.roomCode }})<br />
+                        {{ $ctrl.enrolment.reservation.externalReservation.roomName }} ({{
+                        $ctrl.enrolment.reservation.externalReservation.roomCode }})<br />
                         <strong>{{'sitnet_exam_machine' | translate | uppercase }}:</strong>
                         {{ $ctrl.enrolment.reservation.externalReservation.machineName }}<br />
-                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.street }},
-                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp;
-                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.city | uppercase }}
+                        {{ $ctrl.enrolment.reservation.externalReservation.mailAddress.street }}, {{
+                        $ctrl.enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp; {{
+                        $ctrl.enrolment.reservation.externalReservation.mailAddress.city | uppercase }}
                     </div>
 
                     <div class="clearfix visible-xs"></div>
@@ -156,8 +262,8 @@
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                         {{ $ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy' }} {{
-                        $ctrl.enrolment.reservation.occasion.startAt
-                        }} &ndash; {{ $ctrl.enrolment.reservation.occasion.endAt }}
+                        $ctrl.enrolment.reservation.occasion.startAt }} &ndash; {{
+                        $ctrl.enrolment.reservation.occasion.endAt }}
                     </div>
                 </div>
             </div>
@@ -171,16 +277,43 @@
         <div class="row" ng-if="!$ctrl.enrolment.reservation">
             <div class="col-md-12">
                 <div class="row">
-
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                         {{ 'sitnet_exam_validity' | translate }}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         {{ $ctrl.enrolment.exam.examActiveStartDate ||
-                        $ctrl.enrolment.collaborativeExam.examActiveStartDate | date:'dd.MM.yyyy'
-                        }} &ndash; {{ $ctrl.enrolment.exam.examActiveEndDate ||
-                        $ctrl.enrolment.collaborativeExam.examActiveEndDate
-                        | date:'dd.MM.yyyy' }}
+                        $ctrl.enrolment.collaborativeExam.examActiveStartDate | date:'dd.MM.yyyy' }} &ndash; {{
+                        $ctrl.enrolment.exam.examActiveEndDate || $ctrl.enrolment.collaborativeExam.examActiveEndDate |
+                        date:'dd.MM.yyyy' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mart20" ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ 'sitnet_examination_events' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        <span
+                            class="marr20"
+                            ng-repeat="config in $ctrl.enrolment.exam.examinationEventConfigurations | orderBy:'examinationEvent.start'"
+                        >
+                            <span
+                                ng-if="config.id === $ctrl.enrolment.examinationEventConfiguration.id"
+                                class="text text-success"
+                            >
+                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                            </span>
+                            <span
+                                ng-if="config.id !== $ctrl.enrolment.examinationEventConfiguration.id"
+                                class="text-muted"
+                            >
+                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -190,10 +323,14 @@
             <div class="student-exam-row-infolink">
                 <a class="infolink pointer" ng-click="$ctrl.showGuide = !$ctrl.showGuide">
                     {{ 'sitnet_room_guidance' | translate}}
-                    <img class="arrow_icon" ng-hide="$ctrl.showGuide" alt="show guidance" src="Images/arrow_right.png">
-                    <img class="arrow_icon" ng-show="$ctrl.showGuide" alt="hide guidance" src="Images/arrow_down.png">
+                    <img
+                        class="arrow_icon"
+                        ng-hide="$ctrl.showGuide"
+                        alt="show guidance"
+                        src="Images/arrow_right.png"
+                    />
+                    <img class="arrow_icon" ng-show="$ctrl.showGuide" alt="hide guidance" src="Images/arrow_down.png" />
                 </a>
-
             </div>
             <div class="student-exam-row-infobox" ng-show="$ctrl.showGuide">
                 {{ $ctrl.getRoomInstruction() }}
@@ -202,46 +339,91 @@
 
         <div class="student-exam-row">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer"
+                <a
+                    class="infolink pointer"
                     ng-show="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"
-                    ng-click="$ctrl.showInstructions = !$ctrl.showInstructions">
+                    ng-click="$ctrl.showInstructions = !$ctrl.showInstructions"
+                >
                     {{ 'sitnet_view_instructions' | translate}}
-                    <img class="arrow_icon" ng-hide="$ctrl.showInstructions" alt="show instructions"
-                        src="Images/arrow_right.png">
-                    <img class="arrow_icon" ng-show="$ctrl.showInstructions" alt="hide instructions"
-                        src="Images/arrow_down.png">
+                    <img
+                        class="arrow_icon"
+                        ng-hide="$ctrl.showInstructions"
+                        alt="show instructions"
+                        src="Images/arrow_right.png"
+                    />
+                    <img
+                        class="arrow_icon"
+                        ng-show="$ctrl.showInstructions"
+                        alt="hide instructions"
+                        src="Images/arrow_down.png"
+                    />
                 </a>
 
-                <div ng-if="!$ctrl.enrolment.reservation" class="student-message-dialog-button-save">
-
-                    <a ng-if="!$ctrl.enrolment.reservation" class="link-button pointer" ng-click="$ctrl.goToCalendar()">{{'sitnet_student_new_reservation'
-                        | translate}}</a>
+                <div
+                    ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth"
+                    class="student-message-dialog-button-save"
+                >
+                    <a
+                        class="link-button pointer"
+                        ng-click="$ctrl.makeReservation()"
+                        tabindex="0"
+                        ng-enter="$ctrl.makeReservation()"
+                        >{{'sitnet_student_new_reservation' | translate}}</a
+                    >
                 </div>
-
+                <div
+                    ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.requiresUserAgentAuth && $ctrl.hasUpcomingAlternativeEvents()"
+                    class="student-message-dialog-button-save"
+                >
+                    <a
+                        class="link-button pointer"
+                        ng-click="$ctrl.makeReservation()"
+                        tabindex="0"
+                        ng-enter="$ctrl.makeReservation()"
+                    >
+                        {{'sitnet_student_new_reservation' | translate}}
+                    </a>
+                </div>
             </div>
 
             <div class="student-exam-row-infobox" ng-show="$ctrl.showInstructions">
-                <div ng-bind-html="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"></div>
+                <div
+                    ng-bind-html="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"
+                ></div>
             </div>
         </div>
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0">
             <div class="student-exam-row-infolink">
                 <a class="infolink pointer" ng-click="$ctrl.showMaterials = !$ctrl.showMaterials">
                     {{ 'sitnet_exam_materials' | translate}}
-                    <img class="arrow_icon" ng-hide="$ctrl.showMaterials" alt="show materials"
-                        src="Images/arrow_right.png">
-                    <img class="arrow_icon" ng-show="$ctrl.showMaterials" alt="hide materials"
-                        src="Images/arrow_down.png">
+                    <img
+                        class="arrow_icon"
+                        ng-hide="$ctrl.showMaterials"
+                        alt="show materials"
+                        src="Images/arrow_right.png"
+                    />
+                    <img
+                        class="arrow_icon"
+                        ng-show="$ctrl.showMaterials"
+                        alt="hide materials"
+                        src="Images/arrow_down.png"
+                    />
                 </a>
-                <div class="student-exam-row-infobox" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0"
-                    ng-show="$ctrl.showMaterials">
+                <div
+                    class="student-exam-row-infobox"
+                    ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0"
+                    ng-show="$ctrl.showMaterials"
+                >
                     <div ng-repeat="section in $ctrl.enrolment.exam.examSections" class="marb20">
                         <div ng-if="!section.optional">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <strong>{{ 'sitnet_exam_section' | translate}}
-                                        <small
-                                            class="text text-danger">({{'sitnet_required' | translate | lowercase }})</small>:</strong>
+                                    <strong
+                                        >{{ 'sitnet_exam_section' | translate}}
+                                        <small class="text text-danger"
+                                            >({{'sitnet_required' | translate | lowercase }})</small
+                                        >:</strong
+                                    >
                                     {{ section.name }}
                                 </div>
                             </div>
@@ -255,9 +437,12 @@
                     <div ng-repeat="section in $ctrl.enrolment.reservation.optionalSections" class="marb20">
                         <div class="row">
                             <div class="col-md-12">
-                                <strong>{{ 'sitnet_exam_section' | translate}}
-                                    <small
-                                        class="text text-success">({{'sitnet_optional' | translate | lowercase }})</small>:</strong>
+                                <strong
+                                    >{{ 'sitnet_exam_section' | translate}}
+                                    <small class="text text-success"
+                                        >({{'sitnet_optional' | translate | lowercase }})</small
+                                    >:</strong
+                                >
                                 {{ section.name }}
                             </div>
                         </div>
@@ -288,9 +473,7 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
     </div>
 </div>

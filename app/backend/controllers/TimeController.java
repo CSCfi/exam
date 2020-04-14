@@ -38,13 +38,9 @@ public class TimeController extends BaseController {
 
     @Authenticated
     @Restrict({@Group("STUDENT")})
-    public Result getExamRemainingTime(String hash, Http.Request request) throws IOException {
+    public Result getRemainingExamTime(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .fetch("exam")
                 .fetch("externalExam")
                 .where()
                 .disjunction()
@@ -58,12 +54,26 @@ public class TimeController extends BaseController {
             return notFound();
         }
 
-        final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
-        final int durationMinutes = getDuration(enrolment);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation());
-        final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
+        DateTime reservationStart = getStart(enrolment);
+        int durationMinutes = getDuration(enrolment);
+        DateTime now = getNow(enrolment);
+        Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));
+    }
+
+    private DateTime getStart(ExamEnrolment enrolment) {
+        if (enrolment.getExaminationEventConfiguration() != null) {
+            return enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+        }
+        return enrolment.getReservation().getStartAt();
+    }
+
+    private DateTime getNow(ExamEnrolment enrolment) {
+        if (enrolment.getExaminationEventConfiguration() != null) {
+            return DateTimeUtils.adjustDST(DateTime.now());
+        }
+        return DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation());
     }
 
     private int getDuration(ExamEnrolment enrolment) throws IOException {
