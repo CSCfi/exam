@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,12 +39,12 @@ import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import org.joda.time.DateTime;
 import play.Environment;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
 import backend.controllers.ExaminationController;
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
@@ -55,6 +56,7 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
+import backend.repository.ExaminationRepository;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
@@ -68,12 +70,13 @@ public class ExternalExaminationController extends ExaminationController {
 
     @Inject
     public ExternalExaminationController(EmailComposer emailComposer, ActorSystem actor,
-                                         CollaborativeExamLoader collaborativeExamLoader,
+                                         ExaminationRepository examinationRepository,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment,
+                                         HttpExecutionContext httpExecutionContext,
                                          ExternalAttachmentLoader externalAttachmentLoader,
                                          ByodConfigHandler byodConfigHandler) {
-        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment,
-                externalAttachmentLoader, byodConfigHandler);
+        super(emailComposer, examinationRepository, actor, autoEvaluationHandler, environment,
+                httpExecutionContext, externalAttachmentLoader, byodConfigHandler);
     }
 
     @Authenticated
@@ -91,26 +94,27 @@ public class ExternalExaminationController extends ExaminationController {
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
         Exam newExam = externalExam.deserialize();
-        Optional<Result> error = getEnrolmentError(enrolment, request);
-        if (error.isPresent()) {
-            return wrapAsPromise(error.get());
-        }
-        if (newExam.getState().equals(Exam.State.PUBLISHED)) {
-            newExam.setState(Exam.State.STUDENT_STARTED);
-            try {
-                externalExam.serialize(newExam);
-            } catch (IOException e) {
-                return wrapAsPromise(internalServerError());
+        return getEnrolmentError(enrolment, request).thenApplyAsync(error -> {
+            if (error.isPresent()) {
+                return error.get();
             }
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-            externalExam.setStarted(now);
-            externalExam.update();
-        }
-        newExam.setCloned(false);
-        newExam.setExternal(true);
-        newExam.setDerivedMaxScores();
-        processClozeTestQuestions(newExam);
-        return wrapAsPromise(ok(newExam, getPath(false)));
+            if (newExam.getState().equals(Exam.State.PUBLISHED)) {
+                newExam.setState(Exam.State.STUDENT_STARTED);
+                try {
+                    externalExam.serialize(newExam);
+                } catch (IOException e) {
+                    return internalServerError();
+                }
+                DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+                externalExam.setStarted(now);
+                externalExam.update();
+            }
+            newExam.setCloned(false);
+            newExam.setExternal(true);
+            newExam.setDerivedMaxScores();
+            processClozeTestQuestions(newExam);
+            return ok(newExam, getPath(false));
+        });
     }
 
     @Override
@@ -133,21 +137,23 @@ public class ExternalExaminationController extends ExaminationController {
 
     @Authenticated
     @Override
-    public Result turnExam(String hash, Http.Request request) {
-        return terminateExam(hash, Exam.State.REVIEW, request.attrs().get(Attrs.AUTHENTICATED_USER));
+    public CompletionStage<Result> turnExam(String hash, Http.Request request) {
+        return CompletableFuture.supplyAsync(() ->
+                terminateExam(hash, Exam.State.REVIEW, request.attrs().get(Attrs.AUTHENTICATED_USER)));
     }
 
     @Authenticated
     @Override
-    public Result abortExam(String hash, Http.Request request) {
-        return terminateExam(hash, Exam.State.ABORTED, request.attrs().get(Attrs.AUTHENTICATED_USER));
+    public CompletionStage<Result> abortExam(String hash, Http.Request request) {
+        return CompletableFuture.supplyAsync(() ->
+                terminateExam(hash, Exam.State.ABORTED, request.attrs().get(Attrs.AUTHENTICATED_USER)));
     }
 
     @Authenticated
     @Override
-    public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err -> err.orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (optional.isEmpty()) {
                 return forbidden();
@@ -160,15 +166,15 @@ public class ExternalExaminationController extends ExaminationController {
             return findSectionQuestion(ee, qid)
                     .map(t -> processOptions(optionIds, t._2, ee, t._1))
                     .getOrElseGet(Function.identity());
-        });
+        }));
     }
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     @Override
-    public Result answerEssay(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err -> err.orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (optional.isEmpty()) {
                 return forbidden();
@@ -206,7 +212,7 @@ public class ExternalExaminationController extends ExaminationController {
                 return internalServerError();
             }
             return ok(answer);
-        });
+        }));
     }
 
     private Either<Result, Tuple2<Exam, ExamSectionQuestion>> findSectionQuestion(ExternalExam ee, Long qid) {
@@ -227,9 +233,9 @@ public class ExternalExaminationController extends ExaminationController {
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     @Override
-    public Result answerClozeTest(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err -> err.orElseGet(() -> {
             Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (optional.isEmpty()) {
                 return forbidden();
@@ -257,7 +263,7 @@ public class ExternalExaminationController extends ExaminationController {
                 }
                 return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
             }).getOrElseGet(Function.identity());
-        });
+        }));
     }
 
 
@@ -302,7 +308,7 @@ public class ExternalExaminationController extends ExaminationController {
         return Optional.ofNullable(enrolment);
     }
 
-    private Optional<Result> getEnrolmentError(String hash, User user, Http.Request request) {
+    private CompletionStage<Optional<Result>> getEnrolmentError(String hash, User user, Http.Request request) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("externalExam.hash", hash)
                 .eq("externalExam.creator", user)

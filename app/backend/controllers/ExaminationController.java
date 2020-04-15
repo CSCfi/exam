@@ -16,7 +16,6 @@
 package backend.controllers;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -35,20 +34,18 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
 import play.db.ebean.Transactional;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
@@ -58,14 +55,13 @@ import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
 import backend.models.GeneralSettings;
-import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
-import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
+import backend.repository.ExaminationRepository;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ClozeTestAnswerSanitizer;
 import backend.sanitizers.EssayAnswerSanitizer;
@@ -80,9 +76,10 @@ import backend.util.datetime.DateTimeUtils;
 public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
+    protected final ExaminationRepository examinationRepository;
     protected final ActorSystem actor;
+    protected final HttpExecutionContext httpExecutionContext;
     private final AutoEvaluationHandler autoEvaluationHandler;
-    private final CollaborativeExamLoader collaborativeExamLoader;
     protected final Environment environment;
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
@@ -90,35 +87,22 @@ public class ExaminationController extends BaseController {
     private static final Logger.ALogger logger = Logger.of(ExaminationController.class);
 
     @Inject
-    public ExaminationController(EmailComposer emailComposer, ActorSystem actor,
-                                 CollaborativeExamLoader collaborativeExamLoader,
+    public ExaminationController(EmailComposer emailComposer,
+                                 ExaminationRepository examinationRepository,
+                                 ActorSystem actor,
                                  AutoEvaluationHandler autoEvaluationHandler,
                                  Environment environment,
+                                 HttpExecutionContext httpExecutionContext,
                                  ExternalAttachmentLoader externalAttachmentLoader,
                                  ByodConfigHandler byodConfigHandler) {
         this.emailComposer = emailComposer;
+        this.examinationRepository = examinationRepository;
         this.actor = actor;
-        this.collaborativeExamLoader = collaborativeExamLoader;
         this.autoEvaluationHandler = autoEvaluationHandler;
         this.environment = environment;
+        this.httpExecutionContext = httpExecutionContext;
         this.externalAttachmentLoader = externalAttachmentLoader;
         this.byodConfigHandler = byodConfigHandler;
-    }
-
-    private Optional<CollaborativeExam> getCollaborativeExam(String hash) {
-        Optional<CollaborativeExam> ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash)
-                .findOneOrEmpty();
-        if (ce.isPresent()) {
-            return ce;
-        }
-        Optional<Exam> exam = Ebean.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
-        if (exam.isPresent()) {
-            if (!exam.get().getExamEnrolments().isEmpty()) {
-                CollaborativeExam ce2 = exam.get().getExamEnrolments().get(0).getCollaborativeExam();
-                return ce2 == null ? Optional.empty() : Optional.of(ce2);
-            }
-        }
-        return ce;
     }
 
     @Authenticated
@@ -126,56 +110,73 @@ public class ExaminationController extends BaseController {
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<CollaborativeExam> oce = getCollaborativeExam(hash);
-        CollaborativeExam ce = oce.orElse(null);
-        return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
-            Optional<Exam> possibleClone = getPossibleClone(hash, user, ce);
-            // no exam found for hash
-            if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
-                return notFound();
-            }
-            if (possibleClone.isEmpty()) {
-                // Exam not started yet, create new exam for student
-                Exam prototype = optionalPrototype.get();
-                ExamEnrolment enrolment = getEnrolment(user, prototype, ce);
-                Optional<Result> error = getEnrolmentError(enrolment, request);
-                if (error.isPresent()) {
-                    return error.get();
-                }
-                Exam newExam = Ebean.executeCall(() -> createNewExam(prototype, user, enrolment));
-                if (enrolment.getCollaborativeExam() != null) {
-                    try {
-                        externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        logger.error("Could not fetch external attachments!", e);
-                    }
-                }
-                newExam.setCloned(true);
-                newExam.setDerivedMaxScores();
-                processClozeTestQuestions(newExam);
-                return ok(newExam, getPath(false));
-            } else {
-                // Exam started already
-                return getEnrolmentError(hash, request).orElseGet(() -> {
-                    Exam clone = possibleClone.get();
-                    // sanity check
-                    if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                        return forbidden();
-                    }
-                    clone.setCloned(false);
-                    clone.setDerivedMaxScores();
-                    processClozeTestQuestions(clone);
-                    return ok(clone, getPath(false));
-                });
-            }
-        });
+        PathProperties pp = getPath(false);
+        return examinationRepository.getCollaborativeExam(hash).thenComposeAsync(oce -> {
+            CollaborativeExam ce = oce.orElse(null);
+            return examinationRepository.getPrototype(hash, ce, pp)
+                    .thenComposeAsync(optionalPrototype -> examinationRepository.getPossibleClone(hash, user, ce, pp)
+                            .thenComposeAsync(possibleClone -> {
+                                  if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
+                                      return wrapAsPromise(notFound());
+                                  }
+                                  if (possibleClone.isEmpty()) {
+                                      // Exam not started yet, create new exam for student
+                                      Exam prototype = optionalPrototype.get();
+                                      return examinationRepository.findEnrolment(user, prototype, ce)
+                                              .thenComposeAsync(optionalEnrolment -> {
+                                                  if (optionalEnrolment.isEmpty()) {
+                                                      return wrapAsPromise(forbidden());
+                                                  }
+                                                  ExamEnrolment enrolment = optionalEnrolment.get();
+                                                  return getEnrolmentError(enrolment, request).thenComposeAsync(error -> {
+                                                      if (error.isPresent()) {
+                                                          return wrapAsPromise(error.get());
+                                                      }
+                                                      return examinationRepository.createExam(prototype, user, enrolment).thenApplyAsync(oe -> {
+                                                          if (oe.isEmpty()) {
+                                                              return internalServerError();
+                                                          }
+                                                          Exam newExam = oe.get();
+                                                          if (enrolment.getCollaborativeExam() != null) {
+                                                              try {
+                                                                  externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
+                                                              } catch (InterruptedException | ExecutionException e) {
+                                                                  logger.error("Could not fetch external attachments!", e);
+                                                              }
+                                                          }
+                                                          newExam.setCloned(true);
+                                                          newExam.setDerivedMaxScores();
+                                                          processClozeTestQuestions(newExam);
+                                                          return ok(newExam, getPath(false));
+                                                      }, httpExecutionContext.current());
+                                                  }, httpExecutionContext.current());
+                                              }, httpExecutionContext.current());
+                                              } else {
+                                                  // Exam started already
+                                                  return getEnrolmentError(hash, request).thenApplyAsync(err -> {
+                                                    if (err.isPresent()) {
+                                                        return err.get();
+                                                    }
+                                                      Exam clone = possibleClone.get();
+                                                      // sanity check
+                                                      if (clone.getState() != Exam.State.STUDENT_STARTED) {
+                                                          return forbidden();
+                                                      }
+                                                      clone.setCloned(false);
+                                                      clone.setDerivedMaxScores();
+                                                      processClozeTestQuestions(clone);
+                                                      return ok(clone, getPath(false));
+                                                  });
+                                              }
+                                            }), httpExecutionContext.current());
+            }, httpExecutionContext.current());
     }
 
     @Authenticated
     @Restrict({@Group("STUDENT")})
     @Transactional
-    public Result turnExam(String hash, Http.Request request) {
-        return getEnrolmentError(hash, request).orElseGet(() -> {
+    public CompletionStage<Result> turnExam(String hash, Http.Request request) {
+        return getEnrolmentError(hash, request).thenApplyAsync(oe -> oe.orElseGet(() -> {
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             Exam exam = Ebean.find(Exam.class)
                     .fetch("examSections.sectionQuestions.question")
@@ -207,14 +208,14 @@ public class ExaminationController extends BaseController {
             } else {
                 return ok("exam already returned");
             }
-        });
+        }));
     }
 
     @Authenticated
     @Restrict({@Group("STUDENT")})
     @Transactional
-    public Result abortExam(String hash, Http.Request request) {
-        return getEnrolmentError(hash, request).orElseGet(() -> {
+    public CompletionStage<Result> abortExam(String hash, Http.Request request) {
+        return getEnrolmentError(hash, request).thenApplyAsync(oe -> oe.orElseGet(() -> {
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             Exam exam = Ebean.find(Exam.class).where()
                     .eq("creator", user)
@@ -237,101 +238,75 @@ public class ExaminationController extends BaseController {
             } else {
                 return forbidden("Exam already returned");
             }
-        });
+        }));
     }
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     @Restrict({@Group("STUDENT")})
-    public Result answerEssay(String hash, Long questionId, Http.Request request) {
-        return getEnrolmentError(hash, request).orElseGet(() -> {
-            String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-            Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-            ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
-            if (question == null) {
-                return forbidden();
-            }
-            EssayAnswer answer = question.getEssayAnswer();
-            if (answer == null) {
-                answer = new EssayAnswer();
-            } else if (objectVersion.isPresent()) {
-                answer.setObjectVersion(objectVersion.get());
-            }
-            answer.setAnswer(essayAnswer);
-            answer.save();
-            question.setEssayAnswer(answer);
-            question.save();
-            return ok(answer);
-        });
+    public CompletionStage<Result> answerEssay(String hash, Long questionId, Http.Request request) {
+        return getEnrolmentError(hash, request).thenApplyAsync(oe -> oe.orElseGet(() -> {
+                String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+                Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
+                if (question == null) {
+                    return forbidden();
+                }
+                EssayAnswer answer = question.getEssayAnswer();
+                if (answer == null) {
+                    answer = new EssayAnswer();
+                } else if (objectVersion.isPresent()) {
+                    answer.setObjectVersion(objectVersion.get());
+                }
+                answer.setAnswer(essayAnswer);
+                answer.save();
+                question.setEssayAnswer(answer);
+                question.save();
+                return ok(answer);
+            }));
     }
 
     @Authenticated
     @Restrict({@Group("STUDENT")})
-    public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
-        return getEnrolmentError(hash, request).orElseGet(() -> {
-            ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
-            List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
-                    .map(JsonNode::asLong)
-                    .collect(Collectors.toList());
-            ExamSectionQuestion question =
-                    Ebean.find(ExamSectionQuestion.class, qid);
-            if (question == null) {
-                return forbidden();
-            }
-            question.getOptions().forEach(o -> {
-                o.setAnswered(optionIds.contains(o.getId()));
-                o.update();
-            });
-            return ok();
-        });
+    public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
+        return getEnrolmentError(hash, request).thenApplyAsync(oe -> oe.orElseGet(() -> {
+                ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
+                List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
+                        .map(JsonNode::asLong)
+                        .collect(Collectors.toList());
+                ExamSectionQuestion question =
+                        Ebean.find(ExamSectionQuestion.class, qid);
+                if (question == null) {
+                    return forbidden();
+                }
+                question.getOptions().forEach(o -> {
+                    o.setAnswered(optionIds.contains(o.getId()));
+                    o.update();
+                });
+                return ok();
+            }));
     }
 
     @Authenticated
     @With(ClozeTestAnswerSanitizer.class)
     @Restrict({@Group("STUDENT")})
-    public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
-        return getEnrolmentError(hash, request).orElseGet(() -> {
-            ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
-            if (esq == null) {
-                return forbidden();
-            }
-            ClozeTestAnswer answer = esq.getClozeTestAnswer();
-            if (answer == null) {
-                answer = new ClozeTestAnswer();
-            } else {
-                long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
-                answer.setObjectVersion(objectVersion);
-            }
-            answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
-            answer.save();
-            return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
-        });
-    }
-
-    private CompletionStage<Optional<Exam>> getPrototype(String hash, CollaborativeExam ce) {
-        if (ce != null) {
-            return collaborativeExamLoader.downloadExam(ce);
-        }
-        Exam exam = createQuery()
-                .where()
-                .eq("hash", hash)
-                .isNull("parent")
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findOne();
-        if (exam == null) {
-            return CompletableFuture.supplyAsync(Optional::empty);
-        }
-        return CompletableFuture.supplyAsync(() -> Optional.of(exam));
-    }
-
-    private static Optional<Exam> getPossibleClone(String hash, User user, CollaborativeExam ce) {
-        ExpressionList<Exam> query = createQuery().where()
-                .eq("hash", hash)
-                .eq("creator", user);
-        if (ce == null) {
-            query = query.isNotNull("parent");
-        }
-        return query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOneOrEmpty();
+    public CompletionStage<Result> answerClozeTest(String hash, Long questionId, Http.Request request) {
+        return getEnrolmentError(hash, request).thenApplyAsync(oe -> oe.orElseGet(() -> {
+                ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
+                if (esq == null) {
+                    return forbidden();
+                }
+                ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                if (answer == null) {
+                    answer = new ClozeTestAnswer();
+                } else {
+                    long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                    answer.setObjectVersion(objectVersion);
+                }
+                answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                answer.save();
+                return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+            }));
     }
 
     private Optional<ExamParticipation> findParticipation(Exam exam, User user) {
@@ -351,110 +326,35 @@ public class ExaminationController extends BaseController {
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }
 
-    private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        boolean isCollaborative = enrolment.getCollaborativeExam() != null;
-        Reservation reservation = enrolment.getReservation();
-        // TODO: support for optional sections in BYOD exams
-        Set<Long> ids = reservation == null ? Collections.emptySet() :
-                reservation.getOptionalSections().stream()
-                        .map(ExamSection::getId).collect(Collectors.toSet());
-        Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
-        studentExam.setState(Exam.State.STUDENT_STARTED);
-        studentExam.setCreator(user);
-        if (!isCollaborative) {
-            studentExam.setParent(prototype);
-        }
-        studentExam.generateHash();
-        studentExam.save();
-        enrolment.setExam(studentExam);
-        enrolment.save();
-
-        ExamParticipation examParticipation = new ExamParticipation();
-        examParticipation.setUser(user);
-        examParticipation.setExam(studentExam);
-        examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
-        examParticipation.setReservation(reservation);
-        if (enrolment.getExaminationEventConfiguration() != null) {
-            examParticipation.setExaminationEvent(enrolment.getExaminationEventConfiguration().getExaminationEvent());
-        }
-        DateTime now = reservation == null ? DateTimeUtils.adjustDST(DateTime.now()) :
-                DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-        examParticipation.setStarted(now);
-        examParticipation.save();
-        return studentExam;
-    }
-
-    private boolean isInEffect(ExamEnrolment ee) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        if (ee.getReservation() != null) {
-            return ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now);
-        } else if (ee.getExaminationEventConfiguration() != null) {
-            DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
-            DateTime end = start.plusMinutes(ee.getExam().getDuration());
-            return start.isBefore(now) && end.isAfter(now);
-        }
-        return false;
-    }
-
-    private ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .fetch("examinationEventConfiguration")
-                .fetch("examinationEventConfiguration.examinationEvent")
-                .where()
-                .eq("user.id", user.getId())
-                .or()
-                .eq("exam.id", prototype.getId())
-                .and()
-                .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
-                .isNull("exam.id")
-                .endAnd()
-                .endOr()
-                .findList()
-                .stream()
-                .filter(this::isInEffect)
-                .collect(Collectors.toList());
-
-        if (enrolments.size() > 1) {
-            logger.error("multiple enrolments found during examination");
-        }
-        return enrolments.isEmpty() ? null : enrolments.get(0);
-    }
-
-    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, Http.Request request) {
+    protected CompletionStage<Optional<Result>> getEnrolmentError(ExamEnrolment enrolment, Http.Request request) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
-            return Optional.of(forbidden("sitnet_reservation_not_found"));
+            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_not_found")));
         }
         boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
         if (isByod) {
-            return byodConfigHandler.checkUserAgent(request,
-                    enrolment.getExaminationEventConfiguration().getConfigKey());
+            return CompletableFuture.supplyAsync(() -> byodConfigHandler.checkUserAgent(request,
+                    enrolment.getExaminationEventConfiguration().getConfigKey()));
         } else if (enrolment.getReservation() == null) {
-            return Optional.of(forbidden("sitnet_reservation_not_found"));
+            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_not_found")));
         } else if (enrolment.getReservation().getMachine() == null) {
-            return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
+            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_machine_not_found")));
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
-            ExamRoom examRoom = Ebean.find(ExamRoom.class)
-                    .fetch("mailAddress")
-                    .where()
-                    .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
-                    .findOne();
-            if (examRoom == null) {
-                return Optional.of(notFound());
-            }
-            String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                    + ", " + examRoom.getMailAddress().toString()
-                    + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
-            return Optional.of(forbidden(message));
+            return examinationRepository.findRoom(enrolment).thenApplyAsync(or -> {
+                if (or.isEmpty()) {
+                    return Optional.of(notFound());
+                }
+                ExamRoom room = or.get();
+                String message = "sitnet_wrong_exam_machine " + room.getName()
+                        + ", " + room.getMailAddress().toString()
+                        + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
+                return Optional.of(forbidden(message));
+            }, httpExecutionContext.current());
         }
-        return Optional.empty();
+        return CompletableFuture.supplyAsync(Optional::empty);
     }
-
 
     public static PathProperties getPath(boolean includeEnrolment) {
         String path = "(id, name, state, instruction, hash, duration, cloned, external, requiresUserAgentAuth, " +
@@ -470,13 +370,6 @@ public class ExaminationController extends BaseController {
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
                 ")))";
         return PathProperties.parse(includeEnrolment ? String.format("(exam%s)", path) : path);
-    }
-
-    private static Query<Exam> createQuery() {
-        Query<Exam> query = Ebean.find(Exam.class);
-        PathProperties props = getPath(false);
-        props.apply(query);
-        return query;
     }
 
     protected void processClozeTestQuestions(Exam exam) {
@@ -498,7 +391,7 @@ public class ExaminationController extends BaseController {
     }
 
 
-    private Optional<Result> getEnrolmentError(String hash, Http.Request request) {
+    private CompletionStage<Optional<Result>> getEnrolmentError(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
