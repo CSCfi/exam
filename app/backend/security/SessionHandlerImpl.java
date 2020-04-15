@@ -22,7 +22,7 @@ public class SessionHandlerImpl implements SessionHandler {
     @Override
     public Optional<Session> getSession(Http.RequestHeader request) {
         String token = request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : TOKEN_HEADER).orElse("");
-        return cache.getOptional(CACHE_PREFIX + token);
+        return cache.get(CACHE_PREFIX + token);
     }
 
     @Override

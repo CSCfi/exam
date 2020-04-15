@@ -40,12 +40,16 @@ languages:
 
     - &fi !!backend.models.Language
       code: fi
+      name: suomi
     - &sv !!backend.models.Language
       code: sv
+      name: svenska
     - &en !!backend.models.Language
       code: en
+      name: English
     - &de !!backend.models.Language
       code: de
+      name: Deutsch
 
 ######################################################################
 
