@@ -201,6 +201,13 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @ActionMethod
+    public Result isByodExaminationSupported() {
+        ObjectNode node = Json.newObject();
+        node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
+        return ok(Json.toJson(node));
+    }
+
     @Restrict({@Group("STUDENT")})
     public Result getExaminationQuitLink() {
         ObjectNode node = Json.newObject();
@@ -249,6 +256,7 @@ public class SettingsController extends BaseController {
         node.put("expirationPeriod", configReader.getExamExpirationPeriod());
         node.put("defaultTimeZone", configReader.getDefaultTimeZone().getID());
         node.put("sebQuitLink", configReader.getQuitExaminationLink());
+        node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
 
         return ok(Json.toJson(node));
 

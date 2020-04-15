@@ -46,6 +46,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Output() onUpdate = new EventEmitter<UpdateProps>();
     @Output() onNextTabSelected = new EventEmitter<void>();
 
+    byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
     gradeScaleSetting: { overridable: boolean };
     examTypes: ExamExecutionType[];
@@ -73,6 +74,9 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     ngOnInit = () => {
         this.refreshExamTypes();
         this.refreshGradeScales();
+        this.http
+            .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
+            .subscribe(setting => (this.byodExaminationSupported = setting.isByodExaminationSupported));
         this.http
             .get<{ overridable: boolean }>('/app/settings/gradescale')
             .subscribe(setting => (this.gradeScaleSetting = setting));
@@ -216,20 +220,25 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+        if (configuration.examEnrolments.length > 0) {
+            return;
+        }
         this.Confirmation.open(
             this.translate.instant('sitnet_remove_examination_event'),
             this.translate.instant('sitnet_are_you_sure'),
-        ).result.then(() =>
-            this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
-                () => {
-                    this.exam.examinationEventConfigurations.splice(
-                        this.exam.examinationEventConfigurations.indexOf(configuration),
-                        1,
-                    );
-                },
-                resp => toast.error(resp.error),
-            ),
-        );
+        )
+            .result.then(() =>
+                this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
+                    () => {
+                        this.exam.examinationEventConfigurations.splice(
+                            this.exam.examinationEventConfigurations.indexOf(configuration),
+                            1,
+                        );
+                    },
+                    resp => toast.error(resp.error),
+                ),
+            )
+            .catch(err => toast.error(err.data));
     };
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);

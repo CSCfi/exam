@@ -177,7 +177,7 @@
                     <software-selector [exam]="exam" *ngIf="!collaborative"></software-selector>
 
                     <!-- EXAMINATION TYPE PICKER -->
-                    <div class="row col-md-12 margin-20">
+                    <div *ngIf="byodExaminationSupported" class="row col-md-12 margin-20">
                         <div class="col-md-3 exam-basic-title">
                             {{ 'sitnet_examination_type' | translate }}
                             <sup>
@@ -234,21 +234,23 @@
                         </div>
                         <div class="col-md-6">
                             <ul class="list-inline">
-                                <li *ngFor="let config of exam.examinationEventConfigurations" class="pointer">
-                                    <span (click)="modifyExaminationEvent(config)">{{
+                                <li *ngFor="let config of exam.examinationEventConfigurations">
+                                    <span (click)="modifyExaminationEvent(config)" class="pointer">{{
                                         config.examinationEvent.start | date
                                     }}</span>
-                                    <button
-                                        class="reviewer-remove"
+                                    <span
+                                        *ngIf="config.examEnrolments.length > 0"
+                                        class="text text-danger pointer"
                                         (click)="removeExaminationEvent(config)"
-                                        title="{{ 'sitnet_remove' | translate }}"
                                     >
-                                        <img
-                                            src="Images/icon_remove.svg"
-                                            alt="exam"
-                                            onerror="this.onerror=null;this.src='Images/icon_remove.png'"
-                                        />
-                                    </button>
+                                        <i title="{{ 'sitnet_remove' | translate }}" class="fa fa-remove"></i>
+                                    </span>
+                                    <span *ngIf="config.examEnrolments.length > 0" class="text text-muted">
+                                        <i
+                                            title="{{ 'sitnet_event_enrolments_exist' | translate }}"
+                                            class="fa fa-remove"
+                                        ></i>
+                                    </span>
                                 </li>
                             </ul>
                         </div>
@@ -317,7 +319,7 @@
                                 cols="150"
                                 [enableClozeTest]="false"
                                 [(ngModel)]="exam.instruction"
-                                (change)="updateExam()"
+                                (onBlur)="updateExam()"
                                 #ck="ngModel"
                                 name="ck"
                             ></ckeditor>
@@ -348,7 +350,7 @@
                                 cols="150"
                                 [enableClozeTest]="false"
                                 [(ngModel)]="exam.enrollInstruction"
-                                (change)="updateExam()"
+                                (onBlur)="updateExam()"
                                 #ck="ngModel"
                                 name="ck"
                             ></ckeditor>

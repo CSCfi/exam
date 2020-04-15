@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
-import backend.models.questions.Question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -273,7 +272,6 @@ public class ExternalCalendarController extends CalendarController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        JsonNode node = request.body().asJson();
         String orgRef = request.attrs().get(Attrs.ORG_REF);
         String roomRef = request.attrs().get(Attrs.ROOM_REF);
         DateTime start = request.attrs().get(Attrs.START_DATE);
@@ -286,7 +284,6 @@ public class ExternalCalendarController extends CalendarController {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
-                .fetch("exam.examSections.sectionQuestions.question", "type")
                 .fetch("exam.examSections.examMaterials")
                 .where()
                 .eq("user.id", user.getId())
@@ -301,21 +298,6 @@ public class ExternalCalendarController extends CalendarController {
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
-
-        /* Temporary solution to block enrolments for external exams if claim choice question is present */
-        boolean hasClaimChoiceQuestion = enrolment.getExam().getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion() != null)
-                .anyMatch(esq -> esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion);
-
-        if(hasClaimChoiceQuestion) {
-            return wrapAsPromise(forbidden("Exam is not supported for external reservations"));
-        }
-
-        if (enrolment.getExam().getExamSections().stream().anyMatch(ExamSection::isOptional)) {
-            return wrapAsPromise(forbidden("Optional sections not supported for external reservations"));
-        }
-
         // Lets do this
         URL url = parseUrl(orgRef, roomRef);
         String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
@@ -334,7 +316,7 @@ public class ExternalCalendarController extends CalendarController {
             if (response.getStatus() != Http.Status.CREATED) {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
-            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
+            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef, sectionIds).thenApplyAsync(err -> {
                 if (err.isEmpty()) {
                     return created(root.get("id"));
                 }
@@ -432,13 +414,16 @@ public class ExternalCalendarController extends CalendarController {
     // helpers ->
 
     private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
-                                                                         User user, String orgRef, String roomRef) {
+                                                                         User user, String orgRef, String roomRef, Collection<Long> sectionIds) {
         Reservation oldReservation = enrolment.getReservation();
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
+        Set<ExamSection> sections = sectionIds.isEmpty() ?
+                Collections.emptySet() : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        reservation.setOptionalSections(sections);
 
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {

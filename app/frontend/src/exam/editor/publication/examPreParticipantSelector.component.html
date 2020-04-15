@@ -21,10 +21,11 @@
     <div class="row col-md-12">
         <div class="col-md-3 exam-basic-title"></div>
         <div class="col-md-9">
-            <ul class="list-inline mart10">
-                <!-- Students pre-enrolled for the exam -->
-                <li class="marl10" *ngFor="let enrolment of enrolments">
-                    {{ enrolment.preEnrolledUserEmail }}
+            <ul class="muted-list mart10">
+                <!-- Students not having finished the exam -->
+                <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
+                    {{ renderParticipantLabel(enrolment) }}
+                    <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
                     <button
                         class="reviewer-remove"
                         [disabled]="exam.state === 'PUBLISHED'"
@@ -38,6 +39,11 @@
                             onerror="this.onerror=null;this.src='Images/icon_remove.png'"
                         />
                     </button>
+                </li>
+                <!-- Students that have finished the exam -->
+                <li class="marl10" *ngFor="let participant of exam.participants">
+                    {{ participant.user.firstName }} {{ participant.user.lastName }}
+                    <span *ngIf="participant.user.userIdentifier">({{ participant.user.userIdentifier }})</span>
                 </li>
             </ul>
         </div>

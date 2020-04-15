@@ -9,7 +9,7 @@ version := "5.2.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.12.9"
+scalaVersion := "2.13.1"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -22,13 +22,13 @@ libraryDependencies += evolutions
 libraryDependencies += filters
 libraryDependencies += guice
 
-// JAXB (missing in JDK 11, enable if using Java >= 11)
+// JAXB (missing in JDK 11 and above)
 libraryDependencies += "com.sun.xml.bind" % "jaxb-core"  % "2.3.0"
 libraryDependencies += "com.sun.xml.bind" % "jaxb-impl"  % "2.3.0"
 libraryDependencies += "javax.xml.bind"   % "jaxb-api"   % "2.3.0"
 libraryDependencies += "javax.activation" % "activation" % "1.1.1"
 
-libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.7.0"
+libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.8.1"
 libraryDependencies += "com.github.fge"           % "json-schema-validator" % "2.2.6" exclude ("javax.mail", "mailapi")
 libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.8.2"
 libraryDependencies += "com.opencsv"              % "opencsv"               % "4.0"

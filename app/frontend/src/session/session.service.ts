@@ -242,10 +242,7 @@ export class SessionService {
         });
         return from(modalRef.result).pipe(
             tap(() => this.http.put('/app/users/agreement', {}).subscribe()),
-            map(() => {
-                user.userAgreementAccepted = true;
-                return user;
-            }),
+            map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
 
@@ -328,6 +325,7 @@ export class SessionService {
                     if (resp.error) {
                         toastr.error(this.i18n.instant(resp.error));
                     }
+                    this.logout();
                     return throwError(resp);
                 }),
             );

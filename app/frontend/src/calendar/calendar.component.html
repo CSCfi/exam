@@ -204,13 +204,7 @@
                     <button
                         class="btn btn-sm btn-link"
                         (click)="makeExternalReservation()"
-                        *ngIf="
-                            isInteroperable &&
-                            !isCollaborative &&
-                            !isExternal &&
-                            !hasOptionalSections() &&
-                            !examInfo.externalReservationDisabled
-                        "
+                        *ngIf="isInteroperable && !isCollaborative && !isExternal"
                     >
                         {{ 'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>

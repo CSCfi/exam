@@ -53,7 +53,7 @@ export const MachineListComponent: angular.IComponentOptions = {
 
         toggleShow = () => (this.showMachines = !this.showMachines);
 
-        countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => !m.outOfService).length : 0);
+        countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => m.outOfService).length : 0);
 
         countMachineNotices = (): number =>
             this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0;

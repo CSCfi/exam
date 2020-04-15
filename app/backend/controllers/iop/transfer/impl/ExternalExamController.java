@@ -216,9 +216,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
-                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
+                "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore)), " +
+                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
                 "options(id, answered, score, option(id, option)), " +
                 "essayAnswer(id, answer, objectVersion, attachment(*)), " +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
@@ -296,6 +296,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
             // Shuffle multi-choice options
             document.getExamSections().stream()
                     .flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
+                Question.Type questionType = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                if(questionType == Question.Type.ClaimChoiceQuestion) {
+                    return;
+                }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));

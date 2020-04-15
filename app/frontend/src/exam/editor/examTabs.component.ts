@@ -103,6 +103,11 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             this.$window.history.back();
         };
 
+        goToDashboard = (event: Event) => {
+            event.preventDefault();
+            this.$state.go('dashboard');
+        };
+
         private downloadExam = () => {
             this.$http.get(`/app/exams/${this.$stateParams.id}`).then(
                 (response: angular.IHttpResponse<Exam>) => {

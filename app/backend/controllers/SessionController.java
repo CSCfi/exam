@@ -361,7 +361,7 @@ public class SessionController extends BaseController {
         Http.Headers attributes = request.getHeaders();
         ObjectNode node = Json.newObject();
 
-        for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
+        for (Map.Entry<String, List<String>> entry : attributes.asMap().entrySet()) {
             node.put(entry.getKey(), String.join(", ", entry.getValue()));
         }
 
@@ -400,7 +400,7 @@ public class SessionController extends BaseController {
                 result = ok(Json.toJson(node));
             }
         }
-        return result.discardingCookie(CSRF_COOKIE);
+        return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
     }
 
     @SubjectPresent

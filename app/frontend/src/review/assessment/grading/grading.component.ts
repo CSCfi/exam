@@ -166,7 +166,7 @@ export class GradingComponent implements OnInit {
         // Do not add up if user exists in both groups
         const examOwners = this.collaborative ? this.exam.examOwners : (this.exam.parent as Exam).examOwners;
         const owners = examOwners.filter(
-            owner => this.exam.examInspections.map(inspection => inspection.user.id).indexOf(owner.id) === -1,
+            owner => this.exam.examInspections.map(inspection => inspection.user?.id).indexOf(owner.id) === -1,
         );
         return this.exam.examInspections.length + owners.length;
     };

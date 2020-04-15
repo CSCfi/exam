@@ -19,7 +19,7 @@ import io.ebean.Model
 import play.api.mvc.{InjectedController, Result}
 import play.libs.{Json => JavaJson}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait JavaJsonResultProducer {
   self: InjectedController =>

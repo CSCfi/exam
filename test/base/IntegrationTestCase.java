@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,14 +40,12 @@ import play.test.Helpers;
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamInspection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.models.Grade;
-import backend.models.GradeScale;
 import backend.models.Language;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.util.json.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -57,7 +55,7 @@ import static play.test.Helpers.fakeRequest;
 public class IntegrationTestCase {
 
     protected static final int MAIL_TIMEOUT = 20000;
-    protected static Application app;
+    protected Application app;
     private String sessionToken;
     protected Long userId;
 
@@ -81,12 +79,8 @@ public class IntegrationTestCase {
                         "urn:schac:personalUniqueCode:int:studentID:org1.org:11111");
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
-        try {
-            HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
-                    URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
+                    URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -120,8 +114,8 @@ public class IntegrationTestCase {
     public void tearDown() {
         if (sessionToken != null) {
             logout();
-            sessionToken = null;
-            userId = null;
+            //sessionToken = null;
+            //userId = null;
         }
         Helpers.stop(app);
         // Clear exam upload directory
@@ -196,7 +190,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("eppn", eppn);
         headers.forEach(HAKA_HEADERS::put);
         Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
         userId = user.get("id").asLong();
@@ -240,7 +234,7 @@ public class IntegrationTestCase {
                 results.add(String.format("$[%d].%s", i, path));
             }
         }
-        return results.toArray(new String[results.size()]);
+        return results.toArray(new String[0]);
     }
 
     protected void initExamSectionQuestions(Exam exam) {
@@ -270,7 +264,7 @@ public class IntegrationTestCase {
             try {
                 Object object = JsonPath.read(document, path);
                 if (isIndefinite(path)) {
-                    Collection c = (Collection) object;
+                    Collection<?> c = (Collection<?>) object;
                     assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
                 } else if (!shouldExist) {
                     Assert.fail("Expected path not to be found: " + path);
@@ -287,7 +281,6 @@ public class IntegrationTestCase {
         return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
-    @SuppressWarnings("unchecked")
     private void addTestData() throws Exception {
         int userCount;
         try {
@@ -300,28 +293,21 @@ public class IntegrationTestCase {
 
             Yaml yaml = new Yaml(new JodaPropertyConstructor());
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
-            Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
+            Map<String, List<Object>> all = yaml.load(is);
             is.close();
             Ebean.saveAll(all.get("role"));
             Ebean.saveAll(all.get("exam-type"));
             Ebean.saveAll(all.get("exam-execution-type"));
-            if (Ebean.find(Language.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("languages"));
-            }
+            Ebean.saveAll(all.get("languages"));
             Ebean.saveAll(all.get("organisations"));
             Ebean.saveAll(all.get("attachments"));
-
             Ebean.saveAll(all.get("users"));
-
-            if (Ebean.find(GradeScale.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("grade-scales"));
-            }
-            if (Ebean.find(Grade.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("grades"));
-            }
+            Ebean.saveAll(all.get("grade-scales"));
+            Ebean.saveAll(all.get("grades"));
             Ebean.saveAll(all.get("question-essay"));
             Ebean.saveAll(all.get("question-multiple-choice"));
             Ebean.saveAll(all.get("question-weighted-multiple-choice"));
+            Ebean.saveAll(all.get("question-claim-choice"));
             Ebean.saveAll(all.get("question-clozetest"));
             Ebean.saveAll(all.get("softwares"));
             Ebean.saveAll(all.get("courses"));

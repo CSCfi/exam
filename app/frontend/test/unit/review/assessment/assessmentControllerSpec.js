@@ -31,6 +31,7 @@ describe('AssessmentController', function() {
         ctrl = $componentController('assessment', {
             $scope: scope,
             $stateParams: { id: 1 },
+            $state: {},
             Assessment: createMockAssessment(),
             CollaborativeAssessment: {},
             Question: createMockQuestion(),

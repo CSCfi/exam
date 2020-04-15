@@ -81,7 +81,8 @@ export class LibraryService {
                 const re = new RegExp(text, 'i');
 
                 const isMatch = question.question && this.htmlDecode(question.question).match(re);
-                if (isMatch) {
+                const idMatches = String(question.id).match(re);
+                if (isMatch || idMatches) {
                     return true;
                 }
                 // match course code

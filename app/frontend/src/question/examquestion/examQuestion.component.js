@@ -35,6 +35,8 @@ angular.module('app.question').component('examQuestion', {
 
             const vm = this;
 
+            vm.missingOptions = [];
+
             const init = function() {
                 Question.questionsApi.get({ id: vm.examQuestion.question.id }, function(data) {
                     vm.question = data;
@@ -58,6 +60,7 @@ angular.module('app.question').component('examQuestion', {
                         return sectionNames.indexOf(n) === pos;
                     });
                 });
+                vm.validate();
             };
 
             vm.$onInit = function() {
@@ -159,6 +162,22 @@ angular.module('app.question').component('examQuestion', {
                 return Question.calculateMaxPoints(vm.examQuestion);
             };
 
+            vm.returnOptionClass = function(option) {
+                const optionType = vm.determineOptionType(option);
+                if (!optionType) {
+                    return;
+                }
+                return Question.returnClaimChoiceOptionClass(optionType);
+            };
+
+            vm.returnOptionDescriptionTranslation = function(option) {
+                const optionType = vm.determineOptionType(option);
+                if (!optionType) {
+                    return;
+                }
+                return Question.returnOptionDescriptionTranslation(optionType);
+            };
+
             const routingWatcher = $scope.$on('$stateChangeStart', function(event, toState, toParams) {
                 if (window.onbeforeunload) {
                     event.preventDefault();
@@ -183,6 +202,23 @@ angular.module('app.question').component('examQuestion', {
                 window.onbeforeunload = null;
                 // Call off the event listener so it won't ask confirmation now that we are going away
                 routingWatcher();
+            };
+
+            vm.determineOptionType = function(option) {
+                return Question.determineClaimOptionTypeForExamQuestionOption(option);
+            };
+
+            vm.validate = function() {
+                vm.missingOptions = Question.getInvalidDistributedClaimOptionTypes(vm.examQuestion.options)
+                    .filter(type => type !== 'SkipOption')
+                    .map(optionType => Question.getOptionTypeTranslation(optionType));
+            };
+
+            vm.hasInvalidClaimChoiceOptions = function() {
+                return (
+                    vm.examQuestion.question.type === 'ClaimChoiceQuestion' &&
+                    Question.getInvalidDistributedClaimOptionTypes(vm.examQuestion.options).length > 0
+                );
             };
         },
     ],

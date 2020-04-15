@@ -47,7 +47,7 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
     @Override
     public GraphStageLogic createLogic(Attributes inheritedAttributes) {
         return new GraphStageLogic(shape) {
-            private ByteString buffer = ByteString.empty();
+            private ByteString buffer = ByteString.emptyByteString();
 
             {
                 setHandler(out, new AbstractOutHandler() {

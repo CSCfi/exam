@@ -133,7 +133,7 @@ public class CollaborativeExamController extends CollaborationController {
             return wrapAsPromise(badRequest());
         }
 
-        Optional<URL> url = parseUrlWithSearchParam(filter.get());
+        Optional<URL> url = parseUrlWithSearchParam(filter.get(), false);
         if(url.isEmpty()) {
             return wrapAsPromise(internalServerError("sitnet_internal_error"));
         }

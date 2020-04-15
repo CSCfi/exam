@@ -303,3 +303,16 @@ export interface ExamParticipation {
     duration: number;
     displayName?: string;
 }
+
+export enum ClaimChoiceOptionType {
+    CorrectOption = 'CorrectOption',
+    IncorrectOption = 'IncorrectOption',
+    SkipOption = 'SkipOption',
+}
+
+export interface ExamSectionQuestionOption {
+    id: number;
+    option: MultipleChoiceOption;
+    answered: boolean;
+    score: number;
+}

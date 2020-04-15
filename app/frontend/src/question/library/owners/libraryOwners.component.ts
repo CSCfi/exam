@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { User } from '../../../session/session.service';
@@ -29,7 +32,11 @@ export class LibraryOwnerSelection implements OnInit {
     @Output() ownerUpdated = new EventEmitter<void>();
 
     teachers: User[];
-    newTeacher: User;
+    newTeacher: {
+        id: number;
+        name: string;
+        email: string;
+    };
 
     constructor(private translate: TranslateService, private Question: QuestionService, private User: UserService) {}
 
@@ -39,7 +46,31 @@ export class LibraryOwnerSelection implements OnInit {
         });
     }
 
-    onTeacherSelect = (teacher: User) => (this.newTeacher = teacher);
+    private filterByName = (src: User[], q: string): User[] => {
+        if (!q) return src;
+        return src.filter(u =>
+            [`${u.firstName} ${u.lastName}`, `${u.lastName} ${u.firstName}`].some(n =>
+                n.toLowerCase().includes(q.toLowerCase()),
+            ),
+        );
+    };
+
+    listTeachers$ = (criteria$: Observable<string>): Observable<User> =>
+        criteria$.pipe(
+            tap(text => (this.newTeacher.name = text)),
+            debounceTime(100),
+            distinctUntilChanged(),
+            exhaustMap(text => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
+            take(8),
+            catchError(err => {
+                toast.error(err.data);
+                return throwError(err);
+            }),
+        );
+
+    nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
+
+    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newTeacher.id = event.item.id);
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected

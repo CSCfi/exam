@@ -101,7 +101,8 @@ public class FacilityController extends BaseController implements ExternalFacili
                 } else {
                     return internalServerError("Connection refused");
                 }
-                return ok(Json.newObject().set("externalRef", NullNode.getInstance()));
+                JsonNode ref = Json.newObject().set("externalRef", NullNode.getInstance());
+                return ok(ref);
             };
             return request.delete().thenApplyAsync(onSuccess);
         } else {

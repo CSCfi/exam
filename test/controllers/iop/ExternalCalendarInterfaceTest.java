@@ -531,7 +531,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
         json.put("requestingOrg", "foobar");
-        json.set("optionalSections", Json.newArray());
+        json.set("sectionIds", Json.newArray().add(1));
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
@@ -541,10 +541,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(created).isNotNull();
+        assertThat(created.getOptionalSections()).hasSize(1);
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();
         assertThat(external.getRoomInstructionEN()).isEqualTo("information in English here");
         assertThat(external.getMailAddress().getCity()).isEqualTo("Paris");
+
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();

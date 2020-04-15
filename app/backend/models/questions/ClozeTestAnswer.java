@@ -42,7 +42,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private static final String CLOZE_SELECTOR = "span[cloze=true]";
 
-    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\]");
+    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\\\/]");
 
     @Column(columnDefinition = "TEXT")
     private String answer;
@@ -211,10 +211,11 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         // escape sequence until restoring them in the regex.
         final String ESC = "__!ESC__";
         String regex = escapeSpecialRegexChars(correctAnswer)
-                .replace("\\*", ESC)
+        // Also backlashes will be escaped on escapeSpecialRegexChars call, therefore '\\*' pattern needs to be replaced
+                .replaceAll("\\Q\\\\*\\E", ESC)
                 .replace("*", ".*")
                 .replace(ESC, "\\*")
-                .replace("\\|", ESC);
+                .replaceAll("\\Q\\\\|\\E", ESC);
 
         if (regex.contains("|")) {
             regex = String.format("(%s)", regex);

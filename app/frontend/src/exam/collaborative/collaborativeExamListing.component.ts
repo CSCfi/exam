@@ -15,13 +15,13 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
 import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
-import { tap, finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 
 enum ListingView {
     PUBLISHED = 'PUBLISHED',
@@ -93,20 +93,17 @@ export class CollaborativeExamListingComponent implements OnInit {
 
     determineListingView(exam: CollaborativeExam) {
         if (
-            exam.state === CollaborativeExamState.PUBLISHED &&
+            (exam.state === CollaborativeExamState.PUBLISHED || exam.state === CollaborativeExamState.PRE_PUBLISHED) &&
             Date.now() > new Date(exam.examActiveEndDate).getTime()
         ) {
             return ListingView.EXPIRED;
         }
-
         if (exam.state === CollaborativeExamState.PUBLISHED || exam.state === CollaborativeExamState.PRE_PUBLISHED) {
             return ListingView.PUBLISHED;
         }
-
         if (exam.state === CollaborativeExamState.DRAFT) {
             return ListingView.DRAFTS;
         }
-
         return ListingView.OTHER;
     }
 

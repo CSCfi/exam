@@ -67,19 +67,14 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         };
 
         $onInit() {
-            const collaborativeQuestionTypes = [
+            this.questionTypes = [
                 { type: 'essay', name: 'sitnet_toolbar_essay_question' },
                 { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
                 { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
                 { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
-            ];
-
-            const basicQuestionTypes = [
-                ...collaborativeQuestionTypes,
                 { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
             ];
 
-            this.questionTypes = this.collaborative ? collaborativeQuestionTypes : basicQuestionTypes;
             this.init();
         }
 

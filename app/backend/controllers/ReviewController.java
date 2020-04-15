@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,10 +56,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
+import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
-import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -72,7 +71,6 @@ import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.ExamType;
@@ -266,14 +264,14 @@ public class ReviewController extends BaseController {
         }
         ExamSectionQuestion question = oeq.get();
         Exam exam = question.getExamSection().getExam();
-        if (isDisallowedToModify(exam, request.attrs().get(Attrs.AUTHENTICATED_USER), exam.getState())) {
-            return forbidden();
+        if (isDisallowedToScore(exam, request.attrs().get(Attrs.AUTHENTICATED_USER))) {
+            return forbidden("No permission to update scoring of this exam");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
-            return forbidden("Not allowed to update grading of this exam");
+            return forbidden("Not allowed to update scoring of this exam");
         }
         Double forcedScore = df.get("forcedScore") == null ? null : Double.parseDouble(df.get("forcedScore"));
-        if (forcedScore != null && (forcedScore < 0 || forcedScore > question.getMaxAssessedScore())) {
+        if (forcedScore != null && (forcedScore < question.getMinScore() || forcedScore > question.getMaxAssessedScore())) {
             return badRequest("score out of acceptable range");
         }
         question.setForcedScore(forcedScore);
@@ -429,7 +427,7 @@ public class ReviewController extends BaseController {
         }
         Optional<String> commentText = request.attrs().getOptional(Attrs.COMMENT);
         Optional<Long> commentId = request.attrs().getOptional(Attrs.COMMENT_ID);
-        Comment comment = !commentId.isPresent() ? new Comment()
+        Comment comment = commentId.isEmpty() ? new Comment()
                 : Ebean.find(Comment.class).fetch("creator", "firstName, lastName")
                 .where().idEq(commentId.get()).findOne();
         if (comment == null) {
@@ -663,6 +661,10 @@ public class ReviewController extends BaseController {
                 && !isRejectedInLanguageInspection(exam, user, newState);
     }
 
+    private boolean isDisallowedToScore(Exam exam , User user) {
+        return !exam.getParent().isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN);
+    }
+
     private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {
         exam.setState(newState);
         // set grading info only if exam is really graded, not just modified
@@ -681,10 +683,8 @@ public class ReviewController extends BaseController {
     }
 
     private void notifyPartiesAboutPrivateExamRejection(User user, Exam exam) {
-        final Set<User> examinators = exam.getExecutionType().getType().equals(
-                ExamExecutionType.Type.MATURITY.toString()) ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
             logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }

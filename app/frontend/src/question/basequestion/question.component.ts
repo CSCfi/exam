@@ -36,6 +36,7 @@ export class QuestionComponent implements OnInit {
     @Input() collaborative: boolean;
     @Input() examId: number;
     @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() nextState?: string;
 
     @Output() onSave = new EventEmitter<Question | QuestionDraft>();
     @Output() onCancel = new EventEmitter<void>();
@@ -48,7 +49,6 @@ export class QuestionComponent implements OnInit {
         private stateParams: StateParams,
         private State: StateService,
         private transition: TransitionService,
-        private location: Location,
         private translate: TranslateService,
         private window: WindowRef,
         private dialogs: ConfirmationDialogService,
@@ -58,7 +58,7 @@ export class QuestionComponent implements OnInit {
             if (this.window.nativeWindow.onbeforeunload) {
                 t.abort();
                 // we got changes in the model, ask confirmation
-                const dialog = dialogs.open(
+                const dialog = this.dialogs.open(
                     this.translate.instant('sitnet_confirm_exit'),
                     this.translate.instant('sitnet_unsaved_question_data'),
                 );
@@ -79,6 +79,7 @@ export class QuestionComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.nextState = this.nextState || this.stateParams.next;
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
@@ -116,7 +117,9 @@ export class QuestionComponent implements OnInit {
         this.question.questionOwners = this.currentOwners;
         const fn = (q: Question | QuestionDraft) => {
             this.clearListeners();
-            if (this.onSave) {
+            if (this.nextState) {
+                this.State.go(this.nextState);
+            } else if (this.onSave) {
                 this.onSave.emit(q);
             }
         };
@@ -137,6 +140,10 @@ export class QuestionComponent implements OnInit {
         toast.info(this.translate.instant('sitnet_canceled'));
         // Call off the event listener so it won't ask confirmation now that we are going away
         this.clearListeners();
-        this.onCancel.emit();
+        if (this.nextState) {
+            this.State.go(this.nextState);
+        } else if (this.onSave) {
+            this.onCancel.emit();
+        }
     };
 }

@@ -2,7 +2,9 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <history-back></history-back>
+                <a ng-click="$ctrl.goToAssessment($event)">
+                    <img class="pointer arrow_icon" src="Images/icon_history.png" alt="go back" />
+                </a>
                 <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
             </div>
 

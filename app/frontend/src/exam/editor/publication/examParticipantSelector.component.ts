@@ -85,5 +85,8 @@ export class ExamParticipantSelectorComponent implements OnInit {
             err => toast.error(err.data),
         );
 
-    isActualEnrolment = (enrolment: ExamEnrolment) => !enrolment.preEnrolledUserEmail;
+    renderParticipantLabel = (enrolment: ExamEnrolment) =>
+        enrolment.preEnrolledUserEmail
+            ? enrolment.preEnrolledUserEmail
+            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
 }

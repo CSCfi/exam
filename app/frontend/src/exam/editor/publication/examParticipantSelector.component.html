@@ -18,10 +18,10 @@
     <div class="row col-md-12">
         <div class="col-md-3 exam-basic-title"></div>
         <div class="col-md-9">
-            <ul class="list-inline mart10">
+            <ul class="muted-list mart10">
                 <!-- Students not having finished the exam -->
                 <li class="marl10" *ngFor="let enrolment of enrolments">
-                    {{ enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                    {{ renderParticipationLabel(enrolment) }}
                     <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
                     <button
                         class="reviewer-remove"

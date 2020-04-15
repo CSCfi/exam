@@ -76,7 +76,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             return wrapAsPromise(badRequest());
         }
 
-        Optional<URL> url = parseUrlWithSearchParam(filter.get());
+        Optional<URL> url = parseUrlWithSearchParam(filter.get(), true);
         if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }

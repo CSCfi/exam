@@ -109,7 +109,7 @@ class ReviewListService {
             const override = resetSelections(scope, 'page');
             const boxes = angular.element('.' + selector);
             const ids = [];
-            boxes.forEach(input => ids.push(parseInt(angular.element(input).val())));
+            boxes.each((idx, input) => ids.push(parseInt(angular.element(input).val())));
             // init all as not selected
             if (override) {
                 items.forEach(i => (i.selected = false));

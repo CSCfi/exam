@@ -86,7 +86,8 @@
                     <span class="text text-danger"
                         >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
                         <small
-                            >[0 &hellip; {{ $ctrl.sectionQuestion.maxScore || $ctrl.calculateMaxPoints() }}]</small
+                            >[{{ $ctrl.getMinimumOptionScore() }} &hellip; {{ $ctrl.sectionQuestion.maxScore ||
+                            $ctrl.calculateMaxPoints() }}]</small
                         ></span
                     >
                 </div>
@@ -101,7 +102,7 @@
                         ui-blur="forcedPoints.$valid && $ctrl.insertForcedScore()"
                         onclick="this.focus()"
                         ng-disabled="!$ctrl.isScorable"
-                        min="0"
+                        min="{{ $ctrl.getMinimumOptionScore() }}"
                         max="{{ $ctrl.sectionQuestion.maxScore || $ctrl.calculateMaxPoints()}}"
                     />
                     <small ng-show="forcedPoints.$invalid" class="alert-danger">

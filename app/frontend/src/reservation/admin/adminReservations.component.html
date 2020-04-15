@@ -36,7 +36,12 @@
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_room' | translate }}</strong>
-                <dropdown-select *ngIf="roomOptions" [options]="roomOptions" (onSelect)="roomChanged($event)">
+                <dropdown-select
+                    *ngIf="roomOptions"
+                    [options]="roomOptions"
+                    (onSelect)="roomChanged($event)"
+                    (limitTo)="(0)"
+                >
                 </dropdown-select>
             </div>
             <div class="col-md-2">

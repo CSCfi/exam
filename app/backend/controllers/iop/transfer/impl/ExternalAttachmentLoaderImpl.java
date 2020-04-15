@@ -28,8 +28,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
 import akka.stream.IOResult;
+import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
@@ -137,7 +137,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
     @Override
     public CompletableFuture<Void> uploadAssessmentAttachments(Exam exam) {
-        List<CompletableFuture> futures = new ArrayList<>();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         // Create external attachments.
         if (exam.getAttachment() != null) {
             futures.add(createExternalAttachment(exam.getAttachment()));
@@ -174,12 +174,8 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     .thenAccept(response -> {
                         final String filePath = AppUtil.createFilePath(environment, pathParams);
                         response.getBodyAsSource()
-                                .runWith(FileIO.toPath(Paths.get(filePath)), ActorMaterializer.create(actor))
+                                .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
                                 .thenAccept(ioResult -> {
-                                    if (!ioResult.wasSuccessful()) {
-                                        logger.error("Could not write file " + filePath + " to disk!");
-                                        return;
-                                    }
                                     attachment.setFilePath(filePath);
                                     attachment.save();
                                     logger.info("Saved attachment {} locally as # {}",

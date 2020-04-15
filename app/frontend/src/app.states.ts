@@ -29,10 +29,11 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
             parent: 'app',
             resolve: {
                 newQuestion: () => false,
+                nextState: () => 'library',
             },
         })
         .state('newQuestion', {
-            url: 'questions/newQuestion',
+            url: 'questions/newQuestion?{next}',
             component: 'question',
             parent: 'app',
             resolve: {
@@ -73,7 +74,7 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
             },
         })
         .state('calendar', {
-            url: 'calendar/{id}',
+            url: 'calendar/{id}?{selected}',
             component: 'calendar',
             parent: 'app',
             resolve: {
@@ -82,7 +83,7 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
             },
         })
         .state('externalCalendar', {
-            url: 'iop/calendar/{id}',
+            url: 'iop/calendar/{id}?{selected}',
             component: 'calendar',
             parent: 'app',
             resolve: {
@@ -178,7 +179,7 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
             },
         })
         .state('questionAssessment', {
-            url: 'assessments/{id}/questions',
+            url: 'assessments/{id}/questions?{q}',
             component: 'questionAssessment',
             parent: 'app',
         })

@@ -85,12 +85,10 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
 
         getTotalFeedback = () =>
-            this.getReadFeedback() +
             this.reviews.filter(
                 r =>
                     r.exam.examFeedback &&
-                    (r.exam.state === 'GRADED_LOGGED' || r.exam.state === 'ARCHIVED' || r.exam.state === 'REJECTED') &&
-                    r.exam.examFeedback.feedbackStatus === false,
+                    (r.exam.state === 'GRADED_LOGGED' || r.exam.state === 'ARCHIVED' || r.exam.state === 'REJECTED'),
             ).length;
 
         getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;

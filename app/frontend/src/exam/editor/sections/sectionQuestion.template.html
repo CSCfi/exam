@@ -28,7 +28,8 @@
         0 / {{ $ctrl.calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
     </div>
     <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-        0 / {{ $ctrl.getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+        {{ $ctrl.getMinimumOptionScore() }} / {{ $ctrl.getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' |
+        translate }}
     </div>
 
     <!-- Question -->
@@ -102,11 +103,6 @@
                     onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text">{{option.option.option}}</span>
-                <span
-                    class="exam-question-option-text pull-right"
-                    ng-if="$ctrl.sectionQuestion.question.type === 'ClaimChoiceQuestion'"
-                    >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
-                >
             </li>
             <li
                 ng-show="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
@@ -135,19 +131,19 @@
             >
                 <img
                     src="Images/icon_correct_answer_radio.png"
-                    ng-show="option.option.claimChoiceType == 'CorrectOption'"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'CorrectOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
                 />
                 <img
                     src="Images/icon_wrong_answer_radio.png"
-                    ng-show="option.option.claimChoiceType == 'IncorrectOption'"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'IncorrectOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
                 />
                 <img
                     src="Images/icon_wrong_answer.png"
-                    ng-show="option.option.claimChoiceType == 'SkipOption'"
+                    ng-show="$ctrl.determineClaimOptionType(option) == 'SkipOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='Images/icon_wrong_answer.png'"
                 />

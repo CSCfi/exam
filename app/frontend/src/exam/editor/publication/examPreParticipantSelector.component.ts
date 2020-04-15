@@ -60,4 +60,9 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
             err => toast.error(err.data),
         );
     };
+
+    renderParticipantLabel = (enrolment: ExamEnrolment) =>
+        enrolment.preEnrolledUserEmail
+            ? enrolment.preEnrolledUserEmail
+            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
 }

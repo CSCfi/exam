@@ -19,7 +19,14 @@ import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
-import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuestion } from '../exam/exam.model';
+import {
+    Exam,
+    ExamSectionQuestion,
+    ExamSectionQuestionOption,
+    MultipleChoiceOption,
+    Question,
+    ReverseQuestion,
+} from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
@@ -108,36 +115,26 @@ export class QuestionService {
         return parseFloat(points.toFixed(2));
     };
 
+    getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion) => {
+        const optionScores = sectionQuestion.options.map(o => o.score);
+        const scores = [0, ...optionScores]; // Make sure 0 is included
+        return Math.min(...scores);
+    };
+
     getCorrectClaimChoiceOptionDefaultScore = (question: Question) => {
         if (!question.options) {
             return 0;
         }
         const correctOption = question.options.filter(o => o.correctOption && o.claimChoiceType === 'CorrectOption');
-        if (correctOption.length === 1) {
-            return correctOption[0].defaultScore;
-        } else if (correctOption.length === 0) {
-            return 0;
-        } else {
-            console.error('Correct option missing on claim choice question!');
-            return 0;
-        }
+        return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
     };
 
     getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion) => {
         if (!sectionQuestion.options) {
             return 0;
         }
-        const correctOption = sectionQuestion.options.filter(
-            o => o.option.correctOption && o.option.claimChoiceType === 'CorrectOption',
-        );
-        if (correctOption.length === 1) {
-            return correctOption[0].score;
-        } else if (correctOption.length === 0) {
-            return 0;
-        } else {
-            console.error('Correct option missing on claim choice question!');
-            return 0;
-        }
+        const optionScores = sectionQuestion.options.map(o => o.score);
+        return Math.max(0, ...optionScores);
     };
 
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
@@ -354,6 +351,92 @@ export class QuestionService {
         const hasSkipOption = options.some(
             opt => opt.claimChoiceType === 'SkipOption' && opt.defaultScore === 0 && opt.option,
         );
+
+        if (!hasCorrectOption) {
+            invalidOptions.push('CorrectOption');
+        }
+
+        if (!hasIncorrectOption) {
+            invalidOptions.push('IncorrectOption');
+        }
+
+        if (!hasSkipOption) {
+            invalidOptions.push('SkipOption');
+        }
+
+        return invalidOptions;
+    };
+
+    getOptionTypeTranslation = (type: string) => {
+        switch (type) {
+            case 'CorrectOption':
+                return 'sitnet_question_claim_correct';
+            case 'IncorrectOption':
+                return 'sitnet_question_claim_incorrect';
+            case 'SkipOption':
+                return 'sitnet_question_claim_skip';
+        }
+    };
+
+    returnClaimChoiceOptionClass = (optionType: string) => {
+        switch (optionType) {
+            case 'CorrectOption':
+                return 'claim-choice-correct-answer';
+            case 'IncorrectOption':
+                return 'claim-choice-incorrect-answer';
+            case 'SkipOption':
+                return 'claim-choice-skip-answer';
+            default:
+                return '';
+        }
+    };
+
+    returnOptionDescriptionTranslation = (optionType: string) => {
+        switch (optionType) {
+            case 'CorrectOption':
+                return this.translate.instant('sitnet_claim_choice_correct_option_description');
+            case 'IncorrectOption':
+                return this.translate.instant('sitnet_claim_choice_incorrect_option_description');
+            default:
+                return '';
+        }
+    };
+
+    determineClaimOptionTypeForExamQuestionOption = (examOption: ExamSectionQuestionOption) => {
+        const parentOption = examOption.option;
+        if (parentOption.claimChoiceType === 'SkipOption') {
+            return 'SkipOption';
+        }
+
+        if (examOption.score <= 0) {
+            return 'IncorrectOption';
+        }
+
+        if (examOption.score > 0) {
+            return 'CorrectOption';
+        }
+
+        return null;
+    };
+
+    getInvalidDistributedClaimOptionTypes = (options: ExamSectionQuestionOption[]) => {
+        const invalidOptions = [];
+
+        const hasCorrectOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'CorrectOption' && opt.score > 0 && parentOption.option;
+        });
+        const hasIncorrectOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'IncorrectOption' && opt.score <= 0 && parentOption.option;
+        });
+        const hasSkipOption = options.some(opt => {
+            const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
+            const parentOption = opt.option;
+            return claimChoiceType === 'SkipOption' && opt.score === 0 && parentOption.option;
+        });
 
         if (!hasCorrectOption) {
             invalidOptions.push('CorrectOption');

@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-import { Location } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams } from '@uirouter/core';
+import { StateParams, StateService } from '@uirouter/core';
 import { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
 import { Observable, Subject } from 'rxjs';
@@ -37,7 +36,6 @@ type ExamInfo = {
     examActiveStartDate: number;
     examActiveEndDate: number;
     examSections: SelectableSection[];
-    externalReservationDisabled?: boolean;
 };
 type AvailableSlot = Slot & { availableMachines: number };
 type FilteredAccessibility = Accessibility & { filtered: boolean };
@@ -89,7 +87,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private location: Location,
+        private state: StateService,
         private translate: TranslateService,
         @Inject('$stateParams') private stateParams: StateParams,
         private DateTime: DateTimeService,
@@ -110,11 +108,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     };
 
     private prepareOptionalSections = (data: ReservationInfo | null) => {
-        if (data && data.optionalSections) {
-            this.examInfo.examSections
-                .filter(es => es.optional)
-                .forEach(es => (es.selected = data.optionalSections.map(es => es.id).indexOf(es.id) > -1));
-        }
+        this.examInfo.examSections
+            .filter(es => es.optional)
+            .forEach(es => {
+                es.selected =
+                    (data?.optionalSections && data.optionalSections.map(os => os.id).indexOf(es.id) > -1) ||
+                    (this.stateParams.selected && this.stateParams.selected.indexOf(es.id) > -1);
+            });
     };
 
     ngOnInit() {
@@ -240,11 +240,19 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.Dialog.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_external_reservation'),
-        ).result.then(() => this.location.go('/iop/calendar/' + this.stateParams.id));
+        ).result.then(() =>
+            this.state.go('externalCalendar', {
+                id: this.stateParams.id,
+                selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+            }),
+        );
     }
 
     makeInternalReservation() {
-        this.location.go('/calendar/' + this.stateParams.id);
+        this.state.go('calendar', {
+            id: this.stateParams.id,
+            selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+        });
     }
 
     private adjust(date: string, tz: string): Date {
@@ -262,16 +270,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 : this.translate.instant('sitnet_reserved');
         }
     }
-
-    /*private getColor(slot: AvailableSlot) {
-        if (slot.availableMachines < 0) {
-            return '#92c3e4'; // blueish
-        } else if (slot.availableMachines > 0) {
-            return '#A6E9B2'; // light green
-        } else {
-            return '#D8D8D8'; // grey
-        }
-    }*/
 
     private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
         if (this.isExternal) {
@@ -398,7 +396,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
             selectedSectionIds,
         )
             .subscribe(
-                () => this.location.go('/'),
+                () => this.state.go('dashboard'),
                 resp => {
                     toast.error(resp.error);
                 },
