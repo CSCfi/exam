@@ -30,56 +30,56 @@ public interface ExternalAttachmentInterface extends CollaborativeAttachmentInte
 
     @Override
     default CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, String eid, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> downloadFeedbackAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> downloadStatementAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> addAttachmentToExam(Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> deleteExamAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> addFeedbackAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> addStatementAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> deleteQuestionAttachment(String eid, Long qid, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> deleteFeedbackAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 
     @Override
     default CompletionStage<Result> deleteStatementAttachment(String id, Http.Request request) {
-        return CompletableFuture.supplyAsync(Results::badRequest);
+        return CompletableFuture.completedFuture(Results.badRequest());
     }
 }

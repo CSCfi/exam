@@ -48,7 +48,7 @@ abstract class JsonFilterAction<T> extends Action<T> {
     CompletionStage<Result> filterJsonResponse(Result result, Set<Long> ids, String... properties) {
         String contentType = result.contentType().orElse("");
         if (!contentType.toLowerCase().equals("application/json") || properties.length < 1) {
-            return CompletableFuture.supplyAsync(() -> result);
+            return CompletableFuture.completedFuture(result);
         }
         return result.body().consumeData(materializer).thenApply(body -> {
             JsonNode json = Json.parse(body.decodeString("UTF-8"));

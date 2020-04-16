@@ -138,14 +138,14 @@ public class ExternalExaminationController extends ExaminationController {
     @Authenticated
     @Override
     public CompletionStage<Result> turnExam(String hash, Http.Request request) {
-        return CompletableFuture.supplyAsync(() ->
+        return CompletableFuture.completedFuture(
                 terminateExam(hash, Exam.State.REVIEW, request.attrs().get(Attrs.AUTHENTICATED_USER)));
     }
 
     @Authenticated
     @Override
     public CompletionStage<Result> abortExam(String hash, Http.Request request) {
-        return CompletableFuture.supplyAsync(() ->
+        return CompletableFuture.completedFuture(
                 terminateExam(hash, Exam.State.ABORTED, request.attrs().get(Attrs.AUTHENTICATED_USER)));
     }
 

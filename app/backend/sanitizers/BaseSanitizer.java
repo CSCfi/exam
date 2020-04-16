@@ -22,7 +22,7 @@ public abstract class BaseSanitizer extends play.mvc.Action.Simple {
             return delegate.call(sanitize(request, body));
         } catch (SanitizingException e) {
             logger().error("Sanitizing error: " + e.getMessage(), e);
-            return CompletableFuture.supplyAsync(Results::badRequest);
+            return CompletableFuture.completedFuture(Results.badRequest());
         }
     }
 

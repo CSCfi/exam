@@ -111,64 +111,72 @@ public class ExaminationController extends BaseController {
     public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = getPath(false);
-        return examinationRepository.getCollaborativeExam(hash).thenComposeAsync(oce -> {
+        CompletionStage<Optional<CollaborativeExam>> getCollaborativeExam =
+                examinationRepository.getCollaborativeExam(hash);
+        return getCollaborativeExam.thenComposeAsync(oce -> {
             CollaborativeExam ce = oce.orElse(null);
-            return examinationRepository.getPrototype(hash, ce, pp)
-                    .thenComposeAsync(optionalPrototype -> examinationRepository.getPossibleClone(hash, user, ce, pp)
-                            .thenComposeAsync(possibleClone -> {
-                                  if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
-                                      return wrapAsPromise(notFound());
-                                  }
-                                  if (possibleClone.isEmpty()) {
-                                      // Exam not started yet, create new exam for student
-                                      Exam prototype = optionalPrototype.get();
-                                      return examinationRepository.findEnrolment(user, prototype, ce)
-                                              .thenComposeAsync(optionalEnrolment -> {
-                                                  if (optionalEnrolment.isEmpty()) {
-                                                      return wrapAsPromise(forbidden());
-                                                  }
-                                                  ExamEnrolment enrolment = optionalEnrolment.get();
-                                                  return getEnrolmentError(enrolment, request).thenComposeAsync(error -> {
-                                                      if (error.isPresent()) {
-                                                          return wrapAsPromise(error.get());
-                                                      }
-                                                      return examinationRepository.createExam(prototype, user, enrolment).thenApplyAsync(oe -> {
-                                                          if (oe.isEmpty()) {
-                                                              return internalServerError();
-                                                          }
-                                                          Exam newExam = oe.get();
-                                                          if (enrolment.getCollaborativeExam() != null) {
-                                                              try {
-                                                                  externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
-                                                              } catch (InterruptedException | ExecutionException e) {
-                                                                  logger.error("Could not fetch external attachments!", e);
-                                                              }
-                                                          }
-                                                          newExam.setCloned(true);
-                                                          newExam.setDerivedMaxScores();
-                                                          processClozeTestQuestions(newExam);
-                                                          return ok(newExam, getPath(false));
-                                                      }, httpExecutionContext.current());
-                                                  }, httpExecutionContext.current());
-                                              }, httpExecutionContext.current());
-                                              } else {
-                                                  // Exam started already
-                                                  return getEnrolmentError(hash, request).thenApplyAsync(err -> {
-                                                    if (err.isPresent()) {
-                                                        return err.get();
-                                                    }
-                                                      Exam clone = possibleClone.get();
-                                                      // sanity check
-                                                      if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                                                          return forbidden();
-                                                      }
-                                                      clone.setCloned(false);
-                                                      clone.setDerivedMaxScores();
-                                                      processClozeTestQuestions(clone);
-                                                      return ok(clone, getPath(false));
-                                                  });
-                                              }
-                                            }), httpExecutionContext.current());
+            CompletionStage<Optional<Exam>> getPrototype = examinationRepository.getPrototype(hash, ce, pp);
+            CompletionStage<Optional<Exam>> getClone = examinationRepository.getPossibleClone(hash, user, ce, pp);
+            return getPrototype.thenComposeAsync(optionalPrototype ->
+                getClone.thenComposeAsync(possibleClone -> {
+                    if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
+                          return wrapAsPromise(notFound());
+                    }
+                    if (possibleClone.isEmpty()) {
+                        // Exam not started yet, create new exam for student
+                        Exam prototype = optionalPrototype.get();
+                        CompletionStage<Optional<ExamEnrolment>> findEnrolment =
+                                examinationRepository.findEnrolment(user, prototype, ce);
+                        return findEnrolment.thenComposeAsync(optionalEnrolment -> {
+                            if (optionalEnrolment.isEmpty()) {
+                                return wrapAsPromise(forbidden());
+                            }
+                            ExamEnrolment enrolment = optionalEnrolment.get();
+                            CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(enrolment, request);
+                            return getEnrolmentError.thenComposeAsync(error -> {
+                                if (error.isPresent()) {
+                                    return wrapAsPromise(error.get());
+                                }
+                                CompletionStage<Optional<Exam>> createExam =
+                                        examinationRepository.createExam(prototype, user, enrolment);
+                                return createExam.thenApplyAsync(oe -> {
+                                    if (oe.isEmpty()) {
+                                        return internalServerError();
+                                    }
+                                    Exam newExam = oe.get();
+                                    if (enrolment.getCollaborativeExam() != null) {
+                                        try {
+                                            externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            logger.error("Could not fetch external attachments!", e);
+                                        }
+                                    }
+                                    newExam.setCloned(true);
+                                    newExam.setDerivedMaxScores();
+                                    processClozeTestQuestions(newExam);
+                                    return ok(newExam, getPath(false));
+                                    }, httpExecutionContext.current());
+                                }, httpExecutionContext.current());
+                          }, httpExecutionContext.current());
+                    } else {
+                        // Exam started already
+                        CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(hash, request);
+                        return getEnrolmentError.thenApplyAsync(err -> {
+                            if (err.isPresent()) {
+                                return err.get();
+                            }
+                            Exam clone = possibleClone.get();
+                            // sanity check
+                            if (clone.getState() != Exam.State.STUDENT_STARTED) {
+                                return forbidden();
+                            }
+                            clone.setCloned(false);
+                            clone.setDerivedMaxScores();
+                            processClozeTestQuestions(clone);
+                            return ok(clone, getPath(false));
+                        });
+                    }
+                }), httpExecutionContext.current());
             }, httpExecutionContext.current());
     }
 
@@ -330,16 +338,16 @@ public class ExaminationController extends BaseController {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
-            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         }
         boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
         if (isByod) {
-            return CompletableFuture.supplyAsync(() -> byodConfigHandler.checkUserAgent(request,
+            return CompletableFuture.completedFuture(byodConfigHandler.checkUserAgent(request,
                     enrolment.getExaminationEventConfiguration().getConfigKey()));
         } else if (enrolment.getReservation() == null) {
-            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         } else if (enrolment.getReservation().getMachine() == null) {
-            return CompletableFuture.supplyAsync(() -> Optional.of(forbidden("sitnet_reservation_machine_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_machine_not_found")));
         } else if (!environment.isDev() &&
                 !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())) {
             return examinationRepository.findRoom(enrolment).thenApplyAsync(or -> {
@@ -353,7 +361,7 @@ public class ExaminationController extends BaseController {
                 return Optional.of(forbidden(message));
             }, httpExecutionContext.current());
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     public static PathProperties getPath(boolean includeEnrolment) {

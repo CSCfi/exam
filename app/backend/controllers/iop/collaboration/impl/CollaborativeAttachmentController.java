@@ -84,13 +84,13 @@ public class CollaborativeAttachmentController extends CollaborationController
         String externalId = getExternalId(assessment);
         Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
         if (url.isEmpty()) {
-            return CompletableFuture.supplyAsync(Optional::empty);
+            return CompletableFuture.completedFuture(Optional.empty());
         }
         final WSRequest request = getWsClient().url(url.get().toString());
         Function<WSResponse, CompletionStage<Optional<JsonNode>>> onSuccess = (response) -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != CREATED && response.getStatus() != OK) {
-                return CompletableFuture.supplyAsync(Optional::empty);
+                return CompletableFuture.completedFuture(Optional.empty());
             }
             String newId = root.get("id").asText();
             String mimeType = root.get("mimeType").asText();
@@ -100,7 +100,7 @@ public class CollaborativeAttachmentController extends CollaborationController
                     .put("externalId", newId)
                     .put("mimeType", mimeType)
                     .put("fileName", displayName));
-            return CompletableFuture.supplyAsync(() -> Optional.of(assessment));
+            return CompletableFuture.completedFuture(Optional.of(assessment));
         };
         Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> source = createSource(file);
         CompletionStage<WSResponse> resp = externalId.isBlank() ? request.post(source) : request.put(source);
@@ -111,14 +111,14 @@ public class CollaborativeAttachmentController extends CollaborationController
         String externalId = getExternalId(assessment);
         Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
         if (url.isEmpty()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         final WSRequest request = getWsClient().url(url.get().toString());
         return request.delete().thenComposeAsync(response -> {
             if (response.getStatus() != OK) {
-                return CompletableFuture.supplyAsync(Results::internalServerError);
+                return CompletableFuture.completedFuture(Results.internalServerError());
             }
-            return CompletableFuture.supplyAsync(Results::ok);
+            return CompletableFuture.completedFuture(Results.ok());
         });
     }
 
@@ -131,7 +131,7 @@ public class CollaborativeAttachmentController extends CollaborationController
                 Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
                 return uploadAssessmentAttachment(filePart, optionalAssessment.get()).thenComposeAsync(oa -> {
                     if (oa.isEmpty()) {
-                        return CompletableFuture.supplyAsync(Results::internalServerError);
+                        return CompletableFuture.completedFuture(Results.internalServerError());
                     }
                     JsonNode attachment = oa.get().get("exam").get("examFeedback").get("attachment");
                     return uploadAssessment(exam, assessmentRef, oa.get()).thenApplyAsync(revision -> {
@@ -154,7 +154,7 @@ public class CollaborativeAttachmentController extends CollaborationController
                 JsonNode assessment = optionalAssessment.get();
                 return removeAssessmentAttachment(assessment).thenComposeAsync(result -> {
                     if (result.status() != OK) {
-                        return CompletableFuture.supplyAsync(Results::internalServerError);
+                        return CompletableFuture.completedFuture(Results.internalServerError());
                     }
                     JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
                     ((ObjectNode) feedbackNode).remove("attachment");

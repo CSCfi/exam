@@ -46,7 +46,7 @@ public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
                 Optional<Set<Long>> ids = request.attrs().getOptional(TypedKey.create(key));
                 return filterJsonResponse(result, ids.orElse(Collections.emptySet()), configuration.filteredProperties());
             }
-            return CompletableFuture.supplyAsync(() -> result);
+            return CompletableFuture.completedFuture(result);
         });
     }
 

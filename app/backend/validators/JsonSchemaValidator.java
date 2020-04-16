@@ -69,10 +69,10 @@ class JsonSchemaValidator extends Action<JsonValidator> {
     public CompletionStage<Result> call(Http.Request request) {
         try {
             if (!isValid(request.body().asJson())) {
-                return CompletableFuture.supplyAsync(Results::badRequest);
+                return CompletableFuture.completedFuture(Results.badRequest());
             }
         } catch (Exception e) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         return delegate.call(request);
     }

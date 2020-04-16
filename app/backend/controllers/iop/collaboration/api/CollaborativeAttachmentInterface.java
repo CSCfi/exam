@@ -65,43 +65,37 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     default Either<CompletionStage<Result>, U> findExternalExam(T id, Http.Request request) {
         return getExternalExam(id, request)
                 .<Either<CompletionStage<Result>, U>>map(Either::right)
-                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
+                .orElse(Either.left(CompletableFuture.completedFuture(Results.notFound())));
     }
 
     default Either<CompletionStage<Result>, Exam> findExam(U ee) {
         return getExam(ee)
                 .<Either<CompletionStage<Result>, Exam>>map(Either::right)
-                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
+                .orElse(Either.left(CompletableFuture.completedFuture(Results.notFound())));
     }
 
     default Either<CompletionStage<Result>, ExamSectionQuestion> findSectionQuestion(Long id, Exam exam) {
         return getExamSectionQuestion(id, exam)
                 .<Either<CompletionStage<Result>, ExamSectionQuestion>>map(Either::right)
-                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
+                .orElse(Either.left(CompletableFuture.completedFuture(Results.notFound())));
     }
 
     default Either<CompletionStage<Result>, EssayAnswer> findEssayAnswerWithAttachment(ExamSectionQuestion esq) {
         return esq.getEssayAnswer() == null || esq.getEssayAnswer().getAttachment() == null ||
                 StringUtils.isEmpty(esq.getEssayAnswer().getAttachment().getExternalId())
-                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                ? Either.left(CompletableFuture.completedFuture(Results.notFound()))
                 : Either.right(esq.getEssayAnswer());
-    }
-
-    default Either<CompletionStage<Result>, Comment> findFeedback(Exam exam) {
-        return exam.getExamFeedback() == null
-                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
-                : Either.right(exam.getExamFeedback());
     }
 
     default Either<CompletionStage<Result>, LanguageInspection> findLanguageInspection(Exam exam) {
         return exam.getLanguageInspection() == null
-                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                ? Either.left(CompletableFuture.completedFuture(Results.notFound()))
                 : Either.right(exam.getLanguageInspection());
     }
 
     default Either<CompletionStage<Result>, LanguageInspection> findLanguageInspectionWithAttachment(Exam e) {
         return e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null
-                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                ? Either.left(CompletableFuture.completedFuture(Results.notFound()))
                 : Either.right(e.getLanguageInspection());
     }
 
@@ -306,11 +300,11 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     default CompletionStage<Result> downloadExternalAttachment(String id) {
         final Optional<URL> url = parseUrl("/api/attachments/%s", id);
         if (url.isEmpty()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         return getWsClient().url(url.get().toString()).get().thenCompose(response -> {
             if (response.getStatus() != Http.Status.OK) {
-                return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
+                return CompletableFuture.completedFuture(Results.status(response.getStatus()));
             }
             final JsonNode node = response.asJson();
             return download(id, node.path("mimeType").asText(), node.path("displayName").asText());
@@ -319,12 +313,12 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     default CompletionStage<Result> downloadExternalAttachment(Attachment attachment) {
         if (attachment == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
         final String externalId = attachment.getExternalId();
         if (StringUtils.isEmpty(externalId)) {
             logger().warn("External id can not be found for attachment [id={}]", attachment.getId());
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
         return download(externalId, attachment.getMimeType(), attachment.getFileName());
     }
@@ -332,11 +326,11 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     default CompletionStage<Result> download(String id, String mimeType, String fileName) {
         final Optional<URL> url = parseUrl("/api/attachments/%s/download", id);
         if (url.isEmpty()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         return getWsClient().url(url.get().toString()).stream().thenCompose(response -> {
             if (response.getStatus() != Http.Status.OK) {
-                return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
+                return CompletableFuture.completedFuture(Results.status(response.getStatus()));
             }
             try {
                 return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
@@ -350,30 +344,30 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                                                              Exam exam, User user) {
         Attachment attachment = attachmentContainer.getAttachment();
         if (attachment == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
         final String externalId = attachment.getExternalId();
         if (StringUtils.isEmpty(externalId)) {
             logger().warn("External id can not be found for attachment [id={}]", attachment.getExternalId());
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
 
         final Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
-        if (!url.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+        if (url.isEmpty()) {
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         return getWsClient().url(url.get().toString()).delete()
                 .thenApply(wsResponse -> new Result(wsResponse.getStatus()))
                 .thenComposeAsync(result -> {
                     if (result.status() != OK && result.status() != NOT_FOUND) {
-                        return CompletableFuture.supplyAsync(() -> result);
+                        return CompletableFuture.completedFuture(result);
                     }
 
                     attachmentContainer.setAttachment(null);
                     if (setExam(externalExam, exam, user)) {
-                        return CompletableFuture.supplyAsync(Results::ok);
+                        return CompletableFuture.completedFuture(Results.ok());
                     }
-                    return CompletableFuture.supplyAsync(Results::internalServerError);
+                    return CompletableFuture.completedFuture(Results.internalServerError());
                 });
     }
 
@@ -398,7 +392,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
         final Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
         if (url.isEmpty()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
+            return CompletableFuture.completedFuture(Results.internalServerError());
         }
         final WSRequest request = getWsClient().url(url.get().toString());
         Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> source = createSource(file);
@@ -416,7 +410,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         if (wsResponse.getStatus() != Http.Status.OK &&
                 wsResponse.getStatus() != Http.Status.CREATED) {
             logger().error("Could not create external attachment to XM server!");
-            return CompletableFuture.supplyAsync(() -> new Result(wsResponse.getStatus()));
+            return CompletableFuture.completedFuture(new Result(wsResponse.getStatus()));
         }
         final JsonNode json = wsResponse.asJson();
         final String id = json.get("id").asText();
@@ -426,12 +420,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         a.setFileName(json.get("displayName").asText());
         container.setAttachment(a);
         if (setExam(externalExam, exam, user)) {
-            return CompletableFuture.supplyAsync(() -> {
-                final String body = Ebean.json().toJson(a);
-                return Results.created(body).as("application/json");
-            });
+            final String body = Ebean.json().toJson(a);
+            return CompletableFuture.completedFuture(Results.created(body).as("application/json"));
         }
-        return CompletableFuture.supplyAsync(Results::internalServerError);
+        return CompletableFuture.completedFuture(Results.internalServerError());
     }
 
     Optional<Exam> getExam(U externalExam);

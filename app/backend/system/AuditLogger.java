@@ -19,17 +19,18 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 
-import backend.models.User;
+import backend.models.Session;
 
 class AuditLogger {
 
     private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
-    public static void log(Http.Request request, User user) {
+    public static void log(Http.Request request, Session session)
+    {
         String method = request.method();
-        String userString = user == null ?
+        String userString = session == null ?
                 "user <NULL>" :
-                String.format("user #%d [%s]", user.getId(), user.getEmail());
+                String.format("user #%d [%s]", session.getUserId(), session.getEmail());
         String uri = request.uri();
         StringBuilder logEntry = new StringBuilder(
                 String.format("%s %s %s %s", DateTime.now(), userString, method, uri));

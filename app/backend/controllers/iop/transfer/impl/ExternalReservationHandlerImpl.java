@@ -78,7 +78,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         try {
             url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
         } catch (MalformedURLException e) {
-            return CompletableFuture.supplyAsync(() -> Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+            return CompletableFuture.completedFuture(Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
         }
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Optional<Integer>> onSuccess = response -> {
@@ -100,13 +100,13 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                 .eq("reservation.externalRef", ref)
                 .findOne();
         if (enrolment == null) {
-            return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s for current user.", ref)));
+            return CompletableFuture.completedFuture(Results.notFound(String.format("No reservation with ref %s for current user.", ref)));
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
         }
         // good to go
         ExternalReservation external = reservation.getExternalReservation();
@@ -139,12 +139,12 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Override
     public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
         if (reservation.getExternalReservation() == null) {
-            return CompletableFuture.supplyAsync(Results::ok);
+            return CompletableFuture.completedFuture(Results.ok());
         }
         try {
             return requestRemoval(reservation.getExternalRef(), user, msg);
         } catch (IOException e) {
-            return CompletableFuture.supplyAsync(() -> Results.internalServerError(e.getMessage()));
+            return CompletableFuture.completedFuture(Results.internalServerError(e.getMessage()));
         }
     }
 

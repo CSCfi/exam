@@ -43,6 +43,11 @@ public class SessionHandlerImpl implements SessionHandler {
         return token;
     }
 
+    @Override
+    public void flushSession(String token) {
+        cache.remove(token);
+    }
+
     private Optional<String> createToken(Http.RequestHeader request) {
         return LOGIN_TYPE.equals("HAKA") ?
                 request.header("Shib-Session-ID") :

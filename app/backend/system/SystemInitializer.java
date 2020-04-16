@@ -41,6 +41,7 @@ import scala.concurrent.duration.FiniteDuration;
 
 import backend.impl.EmailComposer;
 import backend.models.User;
+import backend.repository.DatabaseExecutionContext;
 import backend.util.config.ConfigReader;
 
 @Singleton
@@ -63,10 +64,11 @@ class SystemInitializer {
 
     private static final Logger.ALogger logger = Logger.of(SystemInitializer.class);
 
-    private EmailComposer composer;
-    private ActorSystem system;
+    private final EmailComposer composer;
+    private final ActorSystem system;
+    private final DatabaseExecutionContext ec;
 
-    private Map<String, Cancellable> tasks = new HashMap<>();
+    private final Map<String, Cancellable> tasks = new HashMap<>();
     private final DateTimeZone defaultTimeZone;
 
     @Inject
@@ -74,6 +76,7 @@ class SystemInitializer {
                       ApplicationLifecycle lifecycle,
                       EmailComposer composer,
                       ConfigReader configReader,
+                      DatabaseExecutionContext ec,
                       @Named("exam-auto-saver-actor") ActorRef examAutoSaver,
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
@@ -84,6 +87,7 @@ class SystemInitializer {
 
         this.system = system;
         this.composer = composer;
+        this.ec = ec;
         this.defaultTimeZone = configReader.getDefaultTimeZone();
 
         String encoding = System.getProperty("file.encoding");
@@ -96,44 +100,43 @@ class SystemInitializer {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
 
-        tasks.put("AUTO_SAVER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("AUTO_SAVER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(EXAM_AUTO_SAVER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                examAutoSaver, "tick",
-                system.dispatcher(), null
+                examAutoSaver, "tick", ec, null
         ));
-        tasks.put("RESERVATION_POLLER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("RESERVATION_POLLER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(RESERVATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
                 reservationChecker, "tick",
-                system.dispatcher(), null
+                ec, null
         ));
-        tasks.put("EXPIRY_POLLER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("EXPIRY_POLLER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
                 examExpirationChecker, "tick",
-                system.dispatcher(), null
+                ec, null
         ));
-        tasks.put("AUTOEVALUATION_NOTIFIER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("AUTOEVALUATION_NOTIFIER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 autoEvaluationNotifier, "tick",
-                system.dispatcher(), null
+                ec, null
         ));
-        tasks.put("EXTERNAL_EXAM_SENDER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("EXTERNAL_EXAM_SENDER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(ASSESSMENT_TRANSFER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(ASSESSMENT_TRANSFER_INTERVAL_HOURS, TimeUnit.HOURS),
-                assessmentTransferrer, "tick", system.dispatcher(), null
+                assessmentTransferrer, "tick", ec, null
         ));
-        tasks.put("COLLABORATIVE_EXAM_SENDER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("COLLABORATIVE_EXAM_SENDER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(COLLABORATIVE_ASSESSMENT_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(COLLABORATIVE_ASSESSMENT_SENDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                collaborativeAssessmentSender, "tick", system.dispatcher(), null
+                collaborativeAssessmentSender, "tick", ec, null
         ));
-        tasks.put("RESERVATION_REMINDER", system.scheduler().scheduleWithFixedDelay(
+        tasks.put("RESERVATION_REMINDER", system.scheduler().scheduleAtFixedRate(
                 Duration.create(RESERVATION_REMINDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_REMINDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                reservationReminder, "tick", system.dispatcher(), null
+                reservationReminder, "tick", ec, null
         ));
 
         scheduleWeeklyReport();
@@ -199,7 +202,7 @@ class SystemInitializer {
             });
             // Reschedule
             scheduleWeeklyReport();
-        }, system.dispatcher()));
+        }, ec));
     }
 
     private void cancelTasks() {

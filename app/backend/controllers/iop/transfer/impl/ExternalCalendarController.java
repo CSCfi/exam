@@ -343,13 +343,13 @@ public class ExternalCalendarController extends CalendarController {
                 .isNull("enrolment")
                 .findOneOrEmpty();
         if (or.isEmpty()) {
-            return CompletableFuture.supplyAsync(() -> notFound(String.format("No reservation with ref %s.", ref)));
+            return CompletableFuture.completedFuture(notFound(String.format("No reservation with ref %s.", ref)));
         }
 
         Reservation reservation = or.get();
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.supplyAsync(() -> forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(forbidden("sitnet_reservation_in_effect"));
         }
         String roomRef = reservation.getMachine().getRoom().getExternalRef();
         URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
@@ -474,11 +474,11 @@ public class ExternalCalendarController extends CalendarController {
             } else {
                 Ebean.delete(oldReservation);
                 postProcessRemoval(reservation, enrolment, user, machineNode);
-                return CompletableFuture.supplyAsync(Optional::empty);
+                return CompletableFuture.completedFuture(Optional.empty());
             }
         } else {
             postProcessRemoval(reservation, enrolment, user, machineNode);
-            return CompletableFuture.supplyAsync(Optional::empty);
+            return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 

@@ -85,7 +85,7 @@ public interface BaseAttachmentInterface<T> {
 
     default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source) throws IOException  {
         String escapedName = URLEncoder.encode(fileName, "UTF-8");
-        return CompletableFuture.supplyAsync(() -> ok().chunked(source.via(new ChunkMaker(3 * 1024))
+        return CompletableFuture.completedFuture(ok().chunked(source.via(new ChunkMaker(3 * 1024))
                 .map(byteString -> {
                     final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
                     return ByteString.fromArray(encoded);

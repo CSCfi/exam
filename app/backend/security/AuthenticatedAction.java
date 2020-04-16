@@ -65,7 +65,7 @@ public class AuthenticatedAction extends Action<Authenticated> {
             return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
         }
         logger.info("Blocked unauthorized access to {}", request.path());
-        return CompletableFuture.supplyAsync(Results::unauthorized);
+        return CompletableFuture.completedFuture(Results.unauthorized());
     }
 
 }

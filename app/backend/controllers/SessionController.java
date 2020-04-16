@@ -327,7 +327,7 @@ public class SessionController extends BaseController {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
-        session.setValid(true);
+        session.setEmail(user.getEmail());
         // If (regular) user has just one role, set it as the one used for login
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
             session.setLoginRole(user.getRoles().get(0).getName());
@@ -387,13 +387,14 @@ public class SessionController extends BaseController {
     @ActionMethod
     public Result logout(Http.Request request) {
         Result result = ok();
-        Optional<Session> os = getSession(request);
-        if (os.isPresent()) {
+        Optional<String> ot = sessionHandler.getSessionToken(request);
+        Optional<Session> os = sessionHandler.getSession(request);
+        if (ot.isPresent() && os.isPresent()) {
             Session session = os.get();
+            String token = ot.get();
+            logger.info("Flush session for user #{}", session.getUserId());
+            sessionHandler.flushSession(token);
             User user = Ebean.find(User.class, session.getUserId());
-            session.setValid(false);
-            updateSession(session, request);
-            logger.info("Set session for user #{} as invalid", session.getUserId());
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());

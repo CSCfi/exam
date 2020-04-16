@@ -14,5 +14,5 @@ public interface SessionHandler {
     Optional<String> getSessionToken(Http.RequestHeader request);
     void updateSession(Http.RequestHeader request, Session session);
     String createSession(Http.RequestHeader request, Session session);
-
+    void flushSession(String token);
 }

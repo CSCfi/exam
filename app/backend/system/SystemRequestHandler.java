@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.google.inject.Inject;
@@ -38,7 +37,6 @@ import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -57,9 +55,9 @@ import backend.util.datetime.DateTimeUtils;
 
 public class SystemRequestHandler implements ActionCreator {
 
-    private SessionHandler sessionHandler;
-    private Environment environment;
-    private ByodConfigHandler byodConfigHandler;
+    private final SessionHandler sessionHandler;
+    private final Environment environment;
+    private final ByodConfigHandler byodConfigHandler;
 
     private static final Logger.ALogger logger = Logger.of(SystemRequestHandler.class);
 
@@ -74,64 +72,30 @@ public class SystemRequestHandler implements ActionCreator {
     @Override
     public Action.Simple createAction(Http.Request request, Method actionMethod) {
         Optional<Session> os = sessionHandler.getSession(request);
-        Optional<String> ot = sessionHandler.getSessionToken(request);
-        boolean temporalStudent = os.isPresent() && os.get().isTemporalStudent();
-        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
-        AuditLogger.log(request, user);
-
-        // logout, no further processing
-        if (request.path().equals("/app/logout")) {
+        AuditLogger.log(request, os.orElse(null));
+        // no session or logging out, no need for actions
+        if (os.isEmpty() || request.path().equals("/app/logout")) {
             return propagateAction();
         }
-        Session session = os.orElse(null);
-        String token = ot.orElse(null);
-
-        return validateSession(session, token).orElseGet(() -> {
-            updateSession(request, session);
-            boolean isStudent = isStudent(session);
-            if ((user == null || !isStudent) && !temporalStudent) {
-                // propagate further right away
+        Session session = os.get();
+        updateSession(request, session);
+        // not a student, no need for actions
+        if (!isStudent(session)) {
+            return propagateAction();
+        } else {
+            // TODO: How to avoid doing db here?
+            // Can't move to deadbolt, no such hook there
+            // Looks like we either need a scheduled checker or move the whole responsibility to client?
+            User user = Ebean.find(User.class, session.getUserId());
+            if (user == null) {
                 return propagateAction();
-            } else if (user != null){
-                // requests are candidates for extra processing
-                return propagateAction(getReservationHeaders(request, user));
-            } else {
-                return new Action.Simple() {
-                    @Override
-                    public CompletionStage<Result> call(Http.Request request) {
-                        return CompletableFuture.supplyAsync(Results::forbidden);
-                    }
-                };
             }
-        });
+            return propagateAction(getReservationHeaders(request, user));
+        }
     }
 
     private boolean isStudent(Session session) {
-        return session != null && session.getLoginRole() != null &&
-                Role.Name.STUDENT.toString().equals(session.getLoginRole());
-    }
-
-    private Optional<Action.Simple> validateSession(Session session, String token) {
-        if (session == null) {
-            if (token == null) {
-                logger.debug("User not logged in");
-            } else {
-                logger.info("Session with token {} not found", token);
-            }
-            return Optional.of(propagateAction());
-        } else if (!session.getValid()) {
-            logger.warn("Session #{} is marked as invalid", token);
-            return Optional.of(new Action.Simple() {
-                @Override
-                public CompletionStage<Result> call(final Http.Request request) {
-                    return CompletableFuture.supplyAsync(() ->
-                            Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.")
-                    );
-                }
-            });
-        } else {
-            return Optional.empty();
-        }
+        return session.getLoginRole() != null && Role.Name.STUDENT.toString().equals(session.getLoginRole());
     }
 
     private Map<String, String> getReservationHeaders(Http.RequestHeader request, User user) {

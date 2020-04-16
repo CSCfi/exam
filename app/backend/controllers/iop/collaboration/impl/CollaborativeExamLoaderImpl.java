@@ -9,7 +9,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
 
-import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +24,6 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
-import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
@@ -37,12 +35,6 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 
     @Inject
     WSClient wsClient;
-
-    @Inject
-    private ActorSystem as;
-
-    @Inject
-    private EmailComposer composer;
 
     private Optional<URL> parseUrl(String examRef) {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
@@ -85,7 +77,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     public CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
         Optional<URL> ou = parseUrl(ce.getExternalRef(), ref);
         if (ou.isEmpty()) {
-            return CompletableFuture.supplyAsync(Optional::empty);
+            return CompletableFuture.completedFuture(Optional.empty());
         }
         ((ObjectNode)payload).set("rev", payload.get("_rev")); // TBD: maybe this should be checked on XM
         WSRequest request = wsClient.url(ou.get().toString());
@@ -127,7 +119,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             };
             return request.get().thenApplyAsync(onSuccess);
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
@@ -145,7 +137,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             };
             return request.get().thenApplyAsync(onSuccess);
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
@@ -181,7 +173,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     private CompletionStage<Result> defer(Result result) {
-        return CompletableFuture.supplyAsync(() -> result);
+        return CompletableFuture.completedFuture(result);
     }
 
     protected Result ok(Object object, PathProperties pp) {

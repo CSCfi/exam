@@ -16,7 +16,6 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
-import play.Environment;
 import play.Logger;
 import play.db.ebean.EbeanConfig;
 
@@ -29,31 +28,23 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
-import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 public class ExaminationRepository {
 
     private final EbeanServer db;
     private final CollaborativeExamLoader cel;
-    private final ByodConfigHandler bch;
     private final DatabaseExecutionContext ec;
-    private final Environment environment;
 
     private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
 
     @Inject
     public ExaminationRepository(EbeanConfig ebeanConfig, CollaborativeExamLoader cel,
-                                 ByodConfigHandler byodConfigHandler, Environment environment,
                                  DatabaseExecutionContext databaseExecutionContext) {
         this.db = Ebean.getServer(ebeanConfig.defaultServer());
         this.cel = cel;
-        this.bch = byodConfigHandler;
-        this.environment = environment;
         this.ec = databaseExecutionContext;
     }
-
-
 
     private Optional<Exam> doCreateExam(Exam prototype, User user, ExamEnrolment enrolment) {
         Transaction txn = db.beginTransaction();
@@ -98,12 +89,12 @@ public class ExaminationRepository {
 
     public CompletionStage<Optional<CollaborativeExam>> getCollaborativeExam(String hash) {
         return CompletableFuture.supplyAsync(() -> {
-            Optional<CollaborativeExam> ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash)
+            Optional<CollaborativeExam> ce = db.find(CollaborativeExam.class).where().eq("hash", hash)
                     .findOneOrEmpty();
             if (ce.isPresent()) {
                 return ce;
             }
-            Optional<Exam> exam = Ebean.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
+            Optional<Exam> exam = db.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
             if (exam.isPresent()) {
                 if (!exam.get().getExamEnrolments().isEmpty()) {
                     CollaborativeExam ce2 = exam.get().getExamEnrolments().get(0).getCollaborativeExam();
@@ -144,7 +135,7 @@ public class ExaminationRepository {
     }
 
     private Query<Exam> createQuery(PathProperties pp) {
-        Query<Exam> query = Ebean.find(Exam.class);
+        Query<Exam> query = db.find(Exam.class);
         pp.apply(query);
         return query;
     }
@@ -163,7 +154,7 @@ public class ExaminationRepository {
 
     public CompletionStage<Optional<ExamEnrolment>> findEnrolment(User user, Exam prototype, CollaborativeExam ce) {
         return CompletableFuture.supplyAsync(() -> {
-            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+            List<ExamEnrolment> enrolments = db.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .fetch("reservation.machine")
                     .fetch("reservation.machine.room")
@@ -191,7 +182,7 @@ public class ExaminationRepository {
     }
 
     public CompletionStage<Optional<ExamRoom>> findRoom(ExamEnrolment enrolment) {
-        return CompletableFuture.supplyAsync(() -> Ebean.find(ExamRoom.class)
+        return CompletableFuture.supplyAsync(() -> db.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
                     .eq("id", enrolment.getReservation().getMachine().getRoom().getId())

@@ -16,9 +16,10 @@
 package backend.models;
 
 
-import backend.models.base.GeneratedIdentityModel;
-
+import java.util.Objects;
 import javax.persistence.Entity;
+
+import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Role {
@@ -36,12 +37,18 @@ public class Role extends GeneratedIdentityModel implements be.objectify.deadbol
         this.name = name;
     }
 
+    public static Role withName(String name) {
+        Role role = new Role();
+        role.setName(name);
+        return role;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Role)) return false;
         Role role = (Role) o;
-        return !(name != null ? !name.equals(role.name) : role.name != null);
+        return Objects.equals(name, role.name);
     }
 
     @Override

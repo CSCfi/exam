@@ -161,7 +161,7 @@ public class BaseController extends Controller {
     }
 
     protected CompletionStage<Result> wrapAsPromise(Result result) {
-        return CompletableFuture.supplyAsync(() -> result);
+        return CompletableFuture.completedFuture(result);
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous, boolean admin) {

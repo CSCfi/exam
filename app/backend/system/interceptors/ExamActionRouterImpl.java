@@ -40,9 +40,7 @@ public class ExamActionRouterImpl extends Action<ExamActionRouter> {
     public CompletionStage<Result> call(Http.Request request) {
         Optional<Session> session = sessionHandler.getSession(request);
         if (session.isPresent() && session.get().isTemporalStudent()) {
-            return CompletableFuture.supplyAsync(
-                    () -> redirect(request.path().replace("/app/", "/app/iop/"))
-            );
+            return CompletableFuture.completedFuture(redirect(request.path().replace("/app/", "/app/iop/")));
         }
         return delegate.call(request);
     }

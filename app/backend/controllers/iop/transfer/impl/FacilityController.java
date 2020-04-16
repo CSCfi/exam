@@ -73,7 +73,7 @@ public class FacilityController extends BaseController implements ExternalFacili
     public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
         URL url = parseUrl(room.getExternalRef());
         WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
@@ -107,7 +107,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             return request.delete().thenApplyAsync(onSuccess);
         } else {
             // Tried to add an inactive facility
-            return CompletableFuture.supplyAsync(Results::badRequest);
+            return CompletableFuture.completedFuture(Results.badRequest());
         }
     }
 

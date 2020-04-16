@@ -104,7 +104,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     @Override
     public CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
         if (!configReader.isCourseSearchActive()) {
-            return CompletableFuture.supplyAsync(() -> getLocalCourses(code));
+            return CompletableFuture.completedFuture(getLocalCourses(code));
         }
         // Hit the remote end for a possible match. Update local records with matching remote records.
         // Finally return all matches (old & new)

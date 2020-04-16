@@ -22,6 +22,7 @@ public class Session {
     private DateTime since;
     private Boolean valid;
     private String loginRole;
+    private String email;
     private boolean temporalStudent;
 
     public Long getUserId() {
@@ -40,20 +41,20 @@ public class Session {
         this.since = since;
     }
 
-    public Boolean getValid() {
-        return valid;
-    }
-
-    public void setValid(Boolean valid) {
-        this.valid = valid;
-    }
-
     public String getLoginRole() {
         return loginRole;
     }
 
     public void setLoginRole(String loginRole) {
         this.loginRole = loginRole;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public boolean isTemporalStudent() {

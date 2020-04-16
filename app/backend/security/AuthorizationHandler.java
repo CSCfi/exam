@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
-import io.ebean.Ebean;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -52,29 +51,24 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
-
         Optional<Session> os = sessionHandler.getSession(request);
-        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
-        // filter out roles not found in session
-        if (user != null) {
+        if (os.isPresent()) {
+            User user = new User();
             Session session = os.get();
-            List<Role> roles = Ebean.find(Role.class).where()
-                    .eq("name", session.getLoginRole()).findList();
-            user.setRoles(roles);
-            return CompletableFuture.supplyAsync(() -> Optional.of(user));
+            user.setRoles(List.of(Role.withName(session.getLoginRole())));
+            return CompletableFuture.completedFuture(Optional.of(user));
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
-
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
     public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.supplyAsync(() -> Results.forbidden("Authentication failure"));
+        return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
     }
 
     @Override
