@@ -15,6 +15,29 @@
 
 package backend.controllers;
 
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.exceptions.NotFoundException;
+import backend.models.ExamEnrolment;
+import backend.models.Language;
+import backend.models.Organisation;
+import backend.models.Reservation;
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
+import backend.models.dto.Credentials;
+import backend.repository.EnrolmentRepository;
+import backend.security.SessionHandler;
+import backend.util.AppUtil;
+import backend.util.config.ConfigReader;
+import backend.util.datetime.DateTimeUtils;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -32,13 +55,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import be.objectify.deadbolt.java.actions.SubjectPresent;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import play.Environment;
@@ -46,23 +62,6 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalExamAPI;
-import backend.exceptions.NotFoundException;
-import backend.models.ExamEnrolment;
-import backend.models.Language;
-import backend.models.Organisation;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.dto.Credentials;
-import backend.security.SessionHandler;
-import backend.util.AppUtil;
-import backend.util.config.ConfigReader;
-import backend.util.datetime.DateTimeUtils;
 
 public class SessionController extends BaseController {
   private final Environment environment;
@@ -72,6 +71,8 @@ public class SessionController extends BaseController {
   private final ExternalExamAPI externalExamAPI;
 
   private final ConfigReader configReader;
+
+  private final EnrolmentRepository enrolmentRepository;
 
   private static final Logger.ALogger logger = Logger.of(SessionController.class);
 
@@ -92,12 +93,14 @@ public class SessionController extends BaseController {
     Environment environment,
     SessionHandler sessionHandler,
     ExternalExamAPI externalExamAPI,
-    ConfigReader configReader
+    ConfigReader configReader,
+    EnrolmentRepository enrolmentRepository
   ) {
     this.environment = environment;
     this.sessionHandler = sessionHandler;
     this.externalExamAPI = externalExamAPI;
     this.configReader = configReader;
+    this.enrolmentRepository = enrolmentRepository;
   }
 
   @ActionMethod
@@ -474,24 +477,68 @@ public class SessionController extends BaseController {
   }
 
   @ActionMethod
-  public Result checkSession(Http.Request request) {
+  public CompletionStage<Result> checkSession(Http.Request request) {
     Optional<String> ot = sessionHandler.getSessionToken(request);
     Optional<Session> os = getSession(request);
     if (ot.isEmpty() || os.isEmpty() || os.get().getSince() == null) {
       logger.info("Session not found");
-      return ok("no_session");
+      return wrapAsPromise(ok("no_session"));
     }
-    DateTime expirationTime = os.get().getSince().plusMinutes(SESSION_TIMEOUT_MINUTES);
+    Session session = os.get();
+    DateTime expirationTime = session.getSince().plusMinutes(SESSION_TIMEOUT_MINUTES);
     DateTime alarmTime = expirationTime.minusMinutes(2);
     logger.debug("Session expiration due at {}", expirationTime);
+
     if (expirationTime.isBeforeNow()) {
       logger.info("Session has expired");
       sessionHandler.flushSession(ot.get());
-      return ok("no_session");
-    } else if (alarmTime.isBeforeNow()) {
-      return ok("alarm");
+      return wrapAsPromise(ok("no_session"));
     }
-    return ok();
+    String reason = alarmTime.isBeforeNow() ? "alarm" : "";
+    // check for upcoming student reservations
+    if (isStudent(session)) {
+      return enrolmentRepository
+        .getReservationHeaders(request, session)
+        .thenApplyAsync(
+          headers -> {
+            updateStudentHeaders(session, headers);
+            Result result = ok(reason);
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+              result = result.withHeader(entry.getKey(), entry.getValue());
+            }
+            return result;
+          }
+        );
+    } else {
+      return wrapAsPromise(ok(reason));
+    }
+  }
+
+  private void updateStudentHeaders(Session session, Map<String, String> headers) {
+    if (headers.keySet().contains("x-exam-start-exam")) {
+      session.setOngoingExamHash(headers.get("x-exam-start-exam"));
+    } else {
+      session.setOngoingExamHash(null);
+    }
+    if (headers.keySet().contains("x-exam-upcoming-exam")) {
+      session.setUpcomingExamHash(headers.get("x-exam-upcoming-exam"));
+    } else {
+      session.setUpcomingExamHash(null);
+    }
+    if (headers.keySet().contains("x-exam-wrong-machine")) {
+      session.setWrongMachineData(headers.get("x-exam-wrong-machine"));
+    } else {
+      session.setWrongMachineData(null);
+    }
+    if (headers.keySet().contains("x-exam-wrong-room")) {
+      session.setWrongRoomData(headers.get("x-exam-wrong-room"));
+    } else {
+      session.setWrongRoomData(null);
+    }
+  }
+
+  private boolean isStudent(Session session) {
+    return (session.getLoginRole() != null && Role.Name.STUDENT.toString().equals(session.getLoginRole()));
   }
 
   private Optional<Session> getSession(Http.Request request) {

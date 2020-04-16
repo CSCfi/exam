@@ -50,7 +50,7 @@ interface Env {
 }
 
 export class SessionService {
-    PING_INTERVAL: number = 60 * 1000;
+    PING_INTERVAL: number = 10 * 1000;
     _user: User;
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;

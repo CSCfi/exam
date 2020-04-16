@@ -23,13 +23,11 @@ import backend.models.ExamExecutionType;
 import backend.models.ExamParticipation;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.User;
-import backend.models.json.CollaborativeExam;
-import backend.models.sections.ExamSection;
+import backend.repository.EnrolmentRepository;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.config.ConfigReader;
-import backend.util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -57,10 +55,16 @@ import play.mvc.Result;
 public class StudentActionsController extends CollaborationController {
   private final boolean permCheckActive;
   private final ExternalCourseHandler externalCourseHandler;
+  private final EnrolmentRepository enrolmentRepository;
 
   @Inject
-  public StudentActionsController(ExternalCourseHandler courseHandler, ConfigReader configReader) {
+  public StudentActionsController(
+    ExternalCourseHandler courseHandler,
+    EnrolmentRepository enrolmentRepository,
+    ConfigReader configReader
+  ) {
     this.externalCourseHandler = courseHandler;
+    this.enrolmentRepository = enrolmentRepository;
     this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
   }
 
@@ -260,73 +264,9 @@ public class StudentActionsController extends CollaborationController {
   }
 
   @Authenticated
-  public Result getEnrolmentsForUser(Http.Request request) {
-    DateTime now = DateTimeUtils.adjustDST(new DateTime());
+  public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
     User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-    List<ExamEnrolment> enrolments = Ebean
-      .find(ExamEnrolment.class)
-      .fetch("examinationEventConfiguration")
-      .fetch("examinationEventConfiguration.examinationEvent")
-      .fetch("collaborativeExam")
-      .fetch("exam")
-      .fetch("exam.examinationEventConfigurations.examinationEvent")
-      .fetch("exam.executionType")
-      .fetch("exam.examSections", "name, description")
-      .fetch("exam.course", "name, code")
-      .fetch("exam.examLanguages")
-      .fetch("exam.examOwners", "firstName, lastName")
-      .fetch("exam.examInspections.user", "firstName, lastName")
-      .fetch("reservation", "startAt, endAt, externalRef")
-      .fetch("reservation.externalReservation")
-      .fetch("reservation.externalReservation.mailAddress")
-      .fetch("reservation.optionalSections")
-      .fetch("reservation.optionalSections.examMaterials")
-      .fetch("reservation.machine", "name")
-      .fetch(
-        "reservation.machine.room",
-        "name, roomCode, localTimezone, " + "roomInstruction, roomInstructionEN, roomInstructionSV"
-      )
-      .where()
-      .eq("user", user)
-      .disjunction()
-      .gt("reservation.endAt", now.toDate())
-      .isNull("reservation")
-      .endJunction()
-      .findList()
-      .stream()
-      .filter(
-        ee ->
-          ee.getExaminationEventConfiguration() == null ||
-          ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((now))
-      )
-      .collect(Collectors.toList());
-    enrolments.forEach(
-      ee -> {
-        Exam exam = ee.getExam();
-        if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
-          // Hide section info if no optional sections exist
-          exam.getExamSections().clear();
-        }
-      }
-    );
-    return ok(
-      enrolments
-        .stream()
-        .filter(
-          ee -> {
-            Exam exam = ee.getExam();
-            if (exam != null && exam.getExamActiveEndDate() != null) {
-              return (
-                exam.getExamActiveEndDate().isAfterNow() &&
-                exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
-              );
-            }
-            CollaborativeExam ce = ee.getCollaborativeExam();
-            return ce != null && ce.getExamActiveEndDate().isAfterNow();
-          }
-        )
-        .collect(Collectors.toList())
-    );
+    return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok);
   }
 
   @Authenticated

@@ -20,10 +20,13 @@ import org.joda.time.DateTime;
 public class Session {
   private Long userId;
   private DateTime since;
-  private Boolean valid;
   private String loginRole;
   private String email;
   private boolean temporalStudent;
+  private String ongoingExamHash;
+  private String upcomingExamHash;
+  private String wrongRoomData;
+  private String wrongMachineData;
 
   public Long getUserId() {
     return userId;
@@ -63,5 +66,37 @@ public class Session {
 
   public void setTemporalStudent(boolean temporalStudent) {
     this.temporalStudent = temporalStudent;
+  }
+
+  public String getOngoingExamHash() {
+    return ongoingExamHash;
+  }
+
+  public void setOngoingExamHash(String ongoingExamHash) {
+    this.ongoingExamHash = ongoingExamHash;
+  }
+
+  public String getUpcomingExamHash() {
+    return upcomingExamHash;
+  }
+
+  public void setUpcomingExamHash(String upcomingExamHash) {
+    this.upcomingExamHash = upcomingExamHash;
+  }
+
+  public String getWrongRoomData() {
+    return wrongRoomData;
+  }
+
+  public void setWrongRoomData(String wrongRoomData) {
+    this.wrongRoomData = wrongRoomData;
+  }
+
+  public String getWrongMachineData() {
+    return wrongMachineData;
+  }
+
+  public void setWrongMachineData(String wrongMachineData) {
+    this.wrongMachineData = wrongMachineData;
   }
 }

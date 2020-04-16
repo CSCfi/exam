@@ -502,6 +502,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = get("/app/reviewerexams");
         assertThat(result.status()).isEqualTo(403);
         // See that user is directed to waiting room
+        // First update session
+        get("/app/checkSession");
         result = get("/app/student/enrolments");
         assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
 
