@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 
@@ -54,15 +55,18 @@ import play.mvc.Result;
 @Restrict({ @Group("STUDENT") })
 public class StudentActionsController extends CollaborationController {
     private final boolean permCheckActive;
+    private final HttpExecutionContext ec;
     private final ExternalCourseHandler externalCourseHandler;
     private final EnrolmentRepository enrolmentRepository;
 
     @Inject
     public StudentActionsController(
+        HttpExecutionContext ec,
         ExternalCourseHandler courseHandler,
         EnrolmentRepository enrolmentRepository,
         ConfigReader configReader
     ) {
+        this.ec = ec;
         this.externalCourseHandler = courseHandler;
         this.enrolmentRepository = enrolmentRepository;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
@@ -266,7 +270,7 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok);
+        return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok, ec.current());
     }
 
     @Authenticated

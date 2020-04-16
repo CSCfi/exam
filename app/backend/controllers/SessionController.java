@@ -60,18 +60,16 @@ import org.joda.time.Minutes;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class SessionController extends BaseController {
     private final Environment environment;
-
+    private final HttpExecutionContext ec;
     private final SessionHandler sessionHandler;
-
     private final ExternalExamAPI externalExamAPI;
-
     private final ConfigReader configReader;
-
     private final EnrolmentRepository enrolmentRepository;
 
     private static final Logger.ALogger logger = Logger.of(SessionController.class);
@@ -91,12 +89,14 @@ public class SessionController extends BaseController {
     @Inject
     public SessionController(
         Environment environment,
+        HttpExecutionContext ec,
         SessionHandler sessionHandler,
         ExternalExamAPI externalExamAPI,
         ConfigReader configReader,
         EnrolmentRepository enrolmentRepository
     ) {
         this.environment = environment;
+        this.ec = ec;
         this.sessionHandler = sessionHandler;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
@@ -510,7 +510,8 @@ public class SessionController extends BaseController {
                             result = result.withHeader(entry.getKey(), entry.getValue());
                         }
                         return result;
-                    }
+                    },
+                    ec.current()
                 );
         } else {
             return wrapAsPromise(ok(reason));
@@ -518,26 +519,10 @@ public class SessionController extends BaseController {
     }
 
     private void updateStudentHeaders(Session session, Map<String, String> headers) {
-        if (headers.keySet().contains("x-exam-start-exam")) {
-            session.setOngoingExamHash(headers.get("x-exam-start-exam"));
-        } else {
-            session.setOngoingExamHash(null);
-        }
-        if (headers.keySet().contains("x-exam-upcoming-exam")) {
-            session.setUpcomingExamHash(headers.get("x-exam-upcoming-exam"));
-        } else {
-            session.setUpcomingExamHash(null);
-        }
-        if (headers.keySet().contains("x-exam-wrong-machine")) {
-            session.setWrongMachineData(headers.get("x-exam-wrong-machine"));
-        } else {
-            session.setWrongMachineData(null);
-        }
-        if (headers.keySet().contains("x-exam-wrong-room")) {
-            session.setWrongRoomData(headers.get("x-exam-wrong-room"));
-        } else {
-            session.setWrongRoomData(null);
-        }
+        session.setOngoingExamHash(headers.getOrDefault("x-exam-start-exam", null));
+        session.setUpcomingExamHash(headers.getOrDefault("x-exam-upcoming-exam", null));
+        session.setWrongMachineData(headers.getOrDefault("x-exam-wrong-machine", null));
+        session.setWrongRoomData(headers.getOrDefault("x-exam-wrong-room", null));
     }
 
     private boolean isStudent(Session session) {

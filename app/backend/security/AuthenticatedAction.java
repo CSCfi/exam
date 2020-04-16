@@ -19,49 +19,67 @@ package backend.security;
 import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
+import backend.repository.UserRepository;
 import backend.sanitizers.Attrs;
-import io.ebean.Ebean;
+import com.sun.net.httpserver.HttpContext;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.Logger;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
 public class AuthenticatedAction extends Action<Authenticated> {
-    private SessionHandler sessionHandler;
+    private final HttpExecutionContext ec;
+    private final SessionHandler sessionHandler;
+    private final UserRepository userRepository;
 
     private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
 
     @Inject
-    public AuthenticatedAction(SessionHandler sessionHandler) {
+    public AuthenticatedAction(HttpExecutionContext ec, SessionHandler sessionHandler, UserRepository userRepository) {
+        this.ec = ec;
         this.sessionHandler = sessionHandler;
+        this.userRepository = userRepository;
     }
 
-    private Optional<User> getLoggedInUser(Http.Request request) {
+    private CompletionStage<Optional<User>> getLoggedInUser(Http.Request request) {
         Optional<Session> session = sessionHandler.getSession(request);
         if (session.isPresent()) {
-            Optional<User> ou = session.map(s -> Ebean.find(User.class, s.getUserId()));
-            if (ou.isPresent()) {
-                User user = ou.get();
-                user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
-                return Optional.of(user);
-            }
+            return userRepository
+                .getLoggedInUser(session.get())
+                .thenApplyAsync(
+                    ou -> {
+                        if (ou.isPresent()) {
+                            User user = ou.get();
+                            user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
+                            return Optional.of(user);
+                        }
+                        return Optional.empty();
+                    },
+                    ec.current()
+                );
         }
-        return Optional.empty();
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        Optional<User> ou = getLoggedInUser(request);
-        if (ou.isPresent()) {
-            User user = ou.get();
-            return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
-        }
-        logger.info("Blocked unauthorized access to {}", request.path());
-        return CompletableFuture.completedFuture(Results.unauthorized());
+        return getLoggedInUser(request)
+            .thenComposeAsync(
+                ou -> {
+                    if (ou.isPresent()) {
+                        User user = ou.get();
+                        return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+                    }
+                    logger.info("Blocked unauthorized access to {}", request.path());
+                    return CompletableFuture.completedFuture(Results.unauthorized());
+                },
+                ec.current()
+            );
     }
 }
