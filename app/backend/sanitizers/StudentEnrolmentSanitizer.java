@@ -15,26 +15,25 @@
 
 package backend.sanitizers;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import play.data.validation.Constraints;
 import play.mvc.Http;
 
 public class StudentEnrolmentSanitizer extends BaseSanitizer {
 
-    @Override
-    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
-        Http.Request request = SanitizingHelper.sanitizeOptional("uid", body, Long.class, Attrs.USER_ID, req);
-        Optional<String> email = SanitizingHelper.parse("email", body, String.class);
-        if (email.isPresent()) {
-            Constraints.EmailValidator validator = new Constraints.EmailValidator();
-            if (!validator.isValid(email.get())) {
-                throw new SanitizingException("bad email format");
-            }
-            request = request.addAttr(Attrs.EMAIL, email.get());
-        }
-        request = SanitizingHelper.sanitizeOptional("email", body, String.class, Attrs.EMAIL, request);
-        return request;
+  @Override
+  protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+    Http.Request request = SanitizingHelper.sanitizeOptional("uid", body, Long.class, Attrs.USER_ID, req);
+    Optional<String> email = SanitizingHelper.parse("email", body, String.class);
+    if (email.isPresent()) {
+      Constraints.EmailValidator validator = new Constraints.EmailValidator();
+      if (!validator.isValid(email.get())) {
+        throw new SanitizingException("bad email format");
+      }
+      request = request.addAttr(Attrs.EMAIL, email.get());
     }
+    request = SanitizingHelper.sanitizeOptional("email", body, String.class, Attrs.EMAIL, request);
+    return request;
+  }
 }

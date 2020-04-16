@@ -17,46 +17,44 @@ package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import java.util.List;
 
 @Entity
 public class Accessibility extends GeneratedIdentityModel {
+  private String name;
 
-    private String name;
+  @ManyToMany(cascade = CascadeType.ALL)
+  @JsonBackReference
+  private List<ExamRoom> examRoom;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<ExamRoom> examRoom;
+  @ManyToMany(cascade = CascadeType.ALL)
+  @JsonBackReference
+  private List<ExamMachine> examMachine;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<ExamMachine> examMachine;
+  public String getName() {
+    return name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public List<ExamMachine> getExamMachine() {
+    return examMachine;
+  }
 
-    public List<ExamMachine> getExamMachine() {
-        return examMachine;
-    }
+  public void setExamMachine(List<ExamMachine> examMachine) {
+    this.examMachine = examMachine;
+  }
 
-    public void setExamMachine(List<ExamMachine> examMachine) {
-        this.examMachine = examMachine;
-    }
+  public List<ExamRoom> getExamRoom() {
+    return examRoom;
+  }
 
-    public List<ExamRoom> getExamRoom() {
-        return examRoom;
-    }
-
-    public void setExamRoom(List<ExamRoom> examRoom) {
-        this.examRoom = examRoom;
-    }
+  public void setExamRoom(List<ExamRoom> examRoom) {
+    this.examRoom = examRoom;
+  }
 }

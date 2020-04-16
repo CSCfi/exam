@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -15,37 +15,34 @@
 
 package backend.models;
 
-
 import backend.models.base.GeneratedIdentityModel;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
 public class ExamType extends GeneratedIdentityModel {
+  private String type;
 
-    private String type;
+  @Column(columnDefinition = "boolean default false")
+  private Boolean deprecated;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean deprecated;
+  public ExamType(String type) {
+    this.type = type;
+  }
 
-    public ExamType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setDeprecated(boolean deprecated) {
+    this.deprecated = deprecated;
+  }
 
-    public void setDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public Boolean isDeprecated() {
-        return deprecated;
-    }
+  public Boolean isDeprecated() {
+    return deprecated;
+  }
 }

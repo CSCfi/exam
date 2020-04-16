@@ -15,12 +15,11 @@
 
 package backend.impl;
 
-import com.google.inject.ImplementedBy;
 import backend.models.Exam;
+import com.google.inject.ImplementedBy;
 
 @FunctionalInterface
 @ImplementedBy(AutoEvaluationHandlerImpl.class)
 public interface AutoEvaluationHandler {
-    void autoEvaluate(Exam exam);
-
+  void autoEvaluate(Exam exam);
 }

@@ -20,7 +20,7 @@ import play.mvc.Http;
 
 public class EnrolmentInformationSanitizer extends BaseSanitizer {
 
-    protected Http.Request sanitize(Http.Request req, JsonNode body) {
-        return req.addAttr(Attrs.ENROLMENT_INFORMATION, body.get("information").asText());
-    }
+  protected Http.Request sanitize(Http.Request req, JsonNode body) {
+    return req.addAttr(Attrs.ENROLMENT_INFORMATION, body.get("information").asText());
+  }
 }

@@ -15,25 +15,24 @@
 
 package backend.system.interceptors;
 
-
-import java.util.concurrent.CompletionStage;
-
 import akka.stream.Materializer;
 import com.google.inject.Inject;
+import java.util.concurrent.CompletionStage;
 import play.mvc.Http;
 import play.mvc.Result;
 
 // Action composition to ensure that no data classed as sensitive shall be sent to client.
 class SensitiveDataAction extends JsonFilterAction<SensitiveDataPolicy> {
 
-    @Inject
-    SensitiveDataAction(Materializer materializer) {
-        super(materializer);
-    }
+  @Inject
+  SensitiveDataAction(Materializer materializer) {
+    super(materializer);
+  }
 
-    @Override
-    public CompletionStage<Result> call(Http.Request request) {
-        return delegate.call(request)
-                .thenCompose(result -> filterJsonResponse(result, configuration.sensitiveFieldNames()));
-    }
+  @Override
+  public CompletionStage<Result> call(Http.Request request) {
+    return delegate
+      .call(request)
+      .thenCompose(result -> filterJsonResponse(result, configuration.sensitiveFieldNames()));
+  }
 }

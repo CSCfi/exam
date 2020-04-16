@@ -17,73 +17,70 @@ package backend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
+import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.*;
-
 @Entity
 public class Grade extends Model {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  private Integer id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer id;
+  @Column
+  private String name;
 
-    @Column
-    private String name;
+  @Column
+  private Boolean marksRejection;
 
-    @Column
-    private Boolean marksRejection;
+  @ManyToOne
+  @JsonBackReference
+  private GradeScale gradeScale;
 
-    @ManyToOne
-    @JsonBackReference
-    private GradeScale gradeScale;
+  public Integer getId() {
+    return id;
+  }
 
-    public Integer getId() {
-        return id;
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Boolean getMarksRejection() {
+    return marksRejection;
+  }
+
+  public void setMarksRejection(Boolean marksRejection) {
+    this.marksRejection = marksRejection;
+  }
+
+  public GradeScale getGradeScale() {
+    return gradeScale;
+  }
+
+  public void setGradeScale(GradeScale gradeScale) {
+    this.gradeScale = gradeScale;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof Grade)) {
+      return false;
     }
+    Grade otherGrade = (Grade) other;
+    return new EqualsBuilder().append(id, otherGrade.id).build();
+  }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Boolean getMarksRejection() {
-        return marksRejection;
-    }
-
-    public void setMarksRejection(Boolean marksRejection) {
-        this.marksRejection = marksRejection;
-    }
-
-    public GradeScale getGradeScale() {
-        return gradeScale;
-    }
-
-    public void setGradeScale(GradeScale gradeScale) {
-        this.gradeScale = gradeScale;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!(other instanceof Grade)) {
-            return false;
-        }
-        Grade otherGrade = (Grade) other;
-        return new EqualsBuilder().append(id, otherGrade.id).build();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
-    }
-
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(id).build();
+  }
 }

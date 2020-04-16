@@ -15,43 +15,47 @@
 
 package backend.models;
 
-
+import io.ebean.Model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import io.ebean.Model;
 
 @Entity
 public class ExamExecutionType extends Model {
 
-    public enum Type { PRIVATE, PUBLIC, MATURITY, PRINTOUT }
+  public enum Type {
+    PRIVATE,
+    PUBLIC,
+    MATURITY,
+    PRINTOUT
+  }
 
-    @Id
-    private Integer id;
-    private String type;
-    private boolean active;
+  @Id
+  private Integer id;
 
-    public Integer getId() {
-        return id;
-    }
+  private String type;
+  private boolean active;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+  public Integer getId() {
+    return id;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public boolean isActive() {
-        return active;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 }

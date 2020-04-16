@@ -15,51 +15,53 @@
 
 package backend.controllers;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class TagController extends BaseController {
 
-    @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result listTags(Optional<String> filter, Optional<List<Long>> examIds, Optional<List<Long>> courseIds,
-                           Optional<List<Long>> sectionIds, Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Tag> query = Ebean.find(Tag.class).where();
-        if (!user.hasRole(Role.Name.ADMIN)) {
-            query = query.where().eq("creator.id", user.getId());
-        }
-        if (filter.isPresent()) {
-            String condition = String.format("%%%s%%", filter.get());
-            query = query.ilike("name", condition);
-        }
-        if (examIds.isPresent() && !examIds.get().isEmpty()) {
-            query = query.in("questions.examSectionQuestions.examSection.exam.id", examIds.get());
-        }
-        if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
-            query = query.in("questions.examSectionQuestions.examSection.exam.course.id", courseIds.get());
-        }
-        if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
-            query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
-        }
-        Set<Tag> tags = query.findSet();
-        return ok(tags, PathProperties.parse("(*, creator(id))"));
+  @Authenticated
+  @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+  public Result listTags(
+    Optional<String> filter,
+    Optional<List<Long>> examIds,
+    Optional<List<Long>> courseIds,
+    Optional<List<Long>> sectionIds,
+    Http.Request request
+  ) {
+    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+    ExpressionList<Tag> query = Ebean.find(Tag.class).where();
+    if (!user.hasRole(Role.Name.ADMIN)) {
+      query = query.where().eq("creator.id", user.getId());
     }
-
+    if (filter.isPresent()) {
+      String condition = String.format("%%%s%%", filter.get());
+      query = query.ilike("name", condition);
+    }
+    if (examIds.isPresent() && !examIds.get().isEmpty()) {
+      query = query.in("questions.examSectionQuestions.examSection.exam.id", examIds.get());
+    }
+    if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
+      query = query.in("questions.examSectionQuestions.examSection.exam.course.id", courseIds.get());
+    }
+    if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
+      query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
+    }
+    Set<Tag> tags = query.findSet();
+    return ok(tags, PathProperties.parse("(*, creator(id))"));
+  }
 }

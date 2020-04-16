@@ -18,10 +18,9 @@ package backend.models.api;
 import backend.models.Attachment;
 
 public interface AttachmentContainer {
+  Attachment getAttachment();
 
-    Attachment getAttachment();
+  void setAttachment(Attachment attachment);
 
-    void setAttachment(Attachment attachment);
-
-    void save();
+  void save();
 }

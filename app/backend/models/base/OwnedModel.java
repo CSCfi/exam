@@ -18,63 +18,60 @@ package backend.models.base;
 import backend.models.User;
 import backend.util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.joda.time.DateTime;
-
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.joda.time.DateTime;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonSerialize(using = DateTimeAdapter.class)
+  protected DateTime created;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonSerialize(using = DateTimeAdapter.class)
-    protected DateTime created;
+  @ManyToOne
+  @JoinColumn(name = "creator_id")
+  protected User creator;
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id")
-    protected User creator;
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonSerialize(using = DateTimeAdapter.class)
+  protected DateTime modified;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonSerialize(using = DateTimeAdapter.class)
-    protected DateTime modified;
+  @ManyToOne
+  @JoinColumn(name = "modifier_id")
+  protected User modifier;
 
-    @ManyToOne
-    @JoinColumn(name = "modifier_id")
-    protected User modifier;
+  public DateTime getCreated() {
+    return created;
+  }
 
-    public DateTime getCreated() {
-        return created;
-    }
+  public void setCreated(DateTime created) {
+    this.created = created;
+  }
 
-    public void setCreated(DateTime created) {
-        this.created = created;
-    }
+  public User getCreator() {
+    return creator;
+  }
 
-    public User getCreator() {
-        return creator;
-    }
+  public void setCreator(User creator) {
+    this.creator = creator;
+  }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
+  public DateTime getModified() {
+    return modified;
+  }
 
-    public DateTime getModified() {
-        return modified;
-    }
+  public void setModified(DateTime modified) {
+    this.modified = modified;
+  }
 
-    public void setModified(DateTime modified) {
-        this.modified = modified;
-    }
+  public User getModifier() {
+    return modifier;
+  }
 
-    public User getModifier() {
-        return modifier;
-    }
-
-    public void setModifier(User modifier) {
-        this.modifier = modifier;
-    }
-
+  public void setModifier(User modifier) {
+    this.modifier = modifier;
+  }
 }

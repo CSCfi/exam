@@ -15,28 +15,24 @@
 
 package backend.impl;
 
-import java.util.Optional;
-
-import com.google.inject.ImplementedBy;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
+import com.google.inject.ImplementedBy;
+import java.util.Optional;
+import play.mvc.Http;
+import play.mvc.Result;
 
 @ImplementedBy(ExamUpdaterImpl.class)
 public interface ExamUpdater {
-
-    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request);
-    Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
-    boolean isPermittedToUpdate(Exam exam, User user);
-    boolean isAllowedToUpdate(Exam exam, User user);
-    boolean isAllowedToRemove(Exam exam);
-    void update(Exam exam, Http.Request request, Role.Name loginRole);
-    void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
-    Optional<Result> updateLanguage(Exam exam, String code, User user);
-    void preparePreview(Exam exam);
-
+  Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request);
+  Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
+  boolean isPermittedToUpdate(Exam exam, User user);
+  boolean isAllowedToUpdate(Exam exam, User user);
+  boolean isAllowedToRemove(Exam exam);
+  void update(Exam exam, Http.Request request, Role.Name loginRole);
+  void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
+  Optional<Result> updateLanguage(Exam exam, String code, User user);
+  void preparePreview(Exam exam);
 }

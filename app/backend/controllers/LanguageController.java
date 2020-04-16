@@ -15,22 +15,20 @@
 
 package backend.controllers;
 
+import backend.controllers.base.BaseController;
+import backend.models.Language;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
-import backend.controllers.base.BaseController;
-import backend.models.Language;
+import java.util.List;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.List;
-
-
 public class LanguageController extends BaseController {
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getSupportedLanguages() {
-        List<Language> languages = Ebean.find(Language.class).findList();
-        return ok(Json.toJson(languages));
-    }
+  @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+  public Result getSupportedLanguages() {
+    List<Language> languages = Ebean.find(Language.class).findList();
+    return ok(Json.toJson(languages));
+  }
 }

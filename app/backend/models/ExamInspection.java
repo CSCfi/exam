@@ -18,82 +18,83 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExamInspection extends GeneratedIdentityModel {
+  @ManyToOne
+  @JsonBackReference
+  private Exam exam;
 
-	@ManyToOne
-    @JsonBackReference
-	private Exam exam;
+  @ManyToOne
+  @JsonManagedReference
+  private User user;
 
-	@ManyToOne
-    @JsonManagedReference
-	private User user;
+  @OneToOne
+  private User assignedBy;
 
-    @OneToOne
-    private User assignedBy;
+  @OneToOne
+  @JsonBackReference
+  private Comment comment;
 
-    @OneToOne
-    @JsonBackReference
-    private Comment comment;
+  private boolean ready;
 
-    private boolean ready;
+  public boolean isReady() {
+    return ready;
+  }
 
-    public boolean isReady() {
-        return ready;
+  public void setReady(boolean ready) {
+    this.ready = ready;
+  }
+
+  public Exam getExam() {
+    return exam;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public User getAssignedBy() {
+    return assignedBy;
+  }
+
+  public void setExam(Exam exam) {
+    this.exam = exam;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public void setAssignedBy(User user) {
+    this.assignedBy = user;
+  }
+
+  public Comment getComment() {
+    return comment;
+  }
+
+  public void setComment(Comment comment) {
+    this.comment = comment;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof ExamInspection)) {
+      return false;
     }
+    ExamInspection otherInspection = (ExamInspection) other;
+    return new EqualsBuilder().append(id, otherInspection.id).build();
+  }
 
-    public void setReady(boolean ready) {
-        this.ready = ready;
-    }
-
-    public Exam getExam() {
-		return exam;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-    public User getAssignedBy() { return assignedBy; }
-
-	public void setExam(Exam exam) {
-		this.exam = exam;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-    public void setAssignedBy(User user) { this.assignedBy = user; }
-
-    public Comment getComment() {
-        return comment;
-    }
-
-    public void setComment(Comment comment) {
-        this.comment = comment;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!(other instanceof ExamInspection)) {
-            return false;
-        }
-        ExamInspection otherInspection = (ExamInspection) other;
-        return new EqualsBuilder().append(id, otherInspection.id).build();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
-    }
-
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(id).build();
+  }
 }

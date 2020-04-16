@@ -16,16 +16,18 @@
 
 package backend.controllers.iop.collaboration.impl;
 
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.ConfigFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -33,47 +35,49 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.User;
-import backend.sanitizers.Attrs;
-import backend.security.Authenticated;
-
 public class CollaborativeStudentActionController extends CollaborationController {
+  private WSClient wsClient;
 
-    private WSClient wsClient;
+  private static final Logger.ALogger logger = Logger.of(CollaborativeStudentActionController.class);
 
-    private static final Logger.ALogger logger = Logger.of(CollaborativeStudentActionController.class);
+  @Inject
+  public CollaborativeStudentActionController(WSClient wsClient) {
+    this.wsClient = wsClient;
+  }
 
-    @Inject
-    public CollaborativeStudentActionController(WSClient wsClient) {
-        this.wsClient = wsClient;
+  @Authenticated
+  @Restrict({ @Group("STUDENT") })
+  public CompletionStage<Result> getFinishedExams(Http.Request request) {
+    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+    final Optional<URL> url = parseUrl();
+    if (!url.isPresent()) {
+      return wrapAsPromise(internalServerError());
     }
-
-    @Authenticated
-    @Restrict({@Group("STUDENT")})
-    public CompletionStage<Result> getFinishedExams(Http.Request request) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        final Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
-            return wrapAsPromise(internalServerError());
+    final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());
+    return wsRequest
+      .get()
+      .thenComposeAsync(
+        response -> {
+          if (response.getStatus() != Http.Status.OK) {
+            return wrapAsPromise(Results.status(response.getStatus()));
+          }
+          final JsonNode root = response.asJson();
+          calculateScores(root);
+          return wrapAsPromise(ok(root));
         }
-        final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());
-        return wsRequest.get().thenComposeAsync(response -> {
-            if (response.getStatus() != Http.Status.OK) {
-                return wrapAsPromise(Results.status(response.getStatus()));
-            }
-            final JsonNode root = response.asJson();
-            calculateScores(root);
-            return wrapAsPromise(ok(root));
-        });
-    }
+      );
+  }
 
-    Optional<URL> parseUrl() {
-        String url = String.format("%s/api/assessments/user?eppn=", ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        try {
-            return Optional.of(new URL(url));
-        } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
-            return Optional.empty();
-        }
+  Optional<URL> parseUrl() {
+    String url = String.format(
+      "%s/api/assessments/user?eppn=",
+      ConfigFactory.load().getString("sitnet.integration.iop.host")
+    );
+    try {
+      return Optional.of(new URL(url));
+    } catch (MalformedURLException e) {
+      logger.error("Malformed URL {}", e);
+      return Optional.empty();
     }
+  }
 }

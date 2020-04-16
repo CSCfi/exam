@@ -16,17 +16,6 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import javax.inject.Inject;
-
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import play.libs.ws.WSClient;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentInterface;
 import backend.models.Exam;
@@ -34,70 +23,81 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.util.config.ConfigReader;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import play.libs.ws.WSClient;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
+  @Inject
+  private WSClient wsClient;
 
-    @Inject
-    private WSClient wsClient;
-    @Inject
-    private ConfigReader configReader;
+  @Inject
+  private ConfigReader configReader;
 
-    @Override
-    public WSClient getWsClient() {
-        return wsClient;
+  @Override
+  public WSClient getWsClient() {
+    return wsClient;
+  }
+
+  @Override
+  public boolean setExam(ExternalExam externalExam, Exam exam, User user) {
+    try {
+      externalExam.serialize(exam);
+      externalExam.save();
+      return true;
+    } catch (IOException e) {
+      logger().error("Can not serialize exam!", e);
     }
+    return false;
+  }
 
-    @Override
-    public boolean setExam(ExternalExam externalExam, Exam exam, User user) {
-        try {
-            externalExam.serialize(exam);
-            externalExam.save();
-            return true;
-        } catch (IOException e) {
-            logger().error("Can not serialize exam!", e);
-        }
-        return false;
+  @Override
+  public String parseId(String id) {
+    return id;
+  }
+
+  @Override
+  public Optional<Exam> getExam(ExternalExam externalExam) {
+    try {
+      return Optional.of(externalExam.deserialize());
+    } catch (IOException e) {
+      logger().error("Can not deserialize external exam!", e);
     }
+    return Optional.empty();
+  }
 
-    @Override
-    public String parseId(String id) {
-        return id;
+  @Override
+  public Optional<ExternalExam> getExternalExam(String id, Http.Request request) {
+    final User user = getUser(request);
+    final ExpressionList<ExternalExam> query = Ebean.find(ExternalExam.class).where().eq("hash", id);
+    if (user.hasRole(Role.Name.STUDENT)) {
+      query.eq("creator", user);
     }
+    return query.findOneOrEmpty();
+  }
 
-    @Override
-    public Optional<Exam> getExam(ExternalExam externalExam) {
-        try {
-            return Optional.of(externalExam.deserialize());
-        } catch (IOException e) {
-            logger().error("Can not deserialize external exam!", e);
-        }
-        return Optional.empty();
-    }
+  @Override
+  public CompletionStage<Result> updateExternalAssessment(
+    ExternalExam exam,
+    String assessmentRef,
+    Http.Request request
+  ) {
+    return wrapAsPromise(notAcceptable());
+  }
 
-    @Override
-    public Optional<ExternalExam> getExternalExam(String id, Http.Request request) {
-        final User user = getUser(request);
-        final ExpressionList<ExternalExam> query = Ebean.find(ExternalExam.class).where()
-                .eq("hash", id);
-        if (user.hasRole(Role.Name.STUDENT)) {
-            query.eq("creator", user);
-        }
-        return query.findOneOrEmpty();
-    }
+  @Override
+  public CompletionStage<Result> deleteExternalAssessment(ExternalExam exam, String assessmentRef) {
+    return wrapAsPromise(notAcceptable());
+  }
 
-    @Override
-    public CompletionStage<Result> updateExternalAssessment(ExternalExam exam, String assessmentRef, Http.Request request) {
-        return wrapAsPromise(notAcceptable());
-    }
-
-    @Override
-    public CompletionStage<Result> deleteExternalAssessment(ExternalExam exam, String assessmentRef) {
-        return wrapAsPromise(notAcceptable());
-    }
-
-    @Override
-    public ConfigReader getConfigReader() {
-        return configReader;
-    }
-
+  @Override
+  public ConfigReader getConfigReader() {
+    return configReader;
+  }
 }

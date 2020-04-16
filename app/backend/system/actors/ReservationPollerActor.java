@@ -15,54 +15,55 @@
 
 package backend.system.actors;
 
-import java.util.List;
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-
 import backend.impl.NoShowHandler;
 import backend.models.Reservation;
 import backend.util.datetime.DateTimeUtils;
+import io.ebean.Ebean;
+import java.util.List;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
 
 public class ReservationPollerActor extends AbstractActor {
+  private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
 
-    private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
+  private NoShowHandler handler;
 
-    private NoShowHandler handler;
+  @Inject
+  public ReservationPollerActor(NoShowHandler handler) {
+    this.handler = handler;
+  }
 
-    @Inject
-    public ReservationPollerActor(NoShowHandler handler) {
-        this.handler = handler;
-    }
+  @Override
+  public Receive createReceive() {
+    // TODO: how about BYOD examinations and no-shows
+    return receiveBuilder()
+      .match(
+        String.class,
+        s -> {
+          logger.debug("Starting no-show check ->");
+          DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+          List<Reservation> reservations = Ebean
+            .find(Reservation.class)
+            .fetch("enrolment")
+            .fetch("enrolment.exam")
+            .fetch("enrolment.collaborativeExam")
+            .fetch("enrolment.externalExam")
+            .where()
+            .eq("noShow", false)
+            .lt("endAt", now.toDate())
+            .isNull("externalReservation")
+            .findList();
 
-    @Override
-    public Receive createReceive() {
-        // TODO: how about BYOD examinations and no-shows
-        return receiveBuilder().match(String.class, s -> {
-            logger.debug("Starting no-show check ->");
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-            List<Reservation> reservations = Ebean.find(Reservation.class)
-                    .fetch("enrolment")
-                    .fetch("enrolment.exam")
-                    .fetch("enrolment.collaborativeExam")
-                    .fetch("enrolment.externalExam")
-                    .where()
-                    .eq("noShow", false)
-                    .lt("endAt", now.toDate())
-                    .isNull("externalReservation")
-                    .findList();
-
-            if (reservations.isEmpty()) {
-                logger.debug("None found");
-            } else {
-                handler.handleNoShows(reservations);
-            }
-            logger.debug("<- done");
-
-        }).build();
-    }
-
+          if (reservations.isEmpty()) {
+            logger.debug("None found");
+          } else {
+            handler.handleNoShows(reservations);
+          }
+          logger.debug("<- done");
+        }
+      )
+      .build();
+  }
 }

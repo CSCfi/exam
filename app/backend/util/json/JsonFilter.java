@@ -16,27 +16,26 @@
 
 package backend.util.json;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Set;
 
 public class JsonFilter {
 
-    public static void filterProperties(JsonNode node, boolean isRoot, Set<Long> ids, String... properties) {
-        if (isRoot && !ids.isEmpty() && node.has("id")) {
-            final long id = node.get("id").asLong();
-            if (!ids.contains(id)) {
-                return;
-            }
-        }
-        for (String prop : properties) {
-            if (node.has(prop) && node.isObject()) {
-                ((ObjectNode) node).remove(prop);
-            }
-        }
-        for (JsonNode child : node) {
-            filterProperties(child, node.isArray() && isRoot, ids, properties);
-        }
+  public static void filterProperties(JsonNode node, boolean isRoot, Set<Long> ids, String... properties) {
+    if (isRoot && !ids.isEmpty() && node.has("id")) {
+      final long id = node.get("id").asLong();
+      if (!ids.contains(id)) {
+        return;
+      }
     }
+    for (String prop : properties) {
+      if (node.has(prop) && node.isObject()) {
+        ((ObjectNode) node).remove(prop);
+      }
+    }
+    for (JsonNode child : node) {
+      filterProperties(child, node.isArray() && isRoot, ids, properties);
+    }
+  }
 }

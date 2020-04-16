@@ -15,34 +15,30 @@
 
 package backend.system.interceptors;
 
+import backend.models.Session;
+import backend.security.SessionHandler;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.models.Session;
-import backend.security.SessionHandler;
-
 public class ExamActionRouterImpl extends Action<ExamActionRouter> {
+  private final SessionHandler sessionHandler;
 
-    private final SessionHandler sessionHandler;
+  @Inject
+  public ExamActionRouterImpl(SessionHandler sessionHandler) {
+    this.sessionHandler = sessionHandler;
+  }
 
-    @Inject
-    public ExamActionRouterImpl(SessionHandler sessionHandler) {
-        this.sessionHandler = sessionHandler;
+  @Override
+  public CompletionStage<Result> call(Http.Request request) {
+    Optional<Session> session = sessionHandler.getSession(request);
+    if (session.isPresent() && session.get().isTemporalStudent()) {
+      return CompletableFuture.completedFuture(redirect(request.path().replace("/app/", "/app/iop/")));
     }
-
-    @Override
-    public CompletionStage<Result> call(Http.Request request) {
-        Optional<Session> session = sessionHandler.getSession(request);
-        if (session.isPresent() && session.get().isTemporalStudent()) {
-            return CompletableFuture.completedFuture(redirect(request.path().replace("/app/", "/app/iop/")));
-        }
-        return delegate.call(request);
-    }
-
+    return delegate.call(request);
+  }
 }

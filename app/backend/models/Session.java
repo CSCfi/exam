@@ -18,51 +18,50 @@ package backend.models;
 import org.joda.time.DateTime;
 
 public class Session {
-    private Long userId;
-    private DateTime since;
-    private Boolean valid;
-    private String loginRole;
-    private String email;
-    private boolean temporalStudent;
+  private Long userId;
+  private DateTime since;
+  private Boolean valid;
+  private String loginRole;
+  private String email;
+  private boolean temporalStudent;
 
-    public Long getUserId() {
-        return userId;
-    }
+  public Long getUserId() {
+    return userId;
+  }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
 
-    public DateTime getSince() {
-        return since;
-    }
+  public DateTime getSince() {
+    return since;
+  }
 
-    public void setSince(DateTime since) {
-        this.since = since;
-    }
+  public void setSince(DateTime since) {
+    this.since = since;
+  }
 
-    public String getLoginRole() {
-        return loginRole;
-    }
+  public String getLoginRole() {
+    return loginRole;
+  }
 
-    public void setLoginRole(String loginRole) {
-        this.loginRole = loginRole;
-    }
+  public void setLoginRole(String loginRole) {
+    this.loginRole = loginRole;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public boolean isTemporalStudent() {
-        return temporalStudent;
-    }
+  public boolean isTemporalStudent() {
+    return temporalStudent;
+  }
 
-    public void setTemporalStudent(boolean temporalStudent) {
-        this.temporalStudent = temporalStudent;
-    }
-
+  public void setTemporalStudent(boolean temporalStudent) {
+    this.temporalStudent = temporalStudent;
+  }
 }

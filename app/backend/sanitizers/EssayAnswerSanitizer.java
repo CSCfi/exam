@@ -20,9 +20,9 @@ import play.mvc.Http;
 
 public class EssayAnswerSanitizer extends BaseSanitizer {
 
-    protected Http.Request sanitize(Http.Request req, JsonNode body) {
-        Http.Request request = SanitizingHelper.sanitizeOptionalHtml("answer", body, Attrs.ESSAY_ANSWER, req);
-        request = SanitizingHelper.sanitizeOptional("objectVersion", body, Long.class, Attrs.OBJECT_VERSION, request);
-        return request;
-    }
+  protected Http.Request sanitize(Http.Request req, JsonNode body) {
+    Http.Request request = SanitizingHelper.sanitizeOptionalHtml("answer", body, Attrs.ESSAY_ANSWER, req);
+    request = SanitizingHelper.sanitizeOptional("objectVersion", body, Long.class, Attrs.OBJECT_VERSION, request);
+    return request;
+  }
 }

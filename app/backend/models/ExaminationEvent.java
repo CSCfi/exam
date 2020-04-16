@@ -15,74 +15,71 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import backend.models.base.GeneratedIdentityModel;
-
 @Entity
 public class ExaminationEvent extends GeneratedIdentityModel {
+  @Temporal(TemporalType.TIMESTAMP)
+  private DateTime start;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private DateTime start;
+  private String description;
 
-    private String description;
+  @OneToMany(mappedBy = "examinationEvent")
+  @JsonBackReference
+  private Set<ExaminationEventConfiguration> examinationEventConfigurations;
 
-    @OneToMany(mappedBy = "examinationEvent")
-    @JsonBackReference
-    private Set<ExaminationEventConfiguration> examinationEventConfigurations;
+  public DateTime getStart() {
+    return start;
+  }
 
-    public DateTime getStart() {
-        return start;
+  public void setStart(DateTime start) {
+    this.start = start;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
+    return examinationEventConfigurations;
+  }
+
+  public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
+    this.examinationEventConfigurations = examinationEventConfigurations;
+  }
+
+  @Transient
+  public Interval toInterval(Exam exam) {
+    return new Interval(start, start.plusMinutes(exam.getDuration()));
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof ExaminationEvent)) {
+      return false;
     }
+    ExaminationEvent otherException = (ExaminationEvent) other;
+    return new EqualsBuilder().append(id, otherException.id).build();
+  }
 
-    public void setStart(DateTime start) {
-        this.start = start;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
-        return examinationEventConfigurations;
-    }
-
-    public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
-        this.examinationEventConfigurations = examinationEventConfigurations;
-    }
-
-    @Transient
-    public Interval toInterval(Exam exam) {
-        return new Interval(start, start.plusMinutes(exam.getDuration()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!(other instanceof ExaminationEvent)) {
-            return false;
-        }
-        ExaminationEvent otherException = (ExaminationEvent) other;
-        return new EqualsBuilder().append(id, otherException.id).build();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
-    }
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(id).build();
+  }
 }

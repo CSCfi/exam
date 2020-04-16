@@ -15,64 +15,62 @@
 
 package backend.models.questions;
 
+import backend.models.Attachment;
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import backend.models.Attachment;
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
-
 @Entity
 public class EssayAnswer extends OwnedModel implements AttachmentContainer {
+  @Column(columnDefinition = "TEXT")
+  private String answer;
 
-    @Column(columnDefinition = "TEXT")
-    private String answer;
+  @OneToOne(cascade = CascadeType.ALL)
+  protected Attachment attachment;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    protected Attachment attachment;
+  @Column
+  private Double evaluatedScore;
 
-    @Column
-    private Double evaluatedScore;
+  public String getAnswer() {
+    return answer;
+  }
 
-    public String getAnswer() {
-        return answer;
+  public void setAnswer(String answer) {
+    this.answer = answer;
+  }
+
+  @Override
+  public Attachment getAttachment() {
+    return attachment;
+  }
+
+  @Override
+  public void setAttachment(Attachment attachment) {
+    this.attachment = attachment;
+  }
+
+  public Double getEvaluatedScore() {
+    return evaluatedScore;
+  }
+
+  public void setEvaluatedScore(Double evaluatedScore) {
+    this.evaluatedScore = evaluatedScore;
+  }
+
+  @Transient
+  public EssayAnswer copy() {
+    EssayAnswer essayAnswer = new EssayAnswer();
+    essayAnswer.setAnswer(answer);
+    essayAnswer.save();
+    if (attachment != null) {
+      final Attachment copy = attachment.copy();
+      copy.save();
+      essayAnswer.setAttachment(copy);
     }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    @Override
-    public Attachment getAttachment() {
-        return attachment;
-    }
-
-    @Override
-    public void setAttachment(Attachment attachment) {
-        this.attachment = attachment;
-    }
-
-    public Double getEvaluatedScore() {
-        return evaluatedScore;
-    }
-
-    public void setEvaluatedScore(Double evaluatedScore) {
-        this.evaluatedScore = evaluatedScore;
-    }
-
-    @Transient
-    public EssayAnswer copy() {
-        EssayAnswer essayAnswer = new EssayAnswer();
-        essayAnswer.setAnswer(answer);
-        essayAnswer.save();
-        if (attachment != null) {
-            final Attachment copy = attachment.copy();
-            copy.save();
-            essayAnswer.setAttachment(copy);
-        }
-        return essayAnswer;
-    }
+    return essayAnswer;
+  }
 }

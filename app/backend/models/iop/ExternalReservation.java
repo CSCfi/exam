@@ -15,160 +15,156 @@
 
 package backend.models.iop;
 
+import backend.controllers.RoomLike;
+import backend.models.MailAddress;
+import backend.models.base.GeneratedIdentityModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-import backend.controllers.RoomLike;
-import backend.models.MailAddress;
-import backend.models.base.GeneratedIdentityModel;
-
-
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {
+  private String orgRef;
 
-    private String orgRef;
+  private String orgName;
 
-    private String orgName;
+  private String orgCode;
 
-    private String orgCode;
+  private String roomRef;
 
-    private String roomRef;
+  @OneToOne(cascade = CascadeType.ALL)
+  private MailAddress mailAddress;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private MailAddress mailAddress;
+  private String buildingName;
 
-    private String buildingName;
+  private String campus;
 
-    private String campus;
+  private String machineName;
 
-    private String machineName;
+  private String roomName;
 
-    private String roomName;
+  private String roomCode;
 
-    private String roomCode;
+  private String roomTz;
 
-    private String roomTz;
+  private String roomInstruction;
 
-    private String roomInstruction;
+  private String roomInstructionEN;
 
-    private String roomInstructionEN;
+  private String roomInstructionSV;
 
-    private String roomInstructionSV;
+  public String getOrgRef() {
+    return orgRef;
+  }
 
-    public String getOrgRef() {
-        return orgRef;
-    }
+  public void setOrgRef(String orgRef) {
+    this.orgRef = orgRef;
+  }
 
-    public void setOrgRef(String orgRef) {
-        this.orgRef = orgRef;
-    }
+  public String getOrgName() {
+    return orgName;
+  }
 
-    public String getOrgName() {
-        return orgName;
-    }
+  public void setOrgName(String orgName) {
+    this.orgName = orgName;
+  }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
-    }
+  public String getOrgCode() {
+    return orgCode;
+  }
 
-    public String getOrgCode() {
-        return orgCode;
-    }
+  public void setOrgCode(String orgCode) {
+    this.orgCode = orgCode;
+  }
 
-    public void setOrgCode(String orgCode) {
-        this.orgCode = orgCode;
-    }
+  public String getRoomRef() {
+    return roomRef;
+  }
 
-    public String getRoomRef() {
-        return roomRef;
-    }
+  public void setRoomRef(String roomRef) {
+    this.roomRef = roomRef;
+  }
 
-    public void setRoomRef(String roomRef) {
-        this.roomRef = roomRef;
-    }
+  public String getMachineName() {
+    return machineName;
+  }
 
-    public String getMachineName() {
-        return machineName;
-    }
+  public void setMachineName(String machineName) {
+    this.machineName = machineName;
+  }
 
-    public void setMachineName(String machineName) {
-        this.machineName = machineName;
-    }
+  public String getRoomName() {
+    return roomName;
+  }
 
-    public String getRoomName() {
-        return roomName;
-    }
+  public void setRoomName(String roomName) {
+    this.roomName = roomName;
+  }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
+  public String getRoomCode() {
+    return roomCode;
+  }
 
-    public String getRoomCode() {
-        return roomCode;
-    }
+  public void setRoomCode(String roomCode) {
+    this.roomCode = roomCode;
+  }
 
-    public void setRoomCode(String roomCode) {
-        this.roomCode = roomCode;
-    }
+  public String getRoomTz() {
+    return roomTz;
+  }
 
-    public String getRoomTz() {
-        return roomTz;
-    }
+  public void setRoomTz(String roomTz) {
+    this.roomTz = roomTz;
+  }
 
-    public void setRoomTz(String roomTz) {
-        this.roomTz = roomTz;
-    }
+  public MailAddress getMailAddress() {
+    return mailAddress;
+  }
 
-    public MailAddress getMailAddress() {
-        return mailAddress;
-    }
+  public void setMailAddress(MailAddress mailAddress) {
+    this.mailAddress = mailAddress;
+  }
 
-    public void setMailAddress(MailAddress mailAddress) {
-        this.mailAddress = mailAddress;
-    }
+  public String getBuildingName() {
+    return buildingName;
+  }
 
-    public String getBuildingName() {
-        return buildingName;
-    }
+  public void setBuildingName(String buildingName) {
+    this.buildingName = buildingName;
+  }
 
-    public void setBuildingName(String buildingName) {
-        this.buildingName = buildingName;
-    }
+  public String getCampus() {
+    return campus;
+  }
 
-    public String getCampus() {
-        return campus;
-    }
+  public void setCampus(String campus) {
+    this.campus = campus;
+  }
 
-    public void setCampus(String campus) {
-        this.campus = campus;
-    }
+  @Override
+  public String getRoomInstruction() {
+    return roomInstruction;
+  }
 
-    @Override
-    public String getRoomInstruction() {
-        return roomInstruction;
-    }
+  public void setRoomInstruction(String roomInstruction) {
+    this.roomInstruction = roomInstruction;
+  }
 
-    public void setRoomInstruction(String roomInstruction) {
-        this.roomInstruction = roomInstruction;
-    }
+  @Override
+  public String getRoomInstructionEN() {
+    return roomInstructionEN;
+  }
 
-    @Override
-    public String getRoomInstructionEN() {
-        return roomInstructionEN;
-    }
+  public void setRoomInstructionEN(String roomInstructionEN) {
+    this.roomInstructionEN = roomInstructionEN;
+  }
 
-    public void setRoomInstructionEN(String roomInstructionEN) {
-        this.roomInstructionEN = roomInstructionEN;
-    }
+  @Override
+  public String getRoomInstructionSV() {
+    return roomInstructionSV;
+  }
 
-    @Override
-    public String getRoomInstructionSV() {
-        return roomInstructionSV;
-    }
-
-    public void setRoomInstructionSV(String roomInstructionSV) {
-        this.roomInstructionSV = roomInstructionSV;
-    }
-
+  public void setRoomInstructionSV(String roomInstructionSV) {
+    this.roomInstructionSV = roomInstructionSV;
+  }
 }

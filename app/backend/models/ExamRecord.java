@@ -18,69 +18,68 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.dto.ExamScore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
-
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
+  @OneToOne
+  private User teacher;
 
-    @OneToOne
-    private User teacher;
-    @OneToOne
-    private User student;
-    @OneToOne
-    private Exam exam;
-    @OneToOne
-    @JsonManagedReference
-    private ExamScore examScore;
+  @OneToOne
+  private User student;
 
-    // what timestamp is this? The moments teacher marked Exam as recorded
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timeStamp;
+  @OneToOne
+  private Exam exam;
 
-    public User getTeacher() {
-        return teacher;
-    }
+  @OneToOne
+  @JsonManagedReference
+  private ExamScore examScore;
 
-    public void setTeacher(User teacher) {
-        this.teacher = teacher;
-    }
+  // what timestamp is this? The moments teacher marked Exam as recorded
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date timeStamp;
 
-    public User getStudent() {
-        return student;
-    }
+  public User getTeacher() {
+    return teacher;
+  }
 
-    public void setStudent(User student) {
-        this.student = student;
-    }
+  public void setTeacher(User teacher) {
+    this.teacher = teacher;
+  }
 
-    public Exam getExam() {
-        return exam;
-    }
+  public User getStudent() {
+    return student;
+  }
 
-    public void setExam(Exam exam) {
-        this.exam = exam;
-    }
+  public void setStudent(User student) {
+    this.student = student;
+  }
 
-    public ExamScore getExamScore() {
-        return examScore;
-    }
+  public Exam getExam() {
+    return exam;
+  }
 
-    public void setExamScore(ExamScore examScore) {
-        this.examScore = examScore;
-    }
+  public void setExam(Exam exam) {
+    this.exam = exam;
+  }
 
-    public Date getTimeStamp() {
-        return timeStamp;
-    }
+  public ExamScore getExamScore() {
+    return examScore;
+  }
 
-    public void setTimeStamp(Date timeStamp) {
-        this.timeStamp = timeStamp;
-    }
+  public void setExamScore(ExamScore examScore) {
+    this.examScore = examScore;
+  }
 
+  public Date getTimeStamp() {
+    return timeStamp;
+  }
+
+  public void setTimeStamp(Date timeStamp) {
+    this.timeStamp = timeStamp;
+  }
 }

@@ -20,8 +20,8 @@ import play.mvc.Http;
 
 public class UserLanguageSanitizer extends BaseSanitizer {
 
-    @Override
-    protected Http.Request sanitize(Http.Request req, JsonNode body) {
-        return req.addAttr(Attrs.LANG, body.get("lang").asText());
-    }
+  @Override
+  protected Http.Request sanitize(Http.Request req, JsonNode body) {
+    return req.addAttr(Attrs.LANG, body.get("lang").asText());
+  }
 }

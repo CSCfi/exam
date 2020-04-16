@@ -15,65 +15,60 @@
 
 package backend.security;
 
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
+import be.objectify.deadbolt.java.DeadboltHandler;
+import be.objectify.deadbolt.java.DynamicResourceHandler;
+import be.objectify.deadbolt.java.models.Subject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import be.objectify.deadbolt.java.DeadboltHandler;
-import be.objectify.deadbolt.java.DynamicResourceHandler;
-import be.objectify.deadbolt.java.models.Subject;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-
-
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
+  private SessionHandler sessionHandler;
 
-    private SessionHandler sessionHandler;
+  @Inject
+  AuthorizationHandler(final SessionHandler sessionHandler) {
+    this.sessionHandler = sessionHandler;
+  }
 
-    @Inject
-    AuthorizationHandler(final SessionHandler sessionHandler) {
-        this.sessionHandler = sessionHandler;
+  @Override
+  public long getId() {
+    return 0;
+  }
+
+  @Override
+  public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
+    return CompletableFuture.completedFuture(Optional.empty());
+  }
+
+  @Override
+  public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
+    Optional<Session> os = sessionHandler.getSession(request);
+    if (os.isPresent()) {
+      User user = new User();
+      Session session = os.get();
+      user.setRoles(List.of(Role.withName(session.getLoginRole())));
+      return CompletableFuture.completedFuture(Optional.of(user));
     }
+    return CompletableFuture.completedFuture(Optional.empty());
+  }
 
-    @Override
-    public long getId() {
-        return 0;
-    }
+  @Override
+  public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
+    return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
+  }
 
-    @Override
-    public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    @Override
-    public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
-        Optional<Session> os = sessionHandler.getSession(request);
-        if (os.isPresent()) {
-            User user = new User();
-            Session session = os.get();
-            user.setRoles(List.of(Role.withName(session.getLoginRole())));
-            return CompletableFuture.completedFuture(Optional.of(user));
-        }
-        return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    @Override
-    public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
-    }
-
-    @Override
-    public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
-        return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
-    }
-
+  @Override
+  public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
+    return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
+  }
 }

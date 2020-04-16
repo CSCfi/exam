@@ -11,8 +11,8 @@
     "test": "test",
     "lint": "eslint \"src/**/*.{js,ts}\"; exit 0",
     "lint-fix": "eslint \"src/**/*.{js,ts}\" --fix; exit 0",
-    "prettier": "prettier --check \"src/**/*.{js,ts,html}\"; exit 0",
-    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\"; exit 0",
+    "prettier": "prettier --check \"src/**/*.{js,ts,html}\" --check \"../backend/**/*.java\" --print-width=120; exit 0",
+    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\" --check \"../backend/**/*.java\" --print-width=120; exit 0",
     "build": "webpack --progress --color -p --config ./webpack/webpack.prod.js",
     "start": "webpack-dev-server --progress --color --config ./webpack/webpack.dev.js"
   },
@@ -99,6 +99,7 @@
     "ng-cache-loader": "^0.0.26",
     "node-sass": "^4.13.1",
     "prettier": "^1.19.1",
+    "prettier-plugin-java": "^0.7.1",
     "sass-loader": "^7.3.1",
     "style-loader": "^0.23.1",
     "ts-loader": "^6.2.2",
@@ -126,6 +127,10 @@
   "lint-staged": {
     "*.{js,ts,html}": [
       "prettier --write",
+      "git add"
+    ],
+    "../backend/**/*.java": [
+      "prettier --write --print-width=120",
       "git add"
     ],
     "*.{ts,js}": [

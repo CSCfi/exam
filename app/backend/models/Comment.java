@@ -15,49 +15,47 @@
 
 package backend.models;
 
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
-
 @Entity
 public class Comment extends OwnedModel implements AttachmentContainer {
+  @Column(columnDefinition = "TEXT")
+  private String comment;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+  @Column(columnDefinition = "BOOLEAN")
+  private Boolean feedbackStatus;
 
-    @Column(columnDefinition = "BOOLEAN")
-    private Boolean feedbackStatus;
+  @OneToOne(cascade = CascadeType.ALL)
+  private Attachment attachment;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Attachment attachment;
+  public String getComment() {
+    return comment;
+  }
 
-    public String getComment() {
-        return comment;
-    }
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+  public Boolean getFeedbackStatus() {
+    return feedbackStatus;
+  }
 
-    public Boolean getFeedbackStatus() {
-        return feedbackStatus;
-    }
+  public void setFeedbackStatus(Boolean feedbackStatus) {
+    this.feedbackStatus = feedbackStatus;
+  }
 
-    public void setFeedbackStatus(Boolean feedbackStatus) {
-        this.feedbackStatus = feedbackStatus;
-    }
+  @Override
+  public Attachment getAttachment() {
+    return attachment;
+  }
 
-    @Override
-    public Attachment getAttachment() {
-        return attachment;
-    }
-
-    @Override
-    public void setAttachment(Attachment attachment) {
-        this.attachment = attachment;
-    }
+  @Override
+  public void setAttachment(Attachment attachment) {
+    this.attachment = attachment;
+  }
 }

@@ -16,45 +16,46 @@
 
 package backend.system.interceptors;
 
+import akka.stream.Materializer;
+import backend.util.json.JsonFilter;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.validation.constraints.NotNull;
-
-import akka.stream.Materializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
 
-import backend.util.json.JsonFilter;
-
 abstract class JsonFilterAction<T> extends Action<T> {
+  private Materializer materializer;
 
-    private Materializer materializer;
+  JsonFilterAction(Materializer materializer) {
+    this.materializer = materializer;
+  }
 
-    JsonFilterAction(Materializer materializer) {
-        this.materializer = materializer;
+  @NotNull
+  CompletionStage<Result> filterJsonResponse(Result result, String... properties) {
+    return filterJsonResponse(result, Collections.emptySet(), properties);
+  }
+
+  @NotNull
+  CompletionStage<Result> filterJsonResponse(Result result, Set<Long> ids, String... properties) {
+    String contentType = result.contentType().orElse("");
+    if (!contentType.toLowerCase().equals("application/json") || properties.length < 1) {
+      return CompletableFuture.completedFuture(result);
     }
-
-    @NotNull
-    CompletionStage<Result> filterJsonResponse(Result result, String... properties) {
-        return filterJsonResponse(result, Collections.emptySet(), properties);
-    }
-
-    @NotNull
-    CompletionStage<Result> filterJsonResponse(Result result, Set<Long> ids, String... properties) {
-        String contentType = result.contentType().orElse("");
-        if (!contentType.toLowerCase().equals("application/json") || properties.length < 1) {
-            return CompletableFuture.completedFuture(result);
+    return result
+      .body()
+      .consumeData(materializer)
+      .thenApply(
+        body -> {
+          JsonNode json = Json.parse(body.decodeString("UTF-8"));
+          JsonFilter.filterProperties(json, true, ids, properties);
+          return new Result(result.status(), result.headers(), HttpEntity.fromString(Json.stringify(json), "UTF-8"));
         }
-        return result.body().consumeData(materializer).thenApply(body -> {
-            JsonNode json = Json.parse(body.decodeString("UTF-8"));
-            JsonFilter.filterProperties(json, true, ids, properties);
-            return new Result(result.status(), result.headers(),
-                    HttpEntity.fromString(Json.stringify(json), "UTF-8"));
-        });
-    }
+      );
+  }
 }
