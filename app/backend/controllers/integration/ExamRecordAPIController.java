@@ -33,40 +33,40 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class ExamRecordAPIController extends BaseController {
-  private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
+    private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
 
-  static {
-    SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-  }
-
-  @SubjectNotPresent
-  public Result getNewRecords(String startDate) {
-    return ok(Json.toJson(getScores(startDate)));
-  }
-
-  // for testing purposes
-  @SubjectNotPresent
-  public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
-    try {
-      return ok(convertNode(Json.toJson(getScores(startDate))));
-    } catch (JsonProcessingException e) {
-      return Results.internalServerError(e.getMessage());
+    static {
+        SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
-  }
 
-  private static List<ExamScore> getScores(String startDate) {
-    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-    List<ExamRecord> examRecords = Ebean
-      .find(ExamRecord.class)
-      .fetch("examScore")
-      .where()
-      .gt("timeStamp", start.toDate())
-      .findList();
-    return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
-  }
+    @SubjectNotPresent
+    public Result getNewRecords(String startDate) {
+        return ok(Json.toJson(getScores(startDate)));
+    }
 
-  private static String convertNode(JsonNode node) throws JsonProcessingException {
-    Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
-    return SORTED_MAPPER.writeValueAsString(obj);
-  }
+    // for testing purposes
+    @SubjectNotPresent
+    public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
+        try {
+            return ok(convertNode(Json.toJson(getScores(startDate))));
+        } catch (JsonProcessingException e) {
+            return Results.internalServerError(e.getMessage());
+        }
+    }
+
+    private static List<ExamScore> getScores(String startDate) {
+        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
+        List<ExamRecord> examRecords = Ebean
+            .find(ExamRecord.class)
+            .fetch("examScore")
+            .where()
+            .gt("timeStamp", start.toDate())
+            .findList();
+        return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
+    }
+
+    private static String convertNode(JsonNode node) throws JsonProcessingException {
+        Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
+        return SORTED_MAPPER.writeValueAsString(obj);
+    }
 }

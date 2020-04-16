@@ -6,8 +6,8 @@ import com.google.inject.AbstractModule;
 
 public class ConfigReaderModule extends AbstractModule {
 
-  @Override
-  protected void configure() {
-    bind(ConfigReader.class).to(ConfigReaderImpl.class);
-  }
+    @Override
+    protected void configure() {
+        bind(ConfigReader.class).to(ConfigReaderImpl.class);
+    }
 }

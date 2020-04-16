@@ -20,23 +20,23 @@ package backend.system;
  *  @see <a href="http://labs.omniti.com/labs/jsend">JSend</a>
  */
 class ApiError {
-  private static final String STATUS = "error";
+    private static final String STATUS = "error";
 
-  private String message;
+    private String message;
 
-  ApiError(String message) {
-    this.message = message;
-  }
+    ApiError(String message) {
+        this.message = message;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-  public String getStatus() {
-    return STATUS;
-  }
+    public String getStatus() {
+        return STATUS;
+    }
 }

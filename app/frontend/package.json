@@ -11,8 +11,8 @@
     "test": "test",
     "lint": "eslint \"src/**/*.{js,ts}\"; exit 0",
     "lint-fix": "eslint \"src/**/*.{js,ts}\" --fix; exit 0",
-    "prettier": "prettier --check \"src/**/*.{js,ts,html}\" --check \"../backend/**/*.java\" --print-width=120; exit 0",
-    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\" --check \"../backend/**/*.java\" --print-width=120; exit 0",
+    "prettier": "prettier --check \"src/**/*.{js,ts,html}\" --check \"../backend/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\" --write \"../backend/**/*.java\" --print-width=120 --tab-width=4; exit 0",
     "build": "webpack --progress --color -p --config ./webpack/webpack.prod.js",
     "start": "webpack-dev-server --progress --color --config ./webpack/webpack.dev.js"
   },
@@ -130,7 +130,7 @@
       "git add"
     ],
     "../backend/**/*.java": [
-      "prettier --write --print-width=120",
+      "prettier --write --print-width=120 --tab-width=4",
       "git add"
     ],
     "*.{ts,js}": [

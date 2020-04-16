@@ -33,34 +33,34 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
 public class OrganisationController extends BaseController {
-  @Inject
-  private WSClient wsClient;
+    @Inject
+    private WSClient wsClient;
 
-  private static URL parseUrl() throws MalformedURLException {
-    return new URL(
-      ConfigFactory.load().getString("sitnet.integration.iop.host") + "/api/organisations?withFacilities=true"
-    );
-  }
+    private static URL parseUrl() throws MalformedURLException {
+        return new URL(
+            ConfigFactory.load().getString("sitnet.integration.iop.host") + "/api/organisations?withFacilities=true"
+        );
+    }
 
-  @Restrict({ @Group("STUDENT") })
-  public CompletionStage<Result> listOrganisations() throws MalformedURLException {
-    URL url = parseUrl();
-    WSRequest request = wsClient.url(url.toString());
-    String localRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+    @Restrict({ @Group("STUDENT") })
+    public CompletionStage<Result> listOrganisations() throws MalformedURLException {
+        URL url = parseUrl();
+        WSRequest request = wsClient.url(url.toString());
+        String localRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
 
-    Function<WSResponse, Result> onSuccess = response -> {
-      JsonNode root = response.asJson();
-      if (response.getStatus() != 200) {
-        return internalServerError(root.get("message").asText("Connection refused"));
-      }
-      if (root instanceof ArrayNode) {
-        ArrayNode node = (ArrayNode) root;
-        for (JsonNode n : node) {
-          ((ObjectNode) n).put("homeOrg", n.get("_id").asText().equals(localRef));
-        }
-      }
-      return ok(root);
-    };
-    return request.get().thenApplyAsync(onSuccess);
-  }
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            if (root instanceof ArrayNode) {
+                ArrayNode node = (ArrayNode) root;
+                for (JsonNode n : node) {
+                    ((ObjectNode) n).put("homeOrg", n.get("_id").asText().equals(localRef));
+                }
+            }
+            return ok(root);
+        };
+        return request.get().thenApplyAsync(onSuccess);
+    }
 }

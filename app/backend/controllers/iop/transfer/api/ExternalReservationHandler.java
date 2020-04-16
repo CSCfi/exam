@@ -25,6 +25,6 @@ import play.mvc.Result;
 
 @ImplementedBy(ExternalReservationHandlerImpl.class)
 public interface ExternalReservationHandler {
-  CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg);
-  CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation);
+    CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg);
+    CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation);
 }

@@ -27,66 +27,66 @@ import org.springframework.beans.BeanUtils;
 
 @Entity
 public final class ExamMaterial extends OwnedModel {
-  private String name;
-  private String isbn;
-  private String author;
+    private String name;
+    private String isbn;
+    private String author;
 
-  @ManyToMany(mappedBy = "examMaterials")
-  private Set<ExamSection> examSections;
+    @ManyToMany(mappedBy = "examMaterials")
+    private Set<ExamSection> examSections;
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public String getIsbn() {
-    return isbn;
-  }
+    public String getIsbn() {
+        return isbn;
+    }
 
-  public void setIsbn(String isbn) {
-    this.isbn = isbn;
-  }
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
 
-  public String getAuthor() {
-    return author;
-  }
+    public String getAuthor() {
+        return author;
+    }
 
-  public void setAuthor(String author) {
-    this.author = author;
-  }
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
-  public Set<ExamSection> getExamSections() {
-    return examSections;
-  }
+    public Set<ExamSection> getExamSections() {
+        return examSections;
+    }
 
-  public void setExamSections(Set<ExamSection> examSections) {
-    this.examSections = examSections;
-  }
+    public void setExamSections(Set<ExamSection> examSections) {
+        this.examSections = examSections;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
 
-    if (!(o instanceof ExamMaterial)) return false;
+        if (!(o instanceof ExamMaterial)) return false;
 
-    ExamMaterial that = (ExamMaterial) o;
+        ExamMaterial that = (ExamMaterial) o;
 
-    return new EqualsBuilder().append(id, that.id).isEquals();
-  }
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
 
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(id).toHashCode();
-  }
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
+    }
 
-  public ExamMaterial copy(User user) {
-    ExamMaterial material = new ExamMaterial();
-    BeanUtils.copyProperties(this, material, "id", "examSections", "creator", "modifier");
-    AppUtil.setCreator(material, user);
-    AppUtil.setModifier(material, user);
-    return material;
-  }
+    public ExamMaterial copy(User user) {
+        ExamMaterial material = new ExamMaterial();
+        BeanUtils.copyProperties(this, material, "id", "examSections", "creator", "modifier");
+        AppUtil.setCreator(material, user);
+        AppUtil.setModifier(material, user);
+        return material;
+    }
 }

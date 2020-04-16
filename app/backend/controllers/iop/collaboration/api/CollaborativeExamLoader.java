@@ -14,21 +14,21 @@ import play.mvc.Result;
 
 @ImplementedBy(CollaborativeExamLoaderImpl.class)
 public interface CollaborativeExamLoader {
-  CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce);
+    CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce);
 
-  CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef);
+    CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef);
 
-  CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender);
+    CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender);
 
-  CompletionStage<Result> uploadExam(
-    CollaborativeExam ce,
-    Exam content,
-    User sender,
-    Model resultModel,
-    PathProperties pp
-  );
+    CompletionStage<Result> uploadExam(
+        CollaborativeExam ce,
+        Exam content,
+        User sender,
+        Model resultModel,
+        PathProperties pp
+    );
 
-  CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload);
+    CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload);
 
-  CompletionStage<Result> deleteExam(CollaborativeExam ce);
+    CompletionStage<Result> deleteExam(CollaborativeExam ce);
 }

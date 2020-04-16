@@ -20,9 +20,9 @@ import java.util.Optional;
 import play.mvc.Result;
 
 public interface Scorable {
-  Double getAssessedScore();
-  Double getMaxAssessedScore();
-  boolean isRejected();
-  boolean isApproved();
-  Optional<Result> getValidationResult(JsonNode node);
+    Double getAssessedScore();
+    Double getMaxAssessedScore();
+    boolean isRejected();
+    boolean isApproved();
+    Optional<Result> getValidationResult(JsonNode node);
 }

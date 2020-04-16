@@ -24,23 +24,23 @@ import javax.inject.Singleton;
 
 @Singleton
 public class DeadboltCache implements HandlerCache {
-  private final AuthorizationHandler defaultHandler;
+    private final AuthorizationHandler defaultHandler;
 
-  private final Map<String, DeadboltHandler> handlers = new HashMap<>();
+    private final Map<String, DeadboltHandler> handlers = new HashMap<>();
 
-  @Inject
-  public DeadboltCache(final AuthorizationHandler handler) {
-    this.defaultHandler = handler;
-    handlers.put(defaultHandler.handlerName(), defaultHandler);
-  }
+    @Inject
+    public DeadboltCache(final AuthorizationHandler handler) {
+        this.defaultHandler = handler;
+        handlers.put(defaultHandler.handlerName(), defaultHandler);
+    }
 
-  @Override
-  public DeadboltHandler apply(String key) {
-    return handlers.get(key);
-  }
+    @Override
+    public DeadboltHandler apply(String key) {
+        return handlers.get(key);
+    }
 
-  @Override
-  public DeadboltHandler get() {
-    return defaultHandler;
-  }
+    @Override
+    public DeadboltHandler get() {
+        return defaultHandler;
+    }
 }

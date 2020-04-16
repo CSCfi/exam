@@ -26,56 +26,56 @@ import org.joda.time.DateTime;
 import play.Logger;
 
 public class ExamExpirationActor extends AbstractActor {
-  private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
+    private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
 
-  @Inject
-  private ConfigReader configReader;
+    @Inject
+    private ConfigReader configReader;
 
-  @Override
-  public Receive createReceive() {
-    return receiveBuilder()
-      .match(
-        String.class,
-        s -> {
-          logger.debug("Starting exam expiration check ->");
-          List<Exam> exams = Ebean
-            .find(Exam.class)
-            .where()
-            .disjunction()
-            .eq("state", Exam.State.GRADED_LOGGED)
-            .eq("state", Exam.State.ARCHIVED)
-            .eq("state", Exam.State.ABORTED)
-            .eq("state", Exam.State.REJECTED)
-            .endJunction()
-            .findList();
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Starting exam expiration check ->");
+                    List<Exam> exams = Ebean
+                        .find(Exam.class)
+                        .where()
+                        .disjunction()
+                        .eq("state", Exam.State.GRADED_LOGGED)
+                        .eq("state", Exam.State.ARCHIVED)
+                        .eq("state", Exam.State.ABORTED)
+                        .eq("state", Exam.State.REJECTED)
+                        .endJunction()
+                        .findList();
 
-          DateTime now = DateTime.now();
-          for (Exam exam : exams) {
-            DateTime expirationDate = exam.getState() == Exam.State.ABORTED
-              ? exam.getExamParticipation().getEnded()
-              : exam.getGradedTime();
-            if (expirationDate == null) {
-              logger.error("no grading time for exam {}", exam.getId());
-              continue;
-            }
-            if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
-              cleanExamData(exam);
-              logger.info("Marked exam {} as expired", exam.getId());
-            }
-          }
-          logger.debug("<- done");
-        }
-      )
-      .build();
-  }
+                    DateTime now = DateTime.now();
+                    for (Exam exam : exams) {
+                        DateTime expirationDate = exam.getState() == Exam.State.ABORTED
+                            ? exam.getExamParticipation().getEnded()
+                            : exam.getGradedTime();
+                        if (expirationDate == null) {
+                            logger.error("no grading time for exam {}", exam.getId());
+                            continue;
+                        }
+                        if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
+                            cleanExamData(exam);
+                            logger.info("Marked exam {} as expired", exam.getId());
+                        }
+                    }
+                    logger.debug("<- done");
+                }
+            )
+            .build();
+    }
 
-  /**
-   * Disassociate exam from its creator, set state to deleted and erase any associated exam records
-   */
-  private void cleanExamData(Exam exam) {
-    exam.setState(Exam.State.DELETED);
-    exam.setCreator(null);
-    exam.update();
-    Ebean.find(ExamRecord.class).where().eq("exam", exam).findList().forEach(ExamRecord::delete);
-  }
+    /**
+     * Disassociate exam from its creator, set state to deleted and erase any associated exam records
+     */
+    private void cleanExamData(Exam exam) {
+        exam.setState(Exam.State.DELETED);
+        exam.setCreator(null);
+        exam.update();
+        Ebean.find(ExamRecord.class).where().eq("exam", exam).findList().forEach(ExamRecord::delete);
+    }
 }

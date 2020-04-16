@@ -24,9 +24,9 @@ import java.util.concurrent.CompletableFuture;
 
 @ImplementedBy(ExternalAttachmentLoaderImpl.class)
 public interface ExternalAttachmentLoader {
-  CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam);
+    CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam);
 
-  CompletableFuture<Void> createExternalAttachment(Attachment attachment);
+    CompletableFuture<Void> createExternalAttachment(Attachment attachment);
 
-  CompletableFuture<Void> uploadAssessmentAttachments(Exam exam);
+    CompletableFuture<Void> uploadAssessmentAttachments(Exam exam);
 }

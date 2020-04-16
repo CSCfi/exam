@@ -6,8 +6,8 @@ import com.google.inject.AbstractModule;
 
 public class ByodConfigModule extends AbstractModule {
 
-  @Override
-  protected void configure() {
-    bind(ByodConfigHandler.class).to(ByodConfigHandlerImpl.class);
-  }
+    @Override
+    protected void configure() {
+        bind(ByodConfigHandler.class).to(ByodConfigHandlerImpl.class);
+    }
 }

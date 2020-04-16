@@ -25,5 +25,5 @@ import play.mvc.With;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SensitiveDataPolicy {
-  String[] sensitiveFieldNames();
+    String[] sensitiveFieldNames();
 }

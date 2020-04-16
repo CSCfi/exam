@@ -30,32 +30,36 @@ import play.mvc.Action;
 import play.mvc.Result;
 
 abstract class JsonFilterAction<T> extends Action<T> {
-  private Materializer materializer;
+    private Materializer materializer;
 
-  JsonFilterAction(Materializer materializer) {
-    this.materializer = materializer;
-  }
-
-  @NotNull
-  CompletionStage<Result> filterJsonResponse(Result result, String... properties) {
-    return filterJsonResponse(result, Collections.emptySet(), properties);
-  }
-
-  @NotNull
-  CompletionStage<Result> filterJsonResponse(Result result, Set<Long> ids, String... properties) {
-    String contentType = result.contentType().orElse("");
-    if (!contentType.toLowerCase().equals("application/json") || properties.length < 1) {
-      return CompletableFuture.completedFuture(result);
+    JsonFilterAction(Materializer materializer) {
+        this.materializer = materializer;
     }
-    return result
-      .body()
-      .consumeData(materializer)
-      .thenApply(
-        body -> {
-          JsonNode json = Json.parse(body.decodeString("UTF-8"));
-          JsonFilter.filterProperties(json, true, ids, properties);
-          return new Result(result.status(), result.headers(), HttpEntity.fromString(Json.stringify(json), "UTF-8"));
+
+    @NotNull
+    CompletionStage<Result> filterJsonResponse(Result result, String... properties) {
+        return filterJsonResponse(result, Collections.emptySet(), properties);
+    }
+
+    @NotNull
+    CompletionStage<Result> filterJsonResponse(Result result, Set<Long> ids, String... properties) {
+        String contentType = result.contentType().orElse("");
+        if (!contentType.toLowerCase().equals("application/json") || properties.length < 1) {
+            return CompletableFuture.completedFuture(result);
         }
-      );
-  }
+        return result
+            .body()
+            .consumeData(materializer)
+            .thenApply(
+                body -> {
+                    JsonNode json = Json.parse(body.decodeString("UTF-8"));
+                    JsonFilter.filterProperties(json, true, ids, properties);
+                    return new Result(
+                        result.status(),
+                        result.headers(),
+                        HttpEntity.fromString(Json.stringify(json), "UTF-8")
+                    );
+                }
+            );
+    }
 }

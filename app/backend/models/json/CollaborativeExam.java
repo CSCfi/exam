@@ -31,159 +31,159 @@ import org.joda.time.DateTime;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {
-  @Column
-  private String externalRef; // REFERENCE TO EXAM ELSEWHERE
+    @Column
+    private String externalRef; // REFERENCE TO EXAM ELSEWHERE
 
-  @Column
-  private String revision; // REFERENCE TO EXAM REVISION ELSEWHERE
+    @Column
+    private String revision; // REFERENCE TO EXAM REVISION ELSEWHERE
 
-  @Column
-  private String name;
+    @Column
+    private String name;
 
-  @Column(length = 32, unique = true)
-  private String hash;
+    @Column(length = 32, unique = true)
+    private String hash;
 
-  @Column
-  private Exam.State state;
+    @Column
+    private Exam.State state;
 
-  @Column
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonSerialize(using = DateTimeAdapter.class)
-  private DateTime examActiveStartDate;
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveStartDate;
 
-  @Column
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonSerialize(using = DateTimeAdapter.class)
-  private DateTime examActiveEndDate;
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveEndDate;
 
-  @Column
-  private Integer duration;
+    @Column
+    private Integer duration;
 
-  @Column(columnDefinition = "TEXT")
-  private String enrollInstruction;
+    @Column(columnDefinition = "TEXT")
+    private String enrollInstruction;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private DateTime created;
+    @Temporal(TemporalType.TIMESTAMP)
+    private DateTime created;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
-  @JsonManagedReference
-  private List<ExamEnrolment> examEnrolments;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
+    @JsonManagedReference
+    private List<ExamEnrolment> examEnrolments;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
-  @JsonManagedReference
-  private List<ExamParticipation> examParticipations;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
+    @JsonManagedReference
+    private List<ExamParticipation> examParticipations;
 
-  @Column
-  private boolean anonymous;
+    @Column
+    private boolean anonymous;
 
-  public String getExternalRef() {
-    return externalRef;
-  }
+    public String getExternalRef() {
+        return externalRef;
+    }
 
-  public void setExternalRef(String externalRef) {
-    this.externalRef = externalRef;
-  }
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
+    }
 
-  public String getRevision() {
-    return revision;
-  }
+    public String getRevision() {
+        return revision;
+    }
 
-  public void setRevision(String revision) {
-    this.revision = revision;
-  }
+    public void setRevision(String revision) {
+        this.revision = revision;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public DateTime getExamActiveStartDate() {
-    return examActiveStartDate;
-  }
+    public DateTime getExamActiveStartDate() {
+        return examActiveStartDate;
+    }
 
-  public void setExamActiveStartDate(DateTime examActiveStartDate) {
-    this.examActiveStartDate = examActiveStartDate;
-  }
+    public void setExamActiveStartDate(DateTime examActiveStartDate) {
+        this.examActiveStartDate = examActiveStartDate;
+    }
 
-  public DateTime getExamActiveEndDate() {
-    return examActiveEndDate;
-  }
+    public DateTime getExamActiveEndDate() {
+        return examActiveEndDate;
+    }
 
-  public void setExamActiveEndDate(DateTime examActiveEndDate) {
-    this.examActiveEndDate = examActiveEndDate;
-  }
+    public void setExamActiveEndDate(DateTime examActiveEndDate) {
+        this.examActiveEndDate = examActiveEndDate;
+    }
 
-  public Integer getDuration() {
-    return duration;
-  }
+    public Integer getDuration() {
+        return duration;
+    }
 
-  public void setDuration(Integer duration) {
-    this.duration = duration;
-  }
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
 
-  public String getEnrollInstruction() {
-    return enrollInstruction;
-  }
+    public String getEnrollInstruction() {
+        return enrollInstruction;
+    }
 
-  public void setEnrollInstruction(String enrollInstruction) {
-    this.enrollInstruction = enrollInstruction;
-  }
+    public void setEnrollInstruction(String enrollInstruction) {
+        this.enrollInstruction = enrollInstruction;
+    }
 
-  public String getHash() {
-    return hash;
-  }
+    public String getHash() {
+        return hash;
+    }
 
-  public void setHash(String hash) {
-    this.hash = hash;
-  }
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-  public Exam.State getState() {
-    return state;
-  }
+    public Exam.State getState() {
+        return state;
+    }
 
-  public void setState(Exam.State state) {
-    this.state = state;
-  }
+    public void setState(Exam.State state) {
+        this.state = state;
+    }
 
-  public DateTime getCreated() {
-    return created;
-  }
+    public DateTime getCreated() {
+        return created;
+    }
 
-  public void setCreated(DateTime created) {
-    this.created = created;
-  }
+    public void setCreated(DateTime created) {
+        this.created = created;
+    }
 
-  public List<ExamEnrolment> getExamEnrolments() {
-    return examEnrolments;
-  }
+    public List<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
 
-  public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
-    this.examEnrolments = examEnrolments;
-  }
+    public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
+        this.examEnrolments = examEnrolments;
+    }
 
-  public List<ExamParticipation> getExamParticipations() {
-    return examParticipations;
-  }
+    public List<ExamParticipation> getExamParticipations() {
+        return examParticipations;
+    }
 
-  public void setExamParticipations(List<ExamParticipation> examParticipations) {
-    this.examParticipations = examParticipations;
-  }
+    public void setExamParticipations(List<ExamParticipation> examParticipations) {
+        this.examParticipations = examParticipations;
+    }
 
-  public boolean isAnonymous() {
-    return anonymous;
-  }
+    public boolean isAnonymous() {
+        return anonymous;
+    }
 
-  public void setAnonymous(boolean anonymous) {
-    this.anonymous = anonymous;
-  }
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+    }
 
-  @Transient
-  public Exam getExam(JsonNode node) {
-    final ObjectNode objectNode = (ObjectNode) node;
-    objectNode.put("id", id).put("externalRef", externalRef);
-    return JsonDeserializer.deserialize(Exam.class, objectNode);
-  }
+    @Transient
+    public Exam getExam(JsonNode node) {
+        final ObjectNode objectNode = (ObjectNode) node;
+        objectNode.put("id", id).put("externalRef", externalRef);
+        return JsonDeserializer.deserialize(Exam.class, objectNode);
+    }
 }

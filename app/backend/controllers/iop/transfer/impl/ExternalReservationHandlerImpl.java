@@ -46,114 +46,114 @@ import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
-  @Inject
-  WSClient wsClient;
+    @Inject
+    WSClient wsClient;
 
-  @Inject
-  ActorSystem system;
+    @Inject
+    ActorSystem system;
 
-  @Inject
-  EmailComposer emailComposer;
+    @Inject
+    EmailComposer emailComposer;
 
-  private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
+    private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
 
-  private static URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
-    StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-    sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
-    if (reservationRef != null) {
-      sb.append("/").append(reservationRef);
+    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
+        sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
+        if (reservationRef != null) {
+            sb.append("/").append(reservationRef);
+        }
+        return new URL(sb.toString());
     }
-    return new URL(sb.toString());
-  }
 
-  @Override
-  public CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation) {
-    ExternalReservation external = reservation.getExternalReservation();
-    URL url;
-    try {
-      url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
-    } catch (MalformedURLException e) {
-      return CompletableFuture.completedFuture(Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+    @Override
+    public CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation) {
+        ExternalReservation external = reservation.getExternalReservation();
+        URL url;
+        try {
+            url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
+        } catch (MalformedURLException e) {
+            return CompletableFuture.completedFuture(Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+        }
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Optional<Integer>> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                return Optional.of(Http.Status.INTERNAL_SERVER_ERROR);
+            }
+            return Optional.empty();
+        };
+        return request.delete().thenApplyAsync(onSuccess);
     }
-    WSRequest request = wsClient.url(url.toString());
-    Function<WSResponse, Optional<Integer>> onSuccess = response -> {
-      if (response.getStatus() != Http.Status.OK) {
-        return Optional.of(Http.Status.INTERNAL_SERVER_ERROR);
-      }
-      return Optional.empty();
-    };
-    return request.delete().thenApplyAsync(onSuccess);
-  }
 
-  private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-    final ExamEnrolment enrolment = Ebean
-      .find(ExamEnrolment.class)
-      .fetch("reservation")
-      .fetch("reservation.machine")
-      .fetch("reservation.machine.room")
-      .where()
-      .eq("user.id", user.getId())
-      .eq("reservation.externalRef", ref)
-      .findOne();
-    if (enrolment == null) {
-      return CompletableFuture.completedFuture(
-        Results.notFound(String.format("No reservation with ref %s for current user.", ref))
-      );
-    }
-    // Removal not permitted if reservation is in the past or ongoing
-    final Reservation reservation = enrolment.getReservation();
-    DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
-    if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-      return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
-    }
-    // good to go
-    ExternalReservation external = reservation.getExternalReservation();
-    URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
-    WSRequest request = wsClient.url(url.toString());
-    Function<WSResponse, Result> onSuccess = response -> {
-      if (response.getStatus() != Http.Status.OK) {
-        JsonNode root = response.asJson();
-        return Results.internalServerError(root.get("message").asText("Connection refused"));
-      }
-      enrolment.setReservation(null);
-      enrolment.setReservationCanceled(true);
-      Ebean.save(enrolment);
-      reservation.delete();
-
-      // send email asynchronously
-      boolean isStudentUser = user.equals(enrolment.getUser());
-      system
-        .scheduler()
-        .scheduleOnce(
-          Duration.create(1, TimeUnit.SECONDS),
-          () -> {
-            emailComposer.composeReservationCancellationNotification(
-              enrolment.getUser(),
-              reservation,
-              msg,
-              isStudentUser,
-              enrolment
+    private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
+        final ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("reservation.machine")
+            .fetch("reservation.machine.room")
+            .where()
+            .eq("user.id", user.getId())
+            .eq("reservation.externalRef", ref)
+            .findOne();
+        if (enrolment == null) {
+            return CompletableFuture.completedFuture(
+                Results.notFound(String.format("No reservation with ref %s for current user.", ref))
             );
-            logger.info("Reservation cancellation confirmation email sent");
-          },
-          system.dispatcher()
-        );
+        }
+        // Removal not permitted if reservation is in the past or ongoing
+        final Reservation reservation = enrolment.getReservation();
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
+        }
+        // good to go
+        ExternalReservation external = reservation.getExternalReservation();
+        URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                JsonNode root = response.asJson();
+                return Results.internalServerError(root.get("message").asText("Connection refused"));
+            }
+            enrolment.setReservation(null);
+            enrolment.setReservationCanceled(true);
+            Ebean.save(enrolment);
+            reservation.delete();
 
-      return Results.ok();
-    };
-    return request.delete().thenApplyAsync(onSuccess);
-  }
+            // send email asynchronously
+            boolean isStudentUser = user.equals(enrolment.getUser());
+            system
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composeReservationCancellationNotification(
+                            enrolment.getUser(),
+                            reservation,
+                            msg,
+                            isStudentUser,
+                            enrolment
+                        );
+                        logger.info("Reservation cancellation confirmation email sent");
+                    },
+                    system.dispatcher()
+                );
 
-  // remove reservation on external side, initiated by reservation holder
-  @Override
-  public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
-    if (reservation.getExternalReservation() == null) {
-      return CompletableFuture.completedFuture(Results.ok());
+            return Results.ok();
+        };
+        return request.delete().thenApplyAsync(onSuccess);
     }
-    try {
-      return requestRemoval(reservation.getExternalRef(), user, msg);
-    } catch (IOException e) {
-      return CompletableFuture.completedFuture(Results.internalServerError(e.getMessage()));
+
+    // remove reservation on external side, initiated by reservation holder
+    @Override
+    public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
+        if (reservation.getExternalReservation() == null) {
+            return CompletableFuture.completedFuture(Results.ok());
+        }
+        try {
+            return requestRemoval(reservation.getExternalRef(), user, msg);
+        } catch (IOException e) {
+            return CompletableFuture.completedFuture(Results.internalServerError(e.getMessage()));
+        }
     }
-  }
 }

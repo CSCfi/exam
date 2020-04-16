@@ -26,9 +26,9 @@ import play.mvc.Result;
 
 public class LanguageController extends BaseController {
 
-  @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-  public Result getSupportedLanguages() {
-    List<Language> languages = Ebean.find(Language.class).findList();
-    return ok(Json.toJson(languages));
-  }
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result getSupportedLanguages() {
+        List<Language> languages = Ebean.find(Language.class).findList();
+        return ok(Json.toJson(languages));
+    }
 }

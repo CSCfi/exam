@@ -22,40 +22,40 @@ import javax.persistence.Id;
 @Entity
 public class ExamExecutionType extends Model {
 
-  public enum Type {
-    PRIVATE,
-    PUBLIC,
-    MATURITY,
-    PRINTOUT
-  }
+    public enum Type {
+        PRIVATE,
+        PUBLIC,
+        MATURITY,
+        PRINTOUT
+    }
 
-  @Id
-  private Integer id;
+    @Id
+    private Integer id;
 
-  private String type;
-  private boolean active;
+    private String type;
+    private boolean active;
 
-  public Integer getId() {
-    return id;
-  }
+    public Integer getId() {
+        return id;
+    }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-  public String getType() {
-    return type;
-  }
+    public String getType() {
+        return type;
+    }
 
-  public void setType(String type) {
-    this.type = type;
-  }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-  public boolean isActive() {
-    return active;
-  }
+    public boolean isActive() {
+        return active;
+    }
 
-  public void setActive(boolean active) {
-    this.active = active;
-  }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

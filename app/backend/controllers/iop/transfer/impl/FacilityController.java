@@ -40,107 +40,107 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
-  @Inject
-  private WSClient wsClient;
+    @Inject
+    private WSClient wsClient;
 
-  private static URL parseUrl(String facilityRef) throws MalformedURLException {
-    StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-    String orgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
-    url.append(String.format("/api/organisations/%s/facilities", orgRef));
-    if (facilityRef != null) {
-      url.append(String.format("/%s", facilityRef));
-    }
-    return new URL(url.toString());
-  }
-
-  private static URL parseExternalUrl(String orgRef) throws MalformedURLException {
-    return new URL(
-      ConfigFactory.load().getString("sitnet.integration.iop.host") +
-      String.format("/api/organisations/%s/facilities", orgRef)
-    );
-  }
-
-  private String toJson(ExamRoom room) {
-    PathProperties pp = PathProperties.parse(
-      "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
-      "examStartingHours(*), accessibilities(*))"
-    );
-    return Ebean.json().toJson(room, pp);
-  }
-
-  @Restrict({ @Group("ADMIN") })
-  public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
-    ExamRoom room = Ebean.find(ExamRoom.class, id);
-    if (room == null) {
-      return CompletableFuture.completedFuture(Results.notFound());
-    }
-    URL url = parseUrl(room.getExternalRef());
-    WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
-    if (room.getExternalRef() == null && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
-      // Add new
-      Function<WSResponse, Result> onSuccess = response -> {
-        JsonNode root = response.asJson();
-        if (response.getStatus() != 201) {
-          return internalServerError(root.get("message").asText("Connection refused"));
+    private static URL parseUrl(String facilityRef) throws MalformedURLException {
+        StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
+        String orgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+        url.append(String.format("/api/organisations/%s/facilities", orgRef));
+        if (facilityRef != null) {
+            url.append(String.format("/%s", facilityRef));
         }
-        String externalRef = root.get("id").asText();
-        room.setExternalRef(externalRef);
-        room.update();
-        return ok(Json.newObject().put("externalRef", externalRef));
-      };
-      return request.post(toJson(room)).thenApplyAsync(onSuccess);
-    } else if (room.getExternalRef() != null) {
-      // Remove
-      Function<WSResponse, Result> onSuccess = response -> {
-        int status = response.getStatus();
-        if (status == 404 || status == 200) {
-          // 404 would mean that facility does not exist remotely, remove its reference here also
-          room.setExternalRef(null);
-          room.update();
+        return new URL(url.toString());
+    }
+
+    private static URL parseExternalUrl(String orgRef) throws MalformedURLException {
+        return new URL(
+            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            String.format("/api/organisations/%s/facilities", orgRef)
+        );
+    }
+
+    private String toJson(ExamRoom room) {
+        PathProperties pp = PathProperties.parse(
+            "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
+            "examStartingHours(*), accessibilities(*))"
+        );
+        return Ebean.json().toJson(room, pp);
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        if (room == null) {
+            return CompletableFuture.completedFuture(Results.notFound());
+        }
+        URL url = parseUrl(room.getExternalRef());
+        WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
+        if (room.getExternalRef() == null && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
+            // Add new
+            Function<WSResponse, Result> onSuccess = response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != 201) {
+                    return internalServerError(root.get("message").asText("Connection refused"));
+                }
+                String externalRef = root.get("id").asText();
+                room.setExternalRef(externalRef);
+                room.update();
+                return ok(Json.newObject().put("externalRef", externalRef));
+            };
+            return request.post(toJson(room)).thenApplyAsync(onSuccess);
+        } else if (room.getExternalRef() != null) {
+            // Remove
+            Function<WSResponse, Result> onSuccess = response -> {
+                int status = response.getStatus();
+                if (status == 404 || status == 200) {
+                    // 404 would mean that facility does not exist remotely, remove its reference here also
+                    room.setExternalRef(null);
+                    room.update();
+                } else {
+                    return internalServerError("Connection refused");
+                }
+                JsonNode ref = Json.newObject().set("externalRef", NullNode.getInstance());
+                return ok(ref);
+            };
+            return request.delete().thenApplyAsync(onSuccess);
         } else {
-          return internalServerError("Connection refused");
+            // Tried to add an inactive facility
+            return CompletableFuture.completedFuture(Results.badRequest());
         }
-        JsonNode ref = Json.newObject().set("externalRef", NullNode.getInstance());
-        return ok(ref);
-      };
-      return request.delete().thenApplyAsync(onSuccess);
-    } else {
-      // Tried to add an inactive facility
-      return CompletableFuture.completedFuture(Results.badRequest());
     }
-  }
 
-  @Restrict({ @Group("STUDENT") })
-  public CompletionStage<Result> listFacilities(Optional<String> organisation) throws MalformedURLException {
-    if (!organisation.isPresent()) {
-      return wrapAsPromise(badRequest());
+    @Restrict({ @Group("STUDENT") })
+    public CompletionStage<Result> listFacilities(Optional<String> organisation) throws MalformedURLException {
+        if (!organisation.isPresent()) {
+            return wrapAsPromise(badRequest());
+        }
+        URL url = parseExternalUrl(organisation.get());
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            return ok(root);
+        };
+        return request.get().thenApplyAsync(onSuccess);
     }
-    URL url = parseExternalUrl(organisation.get());
-    WSRequest request = wsClient.url(url.toString());
-    Function<WSResponse, Result> onSuccess = response -> {
-      JsonNode root = response.asJson();
-      if (response.getStatus() != 200) {
-        return internalServerError(root.get("message").asText("Connection refused"));
-      }
-      return ok(root);
-    };
-    return request.get().thenApplyAsync(onSuccess);
-  }
 
-  @Override
-  public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {
-    URL url = parseUrl(room.getExternalRef());
-    WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
-    return request.put(toJson(room)).thenApplyAsync(response -> ok(room));
-  }
+    @Override
+    public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {
+        URL url = parseUrl(room.getExternalRef());
+        WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
+        return request.put(toJson(room)).thenApplyAsync(response -> ok(room));
+    }
 
-  @Override
-  public CompletionStage<Result> activateFacility(Long roomId) throws MalformedURLException {
-    return updateFacility(roomId);
-  }
+    @Override
+    public CompletionStage<Result> activateFacility(Long roomId) throws MalformedURLException {
+        return updateFacility(roomId);
+    }
 
-  @Override
-  public CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException {
-    return updateFacility(roomId);
-  }
+    @Override
+    public CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException {
+        return updateFacility(roomId);
+    }
 }

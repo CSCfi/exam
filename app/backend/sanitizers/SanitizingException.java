@@ -17,7 +17,7 @@ package backend.sanitizers;
 
 class SanitizingException extends Exception {
 
-  SanitizingException(String msg) {
-    super(msg);
-  }
+    SanitizingException(String msg) {
+        super(msg);
+    }
 }

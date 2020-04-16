@@ -25,5 +25,5 @@ import play.mvc.With;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonValidator {
-  String schema();
+    String schema();
 }

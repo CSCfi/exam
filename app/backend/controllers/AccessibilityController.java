@@ -28,44 +28,44 @@ import play.mvc.Result;
 
 public class AccessibilityController extends BaseController {
 
-  @Restrict({ @Group("ADMIN") })
-  public Result addAccessibility(Http.Request request) {
-    Accessibility accessibility = bindForm(Accessibility.class, request);
-    accessibility.save();
-    return ok(Json.toJson(accessibility));
-  }
-
-  @Restrict({ @Group("ADMIN") })
-  public Result updateAccessibility(Http.Request request) {
-    Accessibility accessibility = bindForm(Accessibility.class, request);
-    accessibility.update();
-    return ok(Json.toJson(accessibility));
-  }
-
-  @Restrict({ @Group("ADMIN") })
-  public Result removeAccessibility(Long id) {
-    Accessibility accessibility = Ebean.find(Accessibility.class, id);
-    if (accessibility == null) {
-      return notFound();
+    @Restrict({ @Group("ADMIN") })
+    public Result addAccessibility(Http.Request request) {
+        Accessibility accessibility = bindForm(Accessibility.class, request);
+        accessibility.save();
+        return ok(Json.toJson(accessibility));
     }
-    Ebean
-      .find(ExamRoom.class)
-      .where()
-      .in("accessibilities", accessibility)
-      .findList()
-      .forEach(
-        er -> {
-          er.getAccessibilities().remove(accessibility);
-          er.update();
-        }
-      );
-    accessibility.delete();
-    return ok();
-  }
 
-  @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
-  public Result getAccessibilities() {
-    List<Accessibility> accessibilities = Ebean.find(Accessibility.class).findList();
-    return ok(Json.toJson(accessibilities));
-  }
+    @Restrict({ @Group("ADMIN") })
+    public Result updateAccessibility(Http.Request request) {
+        Accessibility accessibility = bindForm(Accessibility.class, request);
+        accessibility.update();
+        return ok(Json.toJson(accessibility));
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public Result removeAccessibility(Long id) {
+        Accessibility accessibility = Ebean.find(Accessibility.class, id);
+        if (accessibility == null) {
+            return notFound();
+        }
+        Ebean
+            .find(ExamRoom.class)
+            .where()
+            .in("accessibilities", accessibility)
+            .findList()
+            .forEach(
+                er -> {
+                    er.getAccessibilities().remove(accessibility);
+                    er.update();
+                }
+            );
+        accessibility.delete();
+        return ok();
+    }
+
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    public Result getAccessibilities() {
+        List<Accessibility> accessibilities = Ebean.find(Accessibility.class).findList();
+        return ok(Json.toJson(accessibilities));
+    }
 }

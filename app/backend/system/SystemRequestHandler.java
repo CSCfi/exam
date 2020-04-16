@@ -28,55 +28,55 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class SystemRequestHandler implements ActionCreator {
-  private final SessionHandler sessionHandler;
+    private final SessionHandler sessionHandler;
 
-  @Inject
-  public SystemRequestHandler(SessionHandler sessionHandler) {
-    this.sessionHandler = sessionHandler;
-  }
-
-  @Override
-  public Action.Simple createAction(Http.Request request, Method actionMethod) {
-    Optional<Session> os = sessionHandler.getSession(request);
-    AuditLogger.log(request, os.orElse(null));
-    os.ifPresent(s -> updateExpiration(request, s));
-    return propagateAction(os.orElse(null));
-  }
-
-  private Action.Simple propagateAction(Session session) {
-    return new Action.Simple() {
-
-      @Override
-      public CompletionStage<Result> call(Http.Request request) {
-        return delegate
-          .call(request)
-          .thenApply(
-            r -> {
-              r = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
-              // If ongoing exam, we need to decorate every response with that knowledge
-              if (session != null && session.getOngoingExamHash() != null) {
-                r = r.withHeader("x-exam-start-exam", session.getOngoingExamHash());
-              }
-              if (session != null && session.getUpcomingExamHash() != null) {
-                r = r.withHeader("x-exam-upcoming-exam", session.getUpcomingExamHash());
-              }
-              if (session != null && session.getWrongMachineData() != null) {
-                r = r.withHeader("x-exam-wrong-machine", session.getWrongMachineData());
-              }
-              if (session != null && session.getWrongRoomData() != null) {
-                r = r.withHeader("x-exam-wrong-room", session.getWrongRoomData());
-              }
-              return r;
-            }
-          );
-      }
-    };
-  }
-
-  private void updateExpiration(Http.Request request, Session session) {
-    if (!request.path().contains("checkSession")) {
-      session.setSince(DateTime.now());
-      sessionHandler.updateSession(request, session);
+    @Inject
+    public SystemRequestHandler(SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
-  }
+
+    @Override
+    public Action.Simple createAction(Http.Request request, Method actionMethod) {
+        Optional<Session> os = sessionHandler.getSession(request);
+        AuditLogger.log(request, os.orElse(null));
+        os.ifPresent(s -> updateExpiration(request, s));
+        return propagateAction(os.orElse(null));
+    }
+
+    private Action.Simple propagateAction(Session session) {
+        return new Action.Simple() {
+
+            @Override
+            public CompletionStage<Result> call(Http.Request request) {
+                return delegate
+                    .call(request)
+                    .thenApply(
+                        r -> {
+                            r = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
+                            // If ongoing exam, we need to decorate every response with that knowledge
+                            if (session != null && session.getOngoingExamHash() != null) {
+                                r = r.withHeader("x-exam-start-exam", session.getOngoingExamHash());
+                            }
+                            if (session != null && session.getUpcomingExamHash() != null) {
+                                r = r.withHeader("x-exam-upcoming-exam", session.getUpcomingExamHash());
+                            }
+                            if (session != null && session.getWrongMachineData() != null) {
+                                r = r.withHeader("x-exam-wrong-machine", session.getWrongMachineData());
+                            }
+                            if (session != null && session.getWrongRoomData() != null) {
+                                r = r.withHeader("x-exam-wrong-room", session.getWrongRoomData());
+                            }
+                            return r;
+                        }
+                    );
+            }
+        };
+    }
+
+    private void updateExpiration(Http.Request request, Session session) {
+        if (!request.path().contains("checkSession")) {
+            session.setSince(DateTime.now());
+            sessionHandler.updateSession(request, session);
+        }
+    }
 }

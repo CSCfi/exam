@@ -25,6 +25,6 @@ import java.util.concurrent.CompletionStage;
 
 @ImplementedBy(ExternalCourseHandlerImpl.class)
 public interface ExternalCourseHandler {
-  CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws IOException;
-  CompletionStage<Collection<String>> getPermittedCourses(User user) throws IOException;
+    CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws IOException;
+    CompletionStage<Collection<String>> getPermittedCourses(User user) throws IOException;
 }

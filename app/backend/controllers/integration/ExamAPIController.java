@@ -31,28 +31,28 @@ import play.mvc.Result;
 
 public class ExamAPIController extends BaseController {
 
-  @SubjectNotPresent
-  public Result getActiveExams(Optional<String> date) {
-    PathProperties pp = PathProperties.parse(
-      "(course(name, code, credits, " +
-      "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
-      "id, name, examActiveStartDate, examActiveEndDate, duration, enrollInstruction, " +
-      "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
-      "examOwners(firstName, lastName, email), examType(type)" +
-      ")"
-    );
-    DateTime dateTime = date.isPresent()
-      ? ISODateTimeFormat.dateTimeParser().parseDateTime(date.get())
-      : DateTime.now();
-    Query<Exam> query = Ebean.find(Exam.class);
-    query.apply(pp);
-    List<Exam> exams = query
-      .where()
-      .eq("state", Exam.State.PUBLISHED)
-      .ge("examActiveEndDate", dateTime)
-      .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-      .findList();
+    @SubjectNotPresent
+    public Result getActiveExams(Optional<String> date) {
+        PathProperties pp = PathProperties.parse(
+            "(course(name, code, credits, " +
+            "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
+            "id, name, examActiveStartDate, examActiveEndDate, duration, enrollInstruction, " +
+            "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
+            "examOwners(firstName, lastName, email), examType(type)" +
+            ")"
+        );
+        DateTime dateTime = date.isPresent()
+            ? ISODateTimeFormat.dateTimeParser().parseDateTime(date.get())
+            : DateTime.now();
+        Query<Exam> query = Ebean.find(Exam.class);
+        query.apply(pp);
+        List<Exam> exams = query
+            .where()
+            .eq("state", Exam.State.PUBLISHED)
+            .ge("examActiveEndDate", dateTime)
+            .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
+            .findList();
 
-    return ok(exams, pp);
-  }
+        return ok(exams, pp);
+    }
 }

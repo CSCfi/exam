@@ -6,8 +6,8 @@ import com.google.inject.AbstractModule;
 
 public class FileHandlerModule extends AbstractModule {
 
-  @Override
-  protected void configure() {
-    bind(FileHandler.class).to(FileHandlerImpl.class);
-  }
+    @Override
+    protected void configure() {
+        bind(FileHandler.class).to(FileHandlerImpl.class);
+    }
 }

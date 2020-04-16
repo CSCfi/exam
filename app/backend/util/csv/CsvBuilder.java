@@ -10,8 +10,8 @@ import java.util.Collection;
 
 @ImplementedBy(CsvBuilderImpl.class)
 public interface CsvBuilder {
-  File build(Long startDate, Long endDate) throws IOException;
-  File build(Long examId, Collection<Long> childIds) throws IOException;
-  File build(JsonNode node) throws IOException;
-  void parseGrades(File csvFile, User user, Role.Name role) throws IOException;
+    File build(Long startDate, Long endDate) throws IOException;
+    File build(Long examId, Collection<Long> childIds) throws IOException;
+    File build(JsonNode node) throws IOException;
+    void parseGrades(File csvFile, User user, Role.Name role) throws IOException;
 }

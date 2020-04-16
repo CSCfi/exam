@@ -26,19 +26,19 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class ExamActionRouterImpl extends Action<ExamActionRouter> {
-  private final SessionHandler sessionHandler;
+    private final SessionHandler sessionHandler;
 
-  @Inject
-  public ExamActionRouterImpl(SessionHandler sessionHandler) {
-    this.sessionHandler = sessionHandler;
-  }
-
-  @Override
-  public CompletionStage<Result> call(Http.Request request) {
-    Optional<Session> session = sessionHandler.getSession(request);
-    if (session.isPresent() && session.get().isTemporalStudent()) {
-      return CompletableFuture.completedFuture(redirect(request.path().replace("/app/", "/app/iop/")));
+    @Inject
+    public ExamActionRouterImpl(SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
-    return delegate.call(request);
-  }
+
+    @Override
+    public CompletionStage<Result> call(Http.Request request) {
+        Optional<Session> session = sessionHandler.getSession(request);
+        if (session.isPresent() && session.get().isTemporalStudent()) {
+            return CompletableFuture.completedFuture(redirect(request.path().replace("/app/", "/app/iop/")));
+        }
+        return delegate.call(request);
+    }
 }

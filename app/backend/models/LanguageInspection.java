@@ -27,84 +27,84 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class LanguageInspection extends OwnedModel {
-  @OneToOne
-  private Exam exam;
+    @OneToOne
+    private Exam exam;
 
-  @ManyToOne
-  private User assignee;
+    @ManyToOne
+    private User assignee;
 
-  @OneToOne
-  private Comment statement;
+    @OneToOne
+    private Comment statement;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date startedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startedAt;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date finishedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date finishedAt;
 
-  private Boolean approved;
+    private Boolean approved;
 
-  public Exam getExam() {
-    return exam;
-  }
+    public Exam getExam() {
+        return exam;
+    }
 
-  public void setExam(Exam exam) {
-    this.exam = exam;
-  }
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
-  public Boolean getApproved() {
-    return approved;
-  }
+    public Boolean getApproved() {
+        return approved;
+    }
 
-  public void setApproved(Boolean approved) {
-    this.approved = approved;
-  }
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
+    }
 
-  public Date getFinishedAt() {
-    return finishedAt;
-  }
+    public Date getFinishedAt() {
+        return finishedAt;
+    }
 
-  public void setFinishedAt(Date finishedAt) {
-    this.finishedAt = finishedAt;
-  }
+    public void setFinishedAt(Date finishedAt) {
+        this.finishedAt = finishedAt;
+    }
 
-  public Date getStartedAt() {
-    return startedAt;
-  }
+    public Date getStartedAt() {
+        return startedAt;
+    }
 
-  public void setStartedAt(Date startedAt) {
-    this.startedAt = startedAt;
-  }
+    public void setStartedAt(Date startedAt) {
+        this.startedAt = startedAt;
+    }
 
-  public Comment getStatement() {
-    return statement;
-  }
+    public Comment getStatement() {
+        return statement;
+    }
 
-  public void setStatement(Comment statement) {
-    this.statement = statement;
-  }
+    public void setStatement(Comment statement) {
+        this.statement = statement;
+    }
 
-  public User getAssignee() {
-    return assignee;
-  }
+    public User getAssignee() {
+        return assignee;
+    }
 
-  public void setAssignee(User assignee) {
-    this.assignee = assignee;
-  }
+    public void setAssignee(User assignee) {
+        this.assignee = assignee;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
 
-    if (!(o instanceof LanguageInspection)) return false;
+        if (!(o instanceof LanguageInspection)) return false;
 
-    LanguageInspection that = (LanguageInspection) o;
+        LanguageInspection that = (LanguageInspection) o;
 
-    return new EqualsBuilder().append(id, that.id).isEquals();
-  }
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
 
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(id).toHashCode();
-  }
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
+    }
 }

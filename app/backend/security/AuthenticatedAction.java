@@ -32,36 +32,36 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class AuthenticatedAction extends Action<Authenticated> {
-  private SessionHandler sessionHandler;
+    private SessionHandler sessionHandler;
 
-  private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
+    private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
 
-  @Inject
-  public AuthenticatedAction(SessionHandler sessionHandler) {
-    this.sessionHandler = sessionHandler;
-  }
-
-  private Optional<User> getLoggedInUser(Http.Request request) {
-    Optional<Session> session = sessionHandler.getSession(request);
-    if (session.isPresent()) {
-      Optional<User> ou = session.map(s -> Ebean.find(User.class, s.getUserId()));
-      if (ou.isPresent()) {
-        User user = ou.get();
-        user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
-        return Optional.of(user);
-      }
+    @Inject
+    public AuthenticatedAction(SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
-    return Optional.empty();
-  }
 
-  @Override
-  public CompletionStage<Result> call(Http.Request request) {
-    Optional<User> ou = getLoggedInUser(request);
-    if (ou.isPresent()) {
-      User user = ou.get();
-      return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+    private Optional<User> getLoggedInUser(Http.Request request) {
+        Optional<Session> session = sessionHandler.getSession(request);
+        if (session.isPresent()) {
+            Optional<User> ou = session.map(s -> Ebean.find(User.class, s.getUserId()));
+            if (ou.isPresent()) {
+                User user = ou.get();
+                user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
     }
-    logger.info("Blocked unauthorized access to {}", request.path());
-    return CompletableFuture.completedFuture(Results.unauthorized());
-  }
+
+    @Override
+    public CompletionStage<Result> call(Http.Request request) {
+        Optional<User> ou = getLoggedInUser(request);
+        if (ou.isPresent()) {
+            User user = ou.get();
+            return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+        }
+        logger.info("Blocked unauthorized access to {}", request.path());
+        return CompletableFuture.completedFuture(Results.unauthorized());
+    }
 }

@@ -35,45 +35,48 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 class JsonSchemaValidator extends Action<JsonValidator> {
-  private static final Logger.ALogger logger = Logger.of(JsonSchemaValidator.class);
+    private static final Logger.ALogger logger = Logger.of(JsonSchemaValidator.class);
 
-  private Environment env;
+    private Environment env;
 
-  @Inject
-  JsonSchemaValidator(Environment env) {
-    this.env = env;
-  }
-
-  private JsonSchema getSchema() throws IOException, ProcessingException {
-    String fileName = String.format(
-      "%s/conf/schemas/%s.json",
-      env.rootPath().getAbsolutePath(),
-      configuration.schema()
-    );
-    JsonNode schemaNode = JsonLoader.fromFile(new File(fileName));
-    JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-    return factory.getJsonSchema(schemaNode);
-  }
-
-  private boolean isValid(JsonNode input) throws Exception {
-    ProcessingReport report = getSchema().validate(input);
-    if (!report.isSuccess()) {
-      StreamSupport
-        .stream(report.spliterator(), true)
-        .forEach(m -> logger.error("JSON validation error: schema={}, err={}", configuration.schema(), m.getMessage()));
+    @Inject
+    JsonSchemaValidator(Environment env) {
+        this.env = env;
     }
-    return report.isSuccess();
-  }
 
-  @Override
-  public CompletionStage<Result> call(Http.Request request) {
-    try {
-      if (!isValid(request.body().asJson())) {
-        return CompletableFuture.completedFuture(Results.badRequest());
-      }
-    } catch (Exception e) {
-      return CompletableFuture.completedFuture(Results.internalServerError());
+    private JsonSchema getSchema() throws IOException, ProcessingException {
+        String fileName = String.format(
+            "%s/conf/schemas/%s.json",
+            env.rootPath().getAbsolutePath(),
+            configuration.schema()
+        );
+        JsonNode schemaNode = JsonLoader.fromFile(new File(fileName));
+        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+        return factory.getJsonSchema(schemaNode);
     }
-    return delegate.call(request);
-  }
+
+    private boolean isValid(JsonNode input) throws Exception {
+        ProcessingReport report = getSchema().validate(input);
+        if (!report.isSuccess()) {
+            StreamSupport
+                .stream(report.spliterator(), true)
+                .forEach(
+                    m ->
+                        logger.error("JSON validation error: schema={}, err={}", configuration.schema(), m.getMessage())
+                );
+        }
+        return report.isSuccess();
+    }
+
+    @Override
+    public CompletionStage<Result> call(Http.Request request) {
+        try {
+            if (!isValid(request.body().asJson())) {
+                return CompletableFuture.completedFuture(Results.badRequest());
+            }
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(Results.internalServerError());
+        }
+        return delegate.call(request);
+    }
 }

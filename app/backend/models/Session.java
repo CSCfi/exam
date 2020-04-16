@@ -18,85 +18,85 @@ package backend.models;
 import org.joda.time.DateTime;
 
 public class Session {
-  private Long userId;
-  private DateTime since;
-  private String loginRole;
-  private String email;
-  private boolean temporalStudent;
-  private String ongoingExamHash;
-  private String upcomingExamHash;
-  private String wrongRoomData;
-  private String wrongMachineData;
+    private Long userId;
+    private DateTime since;
+    private String loginRole;
+    private String email;
+    private boolean temporalStudent;
+    private String ongoingExamHash;
+    private String upcomingExamHash;
+    private String wrongRoomData;
+    private String wrongMachineData;
 
-  public Long getUserId() {
-    return userId;
-  }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public DateTime getSince() {
-    return since;
-  }
+    public DateTime getSince() {
+        return since;
+    }
 
-  public void setSince(DateTime since) {
-    this.since = since;
-  }
+    public void setSince(DateTime since) {
+        this.since = since;
+    }
 
-  public String getLoginRole() {
-    return loginRole;
-  }
+    public String getLoginRole() {
+        return loginRole;
+    }
 
-  public void setLoginRole(String loginRole) {
-    this.loginRole = loginRole;
-  }
+    public void setLoginRole(String loginRole) {
+        this.loginRole = loginRole;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public boolean isTemporalStudent() {
-    return temporalStudent;
-  }
+    public boolean isTemporalStudent() {
+        return temporalStudent;
+    }
 
-  public void setTemporalStudent(boolean temporalStudent) {
-    this.temporalStudent = temporalStudent;
-  }
+    public void setTemporalStudent(boolean temporalStudent) {
+        this.temporalStudent = temporalStudent;
+    }
 
-  public String getOngoingExamHash() {
-    return ongoingExamHash;
-  }
+    public String getOngoingExamHash() {
+        return ongoingExamHash;
+    }
 
-  public void setOngoingExamHash(String ongoingExamHash) {
-    this.ongoingExamHash = ongoingExamHash;
-  }
+    public void setOngoingExamHash(String ongoingExamHash) {
+        this.ongoingExamHash = ongoingExamHash;
+    }
 
-  public String getUpcomingExamHash() {
-    return upcomingExamHash;
-  }
+    public String getUpcomingExamHash() {
+        return upcomingExamHash;
+    }
 
-  public void setUpcomingExamHash(String upcomingExamHash) {
-    this.upcomingExamHash = upcomingExamHash;
-  }
+    public void setUpcomingExamHash(String upcomingExamHash) {
+        this.upcomingExamHash = upcomingExamHash;
+    }
 
-  public String getWrongRoomData() {
-    return wrongRoomData;
-  }
+    public String getWrongRoomData() {
+        return wrongRoomData;
+    }
 
-  public void setWrongRoomData(String wrongRoomData) {
-    this.wrongRoomData = wrongRoomData;
-  }
+    public void setWrongRoomData(String wrongRoomData) {
+        this.wrongRoomData = wrongRoomData;
+    }
 
-  public String getWrongMachineData() {
-    return wrongMachineData;
-  }
+    public String getWrongMachineData() {
+        return wrongMachineData;
+    }
 
-  public void setWrongMachineData(String wrongMachineData) {
-    this.wrongMachineData = wrongMachineData;
-  }
+    public void setWrongMachineData(String wrongMachineData) {
+        this.wrongMachineData = wrongMachineData;
+    }
 }

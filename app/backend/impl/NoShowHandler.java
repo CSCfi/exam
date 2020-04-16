@@ -21,6 +21,6 @@ import java.util.List;
 
 @ImplementedBy(NoShowHandlerImpl.class)
 public interface NoShowHandler {
-  void handleNoShows(List<Reservation> noShows);
-  void handleNoShowAndNotify(Reservation reservation);
+    void handleNoShows(List<Reservation> noShows);
+    void handleNoShowAndNotify(Reservation reservation);
 }

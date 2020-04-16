@@ -24,7 +24,7 @@ import play.mvc.Result;
 
 @ImplementedBy(FacilityController.class)
 public interface ExternalFacilityAPI {
-  CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException;
-  CompletionStage<Result> activateFacility(Long roomId) throws MalformedURLException;
-  CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException;
+    CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException;
+    CompletionStage<Result> activateFacility(Long roomId) throws MalformedURLException;
+    CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException;
 }

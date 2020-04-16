@@ -26,7 +26,7 @@ import play.mvc.With;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Anonymous {
-  String[] filteredProperties();
+    String[] filteredProperties();
 
-  String contextParamKey() default AnonymousJsonAction.CONTEXT_KEY;
+    String contextParamKey() default AnonymousJsonAction.CONTEXT_KEY;
 }

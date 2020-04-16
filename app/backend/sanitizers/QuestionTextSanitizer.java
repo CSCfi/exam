@@ -20,7 +20,7 @@ import play.mvc.Http;
 
 public class QuestionTextSanitizer extends BaseSanitizer {
 
-  protected Http.Request sanitize(Http.Request req, JsonNode body) {
-    return SanitizingHelper.sanitizeOptionalHtml("question", body, Attrs.QUESTION_TEXT, req);
-  }
+    protected Http.Request sanitize(Http.Request req, JsonNode body) {
+        return SanitizingHelper.sanitizeOptionalHtml("question", body, Attrs.QUESTION_TEXT, req);
+    }
 }

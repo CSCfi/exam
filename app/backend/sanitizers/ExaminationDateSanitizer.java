@@ -22,13 +22,13 @@ import play.mvc.Http;
 
 public class ExaminationDateSanitizer extends BaseSanitizer {
 
-  @Override
-  protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
-    if (body.has("date")) {
-      LocalDate date = LocalDate.parse(body.get("date").asText(), DateTimeFormat.forPattern("dd/MM/yy"));
-      return req.addAttr(Attrs.DATE, date);
-    } else {
-      throw new SanitizingException("no date");
+    @Override
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        if (body.has("date")) {
+            LocalDate date = LocalDate.parse(body.get("date").asText(), DateTimeFormat.forPattern("dd/MM/yy"));
+            return req.addAttr(Attrs.DATE, date);
+        } else {
+            throw new SanitizingException("no date");
+        }
     }
-  }
 }

@@ -23,18 +23,18 @@ import play.mvc.Http;
 
 public class ClozeTestAnswerSanitizer extends BaseSanitizer {
 
-  protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
-    Http.Request request = req;
-    Optional<String> answer = SanitizingHelper.parse("answer", body, String.class);
-    if (answer.isPresent()) {
-      try {
-        new ObjectMapper().readTree(answer.get());
-      } catch (IOException e) {
-        throw new SanitizingException("Invalid answer content");
-      }
-      request = request.addAttr(Attrs.ESSAY_ANSWER, answer.get());
+    protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
+        Http.Request request = req;
+        Optional<String> answer = SanitizingHelper.parse("answer", body, String.class);
+        if (answer.isPresent()) {
+            try {
+                new ObjectMapper().readTree(answer.get());
+            } catch (IOException e) {
+                throw new SanitizingException("Invalid answer content");
+            }
+            request = request.addAttr(Attrs.ESSAY_ANSWER, answer.get());
+        }
+        request = SanitizingHelper.sanitizeOptional("objectVersion", body, Long.class, Attrs.OBJECT_VERSION, request);
+        return request;
     }
-    request = SanitizingHelper.sanitizeOptional("objectVersion", body, Long.class, Attrs.OBJECT_VERSION, request);
-    return request;
-  }
 }

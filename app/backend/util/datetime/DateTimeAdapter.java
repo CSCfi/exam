@@ -24,8 +24,8 @@ import org.joda.time.format.ISODateTimeFormat;
 
 public class DateTimeAdapter extends JsonSerializer<DateTime> {
 
-  @Override
-  public void serialize(DateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-    gen.writeString(ISODateTimeFormat.dateTime().print(value));
-  }
+    @Override
+    public void serialize(DateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString(ISODateTimeFormat.dateTime().print(value));
+    }
 }

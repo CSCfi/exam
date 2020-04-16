@@ -26,5 +26,5 @@ import java.util.concurrent.CompletionStage;
 @FunctionalInterface
 @ImplementedBy(ExternalExamController.class)
 public interface ExternalExamAPI {
-  CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException;
+    CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException;
 }

@@ -25,11 +25,11 @@ import play.inject.Module;
 
 public class DeadboltHook extends Module {
 
-  @Override
-  public List<Binding<?>> bindings(Environment environment, Config config) {
-    return ImmutableList.of(
-      bindClass(AuthorizationHandler.class).toSelf().eagerly(),
-      bindClass(HandlerCache.class).to(DeadboltCache.class).eagerly()
-    );
-  }
+    @Override
+    public List<Binding<?>> bindings(Environment environment, Config config) {
+        return ImmutableList.of(
+            bindClass(AuthorizationHandler.class).toSelf().eagerly(),
+            bindClass(HandlerCache.class).to(DeadboltCache.class).eagerly()
+        );
+    }
 }

@@ -40,165 +40,165 @@ import org.joda.time.Interval;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonSerialize(using = DateTimeAdapter.class)
-  private DateTime startAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime startAt;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonSerialize(using = DateTimeAdapter.class)
-  private DateTime endAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime endAt;
 
-  private boolean noShow;
+    private boolean noShow;
 
-  private boolean retrialPermitted;
+    private boolean retrialPermitted;
 
-  private boolean reminderSent;
+    private boolean reminderSent;
 
-  @OneToOne(mappedBy = "reservation")
-  @JsonBackReference
-  private ExamEnrolment enrolment;
+    @OneToOne(mappedBy = "reservation")
+    @JsonBackReference
+    private ExamEnrolment enrolment;
 
-  @ManyToOne
-  @JoinColumn(name = "machine_id")
-  @JsonBackReference
-  private ExamMachine machine;
+    @ManyToOne
+    @JoinColumn(name = "machine_id")
+    @JsonBackReference
+    private ExamMachine machine;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  @JsonBackReference
-  private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 
-  @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(
-    name = "reservation_optional_exam_section",
-    joinColumns = @JoinColumn(name = "reservation_id"),
-    inverseJoinColumns = @JoinColumn(name = "exam_section_id")
-  )
-  private Set<ExamSection> optionalSections;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "reservation_optional_exam_section",
+        joinColumns = @JoinColumn(name = "reservation_id"),
+        inverseJoinColumns = @JoinColumn(name = "exam_section_id")
+    )
+    private Set<ExamSection> optionalSections;
 
-  private String externalRef;
+    private String externalRef;
 
-  private String externalUserRef;
+    private String externalUserRef;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private ExternalReservation externalReservation;
+    @OneToOne(cascade = CascadeType.ALL)
+    private ExternalReservation externalReservation;
 
-  public DateTime getStartAt() {
-    return startAt;
-  }
+    public DateTime getStartAt() {
+        return startAt;
+    }
 
-  public void setStartAt(DateTime startAt) {
-    this.startAt = startAt;
-  }
+    public void setStartAt(DateTime startAt) {
+        this.startAt = startAt;
+    }
 
-  public DateTime getEndAt() {
-    return endAt;
-  }
+    public DateTime getEndAt() {
+        return endAt;
+    }
 
-  public void setEndAt(DateTime endAt) {
-    this.endAt = endAt;
-  }
+    public void setEndAt(DateTime endAt) {
+        this.endAt = endAt;
+    }
 
-  public boolean isNoShow() {
-    return noShow;
-  }
+    public boolean isNoShow() {
+        return noShow;
+    }
 
-  public void setNoShow(boolean noShow) {
-    this.noShow = noShow;
-  }
+    public void setNoShow(boolean noShow) {
+        this.noShow = noShow;
+    }
 
-  public boolean isRetrialPermitted() {
-    return retrialPermitted;
-  }
+    public boolean isRetrialPermitted() {
+        return retrialPermitted;
+    }
 
-  public void setRetrialPermitted(boolean retrialPermitted) {
-    this.retrialPermitted = retrialPermitted;
-  }
+    public void setRetrialPermitted(boolean retrialPermitted) {
+        this.retrialPermitted = retrialPermitted;
+    }
 
-  public boolean isReminderSent() {
-    return reminderSent;
-  }
+    public boolean isReminderSent() {
+        return reminderSent;
+    }
 
-  public void setReminderSent(boolean reminderSent) {
-    this.reminderSent = reminderSent;
-  }
+    public void setReminderSent(boolean reminderSent) {
+        this.reminderSent = reminderSent;
+    }
 
-  public ExamMachine getMachine() {
-    return machine;
-  }
+    public ExamMachine getMachine() {
+        return machine;
+    }
 
-  public void setMachine(ExamMachine machine) {
-    this.machine = machine;
-  }
+    public void setMachine(ExamMachine machine) {
+        this.machine = machine;
+    }
 
-  public User getUser() {
-    return user;
-  }
+    public User getUser() {
+        return user;
+    }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-  public Set<ExamSection> getOptionalSections() {
-    return optionalSections;
-  }
+    public Set<ExamSection> getOptionalSections() {
+        return optionalSections;
+    }
 
-  public void setOptionalSections(Set<ExamSection> optionalSections) {
-    this.optionalSections = optionalSections;
-  }
+    public void setOptionalSections(Set<ExamSection> optionalSections) {
+        this.optionalSections = optionalSections;
+    }
 
-  public ExamEnrolment getEnrolment() {
-    return enrolment;
-  }
+    public ExamEnrolment getEnrolment() {
+        return enrolment;
+    }
 
-  public void setEnrolment(ExamEnrolment enrolment) {
-    this.enrolment = enrolment;
-  }
+    public void setEnrolment(ExamEnrolment enrolment) {
+        this.enrolment = enrolment;
+    }
 
-  public String getExternalRef() {
-    return externalRef;
-  }
+    public String getExternalRef() {
+        return externalRef;
+    }
 
-  public void setExternalRef(String externalRef) {
-    this.externalRef = externalRef;
-  }
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
+    }
 
-  public String getExternalUserRef() {
-    return externalUserRef;
-  }
+    public String getExternalUserRef() {
+        return externalUserRef;
+    }
 
-  public ExternalReservation getExternalReservation() {
-    return externalReservation;
-  }
+    public ExternalReservation getExternalReservation() {
+        return externalReservation;
+    }
 
-  public void setExternalReservation(ExternalReservation externalReservation) {
-    this.externalReservation = externalReservation;
-  }
+    public void setExternalReservation(ExternalReservation externalReservation) {
+        this.externalReservation = externalReservation;
+    }
 
-  public void setExternalUserRef(String externalUserRef) {
-    this.externalUserRef = externalUserRef;
-  }
+    public void setExternalUserRef(String externalUserRef) {
+        this.externalUserRef = externalUserRef;
+    }
 
-  @Transient
-  public Interval toInterval() {
-    return new Interval(startAt, endAt);
-  }
+    @Transient
+    public Interval toInterval() {
+        return new Interval(startAt, endAt);
+    }
 
-  @Override
-  public int compareTo(@Nonnull Reservation o) {
-    return startAt.compareTo(o.startAt);
-  }
+    @Override
+    public int compareTo(@Nonnull Reservation o) {
+        return startAt.compareTo(o.startAt);
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Reservation)) return false;
-    Reservation that = (Reservation) o;
-    return new EqualsBuilder().append(id, that.id).isEquals();
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Reservation)) return false;
+        Reservation that = (Reservation) o;
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
 
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(id).toHashCode();
-  }
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
+    }
 }

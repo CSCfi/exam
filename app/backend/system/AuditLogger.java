@@ -21,21 +21,23 @@ import play.Logger;
 import play.mvc.Http;
 
 class AuditLogger {
-  private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
+    private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
-  public static void log(Http.Request request, Session session) {
-    String method = request.method();
-    String userString = session == null
-      ? "user <NULL>"
-      : String.format("user #%d [%s]", session.getUserId(), session.getEmail());
-    String uri = request.uri();
-    StringBuilder logEntry = new StringBuilder(String.format("%s %s %s %s", DateTime.now(), userString, method, uri));
-    if (!method.equals("GET")) {
-      String body = request.body() == null || request.body().asJson() == null
-        ? null
-        : request.body().asJson().toString();
-      logEntry.append(String.format(" data: %s", body));
+    public static void log(Http.Request request, Session session) {
+        String method = request.method();
+        String userString = session == null
+            ? "user <NULL>"
+            : String.format("user #%d [%s]", session.getUserId(), session.getEmail());
+        String uri = request.uri();
+        StringBuilder logEntry = new StringBuilder(
+            String.format("%s %s %s %s", DateTime.now(), userString, method, uri)
+        );
+        if (!method.equals("GET")) {
+            String body = request.body() == null || request.body().asJson() == null
+                ? null
+                : request.body().asJson().toString();
+            logEntry.append(String.format(" data: %s", body));
+        }
+        logger.debug(logEntry.toString());
     }
-    logger.debug(logEntry.toString());
-  }
 }

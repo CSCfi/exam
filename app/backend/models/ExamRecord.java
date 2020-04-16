@@ -26,60 +26,60 @@ import javax.persistence.TemporalType;
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
-  @OneToOne
-  private User teacher;
+    @OneToOne
+    private User teacher;
 
-  @OneToOne
-  private User student;
+    @OneToOne
+    private User student;
 
-  @OneToOne
-  private Exam exam;
+    @OneToOne
+    private Exam exam;
 
-  @OneToOne
-  @JsonManagedReference
-  private ExamScore examScore;
+    @OneToOne
+    @JsonManagedReference
+    private ExamScore examScore;
 
-  // what timestamp is this? The moments teacher marked Exam as recorded
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timeStamp;
+    // what timestamp is this? The moments teacher marked Exam as recorded
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timeStamp;
 
-  public User getTeacher() {
-    return teacher;
-  }
+    public User getTeacher() {
+        return teacher;
+    }
 
-  public void setTeacher(User teacher) {
-    this.teacher = teacher;
-  }
+    public void setTeacher(User teacher) {
+        this.teacher = teacher;
+    }
 
-  public User getStudent() {
-    return student;
-  }
+    public User getStudent() {
+        return student;
+    }
 
-  public void setStudent(User student) {
-    this.student = student;
-  }
+    public void setStudent(User student) {
+        this.student = student;
+    }
 
-  public Exam getExam() {
-    return exam;
-  }
+    public Exam getExam() {
+        return exam;
+    }
 
-  public void setExam(Exam exam) {
-    this.exam = exam;
-  }
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
-  public ExamScore getExamScore() {
-    return examScore;
-  }
+    public ExamScore getExamScore() {
+        return examScore;
+    }
 
-  public void setExamScore(ExamScore examScore) {
-    this.examScore = examScore;
-  }
+    public void setExamScore(ExamScore examScore) {
+        this.examScore = examScore;
+    }
 
-  public Date getTimeStamp() {
-    return timeStamp;
-  }
+    public Date getTimeStamp() {
+        return timeStamp;
+    }
 
-  public void setTimeStamp(Date timeStamp) {
-    this.timeStamp = timeStamp;
-  }
+    public void setTimeStamp(Date timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 }

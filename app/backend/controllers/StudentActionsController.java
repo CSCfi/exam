@@ -53,300 +53,306 @@ import play.mvc.Result;
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption" })
 @Restrict({ @Group("STUDENT") })
 public class StudentActionsController extends CollaborationController {
-  private final boolean permCheckActive;
-  private final ExternalCourseHandler externalCourseHandler;
-  private final EnrolmentRepository enrolmentRepository;
+    private final boolean permCheckActive;
+    private final ExternalCourseHandler externalCourseHandler;
+    private final EnrolmentRepository enrolmentRepository;
 
-  @Inject
-  public StudentActionsController(
-    ExternalCourseHandler courseHandler,
-    EnrolmentRepository enrolmentRepository,
-    ConfigReader configReader
-  ) {
-    this.externalCourseHandler = courseHandler;
-    this.enrolmentRepository = enrolmentRepository;
-    this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
-  }
-
-  @Authenticated
-  public Result getExamFeedback(Long id, Http.Request request) {
-    Exam exam = Ebean
-      .find(Exam.class)
-      .fetch("creator", "firstName, lastName, email")
-      .fetch("course", "code, name, credits")
-      .fetch("grade")
-      .fetch("creditType", "id, type, deprecated")
-      .fetch("gradeScale")
-      .fetch("executionType")
-      .fetch("examFeedback")
-      .fetch("examFeedback.attachment")
-      .fetch("gradedByUser", "firstName, lastName")
-      .fetch("examInspections.user", "firstName, lastName")
-      .fetch("parent.examOwners", "firstName, lastName")
-      .fetch("languageInspection", "approved, finishedAt")
-      .fetch("languageInspection.statement")
-      .fetch("languageInspection.statement.attachment")
-      .where()
-      .eq("id", id)
-      .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
-      .disjunction()
-      .eq("state", Exam.State.REJECTED)
-      .eq("state", Exam.State.GRADED_LOGGED)
-      .eq("state", Exam.State.ARCHIVED)
-      .conjunction()
-      .eq("state", Exam.State.GRADED)
-      .isNotNull("autoEvaluationConfig")
-      .isNotNull("autoEvaluationNotified")
-      .endJunction()
-      .endJunction()
-      .findOne();
-    if (exam == null) {
-      return notFound("sitnet_error_exam_not_found");
-    }
-    return ok(exam);
-  }
-
-  @Authenticated
-  public Result getExamScore(Long eid, Http.Request request) {
-    Exam exam = Ebean
-      .find(Exam.class)
-      .fetch("examSections.sectionQuestions.question")
-      .where()
-      .eq("id", eid)
-      .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
-      .disjunction()
-      .eq("state", Exam.State.GRADED_LOGGED)
-      .eq("state", Exam.State.ARCHIVED)
-      .conjunction()
-      .eq("state", Exam.State.GRADED)
-      .isNotNull("autoEvaluationConfig")
-      .isNotNull("autoEvaluationNotified")
-      .endJunction()
-      .endJunction()
-      .findOne();
-    if (exam == null) {
-      return notFound("sitnet_error_exam_not_found");
-    }
-    exam.setMaxScore();
-    exam.setApprovedAnswerCount();
-    exam.setRejectedAnswerCount();
-    exam.setTotalScore();
-    PathProperties pp = PathProperties.parse("(*)");
-    return ok(exam, pp);
-  }
-
-  private Set<ExamEnrolment> getNoShows(User user, String filter) {
-    ExpressionList<ExamEnrolment> noShows = Ebean
-      .find(ExamEnrolment.class)
-      .fetch("exam", "id, state, name")
-      .fetch("exam.course", "code, name")
-      .fetch("exam.examOwners", "firstName, lastName, id")
-      .fetch("exam.examInspections.user", "firstName, lastName, id")
-      .fetch("reservation")
-      .where()
-      .eq("user", user)
-      .isNull("exam.parent")
-      .eq("reservation.noShow", true);
-    if (filter != null) {
-      String condition = String.format("%%%s%%", filter);
-      noShows =
-        noShows
-          .disjunction()
-          .ilike("exam.name", condition)
-          .ilike("exam.course.code", condition)
-          .ilike("exam.examOwners.firstName", condition)
-          .ilike("exam.examOwners.lastName", condition)
-          .ilike("exam.examInspections.user.firstName", condition)
-          .ilike("exam.examInspections.user.lastName", condition)
-          .endJunction();
-    }
-    return noShows.findSet();
-  }
-
-  @Authenticated
-  public Result getFinishedExams(Optional<String> filter, Http.Request request) {
-    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-    ExpressionList<ExamParticipation> query = Ebean
-      .find(ExamParticipation.class)
-      .select("ended")
-      .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
-      .fetch("exam.creator", "id")
-      .fetch("exam.course", "code, name")
-      .fetch("exam.parent.examOwners", "firstName, lastName, id")
-      .fetch("exam.examInspections.user", "firstName, lastName, id")
-      .where()
-      .isNotNull("exam.parent")
-      .ne("exam.state", Exam.State.STUDENT_STARTED)
-      .ne("exam.state", Exam.State.ABORTED)
-      .ne("exam.state", Exam.State.DELETED)
-      .eq("exam.creator", user);
-    if (filter.isPresent()) {
-      String condition = String.format("%%%s%%", filter.get());
-      query =
-        query
-          .disjunction()
-          .ilike("exam.name", condition)
-          .ilike("exam.course.code", condition)
-          .ilike("exam.parent.examOwners.firstName", condition)
-          .ilike("exam.parent.examOwners.lastName", condition)
-          .ilike("exam.examInspections.user.firstName", condition)
-          .ilike("exam.examInspections.user.lastName", condition)
-          .endJunction();
-    }
-    Set<ExamParticipation> participations = query.findSet();
-    Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
-    Set<Model> trials = new HashSet<>();
-    trials.addAll(participations);
-    trials.addAll(noShows);
-    return ok(trials);
-  }
-
-  @Authenticated
-  public CompletionStage<Result> getEnrolment(Long eid, Http.Request request) throws IOException {
-    ExamEnrolment enrolment = Ebean
-      .find(ExamEnrolment.class)
-      .fetch("exam")
-      .fetch("externalExam")
-      .fetch("collaborativeExam")
-      .fetch("exam.course", "name, code")
-      .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
-      .fetch("exam.examInspections", new FetchConfig().query())
-      .fetch("exam.examInspections.user", "firstName, lastName")
-      .fetch("user", "id")
-      .fetch("reservation", "startAt, endAt")
-      .fetch("reservation.machine", "name")
-      .fetch(
-        "reservation.machine.room",
-        "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV"
-      )
-      .fetch("examinationEventConfiguration")
-      .fetch("examinationEventConfiguration.examinationEvent")
-      .where()
-      .idEq(eid)
-      .eq("user", request.attrs().get(Attrs.AUTHENTICATED_USER))
-      .findOne();
-    if (enrolment == null) {
-      return wrapAsPromise(notFound());
-    }
-    PathProperties pp = PathProperties.parse(
-      "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
-      "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
-      "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
-      "examinationEventConfiguration(examinationEvent(*)))"
-    );
-    if (enrolment.getCollaborativeExam() != null) {
-      // Collaborative exam, we need to download
-      return downloadExam(enrolment.getCollaborativeExam())
-        .thenComposeAsync(
-          result -> {
-            if (result.isPresent()) {
-              // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
-              // Works in this particular use case
-              Exam exam = result.get();
-              enrolment.setExam(exam);
-              return wrapAsPromise(ok(enrolment, pp));
-            } else {
-              return wrapAsPromise(notFound());
-            }
-          }
-        );
-    }
-    if (enrolment.getExternalExam() == null) {
-      return wrapAsPromise(ok(enrolment, pp));
-    } else {
-      // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
-      // Works in this particular use case
-      Exam exam = enrolment.getExternalExam().deserialize();
-      enrolment.setExternalExam(null);
-      enrolment.setExam(exam);
-      return wrapAsPromise(ok(enrolment, pp));
-    }
-  }
-
-  @Authenticated
-  public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
-    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-    return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok);
-  }
-
-  @Authenticated
-  public Result getExamInfo(Long eid, Http.Request request) {
-    Exam exam = Ebean
-      .find(Exam.class)
-      .fetch("course", "code, name")
-      .fetch("examSections")
-      .fetch("examSections.examMaterials")
-      .where()
-      .idEq(eid)
-      .eq("state", Exam.State.PUBLISHED)
-      .eq("examEnrolments.user", request.attrs().get(Attrs.AUTHENTICATED_USER))
-      .findOne();
-    if (exam == null) {
-      return notFound("sitnet_error_exam_not_found");
+    @Inject
+    public StudentActionsController(
+        ExternalCourseHandler courseHandler,
+        EnrolmentRepository enrolmentRepository,
+        ConfigReader configReader
+    ) {
+        this.externalCourseHandler = courseHandler;
+        this.enrolmentRepository = enrolmentRepository;
+        this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
     }
 
-    return ok(exam);
-  }
-
-  @Authenticated
-  public CompletionStage<Result> listAvailableExams(final Optional<String> filter, Http.Request request)
-    throws IOException {
-    if (!permCheckActive) {
-      return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
-    }
-    return externalCourseHandler
-      .getPermittedCourses(request.attrs().get(Attrs.AUTHENTICATED_USER))
-      .thenApplyAsync(
-        codes -> {
-          if (codes.isEmpty()) {
-            return ok(Json.toJson(Collections.<Exam>emptyList()));
-          } else {
-            return listExams(filter.orElse(null), codes);
-          }
+    @Authenticated
+    public Result getExamFeedback(Long id, Http.Request request) {
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("creator", "firstName, lastName, email")
+            .fetch("course", "code, name, credits")
+            .fetch("grade")
+            .fetch("creditType", "id, type, deprecated")
+            .fetch("gradeScale")
+            .fetch("executionType")
+            .fetch("examFeedback")
+            .fetch("examFeedback.attachment")
+            .fetch("gradedByUser", "firstName, lastName")
+            .fetch("examInspections.user", "firstName, lastName")
+            .fetch("parent.examOwners", "firstName, lastName")
+            .fetch("languageInspection", "approved, finishedAt")
+            .fetch("languageInspection.statement")
+            .fetch("languageInspection.statement.attachment")
+            .where()
+            .eq("id", id)
+            .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .disjunction()
+            .eq("state", Exam.State.REJECTED)
+            .eq("state", Exam.State.GRADED_LOGGED)
+            .eq("state", Exam.State.ARCHIVED)
+            .conjunction()
+            .eq("state", Exam.State.GRADED)
+            .isNotNull("autoEvaluationConfig")
+            .isNotNull("autoEvaluationNotified")
+            .endJunction()
+            .endJunction()
+            .findOne();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
         }
-      )
-      .exceptionally(throwable -> internalServerError(throwable.getMessage()));
-  }
+        return ok(exam);
+    }
 
-  private Result listExams(String filter, Collection<String> courseCodes) {
-    ExpressionList<Exam> query = Ebean
-      .find(Exam.class)
-      .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth")
-      .fetch("course", "code, name")
-      .fetch("examOwners", "firstName, lastName")
-      .fetch("examInspections.user", "firstName, lastName")
-      .fetch("examLanguages", "code, name", new FetchConfig().query())
-      .fetch("creator", "firstName, lastName")
-      .fetch("examinationEventConfigurations.examinationEvent")
-      .where()
-      .eq("state", Exam.State.PUBLISHED)
-      .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-      .gt("examActiveEndDate", DateTime.now().toDate());
-    if (!courseCodes.isEmpty()) {
-      query.in("course.code", courseCodes);
+    @Authenticated
+    public Result getExamScore(Long eid, Http.Request request) {
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("examSections.sectionQuestions.question")
+            .where()
+            .eq("id", eid)
+            .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .disjunction()
+            .eq("state", Exam.State.GRADED_LOGGED)
+            .eq("state", Exam.State.ARCHIVED)
+            .conjunction()
+            .eq("state", Exam.State.GRADED)
+            .isNotNull("autoEvaluationConfig")
+            .isNotNull("autoEvaluationNotified")
+            .endJunction()
+            .endJunction()
+            .findOne();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        exam.setMaxScore();
+        exam.setApprovedAnswerCount();
+        exam.setRejectedAnswerCount();
+        exam.setTotalScore();
+        PathProperties pp = PathProperties.parse("(*)");
+        return ok(exam, pp);
     }
-    if (filter != null) {
-      String condition = String.format("%%%s%%", filter);
-      query = query.disjunction();
-      applyUserFilter("examOwners", query, filter);
-      applyUserFilter("examInspections.user", query, filter);
-      query =
-        query.ilike("name", condition).ilike("course.code", condition).ilike("course.name", condition).endJunction();
+
+    private Set<ExamEnrolment> getNoShows(User user, String filter) {
+        ExpressionList<ExamEnrolment> noShows = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("exam", "id, state, name")
+            .fetch("exam.course", "code, name")
+            .fetch("exam.examOwners", "firstName, lastName, id")
+            .fetch("exam.examInspections.user", "firstName, lastName, id")
+            .fetch("reservation")
+            .where()
+            .eq("user", user)
+            .isNull("exam.parent")
+            .eq("reservation.noShow", true);
+        if (filter != null) {
+            String condition = String.format("%%%s%%", filter);
+            noShows =
+                noShows
+                    .disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.examOwners.firstName", condition)
+                    .ilike("exam.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
+        }
+        return noShows.findSet();
     }
-    List<Exam> exams = query
-      .orderBy("course.code")
-      .findList()
-      .stream()
-      .filter(
-        e ->
-          !e.getRequiresUserAgentAuth() ||
-          e
-            .getExaminationEventConfigurations()
+
+    @Authenticated
+    public Result getFinishedExams(Optional<String> filter, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        ExpressionList<ExamParticipation> query = Ebean
+            .find(ExamParticipation.class)
+            .select("ended")
+            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
+            .fetch("exam.creator", "id")
+            .fetch("exam.course", "code, name")
+            .fetch("exam.parent.examOwners", "firstName, lastName, id")
+            .fetch("exam.examInspections.user", "firstName, lastName, id")
+            .where()
+            .isNotNull("exam.parent")
+            .ne("exam.state", Exam.State.STUDENT_STARTED)
+            .ne("exam.state", Exam.State.ABORTED)
+            .ne("exam.state", Exam.State.DELETED)
+            .eq("exam.creator", user);
+        if (filter.isPresent()) {
+            String condition = String.format("%%%s%%", filter.get());
+            query =
+                query
+                    .disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.parent.examOwners.firstName", condition)
+                    .ilike("exam.parent.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
+        }
+        Set<ExamParticipation> participations = query.findSet();
+        Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
+        Set<Model> trials = new HashSet<>();
+        trials.addAll(participations);
+        trials.addAll(noShows);
+        return ok(trials);
+    }
+
+    @Authenticated
+    public CompletionStage<Result> getEnrolment(Long eid, Http.Request request) throws IOException {
+        ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("exam")
+            .fetch("externalExam")
+            .fetch("collaborativeExam")
+            .fetch("exam.course", "name, code")
+            .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
+            .fetch("exam.examInspections", new FetchConfig().query())
+            .fetch("exam.examInspections.user", "firstName, lastName")
+            .fetch("user", "id")
+            .fetch("reservation", "startAt, endAt")
+            .fetch("reservation.machine", "name")
+            .fetch(
+                "reservation.machine.room",
+                "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV"
+            )
+            .fetch("examinationEventConfiguration")
+            .fetch("examinationEventConfiguration.examinationEvent")
+            .where()
+            .idEq(eid)
+            .eq("user", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .findOne();
+        if (enrolment == null) {
+            return wrapAsPromise(notFound());
+        }
+        PathProperties pp = PathProperties.parse(
+            "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
+            "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
+            "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
+            "examinationEventConfiguration(examinationEvent(*)))"
+        );
+        if (enrolment.getCollaborativeExam() != null) {
+            // Collaborative exam, we need to download
+            return downloadExam(enrolment.getCollaborativeExam())
+                .thenComposeAsync(
+                    result -> {
+                        if (result.isPresent()) {
+                            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                            // Works in this particular use case
+                            Exam exam = result.get();
+                            enrolment.setExam(exam);
+                            return wrapAsPromise(ok(enrolment, pp));
+                        } else {
+                            return wrapAsPromise(notFound());
+                        }
+                    }
+                );
+        }
+        if (enrolment.getExternalExam() == null) {
+            return wrapAsPromise(ok(enrolment, pp));
+        } else {
+            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // Works in this particular use case
+            Exam exam = enrolment.getExternalExam().deserialize();
+            enrolment.setExternalExam(null);
+            enrolment.setExam(exam);
+            return wrapAsPromise(ok(enrolment, pp));
+        }
+    }
+
+    @Authenticated
+    public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok);
+    }
+
+    @Authenticated
+    public Result getExamInfo(Long eid, Http.Request request) {
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("course", "code, name")
+            .fetch("examSections")
+            .fetch("examSections.examMaterials")
+            .where()
+            .idEq(eid)
+            .eq("state", Exam.State.PUBLISHED)
+            .eq("examEnrolments.user", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .findOne();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+
+        return ok(exam);
+    }
+
+    @Authenticated
+    public CompletionStage<Result> listAvailableExams(final Optional<String> filter, Http.Request request)
+        throws IOException {
+        if (!permCheckActive) {
+            return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
+        }
+        return externalCourseHandler
+            .getPermittedCourses(request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .thenApplyAsync(
+                codes -> {
+                    if (codes.isEmpty()) {
+                        return ok(Json.toJson(Collections.<Exam>emptyList()));
+                    } else {
+                        return listExams(filter.orElse(null), codes);
+                    }
+                }
+            )
+            .exceptionally(throwable -> internalServerError(throwable.getMessage()));
+    }
+
+    private Result listExams(String filter, Collection<String> courseCodes) {
+        ExpressionList<Exam> query = Ebean
+            .find(Exam.class)
+            .select(
+                "id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth"
+            )
+            .fetch("course", "code, name")
+            .fetch("examOwners", "firstName, lastName")
+            .fetch("examInspections.user", "firstName, lastName")
+            .fetch("examLanguages", "code, name", new FetchConfig().query())
+            .fetch("creator", "firstName, lastName")
+            .fetch("examinationEventConfigurations.examinationEvent")
+            .where()
+            .eq("state", Exam.State.PUBLISHED)
+            .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
+            .gt("examActiveEndDate", DateTime.now().toDate());
+        if (!courseCodes.isEmpty()) {
+            query.in("course.code", courseCodes);
+        }
+        if (filter != null) {
+            String condition = String.format("%%%s%%", filter);
+            query = query.disjunction();
+            applyUserFilter("examOwners", query, filter);
+            applyUserFilter("examInspections.user", query, filter);
+            query =
+                query
+                    .ilike("name", condition)
+                    .ilike("course.code", condition)
+                    .ilike("course.name", condition)
+                    .endJunction();
+        }
+        List<Exam> exams = query
+            .orderBy("course.code")
+            .findList()
             .stream()
-            .map(ExaminationEventConfiguration::getExaminationEvent)
-            .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
-      )
-      .collect(Collectors.toList());
-    return ok(exams);
-  }
+            .filter(
+                e ->
+                    !e.getRequiresUserAgentAuth() ||
+                    e
+                        .getExaminationEventConfigurations()
+                        .stream()
+                        .map(ExaminationEventConfiguration::getExaminationEvent)
+                        .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
+            )
+            .collect(Collectors.toList());
+        return ok(exams);
+    }
 }

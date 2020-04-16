@@ -33,42 +33,42 @@ import play.mvc.Results;
 
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
-  private SessionHandler sessionHandler;
+    private SessionHandler sessionHandler;
 
-  @Inject
-  AuthorizationHandler(final SessionHandler sessionHandler) {
-    this.sessionHandler = sessionHandler;
-  }
-
-  @Override
-  public long getId() {
-    return 0;
-  }
-
-  @Override
-  public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
-    return CompletableFuture.completedFuture(Optional.empty());
-  }
-
-  @Override
-  public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
-    Optional<Session> os = sessionHandler.getSession(request);
-    if (os.isPresent()) {
-      User user = new User();
-      Session session = os.get();
-      user.setRoles(List.of(Role.withName(session.getLoginRole())));
-      return CompletableFuture.completedFuture(Optional.of(user));
+    @Inject
+    AuthorizationHandler(final SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
-    return CompletableFuture.completedFuture(Optional.empty());
-  }
 
-  @Override
-  public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
-    return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
-  }
+    @Override
+    public long getId() {
+        return 0;
+    }
 
-  @Override
-  public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
-    return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
-  }
+    @Override
+    public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
+        return CompletableFuture.completedFuture(Optional.empty());
+    }
+
+    @Override
+    public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
+        Optional<Session> os = sessionHandler.getSession(request);
+        if (os.isPresent()) {
+            User user = new User();
+            Session session = os.get();
+            user.setRoles(List.of(Role.withName(session.getLoginRole())));
+            return CompletableFuture.completedFuture(Optional.of(user));
+        }
+        return CompletableFuture.completedFuture(Optional.empty());
+    }
+
+    @Override
+    public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
+        return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
+    }
+
+    @Override
+    public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
+        return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
+    }
 }

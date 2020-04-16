@@ -43,205 +43,205 @@ import org.springframework.beans.BeanUtils;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
-  private String name;
+    private String name;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSection")
-  @JsonManagedReference
-  private Set<ExamSectionQuestion> sectionQuestions;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSection")
+    @JsonManagedReference
+    private Set<ExamSectionQuestion> sectionQuestions;
 
-  @ManyToOne
-  @JsonBackReference
-  private Exam exam;
+    @ManyToOne
+    @JsonBackReference
+    private Exam exam;
 
-  private Integer sequenceNumber;
+    private Integer sequenceNumber;
 
-  @Column(columnDefinition = "boolean default false")
-  private boolean expanded;
+    @Column(columnDefinition = "boolean default false")
+    private boolean expanded;
 
-  @Column(columnDefinition = "boolean default false")
-  private boolean lotteryOn;
+    @Column(columnDefinition = "boolean default false")
+    private boolean lotteryOn;
 
-  @Column(columnDefinition = "boolean default false")
-  private boolean optional;
+    @Column(columnDefinition = "boolean default false")
+    private boolean optional;
 
-  private int lotteryItemCount;
+    private int lotteryItemCount;
 
-  private String description;
+    private String description;
 
-  @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(
-    name = "exam_section_material",
-    joinColumns = @JoinColumn(name = "exam_section_id"),
-    inverseJoinColumns = @JoinColumn(name = "exam_material_id")
-  )
-  private Set<ExamMaterial> examMaterials;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "exam_section_material",
+        joinColumns = @JoinColumn(name = "exam_section_id"),
+        inverseJoinColumns = @JoinColumn(name = "exam_material_id")
+    )
+    private Set<ExamMaterial> examMaterials;
 
-  public Set<ExamSectionQuestion> getSectionQuestions() {
-    return sectionQuestions;
-  }
-
-  public void setSectionQuestions(Set<ExamSectionQuestion> sectionQuestions) {
-    this.sectionQuestions = sectionQuestions;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Exam getExam() {
-    return exam;
-  }
-
-  public void setExam(Exam exam) {
-    this.exam = exam;
-  }
-
-  public Integer getSequenceNumber() {
-    return sequenceNumber;
-  }
-
-  public void setSequenceNumber(Integer sequenceNumber) {
-    this.sequenceNumber = sequenceNumber;
-  }
-
-  public boolean isExpanded() {
-    return expanded;
-  }
-
-  public void setExpanded(boolean expanded) {
-    this.expanded = expanded;
-  }
-
-  public boolean isLotteryOn() {
-    return lotteryOn;
-  }
-
-  public void setLotteryOn(boolean lotteryOn) {
-    this.lotteryOn = lotteryOn;
-  }
-
-  public boolean isOptional() {
-    return optional;
-  }
-
-  public void setOptional(boolean optional) {
-    this.optional = optional;
-  }
-
-  public int getLotteryItemCount() {
-    return lotteryItemCount;
-  }
-
-  public void setLotteryItemCount(int lotteryItemCount) {
-    this.lotteryItemCount = lotteryItemCount;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Set<ExamMaterial> getExamMaterials() {
-    return examMaterials;
-  }
-
-  public void setExamMaterials(Set<ExamMaterial> examMaterials) {
-    this.examMaterials = examMaterials;
-  }
-
-  public void shuffleQuestions() {
-    List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
-    Collections.shuffle(questions);
-    sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
-  }
-
-  public ExamSection copyWithAnswers(Exam exam) {
-    ExamSection section = new ExamSection();
-    BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
-    section.setExam(exam);
-    for (ExamSectionQuestion esq : sectionQuestions) {
-      section.getSectionQuestions().add(esq.copyWithAnswers());
+    public Set<ExamSectionQuestion> getSectionQuestions() {
+        return sectionQuestions;
     }
-    return section;
-  }
 
-  public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user) {
-    ExamSection section = new ExamSection();
-    BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
-    section.setExam(exam);
-    for (ExamSectionQuestion esq : sectionQuestions) {
-      ExamSectionQuestion esqCopy = esq.copy(!produceStudentExamSection, setParents);
-      AppUtil.setCreator(esqCopy, user);
-      AppUtil.setModifier(esqCopy, user);
-      section.getSectionQuestions().add(esqCopy);
+    public void setSectionQuestions(Set<ExamSectionQuestion> sectionQuestions) {
+        this.sectionQuestions = sectionQuestions;
     }
-    if (produceStudentExamSection) {
-      for (ExamMaterial em : examMaterials) {
-        ExamMaterial emCopy = em.copy(user);
-        emCopy.save();
-        section.getExamMaterials().add(emCopy);
-      }
-    } else {
-      section.setExamMaterials(examMaterials);
+
+    public String getName() {
+        return name;
     }
-    if (produceStudentExamSection && lotteryOn) {
-      section.shuffleQuestions();
+
+    public void setName(String name) {
+        this.name = name;
     }
-    return section;
-  }
 
-  @Transient
-  public double getTotalScore() {
-    return sectionQuestions
-      .stream()
-      .map(ExamSectionQuestion::getAssessedScore)
-      .filter(Objects::nonNull)
-      .reduce(0.0, (sum, x) -> sum += x);
-  }
+    public Exam getExam() {
+        return exam;
+    }
 
-  @Transient
-  public double getMaxScore() {
-    return sectionQuestions
-      .stream()
-      .map(ExamSectionQuestion::getMaxAssessedScore)
-      .filter(Objects::nonNull)
-      .reduce(0.0, (sum, x) -> sum += x);
-  }
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
-  @Transient
-  public int getRejectedCount() {
-    return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isRejected).count();
-  }
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
+    }
 
-  @Transient
-  public int getApprovedCount() {
-    return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isApproved).count();
-  }
+    public void setSequenceNumber(Integer sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
+    }
 
-  @Transient
-  public boolean hasQuestion(Question question) {
-    return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
-  }
+    public boolean isExpanded() {
+        return expanded;
+    }
 
-  @Override
-  public int compareTo(@Nonnull ExamSection o) {
-    return sequenceNumber - o.sequenceNumber;
-  }
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
 
-  @Override
-  public Integer getOrdinal() {
-    return sequenceNumber;
-  }
+    public boolean isLotteryOn() {
+        return lotteryOn;
+    }
 
-  @Override
-  public void setOrdinal(Integer ordinal) {
-    sequenceNumber = ordinal;
-  }
+    public void setLotteryOn(boolean lotteryOn) {
+        this.lotteryOn = lotteryOn;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
+    public int getLotteryItemCount() {
+        return lotteryItemCount;
+    }
+
+    public void setLotteryItemCount(int lotteryItemCount) {
+        this.lotteryItemCount = lotteryItemCount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<ExamMaterial> getExamMaterials() {
+        return examMaterials;
+    }
+
+    public void setExamMaterials(Set<ExamMaterial> examMaterials) {
+        this.examMaterials = examMaterials;
+    }
+
+    public void shuffleQuestions() {
+        List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
+        Collections.shuffle(questions);
+        sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
+    }
+
+    public ExamSection copyWithAnswers(Exam exam) {
+        ExamSection section = new ExamSection();
+        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
+        section.setExam(exam);
+        for (ExamSectionQuestion esq : sectionQuestions) {
+            section.getSectionQuestions().add(esq.copyWithAnswers());
+        }
+        return section;
+    }
+
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user) {
+        ExamSection section = new ExamSection();
+        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
+        section.setExam(exam);
+        for (ExamSectionQuestion esq : sectionQuestions) {
+            ExamSectionQuestion esqCopy = esq.copy(!produceStudentExamSection, setParents);
+            AppUtil.setCreator(esqCopy, user);
+            AppUtil.setModifier(esqCopy, user);
+            section.getSectionQuestions().add(esqCopy);
+        }
+        if (produceStudentExamSection) {
+            for (ExamMaterial em : examMaterials) {
+                ExamMaterial emCopy = em.copy(user);
+                emCopy.save();
+                section.getExamMaterials().add(emCopy);
+            }
+        } else {
+            section.setExamMaterials(examMaterials);
+        }
+        if (produceStudentExamSection && lotteryOn) {
+            section.shuffleQuestions();
+        }
+        return section;
+    }
+
+    @Transient
+    public double getTotalScore() {
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getAssessedScore)
+            .filter(Objects::nonNull)
+            .reduce(0.0, (sum, x) -> sum += x);
+    }
+
+    @Transient
+    public double getMaxScore() {
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getMaxAssessedScore)
+            .filter(Objects::nonNull)
+            .reduce(0.0, (sum, x) -> sum += x);
+    }
+
+    @Transient
+    public int getRejectedCount() {
+        return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isRejected).count();
+    }
+
+    @Transient
+    public int getApprovedCount() {
+        return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isApproved).count();
+    }
+
+    @Transient
+    public boolean hasQuestion(Question question) {
+        return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
+    }
+
+    @Override
+    public int compareTo(@Nonnull ExamSection o) {
+        return sequenceNumber - o.sequenceNumber;
+    }
+
+    @Override
+    public Integer getOrdinal() {
+        return sequenceNumber;
+    }
+
+    @Override
+    public void setOrdinal(Integer ordinal) {
+        sequenceNumber = ordinal;
+    }
 }
