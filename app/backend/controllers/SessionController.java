@@ -181,12 +181,12 @@ public class SessionController extends BaseController {
         if (reservation != null) {
             try {
                 return handleExternalReservation(user, reservation)
-                    .thenApplyAsync(r -> createSession(user, true, request));
+                    .thenComposeAsync(r -> createSession(user, true, request));
             } catch (MalformedURLException e) {
                 return wrapAsPromise(internalServerError());
             }
         } else {
-            return wrapAsPromise(createSession(user, false, request));
+            return createSession(user, false, request);
         }
     }
 
@@ -363,7 +363,7 @@ public class SessionController extends BaseController {
         return user;
     }
 
-    private Result createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
+    private CompletionStage<Result> createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
@@ -392,7 +392,7 @@ public class SessionController extends BaseController {
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         result.put("email", user.getEmail());
-        return ok(result);
+        return checkStudentSession(request, session, ok(result));
     }
 
     // prints HAKA attributes, used for debugging
@@ -445,26 +445,26 @@ public class SessionController extends BaseController {
     }
 
     @SubjectPresent
-    public Result setLoginRole(Long uid, String roleName, Http.Request request) {
+    public CompletionStage<Result> setLoginRole(Long uid, String roleName, Http.Request request) {
         Optional<Session> os = getSession(request);
         if (os.isEmpty()) {
-            return unauthorized();
+            return wrapAsPromise(unauthorized());
         }
         User user = Ebean.find(User.class, uid);
         if (user == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
         if (role == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         if (!user.getRoles().contains(role)) {
-            return forbidden();
+            return wrapAsPromise(forbidden());
         }
         Session session = os.get();
         session.setLoginRole(roleName);
         updateSession(session, request);
-        return ok();
+        return checkStudentSession(request, session, ok());
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
@@ -499,22 +499,27 @@ public class SessionController extends BaseController {
         }
         String reason = alarmTime.isBeforeNow() ? "alarm" : "";
         // check for upcoming student reservations
+        return checkStudentSession(request, session, ok(reason));
+    }
+
+    private CompletionStage<Result> checkStudentSession(Http.Request request, Session session, Result result) {
         if (isStudent(session)) {
             return enrolmentRepository
                 .getReservationHeaders(request, session)
                 .thenApplyAsync(
                     headers -> {
+                        String[] args = headers
+                            .entrySet()
+                            .stream()
+                            .flatMap(e -> List.of(e.getKey(), e.getValue()).stream())
+                            .toArray(String[]::new);
                         updateStudentHeaders(session, headers);
-                        Result result = ok(reason);
-                        for (Map.Entry<String, String> entry : headers.entrySet()) {
-                            result = result.withHeader(entry.getKey(), entry.getValue());
-                        }
-                        return result;
+                        return result.withHeaders(args);
                     },
                     ec.current()
                 );
         } else {
-            return wrapAsPromise(ok(reason));
+            return wrapAsPromise(result);
         }
     }
 
