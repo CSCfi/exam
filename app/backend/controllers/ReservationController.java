@@ -15,33 +15,6 @@
 
 package backend.controllers;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.FetchConfig;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import play.data.DynamicForm;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalReservationHandler;
@@ -60,10 +33,33 @@ import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
 import backend.util.datetime.DateTimeUtils;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import play.data.DynamicForm;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class ReservationController extends BaseController {
-
     @Inject
     protected EmailComposer emailComposer;
 
@@ -74,17 +70,20 @@ public class ReservationController extends BaseController {
     protected ExternalReservationHandler externalReservationHandler;
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExams(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties props = PathProperties.parse("(id, name)");
         Query<Exam> q = Ebean.createQuery(Exam.class);
         props.apply(q);
-        ExpressionList<Exam> el = q.where()
-                .isNull("parent") // only Exam prototypes
-                .eq("state", Exam.State.PUBLISHED);
+        ExpressionList<Exam> el = q
+            .where()
+            .isNull("parent") // only Exam prototypes
+            .eq("state", Exam.State.PUBLISHED);
         if (user.hasRole(Role.Name.TEACHER)) {
-            el = el.gt("examActiveEndDate", new Date())
+            el =
+                el
+                    .gt("examActiveEndDate", new Date())
                     .disjunction()
                     .eq("creator", user)
                     .eq("examOwners", user)
@@ -95,10 +94,9 @@ public class ReservationController extends BaseController {
         return ok(el.findList(), props);
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result getExamRooms() {
-        List<ExamRoom> examRooms = Ebean.find(ExamRoom.class)
-                .select("id, name").fetch("examMachines", "id").findList();
+        List<ExamRoom> examRooms = Ebean.find(ExamRoom.class).select("id, name").fetch("examMachines", "id").findList();
         return ok(examRooms);
     }
 
@@ -120,28 +118,20 @@ public class ReservationController extends BaseController {
         return array;
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getStudents() {
-
-        List<User> students = Ebean.find(User.class)
-                .where()
-                .eq("roles.name", "STUDENT")
-                .findList();
+        List<User> students = Ebean.find(User.class).where().eq("roles.name", "STUDENT").findList();
         return ok(Json.toJson(asJson(students)));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result getTeachers() {
-
-        List<User> teachers = Ebean.find(User.class)
-                .where()
-                .eq("roles.name", "TEACHER")
-                .findList();
+        List<User> teachers = Ebean.find(User.class).where().eq("roles.name", "TEACHER").findList();
 
         return ok(Json.toJson(asJson(teachers)));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result permitRetrial(Long id) {
         Reservation reservation = Ebean.find(Reservation.class, id);
         if (reservation == null) {
@@ -152,29 +142,26 @@ public class ReservationController extends BaseController {
         return ok();
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public CompletionStage<Result> removeReservation(long id, Http.Request request) throws NotFoundException {
-
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String msg = df.get("msg");
 
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .where()
-                .eq("reservation.id", id)
-                .findOne();
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", id).findOne();
 
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
 
-        ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .where()
-                .eq("exam", enrolment.getExam())
-                .findOne();
+        ExamParticipation participation = Ebean
+            .find(ExamParticipation.class)
+            .where()
+            .eq("exam", enrolment.getExam())
+            .findOne();
 
         if (participation != null) {
             return wrapAsPromise(
-                    forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()))
+                forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()))
             );
         }
 
@@ -195,7 +182,7 @@ public class ReservationController extends BaseController {
         }
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result findAvailableMachines(Long reservationId) throws ExecutionException, InterruptedException {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
         if (reservation == null) {
@@ -205,11 +192,12 @@ public class ReservationController extends BaseController {
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
         props.apply(query);
 
-        List<ExamMachine> candidates = query.where()
-                .eq("room", reservation.getMachine().getRoom())
-                .ne("outOfService", true)
-                .ne("archived", true)
-                .findList();
+        List<ExamMachine> candidates = query
+            .where()
+            .eq("room", reservation.getMachine().getRoom())
+            .ne("outOfService", true)
+            .ne("archived", true)
+            .findList();
 
         final Exam exam = getReservationExam(reservation);
         Iterator<ExamMachine> it = candidates.listIterator();
@@ -225,8 +213,9 @@ public class ReservationController extends BaseController {
         return ok(candidates, props);
     }
 
-    @Restrict({@Group("ADMIN")})
-    public Result updateMachine(Long reservationId, Http.Request request) throws ExecutionException, InterruptedException {
+    @Restrict({ @Group("ADMIN") })
+    public Result updateMachine(Long reservationId, Http.Request request)
+        throws ExecutionException, InterruptedException {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
 
         if (reservation == null) {
@@ -246,46 +235,64 @@ public class ReservationController extends BaseController {
             return forbidden("Not allowed to change to use a machine from a different room");
         }
         Exam exam = getReservationExam(reservation);
-        if (!machine.hasRequiredSoftware(exam) ||
-                machine.isReservedDuring(reservation.toInterval())) {
+        if (!machine.hasRequiredSoftware(exam) || machine.isReservedDuring(reservation.toInterval())) {
             return forbidden("Machine not eligible for choosing");
         }
         reservation.setMachine(machine);
         reservation.update();
-        emailComposer.composeReservationChangeNotification(reservation.getUser(), previous, machine, reservation.getEnrolment());
+        emailComposer.composeReservationChangeNotification(
+            reservation.getUser(),
+            previous,
+            machine,
+            reservation.getEnrolment()
+        );
         return ok(machine, props);
     }
 
     private Exam getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
-        return reservation.getEnrolment().getExam() != null ? reservation.getEnrolment().getExam()
-                : collaborativeExamLoader.downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                .toCompletableFuture().get().orElse(null);
+        return reservation.getEnrolment().getExam() != null
+            ? reservation.getEnrolment().getExam()
+            : collaborativeExamLoader
+                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                .toCompletableFuture()
+                .get()
+                .orElse(null);
     }
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    @Anonymous(filteredProperties = {"user", "externalUserRef"})
-    public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
-                                  Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
-                                  Optional<String> start, Optional<String> end, Optional<String> externalRef,
-                                  Http.Request request) {
-        ExpressionList<Reservation> query = Ebean.find(Reservation.class)
-                .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("enrolment.exam", "id, name, state, trialCount")
-                .fetch("enrolment.externalExam", "id, externalRef, finished")
-                .fetch("enrolment.exam.course", "code")
-                .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
-                .fetch("enrolment.collaborativeExam", "*")
-                .fetch("externalReservation")
-                .fetch("machine", "id, name, ipAddress, otherIdentifier")
-                .fetch("machine.room", "id, name, roomCode")
-                .where();
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Anonymous(filteredProperties = { "user", "externalUserRef" })
+    public Result getReservations(
+        Optional<String> state,
+        Optional<Long> ownerId,
+        Optional<Long> studentId,
+        Optional<Long> roomId,
+        Optional<Long> machineId,
+        Optional<Long> examId,
+        Optional<String> start,
+        Optional<String> end,
+        Optional<String> externalRef,
+        Http.Request request
+    ) {
+        ExpressionList<Reservation> query = Ebean
+            .find(Reservation.class)
+            .fetch("user", "id, firstName, lastName, email, userIdentifier")
+            .fetch("enrolment.exam", "id, name, state, trialCount")
+            .fetch("enrolment.externalExam", "id, externalRef, finished")
+            .fetch("enrolment.exam.course", "code")
+            .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
+            .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
+            .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+            .fetch("enrolment.collaborativeExam", "*")
+            .fetch("externalReservation")
+            .fetch("machine", "id, name, ipAddress, otherIdentifier")
+            .fetch("machine.room", "id, name, roomCode")
+            .where();
 
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
-            query = query
+            query =
+                query
                     .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
                     .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
                     .disjunction()
@@ -296,13 +303,15 @@ public class ReservationController extends BaseController {
 
         if (start.isPresent()) {
             DateTime startDate = DateTimeUtils.withTimeAtStartOfDayConsideringTz(
-                    DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
+                DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser())
+            );
             query = query.ge("startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
             DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
-                    DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
+                DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser())
+            );
             query = query.lt("endAt", endDate.toDate());
         }
 
@@ -330,10 +339,11 @@ public class ReservationController extends BaseController {
             query = query.eq("user.id", studentId.get());
             // Hide reservations for anonymous exams.
             if (user.hasRole(Role.Name.TEACHER)) {
-                query.or()
-                        .eq("enrolment.exam.anonymous", false)
-                        .eq("enrolment.collaborativeExam.anonymous", false)
-                        .endOr();
+                query
+                    .or()
+                    .eq("enrolment.exam.anonymous", false)
+                    .eq("enrolment.collaborativeExam.anonymous", false)
+                    .endOr();
             }
         }
         if (roomId.isPresent()) {
@@ -343,7 +353,8 @@ public class ReservationController extends BaseController {
             query = query.eq("machine.id", machineId.get());
         }
         if (examId.isPresent()) {
-            query = query
+            query =
+                query
                     .disjunction()
                     .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
                     .isNotNull("externalUserRef") // External student reservation
@@ -353,13 +364,16 @@ public class ReservationController extends BaseController {
                     .eq("enrolment.exam.id", examId.get())
                     .endJunction();
         } else if (externalRef.isPresent()) {
-            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get())
+            query =
+                query
+                    .eq("enrolment.collaborativeExam.externalRef", externalRef.get())
                     .ne("enrolment.collaborativeExam.state", Exam.State.DELETED);
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
             Long userId = ownerId.get();
-            query = query
+            query =
+                query
                     .disjunction()
                     .eq("enrolment.exam.examOwners.id", userId)
                     .eq("enrolment.exam.parent.examOwners.id", userId)
@@ -369,11 +383,16 @@ public class ReservationController extends BaseController {
 
         final Result result = ok(reservations);
 
-        final Set<Long> anonIds = reservations.stream()
-                .filter(r -> r.getEnrolment() != null && r.getEnrolment().getExam() != null
-                        && r.getEnrolment().getExam().isAnonymous())
-                .map(GeneratedIdentityModel::getId)
-                .collect(Collectors.toSet());
+        final Set<Long> anonIds = reservations
+            .stream()
+            .filter(
+                r ->
+                    r.getEnrolment() != null &&
+                    r.getEnrolment().getExam() != null &&
+                    r.getEnrolment().getExam().isAnonymous()
+            )
+            .map(GeneratedIdentityModel::getId)
+            .collect(Collectors.toSet());
         return writeAnonymousResult(request, result, anonIds);
     }
 }

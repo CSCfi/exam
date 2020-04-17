@@ -15,10 +15,9 @@
 
 package backend.impl;
 
-import com.google.inject.ImplementedBy;
 import backend.models.Course;
 import backend.models.User;
-
+import com.google.inject.ImplementedBy;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;

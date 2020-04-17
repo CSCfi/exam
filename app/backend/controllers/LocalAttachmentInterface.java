@@ -17,12 +17,10 @@
 package backend.controllers;
 
 import java.util.concurrent.CompletionStage;
-
 import play.mvc.Http;
 import play.mvc.Result;
 
 public interface LocalAttachmentInterface extends BaseAttachmentInterface<Long> {
-
     Result deleteQuestionAttachment(Long id);
 
     CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request);

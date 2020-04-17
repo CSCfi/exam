@@ -15,6 +15,9 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -22,17 +25,11 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import backend.models.base.GeneratedIdentityModel;
-
 @Entity
 public class ExaminationEventConfiguration extends GeneratedIdentityModel {
-
     @ManyToOne
     @JoinColumn(name = "exam_id")
     @JsonBackReference
@@ -135,17 +132,11 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
         ExaminationEventConfiguration that = (ExaminationEventConfiguration) o;
 
-        return new EqualsBuilder()
-                .append(exam, that.exam)
-                .append(examinationEvent, that.examinationEvent)
-                .isEquals();
+        return new EqualsBuilder().append(exam, that.exam).append(examinationEvent, that.examinationEvent).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(exam)
-                .append(examinationEvent)
-                .toHashCode();
+        return new HashCodeBuilder(17, 37).append(exam).append(examinationEvent).toHashCode();
     }
 }

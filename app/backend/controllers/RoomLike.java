@@ -23,5 +23,4 @@ public interface RoomLike {
                 return getRoomInstruction();
         }
     }
-
 }

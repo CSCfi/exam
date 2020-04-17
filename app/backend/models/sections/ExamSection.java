@@ -15,6 +15,14 @@
 
 package backend.models.sections;
 
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.api.Sortable;
+import backend.models.base.OwnedModel;
+import backend.models.questions.Question;
+import backend.util.AppUtil;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,21 +39,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.beans.BeanUtils;
-
-import backend.models.Exam;
-import backend.models.User;
-import backend.models.api.Sortable;
-import backend.models.base.OwnedModel;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
-
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSection")
@@ -73,9 +70,9 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "exam_section_material",
-            joinColumns = @JoinColumn(name = "exam_section_id"),
-            inverseJoinColumns = @JoinColumn(name = "exam_material_id")
+        name = "exam_section_material",
+        joinColumns = @JoinColumn(name = "exam_section_id"),
+        inverseJoinColumns = @JoinColumn(name = "exam_material_id")
     )
     private Set<ExamMaterial> examMaterials;
 
@@ -175,8 +172,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         return section;
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user)
-    {
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user) {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
         section.setExam(exam);
@@ -187,7 +183,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
             section.getSectionQuestions().add(esqCopy);
         }
         if (produceStudentExamSection) {
-            for (ExamMaterial em: examMaterials) {
+            for (ExamMaterial em : examMaterials) {
                 ExamMaterial emCopy = em.copy(user);
                 emCopy.save();
                 section.getExamMaterials().add(emCopy);
@@ -203,37 +199,36 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     @Transient
     public double getTotalScore() {
-        return sectionQuestions.stream()
-                .map(ExamSectionQuestion::getAssessedScore)
-                .filter(Objects::nonNull)
-                .reduce(0.0, (sum, x) -> sum += x);
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getAssessedScore)
+            .filter(Objects::nonNull)
+            .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
     public double getMaxScore() {
-        return sectionQuestions.stream()
-                .map(ExamSectionQuestion::getMaxAssessedScore)
-                .filter(Objects::nonNull)
-                .reduce(0.0, (sum, x) -> sum += x);
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getMaxAssessedScore)
+            .filter(Objects::nonNull)
+            .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
     public int getRejectedCount() {
-        return (int) sectionQuestions.stream()
-                .filter(ExamSectionQuestion::isRejected).count();
+        return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isRejected).count();
     }
 
     @Transient
     public int getApprovedCount() {
-        return (int) sectionQuestions.stream()
-                .filter(ExamSectionQuestion::isApproved).count();
+        return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isApproved).count();
     }
 
     @Transient
     public boolean hasQuestion(Question question) {
         return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
     }
-
 
     @Override
     public int compareTo(@Nonnull ExamSection o) {
@@ -249,5 +244,4 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     public void setOrdinal(Integer ordinal) {
         sequenceNumber = ordinal;
     }
-
 }

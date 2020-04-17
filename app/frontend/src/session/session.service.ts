@@ -35,7 +35,6 @@ export interface User {
     lang: string;
     loginRole: string | null;
     roles: Role[];
-    token: string;
     userAgreementAccepted: boolean;
     userIdentifier: string;
     permissions: { type: string }[];
@@ -50,7 +49,7 @@ interface Env {
 }
 
 export class SessionService {
-    PING_INTERVAL: number = 60 * 1000;
+    PING_INTERVAL: number = 10 * 1000;
     _user: User;
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;
@@ -172,7 +171,6 @@ export class SessionService {
     }
 
     private processLoggedInUser(user: User): void {
-        _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
         user.roles.forEach(role => {
             switch (role.name) {
                 case 'ADMIN':
@@ -200,7 +198,6 @@ export class SessionService {
             lang: user.lang,
             loginRole: loginRole,
             roles: user.roles,
-            token: user.token,
             userAgreementAccepted: user.userAgreementAccepted,
             userIdentifier: user.userIdentifier,
             permissions: user.permissions,
@@ -363,7 +360,7 @@ export class SessionService {
             })
             .result.then((role: { name: string; icon: string; displayName: string }) => {
                 this.$http
-                    .put(`/app/users/${user.id}/roles/${role.name}`, {})
+                    .put(`/app/users/roles/${role.name}`, {})
                     .then(() => {
                         user.loginRole = role.name;
                         user.isAdmin = role.name === 'ADMIN';

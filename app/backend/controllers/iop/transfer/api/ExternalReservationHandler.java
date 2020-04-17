@@ -15,15 +15,13 @@
 
 package backend.controllers.iop.transfer.api;
 
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-
-import com.google.inject.ImplementedBy;
-import play.mvc.Result;
-
 import backend.controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
 import backend.models.Reservation;
 import backend.models.User;
+import com.google.inject.ImplementedBy;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import play.mvc.Result;
 
 @ImplementedBy(ExternalReservationHandlerImpl.class)
 public interface ExternalReservationHandler {

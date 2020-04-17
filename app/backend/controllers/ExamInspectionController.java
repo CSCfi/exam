@@ -15,22 +15,7 @@
 
 package backend.controllers;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.Model;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-import scala.concurrent.duration.Duration;
-
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
 import backend.models.Comment;
@@ -42,10 +27,21 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.Model;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
 public class ExamInspectionController extends BaseController {
-
     @Inject
     protected EmailComposer emailComposer;
 
@@ -54,7 +50,7 @@ public class ExamInspectionController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result addInspection(Long eid, Long uid, Http.Request request) {
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
@@ -83,44 +79,54 @@ public class ExamInspectionController extends BaseController {
             c.setComment(comment.get());
             inspection.setComment(c);
             c.save();
-            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
                     () -> emailComposer.composeExamReviewRequest(recipient, user, exam, comment.get()),
-                    actor.dispatcher());
+                    actor.dispatcher()
+                );
         }
         inspection.save();
         // Add also as inspector to ongoing child exams if not already there.
-        exam.getChildren().stream()
-                .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
-                        !isInspectorOf(recipient, c))
-                .forEach(c -> {
+        exam
+            .getChildren()
+            .stream()
+            .filter(
+                c ->
+                    c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
+                    !isInspectorOf(recipient, c)
+            )
+            .forEach(
+                c -> {
                     ExamInspection i = new ExamInspection();
                     i.setExam(c);
                     i.setUser(recipient);
                     i.setAssignedBy(user);
                     i.save();
-                });
+                }
+            );
 
         return ok(Json.toJson(inspection));
     }
 
     private static boolean isInspectorOf(User user, Exam exam) {
-        return exam.getExamInspections().stream()
-                .anyMatch(ei -> ei.getUser().equals(user));
+        return exam.getExamInspections().stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamInspections(Long id) {
-        Set<ExamInspection> inspections = Ebean.find(ExamInspection.class)
-                .fetch("user", "id, email, firstName, lastName")
-                .where()
-                .eq("exam.id", id)
-                .findSet();
+        Set<ExamInspection> inspections = Ebean
+            .find(ExamInspection.class)
+            .fetch("user", "id, email, firstName, lastName")
+            .where()
+            .eq("exam.id", id)
+            .findSet();
         return ok(inspections);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result setInspectionOutcome(Long id, Http.Request request) {
-
         boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest(request).get("ready"));
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
 
@@ -133,8 +139,7 @@ public class ExamInspectionController extends BaseController {
         return ok();
     }
 
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result deleteInspection(Long id) {
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
         if (inspection == null) {
@@ -142,15 +147,14 @@ public class ExamInspectionController extends BaseController {
         }
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();
-        exam.getChildren()
-                .stream()
-                .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
-                .forEach(c -> c.getExamInspections()
-                        .stream()
-                        .filter(ei -> ei.getUser().equals(inspector))
-                        .forEach(Model::delete));
+        exam
+            .getChildren()
+            .stream()
+            .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
+            .forEach(
+                c -> c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
+            );
         inspection.delete();
         return ok();
     }
-
 }

@@ -15,6 +15,11 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import be.objectify.deadbolt.java.models.Subject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,20 +32,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import be.objectify.deadbolt.java.models.Subject;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 @Table(name = "app_user")
 public class User extends GeneratedIdentityModel implements Subject {
-
     private String email;
 
     private String eppn;
@@ -65,11 +62,11 @@ public class User extends GeneratedIdentityModel implements Subject {
     private List<Permission> permissions;
 
     @ManyToOne
-    @JoinColumn(name="language_id")
+    @JoinColumn(name = "language_id")
     private Language language;
 
     @ManyToOne
-    @JoinColumn(name="organisation_id")
+    @JoinColumn(name = "organisation_id")
     private Organisation organisation;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
@@ -194,6 +191,10 @@ public class User extends GeneratedIdentityModel implements Subject {
         return permissions;
     }
 
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
     public List<ExamEnrolment> getEnrolments() {
         return enrolments;
     }
@@ -249,8 +250,19 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     @Override
     public String toString() {
-        return "User [id=" + getId() + ", email=" + email + ", name=" + lastName + " " +
-                firstName + ", password=" + password + "]";
+        return (
+            "User [id=" +
+            getId() +
+            ", email=" +
+            email +
+            ", name=" +
+            lastName +
+            " " +
+            firstName +
+            ", password=" +
+            password +
+            "]"
+        );
     }
 
     @Override

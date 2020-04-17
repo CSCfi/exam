@@ -15,23 +15,21 @@
 
 package backend.sanitizers;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 public final class SanitizingHelper {
+    private static final Whitelist WHITELIST = Whitelist
+        .relaxed()
+        .addAttributes("a", "target")
+        .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
+        .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
 
-    private static final Whitelist WHITELIST = Whitelist.relaxed()
-            .addAttributes("a", "target")
-            .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
-            .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
-
-    private SanitizingHelper() {
-    }
+    private SanitizingHelper() {}
 
     public static <E extends Enum<E>> Optional<E> parseEnum(String fieldName, JsonNode node, Class<E> type) {
         JsonNode field = node.get(fieldName);
@@ -78,33 +76,36 @@ public final class SanitizingHelper {
     }
 
     // Exception thrown if value is null or not found
-    static <T> Http.Request sanitize(String key, JsonNode node, Class<T> type, TypedKey<T> attr,
-                                     Http.Request request) throws SanitizingException {
+    static <T> Http.Request sanitize(String key, JsonNode node, Class<T> type, TypedKey<T> attr, Http.Request request)
+        throws SanitizingException {
         T value = parse(key, node, type)
-                .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
+            .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
         return request.addAttr(attr, value);
     }
 
     // Exception thrown if value is null or not found
-    static Http.Request sanitizeHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request) throws SanitizingException {
+    static Http.Request sanitizeHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request)
+        throws SanitizingException {
         String value = parse(key, node, String.class)
-                .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
+            .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
         return request.addAttr(attr, Jsoup.clean(value, WHITELIST));
     }
 
     // If value is null or not present, it will not be added as an attribute.
-    static <T> Http.Request sanitizeOptional(String key, JsonNode node, Class<T> type, TypedKey<T> attr,
-                                             Http.Request request) {
+    static <T> Http.Request sanitizeOptional(
+        String key,
+        JsonNode node,
+        Class<T> type,
+        TypedKey<T> attr,
+        Http.Request request
+    ) {
         Optional<T> value = parse(key, node, type);
         return value.isPresent() ? request.addAttr(attr, value.get()) : request;
     }
 
     // If value is null or not present, it will not be added as an attribute.
     static Http.Request sanitizeOptionalHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request) {
-        Optional<String > value = parse(key, node, String.class);
+        Optional<String> value = parse(key, node, String.class);
         return value.isPresent() ? request.addAttr(attr, Jsoup.clean(value.get(), WHITELIST)) : request;
     }
-
-
-
 }

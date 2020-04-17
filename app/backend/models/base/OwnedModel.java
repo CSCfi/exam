@@ -18,17 +18,15 @@ package backend.models.base;
 import backend.models.User;
 import backend.util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.joda.time.DateTime;
-
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.joda.time.DateTime;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {
-
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     protected DateTime created;
@@ -76,5 +74,4 @@ public class OwnedModel extends GeneratedIdentityModel {
     public void setModifier(User modifier) {
         this.modifier = modifier;
     }
-
 }

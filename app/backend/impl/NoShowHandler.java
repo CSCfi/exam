@@ -15,15 +15,12 @@
 
 package backend.impl;
 
-import com.google.inject.ImplementedBy;
 import backend.models.Reservation;
-
+import com.google.inject.ImplementedBy;
 import java.util.List;
 
 @ImplementedBy(NoShowHandlerImpl.class)
 public interface NoShowHandler {
-
     void handleNoShows(List<Reservation> noShows);
     void handleNoShowAndNotify(Reservation reservation);
-
 }

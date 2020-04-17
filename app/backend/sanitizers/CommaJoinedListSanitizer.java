@@ -15,18 +15,18 @@
 
 package backend.sanitizers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import play.mvc.Http;
 
 public class CommaJoinedListSanitizer extends BaseSanitizer {
 
     protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
-        String args = SanitizingHelper.parse("ids", body, String.class)
-                .orElseThrow(() -> new SanitizingException("bad list"));
+        String args = SanitizingHelper
+            .parse("ids", body, String.class)
+            .orElseThrow(() -> new SanitizingException("bad list"));
         List<Long> ids = Arrays.stream(args.split(",")).map(Long::parseLong).collect(Collectors.toList());
         if (ids.isEmpty()) {
             throw new SanitizingException("empty list");

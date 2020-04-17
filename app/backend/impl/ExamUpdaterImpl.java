@@ -1,25 +1,9 @@
 package backend.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.inject.Inject;
+import static play.mvc.Results.badRequest;
+import static play.mvc.Results.forbidden;
 
 import akka.actor.ActorSystem;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.mvc.Http;
-import play.mvc.Result;
-import scala.concurrent.duration.Duration;
-
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -36,12 +20,25 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.util.config.ConfigReader;
-
-import static play.mvc.Results.badRequest;
-import static play.mvc.Results.forbidden;
+import io.ebean.Ebean;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.mvc.Http;
+import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
 public class ExamUpdaterImpl implements ExamUpdater {
-
     @Inject
     private EmailComposer emailComposer;
 
@@ -113,7 +110,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return err;
                 }
                 // no sections named
-                if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
+                if (exam.getExamSections().stream().anyMatch(section -> section.getName() == null)) {
                     return Optional.of(badRequest("sitnet_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
@@ -124,8 +121,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
-                if (exam.getRequiresUserAgentAuth() && exam.getExaminationEventConfigurations().stream()
-                        .anyMatch(eec ->  eec.getEncryptedSettingsPassword() == null)) {
+                if (
+                    exam.getRequiresUserAgentAuth() &&
+                    exam
+                        .getExaminationEventConfigurations()
+                        .stream()
+                        .anyMatch(eec -> eec.getEncryptedSettingsPassword() == null)
+                ) {
                     return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
@@ -168,24 +170,25 @@ public class ExamUpdaterImpl implements ExamUpdater {
         answerLanguage.ifPresent(exam::setAnswerLanguage);
         instruction.ifPresent(exam::setInstruction);
         enrollInstruction.ifPresent(exam::setEnrollInstruction);
-        examType.ifPresent(type -> {
-            ExamType eType = Ebean.find(ExamType.class)
-                    .where()
-                    .eq("type", type)
-                    .findOne();
+        examType.ifPresent(
+            type -> {
+                ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
 
-            if (eType != null) {
-                exam.setExamType(eType);
+                if (eType != null) {
+                    exam.setExamType(eType);
+                }
             }
-        });
+        );
         exam.setTrialCount(trialCount);
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         exam.setRequiresUserAgentAuth(configReader.isByodExaminationSupported() ? requiresUserAgentAuth : false);
-        if (loginRole == Role.Name.ADMIN &&
-                ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
-                !hasFutureReservations(exam)) {
+        if (
+            loginRole == Role.Name.ADMIN &&
+            ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
+            !hasFutureReservations(exam)
+        ) {
             exam.setAnonymous(anonymous);
         }
     }
@@ -263,20 +266,23 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Override
     public void preparePreview(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(
+                esq -> {
                     ClozeTestAnswer answer = new ClozeTestAnswer();
                     answer.setQuestion(esq);
                     esq.setClozeTestAnswer(answer);
                     questionsToHide.add(esq.getQuestion());
-                });
+                }
+            );
         questionsToHide.forEach(q -> q.setQuestion(null));
         exam.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);
         exam.setDerivedMaxScores();
     }
-
 
     private void updateGradeEvaluations(Exam exam, AutoEvaluationConfig newConfig) {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
@@ -303,20 +309,25 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         }
         // Remove obsolete entries
-        gradeMap.entrySet().stream()
-                .filter(entry -> !handledEvaluations.contains(entry.getKey()))
-                .forEach(entry -> {
+        gradeMap
+            .entrySet()
+            .stream()
+            .filter(entry -> !handledEvaluations.contains(entry.getKey()))
+            .forEach(
+                entry -> {
                     entry.getValue().delete();
                     config.getGradeEvaluations().remove(entry.getValue());
-                });
+                }
+            );
     }
-
 
     private boolean hasFutureReservations(Exam exam) {
         DateTime now = DateTime.now();
-        return exam.getExamEnrolments().stream()
-                .map(ExamEnrolment::getReservation)
-                .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
+        return exam
+            .getExamEnrolments()
+            .stream()
+            .map(ExamEnrolment::getReservation)
+            .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
     }
 
     private Optional<Result> getFormValidationError(boolean checkPeriod, Http.Request request) {
@@ -356,26 +367,37 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     private void notifyParticipantsAboutPrivateExamPublication(Exam exam, User sender) {
-        Set<User> enrolments = exam.getExamEnrolments().stream()
-                .map(ExamEnrolment::getUser)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        Set<User> preEnrolments = exam.getExamEnrolments().stream()
-                .map(ExamEnrolment::getPreEnrolledUserEmail)
-                .filter(Objects::nonNull)
-                .map(email -> {
+        Set<User> enrolments = exam
+            .getExamEnrolments()
+            .stream()
+            .map(ExamEnrolment::getUser)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        Set<User> preEnrolments = exam
+            .getExamEnrolments()
+            .stream()
+            .map(ExamEnrolment::getPreEnrolledUserEmail)
+            .filter(Objects::nonNull)
+            .map(
+                email -> {
                     User user = new User();
                     user.setEmail(email);
                     return user;
-                }).collect(Collectors.toSet());
+                }
+            )
+            .collect(Collectors.toSet());
         Set<User> receivers = Stream.concat(enrolments.stream(), preEnrolments.stream()).collect(Collectors.toSet());
-        actorSystem.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : receivers) {
-                emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
-                logger.info("Exam participation notification email sent to {}", u.getEmail());
-            }
-        }, actorSystem.dispatcher());
+        actorSystem
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    for (User u : receivers) {
+                        emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
+                        logger.info("Exam participation notification email sent to {}", u.getEmail());
+                    }
+                },
+                actorSystem.dispatcher()
+            );
     }
-
-
 }

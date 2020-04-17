@@ -15,6 +15,11 @@
 
 package backend.models.questions;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.sections.ExamSectionQuestion;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,10 +28,6 @@ import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.Gson;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -34,12 +35,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.base.GeneratedIdentityModel;
-
 @Entity
 public class ClozeTestAnswer extends GeneratedIdentityModel {
-
     private static final String CLOZE_SELECTOR = "span[cloze=true]";
 
     private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\\\/]");
@@ -80,26 +77,28 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
-        blanks.forEach(b -> {
-            boolean isNumeric = isNumeric(b);
-            Iterator<Attribute> it = b.attributes().iterator();
-            while (it.hasNext()) {
-                Attribute a = it.next();
-                if (!a.getKey().equals("id")) {
-                    it.remove();
+        blanks.forEach(
+            b -> {
+                boolean isNumeric = isNumeric(b);
+                Iterator<Attribute> it = b.attributes().iterator();
+                while (it.hasNext()) {
+                    Attribute a = it.next();
+                    if (!a.getKey().equals("id")) {
+                        it.remove();
+                    }
+                }
+                b.tagName("input");
+                b.text("");
+                b.attr("aria-label", "cloze test question");
+                b.attr("type", isNumeric ? "number" : "text");
+                b.attr("class", "cloze-input");
+                if (isNumeric) {
+                    b.attr("step", "any");
+                    // Should allow for using both comma and period as decimal separator
+                    b.attr("lang", "en-150");
                 }
             }
-            b.tagName("input");
-            b.text("");
-            b.attr("aria-label", "cloze test question");
-            b.attr("type", isNumeric ? "number" : "text");
-            b.attr("class", "cloze-input");
-            if (isNumeric) {
-                b.attr("step", "any");
-                // Should allow for using both comma and period as decimal separator
-                b.attr( "lang", "en-150");
-            }
-        });
+        );
         this.question = doc.body().children().toString();
     }
 
@@ -107,28 +106,30 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Map<String, String> answers = asMap(new Gson());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         score = new Score();
-        blanks.forEach(b -> {
-            boolean isNumeric = isNumeric(b);
-            String answer = answers.getOrDefault(b.attr("id"), "");
-            boolean isCorrectAnswer = isCorrectAnswer(b, answer);
-            String precision = b.attr("precision");
-            if (isCorrectAnswer) {
-                score.correctAnswers++;
-            } else {
-                score.incorrectAnswers++;
-            }
-            Iterator<Attribute> it = b.attributes().iterator();
-            while (it.hasNext()) {
+        blanks.forEach(
+            b -> {
+                boolean isNumeric = isNumeric(b);
+                String answer = answers.getOrDefault(b.attr("id"), "");
+                boolean isCorrectAnswer = isCorrectAnswer(b, answer);
+                String precision = b.attr("precision");
+                if (isCorrectAnswer) {
+                    score.correctAnswers++;
+                } else {
+                    score.incorrectAnswers++;
+                }
+                Iterator<Attribute> it = b.attributes().iterator();
+                while (it.hasNext()) {
                     it.next();
                     it.remove();
+                }
+                b.text("");
+                b.append(answer.isBlank() ? String.format("<em>%s</em>", blankAnswerText) : answer);
+                b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
+                if (isNumeric) {
+                    b.after("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
+                }
             }
-            b.text("");
-            b.append(answer.isBlank() ? String.format("<em>%s</em>", blankAnswerText) : answer);
-            b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
-            if (isNumeric) {
-                b.after("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
-            }
-        });
+        );
         this.question = doc.body().children().toString();
     }
 
@@ -152,20 +153,25 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         Score score = new Score();
-        blanks.forEach(b -> {
-            String answer = answers.getOrDefault(b.attr("id"), "");
-            boolean isCorrectAnswer = isCorrectAnswer(b, answer);
-            if (isCorrectAnswer) {
-                score.correctAnswers++;
-            } else {
-                score.incorrectAnswers++;
+        blanks.forEach(
+            b -> {
+                String answer = answers.getOrDefault(b.attr("id"), "");
+                boolean isCorrectAnswer = isCorrectAnswer(b, answer);
+                if (isCorrectAnswer) {
+                    score.correctAnswers++;
+                } else {
+                    score.incorrectAnswers++;
+                }
             }
-        });
+        );
         return score;
     }
 
     private Map<String, String> asMap(Gson gson) {
-        Type mapType = new TypeToken<Map<String, String>>() {/* pass */}.getType();
+        Type mapType = new TypeToken<Map<String, String>>() {
+            /* pass */
+        }
+        .getType();
         Map<String, String> map = gson.fromJson(answer, mapType);
         return map == null ? Collections.emptyMap() : map;
     }
@@ -185,9 +191,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         }
         String precisionAttr = blank.attr("precision");
         double answer = Double.parseDouble(answerText);
-        Double correctAnswer = Double.parseDouble(blank.text().trim().replaceAll("(^\\h*)|(\\h*$)",""));
+        Double correctAnswer = Double.parseDouble(blank.text().trim().replaceAll("(^\\h*)|(\\h*$)", ""));
         Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
-        return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
+        return (correctAnswer - precision <= answer && answer <= correctAnswer + precision);
     }
 
     private String escapeSpecialRegexChars(String input) {
@@ -199,23 +205,24 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             return isCorrectNumericAnswer(blank, rawAnswer);
         }
         // Get rid of excess whitespace
-        String answer = rawAnswer == null ? "" : rawAnswer.trim()
-                .replaceAll(" +", " ");
-        String correctAnswer = blank.text().trim()
-                .replaceAll(" +", " ")
-                .replaceAll(" \\|", "|")
-                .replaceAll("\\| ", "|");
+        String answer = rawAnswer == null ? "" : rawAnswer.trim().replaceAll(" +", " ");
+        String correctAnswer = blank
+            .text()
+            .trim()
+            .replaceAll(" +", " ")
+            .replaceAll(" \\|", "|")
+            .replaceAll("\\| ", "|");
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
         // For escaped '\*' and '\|' we have to first replace occurrences with special
         // escape sequence until restoring them in the regex.
         final String ESC = "__!ESC__";
         String regex = escapeSpecialRegexChars(correctAnswer)
-        // Also backlashes will be escaped on escapeSpecialRegexChars call, therefore '\\*' pattern needs to be replaced
-                .replaceAll("\\Q\\\\*\\E", ESC)
-                .replace("*", ".*")
-                .replace(ESC, "\\*")
-                .replaceAll("\\Q\\\\|\\E", ESC);
+            // Also backlashes will be escaped on escapeSpecialRegexChars call, therefore '\\*' pattern needs to be replaced
+            .replaceAll("\\Q\\\\*\\E", ESC)
+            .replace("*", ".*")
+            .replace(ESC, "\\*")
+            .replaceAll("\\Q\\\\|\\E", ESC);
 
         if (regex.contains("|")) {
             regex = String.format("(%s)", regex);
@@ -239,5 +246,4 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             return incorrectAnswers;
         }
     }
-
 }

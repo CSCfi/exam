@@ -15,6 +15,12 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.iop.ExternalReservation;
+import backend.models.sections.ExamSection;
+import backend.util.datetime.DateTimeAdapter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
@@ -27,22 +33,13 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.iop.ExternalReservation;
-import backend.models.sections.ExamSection;
-import backend.util.datetime.DateTimeAdapter;
-
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
-
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime startAt;
@@ -73,9 +70,9 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "reservation_optional_exam_section",
-            joinColumns = @JoinColumn(name = "reservation_id"),
-            inverseJoinColumns = @JoinColumn(name = "exam_section_id")
+        name = "reservation_optional_exam_section",
+        joinColumns = @JoinColumn(name = "reservation_id"),
+        inverseJoinColumns = @JoinColumn(name = "exam_section_id")
     )
     private Set<ExamSection> optionalSections;
 
@@ -197,15 +194,11 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         if (this == o) return true;
         if (!(o instanceof Reservation)) return false;
         Reservation that = (Reservation) o;
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .isEquals();
+        return new EqualsBuilder().append(id, that.id).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .toHashCode();
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 }

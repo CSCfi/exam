@@ -16,15 +16,13 @@
 package backend.models;
 
 import backend.models.base.VersionedModel;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 @Entity
 public class Language extends VersionedModel {
-
     @Id
     private String code;
 
@@ -51,14 +49,11 @@ public class Language extends VersionedModel {
         if (this == o) return true;
         if (!(o instanceof Language)) return false;
         Language language = (Language) o;
-        return new EqualsBuilder()
-                .append(code, language.code)
-                .build();
+        return new EqualsBuilder().append(code, language.code).build();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(code).build();
+        return new HashCodeBuilder(17, 37).append(code).build();
     }
 }

@@ -15,29 +15,26 @@
 
 package backend.controllers;
 
-import javax.inject.Inject;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.Ebean;
-import io.ebean.Update;
-import play.Environment;
-import play.data.DynamicForm;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.models.GeneralSettings;
 import backend.models.Language;
 import backend.models.User;
 import backend.util.config.ConfigReader;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import io.ebean.Update;
+import javax.inject.Inject;
+import play.Environment;
+import play.data.DynamicForm;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class SettingsController extends BaseController {
-
     private final Environment environment;
     private final ConfigReader configReader;
 
@@ -48,10 +45,12 @@ public class SettingsController extends BaseController {
     }
 
     public static GeneralSettings get(String name) {
-        return Ebean.find(GeneralSettings.class).where()
-                .eq("name", name)
-                .findOneOrEmpty()
-                .orElse(new GeneralSettings());
+        return Ebean
+            .find(GeneralSettings.class)
+            .where()
+            .eq("name", name)
+            .findOneOrEmpty()
+            .orElse(new GeneralSettings());
     }
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
@@ -71,25 +70,25 @@ public class SettingsController extends BaseController {
         return gs;
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getUserAgreement() {
         GeneralSettings gs = getOrCreateSettings("eula", null, null);
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getDeadline() {
         GeneralSettings gs = getOrCreateSettings("review_deadline", null, "14");
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getReservationWindowSize() {
         GeneralSettings gs = getOrCreateSettings("reservation_window_size", null, "30");
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getMaturityInstructions(String lang) {
         Language language = Ebean.find(Language.class, lang);
         if (language == null) {
@@ -99,7 +98,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(get(key)));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result updateUserAgreement(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String eula = df.get("value");
@@ -114,7 +113,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result setDeadline(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String deadline = df.get("value");
@@ -122,7 +121,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result setReservationWindowSize(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String deadline = df.get("value");
@@ -130,21 +129,21 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getHostname() {
         ObjectNode node = Json.newObject();
         node.put("hostname", configReader.getHostName());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getMaxFilesize() {
         ObjectNode node = Json.newObject();
         node.put("filesize", configReader.getMaxFileSize());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
@@ -152,21 +151,21 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
         node.put("overridable", configReader.isCourseGradeScaleOverridable());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public Result isEnrolmentPermissionCheckActive() {
         ObjectNode node = Json.newObject();
         node.put("active", configReader.isEnrolmentPermissionCheckActive());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result getAppVersion() {
         ObjectNode node = Json.newObject();
         node.put("appVersion", configReader.getAppVersion());
@@ -208,14 +207,14 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("STUDENT")})
+    @Restrict({ @Group("STUDENT") })
     public Result getExaminationQuitLink() {
         ObjectNode node = Json.newObject();
         node.put("quitLink", configReader.getQuitExaminationLink());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result getConfig() {
         ObjectNode node = Json.newObject();
 
@@ -230,20 +229,22 @@ public class SettingsController extends BaseController {
         node.set("examDurations", durations);
 
         ObjectNode roles = Json.newObject();
-        configReader.getRoleMapping().forEach((k, v) -> {
-            ArrayNode role = Json.newArray();
-            v.forEach(role::add);
-            roles.set(k.getName(), role);
-        });
+        configReader
+            .getRoleMapping()
+            .forEach(
+                (k, v) -> {
+                    ArrayNode role = Json.newArray();
+                    v.forEach(role::add);
+                    roles.set(k.getName(), role);
+                }
+            );
         node.set("roles", roles);
 
         GeneralSettings eula = getOrCreateSettings("eula", null, null);
         node.put("eula", eula.getValue());
-        GeneralSettings reservationWindowSize =
-                getOrCreateSettings("reservation_window_size", null, "30");
+        GeneralSettings reservationWindowSize = getOrCreateSettings("reservation_window_size", null, "30");
         node.put("reservationWindowSize", Integer.parseInt(reservationWindowSize.getValue()));
-        GeneralSettings reviewDeadline =
-                getOrCreateSettings("review_deadline", null, "14");
+        GeneralSettings reviewDeadline = getOrCreateSettings("review_deadline", null, "14");
         node.put("reviewDeadline", Integer.parseInt(reviewDeadline.getValue()));
 
         node.put("isExamVisitSupported", configReader.isVisitingExaminationSupported());
@@ -259,7 +260,5 @@ public class SettingsController extends BaseController {
         node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
 
         return ok(Json.toJson(node));
-
     }
-
 }

@@ -15,28 +15,6 @@
 
 package backend.controllers.iop.collaboration.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
-import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Model;
-import io.ebean.text.PathProperties;
-import org.joda.time.DateTime;
-import play.data.DynamicForm;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
 import backend.models.User;
@@ -48,60 +26,103 @@ import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.json.JsonDeserializer;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Model;
+import io.ebean.text.PathProperties;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.joda.time.DateTime;
+import play.data.DynamicForm;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> addSection(Long examId, Http.Request request) {
-        return findCollaborativeExam(examId).map(ce -> {
-            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            return downloadExam(ce).thenComposeAsync(result -> {
-                if (result.isPresent()) {
-                    Exam exam = result.get();
-                    if (isAuthorizedToView(exam, user)) {
-                        ExamSection section = createDraft(exam, user);
-                        exam.getExamSections().add(section);
-                        return uploadExam(ce, exam, user, section, null);
-                    }
-                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+        return findCollaborativeExam(examId)
+            .map(
+                ce -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    return downloadExam(ce)
+                        .thenComposeAsync(
+                            result -> {
+                                if (result.isPresent()) {
+                                    Exam exam = result.get();
+                                    if (isAuthorizedToView(exam, user)) {
+                                        ExamSection section = createDraft(exam, user);
+                                        exam.getExamSections().add(section);
+                                        return uploadExam(ce, exam, user, section, null);
+                                    }
+                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                                }
+                                return wrapAsPromise(notFound());
+                            }
+                        );
                 }
-                return wrapAsPromise(notFound());
-            });
-        }).get();
+            )
+            .get();
     }
 
-    private CompletionStage<Result> update(Http.Request request, Long examId,
-                                               BiFunction<Exam, User, Optional<Result>> updater,
-                                               Function<Exam, Optional<? extends Model>> resultProvider) {
-        return findCollaborativeExam(examId).map(ce -> {
-            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            return downloadExam(ce).thenComposeAsync(result -> {
-                if (result.isPresent()) {
-                    Exam exam = result.get();
-                    if (isAuthorizedToView(exam, user)) {
-                        Optional<Result> err = updater.apply(exam, user);
-                        if (err.isPresent()) {
-                            return wrapAsPromise(err.get());
-                        }
-                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), null);
-                    }
-                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+    private CompletionStage<Result> update(
+        Http.Request request,
+        Long examId,
+        BiFunction<Exam, User, Optional<Result>> updater,
+        Function<Exam, Optional<? extends Model>> resultProvider
+    ) {
+        return findCollaborativeExam(examId)
+            .map(
+                ce -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    return downloadExam(ce)
+                        .thenComposeAsync(
+                            result -> {
+                                if (result.isPresent()) {
+                                    Exam exam = result.get();
+                                    if (isAuthorizedToView(exam, user)) {
+                                        Optional<Result> err = updater.apply(exam, user);
+                                        if (err.isPresent()) {
+                                            return wrapAsPromise(err.get());
+                                        }
+                                        return uploadExam(
+                                            ce,
+                                            exam,
+                                            user,
+                                            resultProvider.apply(exam).orElse(null),
+                                            null
+                                        );
+                                    }
+                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                                }
+                                return wrapAsPromise(notFound());
+                            }
+                        );
                 }
-                return wrapAsPromise(notFound());
-            });
-        }).get();
-
+            )
+            .get();
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> removeSection(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
                 exam.getExamSections().remove(section.get());
@@ -119,26 +140,24 @@ public class CollaborativeExamSectionController extends CollaborationController 
             }
         };
 
-        return update(request, examId, updater, (e) -> Optional.empty());
+        return update(request, examId, updater, e -> Optional.empty());
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateSection(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
-                ExamSection form = formFactory.form(ExamSection.class).bindFromRequest(request,
-                        "id",
-                        "name",
-                        "expanded",
-                        "lotteryOn",
-                        "lotteryItemCount",
-                        "description"
-                ).get();
+                ExamSection form = formFactory
+                    .form(ExamSection.class)
+                    .bindFromRequest(request, "id", "name", "expanded", "lotteryOn", "lotteryItemCount", "description")
+                    .get();
 
                 es.setName(form.getName());
                 es.setExpanded(form.isExpanded());
@@ -151,16 +170,16 @@ public class CollaborativeExamSectionController extends CollaborationController 
             }
         };
 
-        return update(request, examId, updater, (exam) ->
-                exam.getExamSections().stream()
-                        .filter(es -> es.getId().equals(sectionId))
-                        .findFirst()
+        return update(
+            request,
+            examId,
+            updater,
+            exam -> exam.getExamSections().stream().filter(es -> es.getId().equals(sectionId)).findFirst()
         );
-
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> reorderSections(Long examId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -183,11 +202,11 @@ public class CollaborativeExamSectionController extends CollaborationController 
             }
             return Optional.empty();
         };
-        return update(request, examId, updater, (e) -> Optional.empty());
+        return update(request, examId, updater, e -> Optional.empty());
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> reorderSectionQuestions(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -197,9 +216,11 @@ public class CollaborativeExamSectionController extends CollaborationController 
             if (err.isPresent()) {
                 return err;
             }
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
@@ -218,18 +239,20 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 return Optional.of(notFound("sitnet_error_not_found"));
             }
         };
-        return update(request, examId, updater, (e) -> Optional.empty());
+        return update(request, examId, updater, e -> Optional.empty());
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> addQuestion(Long examId, Long sectionId, Http.Request request) {
         int seq = request.body().asJson().get("sequenceNumber").asInt();
         final Long sectionQuestionId = newId();
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
                 JsonNode questionBody = request.body().asJson().get("question");
@@ -241,15 +264,16 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
 
-                if(question.getType() == Question.Type.ClaimChoiceQuestion) {
+                if (question.getType() == Question.Type.ClaimChoiceQuestion) {
                     // Naturally order generated ids before saving them to question options
                     // Option ids will be used to retain option order on collaborative exams
                     List<MultipleChoiceOption> options = question.getOptions();
-                    List<Long> generatedIds = Stream.generate(() -> newId())
-                            .limit(options.size())
-                            .collect(Collectors.toList());
+                    List<Long> generatedIds = Stream
+                        .generate(() -> newId())
+                        .limit(options.size())
+                        .collect(Collectors.toList());
                     generatedIds.sort(Comparator.naturalOrder());
-                    for(int i = 0; i < options.size(); i++) {
+                    for (int i = 0; i < options.size(); i++) {
                         options.get(i).setId(generatedIds.get(i));
                     }
                 } else {
@@ -283,26 +307,36 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 return Optional.of(notFound("sitnet_error_not_found"));
             }
         };
-        return update(request, examId, updater, (exam) ->
-                exam.getExamSections().stream()
-                        .flatMap(s -> s.getSectionQuestions().stream())
-                        .filter(sq -> sq.getId().equals(sectionQuestionId))
-                        .findFirst()
+        return update(
+            request,
+            examId,
+            updater,
+            exam ->
+                exam
+                    .getExamSections()
+                    .stream()
+                    .flatMap(s -> s.getSectionQuestions().stream())
+                    .filter(sq -> sq.getId().equals(sectionQuestionId))
+                    .findFirst()
         );
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> removeQuestion(Long examId, Long sectionId, Long questionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
-                Optional<ExamSectionQuestion> question = es.getSectionQuestions().stream()
-                        .filter(esq -> esq.getQuestion().getId().equals(questionId))
-                        .findFirst();
+                Optional<ExamSectionQuestion> question = es
+                    .getSectionQuestions()
+                    .stream()
+                    .filter(esq -> esq.getQuestion().getId().equals(questionId))
+                    .findFirst();
                 if (question.isPresent()) {
                     ExamSectionQuestion esq = question.get();
                     es.getSectionQuestions().remove(esq);
@@ -327,20 +361,23 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 return Optional.of(notFound("sitnet_error_not_found"));
             }
         };
-        return update(request, examId, updater, (exam) ->
-                exam.getExamSections().stream()
-                        .filter(es -> es.getId().equals(sectionId))
-                        .findFirst()
+        return update(
+            request,
+            examId,
+            updater,
+            exam -> exam.getExamSections().stream().filter(es -> es.getId().equals(sectionId)).findFirst()
         );
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> clearQuestions(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
-            Optional<ExamSection> section = exam.getExamSections().stream()
-                    .filter(es -> es.getId().equals(sectionId))
-                    .findFirst();
+            Optional<ExamSection> section = exam
+                .getExamSections()
+                .stream()
+                .filter(es -> es.getId().equals(sectionId))
+                .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
                 es.getSectionQuestions().clear();
@@ -349,60 +386,75 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 return Optional.of(notFound("sitnet_error_not_found"));
             }
         };
-        return update(request, examId, updater, (exam) ->
-                exam.getExamSections().stream()
-                        .filter(es -> es.getId().equals(sectionId))
-                        .findFirst()
+        return update(
+            request,
+            examId,
+            updater,
+            exam -> exam.getExamSections().stream().filter(es -> es.getId().equals(sectionId)).findFirst()
         );
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateQuestion(Long examId, Long sectionId, Long questionId, Http.Request request) {
-        return findCollaborativeExam(examId).map(ce -> {
-            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            return downloadExam(ce).thenComposeAsync(result -> {
-                if (result.isPresent()) {
-                    Exam exam = result.get();
-                    if (isAuthorizedToView(exam, user)) {
-                        Optional<ExamSection> section = exam.getExamSections().stream()
-                                .filter(es -> es.getId().equals(sectionId))
-                                .findFirst();
-                        if (section.isPresent()) {
-                            ExamSection es = section.get();
-                            Optional<ExamSectionQuestion> question = es.getSectionQuestions().stream()
-                                    .filter(esq -> esq.getId().equals(questionId))
-                                    .findFirst();
-                            if (question.isPresent()) {
-                                ExamSectionQuestion esq = question.get();
-                                JsonNode payload = request.body().asJson().get("question");
-                                Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
-                                Optional<Result> error = questionBody.getValidationResult(payload);
-                                if (error.isPresent()) {
-                                    return wrapAsPromise(error.get());
+        return findCollaborativeExam(examId)
+            .map(
+                ce -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    return downloadExam(ce)
+                        .thenComposeAsync(
+                            result -> {
+                                if (result.isPresent()) {
+                                    Exam exam = result.get();
+                                    if (isAuthorizedToView(exam, user)) {
+                                        Optional<ExamSection> section = exam
+                                            .getExamSections()
+                                            .stream()
+                                            .filter(es -> es.getId().equals(sectionId))
+                                            .findFirst();
+                                        if (section.isPresent()) {
+                                            ExamSection es = section.get();
+                                            Optional<ExamSectionQuestion> question = es
+                                                .getSectionQuestions()
+                                                .stream()
+                                                .filter(esq -> esq.getId().equals(questionId))
+                                                .findFirst();
+                                            if (question.isPresent()) {
+                                                ExamSectionQuestion esq = question.get();
+                                                JsonNode payload = request.body().asJson().get("question");
+                                                Question questionBody = JsonDeserializer.deserialize(
+                                                    Question.class,
+                                                    payload
+                                                );
+                                                Optional<Result> error = questionBody.getValidationResult(payload);
+                                                if (error.isPresent()) {
+                                                    return wrapAsPromise(error.get());
+                                                }
+                                                questionBody
+                                                    .getOptions()
+                                                    .stream()
+                                                    .filter(o -> o.getId() == null)
+                                                    .forEach(o -> o.setId(newId()));
+                                                updateExamQuestion(esq, questionBody);
+                                                PathProperties pp = PathProperties.parse(
+                                                    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                                );
+                                                return uploadExam(ce, exam, user, esq, pp);
+                                            } else {
+                                                return wrapAsPromise(notFound("sitnet_error_not_found"));
+                                            }
+                                        } else {
+                                            return wrapAsPromise(notFound("sitnet_error_not_found"));
+                                        }
+                                    }
+                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                                 }
-                                questionBody.getOptions().stream()
-                                        .filter(o -> o.getId() == null)
-                                        .forEach(o -> o.setId(newId()));
-                                updateExamQuestion(esq, questionBody);
-                                PathProperties pp = PathProperties.parse(
-                                        "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))");
-                                return uploadExam(ce, exam, user, esq, pp);
-                            } else {
-                                return wrapAsPromise(notFound("sitnet_error_not_found"));
-
+                                return wrapAsPromise(notFound());
                             }
-                        } else {
-                            return wrapAsPromise(notFound("sitnet_error_not_found"));
-                        }
-
-                    }
-                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                        );
                 }
-                return wrapAsPromise(notFound());
-            });
-        }).get();
-
+            )
+            .get();
     }
 
     private ExamSection createDraft(Exam exam, User user) {
@@ -416,6 +468,4 @@ public class CollaborativeExamSectionController extends CollaborationController 
         AppUtil.setCreator(section, user);
         return section;
     }
-
-
 }

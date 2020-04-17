@@ -15,6 +15,12 @@
 
 package backend.controllers;
 
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.Role;
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,38 +30,35 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.Role;
-import backend.models.User;
-import backend.sanitizers.Attrs;
-import backend.security.Authenticated;
-
-
 public class ExamOwnerController extends BaseController {
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamOwners(Long id) {
         Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }
         ArrayNode node = Json.newArray();
-        exam.getExamOwners().stream().map(u -> {
-            ObjectNode o = Json.newObject();
-            o.put("firstName", u.getFirstName());
-            o.put("id", u.getId());
-            o.put("lastName", u.getLastName());
-            o.put("email", u.getEmail());
-            return o;
-        }).forEach(node::add);
+        exam
+            .getExamOwners()
+            .stream()
+            .map(
+                u -> {
+                    ObjectNode o = Json.newObject();
+                    o.put("firstName", u.getFirstName());
+                    o.put("id", u.getId());
+                    o.put("lastName", u.getLastName());
+                    o.put("email", u.getEmail());
+                    return o;
+                }
+            )
+            .forEach(node::add);
         return ok(Json.toJson(node));
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result insertExamOwner(Long eid, Long uid, Http.Request request) {
-
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null || owner == null) {
@@ -71,9 +74,8 @@ public class ExamOwnerController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result removeExamOwner(Long eid, Long uid, Http.Request request) {
-
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -90,5 +92,4 @@ public class ExamOwnerController extends BaseController {
         }
         return notFound();
     }
-
 }

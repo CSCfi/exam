@@ -15,18 +15,7 @@
 
 package backend.system.actors;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-
 import backend.controllers.SettingsController;
 import backend.impl.EmailComposer;
 import backend.models.Exam;
@@ -40,9 +29,17 @@ import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.util.AppUtil;
 import backend.util.datetime.DateTimeUtils;
+import io.ebean.Ebean;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
 
 public class ExamAutoSaverActor extends AbstractActor {
-
     private static final Logger.ALogger logger = Logger.of(ExamAutoSaverActor.class);
 
     private EmailComposer composer;
@@ -54,24 +51,30 @@ public class ExamAutoSaverActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(String.class, s -> {
-            logger.debug("Starting check for ongoing exams ->");
-            checkLocalExams();
-            checkExternalExams();
-            logger.debug("<- done");
-        }).build();
+        return receiveBuilder()
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Starting check for ongoing exams ->");
+                    checkLocalExams();
+                    checkExternalExams();
+                    logger.debug("<- done");
+                }
+            )
+            .build();
     }
 
     private void checkLocalExams() {
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .fetch("reservation")
-                .fetch("reservation.machine.room")
-                .fetch("examinationEvent")
-                .where()
-                .isNull("ended")
-                .isNotNull("reservation")
-                .findList();
+        List<ExamParticipation> participations = Ebean
+            .find(ExamParticipation.class)
+            .fetch("exam")
+            .fetch("reservation")
+            .fetch("reservation.machine.room")
+            .fetch("examinationEvent")
+            .where()
+            .isNull("ended")
+            .isNotNull("reservation")
+            .findList();
 
         if (participations.isEmpty()) {
             logger.debug("None found");
@@ -87,13 +90,14 @@ public class ExamAutoSaverActor extends AbstractActor {
             ExaminationEvent event = participation.getExaminationEvent();
             DateTime reservationStart = new DateTime(reservation == null ? event.getStart() : reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
-            DateTime now = reservation == null ?
-                    DateTimeUtils.adjustDST(DateTime.now()) :
-                    DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = reservation == null
+                ? DateTimeUtils.adjustDST(DateTime.now())
+                : DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 participation.setEnded(now);
                 participation.setDuration(
-                        new DateTime(participation.getEnded().getMillis() - participation.getStarted().getMillis()));
+                    new DateTime(participation.getEnded().getMillis() - participation.getStarted().getMillis())
+                );
 
                 GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
                 int deadlineDays = Integer.parseInt(settings.getValue());
@@ -108,8 +112,9 @@ public class ExamAutoSaverActor extends AbstractActor {
                     // Notify teachers
                     Set<User> recipients = new HashSet<>();
                     recipients.addAll(exam.getParent().getExamOwners());
-                    recipients.addAll(exam.getExamInspections().stream().map(
-                            ExamInspection::getUser).collect(Collectors.toSet()));
+                    recipients.addAll(
+                        exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet())
+                    );
                     AppUtil.notifyPrivateExamEnded(recipients, exam, composer);
                 }
             } else {
@@ -119,16 +124,17 @@ public class ExamAutoSaverActor extends AbstractActor {
     }
 
     private void checkExternalExams() {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("externalExam")
-                .fetch("reservation")
-                .fetch("reservation.machine.room")
-                .where()
-                .isNotNull("externalExam")
-                .isNotNull("externalExam.started")
-                .isNull("externalExam.finished")
-                .isNotNull("reservation.externalRef")
-                .findList();
+        List<ExamEnrolment> enrolments = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("externalExam")
+            .fetch("reservation")
+            .fetch("reservation.machine.room")
+            .where()
+            .isNotNull("externalExam")
+            .isNotNull("externalExam.started")
+            .isNull("externalExam.finished")
+            .isNotNull("reservation.externalRef")
+            .findList();
         for (ExamEnrolment enrolment : enrolments) {
             ExternalExam exam = enrolment.getExternalExam();
             Exam content;
@@ -154,5 +160,4 @@ public class ExamAutoSaverActor extends AbstractActor {
             }
         }
     }
-
 }

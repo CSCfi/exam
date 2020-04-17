@@ -15,10 +15,6 @@
 
 package backend.impl;
 
-import java.util.Set;
-
-import com.google.inject.ImplementedBy;
-
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
@@ -27,10 +23,11 @@ import backend.models.LanguageInspection;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import com.google.inject.ImplementedBy;
+import java.util.Set;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {
-
     /**
      * Message sent to student when review is ready.
      */
@@ -70,8 +67,13 @@ public interface EmailComposer {
     /**
      * Message sent to student when reservation has been cancelled.
      */
-    void composeReservationCancellationNotification(User student, Reservation reservation, String message,
-                                                    Boolean isStudentUser, ExamEnrolment enrolment);
+    void composeReservationCancellationNotification(
+        User student,
+        Reservation reservation,
+        String message,
+        Boolean isStudentUser,
+        ExamEnrolment enrolment
+    );
 
     /**
      * Message sent to student when externally made reservation has been cancelled by hosting admin.
@@ -81,8 +83,12 @@ public interface EmailComposer {
     /**
      * Message sent to student when reservation has been changed.
      */
-    void composeReservationChangeNotification(User student, ExamMachine previous, ExamMachine current,
-                                              ExamEnrolment enrolment);
+    void composeReservationChangeNotification(
+        User student,
+        ExamMachine previous,
+        ExamMachine current,
+        ExamEnrolment enrolment
+    );
 
     /**
      * Message sent to student when he/she has been enrolled to a private exam.
@@ -113,5 +119,4 @@ public interface EmailComposer {
      * Message sent to teacher when collaborative exam is created in the system.
      */
     void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam);
-
 }

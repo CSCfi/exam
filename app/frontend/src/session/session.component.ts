@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
-import * as _ from 'lodash';
 
 import { SessionService, User } from './session.service';
 
@@ -36,7 +35,6 @@ export const SessionComponent: angular.IComponentOptions = {
         devLoginRequired: boolean;
 
         constructor(
-            private $http: angular.IHttpService,
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private $sessionStorage: any,
@@ -61,7 +59,6 @@ export const SessionComponent: angular.IComponentOptions = {
                     // lets just throw him out.
                     this.Session.logout();
                 }
-                _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
                 this.Session.translate(user.lang);
                 this.Session.restartSessionCheck();
                 this.user = user;

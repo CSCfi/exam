@@ -16,10 +16,9 @@
 
 package backend.util.json;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Set;
 
 public class JsonFilter {
 

@@ -15,24 +15,7 @@
 
 package backend.controllers;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-import scala.concurrent.duration.Duration;
-
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalReservationHandler;
 import backend.exceptions.NotFoundException;
@@ -49,10 +32,23 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
 import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
 public class CalendarController extends BaseController {
-
     @Inject
     protected CalendarHandler calendarHandler;
 
@@ -67,19 +63,19 @@ public class CalendarController extends BaseController {
 
     private static final Logger.ALogger logger = Logger.of(CalendarController.class);
 
-
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result removeReservation(long id, Http.Request request) throws NotFoundException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("reservation.id", id)
-                .findOne();
+        final ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("reservation.machine")
+            .fetch("reservation.machine.room")
+            .where()
+            .eq("user.id", user.getId())
+            .eq("reservation.id", id)
+            .findOne();
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
@@ -96,10 +92,22 @@ public class CalendarController extends BaseController {
 
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
-        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-            logger.info("Reservation cancellation confirmation email sent");
-        }, system.dispatcher());
+        system
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeReservationCancellationNotification(
+                        enrolment.getUser(),
+                        reservation,
+                        "",
+                        isStudentUser,
+                        enrolment
+                    );
+                    logger.info("Reservation cancellation confirmation email sent");
+                },
+                system.dispatcher()
+            );
         return ok("removed");
     }
 
@@ -112,8 +120,10 @@ public class CalendarController extends BaseController {
         }
         // Removal not permitted if old reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
-        if (enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
-                (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
+        if (
+            enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
+            (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))
+        ) {
             return Optional.of(forbidden("sitnet_reservation_in_effect"));
         }
         // No previous reservation or it's in the future
@@ -134,26 +144,26 @@ public class CalendarController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("STUDENT")})
+    @Restrict({ @Group("STUDENT") })
     public Result getCurrentReservation(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.optionalSections")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("exam.id", id)
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .gt("reservation.startAt", now.toDate())
-                .findOneOrEmpty();
+        Optional<ExamEnrolment> enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("reservation.optionalSections")
+            .where()
+            .eq("user.id", user.getId())
+            .eq("exam.id", id)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .gt("reservation.startAt", now.toDate())
+            .findOneOrEmpty();
         return enrolment.map(e -> ok(e.getReservation())).orElse(ok());
     }
 
-
     @Authenticated
     @With(CalendarReservationSanitizer.class)
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public CompletionStage<Result> createReservation(Http.Request request) {
         Long roomId = request.attrs().get(Attrs.ROOM_ID);
         Long examId = request.attrs().get(Attrs.EXAM_ID);
@@ -170,19 +180,20 @@ public class CalendarController extends BaseController {
         try {
             // Take pessimistic lock for user to prevent multiple reservations creating.
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-            Optional<ExamEnrolment> optionalEnrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("reservation")
-                    .fetch("exam.examSections")
-                    .fetch("exam.examSections.examMaterials")
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", examId)
-                    .eq("exam.state", Exam.State.PUBLISHED)
-                    .disjunction()
-                    .isNull("reservation")
-                    .gt("reservation.startAt", now.toDate())
-                    .endJunction()
-                    .findOneOrEmpty();
+            Optional<ExamEnrolment> optionalEnrolment = Ebean
+                .find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("exam.examSections")
+                .fetch("exam.examSections.examMaterials")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .disjunction()
+                .isNull("reservation")
+                .gt("reservation.startAt", now.toDate())
+                .endJunction()
+                .findOneOrEmpty();
             if (optionalEnrolment.isEmpty()) {
                 return wrapAsPromise(notFound());
             }
@@ -192,9 +203,13 @@ public class CalendarController extends BaseController {
                 return wrapAsPromise(badEnrolment.get());
             }
 
-
-            Optional<ExamMachine> machine =
-                    calendarHandler.getRandomMachine(room, enrolment.getExam(), start, end, aids);
+            Optional<ExamMachine> machine = calendarHandler.getRandomMachine(
+                room,
+                enrolment.getExam(),
+                start,
+                end,
+                aids
+            );
             if (machine.isEmpty()) {
                 return wrapAsPromise(forbidden("sitnet_no_machines_available"));
             }
@@ -218,15 +233,18 @@ public class CalendarController extends BaseController {
             if (oldReservation != null) {
                 String externalReference = oldReservation.getExternalRef();
                 if (externalReference != null) {
-                    return externalReservationHandler.removeReservation(oldReservation, user, "")
-                            .thenCompose(result -> {
+                    return externalReservationHandler
+                        .removeReservation(oldReservation, user, "")
+                        .thenCompose(
+                            result -> {
                                 // Refetch enrolment
                                 ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
                                 if (updatedEnrolment == null) {
                                     return wrapAsPromise(notFound());
                                 }
                                 return makeNewReservation(updatedEnrolment, reservation, user);
-                            });
+                            }
+                        );
                 } else {
                     enrolment.setReservation(null);
                     enrolment.update();
@@ -249,16 +267,22 @@ public class CalendarController extends BaseController {
         Ebean.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously
-        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeReservationNotification(user, reservation, exam, false);
-            logger.info("Reservation confirmation email sent to {}", user.getEmail());
-        }, system.dispatcher());
+        system
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeReservationNotification(user, reservation, exam, false);
+                    logger.info("Reservation confirmation email sent to {}", user.getEmail());
+                },
+                system.dispatcher()
+            );
 
         return wrapAsPromise(ok("ok"));
     }
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
@@ -271,17 +295,17 @@ public class CalendarController extends BaseController {
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        return Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .disjunction()
-                .isNull("reservation")
-                .gt("reservation.startAt", now.toDate())
-                .endJunction()
-                .findOne();
+        return Ebean
+            .find(ExamEnrolment.class)
+            .fetch("exam")
+            .where()
+            .eq("user", user)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .disjunction()
+            .isNull("reservation")
+            .gt("reservation.startAt", now.toDate())
+            .endJunction()
+            .findOne();
     }
-
 }

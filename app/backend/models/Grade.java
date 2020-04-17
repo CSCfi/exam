@@ -17,14 +17,12 @@ package backend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
+import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.*;
-
 @Entity
 public class Grade extends Model {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
@@ -85,5 +83,4 @@ public class Grade extends Model {
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
     }
-
 }

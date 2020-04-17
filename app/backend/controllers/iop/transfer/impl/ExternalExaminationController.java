@@ -15,35 +15,8 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import io.vavr.control.Either;
-import org.joda.time.DateTime;
-import play.Environment;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-
 import backend.controllers.ExaminationController;
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
@@ -55,25 +28,65 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
+import backend.repository.ExaminationRepository;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EssayAnswerSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.control.Either;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Environment;
+import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
 
-@SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption", "configKey"})
-@Restrict({@Group("STUDENT")})
+@SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
+@Restrict({ @Group("STUDENT") })
 public class ExternalExaminationController extends ExaminationController {
 
     @Inject
-    public ExternalExaminationController(EmailComposer emailComposer, ActorSystem actor,
-                                         CollaborativeExamLoader collaborativeExamLoader,
-                                         AutoEvaluationHandler autoEvaluationHandler, Environment environment,
-                                         ExternalAttachmentLoader externalAttachmentLoader,
-                                         ByodConfigHandler byodConfigHandler) {
-        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment,
-                externalAttachmentLoader, byodConfigHandler);
+    public ExternalExaminationController(
+        EmailComposer emailComposer,
+        ActorSystem actor,
+        ExaminationRepository examinationRepository,
+        AutoEvaluationHandler autoEvaluationHandler,
+        Environment environment,
+        HttpExecutionContext httpExecutionContext,
+        ExternalAttachmentLoader externalAttachmentLoader,
+        ByodConfigHandler byodConfigHandler
+    ) {
+        super(
+            emailComposer,
+            examinationRepository,
+            actor,
+            autoEvaluationHandler,
+            environment,
+            httpExecutionContext,
+            externalAttachmentLoader,
+            byodConfigHandler
+        );
     }
 
     @Authenticated
@@ -91,35 +104,45 @@ public class ExternalExaminationController extends ExaminationController {
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
         Exam newExam = externalExam.deserialize();
-        Optional<Result> error = getEnrolmentError(enrolment, request);
-        if (error.isPresent()) {
-            return wrapAsPromise(error.get());
-        }
-        if (newExam.getState().equals(Exam.State.PUBLISHED)) {
-            newExam.setState(Exam.State.STUDENT_STARTED);
-            try {
-                externalExam.serialize(newExam);
-            } catch (IOException e) {
-                return wrapAsPromise(internalServerError());
-            }
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-            externalExam.setStarted(now);
-            externalExam.update();
-        }
-        newExam.setCloned(false);
-        newExam.setExternal(true);
-        newExam.setDerivedMaxScores();
-        processClozeTestQuestions(newExam);
-        return wrapAsPromise(ok(newExam, getPath(false)));
+        return getEnrolmentError(enrolment, request)
+            .thenApplyAsync(
+                error -> {
+                    if (error.isPresent()) {
+                        return error.get();
+                    }
+                    if (newExam.getState().equals(Exam.State.PUBLISHED)) {
+                        newExam.setState(Exam.State.STUDENT_STARTED);
+                        try {
+                            externalExam.serialize(newExam);
+                        } catch (IOException e) {
+                            return internalServerError();
+                        }
+                        DateTime now = DateTimeUtils.adjustDST(
+                            DateTime.now(),
+                            enrolment.getReservation().getMachine().getRoom()
+                        );
+                        externalExam.setStarted(now);
+                        externalExam.update();
+                    }
+                    newExam.setCloned(false);
+                    newExam.setExternal(true);
+                    newExam.setDerivedMaxScores();
+                    processClozeTestQuestions(newExam);
+                    return ok(newExam, getPath(false));
+                }
+            );
     }
 
     @Override
     protected void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(
+                esq -> {
                     ClozeTestAnswer answer = esq.getClozeTestAnswer();
                     if (answer == null) {
                         answer = new ClozeTestAnswer();
@@ -127,86 +150,104 @@ public class ExternalExaminationController extends ExaminationController {
                     answer.setQuestion(esq);
                     esq.setClozeTestAnswer(answer);
                     questionsToHide.add(esq.getQuestion());
-                });
+                }
+            );
         questionsToHide.forEach(q -> q.setQuestion(null));
     }
 
     @Authenticated
     @Override
-    public Result turnExam(String hash, Http.Request request) {
-        return terminateExam(hash, Exam.State.REVIEW, request.attrs().get(Attrs.AUTHENTICATED_USER));
+    public CompletionStage<Result> turnExam(String hash, Http.Request request) {
+        return CompletableFuture.completedFuture(
+            terminateExam(hash, Exam.State.REVIEW, request.attrs().get(Attrs.AUTHENTICATED_USER))
+        );
     }
 
     @Authenticated
     @Override
-    public Result abortExam(String hash, Http.Request request) {
-        return terminateExam(hash, Exam.State.ABORTED, request.attrs().get(Attrs.AUTHENTICATED_USER));
+    public CompletionStage<Result> abortExam(String hash, Http.Request request) {
+        return CompletableFuture.completedFuture(
+            terminateExam(hash, Exam.State.ABORTED, request.attrs().get(Attrs.AUTHENTICATED_USER))
+        );
     }
 
     @Authenticated
     @Override
-    public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (optional.isEmpty()) {
-                return forbidden();
-            }
-            ExternalExam ee = optional.get();
-            ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
-            List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
-                    .map(JsonNode::asLong)
-                    .collect(Collectors.toList());
-            return findSectionQuestion(ee, qid)
-                    .map(t -> processOptions(optionIds, t._2, ee, t._1))
-                    .getOrElseGet(Function.identity());
-        });
+        return getEnrolmentError(hash, user, request)
+            .thenApplyAsync(
+                err ->
+                    err.orElseGet(
+                        () -> {
+                            Optional<ExternalExam> optional = getExternalExam(hash, user);
+                            if (optional.isEmpty()) {
+                                return forbidden();
+                            }
+                            ExternalExam ee = optional.get();
+                            ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
+                            List<Long> optionIds = StreamSupport
+                                .stream(node.spliterator(), false)
+                                .map(JsonNode::asLong)
+                                .collect(Collectors.toList());
+                            return findSectionQuestion(ee, qid)
+                                .map(t -> processOptions(optionIds, t._2, ee, t._1))
+                                .getOrElseGet(Function.identity());
+                        }
+                    )
+            );
     }
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     @Override
-    public Result answerEssay(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (optional.isEmpty()) {
-                return forbidden();
-            }
-            ExternalExam ee = optional.get();
-            String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-            Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-            Optional<ExamSectionQuestion> optionalQuestion;
-            Exam content;
-            try {
-                content = ee.deserialize();
-                optionalQuestion = findQuestion(qid, content);
-            } catch (IOException e) {
-                return internalServerError();
-            }
-            if (optionalQuestion.isEmpty()) {
-                return forbidden();
-            }
-            ExamSectionQuestion question = optionalQuestion.get();
-            EssayAnswer answer = question.getEssayAnswer();
-            if (answer == null) {
-                answer = new EssayAnswer();
-            } else if (objectVersion.isPresent()) {
-                if (answer.getObjectVersion() > objectVersion.get()) {
-                    // Optimistic locking problem
-                    return forbidden("sitnet_error_data_has_changed");
-                }
-                answer.setObjectVersion(objectVersion.get() + 1);
-            }
-            answer.setAnswer(essayAnswer);
-            question.setEssayAnswer(answer);
-            try {
-                ee.serialize(content);
-            } catch (IOException e) {
-                return internalServerError();
-            }
-            return ok(answer);
-        });
+        return getEnrolmentError(hash, user, request)
+            .thenApplyAsync(
+                err ->
+                    err.orElseGet(
+                        () -> {
+                            Optional<ExternalExam> optional = getExternalExam(hash, user);
+                            if (optional.isEmpty()) {
+                                return forbidden();
+                            }
+                            ExternalExam ee = optional.get();
+                            String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+                            Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                            Optional<ExamSectionQuestion> optionalQuestion;
+                            Exam content;
+                            try {
+                                content = ee.deserialize();
+                                optionalQuestion = findQuestion(qid, content);
+                            } catch (IOException e) {
+                                return internalServerError();
+                            }
+                            if (optionalQuestion.isEmpty()) {
+                                return forbidden();
+                            }
+                            ExamSectionQuestion question = optionalQuestion.get();
+                            EssayAnswer answer = question.getEssayAnswer();
+                            if (answer == null) {
+                                answer = new EssayAnswer();
+                            } else if (objectVersion.isPresent()) {
+                                if (answer.getObjectVersion() > objectVersion.get()) {
+                                    // Optimistic locking problem
+                                    return forbidden("sitnet_error_data_has_changed");
+                                }
+                                answer.setObjectVersion(objectVersion.get() + 1);
+                            }
+                            answer.setAnswer(essayAnswer);
+                            question.setEssayAnswer(answer);
+                            try {
+                                ee.serialize(content);
+                            } catch (IOException e) {
+                                return internalServerError();
+                            }
+                            return ok(answer);
+                        }
+                    )
+            );
     }
 
     private Either<Result, Tuple2<Exam, ExamSectionQuestion>> findSectionQuestion(ExternalExam ee, Long qid) {
@@ -219,53 +260,65 @@ public class ExternalExaminationController extends ExaminationController {
             return Either.left(internalServerError());
         }
         return optionalQuestion
-                .<Either<Result, Tuple2<Exam, ExamSectionQuestion>>>map(
-                        examSectionQuestion -> Either.right(Tuple.of(content, examSectionQuestion)))
-                .orElseGet(() -> Either.left(forbidden()));
+            .<Either<Result, Tuple2<Exam, ExamSectionQuestion>>>map(
+                examSectionQuestion -> Either.right(Tuple.of(content, examSectionQuestion))
+            )
+            .orElseGet(() -> Either.left(forbidden()));
     }
 
     @Authenticated
     @With(EssayAnswerSanitizer.class)
     @Override
-    public Result answerClozeTest(String hash, Long qid, Http.Request request) {
+    public CompletionStage<Result> answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash, user);
-            if (optional.isEmpty()) {
-                return forbidden();
-            }
-            ExternalExam ee = optional.get();
-            return findSectionQuestion(ee, qid).map(t -> {
-                ExamSectionQuestion esq = t._2;
-                ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                if (answer == null) {
-                    answer = new ClozeTestAnswer();
-                    esq.setClozeTestAnswer(answer);
-                } else {
-                    long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
-                    if (answer.getObjectVersion() > objectVersion) {
-                        // Optimistic locking problem
-                        return forbidden("sitnet_error_data_has_changed");
-                    }
-                    answer.setObjectVersion(objectVersion + 1);
-                }
-                answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
-                try {
-                    ee.serialize(t._1);
-                } catch (IOException e) {
-                    return internalServerError();
-                }
-                return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
-            }).getOrElseGet(Function.identity());
-        });
+        return getEnrolmentError(hash, user, request)
+            .thenApplyAsync(
+                err ->
+                    err.orElseGet(
+                        () -> {
+                            Optional<ExternalExam> optional = getExternalExam(hash, user);
+                            if (optional.isEmpty()) {
+                                return forbidden();
+                            }
+                            ExternalExam ee = optional.get();
+                            return findSectionQuestion(ee, qid)
+                                .map(
+                                    t -> {
+                                        ExamSectionQuestion esq = t._2;
+                                        ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                                        if (answer == null) {
+                                            answer = new ClozeTestAnswer();
+                                            esq.setClozeTestAnswer(answer);
+                                        } else {
+                                            long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                                            if (answer.getObjectVersion() > objectVersion) {
+                                                // Optimistic locking problem
+                                                return forbidden("sitnet_error_data_has_changed");
+                                            }
+                                            answer.setObjectVersion(objectVersion + 1);
+                                        }
+                                        answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                                        try {
+                                            ee.serialize(t._1);
+                                        } catch (IOException e) {
+                                            return internalServerError();
+                                        }
+                                        return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+                                    }
+                                )
+                                .getOrElseGet(Function.identity());
+                        }
+                    )
+            );
     }
 
-
     private Optional<ExamSectionQuestion> findQuestion(Long qid, Exam content) {
-        return content.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getId().equals(qid))
-                .findFirst();
+        return content
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getId().equals(qid))
+            .findFirst();
     }
 
     private Result processOptions(List<Long> oids, ExamSectionQuestion esq, ExternalExam ee, Exam content) {
@@ -279,43 +332,39 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private Optional<ExternalExam> getExternalExam(String hash, User user) {
-        return Ebean.find(ExternalExam.class).where()
-                .eq("hash", hash)
-                .eq("creator", user)
-                .forUpdate()
-                .findOneOrEmpty();
+        return Ebean.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).forUpdate().findOneOrEmpty();
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("externalExam.hash", prototype.getHash())
-                .le("reservation.startAt", now.toDate())
-                .gt("reservation.endAt", now.toDate())
-                .eq("reservation.externalUserRef", user.getEppn())
-                .findOne();
+        ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("reservation.machine")
+            .fetch("reservation.machine.room")
+            .where()
+            .eq("user.id", user.getId())
+            .eq("externalExam.hash", prototype.getHash())
+            .le("reservation.startAt", now.toDate())
+            .gt("reservation.endAt", now.toDate())
+            .eq("reservation.externalUserRef", user.getEppn())
+            .findOne();
         return Optional.ofNullable(enrolment);
     }
 
-    private Optional<Result> getEnrolmentError(String hash, User user, Http.Request request) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
-                .eq("externalExam.hash", hash)
-                .eq("externalExam.creator", user)
-                .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
-                .findOne();
+    private CompletionStage<Optional<Result>> getEnrolmentError(String hash, User user, Http.Request request) {
+        ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .eq("externalExam.hash", hash)
+            .eq("externalExam.creator", user)
+            .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
+            .findOne();
         return getEnrolmentError(enrolment, request);
     }
 
     private Result terminateExam(String hash, Exam.State newState, User user) {
-        ExternalExam ee = Ebean.find(ExternalExam.class).where()
-                .eq("hash", hash)
-                .eq("creator", user)
-                .findOne();
+        ExternalExam ee = Ebean.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).findOne();
         if (ee == null) {
             return forbidden();
         }
@@ -337,5 +386,4 @@ public class ExternalExaminationController extends ExaminationController {
         }
         return ok();
     }
-
 }

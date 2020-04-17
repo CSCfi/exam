@@ -15,7 +15,6 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-
 angular.module('app.exam.editor').component('examParticipantSelector', {
     template: require('./examParticipantSelector.template.html'),
     bindings: {
