@@ -17,11 +17,10 @@
 package backend.security;
 
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 import backend.repository.UserRepository;
 import backend.sanitizers.Attrs;
-import com.sun.net.httpserver.HttpContext;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -35,28 +34,26 @@ import play.mvc.Results;
 
 public class AuthenticatedAction extends Action<Authenticated> {
     private final HttpExecutionContext ec;
-    private final SessionHandler sessionHandler;
     private final UserRepository userRepository;
 
     private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
 
     @Inject
-    public AuthenticatedAction(HttpExecutionContext ec, SessionHandler sessionHandler, UserRepository userRepository) {
+    public AuthenticatedAction(HttpExecutionContext ec, UserRepository userRepository) {
         this.ec = ec;
-        this.sessionHandler = sessionHandler;
         this.userRepository = userRepository;
     }
 
     private CompletionStage<Optional<User>> getLoggedInUser(Http.Request request) {
-        Optional<Session> session = sessionHandler.getSession(request);
-        if (session.isPresent()) {
+        Map<String, String> session = request.session().data();
+        if (!session.isEmpty()) {
             return userRepository
-                .getLoggedInUser(session.get())
+                .getLoggedInUser(Long.parseLong(session.get("id")))
                 .thenApplyAsync(
                     ou -> {
                         if (ou.isPresent()) {
                             User user = ou.get();
-                            user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
+                            user.setLoginRole(Role.Name.valueOf(session.get("role")));
                             return Optional.of(user);
                         }
                         return Optional.empty();

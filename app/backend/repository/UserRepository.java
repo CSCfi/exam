@@ -1,6 +1,5 @@
 package backend.repository;
 
-import backend.models.Session;
 import backend.models.User;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -20,10 +19,7 @@ public class UserRepository {
         this.ec = databaseExecutionContext;
     }
 
-    public CompletionStage<Optional<User>> getLoggedInUser(Session session) {
-        return CompletableFuture.supplyAsync(
-            () -> db.find(User.class).where().idEq(session.getUserId()).findOneOrEmpty(),
-            ec
-        );
+    public CompletionStage<Optional<User>> getLoggedInUser(Long id) {
+        return CompletableFuture.supplyAsync(() -> db.find(User.class).where().idEq(id).findOneOrEmpty(), ec);
     }
 }

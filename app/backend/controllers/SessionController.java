@@ -24,11 +24,9 @@ import backend.models.Language;
 import backend.models.Organisation;
 import backend.models.Reservation;
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 import backend.models.dto.Credentials;
 import backend.repository.EnrolmentRepository;
-import backend.security.SessionHandler;
 import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
@@ -44,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +56,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
@@ -67,7 +67,6 @@ import play.mvc.Result;
 public class SessionController extends BaseController {
     private final Environment environment;
     private final HttpExecutionContext ec;
-    private final SessionHandler sessionHandler;
     private final ExternalExamAPI externalExamAPI;
     private final ConfigReader configReader;
     private final EnrolmentRepository enrolmentRepository;
@@ -90,14 +89,12 @@ public class SessionController extends BaseController {
     public SessionController(
         Environment environment,
         HttpExecutionContext ec,
-        SessionHandler sessionHandler,
         ExternalExamAPI externalExamAPI,
         ConfigReader configReader,
         EnrolmentRepository enrolmentRepository
     ) {
         this.environment = environment;
         this.ec = ec;
-        this.sessionHandler = sessionHandler;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
         this.enrolmentRepository = enrolmentRepository;
@@ -364,26 +361,27 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
-        Session session = new Session();
-        session.setSince(DateTime.now());
-        session.setUserId(user.getId());
-        session.setEmail(user.getEmail());
+        Map<String, String> payload = new HashMap<>();
+        payload.put("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
+        payload.put("id", user.getId().toString());
+        payload.put("email", user.getEmail());
+        if (!user.getPermissions().isEmpty()) {
+            // For now we support just a single permission
+            payload.put("permissions", user.getPermissions().get(0).getValue());
+        }
         // If (regular) user has just one role, set it as the one used for login
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
-            session.setLoginRole(user.getRoles().get(0).getName());
+            payload.put("role", user.getRoles().get(0).getName());
         }
         List<Role> roles = isTemporaryVisitor
             ? Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
             : user.getRoles();
         if (isTemporaryVisitor) {
-            session.setTemporalStudent(true);
-            session.setLoginRole(roles.get(0).getName()); // forced login as student
+            payload.put("visitingStudent", "true");
+            payload.put("role", roles.get(0).getName()); // forced login as student
         }
-        String token = createSession(session, request);
-
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
-        result.put("token", token);
         result.put("firstName", user.getFirstName());
         result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
@@ -392,7 +390,7 @@ public class SessionController extends BaseController {
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         result.put("email", user.getEmail());
-        return checkStudentSession(request, session, ok(result));
+        return checkStudentSession(request, new Http.Session(payload), ok(result));
     }
 
     // prints HAKA attributes, used for debugging
@@ -426,15 +424,11 @@ public class SessionController extends BaseController {
 
     @ActionMethod
     public Result logout(Http.Request request) {
-        Result result = ok();
-        Optional<String> ot = sessionHandler.getSessionToken(request);
-        Optional<Session> os = sessionHandler.getSession(request);
-        if (ot.isPresent() && os.isPresent()) {
-            Session session = os.get();
-            String token = ot.get();
-            logger.info("Flush session for user #{}", session.getUserId());
-            sessionHandler.flushSession(token);
-            User user = Ebean.find(User.class, session.getUserId());
+        Result result = ok().withNewSession();
+        Map<String, String> session = request.session().data();
+        if (!session.isEmpty()) {
+            Long userId = Long.parseLong(session.get("id"));
+            User user = Ebean.find(User.class, userId);
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
@@ -445,12 +439,12 @@ public class SessionController extends BaseController {
     }
 
     @SubjectPresent
-    public CompletionStage<Result> setLoginRole(Long uid, String roleName, Http.Request request) {
-        Optional<Session> os = getSession(request);
-        if (os.isEmpty()) {
+    public CompletionStage<Result> setLoginRole(String roleName, Http.Request request) {
+        Http.Session session = request.session();
+        if (session.get("id").isEmpty()) {
             return wrapAsPromise(unauthorized());
         }
-        User user = Ebean.find(User.class, uid);
+        User user = Ebean.find(User.class, Long.parseLong(session.get("id").get()));
         if (user == null) {
             return wrapAsPromise(notFound());
         }
@@ -461,51 +455,44 @@ public class SessionController extends BaseController {
         if (!user.getRoles().contains(role)) {
             return wrapAsPromise(forbidden());
         }
-        Session session = os.get();
-        session.setLoginRole(roleName);
-        updateSession(session, request);
-        return checkStudentSession(request, session, ok());
+        return checkStudentSession(request, session.adding("role", roleName), ok());
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result extendSession(Http.Request request) {
-        Optional<Session> os = getSession(request);
-        if (os.isEmpty()) {
+        Http.Session session = request.session();
+        if (session.get("id").isPresent()) {
             return unauthorized();
         }
-        Session session = os.get();
-        session.setSince(DateTime.now());
-        updateSession(session, request);
-        return ok();
+        return ok().withSession(session.adding("since", ISODateTimeFormat.dateTimeParser().print(DateTime.now())));
     }
 
     @ActionMethod
     public CompletionStage<Result> checkSession(Http.Request request) {
-        Optional<String> ot = sessionHandler.getSessionToken(request);
-        Optional<Session> os = getSession(request);
-        if (ot.isEmpty() || os.isEmpty() || os.get().getSince() == null) {
+        Http.Session session = request.session();
+        if (session.get("since").isEmpty()) {
             logger.info("Session not found");
             return wrapAsPromise(ok("no_session"));
         }
-        Session session = os.get();
-        DateTime expirationTime = session.getSince().plusMinutes(SESSION_TIMEOUT_MINUTES);
+        DateTime expirationTime = ISODateTimeFormat
+            .dateTimeParser()
+            .parseDateTime(session.get("since").get())
+            .plusMinutes(SESSION_TIMEOUT_MINUTES);
         DateTime alarmTime = expirationTime.minusMinutes(2);
         logger.debug("Session expiration due at {}", expirationTime);
-
         if (expirationTime.isBeforeNow()) {
             logger.info("Session has expired");
-            sessionHandler.flushSession(ot.get());
-            return wrapAsPromise(ok("no_session"));
+            return wrapAsPromise(ok("no_session").withNewSession());
         }
         String reason = alarmTime.isBeforeNow() ? "alarm" : "";
         // check for upcoming student reservations
         return checkStudentSession(request, session, ok(reason));
     }
 
-    private CompletionStage<Result> checkStudentSession(Http.Request request, Session session, Result result) {
-        if (isStudent(session)) {
+    private CompletionStage<Result> checkStudentSession(Http.Request request, Http.Session session, Result result) {
+        if (isStudent(session) && session.get("id").isPresent()) {
             return enrolmentRepository
-                .getReservationHeaders(request, session)
+                .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
                 .thenApplyAsync(
                     headers -> {
                         String[] args = headers
@@ -513,37 +500,43 @@ public class SessionController extends BaseController {
                             .stream()
                             .flatMap(e -> List.of(e.getKey(), e.getValue()).stream())
                             .toArray(String[]::new);
-                        updateStudentHeaders(session, headers);
-                        return result.withHeaders(args);
+                        Http.Session newSession = updateStudentHeaders(session, headers);
+                        return result.withHeaders(args).withSession(newSession);
                     },
                     ec.current()
                 );
         } else {
-            return wrapAsPromise(result);
+            return wrapAsPromise(result.withSession(session));
         }
     }
 
-    private void updateStudentHeaders(Session session, Map<String, String> headers) {
-        session.setOngoingExamHash(headers.getOrDefault("x-exam-start-exam", null));
-        session.setUpcomingExamHash(headers.getOrDefault("x-exam-upcoming-exam", null));
-        session.setWrongMachineData(headers.getOrDefault("x-exam-wrong-machine", null));
-        session.setWrongRoomData(headers.getOrDefault("x-exam-wrong-room", null));
+    private Http.Session updateStudentHeaders(Http.Session session, Map<String, String> headers) {
+        Map<String, String> payload = new HashMap<>(session.data());
+        if (headers.containsKey("x-exam-start-exam")) {
+            payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));
+        } else {
+            payload.remove("ongoingExamHash");
+        }
+        if (headers.containsKey("x-exam-upcoming-exam")) {
+            payload.put("upcomingExamHash", headers.get("x-exam-upcoming-exam"));
+        } else {
+            payload.remove("upcomingExamHash");
+        }
+        if (headers.containsKey("x-exam-wrong-machine")) {
+            payload.put("wrongMachineData", headers.get("x-exam-wrong-machine"));
+        } else {
+            payload.remove("wrongMachineData");
+        }
+        if (headers.containsKey("x-exam-wrong-room")) {
+            payload.put("wrongRoomData", headers.get("x-exam-wrong-room"));
+        } else {
+            payload.remove("wrongRoomData");
+        }
+        return new Http.Session(payload);
     }
 
-    private boolean isStudent(Session session) {
-        return (session.getLoginRole() != null && Role.Name.STUDENT.toString().equals(session.getLoginRole()));
-    }
-
-    private Optional<Session> getSession(Http.Request request) {
-        return sessionHandler.getSession(request);
-    }
-
-    private void updateSession(Session session, Http.Request request) {
-        sessionHandler.updateSession(request, session);
-    }
-
-    private String createSession(Session session, Http.Request request) {
-        return sessionHandler.createSession(request, session);
+    private boolean isStudent(Http.Session session) {
+        return (session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get()));
     }
 
     private static Optional<String> parse(String src) {

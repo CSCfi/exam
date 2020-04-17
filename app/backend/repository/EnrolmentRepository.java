@@ -7,7 +7,6 @@ import backend.models.ExamRoom;
 import backend.models.ExaminationEvent;
 import backend.models.ExaminationEventConfiguration;
 import backend.models.Reservation;
-import backend.models.Session;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.sections.ExamSection;
@@ -57,8 +56,8 @@ public class EnrolmentRepository {
         this.byodConfigHandler = byodConfigHandler;
     }
 
-    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Session session) {
-        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, session), ec);
+    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId) {
+        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, userId), ec);
     }
 
     public CompletionStage<List<ExamEnrolment>> getStudentEnrolments(User user) {
@@ -131,8 +130,8 @@ public class EnrolmentRepository {
             .collect(Collectors.toList());
     }
 
-    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Session session) {
-        User user = db.find(User.class, session.getUserId());
+    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
+        User user = db.find(User.class, userId);
         if (user == null) return Collections.emptyMap();
         Map<String, String> headers = new HashMap<>();
         Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(user.getId(), 0);

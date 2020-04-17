@@ -191,6 +191,10 @@ public class User extends GeneratedIdentityModel implements Subject {
         return permissions;
     }
 
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
     public List<ExamEnrolment> getEnrolments() {
         return enrolments;
     }

@@ -15,8 +15,8 @@
 
 package backend.security;
 
+import backend.models.Permission;
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
@@ -33,12 +33,9 @@ import play.mvc.Results;
 
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
-    private SessionHandler sessionHandler;
 
     @Inject
-    AuthorizationHandler(final SessionHandler sessionHandler) {
-        this.sessionHandler = sessionHandler;
-    }
+    AuthorizationHandler() {}
 
     @Override
     public long getId() {
@@ -52,11 +49,14 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
-        Optional<Session> os = sessionHandler.getSession(request);
-        if (os.isPresent()) {
+        Http.Session session = request.session();
+        if (session.get("role").isPresent()) {
             User user = new User();
-            Session session = os.get();
-            user.setRoles(List.of(Role.withName(session.getLoginRole())));
+            user.setRoles(List.of(Role.withName(session.get("role").get())));
+            if (session.get("permissions").isPresent()) {
+                Optional<Permission> permission = Permission.withValue(session.get("permissions").get());
+                permission.ifPresent(value -> user.setPermissions(List.of(value)));
+            }
             return CompletableFuture.completedFuture(Optional.of(user));
         }
         return CompletableFuture.completedFuture(Optional.empty());

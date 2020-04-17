@@ -15,35 +15,28 @@
 
 package backend.system;
 
-import backend.models.Session;
-import backend.security.SessionHandler;
-import com.google.inject.Inject;
 import java.lang.reflect.Method;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class SystemRequestHandler implements ActionCreator {
-    private final SessionHandler sessionHandler;
-
-    @Inject
-    public SystemRequestHandler(SessionHandler sessionHandler) {
-        this.sessionHandler = sessionHandler;
-    }
 
     @Override
     public Action.Simple createAction(Http.Request request, Method actionMethod) {
-        Optional<Session> os = sessionHandler.getSession(request);
-        AuditLogger.log(request, os.orElse(null));
-        os.ifPresent(s -> updateExpiration(request, s));
-        return propagateAction(os.orElse(null));
+        Http.Session session = request.session();
+        AuditLogger.log(request);
+        if (session.get("id").isPresent()) {
+            return propagateAction(withUpdatedExpiration(request, session));
+        }
+        return propagateAction(session);
     }
 
-    private Action.Simple propagateAction(Session session) {
+    private Action.Simple propagateAction(Http.Session session) {
         return new Action.Simple() {
 
             @Override
@@ -54,17 +47,17 @@ public class SystemRequestHandler implements ActionCreator {
                         r -> {
                             r = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
                             // If ongoing exam, we need to decorate every response with that knowledge
-                            if (session != null && session.getOngoingExamHash() != null) {
-                                r = r.withHeader("x-exam-start-exam", session.getOngoingExamHash());
+                            if (session.get("ongoingExamHash").isPresent()) {
+                                r = r.withHeader("x-exam-start-exam", session.get("ongoingExamHash").get());
                             }
-                            if (session != null && session.getUpcomingExamHash() != null) {
-                                r = r.withHeader("x-exam-upcoming-exam", session.getUpcomingExamHash());
+                            if (session.get("upcomingExamHash").isPresent()) {
+                                r = r.withHeader("x-exam-upcoming-exam", session.get("upcomingExamHash").get());
                             }
-                            if (session != null && session.getWrongMachineData() != null) {
-                                r = r.withHeader("x-exam-wrong-machine", session.getWrongMachineData());
+                            if (session.get("wrongMachineData").isPresent()) {
+                                r = r.withHeader("x-exam-wrong-machine", session.get("wrongMachineData").get());
                             }
-                            if (session != null && session.getWrongRoomData() != null) {
-                                r = r.withHeader("x-exam-wrong-room", session.getWrongRoomData());
+                            if (session.get("wrongRoomData").isPresent()) {
+                                r = r.withHeader("x-exam-wrong-room", session.get("wrongRoomData").get());
                             }
                             return r;
                         }
@@ -73,10 +66,10 @@ public class SystemRequestHandler implements ActionCreator {
         };
     }
 
-    private void updateExpiration(Http.Request request, Session session) {
+    private Http.Session withUpdatedExpiration(Http.Request request, Http.Session session) {
         if (!request.path().contains("checkSession")) {
-            session.setSince(DateTime.now());
-            sessionHandler.updateSession(request, session);
+            return session.adding("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
         }
+        return session;
     }
 }

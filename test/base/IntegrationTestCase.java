@@ -1,5 +1,21 @@
 package base;
 
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.Language;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.util.json.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,14 +33,8 @@ import java.util.Objects;
 import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.apache.commons.io.FileUtils;
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,19 +46,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.Language;
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.util.json.JsonDeserializer;
-
-import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
@@ -56,8 +53,8 @@ public class IntegrationTestCase {
 
     protected static final int MAIL_TIMEOUT = 20000;
     protected Application app;
-    private String sessionToken;
     protected Long userId;
+    protected Http.Session session;
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
@@ -112,11 +109,7 @@ public class IntegrationTestCase {
 
     @After
     public void tearDown() {
-        if (sessionToken != null) {
-            logout();
-            //sessionToken = null;
-            //userId = null;
-        }
+        logout();
         Helpers.stop(app);
         // Clear exam upload directory
         String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
@@ -167,6 +160,9 @@ public class IntegrationTestCase {
         for (Map.Entry<String, String> header : headers.entrySet()) {
             request = request.header(header.getKey(), header.getValue());
         }
+        if (this.session != null) {
+            request = request.session(this.session.data());
+        }
         return request;
     }
 
@@ -190,9 +186,9 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("eppn", eppn);
         headers.forEach(HAKA_HEADERS::put);
         Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
+        this.session = result.session();
         assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode user = Json.parse(contentAsString(result));
-        sessionToken = user.get("token").asText();
         userId = user.get("id").asLong();
     }
 

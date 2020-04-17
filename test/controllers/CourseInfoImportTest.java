@@ -75,7 +75,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testGetCourseDefaultOrganisation() throws Exception {
+    public void testGetCourseDefaultOrganisation() {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
         Result result = get("/app/courses?filter=code&q=2121219");
