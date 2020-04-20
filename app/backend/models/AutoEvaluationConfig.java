@@ -18,10 +18,11 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.annotation.EnumValue;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.springframework.beans.BeanUtils;
-
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -29,22 +30,24 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
 
 @Entity
 public class AutoEvaluationConfig extends GeneratedIdentityModel {
 
-    public enum ReleaseType  {
-        @EnumValue("1") IMMEDIATE,
-        @EnumValue("2") GIVEN_DATE,
-        @EnumValue("3") GIVEN_AMOUNT_DAYS,
-        @EnumValue("4") AFTER_EXAM_PERIOD,
-        @EnumValue("5") NEVER
+    public enum ReleaseType {
+        @EnumValue("1")
+        IMMEDIATE,
+        @EnumValue("2")
+        GIVEN_DATE,
+        @EnumValue("3")
+        GIVEN_AMOUNT_DAYS,
+        @EnumValue("4")
+        AFTER_EXAM_PERIOD,
+        @EnumValue("5")
+        NEVER
     }
 
     private ReleaseType releaseType;
@@ -103,8 +106,7 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
 
     @Transient
     public Map<Integer, GradeEvaluation> asGradeMap() {
-        return gradeEvaluations.stream()
-                .collect(Collectors.toMap(ge -> ge.getGrade().getId(), Function.identity()));
+        return gradeEvaluations.stream().collect(Collectors.toMap(ge -> ge.getGrade().getId(), Function.identity()));
     }
 
     @Transient
@@ -131,5 +133,4 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
     }
-
 }

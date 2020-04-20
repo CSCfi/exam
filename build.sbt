@@ -16,7 +16,6 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies += javaJdbc
-libraryDependencies += caffeine
 libraryDependencies += ws
 libraryDependencies += evolutions
 libraryDependencies += filters

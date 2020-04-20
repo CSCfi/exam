@@ -15,10 +15,10 @@
 
 package backend.models;
 
-
 import backend.models.base.GeneratedIdentityModel;
 import io.ebean.annotation.EnumValue;
-
+import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
@@ -46,17 +46,25 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
         this.type = type;
     }
 
+    public static Optional<Permission> withValue(String name) {
+        if (name.equals(Type.CAN_INSPECT_LANGUAGE.name())) { // dumb but then again we have just one valid permission
+            Permission permission = new Permission();
+            permission.setType(Type.CAN_INSPECT_LANGUAGE);
+            return Optional.of(permission);
+        }
+        return Optional.empty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Permission)) return false;
         Permission permission = (Permission) o;
-        return !(type != null ? !type.equals(permission.type) : permission.type != null);
+        return Objects.equals(type, permission.type);
     }
 
     @Override
     public int hashCode() {
         return type != null ? type.hashCode() : 0;
     }
-
 }

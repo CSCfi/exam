@@ -15,28 +15,28 @@
 
 package backend.models.questions;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.sections.ExamSectionQuestionOption;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.ebean.annotation.EnumValue;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import io.ebean.annotation.EnumValue;
 import org.springframework.beans.BeanUtils;
-
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.sections.ExamSectionQuestionOption;
-
 
 @Entity
 public class MultipleChoiceOption extends GeneratedIdentityModel implements Comparable<MultipleChoiceOption> {
 
     public enum ClaimChoiceOptionType {
-        @EnumValue("1") CorrectOption,
-        @EnumValue("2") IncorrectOption,
-        @EnumValue("3") SkipOption
+        @EnumValue("1")
+        CorrectOption,
+        @EnumValue("2")
+        IncorrectOption,
+        @EnumValue("3")
+        SkipOption
     }
 
     private String option;
@@ -68,7 +68,6 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     }
 
     public void setCorrectOption(boolean correctOption) {
-
         this.correctOption = correctOption;
     }
 
@@ -80,9 +79,13 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         this.defaultScore = defaultScore;
     }
 
-    public ClaimChoiceOptionType getClaimChoiceType() { return claimChoiceType; }
+    public ClaimChoiceOptionType getClaimChoiceType() {
+        return claimChoiceType;
+    }
 
-    public void setClaimChoiceType(ClaimChoiceOptionType claimChoiceType) { this.claimChoiceType = claimChoiceType; }
+    public void setClaimChoiceType(ClaimChoiceOptionType claimChoiceType) {
+        this.claimChoiceType = claimChoiceType;
+    }
 
     public Question getQuestion() {
         return question;
@@ -107,11 +110,17 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     }
 
     public String toString() {
-        return "MultipleChoiceOption{" +
-                "id=" + getId() +
-                ", option='" + option + '\'' +
-                ", correctOption=" + correctOption +
-                '}';
+        return (
+            "MultipleChoiceOption{" +
+            "id=" +
+            getId() +
+            ", option='" +
+            option +
+            '\'' +
+            ", correctOption=" +
+            correctOption +
+            '}'
+        );
     }
 
     @Override

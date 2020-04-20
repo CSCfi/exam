@@ -15,18 +15,17 @@
 
 package backend.sanitizers;
 
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.User;
 import java.util.Collection;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;
 
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.User;
-
 public enum Attrs {
     ;
+
     public static final TypedKey<String> ENROLMENT_INFORMATION = TypedKey.create("enrolmentInformation");
     public static final TypedKey<String> INSTRUCTION = TypedKey.create("instruction");
     public static final TypedKey<String> LANG = TypedKey.create("lang");

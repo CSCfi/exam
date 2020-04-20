@@ -15,6 +15,13 @@
 
 package backend.models;
 
+import backend.controllers.RoomLike;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.calendar.DefaultWorkingHours;
+import backend.models.calendar.ExceptionWorkingHours;
+import backend.util.datetime.DateTimeUtils;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.ebean.Finder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,9 +35,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.ebean.Finder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -38,17 +42,13 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
-import backend.controllers.RoomLike;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.calendar.DefaultWorkingHours;
-import backend.models.calendar.ExceptionWorkingHours;
-import backend.util.datetime.DateTimeUtils;
-
-
 @Entity
 public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
-    public enum State {ACTIVE, INACTIVE}
+    public enum State {
+        ACTIVE,
+        INACTIVE
+    }
 
     private String name;
 
@@ -319,15 +319,28 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     private List<OpeningHours> getDefaultWorkingHours(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<OpeningHours> hours = new ArrayList<>();
-        defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).forEach(dwh -> {
-            DateTime midnight = date.toDateTimeAtStartOfDay();
-            DateTime start = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime()), dwh.getTimezoneOffset()));
-            DateTime end = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset()));
-            Interval interval = new Interval(start, end);
-            hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
-        });
+        defaultWorkingHours
+            .stream()
+            .filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day))
+            .forEach(
+                dwh -> {
+                    DateTime midnight = date.toDateTimeAtStartOfDay();
+                    DateTime start = midnight.withMillisOfDay(
+                        DateTimeUtils.resolveStartWorkingHourMillis(
+                            new DateTime(dwh.getStartTime()),
+                            dwh.getTimezoneOffset()
+                        )
+                    );
+                    DateTime end = midnight.withMillisOfDay(
+                        DateTimeUtils.resolveEndWorkingHourMillis(
+                            new DateTime(dwh.getEndTime()),
+                            dwh.getTimezoneOffset()
+                        )
+                    );
+                    Interval interval = new Interval(start, end);
+                    hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
+                }
+            );
         return hours;
     }
 
@@ -335,14 +348,21 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date);
         List<Interval> extensionEvents = DateTimeUtils.mergeSlots(
-                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.NON_RESTRICTIVE));
+            DateTimeUtils.getExceptionEvents(
+                calendarExceptionEvents,
+                date,
+                DateTimeUtils.RestrictionType.NON_RESTRICTIVE
+            )
+        );
         List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(
-                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE));
+            DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE)
+        );
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = DateTimeUtils.mergeSlots(
-                    Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
-                            .collect(Collectors.toList())
+                Stream
+                    .concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
+                    .collect(Collectors.toList())
             );
             int tzOffset;
             if (workingHours.isEmpty()) {
@@ -351,8 +371,12 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
                 tzOffset = workingHours.get(0).timezoneOffset;
             }
             workingHours.clear();
-            workingHours.addAll(unifiedIntervals.stream().map(
-                    interval -> new OpeningHours(interval, tzOffset)).collect(Collectors.toList()));
+            workingHours.addAll(
+                unifiedIntervals
+                    .stream()
+                    .map(interval -> new OpeningHours(interval, tzOffset))
+                    .collect(Collectors.toList())
+            );
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {
@@ -386,5 +410,4 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     }
 
     public static final Finder<Long, ExamRoom> find = new Finder<>(ExamRoom.class);
-
 }

@@ -15,28 +15,29 @@
 
 package backend.util.datetime;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
+
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.calendar.ExceptionWorkingHours;
+import backend.models.iop.ExternalReservation;
+import com.typesafe.config.ConfigFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.typesafe.config.ConfigFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.base.AbstractInterval;
 
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.calendar.ExceptionWorkingHours;
-import backend.models.iop.ExternalReservation;
-
-import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
-
 public class DateTimeUtils {
 
-    public enum RestrictionType {RESTRICTIVE, NON_RESTRICTIVE}
+    public enum RestrictionType {
+        RESTRICTIVE,
+        NON_RESTRICTIVE
+    }
 
     public static List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {
         List<Interval> gaps = new ArrayList<>();
@@ -66,7 +67,6 @@ public class DateTimeUtils {
             gaps.add(new Interval(subLatestEnd, searchEnd));
         }
         return gaps;
-
     }
 
     private static List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
@@ -90,15 +90,19 @@ public class DateTimeUtils {
     private static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.get(0).getStart();
         DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
-        return !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop);
+        return (!searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop));
     }
 
-    public static List<Interval> getExceptionEvents(List<ExceptionWorkingHours> hours, LocalDate date, RestrictionType restrictionType) {
+    public static List<Interval> getExceptionEvents(
+        List<ExceptionWorkingHours> hours,
+        LocalDate date,
+        RestrictionType restrictionType
+    ) {
         List<Interval> exceptions = new ArrayList<>();
         for (ExceptionWorkingHours ewh : hours) {
             boolean isApplicable =
-                    (restrictionType == RestrictionType.RESTRICTIVE && ewh.isOutOfService()) ||
-                            (restrictionType == RestrictionType.NON_RESTRICTIVE && !ewh.isOutOfService());
+                (restrictionType == RestrictionType.RESTRICTIVE && ewh.isOutOfService()) ||
+                (restrictionType == RestrictionType.NON_RESTRICTIVE && !ewh.isOutOfService());
             if (isApplicable) {
                 DateTime start = new DateTime(ewh.getStartDate()).plusMillis(ewh.getStartDateTimezoneOffset());
                 DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
@@ -160,9 +164,9 @@ public class DateTimeUtils {
     }
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
-        return reservation.getExternalReservation() != null ?
-                adjustDST(dateTime, reservation.getExternalReservation()) :
-                doAdjustDST(dateTime, reservation.getMachine().getRoom());
+        return reservation.getExternalReservation() != null
+            ? adjustDST(dateTime, reservation.getExternalReservation())
+            : doAdjustDST(dateTime, reservation.getMachine().getRoom());
     }
 
     public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
@@ -214,6 +218,4 @@ public class DateTimeUtils {
         }
         return (int) millis;
     }
-
-
 }

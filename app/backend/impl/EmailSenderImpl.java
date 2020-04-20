@@ -15,12 +15,11 @@
 
 package backend.impl;
 
+import com.google.common.collect.Sets;
+import com.typesafe.config.ConfigFactory;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import com.google.common.collect.Sets;
-import com.typesafe.config.ConfigFactory;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
@@ -28,18 +27,16 @@ import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
 class EmailSenderImpl implements EmailSender {
-
     private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private String HOST = ConfigFactory.load().getString("play.mailer.host");
     private Integer PORT = ConfigFactory.load().getInt("play.mailer.port");
     private Boolean USE_SSL = ConfigFactory.load().getString("play.mailer.ssl").equals("YES");
     private String USER = ConfigFactory.load().getString("play.mailer.user");
     private String PWD = ConfigFactory.load().getString("play.mailer.password");
-    private Boolean USE_MOCK = ConfigFactory.load().hasPath("play.mailer.mock") &&
-            ConfigFactory.load().getBoolean("play.mailer.mock");
+    private Boolean USE_MOCK =
+        ConfigFactory.load().hasPath("play.mailer.mock") && ConfigFactory.load().getBoolean("play.mailer.mock");
 
     private static final Logger.ALogger logger = Logger.of(EmailSenderImpl.class);
-
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
         logger.info("mock implementation, send email");
@@ -52,8 +49,15 @@ class EmailSenderImpl implements EmailSender {
         Stream.of(attachments).forEach(a -> logger.info("attachment: {}", a.getName()));
     }
 
-    private void doSend(Set<String> recipients, String sender, Set<String> cc, String subject, String content,
-                        EmailAttachment... attachments) throws EmailException {
+    private void doSend(
+        Set<String> recipients,
+        String sender,
+        Set<String> cc,
+        String subject,
+        String content,
+        EmailAttachment... attachments
+    )
+        throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setCharset("utf-8");
         for (EmailAttachment attachment : attachments) {
@@ -105,6 +109,5 @@ class EmailSenderImpl implements EmailSender {
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
-
     }
 }

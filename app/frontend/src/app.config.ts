@@ -48,10 +48,6 @@ export default function configs(
     $httpProvider.interceptors.push(function($q, $rootScope, $state, $translate, $window, Session, WrongLocation) {
         'ngInject';
         return {
-            request: function(request) {
-                Object.assign(request.headers, { 'x-exam-authentication': Session.getToken() });
-                return request;
-            },
             response: function(response) {
                 if (!$window['TextDecoder']) {
                     $window['TextDecoder'] = textEncoding.TextDecoder;

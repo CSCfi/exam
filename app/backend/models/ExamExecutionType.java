@@ -15,19 +15,23 @@
 
 package backend.models;
 
-
+import io.ebean.Model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import io.ebean.Model;
 
 @Entity
 public class ExamExecutionType extends Model {
 
-    public enum Type { PRIVATE, PUBLIC, MATURITY, PRINTOUT }
+    public enum Type {
+        PRIVATE,
+        PUBLIC,
+        MATURITY,
+        PRINTOUT
+    }
 
     @Id
     private Integer id;
+
     private String type;
     private boolean active;
 

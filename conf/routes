@@ -17,7 +17,7 @@ PUT           /app/user/lang                                           backend.c
 GET           /app/users                                               backend.controllers.UserController.findUsers(filter: java.util.Optional[String])
 POST          /app/users/:id/roles/:rname                              backend.controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                              backend.controllers.UserController.removeRole(id: Long, rname: String)
-PUT           /app/users/:id/roles/:rname                              backend.controllers.SessionController.setLoginRole(id: Long, rname: String, request: Request)
+PUT           /app/users/roles/:rname                                  backend.controllers.SessionController.setLoginRole(rname: String, request: Request)
 GET           /app/students/:eid                                       backend.controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
 GET           /app/permissions                                         backend.controllers.UserController.listPermissions
 POST          /app/permissions                                         backend.controllers.UserController.grantUserPermission(request: Request)

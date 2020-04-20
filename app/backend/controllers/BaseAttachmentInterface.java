@@ -16,21 +16,10 @@
 
 package backend.controllers;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import static play.mvc.Results.ok;
 
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import play.Logger;
-import play.libs.Files.TemporaryFile;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.User;
@@ -38,11 +27,19 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.util.config.ConfigReader;
 import backend.util.file.ChunkMaker;
-
-import static play.mvc.Results.ok;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Base64;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import play.Logger;
+import play.libs.Files.TemporaryFile;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public interface BaseAttachmentInterface<T> {
-
     CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);
 
     CompletionStage<Result> addAttachmentToQuestion(Http.Request request);
@@ -83,22 +80,33 @@ public interface BaseAttachmentInterface<T> {
         }
     }
 
-    default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source) throws IOException  {
+    default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source)
+        throws IOException {
         String escapedName = URLEncoder.encode(fileName, "UTF-8");
-        return CompletableFuture.supplyAsync(() -> ok().chunked(source.via(new ChunkMaker(3 * 1024))
-                .map(byteString -> {
-                    final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
-                    return ByteString.fromArray(encoded);
-                })).as(mimeType)
-                .withHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\""));
-
+        return CompletableFuture.completedFuture(
+            ok()
+                .chunked(
+                    source
+                        .via(new ChunkMaker(3 * 1024))
+                        .map(
+                            byteString -> {
+                                final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
+                                return ByteString.fromArray(encoded);
+                            }
+                        )
+                )
+                .as(mimeType)
+                .withHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\"")
+        );
     }
 
     default Optional<ExamSectionQuestion> getExamSectionQuestion(Long qid, Exam exam) {
-        return exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(q -> q.getId().equals(qid))
-                .findFirst();
+        return exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(q -> q.getId().equals(qid))
+            .findFirst();
     }
 
     default MultipartForm getForm(Http.Request request) throws IllegalArgumentException {
@@ -109,7 +117,7 @@ public interface BaseAttachmentInterface<T> {
         }
         TemporaryFile file = filePart.getRef();
         Optional<String> contentLength = request.header("Content-Length");
-        if (!contentLength.isPresent() ||  Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
+        if (!contentLength.isPresent() || Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
             throw new IllegalArgumentException("sitnet_file_too_large");
         }
         return new MultipartForm(filePart, body.asFormUrlEncoded());

@@ -21,6 +21,13 @@ import backend.models.Reservation;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -30,22 +37,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-
 public class AvailabilityController extends BaseController {
 
     private static DateTime parseSearchStartDate(String day) {
-        return ISODateTimeFormat.dateTimeParser()
-                .parseDateTime(day)
-                .withDayOfWeek(1)
-                .withMillisOfDay(0);
+        return ISODateTimeFormat.dateTimeParser().parseDateTime(day).withDayOfWeek(1).withMillisOfDay(0);
     }
 
     private static DateTime getSearchEndDate(DateTime start) {
@@ -53,9 +48,7 @@ public class AvailabilityController extends BaseController {
     }
 
     private List<Reservation> getReservationsDuring(List<Reservation> reservations, Interval interval) {
-        return reservations.stream()
-                .filter(r -> interval.overlaps(r.toInterval()))
-                .collect(Collectors.toList());
+        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).collect(Collectors.toList());
     }
 
     private List<Interval> toOneHourChunks(Interval i) {
@@ -76,7 +69,7 @@ public class AvailabilityController extends BaseController {
         return slot.withStart(cleanedStart).withEnd(cleanedEnd);
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getAvailability(Long roomId, String day) {
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         if (room == null) {
@@ -84,41 +77,47 @@ public class AvailabilityController extends BaseController {
         }
         DateTime searchStart = parseSearchStartDate(day);
         DateTime searchEnd = getSearchEndDate(searchStart);
-        List<Reservation> reservations = Ebean.find(Reservation.class)
-                .where()
-                .eq("machine.room.id", roomId)
-                .between("startAt", searchStart.toDate(), searchEnd.toDate())
-                .findList();
+        List<Reservation> reservations = Ebean
+            .find(Reservation.class)
+            .where()
+            .eq("machine.room.id", roomId)
+            .between("startAt", searchStart.toDate(), searchEnd.toDate())
+            .findList();
 
         Set<Interval> allSlots = new LinkedHashSet<>();
         LocalDate window = searchStart.toLocalDate();
         while (!window.isAfter(searchEnd.toLocalDate())) {
-            List<Interval> slotsForDate = room.getWorkingHoursForDate(window)
-                    .stream()
-                    .map(oh -> new Interval(oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
-                            oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset())))
-                    .map(this::round)
-                    .flatMap(i -> toOneHourChunks(i).stream())
-                    .collect(Collectors.toList());
+            List<Interval> slotsForDate = room
+                .getWorkingHoursForDate(window)
+                .stream()
+                .map(
+                    oh ->
+                        new Interval(
+                            oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
+                            oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset())
+                        )
+                )
+                .map(this::round)
+                .flatMap(i -> toOneHourChunks(i).stream())
+                .collect(Collectors.toList());
             allSlots.addAll(slotsForDate);
             window = window.plusDays(1);
         }
 
-        Map<Interval, List<Reservation>> reservationMap = allSlots.stream()
-                .collect(Collectors.toMap(Function.identity(), i -> getReservationsDuring(reservations, i)));
+        Map<Interval, List<Reservation>> reservationMap = allSlots
+            .stream()
+            .collect(Collectors.toMap(Function.identity(), i -> getReservationsDuring(reservations, i)));
 
-       int machineCount = room.getExamMachines().stream()
-               .filter(m -> !m.getOutOfService())
-               .mapToInt(e -> 1)
-               .sum();
+        int machineCount = room.getExamMachines().stream().filter(m -> !m.getOutOfService()).mapToInt(e -> 1).sum();
 
-        List<Availability> availability = reservationMap.entrySet().stream()
-                .map(e -> new Availability(e.getKey(), machineCount, e.getValue().size()))
-                .collect(Collectors.toList());
+        List<Availability> availability = reservationMap
+            .entrySet()
+            .stream()
+            .map(e -> new Availability(e.getKey(), machineCount, e.getValue().size()))
+            .collect(Collectors.toList());
 
         return ok(Json.toJson(availability));
     }
-
 
     // DTO aimed for clients
     protected static class Availability {
@@ -162,7 +161,5 @@ public class AvailabilityController extends BaseController {
         public int hashCode() {
             return new HashCodeBuilder().append(start).append(end).build();
         }
-
     }
-
 }

@@ -18,23 +18,21 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExamInspection extends GeneratedIdentityModel {
-
-	@ManyToOne
+    @ManyToOne
     @JsonBackReference
-	private Exam exam;
+    private Exam exam;
 
-	@ManyToOne
+    @ManyToOne
     @JsonManagedReference
-	private User user;
+    private User user;
 
     @OneToOne
     private User assignedBy;
@@ -54,24 +52,28 @@ public class ExamInspection extends GeneratedIdentityModel {
     }
 
     public Exam getExam() {
-		return exam;
-	}
+        return exam;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public User getUser() {
+        return user;
+    }
 
-    public User getAssignedBy() { return assignedBy; }
+    public User getAssignedBy() {
+        return assignedBy;
+    }
 
-	public void setExam(Exam exam) {
-		this.exam = exam;
-	}
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public void setAssignedBy(User user) { this.assignedBy = user; }
+    public void setAssignedBy(User user) {
+        this.assignedBy = user;
+    }
 
     public Comment getComment() {
         return comment;
@@ -95,5 +97,4 @@ public class ExamInspection extends GeneratedIdentityModel {
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
     }
-
 }

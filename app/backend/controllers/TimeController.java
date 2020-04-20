@@ -15,16 +15,6 @@
 
 package backend.controllers;
 
-import java.io.IOException;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -32,23 +22,31 @@ import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import java.io.IOException;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class TimeController extends BaseController {
 
     @Authenticated
-    @Restrict({@Group("STUDENT")})
+    @Restrict({ @Group("STUDENT") })
     public Result getRemainingExamTime(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("externalExam")
-                .where()
-                .disjunction()
-                .eq("exam.hash", hash)
-                .eq("externalExam.hash", hash)
-                .endJunction()
-                .eq("user.id", user.getId())
-                .findOne();
+        ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("externalExam")
+            .where()
+            .disjunction()
+            .eq("exam.hash", hash)
+            .eq("externalExam.hash", hash)
+            .endJunction()
+            .eq("user.id", user.getId())
+            .findOne();
 
         if (enrolment == null) {
             return notFound();
@@ -83,5 +81,4 @@ public class TimeController extends BaseController {
         Exam exam = enrolment.getExternalExam().deserialize();
         return exam.getDuration();
     }
-
 }

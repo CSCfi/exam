@@ -1,15 +1,5 @@
 package backend.controllers.base;
 
-import java.util.Collection;
-import java.util.Optional;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-import play.mvc.Result;
-import play.mvc.Results;
-
 import backend.models.User;
 import backend.models.api.Sortable;
 import backend.models.questions.MultipleChoiceOption;
@@ -18,9 +8,16 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
 import backend.sanitizers.SanitizingHelper;
 import backend.util.AppUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Ebean;
+import java.util.Collection;
+import java.util.Optional;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+import play.mvc.Result;
+import play.mvc.Results;
 
 public interface SectionQuestionHandler {
-
     default Optional<Result> checkBounds(Integer from, Integer to) {
         if (from < 0 || to < 0) {
             return Optional.of(Results.badRequest());
@@ -48,18 +45,23 @@ public interface SectionQuestionHandler {
         }
     }
 
-    default void propagateOptionCreationToExamQuestions(Question question, ExamSectionQuestion modifiedExamQuestion,
-                                                        MultipleChoiceOption option) {
+    default void propagateOptionCreationToExamQuestions(
+        Question question,
+        ExamSectionQuestion modifiedExamQuestion,
+        MultipleChoiceOption option
+    ) {
         // Need to add the new option to bound exam section questions as well
-        if (question.getType() == Question.Type.MultipleChoiceQuestion
-                || question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
+        if (
+            question.getType() == Question.Type.MultipleChoiceQuestion ||
+            question.getType() == Question.Type.WeightedMultipleChoiceQuestion
+        ) {
             for (ExamSectionQuestion examQuestion : question.getExamSectionQuestions()) {
                 ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
                 // Preserve scores for the exam question that is under modification right now
                 boolean preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion);
-                Double unroundedScore = preserveScore ?
-                        option.getDefaultScore() :
-                        calculateOptionScore(question, option, examQuestion);
+                Double unroundedScore = preserveScore
+                    ? option.getDefaultScore()
+                    : calculateOptionScore(question, option, examQuestion);
                 esqo.setScore(unroundedScore == null ? null : round(unroundedScore));
                 esqo.setOption(option);
                 examQuestion.addOption(esqo, preserveScore);
@@ -91,7 +93,6 @@ public interface SectionQuestionHandler {
         return result;
     }
 
-
     default void updateSequences(Collection<? extends Sortable> sortables, int ordinal) {
         // Increase sequences for the entries above the inserted one
         for (Sortable s : sortables) {
@@ -102,7 +103,10 @@ public interface SectionQuestionHandler {
         }
     }
 
-    enum OptionUpdateOptions {SKIP_DEFAULTS, HANDLE_DEFAULTS}
+    enum OptionUpdateOptions {
+        SKIP_DEFAULTS,
+        HANDLE_DEFAULTS
+    }
 
     default void updateOption(JsonNode node, OptionUpdateOptions defaults) {
         Long id = SanitizingHelper.parse("id", node, Long.class).orElse(null);
@@ -110,16 +114,14 @@ public interface SectionQuestionHandler {
         if (option != null) {
             option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
             option.setClaimChoiceType(
-                    SanitizingHelper.parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                            .orElse(null)
+                SanitizingHelper
+                    .parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                    .orElse(null)
             );
             if (defaults == OptionUpdateOptions.HANDLE_DEFAULTS) {
-                option.setDefaultScore(
-                        round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null))
-                );
+                option.setDefaultScore(round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null)));
             }
-            option.setCorrectOption(
-                    SanitizingHelper.parse("correctOption", node, Boolean.class, Boolean.FALSE));
+            option.setCorrectOption(SanitizingHelper.parse("correctOption", node, Boolean.class, Boolean.FALSE));
             option.update();
         }
     }
@@ -144,15 +146,14 @@ public interface SectionQuestionHandler {
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());
         String answerInstructions = question.getDefaultAnswerInstructions();
         sectionQuestion.setAnswerInstructions(
-                answerInstructions == null ? null : Jsoup.clean(answerInstructions, Whitelist.relaxed())
+            answerInstructions == null ? null : Jsoup.clean(answerInstructions, Whitelist.relaxed())
         );
         String evaluationCriteria = question.getDefaultEvaluationCriteria();
         sectionQuestion.setEvaluationCriteria(
-                evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Whitelist.relaxed())
+            evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Whitelist.relaxed())
         );
         sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
         sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
         updateOptions(sectionQuestion, question);
     }
-
 }

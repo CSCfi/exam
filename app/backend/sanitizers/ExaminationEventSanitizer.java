@@ -30,9 +30,10 @@ public class ExaminationEventSanitizer extends BaseSanitizer {
             JsonNode eventNode = configNode.get("examinationEvent");
             DateTime dateTime = DateTime.parse(eventNode.get("start").asText(), ISODateTimeFormat.dateTime());
             String description = eventNode.get("description").asText();
-            return req.addAttr(Attrs.START_DATE, dateTime)
-                    .addAttr(Attrs.DESCRIPTION, description)
-                    .addAttr(Attrs.SETTINGS_PASSWORD, pwd);
+            return req
+                .addAttr(Attrs.START_DATE, dateTime)
+                .addAttr(Attrs.DESCRIPTION, description)
+                .addAttr(Attrs.SETTINGS_PASSWORD, pwd);
         } else {
             throw new SanitizingException("missing required data");
         }

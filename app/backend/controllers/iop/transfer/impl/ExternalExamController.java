@@ -15,49 +15,7 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
-import io.ebean.text.json.EJson;
-import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
-import play.Logger;
-import play.db.ebean.Transactional;
-import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
-import play.mvc.Http;
-import play.mvc.Result;
-import scala.concurrent.duration.Duration;
-
 import backend.controllers.ExaminationController;
 import backend.controllers.SettingsController;
 import backend.controllers.base.BaseController;
@@ -82,10 +40,48 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
 import backend.util.AppUtil;
 import backend.util.json.JsonDeserializer;
-
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import io.ebean.text.json.EJson;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
+import play.Logger;
+import play.db.ebean.Transactional;
+import play.libs.Json;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
+import play.mvc.Http;
+import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
-
     @Inject
     private WSClient wsClient;
 
@@ -108,8 +104,21 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(src, clone, "id", "parent", "attachment", "examSections", "examEnrolments", "examParticipation",
-                "examInspections", "autoEvaluationConfig", "creator", "created", "examOwners");
+        BeanUtils.copyProperties(
+            src,
+            clone,
+            "id",
+            "parent",
+            "attachment",
+            "examSections",
+            "examEnrolments",
+            "examParticipation",
+            "examInspections",
+            "autoEvaluationConfig",
+            "creator",
+            "created",
+            "examOwners"
+        );
         clone.setParent(parent);
         if (src.getAttachment() != null) {
             final Attachment copy = src.getAttachment().copy();
@@ -151,7 +160,6 @@ public class ExternalExamController extends BaseController implements ExternalEx
         clone.save();
         return clone;
     }
-
 
     @SubjectNotPresent
     @Transactional
@@ -200,29 +208,37 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     private void notifyTeachers(Exam exam) {
-        Set<User> recipients = Stream.concat(exam.getParent().getExamOwners().stream(),
-                exam.getExamInspections().stream().map(ExamInspection::getUser))
-                .collect(Collectors.toSet());
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+        Set<User> recipients = Stream
+            .concat(
+                exam.getParent().getExamOwners().stream(),
+                exam.getExamInspections().stream().map(ExamInspection::getUser)
+            )
+            .collect(Collectors.toSet());
+        actor
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
                 () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
-                actor.dispatcher());
+                actor.dispatcher()
+            );
     }
 
     private PathProperties getPath() {
-        String path = "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
-                "requiresUserAgentAuth, trialCount, anonymous, " +
-                "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
-                "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
-                "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
-                "examInspections(*, user(id, firstName, lastName)), " +
-                "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
-                "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," + // ((
-                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
-                "options(id, answered, score, option(id, option)), " +
-                "essayAnswer(id, answer, objectVersion, attachment(*)), " +
-                "clozeTestAnswer(id, question, answer, objectVersion)" +
-                ")))";
+        String path =
+            "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
+            "requiresUserAgentAuth, trialCount, anonymous, " +
+            "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
+            "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
+            "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
+            "examInspections(*, user(id, firstName, lastName)), " +
+            "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
+            "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," + // ((
+            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+            "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
+            "options(id, answered, score, option(id, option)), " +
+            "essayAnswer(id, answer, objectVersion, attachment(*)), " +
+            "clozeTestAnswer(id, question, answer, objectVersion)" +
+            ")))";
         return PathProperties.parse(path);
     }
 
@@ -238,32 +254,42 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (exam.getAttachment() != null) {
             futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
         }
-        exam.getExamSections().stream()
-                .flatMap(examSection -> examSection.getSectionQuestions().stream())
-                .map(ExamSectionQuestion::getQuestion)
-                .filter(question -> question.getAttachment() != null)
-                .distinct()
-                .forEach(question -> futures.add(
-                        externalAttachmentLoader.createExternalAttachment(question.getAttachment())
-                ));
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
-                .exceptionally(t -> {
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(examSection -> examSection.getSectionQuestions().stream())
+            .map(ExamSectionQuestion::getQuestion)
+            .filter(question -> question.getAttachment() != null)
+            .distinct()
+            .forEach(
+                question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+            );
+        return CompletableFuture
+            .allOf(futures.toArray(new CompletableFuture[0]))
+            .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+            .exceptionally(
+                t -> {
                     logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
                     return internalServerError();
-                });
+                }
+            );
     }
 
     @SubjectNotPresent
     public Result addNoShow(String ref) {
-        return getPrototype(ref).map(e -> {
-            noShowHandler.handleNoShowAndNotify(e.getReservation());
-            return ok();
-        }).orElse(notFound());
+        return getPrototype(ref)
+            .map(
+                e -> {
+                    noShowHandler.handleNoShowAndNotify(e.getReservation());
+                    return ok();
+                }
+            )
+            .orElse(notFound());
     }
 
     @Override
-    public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
+    public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation)
+        throws MalformedURLException {
         URL url = parseUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
@@ -283,32 +309,43 @@ public class ExternalExamController extends BaseController implements ExternalEx
             document.setHash(ref);
 
             // Filter out optional sections
-            ArrayNode optionalSectionsNode = root.has("optionalSections") ?
-                    (ArrayNode)root.get("optionalSections") :
-                    Json.newArray();
-            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
-                    .map(JsonNode::asLong)
-                    .collect(Collectors.toSet());
-            document.setExamSections(document.getExamSections().stream()
+            ArrayNode optionalSectionsNode = root.has("optionalSections")
+                ? (ArrayNode) root.get("optionalSections")
+                : Json.newArray();
+            Set<Long> ids = StreamSupport
+                .stream(optionalSectionsNode.spliterator(), false)
+                .map(JsonNode::asLong)
+                .collect(Collectors.toSet());
+            document.setExamSections(
+                document
+                    .getExamSections()
+                    .stream()
                     .filter(es -> !es.isOptional() || ids.contains(es.getId()))
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toSet())
+            );
 
             // Shuffle multi-choice options
-            document.getExamSections().stream()
-                    .flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
-                Question.Type questionType = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
-                if(questionType == Question.Type.ClaimChoiceQuestion) {
-                    return;
-                }
-                List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
-                Collections.shuffle(shuffled);
-                esq.setOptions(new HashSet<>(shuffled));
-            });
+            document
+                .getExamSections()
+                .stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .forEach(
+                    esq -> {
+                        Question.Type questionType = Optional
+                            .ofNullable(esq.getQuestion())
+                            .map(Question::getType)
+                            .orElseGet(null);
+                        if (questionType == Question.Type.ClaimChoiceQuestion) {
+                            return;
+                        }
+                        List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                        Collections.shuffle(shuffled);
+                        esq.setOptions(new HashSet<>(shuffled));
+                    }
+                );
 
             // Shuffle section questions if lottery on
-            document.getExamSections().stream()
-                    .filter(ExamSection::isLotteryOn)
-                    .forEach(ExamSection::shuffleQuestions);
+            document.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);
 
             Map<String, Object> content;
             try {
@@ -336,7 +373,6 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return request.get().thenApplyAsync(onSuccess);
     }
 
-
     private static Query<ExamEnrolment> createQuery() {
         Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
         PathProperties props = ExaminationController.getPath(true);
@@ -346,18 +382,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private static Optional<ExamEnrolment> getPrototype(String ref) {
         return createQuery()
-                .where()
-                .eq("reservation.externalRef", ref)
-                .isNull("exam.parent")
-                .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
-                .findOneOrEmpty();
+            .where()
+            .eq("reservation.externalRef", ref)
+            .isNull("exam.parent")
+            .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+            .findOneOrEmpty();
     }
 
     private static URL parseUrl(Object... args) throws MalformedURLException {
         final String path = args.length < 1 ? "/api/enrolments/%s" : String.format("/api/enrolments/%s", args);
-        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
-                + path);
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") + path);
     }
-
-
 }

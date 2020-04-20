@@ -1,5 +1,16 @@
 package backend.controllers.iop.collaboration.impl;
 
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.json.CollaborativeExam;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,15 +19,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-
-import akka.actor.ActorSystem;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
-import io.ebean.Model;
-import io.ebean.text.PathProperties;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -24,29 +26,16 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
-import backend.impl.EmailComposer;
-import backend.models.Exam;
-import backend.models.User;
-import backend.models.json.CollaborativeExam;
-
 public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
-
     private static final int OK = 200;
     private static final Logger.ALogger logger = Logger.of(CollaborativeExamLoaderImpl.class);
 
     @Inject
     WSClient wsClient;
 
-    @Inject
-    private ActorSystem as;
-
-    @Inject
-    private EmailComposer composer;
-
     private Optional<URL> parseUrl(String examRef) {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
-                .append("/api/exams");
+        .append("/api/exams");
         if (examRef != null) {
             sb.append(String.format("/%s", examRef));
         }
@@ -71,8 +60,12 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
-        String url = String.format("%s/api/exams/%s/assessments/%s",
-                ConfigFactory.load().getString("sitnet.integration.iop.host"), examRef, assessmentRef);
+        String url = String.format(
+            "%s/api/exams/%s/assessments/%s",
+            ConfigFactory.load().getString("sitnet.integration.iop.host"),
+            examRef,
+            assessmentRef
+        );
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
@@ -85,9 +78,9 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     public CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
         Optional<URL> ou = parseUrl(ce.getExternalRef(), ref);
         if (ou.isEmpty()) {
-            return CompletableFuture.supplyAsync(Optional::empty);
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-        ((ObjectNode)payload).set("rev", payload.get("_rev")); // TBD: maybe this should be checked on XM
+        ((ObjectNode) payload).set("rev", payload.get("_rev")); // TBD: maybe this should be checked on XM
         WSRequest request = wsClient.url(ou.get().toString());
         Function<WSResponse, Optional<String>> onSuccess = response -> {
             if (response.getStatus() != OK) {
@@ -127,7 +120,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             };
             return request.get().thenApplyAsync(onSuccess);
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
@@ -145,11 +138,17 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             };
             return request.get().thenApplyAsync(onSuccess);
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
-    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content,  User sender, Model resultModel, PathProperties pp) {
+    public CompletionStage<Result> uploadExam(
+        CollaborativeExam ce,
+        Exam content,
+        User sender,
+        Model resultModel,
+        PathProperties pp
+    ) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
         if (url.isPresent()) {
             WSRequest request = wsClient.url(url.get().toString());
@@ -166,7 +165,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     @Override
-    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content,  User sender) {
+    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender) {
         return uploadExam(ce, content, sender, null, null);
     }
 
@@ -176,12 +175,11 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             return defer(Results.internalServerError());
         }
         final WSRequest request = wsClient.url(url.get().toString());
-        return request.delete()
-                .thenApplyAsync(response -> Results.status(response.getStatus()));
+        return request.delete().thenApplyAsync(response -> Results.status(response.getStatus()));
     }
 
     private CompletionStage<Result> defer(Result result) {
-        return CompletableFuture.supplyAsync(() -> result);
+        return CompletableFuture.completedFuture(result);
     }
 
     protected Result ok(Object object, PathProperties pp) {

@@ -17,15 +17,13 @@ package backend.security;
 
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.cache.HandlerCache;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class DeadboltCache implements HandlerCache {
-
     private final AuthorizationHandler defaultHandler;
 
     private final Map<String, DeadboltHandler> handlers = new HashMap<>();

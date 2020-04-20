@@ -15,27 +15,7 @@
 
 package backend.controllers;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Dynamic;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Pattern;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.data.DynamicForm;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-import scala.concurrent.duration.Duration;
-
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
 import backend.models.Comment;
@@ -46,10 +26,26 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
-
+import be.objectify.deadbolt.java.actions.Dynamic;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.data.DynamicForm;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
 public class LanguageInspectionController extends BaseController {
-
     @Inject
     protected EmailComposer emailComposer;
 
@@ -60,16 +56,17 @@ public class LanguageInspectionController extends BaseController {
 
     @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
-        ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
-                .fetch("exam")
-                .fetch("exam.course")
-                .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
-                .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
-                .fetch("statement")
-                .fetch("creator", "firstName, lastName, email, userIdentifier")
-                .fetch("assignee", "firstName, lastName, email, userIdentifier")
-                .where()
-                .ne("exam.state", Exam.State.DELETED);
+        ExpressionList<LanguageInspection> query = Ebean
+            .find(LanguageInspection.class)
+            .fetch("exam")
+            .fetch("exam.course")
+            .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
+            .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
+            .fetch("statement")
+            .fetch("creator", "firstName, lastName, email, userIdentifier")
+            .fetch("assignee", "firstName, lastName, email, userIdentifier")
+            .where()
+            .ne("exam.state", Exam.State.DELETED);
 
         if (start.isPresent() || end.isPresent()) {
             if (start.isPresent()) {
@@ -91,7 +88,7 @@ public class LanguageInspectionController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result createInspection(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Long examId = Long.parseLong(df.get("examId"));
@@ -150,27 +147,39 @@ public class LanguageInspectionController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
-        return checkInspection(inspection).orElseGet(() -> {
-            if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
-                return forbidden("No statement given");
-            }
-            inspection.setFinishedAt(new Date());
-            inspection.setApproved(isApproved);
+        return checkInspection(inspection)
+            .orElseGet(
+                () -> {
+                    if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+                        return forbidden("No statement given");
+                    }
+                    inspection.setFinishedAt(new Date());
+                    inspection.setApproved(isApproved);
 
-            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            AppUtil.setModifier(inspection, user);
-            inspection.update();
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    AppUtil.setModifier(inspection, user);
+                    inspection.update();
 
-            Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                for (User recipient : recipients) {
-                    emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
-                    logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                    Set<User> recipients = inspection.getExam().getParent().getExamOwners();
+                    actor
+                        .scheduler()
+                        .scheduleOnce(
+                            Duration.create(1, TimeUnit.SECONDS),
+                            () -> {
+                                for (User recipient : recipients) {
+                                    emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
+                                    logger.info(
+                                        "Language inspection finalization email sent to {}",
+                                        recipient.getEmail()
+                                    );
+                                }
+                            },
+                            actor.dispatcher()
+                        );
+
+                    return ok();
                 }
-            }, actor.dispatcher());
-
-            return ok();
-        });
+            );
     }
 
     @Authenticated
@@ -182,23 +191,25 @@ public class LanguageInspectionController extends BaseController {
             return badRequest();
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
-        return checkInspection(inspection).orElseGet(() -> {
-            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            Comment statement = inspection.getStatement();
-            if (statement == null) {
-                statement = new Comment();
-                AppUtil.setCreator(statement, user);
-                statement.save();
-                inspection.setStatement(statement);
-                inspection.update();
-            }
-            statement.setComment(text.get());
-            AppUtil.setModifier(statement, user);
-            statement.update();
-            AppUtil.setModifier(inspection, user);
-            inspection.update();
-            return ok(inspection);
-        });
+        return checkInspection(inspection)
+            .orElseGet(
+                () -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    Comment statement = inspection.getStatement();
+                    if (statement == null) {
+                        statement = new Comment();
+                        AppUtil.setCreator(statement, user);
+                        statement.save();
+                        inspection.setStatement(statement);
+                        inspection.update();
+                    }
+                    statement.setComment(text.get());
+                    AppUtil.setModifier(statement, user);
+                    statement.update();
+                    AppUtil.setModifier(inspection, user);
+                    inspection.update();
+                    return ok(inspection);
+                }
+            );
     }
-
 }

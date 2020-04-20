@@ -15,32 +15,31 @@
 
 package backend.util.json;
 
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 
 public final class JsonDeserializer {
-
     private static final Logger.ALogger logger = Logger.of(JsonDeserializer.class);
 
-    private JsonDeserializer() {
-    }
+    private JsonDeserializer() {}
 
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
+
     static {
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
         gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
     }
+
     private static final Gson gson = gsonBuilder.create();
 
     private static class DateDeserializer implements com.google.gson.JsonDeserializer<Date> {

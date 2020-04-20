@@ -15,9 +15,8 @@
 
 package backend.sanitizers;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import play.data.validation.Constraints;
 import play.mvc.Http;
 

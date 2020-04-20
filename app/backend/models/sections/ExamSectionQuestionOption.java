@@ -15,21 +15,17 @@
 
 package backend.models.sections;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.MultipleChoiceOption;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.MultipleChoiceOption;
-
-
 @Entity
 public class ExamSectionQuestionOption extends GeneratedIdentityModel {
-
     @ManyToOne
     @JsonBackReference
     private ExamSectionQuestion examSectionQuestion;
@@ -96,13 +92,11 @@ public class ExamSectionQuestionOption extends GeneratedIdentityModel {
             return false;
         }
         ExamSectionQuestionOption otherOption = (ExamSectionQuestionOption) other;
-        return new EqualsBuilder()
-                .append(option, otherOption.option).build();
+        return new EqualsBuilder().append(option, otherOption.option).build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(option).build();
     }
-
 }

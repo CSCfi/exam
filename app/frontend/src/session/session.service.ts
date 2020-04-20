@@ -41,7 +41,6 @@ export interface User {
     lang: string;
     loginRole: string | null;
     roles: Role[];
-    token: string;
     userAgreementAccepted: boolean;
     userIdentifier: string;
     permissions: { type: string }[];
@@ -59,7 +58,6 @@ interface Env {
 export class SessionService {
     private PING_INTERVAL: number = 60 * 1000;
     private user: User;
-    private token: string;
     private env: { isProd: boolean };
     private sessionCheckSubscription: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
@@ -98,11 +96,8 @@ export class SessionService {
 
     getUserName = () => (this.user ? this.user.firstName + ' ' + this.user.lastName : '');
 
-    getToken = () => this.token;
-
     setUser(user: User) {
         this.user = user;
-        this.token = user.token;
     }
 
     setEnv = () => this.init().subscribe(e => (this.env = e));
@@ -164,7 +159,6 @@ export class SessionService {
             resp => {
                 this.webStorageService.remove('EXAM_USER');
                 delete this.user;
-                delete this.token;
                 this.onLogoutSuccess(resp);
             },
             error => toastr.error(error.data),
@@ -331,7 +325,6 @@ export class SessionService {
             );
 
     private processLogin$(user: User): Observable<User> {
-        this.token = user.token;
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
             iif(
                 () => u.isStudent && !u.userAgreementAccepted,
