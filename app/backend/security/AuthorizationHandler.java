@@ -50,16 +50,20 @@ class AuthorizationHandler implements DeadboltHandler {
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
         Http.Session session = request.session();
-        if (session.get("role").isPresent()) {
-            User user = new User();
-            user.setRoles(List.of(Role.withName(session.get("role").get())));
-            if (session.get("permissions").isPresent()) {
-                Optional<Permission> permission = Permission.withValue(session.get("permissions").get());
-                permission.ifPresent(value -> user.setPermissions(List.of(value)));
-            }
-            return CompletableFuture.completedFuture(Optional.of(user));
+        if (session.get("id").isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-        return CompletableFuture.completedFuture(Optional.empty());
+        User user = new User();
+        session.get("role").ifPresent(r -> user.setRoles(List.of(Role.withName(session.get("role").get()))));
+        session
+            .get("permissions")
+            .ifPresent(
+                p -> {
+                    Optional<Permission> permission = Permission.withValue(p);
+                    permission.ifPresent(value -> user.setPermissions(List.of(value)));
+                }
+            );
+        return CompletableFuture.completedFuture(Optional.of(user));
     }
 
     @Override
