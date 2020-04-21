@@ -305,13 +305,13 @@
                                 ng-if="config.id === $ctrl.enrolment.examinationEventConfiguration.id"
                                 class="text text-success"
                             >
-                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                                <strong>{{ config.examinationEvent.start | date:'dd.MM.yyyy HH:mm' }}</strong>
                             </span>
                             <span
                                 ng-if="config.id !== $ctrl.enrolment.examinationEventConfiguration.id"
                                 class="text-muted"
                             >
-                                <strong>{{ config.examinationEvent.start | date }}</strong>
+                                <strong>{{ config.examinationEvent.start | date:'dd.MM.yyyy HH:mm' }}</strong>
                             </span>
                         </span>
                     </div>
