@@ -27,7 +27,7 @@
                     <small ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small
                     >
-                    <small ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth"
+                    <small ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'"
                         >({{ 'sitnet_examination_type_seb' | translate }})</small
                     >
                     <br />
@@ -47,10 +47,7 @@
                 </div>
 
                 <!-- settings menu -->
-                <div
-                    ng-if="$ctrl.enrolment.reservation || $ctrl.enrolment.exam.executionType.type === 'PUBLIC' || $ctrl.enrolment.collaborativeExam"
-                    class="student-exam-settings"
-                >
+                <div class="student-exam-settings">
                     <span uib-dropdown>
                         <a href id="simple-dropdown" uib-dropdown-toggle>
                             <img
@@ -138,8 +135,10 @@
                                 </span>
                             </li>
                             <!-- enrolment without reservation, allow making reservation -->
-                            <li ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth">
-                                <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
+                            <li
+                                ng-if="!$ctrl.enrolment.reservation && $ctrl.enrolment.exam.implementation === 'AQUARIUM'"
+                            >
+                                <span class="pointer"
                                     >&nbsp;&nbsp;
                                     <a
                                         class="text-info"
@@ -153,7 +152,8 @@
                             </li>
                             <!-- enrolment without examination event, allow making reservation -->
                             <li
-                                ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.requiresUserAgentAuth && $ctrl.hasUpcomingAlternativeEvents()"
+                                ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.implementation !== 'AQUARIUM' 
+                                    && $ctrl.hasUpcomingAlternativeEvents()"
                             >
                                 <span class="pointer" ng-hide="$ctrl.enrolment.exam.executionType.type !== 'PUBLIC'"
                                     >&nbsp;&nbsp;
@@ -290,7 +290,7 @@
             </div>
         </div>
 
-        <div class="row mart20" ng-if="$ctrl.enrolment.exam.requiresUserAgentAuth">
+        <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
@@ -360,7 +360,7 @@
                 </a>
 
                 <div
-                    ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.requiresUserAgentAuth"
+                    ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.implementation === 'AQUARIUM'"
                     class="student-message-dialog-button-save"
                 >
                     <a
@@ -372,7 +372,7 @@
                     >
                 </div>
                 <div
-                    ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.requiresUserAgentAuth && $ctrl.hasUpcomingAlternativeEvents()"
+                    ng-if="!$ctrl.enrolment.examinationEventConfiguration && $ctrl.enrolment.exam.implementation !== 'AQUARIUM' && $ctrl.hasUpcomingAlternativeEvents()"
                     class="student-message-dialog-button-save"
                 >
                     <a

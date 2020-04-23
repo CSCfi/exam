@@ -498,17 +498,15 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(reservation.getUser().getId()).isEqualTo(newUser.getId());
 
-        // Try do some teacher stuff, see that it is not allowed
-        Result result = get("/app/reviewerexams");
-        assertThat(result.status()).isEqualTo(403);
-        // See that user is directed to waiting room
-        // First update session
-        get("/app/checkSession");
-        result = get("/app/student/enrolments");
+        // See that user is eventually directed to waiting room
+        Result result = get("/app/checkSession");
         assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
 
-        // see that enrolment was created for the user
+        // Try do some teacher stuff, see that it is not allowed
+        result = get("/app/reviewerexams");
+        assertThat(result.status()).isEqualTo(403);
 
+        // see that enrolment was created for the user
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.externalRef",
                 RESERVATION_REF).findOne();
         assertThat(enrolment).isNotNull();

@@ -91,6 +91,15 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         REJECTED // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
+    public enum Implementation {
+        @EnumValue("1")
+        AQUARIUM,
+        @EnumValue("2")
+        CLIENT_AUTH,
+        @EnumValue("3")
+        WHATEVER
+    }
+
     private static final DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
 
     private boolean anonymous;
@@ -192,6 +201,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private State state;
 
+    // Implementation
+    private Implementation implementation;
+
     @ManyToOne
     private Grade grade;
 
@@ -244,8 +256,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private String internalRef;
 
     private String assessmentInfo;
-
-    private Boolean requiresUserAgentAuth;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -785,12 +795,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.anonymous = anonymous;
     }
 
-    public Boolean getRequiresUserAgentAuth() {
-        return requiresUserAgentAuth;
+    public Implementation getImplementation() {
+        return implementation;
     }
 
-    public void setRequiresUserAgentAuth(Boolean requiresUserAgentAuth) {
-        this.requiresUserAgentAuth = requiresUserAgentAuth;
+    public void setImplementation(Implementation implementation) {
+        this.implementation = implementation;
     }
 
     @Transient

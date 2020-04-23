@@ -41,7 +41,7 @@ public class EnrolmentRepository {
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
 
-    private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
+    private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
 
     @Inject
     public EnrolmentRepository(
@@ -156,13 +156,16 @@ public class EnrolmentRepository {
     }
 
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
-        boolean requiresUserAgentAuth = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        boolean requiresClientAuth =
+            enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
         // Loose the checks for dev usage to facilitate for easier testing
-        if (environment.isDev() && !requiresUserAgentAuth) {
+        if (environment.isDev() && !requiresClientAuth) {
             return true;
         }
-
-        if (requiresUserAgentAuth && enrolment.getExam() != null) {
+        if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
+            return true;
+        }
+        if (requiresClientAuth) {
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
             Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
             if (error.isPresent()) {
@@ -240,8 +243,6 @@ public class EnrolmentRepository {
         Map<String, String> headers
     ) {
         if (isMachineOk(enrolment, request, headers)) {
-            String hash = getExamHash(enrolment);
-            headers.put("x-exam-start-exam", hash);
             headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         }
     }

@@ -28,15 +28,11 @@ public class SystemRequestHandler implements ActionCreator {
 
     @Override
     public Action.Simple createAction(Http.Request request, Method actionMethod) {
-        Http.Session session = request.session();
         AuditLogger.log(request);
-        if (session.get("id").isPresent()) {
-            return propagateAction(withUpdatedExpiration(request, session));
-        }
-        return propagateAction(session);
+        return propagateAction();
     }
 
-    private Action.Simple propagateAction(Http.Session session) {
+    private Action.Simple propagateAction() {
         return new Action.Simple() {
 
             @Override
@@ -46,30 +42,27 @@ public class SystemRequestHandler implements ActionCreator {
                     .thenApply(
                         r -> {
                             r = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
-                            // If ongoing exam, we need to decorate every response with that knowledge
-                            if (session.get("ongoingExamHash").isPresent()) {
-                                r = r.withHeader("x-exam-start-exam", session.get("ongoingExamHash").get());
+                            Http.Session session = r.session();
+                            if (session == null) {
+                                return r;
                             }
-                            if (session.get("upcomingExamHash").isPresent()) {
-                                r = r.withHeader("x-exam-upcoming-exam", session.get("upcomingExamHash").get());
+                            if (!request.path().contains("checkSession")) { // update expiration
+                                session = session.adding("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
                             }
-                            if (session.get("wrongMachineData").isPresent()) {
-                                r = r.withHeader("x-exam-wrong-machine", session.get("wrongMachineData").get());
-                            }
-                            if (session.get("wrongRoomData").isPresent()) {
-                                r = r.withHeader("x-exam-wrong-room", session.get("wrongRoomData").get());
-                            }
-                            return r;
+                            r = decorate(r, session, "ongoingExamHash", "x-exam-start-exam");
+                            r = decorate(r, session, "upcomingExamHash", "x-exam-upcoming-exam");
+                            r = decorate(r, session, "wrongMachineData", "x-exam-wrong-machine");
+                            r = decorate(r, session, "wrongRoomData", "x-exam-wrong-room");
+                            return r.withSession(session);
                         }
                     );
             }
         };
     }
 
-    private Http.Session withUpdatedExpiration(Http.Request request, Http.Session session) {
-        if (!request.path().contains("checkSession")) {
-            return session.adding("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
-        }
-        return session;
+    private Result decorate(Result result, Http.Session session, String key, String header) {
+        return session.get(key).isPresent()
+            ? result.withHeader(header, session.get(key).get())
+            : result.withoutHeader(header);
     }
 }

@@ -90,7 +90,7 @@ angular.module('app.examination').component('examination', {
             };
 
             const logout = function(msg) {
-                Examination.logout(msg, vm.exam.hash, vm.exam.requiresUserAgentAuth);
+                Examination.logout(msg, vm.exam.hash, vm.exam.implementation !== 'AQUARIUM');
             };
         },
     ],

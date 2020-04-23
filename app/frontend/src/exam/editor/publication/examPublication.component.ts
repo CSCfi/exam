@@ -323,7 +323,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 errors.push('sitnet_autoevaluation_percentages_not_unique');
             }
 
-            if (this.exam.requiresUserAgentAuth && this.exam.examinationEventConfigurations.length === 0) {
+            if (this.exam.implementation === 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
                 errors.push('sitnet_missing_examination_event_configurations');
             }
             return errors.map(e => this.$translate.instant(e));
