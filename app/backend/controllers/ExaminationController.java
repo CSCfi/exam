@@ -153,10 +153,12 @@ public class ExaminationController extends BaseController {
                                                         user,
                                                         enrolment
                                                     );
-                                                    return createExam.thenApplyAsync(
+                                                    return createExam.thenComposeAsync(
                                                         oe -> {
                                                             if (oe.isEmpty()) {
-                                                                return internalServerError();
+                                                                return CompletableFuture.completedFuture(
+                                                                    internalServerError()
+                                                                );
                                                             }
                                                             Exam newExam = oe.get();
                                                             if (enrolment.getCollaborativeExam() != null) {
@@ -174,7 +176,11 @@ public class ExaminationController extends BaseController {
                                                             newExam.setCloned(true);
                                                             newExam.setDerivedMaxScores();
                                                             processClozeTestQuestions(newExam);
-                                                            return ok(newExam, getPath(false));
+                                                            return checkStudentSession(
+                                                                request,
+                                                                request.session(),
+                                                                ok(newExam, getPath(false))
+                                                            );
                                                         },
                                                         httpExecutionContext.current()
                                                     );
@@ -190,20 +196,24 @@ public class ExaminationController extends BaseController {
                                         hash,
                                         request
                                     );
-                                    return getEnrolmentError.thenApplyAsync(
+                                    return getEnrolmentError.thenComposeAsync(
                                         err -> {
                                             if (err.isPresent()) {
-                                                return err.get();
+                                                return wrapAsPromise(err.get());
                                             }
                                             Exam clone = possibleClone.get();
                                             // sanity check
                                             if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                                                return forbidden();
+                                                return wrapAsPromise(forbidden());
                                             }
                                             clone.setCloned(false);
                                             clone.setDerivedMaxScores();
                                             processClozeTestQuestions(clone);
-                                            return ok(clone, getPath(false));
+                                            return checkStudentSession(
+                                                request,
+                                                request.session(),
+                                                ok(clone, getPath(false))
+                                            );
                                         }
                                     );
                                 }
@@ -413,11 +423,15 @@ public class ExaminationController extends BaseController {
         if (enrolment == null) {
             return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         }
-        boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        Exam exam = enrolment.getExam();
+        boolean isByod = exam != null && exam.getImplementation() == Exam.Implementation.CLIENT_AUTH;
+        boolean isUnchecked = exam != null && exam.getImplementation() == Exam.Implementation.WHATEVER;
         if (isByod) {
             return CompletableFuture.completedFuture(
                 byodConfigHandler.checkUserAgent(request, enrolment.getExaminationEventConfiguration().getConfigKey())
             );
+        } else if (isUnchecked) {
+            return CompletableFuture.completedFuture(Optional.empty());
         } else if (enrolment.getReservation() == null) {
             return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         } else if (enrolment.getReservation().getMachine() == null) {
@@ -451,7 +465,7 @@ public class ExaminationController extends BaseController {
 
     public static PathProperties getPath(boolean includeEnrolment) {
         String path =
-            "(id, name, state, instruction, hash, duration, cloned, external, requiresUserAgentAuth, " +
+            "(id, name, state, instruction, hash, duration, cloned, external, implementation, " +
             "course(id, code, name), executionType(id, type), " + // (
             "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
             "examInspections(*, user(id, firstName, lastName))" +

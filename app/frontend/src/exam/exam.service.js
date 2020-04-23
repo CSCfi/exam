@@ -84,7 +84,7 @@ angular.module('app.exam').service('Exam', [
                 objectVersion: exam.objectVersion,
                 attachment: exam.attachment,
                 anonymous: exam.anonymous,
-                requiresUserAgentAuth: exam.requiresUserAgentAuth,
+                implementation: exam.implementation,
                 settingsPassword: exam.settingsPassword,
             };
             for (const k in overrides) {

@@ -140,10 +140,12 @@ export interface ExaminationEvent {
 
 export interface ExaminationEventConfiguration {
     id?: number;
-    settingsPassword: string;
+    settingsPassword?: string;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
+
+export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamImpl {
     id: number;
@@ -184,7 +186,7 @@ export interface ExamImpl {
     customCredit: number;
     additionalInfo: string;
     examInspections: { user: User; ready: boolean }[];
-    requiresUserAgentAuth: boolean;
+    implementation: Implementation;
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
 }

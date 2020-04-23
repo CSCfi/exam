@@ -115,7 +115,7 @@ public class CalendarController extends BaseController {
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
         }
-        if (enrolment.getExam().getRequiresUserAgentAuth()) {
+        if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return Optional.of(forbidden("SEB exam does not take reservations"));
         }
         // Removal not permitted if old reservation is in the past or if exam is already started
@@ -287,7 +287,7 @@ public class CalendarController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
-        if (ee == null || ee.getExam().getRequiresUserAgentAuth()) {
+        if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, aids);

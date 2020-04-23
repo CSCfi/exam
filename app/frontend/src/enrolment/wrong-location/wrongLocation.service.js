@@ -29,9 +29,6 @@ angular.module('app.enrolment').service('WrongLocation', [
             };
             const startsAt = moment(data[4]);
             const now = moment();
-            if (now.isDST()) {
-                startsAt.add(-1, 'hour');
-            }
             let parts;
             if (startsAt.isAfter(now)) {
                 parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
@@ -89,9 +86,6 @@ angular.module('app.enrolment').service('WrongLocation', [
             };
             const startsAt = moment(startsAtTxt);
             const now = moment();
-            if (now.isDST()) {
-                startsAt.add(-1, 'hour');
-            }
             if (startsAt.isAfter(now)) {
                 toast.warning(
                     `${$translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,

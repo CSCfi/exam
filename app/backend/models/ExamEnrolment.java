@@ -151,7 +151,7 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @Transient
     public boolean isActive() {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        if (exam == null || !exam.getRequiresUserAgentAuth()) {
+        if (exam == null || exam.getImplementation() == Exam.Implementation.AQUARIUM) {
             return reservation == null || reservation.getEndAt().isAfter(now);
         }
         return (

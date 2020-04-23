@@ -278,7 +278,13 @@ public class EnrolmentController extends BaseController {
 
             // already enrolled (regular examination)
             if (
-                enrolments.stream().anyMatch(e -> !e.getExam().getRequiresUserAgentAuth() && e.getReservation() == null)
+                enrolments
+                    .stream()
+                    .anyMatch(
+                        e ->
+                            e.getExam().getImplementation() == Exam.Implementation.AQUARIUM &&
+                            e.getReservation() == null
+                    )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
             }
@@ -287,7 +293,9 @@ public class EnrolmentController extends BaseController {
                 enrolments
                     .stream()
                     .anyMatch(
-                        e -> e.getExam().getRequiresUserAgentAuth() && e.getExaminationEventConfiguration() == null
+                        e ->
+                            e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
+                            e.getExaminationEventConfiguration() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));

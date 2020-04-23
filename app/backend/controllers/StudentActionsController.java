@@ -255,16 +255,14 @@ public class StudentActionsController extends CollaborationController {
                     }
                 );
         }
-        if (enrolment.getExternalExam() == null) {
-            return wrapAsPromise(ok(enrolment, pp));
-        } else {
+        if (enrolment.getExternalExam() != null) {
             // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
             enrolment.setExam(exam);
-            return wrapAsPromise(ok(enrolment, pp));
         }
+        return wrapAsPromise(ok(enrolment, pp));
     }
 
     @Authenticated
@@ -315,9 +313,7 @@ public class StudentActionsController extends CollaborationController {
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean
             .find(Exam.class)
-            .select(
-                "id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth"
-            )
+            .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")
             .fetch("examInspections.user", "firstName, lastName")
@@ -349,7 +345,7 @@ public class StudentActionsController extends CollaborationController {
             .stream()
             .filter(
                 e ->
-                    !e.getRequiresUserAgentAuth() ||
+                    e.getImplementation() != Exam.Implementation.CLIENT_AUTH ||
                     e
                         .getExaminationEventConfigurations()
                         .stream()
