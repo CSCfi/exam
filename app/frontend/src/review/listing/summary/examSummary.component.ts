@@ -17,12 +17,14 @@ import * as _ from 'lodash';
 
 import { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { FileService } from '../../../utility/file/file.service';
+import { IModalService } from 'angular-ui-bootstrap';
 
 export const ExamSummaryComponent: ng.IComponentOptions = {
     template: require('./examSummary.template.html'),
     bindings: {
         exam: '<',
         reviews: '<',
+        collaborative: '<',
     },
     controller: class ExamSummaryController implements ng.IComponentController, ng.IOnInit, ng.IOnChanges {
         exam: Exam;
@@ -35,18 +37,25 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         gradeDistributionLabels: string[];
         chartOptions: any;
         chartSeries: any;
+        abortedExams: ExamParticipation[];
+        noShows: unknown[];
+        collaborative: boolean;
 
         constructor(
             private Files: FileService,
             private $filter: ng.IFilterService,
             private $translate: ng.translate.ITranslateService,
+            private $uibModal: IModalService,
+            private $http: angular.IHttpService,
         ) {
             'ngInject';
         }
 
         private refresh = () => {
+            this.getNoShows();
             this.buildGradeDistribution();
             this.gradedCount = this.reviews.filter(r => r.exam.gradedTime).length;
+            this.abortedExams = this.reviews.filter(r => r.exam.state === 'ABORTED');
             this.buildGradeTime();
             this.chartSeries = [this.$translate.instant('sitnet_word_points')];
             this.chartOptions = {
@@ -116,6 +125,21 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             return durations.reduce((sum, b) => sum + b, 0) / durations.length;
         };
 
+        getNoShows = () => {
+            // No-shows
+            if (this.collaborative) {
+                //TODO: Fetch collaborative no-shows from xm.
+                this.noShows = [];
+            } else {
+                this.$http
+                    .get(`/app/noshows/${this.exam.id}`)
+                    .then((resp: angular.IHttpResponse<unknown[]>) => {
+                        this.noShows = resp.data;
+                    })
+                    .catch(angular.noop);
+            }
+        };
+
         buildGradeTime = () => {
             const gradeTimes: { duration: number; score: number }[] = this.reviews
                 .sort((a, b) => (a.duration > b.duration ? 1 : -1))
@@ -139,6 +163,29 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                 );
             }
         };
+
+        openAborted = () =>
+            this.$uibModal.open({
+                backdrop: 'static',
+                keyboard: true,
+                windowClass: 'question-editor-modal',
+                component: 'abortedExams',
+                resolve: {
+                    exam: this.exam,
+                    abortedExams: () => this.abortedExams,
+                },
+            });
+
+        openNoShows = () =>
+            this.$uibModal.open({
+                backdrop: 'static',
+                keyboard: true,
+                windowClass: 'question-editor-modal',
+                component: 'noShows',
+                resolve: {
+                    noShows: () => this.noShows,
+                },
+            });
     },
 };
 

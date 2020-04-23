@@ -91,7 +91,12 @@
                 heading="{{ 'sitnet_exam_summary_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)"
             >
-                <exam-summary ng-if="$ctrl.reviews" exam="$ctrl.exam" reviews="$ctrl.reviews"></exam-summary>
+                <exam-summary
+                    ng-if="$ctrl.reviews"
+                    exam="$ctrl.exam"
+                    reviews="$ctrl.reviews"
+                    collaborative="$ctrl.collaborative"
+                ></exam-summary>
             </uib-tab>
         </uib-tabset>
     </div>
