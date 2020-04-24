@@ -87,7 +87,7 @@
             </uib-tab>
             <uib-tab
                 ng-if="$ctrl.exam && !$ctrl.collaborative && ($ctrl.isOwner() || $ctrl.user.isAdmin) && $ctrl.exam.executionType.type !== 'PRINTOUT'"
-                index="6"
+                index="$ctrl.user.isAdmin ? 5 : 6"
                 heading="{{ 'sitnet_exam_summary_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)"
             >
