@@ -56,6 +56,46 @@
                 {{$ctrl.getAverageTime() | number : 0}} min
             </div>
         </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_aborted_exams' | translate}}
+            </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" ng-if="$ctrl.reviews.length > 0" ng-click="$ctrl.openAborted()">
+                    {{$ctrl.abortedExams.length}}
+                </a>
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_aborted_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+        </div>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{'sitnet_no_shows' | translate}}
+            </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" ng-click="$ctrl.openNoShows()">
+                    {{$ctrl.noShows.length}}
+                </a>
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_no_shows_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+        </div>
     </div>
 
     <div class="col-md-12 mart40">
