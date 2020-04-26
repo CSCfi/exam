@@ -227,17 +227,18 @@ export default function configs(
                     const location = b64ToUtf8(unknownMachine).split(':::');
                     WrongLocation.display(location); // Show warning notice on screen
                 } else if (wrongRoom) {
+                    $rootScope.$broadcast('wrongLocation');
                     parts = b64ToUtf8(wrongRoom).split(':::');
                     $state.go('wrongRoom', { eid: parts[0], mid: parts[1] });
-                    $rootScope.$broadcast('wrongLocation');
                 } else if (wrongMachine) {
+                    $rootScope.$broadcast('wrongLocation');
                     parts = b64ToUtf8(wrongMachine).split(':::');
                     $state.go('wrongMachine', { eid: parts[0], mid: parts[1] });
-                    $rootScope.$broadcast('wrongLocation');
                 } else if (wrongUserAgent) {
                     WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                 } else if (enrolmentId) {
                     // Go to waiting room
+                    $rootScope.$broadcast('upcomingExam');
                     const id = enrolmentId === 'none' ? '' : enrolmentId;
                     if (enrolmentId === 'none') {
                         // No upcoming exams
@@ -245,11 +246,10 @@ export default function configs(
                     } else {
                         $state.go('waitingRoom', { id: id });
                     }
-                    $rootScope.$broadcast('upcomingExam');
                 } else if (hash) {
                     // Start/continue exam
-                    $state.go('examination', { hash: hash });
                     $rootScope.$broadcast('examStarted');
+                    $state.go('examination', { hash: hash });
                 }
                 return response;
             },

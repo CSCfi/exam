@@ -42,10 +42,12 @@ public class SystemRequestHandler implements ActionCreator {
                     .thenApply(
                         r -> {
                             r = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
-                            Http.Session session = r.session();
-                            if (session == null) {
+                            Http.Session respSession = r.session();
+                            Http.Session reqSession = request.session();
+                            if (respSession == null && reqSession == null) {
                                 return r;
                             }
+                            Http.Session session = respSession == null ? reqSession : respSession;
                             if (!request.path().contains("checkSession")) { // update expiration
                                 session = session.adding("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
                             }

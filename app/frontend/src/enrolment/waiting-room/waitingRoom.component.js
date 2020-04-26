@@ -59,13 +59,19 @@ angular.module('app.enrolment').component('waitingRoom', {
                 }
             };
 
-            const calculateOffset = function() {
-                const startsAt = moment(vm.enrolment.reservation.startAt);
-                const now = moment();
-                if (now.isDST()) {
-                    startsAt.add(-1, 'hour');
+            const getStart = () => {
+                if (vm.enrolment.examinationEventConfiguration) {
+                    return moment(vm.enrolment.examinationEventConfiguration.examinationEvent.start);
                 }
-                return Date.parse(startsAt.format()) - new Date().getTime();
+                const start = moment(vm.enrolment.reservation.startAt);
+                if (moment().isDST) {
+                    start.add(-1, 'hour');
+                }
+                return start;
+            };
+
+            const calculateOffset = function() {
+                return Date.parse(getStart().format()) - new Date().getTime();
             };
 
             const setOccasion = function(reservation) {

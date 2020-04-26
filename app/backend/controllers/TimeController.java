@@ -69,7 +69,7 @@ public class TimeController extends BaseController {
 
     private DateTime getNow(ExamEnrolment enrolment) {
         if (enrolment.getExaminationEventConfiguration() != null) {
-            return DateTimeUtils.adjustDST(DateTime.now());
+            return DateTime.now();
         }
         return DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation());
     }

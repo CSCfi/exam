@@ -247,7 +247,11 @@ public class EnrolmentRepository {
         }
     }
 
-    private boolean isInsideBounds(ExamEnrolment ee, DateTime earliest, DateTime latest) {
+    private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
+        DateTime earliest = ee.getExaminationEventConfiguration() == null
+            ? DateTimeUtils.adjustDST(new DateTime())
+            : DateTime.now();
+        DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
         ExaminationEvent event = ee.getExaminationEventConfiguration() != null
             ? ee.getExaminationEventConfiguration().getExaminationEvent()
@@ -273,8 +277,6 @@ public class EnrolmentRepository {
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        DateTime future = now.plusMinutes(minutesToFuture);
         Set<ExamEnrolment> results = db
             .find(ExamEnrolment.class)
             .fetch("reservation")
@@ -305,7 +307,7 @@ public class EnrolmentRepository {
         // filter out enrolments that are over or not starting until tomorrow and pick the earliest (if any)
         return results
             .stream()
-            .filter(ee -> isInsideBounds(ee, now, future))
+            .filter(ee -> isInsideBounds(ee, minutesToFuture))
             .min(Comparator.comparing(this::getStartTime));
     }
 }
