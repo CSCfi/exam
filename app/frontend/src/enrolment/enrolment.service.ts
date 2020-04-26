@@ -108,7 +108,7 @@ export class EnrolmentService {
                         '<br/>' +
                         this.$translate.instant('sitnet_remember_exam_machine_reservation'),
                 );
-                if (exam.requiresUserAgentAuth && exam.examinationEventConfigurations.length > 0) {
+                if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
                     this.selectExaminationEvent(exam, resp.data, 'dashboard');
                 } else {
                     this.$state.go(collaborative ? 'collaborativeCalendar' : 'calendar', { id: exam.id });

@@ -57,7 +57,6 @@ public enum Attrs {
     public static final TypedKey<Boolean> FEEDBACK_STATUS = TypedKey.create("feedbackStatus");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
-    public static final TypedKey<Boolean> REQUIRES_USER_AGENT_AUTH = TypedKey.create("requiresUserAgentAuth");
     public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
@@ -66,4 +65,5 @@ public enum Attrs {
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
     public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
+    public static final TypedKey<Exam.Implementation> EXAM_IMPL = TypedKey.create("implementation");
 }

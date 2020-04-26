@@ -337,31 +337,35 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("settings_file_info", messaging.get(lang, "email.examinationEvent.file.info"));
         String content = replaceAll(template, stringValues);
 
-        // Attach a SEB config file
-        String fileName = exam.getName().replace(" ", "-");
-        File file;
-        try {
-            file = File.createTempFile(fileName, ".seb");
-            FileOutputStream fos = new FileOutputStream(file);
-            byte[] data = byodConfigHandler.getExamConfig(
-                config.getHash(),
-                config.getEncryptedSettingsPassword(),
-                config.getSettingsPasswordSalt()
-            );
-            fos.write(data);
-            fos.close();
-        } catch (Exception e) {
-            logger.error("Failed to create a temporary SEB file on disk!");
-            throw new RuntimeException(e);
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
+            // Attach a SEB config file
+            String fileName = exam.getName().replace(" ", "-");
+            File file;
+            try {
+                file = File.createTempFile(fileName, ".seb");
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] data = byodConfigHandler.getExamConfig(
+                    config.getHash(),
+                    config.getEncryptedSettingsPassword(),
+                    config.getSettingsPasswordSalt()
+                );
+                fos.write(data);
+                fos.close();
+            } catch (Exception e) {
+                logger.error("Failed to create a temporary SEB file on disk!");
+                throw new RuntimeException(e);
+            }
+            EmailAttachment attachment = new EmailAttachment();
+            attachment.setPath(file.getAbsolutePath());
+            attachment.setDisposition(EmailAttachment.ATTACHMENT);
+            attachment.setName(fileName + ".seb");
+            if (env.isDev()) {
+                logger.info("Wrote SEB config file to {}", file.getAbsolutePath());
+            }
+            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
+        } else {
+            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content);
         }
-        EmailAttachment attachment = new EmailAttachment();
-        attachment.setPath(file.getAbsolutePath());
-        attachment.setDisposition(EmailAttachment.ATTACHMENT);
-        attachment.setName(fileName + ".seb");
-        if (env.isDev()) {
-            logger.info("Wrote SEB config file to {}", file.getAbsolutePath());
-        }
-        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 
     public void composeExaminationEventCancellationNotification(

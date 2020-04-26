@@ -189,6 +189,9 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     keyboard: true,
                     animation: true,
                     component: 'examinationEventDialog',
+                    resolve: {
+                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
+                    },
                 })
                 .result.then((data: ExaminationEventConfiguration) => {
                     this.Exam.addExaminationEvent(this.exam.id, data).then((config: ExaminationEventConfiguration) => {
@@ -206,6 +209,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     component: 'examinationEventDialog',
                     resolve: {
                         config: () => configuration,
+                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
                     },
                 })
                 .result.then((data: ExaminationEventConfiguration) => {

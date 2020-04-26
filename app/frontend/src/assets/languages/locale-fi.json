@@ -971,5 +971,6 @@
   "sitnet_incorrect_claim_question_options": "Virheelliset vastausvaihtoehdot",
   "sitnet_export_questions": "Siirrä kysymykset Moodlen XML-formaattiin (ainoastaan esseet ja monivalinnat)",
   "sitnet_remove_examination_event": "Poista tenttitilaisuus",
-  "sitnet_event_enrolments_exist": "Tilaisuuteen on ilmoittautuneita. Tilaisuuden poistaminen ei ole mahdollista"
+  "sitnet_event_enrolments_exist": "Tilaisuuteen on ilmoittautuneita. Tilaisuuden poistaminen ei ole mahdollista",
+  "sitnet_examination_type_home_exam": "Kotitentti"
 }

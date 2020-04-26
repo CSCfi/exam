@@ -971,5 +971,6 @@
   "sitnet_incorrect_claim_question_options": "Invalid answer options",
   "sitnet_export_questions": "Export questions to Moodle XML format (only essays and multiple choice questions)",
   "sitnet_remove_examination_event": "Remove exam event ",
-  "sitnet_event_enrolments_exist": "It is not possible to remove the exam event, because there are enrolments for the event."
+  "sitnet_event_enrolments_exist": "It is not possible to remove the exam event, because there are enrolments for the event.",
+  "sitnet_examination_type_home_exam": "Home exam"
 }

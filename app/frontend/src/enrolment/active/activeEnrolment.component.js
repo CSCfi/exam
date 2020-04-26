@@ -39,7 +39,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.makeReservation = () => {
-                if (vm.enrolment.exam.requiresUserAgentAuth) {
+                if (vm.enrolment.exam.implementation !== 'AQUARIUM') {
                     Enrolment.selectExaminationEvent(vm.enrolment.exam, vm.enrolment);
                 } else {
                     vm.goToCalendar();

@@ -247,7 +247,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         // decipher the settings passwords if any
-        if (exam.getRequiresUserAgentAuth()) {
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             exam
                 .getExaminationEventConfigurations()
                 .forEach(
@@ -491,7 +491,7 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
-        exam.setRequiresUserAgentAuth(false);
+        exam.setImplementation(Exam.Implementation.AQUARIUM);
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());

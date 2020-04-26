@@ -87,13 +87,19 @@ public class ExaminationEventController extends BaseController {
         if (start.isBeforeNow()) {
             return forbidden("start occasion in the past");
         }
+        String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
+            return forbidden("no password provided");
+        }
         ee.setStart(start);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
         ee.save();
         eec.setExaminationEvent(ee);
         eec.setExam(exam);
         eec.setHash(UUID.randomUUID().toString());
-        encryptSettingsPassword(eec, request.attrs().get(Attrs.SETTINGS_PASSWORD));
+        if (password != null) {
+            encryptSettingsPassword(eec, password);
+        }
         eec.save();
         // Pass back the plaintext password so it can be shown to user
         eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
@@ -115,6 +121,10 @@ public class ExaminationEventController extends BaseController {
         ExaminationEventConfiguration eec = oeec.get();
         boolean hasEnrolments = eec.getExamEnrolments().size() > 0;
         ExaminationEvent ee = eec.getExaminationEvent();
+        String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
+            return forbidden("no password provided");
+        }
         if (!hasEnrolments) {
             DateTime start = request.attrs().get(Attrs.START_DATE);
             if (start.isBeforeNow()) {
@@ -124,8 +134,10 @@ public class ExaminationEventController extends BaseController {
         }
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
         ee.update();
-        if (!hasEnrolments) {
-            encryptSettingsPassword(eec, request.attrs().get(Attrs.SETTINGS_PASSWORD));
+        if (password == null) {
+            return ok(eec);
+        } else if (!hasEnrolments) {
+            encryptSettingsPassword(eec, password);
             eec.save();
             // Pass back the plaintext password so it can be shown to user
             eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));

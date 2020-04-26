@@ -51,7 +51,7 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
                             ng-model="$ctrl.description"></textarea>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" ng-if="$ctrl.requiresPassword">
                     <div class="col-md-12">
                         <label for="password">{{'sitnet_settings_password' | translate}}:</label>
                         <div id="password" class="input-group wdth-30">
@@ -87,13 +87,14 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
         dismiss: '&',
     },
     controller: class ExaminationEventDialogController implements angular.IComponentController {
-        resolve: { config: ExaminationEventConfiguration };
+        resolve: { config: ExaminationEventConfiguration; requiresPassword: boolean };
         close: (_: { $value: { config: Omit<ExaminationEventConfiguration, 'examEnrolments'> } }) => any;
         dismiss: () => any;
 
         start: Date;
+        requiresPassword: boolean;
         description: string;
-        password: string;
+        password?: string;
         hasEnrolments: boolean;
         pwdInputType = 'password';
 
@@ -102,6 +103,7 @@ export const ExaminationEventDialogComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
+            this.requiresPassword = this.resolve.requiresPassword;
             if (this.resolve.config) {
                 this.start = new Date(this.resolve.config.examinationEvent.start);
                 this.description = this.resolve.config.examinationEvent.description;
