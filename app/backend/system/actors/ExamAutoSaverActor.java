@@ -73,7 +73,10 @@ public class ExamAutoSaverActor extends AbstractActor {
             .fetch("examinationEvent")
             .where()
             .isNull("ended")
+            .or()
             .isNotNull("reservation")
+            .isNotNull("examinationEvent")
+            .endOr()
             .findList();
 
         if (participations.isEmpty()) {
@@ -83,6 +86,14 @@ public class ExamAutoSaverActor extends AbstractActor {
         markEnded(participations);
     }
 
+    private DateTime getNow(ExamParticipation participation) {
+        if (participation.getExaminationEvent() != null) {
+            return DateTime.now();
+        }
+        Reservation reservation = participation.getReservation();
+        return DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+    }
+
     private void markEnded(List<ExamParticipation> participations) {
         for (ExamParticipation participation : participations) {
             Exam exam = participation.getExam();
@@ -90,9 +101,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             ExaminationEvent event = participation.getExaminationEvent();
             DateTime reservationStart = new DateTime(reservation == null ? event.getStart() : reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
-            DateTime now = reservation == null
-                ? DateTimeUtils.adjustDST(DateTime.now())
-                : DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = getNow(participation);
             if (participationTimeLimit.isBefore(now)) {
                 participation.setEnded(now);
                 participation.setDuration(

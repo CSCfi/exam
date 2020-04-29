@@ -345,7 +345,7 @@ public class StudentActionsController extends CollaborationController {
             .stream()
             .filter(
                 e ->
-                    e.getImplementation() != Exam.Implementation.CLIENT_AUTH ||
+                    e.getImplementation() == Exam.Implementation.AQUARIUM ||
                     e
                         .getExaminationEventConfigurations()
                         .stream()

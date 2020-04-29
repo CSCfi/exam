@@ -12,9 +12,12 @@
     </div>
     <div class="detail-row marb20">
         <div class="col-md-2 general-info-title">{{'sitnet_exam_reservation' | translate}}:</div>
-        <div class="col-md-4 general-info-content">
+        <div ng-if="!$ctrl.participation.examinationEvent" class="col-md-4 general-info-content">
             {{$ctrl.participation.started | adjustdst |date:'dd.MM.yyyy HH:mm'}} - {{$ctrl.participation.ended |
             adjustdst | date:'HH:mm'}}
+        </div>
+        <div ng-if="$ctrl.participation.examinationEvent" class="col-md-4 general-info-content">
+            {{$ctrl.participation.started | date:'dd.MM.yyyy HH:mm'}} - {{$ctrl.participation.ended | date:'HH:mm'}}
         </div>
         <div class="col-md-2 general-info-title">{{'sitnet_time_of_exam_participation' | translate}}:</div>
         <div class="col-md-4 general-info-content">{{$ctrl.participation.duration}}</div>
