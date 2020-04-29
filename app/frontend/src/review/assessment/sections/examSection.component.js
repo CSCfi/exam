@@ -28,8 +28,10 @@ angular.module('app.review').component('rExamSection', {
     },
     controller: [
         '$sce',
+        '$translate',
         'Attachment',
-        function($sce, Attachment) {
+        'Exam',
+        function($sce, $translate, Attachment, Exam) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -58,6 +60,28 @@ angular.module('app.review').component('rExamSection', {
                     ' / ' +
                     max
                 );
+            };
+
+            vm.getSectionMaxScore = function() {
+                return Exam.getSectionMaxScore(vm.section);
+            };
+
+            vm.getSectionTotalScore = function() {
+                return Exam.getSectionTotalScore(vm.section);
+            };
+
+            vm.getSelectionEvaluatedQuestionAmount = function() {
+                return vm.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length;
+            };
+
+            vm.getPassedQuestions = function() {
+                return vm.section.sectionQuestions.filter(
+                    esq =>
+                        esq.evaluationType === 'Selection' &&
+                        esq.essayAnswer &&
+                        esq.essayAnswer.evaluatedScore &&
+                        esq.essayAnswer.evaluatedScore === 1,
+                ).length;
             };
         },
     ],

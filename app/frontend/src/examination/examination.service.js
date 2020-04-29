@@ -214,6 +214,19 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
                 toast.error($translate.instant(resp.data));
             });
     };
+
+    self.getSectionMaxScore = function(section) {
+        if (!section || !section.sectionQuestions) {
+            return 0;
+        }
+
+        const sum = section.sectionQuestions
+            .filter(esq => esq.question.type && esq.evaluationType !== 'Selection')
+            .map(esq => esq.derivedMaxScore)
+            .reduce((acc, current) => acc + current, 0);
+
+        return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+    };
 }
 
 angular

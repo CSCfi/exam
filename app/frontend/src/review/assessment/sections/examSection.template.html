@@ -3,6 +3,21 @@
         <div class="padt50 padl30 padr30">
             <div class="col-md-12 review-list-title padl0">
                 {{$ctrl.index}}. &nbsp; &nbsp;{{$ctrl.section.name}}
+                <span class="score-details">
+                    <span ng-if="$ctrl.getSectionMaxScore() > 0">
+                        {{ 'sitnet_word_points' | translate }}:&nbsp;
+                        <span style="color:#2C2C2C"
+                            >{{ $ctrl.getSectionTotalScore() }} / {{ $ctrl.getSectionMaxScore() }}</span
+                        >
+                    </span>
+                    &nbsp;
+                    <span ng-if="$ctrl.getSelectionEvaluatedQuestionAmount() > 0">
+                        {{ 'sitnet_word_passed_max' | translate }}:&nbsp;
+                        <span style="color:#2C2C2C"
+                            >{{ $ctrl.getPassedQuestions() }} / {{ $ctrl.getSelectionEvaluatedQuestionAmount() }}</span
+                        >
+                    </span>
+                </span>
             </div>
         </div>
         <div class="detail-row padr0 padl0 mar0" ng-show="$ctrl.section.description">
@@ -39,6 +54,22 @@
                 <div ng-if="sq.question.type === 'ClaimChoiceQuestion'">
                     <r-multi-choice-question section-question="sq" on-score="$ctrl.scoreSet(revision)">
                     </r-multi-choice-question>
+                </div>
+            </div>
+        </div>
+        <div class="detail-row padt20 padr30">
+            <div class="review-list-footer">
+                <div class="score-label" ng-if="$ctrl.getSectionMaxScore() > 0">
+                    {{ 'sitnet_word_points' | translate }}:
+                    <span class="score-value">
+                        {{ $ctrl.getSectionTotalScore() }} / {{ $ctrl.getSectionMaxScore() }}
+                    </span>
+                </div>
+                <div class="score-label" ng-if="$ctrl.getSelectionEvaluatedQuestionAmount() > 0">
+                    {{ 'sitnet_word_passed_max' | translate }}:
+                    <span class="score-value">
+                        {{ $ctrl.getPassedQuestions() }} / {{ $ctrl.getSelectionEvaluatedQuestionAmount() }}
+                    </span>
                 </div>
             </div>
         </div>
