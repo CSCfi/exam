@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
@@ -20,7 +21,6 @@ import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
 import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
-import { StateService } from '@uirouter/core';
 
 export const ExamPublicationComponent: angular.IComponentOptions = {
     template: require('./examPublication.template.html'),
@@ -323,7 +323,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 errors.push('sitnet_autoevaluation_percentages_not_unique');
             }
 
-            if (this.exam.implementation === 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
+            if (this.exam.implementation !== 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
                 errors.push('sitnet_missing_examination_event_configurations');
             }
             return errors.map(e => this.$translate.instant(e));

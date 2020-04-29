@@ -28,20 +28,23 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
     self.startExam = function(hash, isPreview, isCollaboration, id) {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
         const deferred = $q.defer();
-        $http
-            .get(isCollaboration ? url.replace('/app/', '/integration/iop/') : url)
-            .then(function(resp) {
-                if (resp.data.cloned) {
-                    // we came here with a reference to the parent exam so do not render page just yet,
-                    // reload with reference to student exam that we just created
-                    $state.go('examination', { hash: resp.data.hash });
-                }
-                _external = resp.data.external;
-                deferred.resolve(resp.data);
-            })
-            .catch(function(resp) {
-                deferred.reject(resp.data);
-            });
+        $http.get('/app/checkSession').then(() => {
+            $http
+                .get(isCollaboration ? url.replace('/app/', '/integration/iop/') : url)
+                .then(function(resp) {
+                    if (resp.data.cloned) {
+                        // we came here with a reference to the parent exam so do not render page just yet,
+                        // reload with reference to student exam that we just created
+                        $state.go('examination', { hash: resp.data.hash });
+                    }
+                    _external = resp.data.external;
+                    deferred.resolve(resp.data);
+                })
+                .catch(function(resp) {
+                    deferred.reject(resp.data);
+                });
+        });
+
         return deferred.promise;
     };
 
