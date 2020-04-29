@@ -153,12 +153,10 @@ public class ExaminationController extends BaseController {
                                                         user,
                                                         enrolment
                                                     );
-                                                    return createExam.thenComposeAsync(
+                                                    return createExam.thenApplyAsync(
                                                         oe -> {
                                                             if (oe.isEmpty()) {
-                                                                return CompletableFuture.completedFuture(
-                                                                    internalServerError()
-                                                                );
+                                                                return internalServerError();
                                                             }
                                                             Exam newExam = oe.get();
                                                             if (enrolment.getCollaborativeExam() != null) {
@@ -176,11 +174,7 @@ public class ExaminationController extends BaseController {
                                                             newExam.setCloned(true);
                                                             newExam.setDerivedMaxScores();
                                                             processClozeTestQuestions(newExam);
-                                                            return checkStudentSession(
-                                                                request,
-                                                                request.session(),
-                                                                ok(newExam, getPath(false))
-                                                            );
+                                                            return ok(newExam, getPath(false));
                                                         },
                                                         httpExecutionContext.current()
                                                     );
@@ -196,24 +190,20 @@ public class ExaminationController extends BaseController {
                                         hash,
                                         request
                                     );
-                                    return getEnrolmentError.thenComposeAsync(
+                                    return getEnrolmentError.thenApplyAsync(
                                         err -> {
                                             if (err.isPresent()) {
-                                                return wrapAsPromise(err.get());
+                                                return err.get();
                                             }
                                             Exam clone = possibleClone.get();
                                             // sanity check
                                             if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                                                return wrapAsPromise(forbidden());
+                                                return forbidden();
                                             }
                                             clone.setCloned(false);
                                             clone.setDerivedMaxScores();
                                             processClozeTestQuestions(clone);
-                                            return checkStudentSession(
-                                                request,
-                                                request.session(),
-                                                ok(clone, getPath(false))
-                                            );
+                                            return ok(clone, getPath(false));
                                         }
                                     );
                                 }
@@ -410,9 +400,15 @@ public class ExaminationController extends BaseController {
     }
 
     private void setDurations(ExamParticipation ep) {
-        DateTime now = ep.getReservation() == null
-            ? DateTimeUtils.adjustDST(DateTime.now())
-            : DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        DateTime now;
+        if (ep.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
+            now = DateTime.now();
+        } else {
+            now =
+                ep.getReservation() == null
+                    ? DateTimeUtils.adjustDST(DateTime.now())
+                    : DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        }
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }

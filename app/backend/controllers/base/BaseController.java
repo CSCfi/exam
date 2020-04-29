@@ -220,13 +220,8 @@ public class BaseController extends Controller {
                 .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
                 .thenApplyAsync(
                     headers -> {
-                        String[] args = headers
-                            .entrySet()
-                            .stream()
-                            .flatMap(e -> List.of(e.getKey(), e.getValue()).stream())
-                            .toArray(String[]::new);
-                        Http.Session newSession = updateStudentHeaders(session, headers);
-                        return result.withHeaders(args).withSession(newSession);
+                        Http.Session newSession = updateSession(session, headers);
+                        return result.withSession(newSession);
                     },
                     ec.current()
                 );
@@ -235,7 +230,7 @@ public class BaseController extends Controller {
         }
     }
 
-    private Http.Session updateStudentHeaders(Http.Session session, Map<String, String> headers) {
+    private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
         Map<String, String> payload = new HashMap<>(session.data());
         if (headers.containsKey("x-exam-start-exam")) {
             payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));

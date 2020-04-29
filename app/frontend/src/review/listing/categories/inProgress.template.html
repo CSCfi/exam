@@ -143,9 +143,13 @@
                 <td class="table-column-10">
                     {{review.duration + " min"}}
                 </td>
-                <td class="table-column-10">
+                <td ng-if="review.exam.implementation === 'AQUARIUM'" class="table-column-10">
                     {{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}}
                     {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
+                </td>
+                <td ng-if="review.exam.implementation !== 'AQUARIUM'" class="table-column-10">
+                    {{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}} {{review.started |
+                    date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
                 </td>
                 <td class="table-column-10">
                     {{review.deadline | date:'dd.MM.yyyy'}} (

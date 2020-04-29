@@ -100,7 +100,7 @@ public class EnrolmentRepository {
             .filter(
                 ee ->
                     ee.getExaminationEventConfiguration() == null ||
-                    ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((now))
+                    ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
             )
             .collect(Collectors.toList());
         enrolments.forEach(

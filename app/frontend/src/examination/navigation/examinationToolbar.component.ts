@@ -55,7 +55,7 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            if (!this.isPreview) {
+            if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
                 this.$http
                     .get('/app/enrolments/room/' + this.exam.hash)
                     .then((resp: angular.IHttpResponse<Room>) => (this.room = resp.data));

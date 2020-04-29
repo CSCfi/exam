@@ -262,7 +262,7 @@ export default function configs(
                     if (response.data.match(/^".*"$/g)) {
                         response.data = response.data.slice(1, response.data.length - 1);
                     }
-                    const parts = response.data.split(' ');
+                    const parts = response.data.split(' ').filter(p => p.length > 0);
                     $translate(parts).then((t: string[]) => {
                         for (let i = 0; i < parts.length; i++) {
                             if (parts[i].substring(0, 7) === 'sitnet_') {
