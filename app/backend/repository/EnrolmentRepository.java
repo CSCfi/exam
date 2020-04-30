@@ -162,9 +162,6 @@ public class EnrolmentRepository {
         if (environment.isDev() && !requiresClientAuth) {
             return true;
         }
-        if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
-            return true;
-        }
         if (requiresClientAuth) {
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
             Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
@@ -242,7 +239,14 @@ public class EnrolmentRepository {
         Http.RequestHeader request,
         Map<String, String> headers
     ) {
-        if (isMachineOk(enrolment, request, headers)) {
+        if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
+            // Home exam, don't set headers unless it starts in 5 minutes
+            DateTime threshold = DateTime.now().plusMinutes(5);
+            DateTime start = enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            if (start.isBefore(threshold)) {
+                headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
+            }
+        } else if (isMachineOk(enrolment, request, headers)) {
             headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         }
     }
