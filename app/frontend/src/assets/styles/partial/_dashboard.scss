@@ -964,6 +964,39 @@
       font-size: 20px;
       letter-spacing: 0.63px;
     }
+
+    .score-details {
+      float: right;
+      font-size: 16px;
+      vertical-align: bottom;
+      margin-top: 6px;
+      color: #555555;
+    }
+  }
+
+  .review-list-footer {
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    font-weight: normal;
+    color: #2C2C2C;
+    float: right;
+    padding-right: 15px;
+
+    .score-label {
+      color: #555555;
+      width: 230px;
+
+      .score-value {
+        float: right;
+      }
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .review-list-footer {
+      float: left;
+      padding-left: 30px;
+    }
   }
 
   .review-list-subtitle {

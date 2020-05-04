@@ -2,15 +2,23 @@
     <div class="col-md-12 studentexam-header">
         <h1>
             <span class="exam-title">{{$ctrl.section.index}}. {{$ctrl.section.name}}</span>
-            <span ng-show="$sctrl.isPreview && $ctrl.section.lotteryOn" class="sitnet-text-medium">
+            <span ng-show="$ctrl.isPreview && $ctrl.section.lotteryOn" class="sitnet-text-medium">
                 <small>({{ 'sitnet_lottery_questions' | translate }})</small>
             </span>
         </h1>
+        <div class="section-score-details">
+            <div class="section-score-label" ng-if="$ctrl.getSectionMaxScore() > 0">
+                {{ 'sitnet_section_max_score' | translate }}: &nbsp; {{ $ctrl.getSectionMaxScore() }}
+            </div>
+            <div class="section-score-label" ng-if="$ctrl.getAmountOfSelectionEvaluatedQuestions() > 0">
+                {{ 'sitnet_word_passed_max' | translate }}: &nbsp; {{ $ctrl.getAmountOfSelectionEvaluatedQuestions() }}
+            </div>
+        </div>
     </div>
     <div class="guide-column">
         <div class="list-group">
             <form class="form-inline pad-15" role="form">
-                <div class="row studentexam-header">
+                <div class="row studentexam-section">
                     <!-- DESCRIPTION FOR SECTION -->
                     <div ng-if="$ctrl.section.description.length > 0" class="col-md-12 info-row mart30">
                         <img

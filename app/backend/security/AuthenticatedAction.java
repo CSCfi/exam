@@ -46,7 +46,7 @@ public class AuthenticatedAction extends Action<Authenticated> {
 
     private CompletionStage<Optional<User>> getLoggedInUser(Http.Request request) {
         Map<String, String> session = request.session().data();
-        if (!session.isEmpty()) {
+        if (session.containsKey("id")) {
             return userRepository
                 .getLoggedInUser(Long.parseLong(session.get("id")))
                 .thenApplyAsync(

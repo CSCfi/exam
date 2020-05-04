@@ -22,7 +22,7 @@ import play.mvc.Http;
 class AuditLogger {
     private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
-    public static void log(Http.RequestHeader request) {
+    public static void log(Http.Request request) {
         String method = request.method();
         Http.Session session = request.session();
         String userString = session == null || session.get("id").isEmpty()
@@ -32,6 +32,12 @@ class AuditLogger {
         StringBuilder logEntry = new StringBuilder(
             String.format("%s %s %s %s", DateTime.now(), userString, method, uri)
         );
+        if (!method.equals("GET")) {
+            String body = request.body() == null || request.body().asJson() == null
+                ? null
+                : request.body().asJson().toString();
+            logEntry.append(String.format(" data: %s", body));
+        }
         logger.debug(logEntry.toString());
     }
 }
