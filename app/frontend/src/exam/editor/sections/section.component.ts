@@ -53,6 +53,7 @@ export const SectionComponent: ng.IComponentOptions = {
             private dialogs: angular.dialogservice.IDialogService,
             private Question: any,
             private Files: FileService,
+            private Exam: any,
         ) {
             'ngInject';
         }
@@ -298,6 +299,11 @@ export const SectionComponent: ng.IComponentOptions = {
                     this.onReloadRequired();
                 });
         };
+
+        getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
+
+        getAmountOfSelectionEvaluatedQuestions = () =>
+            this.section.sectionQuestions.filter(q => q.evaluationType === 'Selection').length;
     },
 };
 

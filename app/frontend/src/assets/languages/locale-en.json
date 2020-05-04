@@ -972,5 +972,8 @@
   "sitnet_export_questions": "Export questions to Moodle XML format (only essays and multiple choice questions)",
   "sitnet_remove_examination_event": "Remove exam event ",
   "sitnet_event_enrolments_exist": "It is not possible to remove the exam event, because there are enrolments for the event.",
-  "sitnet_examination_type_home_exam": "Home exam"
+  "sitnet_examination_type_home_exam": "Home exam",
+  "sitnet_section_max_score": "Aihealueen pisteet EN",
+  "sitnet_evaluation_select_amount_description": "Hyväksytty / Hylätty -kysymysten lukumäärä aihealueessa. EN",
+  "sitnet_word_passed_max": "Hyväksytty max EN"
 }
