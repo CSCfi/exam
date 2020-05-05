@@ -6,8 +6,8 @@
                     <input
                         type="checkbox"
                         name="select_all"
-                        ng-model="allSelected"
-                        ng-change="selectAll()"
+                        [(ngModel)]="allSelected"
+                        (change)="selectAll()"
                         placement="top"
                         trigger="mouseenter"
                         ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
@@ -128,7 +128,7 @@
                         <small>{{ question.modifier.firstName }} {{ question.modifier.lastName }}</small>
                     </span>
                 </td>
-                <td>{{ question.displayedMaxScore | translate }}</td>
+                <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
                 <td>
                     <span *ngIf="question.type === 'MultipleChoiceQuestion'">{{
                         'sitnet_question_mc' | translate
@@ -167,7 +167,7 @@
                     </a>
                 </td>
                 <td class="padl20 padr10">
-                    <a ng-click="copyQuestion(question, false)">
+                    <a (click)="copyQuestion(question, false)">
                         <i
                             class="fa fa-clone fa-fw"
                             placement="left"

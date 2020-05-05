@@ -16,15 +16,16 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
+import * as _ from 'lodash';
 
 import { Question } from '../../../exam/exam.model';
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { QuestionService } from '../../question.service';
-import { LibraryService } from '../library.service';
+import { LibraryService, LibraryQuestion } from '../library.service';
 
-type SelectableQuestion = Question & { selected: boolean };
+type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
     selector: 'library-results',
@@ -35,7 +36,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() disableLinks: boolean;
     @Input() tableClass: string;
     @Output() onSelection = new EventEmitter<number[]>();
-    @Output() onCopy = new EventEmitter<Question>();
+    @Output() onCopy = new EventEmitter<LibraryQuestion>();
 
     user: User;
     allSelected = false;
@@ -109,9 +110,9 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         );
     };
 
-    downloadQuestionAttachment = (question: Question) => this.Attachment.downloadQuestionAttachment(question);
+    downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
 
-    printOwners = (question: Question) => question.questionOwners.map(o => this.printOwner(o, false)).join(', ');
+    printOwners = (question: LibraryQuestion) => question.questionOwners.map(o => this.printOwner(o, false)).join(', ');
 
     printOwner = (owner: User, showId: boolean): string => {
         let user = owner.firstName + ' ' + owner.lastName;
@@ -121,11 +122,11 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
-    printTags = (question: Question) => question.tags.map(t => t.name.toUpperCase()).join(', ');
+    printTags = (question: LibraryQuestion) => question.tags.map(t => t.name.toUpperCase()).join(', ');
 
     pageSelected = (page: number) => (this.currentPage = page);
 
-    getQuestionTypeIcon = (question: Question) => {
+    getQuestionTypeIcon = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'EssayQuestion':
                 return 'fa-edit';
@@ -141,7 +142,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return '';
     };
 
-    getQuestionTypeText = (question: Question) => {
+    getQuestionTypeText = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'EssayQuestion':
                 return 'sitnet_essay';
@@ -169,4 +170,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.questions.forEach(q => (q.selected = false));
         this.questionSelected();
     };
+
+    private showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
+        if(_.isNumber(scoreColumnValue)) {
+            return scoreColumnValue;
+        } else {
+            return this.translate.instant(scoreColumnValue);
+        }
+    }
 }

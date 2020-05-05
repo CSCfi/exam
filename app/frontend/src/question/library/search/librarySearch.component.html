@@ -4,7 +4,7 @@
             <div>
                 <input
                     class="form-control hgt40 wdt400"
-                    (ngModelChange)="applySearchFilter()"
+                    (input)="applySearchFilter()"
                     [(ngModel)]="filter.text"
                     placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
                 />
@@ -17,8 +17,8 @@
             <div>
                 <input
                     class="form-control searcht hgt40 wdt400"
-                    (ngModalChange)="applySearchFilter()"
-                    [(ngModel)]="ilter.owner"
+                    (input)="applySearchFilter()"
+                    [(ngModel)]="filter.owner"
                     placeholder="{{ 'sitnet_search_by_owner' | translate }}"
                 />
                 <div class="input-group-addon search">
@@ -49,7 +49,7 @@
                 >
                     <li role="presentation" class="input-group">
                         <input
-                            ([ng-model])="(limitations.courses)"
+                            [(ngModel)]="limitations.course"
                             (ngModelChange)="filterCourses()"
                             class="form-control"
                             (click)="$event.stopPropagation()"
@@ -76,7 +76,7 @@
                     type="button"
                     id="dropDownMenu2"
                     data-toggle="dropdown"
-                    ng-click="$ctrl.listExams()"
+                    (click)="listExams()"
                 >
                     {{ 'sitnet_exam' | translate }}&nbsp;
                     <span class="caret"></span>
@@ -84,7 +84,7 @@
                 <ul class="dropdown-menu scrollable-menu pull-left" role="menu" aria-labelledby="dropDownMenu2">
                     <li role="presentation" class="input-group">
                         <input
-                            ([ngModel])="(limitations.exams)"
+                            [(ngModel)]="limitations.exam"
                             (ngModelChange)="filterExams()"
                             class="form-control"
                             (click)="$event.stopPropagation()"
@@ -120,7 +120,7 @@
                 <ul class="dropdown-menu scrollable-menu" role="menu" aria-labelledby="dropDownMenu3">
                     <li role="presentation" class="input-group">
                         <input
-                            ([ngModel])="(limitations.tags)"
+                            [(ngModel)]="limitations.tag"
                             (ngModelChange)="filterTags()"
                             class="form-control"
                             (click)="$event.stopPropagation()"

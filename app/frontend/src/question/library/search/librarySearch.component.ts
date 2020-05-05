@@ -33,7 +33,8 @@ interface Filterable<T> {
     template: require('./librarySearch.component.html'),
 })
 export class LibrarySearchComponent implements OnInit {
-    @Output() onUpdate = new EventEmitter<LibraryQuestion[]>();
+    @Output('on-update')
+    onUpdate: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
 
     filter = { owner: '', text: '' };
     limitations = { exam: '', course: '', tag: '' };
