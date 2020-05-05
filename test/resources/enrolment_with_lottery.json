@@ -44,6 +44,7 @@
   "maxScore": 24.0,
   "modified": null,
   "modifier": null,
+  "optionalSections": [15471],
   "printout": false,
   "gradeless": false,
   "attachment": {
@@ -135,6 +136,7 @@
       "created": null,
       "creator": null,
       "ordinal": 0,
+      "optional": true,
       "expanded": false,
       "modified": null,
       "modifier": null,
@@ -257,6 +259,7 @@
       "name": "Monivalinnat",
       "created": null,
       "creator": null,
+      "optional": false,
       "ordinal": 1,
       "expanded": false,
       "modified": null,
@@ -571,6 +574,122 @@
           "clozeTestAnswer": null,
           "derivedMaxScore": null,
           "maxAssessedScore": 6.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        },
+        {
+          "id": 19460,
+          "created": null,
+          "creator": null,
+          "options": [
+            {
+              "id": 16003,
+              "score": 1,
+              "option": {
+                "id": 20001,
+                "option": "Tosi",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 16002,
+              "score": -1,
+              "option": {
+                "id": 20002,
+                "option": "Epätosi",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 16001,
+              "score": 0,
+              "option": {
+                "id": 20003,
+                "option": "En osaa sanoa",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              },
+              "answered": false,
+              "objectVersion": 0
+            }
+          ],
+          "ordinal": 3,
+          "approved": false,
+          "maxScore": null,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 253000,
+            "tags": [],
+            "type": "ClaimChoiceQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [
+              {
+                "id": 20003,
+                "option": "En osaa sanoa",
+                "defaultScore": 0,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              },
+              {
+                "id": 20002,
+                "option": "Epätosi",
+                "defaultScore": -1,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              },
+              {
+                "id": 20001,
+                "option": "Tosi",
+                "defaultScore": 1,
+                "correctOption": false,
+                "objectVersion": 0,
+                "claimChoiceType": null
+              }
+            ],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Suomi kuuluu Eurooppaan.</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 1.0,
+            "minDefaultScore": -1.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 3,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 0.0,
           "expectedWordCount": null,
           "answerInstructions": null,
           "evaluationCriteria": null

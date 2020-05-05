@@ -15,9 +15,8 @@
 
 import angular from 'angular';
 
-angular.module('app.question')
-    .component('essayForm', {
-        template: `
+angular.module('app.question').component('essayForm', {
+    template: `
         <div class="col-md-12 margin-20 padl0 padr0">
             <ng-form name="essayForm">
                 <div class="col-md-3 exam-basic-title padl0">
@@ -40,24 +39,21 @@ angular.module('app.question')
             </ng-form>
         </div>
         `,
-        bindings: {
-            question: '<',
-        },
-        controller: function () {
+    bindings: {
+        question: '<',
+    },
+    controller: function() {
+        const vm = this;
 
-            const vm = this;
+        vm.$onInit = function() {
+            vm.question.defaultEvaluationType = vm.question.defaultEvaluationType || 'Points';
+            if (vm.question.defaultEvaluationType === 'Selection') {
+                delete vm.question.defaultMaxScore; // will screw up validation otherwise
+            }
+        };
 
-            vm.$onInit = function () {
-                vm.question.defaultEvaluationType = vm.question.defaultEvaluationType || 'Points';
-                if (vm.question.defaultEvaluationType === 'Selection') {
-                    delete vm.question.defaultMaxScore; // will screw up validation otherwise
-                }
-            };
-
-            vm.estimateCharacters = function () {
-                return (vm.question.defaultExpectedWordCount || 0) * 8;
-            };
-
-        }
-    });
-
+        vm.estimateCharacters = function() {
+            return (vm.question.defaultExpectedWordCount || 0) * 8;
+        };
+    },
+});

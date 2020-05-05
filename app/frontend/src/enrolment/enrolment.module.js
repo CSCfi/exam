@@ -13,10 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
 require('../common');
 require('../exam'); // TODO: refactor
 require('../calendar');
 
 angular.module('app.enrolment', ['app.common', 'app.exam', 'app.calendar']);
-

@@ -12,66 +12,69 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
+import toast from 'toastr';
 
-angular.module('app.enrolment')
-    .component('wrongLocation', {
-        template: require('./wrongLocation.template.html'),
-        bindings: {
-            cause: '@'
+angular.module('app.enrolment').component('wrongLocation', {
+    template: require('./wrongLocation.template.html'),
+    bindings: {
+        cause: '@',
+    },
+    controller: [
+        '$http',
+        '$stateParams',
+        '$translate',
+        'Enrolment',
+        'StudentExamRes',
+        'DateTime',
+        function($http, $stateParams, $translate, Enrolment, StudentExamRes, DateTime) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                if ($stateParams.eid) {
+                    vm.upcoming = true;
+                    StudentExamRes.enrolment.get(
+                        { eid: $stateParams.eid },
+                        function(enrolment) {
+                            setOccasion(enrolment.reservation);
+                            vm.enrolment = enrolment;
+                            const room = vm.enrolment.reservation.machine.room;
+                            const code = $translate.use().toUpperCase();
+                            vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                            $http.get('/app/machines/' + $stateParams.mid).then(function(data) {
+                                vm.currentMachine = data.machine;
+                            });
+                            vm.printExamDuration = function() {
+                                return DateTime.printExamDuration(vm.enrolment.exam);
+                            };
+                        },
+                        function(error) {
+                            toast.error(error.data);
+                        },
+                    );
+                }
+            };
+
+            const setOccasion = function(reservation) {
+                const tz = reservation.machine.room.localTimezone;
+                const start = moment.tz(reservation.startAt, tz);
+                const end = moment.tz(reservation.endAt, tz);
+                if (start.isDST()) {
+                    start.add(-1, 'hour');
+                }
+                if (end.isDST()) {
+                    end.add(-1, 'hour');
+                }
+                reservation.occasion = {
+                    startAt: start.format('HH:mm'),
+                    endAt: end.format('HH:mm'),
+                };
+            };
+
+            vm.showInstructions = function() {
+                Enrolment.showInstructions(vm.enrolment);
+            };
         },
-        controller: ['$http', '$routeParams', '$translate', 'Enrolment', 'StudentExamRes', 'DateTime',
-            function ($http, $routeParams, $translate, Enrolment, StudentExamRes, DateTime) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    if ($routeParams.eid) {
-                        vm.upcoming = true;
-                        StudentExamRes.enrolment.get({eid: $routeParams.eid},
-                            function (enrolment) {
-                                setOccasion(enrolment.reservation);
-                                vm.enrolment = enrolment;
-                                const room = vm.enrolment.reservation.machine.room;
-                                const code = $translate.use().toUpperCase();
-                                vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                                $http.get('/app/machines/' + $routeParams.mid).then(function (data) {
-                                    vm.currentMachine = data.machine;
-                                });
-                                vm.printExamDuration = function () {
-                                    return DateTime.printExamDuration(vm.enrolment.exam);
-                                };
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
-                        );
-                    }
-                };
-
-
-                const setOccasion = function (reservation) {
-                    const tz = reservation.machine.room.localTimezone;
-                    const start = moment.tz(reservation.startAt, tz);
-                    const end = moment.tz(reservation.endAt, tz);
-                    if (start.isDST()) {
-                        start.add(-1, 'hour');
-                    }
-                    if (end.isDST()) {
-                        end.add(-1, 'hour');
-                    }
-                    reservation.occasion = {
-                        startAt: start.format('HH:mm'),
-                        endAt: end.format('HH:mm')
-                    };
-                };
-
-                vm.showInstructions = function () {
-                    Enrolment.showInstructions(vm.enrolment);
-                };
-
-            }]
-    });
+    ],
+});

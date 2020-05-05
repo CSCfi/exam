@@ -16,9 +16,8 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('mcOptionForm', {
-        template: `
+angular.module('app.question').component('mcOptionForm', {
+    template: `
         <div class="form-horizontal question-editor-option mart10">
             <div class="col-md-12">
                 <div class="col-md-6 question-option-empty"
@@ -41,20 +40,22 @@ angular.module('app.question')
             </div>
         </div>
         `,
-        bindings: {
-            option: '<',
-            question: '<',
-            allowRemoval: '<' // !lotteryOn && !inPublishedExam
-        },
-        controller: ['Question', '$translate', function (Question, $translate) {
-
+    bindings: {
+        option: '<',
+        question: '<',
+        allowRemoval: '<', // !lotteryOn && !inPublishedExam
+    },
+    controller: [
+        'Question',
+        '$translate',
+        function(Question, $translate) {
             const vm = this;
 
-            vm.correctAnswerToggled = function () {
+            vm.correctAnswerToggled = function() {
                 Question.toggleCorrectOption(vm.option, vm.question.options);
             };
 
-            vm.removeOption = function () {
+            vm.removeOption = function() {
                 const hasCorrectAnswer = vm.question.options.some(o => o !== vm.option && o.correctOption);
                 if (hasCorrectAnswer) {
                     vm.question.options.splice(vm.question.options.indexOf(vm.option), 1);
@@ -62,7 +63,6 @@ angular.module('app.question')
                     toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
                 }
             };
-
-        }]
-    });
-
+        },
+    ],
+});

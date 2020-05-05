@@ -40,6 +40,7 @@ public class ReservationPollerActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
+        // TODO: how about BYOD examinations and no-shows
         return receiveBuilder().match(String.class, s -> {
             logger.debug("Starting no-show check ->");
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());

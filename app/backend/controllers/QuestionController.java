@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -39,6 +40,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.collection.JavaConverters;
 
 import backend.controllers.base.BaseController;
 import backend.controllers.base.SectionQuestionHandler;
@@ -53,8 +55,12 @@ import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
+import backend.util.xml.MoodleXmlConverter;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
+
+    @Inject
+    private MoodleXmlConverter xmlConverter;
 
     private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
@@ -71,7 +77,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             return ok(Collections.emptySet());
         }
         PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(defaultScore), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
+                "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
@@ -119,7 +125,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Query<Question> query = Ebean.find(Question.class);
         PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
+                "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name), " +
                 "examSectionQuestions(id, examSection(name, exam(name, state))))");
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
@@ -204,22 +210,26 @@ public class QuestionController extends BaseController implements SectionQuestio
         if (node.has("tags")) {
             for (JsonNode tagNode : node.get("tags")) {
                 // See if we have an identical tag already and use it if that's the case
-                Tag tag = Ebean.find(Tag.class).where()
-                        .disjunction()
-                        .eq("id", tagNode.get("id").asLong())
-                        .conjunction()
-                        .eq("name", tagNode.get("name").asText())
-                        .eq("creator", user)
-                        .endJunction()
-                        .endJunction()
-                        .findOne();
-                if (tag == null) {
-                    tag = new Tag();
-                    tag.setName(tagNode.get("name").asText());
-                    AppUtil.setCreator(tag, user);
-                    AppUtil.setModifier(tag, user);
+                Optional<Tag> tag = Optional.empty();
+                if (tagNode.has("id")) {
+                   tag = Ebean.find(Tag.class).where().idEq(tagNode.get("id").asLong()).findOneOrEmpty();
+                } else {
+                    List<Tag> tags = Ebean.find(Tag.class).where()
+                            .eq("name", tagNode.get("name").asText())
+                            .eq("creator", user)
+                            .findList();
+                    if (!tags.isEmpty()) {
+                        tag = Optional.of(tags.get(0));
+                    }
                 }
-                question.getTags().add(tag);
+                if (tag.isEmpty()) {
+                    Tag newTag = new Tag();
+                    newTag.setName(tagNode.get("name").asText());
+                    AppUtil.setCreator(newTag, user);
+                    AppUtil.setModifier(newTag, user);
+                    tag = Optional.of(newTag);
+                }
+                question.getTags().add(tag.get());
             }
         }
         return question;
@@ -331,7 +341,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
-                .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
+                .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())
                 .forEach(o -> createOption(question, o, user));
     }
 
@@ -342,6 +352,10 @@ public class QuestionController extends BaseController implements SectionQuestio
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
         option.setCorrectOption(correctOption);
+        option.setClaimChoiceType(
+                SanitizingHelper.parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                .orElse(null)
+        );
         saveOption(option, question, user);
         propagateOptionCreationToExamQuestions(question, null, option);
     }
@@ -382,6 +396,24 @@ public class QuestionController extends BaseController implements SectionQuestio
         AppUtil.setModifier(question, modifier);
         question.getQuestionOwners().add(user);
         question.update();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result exportQuestions(Http.Request request) {
+        JsonNode body = request.body().asJson();
+        ArrayNode node = (ArrayNode) body.get("params").get("ids");
+        Set<Long> ids = StreamSupport.stream(node.spliterator(), false)
+                .map(JsonNode::asLong).collect(Collectors.toSet());
+        List<Question> questions = Ebean.find(Question.class).where().idIn(ids).findList().stream()
+                .filter(q -> q.getType() != Question.Type.ClaimChoiceQuestion &&
+                        q.getType() != Question.Type.ClozeTestQuestion)
+                .collect(Collectors.toList());
+        String document = xmlConverter.convert(
+                JavaConverters.collectionAsScalaIterableConverter(questions).asScala().toSeq()
+        );
+        return ok(document)
+                .withHeader("Content-Disposition", "attachment; filename=\"moodle-quiz.xml\"")
+                .as("application/xml");
     }
 
 }

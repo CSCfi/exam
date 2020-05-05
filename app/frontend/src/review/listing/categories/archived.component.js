@@ -15,54 +15,58 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rlArchived', {
-        template: require('./archived.template.html'),
-        bindings: {
-            reviews: '<'
-        },
-        require: {
-            parentCtrl: '^^reviewList'
-        },
-        controller: ['ReviewList', 'Exam', 'Session', function (ReviewList, Exam, Session) {
-
+angular.module('app.review').component('rlArchived', {
+    template: require('./archived.template.html'),
+    bindings: {
+        reviews: '<',
+    },
+    require: {
+        parentCtrl: '^^reviewList',
+    },
+    controller: [
+        'ReviewList',
+        'Exam',
+        'Session',
+        function(ReviewList, Exam, Session) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
                 vm.data.predicate = 'started';
                 vm.data.reverse = true;
 
-                vm.isOwner = (user) =>
-                    vm.parentCtrl.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
-
+                vm.isOwner = user =>
+                    vm.parentCtrl.exam.examOwners.some(
+                        o => o.firstName + o.lastName === user.firstName + user.lastName,
+                    );
             };
 
             vm.showId = () => Session.getUser().isAdmin && vm.parentCtrl.exam.anonymous;
 
-            vm.applyFreeSearchFilter = () =>
-                vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
+            vm.applyFreeSearchFilter = () => (vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items));
 
-            const translateGrade = (exam) => {
+            const translateGrade = exam => {
                 const grade = exam.grade ? exam.grade.name : 'NONE';
                 return Exam.getExamGradeDisplayName(grade);
             };
 
             const handleGradedReviews = r => {
                 r.displayName = ReviewList.getDisplayName(r, vm.parentCtrl.collaborative);
-                r.displayedGradingTime = r.exam.languageInspection ?
-                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
+                r.displayedGradingTime = r.exam.languageInspection
+                    ? r.exam.languageInspection.finishedAt
+                    : r.exam.gradedTime;
                 r.displayedGrade = translateGrade(r.exam);
                 r.displayedCredit = Exam.getExamDisplayCredit(r.exam);
             };
 
-            vm.pageSelected = function (page) {
+            vm.pageSelected = function(page) {
                 vm.data.page = page;
-            }
+            };
 
-            vm.getLinkToAssessment = (review) =>
-                vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.parentCtrl.exam.id}/${review._id}`
-                    : `/assessments/${review.exam.id}`
-
-        }]
-    });
+            vm.getLinkToAssessment = review =>
+                vm.parentCtrl.collaborative
+                    ? `/assessments/collaborative/${vm.parentCtrl.exam.id}/${review._id}`
+                    : `/assessments/${review.exam.id}`;
+        },
+    ],
+});

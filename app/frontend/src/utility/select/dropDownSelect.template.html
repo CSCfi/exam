@@ -1,6 +1,12 @@
 <div class="dropdown" uib-dropdown>
-    <button uib-dropdown-toggle class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="true">
+    <button
+        uib-dropdown-toggle
+        class="btn btn-default btn-block dropdown-toggle"
+        type="button"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="true"
+    >
         <span style="float: left">{{$ctrl.selected.label || $ctrl.placeholder | translate}}</span>
         <div style="float: right">
             <span class="caret"></span>
@@ -8,8 +14,13 @@
     </button>
     <ul class="dropdown-menu scrollable-menu" style="padding-left: 0; min-width: 17em" role="menu">
         <li role="presentation" class="input-group">
-            <input ng-model="$ctrl.searchFilter" ng-change="$ctrl.filterOptions()" class="form-control"
-                ng-click="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
+            <input
+                ng-model="$ctrl.searchFilter"
+                ng-change="$ctrl.filterOptions()"
+                class="form-control"
+                ng-click="$event.stopPropagation()"
+                placeholder="{{'sitnet_search' | translate }}"
+            />
 
             <div class="input-group-addon">
                 <i class="fa fa-search fa-fw"></i>

@@ -21,11 +21,11 @@ import { ReservationDetailsComponent } from './reservationDetails.component';
 import { ReservationService } from './reservationService';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
-export default angular.module('app.reservation', [])
+export default angular
+    .module('app.reservation', [])
     .service('Reservation', ReservationService)
     .component('adminReservations', AdminReservationComponent)
     .component('teacherReservations', TeacherReservationComponent)
     .component('reservationDetails', ReservationDetailsComponent)
     .component('changeMachineDialog', ChangeMachineDialogComponent)
-    .component('removeReservationDialog', RemoveReservationDialogComponent)
-    .name;
+    .component('removeReservationDialog', RemoveReservationDialogComponent).name;

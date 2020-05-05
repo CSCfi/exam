@@ -14,15 +14,14 @@
  *
  */
 
-let fi = require('../../../../src/assets/languages/locale-fi');
-let en = require('../../../../src/assets/languages/locale-en');
-let sv = require('../../../../src/assets/languages/locale-sv');
+const fi = require('../../../../src/assets/languages/locale-fi');
+const en = require('../../../../src/assets/languages/locale-en');
+const sv = require('../../../../src/assets/languages/locale-sv');
 
-describe('Language files', function () {
-
-    it('should have same keys', function () {
-        let errors = [];
-        Object.keys(fi).forEach((k) => {
+describe('Language files', function() {
+    it('should have same keys', function() {
+        const errors = [];
+        Object.keys(fi).forEach(k => {
             if (!en.hasOwnProperty(k)) {
                 errors.push(`EN: Key=${k}`);
             }
@@ -32,5 +31,4 @@ describe('Language files', function () {
         });
         expect(errors).toEqual([]);
     });
-
 });

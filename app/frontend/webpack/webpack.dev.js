@@ -6,16 +6,10 @@ const common = require('./webpack.common');
 module.exports = merge(common, {
     devtool: 'eval-source-map',
     mode: 'development',
-    entry: [
-        'webpack/hot/dev-server',
-        'webpack-dev-server/client?http://localhost:8080'
-    ],
     output: {
         filename: 'app.bundle.js',
         sourceMapFilename: 'app.bundle.map',
     },
     optimization: {},
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ]
+    plugins: [new webpack.HotModuleReplacementPlugin()],
 });

@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.statistics')
-    .component('examStatistics', {
-        template: `
+angular.module('app.administrative.statistics').component('examStatistics', {
+    template: `
         <div class="detail-row">
             <div class="col-md-12">
                 <button class="btn btn-primary" ng-click="$ctrl.listExams()">{{'sitnet_search' | translate}}</button>
@@ -33,7 +31,7 @@ angular.module('app.administrative.statistics')
                 <table class="table table-striped table-condensed">
                     <thead>
                     <tr>
-                        <th>{{'sitnet_rank' | translate}}</th>
+                        <th>{{'sitnet_rank' | translate}}</th>
                         <th>{{'sitnet_exam' | translate}}</th>
                         <th>{{'sitnet_amount_exams' | translate}}</th>
                     </tr>
@@ -55,30 +53,31 @@ angular.module('app.administrative.statistics')
             </div>
         </div>
         `,
-        bindings: {
-            queryParams: '<'
-        },
-        controller: ['Statistics', function (Statistics) {
-
+    bindings: {
+        queryParams: '<',
+    },
+    controller: [
+        'Statistics',
+        function(Statistics) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.listExams();
             };
 
-            vm.totalExams = function () {
-                return vm.exams.reduce(function (a, b) {
+            vm.totalExams = function() {
+                return vm.exams.reduce(function(a, b) {
                     return a + b.participations;
                 }, 0);
             };
 
-            vm.listExams = function () {
-                Statistics.exams.query(vm.queryParams, function (exams) {
+            vm.listExams = function() {
+                Statistics.exams.query(vm.queryParams, function(exams) {
                     vm.exams = exams;
                 });
             };
 
-            vm.getRank = function (index, items) {
+            vm.getRank = function(index, items) {
                 const prev = Math.max(0, index - 1);
                 if (items[prev].participations === items[index].participations) {
                     items[index].rank = items[prev].rank || 0;
@@ -87,7 +86,6 @@ angular.module('app.administrative.statistics')
                 items[index].rank = index;
                 return index + 1;
             };
-
-        }]
-    });
-
+        },
+    ],
+});

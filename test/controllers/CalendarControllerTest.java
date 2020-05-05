@@ -47,8 +47,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
     private void setWorkingHours() {
-        String[] dates = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
-        String weekday = dates[DateTime.now().getDayOfWeek()];
+        String[] dates = {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"};
+        int d = DateTime.now().getDayOfWeek() - 1;
+        String weekday = dates[d];
         DefaultWorkingHours dwh = new DefaultWorkingHours();
         dwh.setWeekday(weekday);
         dwh.setRoom(room);
@@ -83,11 +84,10 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testConcurentCreateReservation() throws Exception {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
-        // Add Arvo teacher to owner
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(3);
 
         final int callCount = 10;
         final Waiter waiter = new Waiter();

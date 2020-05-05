@@ -7,14 +7,14 @@
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a href="/exams/new" class="pointer">
+                        <a ui-sref="newExam" class="pointer">
                             {{'sitnet_toolbar_new_exam' | translate}}
                         </a>
                     </div>
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a href="/questions/newQuestion/1" class="pointer">
+                        <a ui-sref="newQuestion({next: 'dashboard'})" class="pointer">
                             {{'sitnet_toolbar_new_question' | translate}}
                         </a>
                     </div>
@@ -26,50 +26,71 @@
     <div class="tab-wrapper">
         <uib-tabset active="$ctrl.activeTab">
             <uib-tab index="1" select="$ctrl.changeTab(1)">
-                <uib-tab-heading><div class="make-inline">{{ 'sitnet_active_exams_title' | translate }}</div>
+                <uib-tab-heading
+                    ><div class="make-inline">{{ 'sitnet_active_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.activeExams" class="make-inline tab-number">
                         {{ $ctrl.filteredActive.length }}
                     </div>
                 </uib-tab-heading>
-                <exam-list-category items="$ctrl.filteredActive" default-predicate="examActiveEndDate"
-                                    exam-types="$ctrl.executionTypes" extra-columns="$ctrl.activeExtraColumns"
-                                    on-filter-change="$ctrl.search(text)">
+                <exam-list-category
+                    items="$ctrl.filteredActive"
+                    default-predicate="examActiveEndDate"
+                    exam-types="$ctrl.executionTypes"
+                    extra-columns="$ctrl.activeExtraColumns"
+                    on-filter-change="$ctrl.search(text)"
+                >
                 </exam-list-category>
             </uib-tab>
             <uib-tab index="2" select="$ctrl.changeTab(2)">
-                <uib-tab-heading><div class="make-inline">{{ 'sitnet_finished_exams_title' | translate }}</div>
+                <uib-tab-heading
+                    ><div class="make-inline">{{ 'sitnet_finished_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.finishedExams" class="make-inline tab-number">
                         {{ $ctrl.filteredFinished.length }}
                     </div>
                 </uib-tab-heading>
-                <exam-list-category items="$ctrl.filteredFinished" default-predicate="unassessedCount"
-                                    default-reverse="true" extra-columns="$ctrl.finishedExtraColumns"
-                                    exam-types="$ctrl.executionTypes" on-filter-change="$ctrl.search(text)">
+                <exam-list-category
+                    items="$ctrl.filteredFinished"
+                    default-predicate="unassessedCount"
+                    default-reverse="true"
+                    extra-columns="$ctrl.finishedExtraColumns"
+                    exam-types="$ctrl.executionTypes"
+                    on-filter-change="$ctrl.search(text)"
+                >
                 </exam-list-category>
             </uib-tab>
             <uib-tab index="3" select="$ctrl.changeTab(3)">
-                <uib-tab-heading><div class="make-inline">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
+                <uib-tab-heading
+                    ><div class="make-inline">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.archivedExams" class="make-inline tab-number">
                         {{ $ctrl.filteredArchived.length }}
                     </div>
                 </uib-tab-heading>
-                <exam-list-category items="$ctrl.filteredArchived" default-predicate="examActiveEndDate"
-                                    default-reverse="true" extra-columns="$ctrl.archivedExtraColumns"
-                                    exam-types="$ctrl.executionTypes" on-filter-change="$ctrl.search(text)">
+                <exam-list-category
+                    items="$ctrl.filteredArchived"
+                    default-predicate="examActiveEndDate"
+                    default-reverse="true"
+                    extra-columns="$ctrl.archivedExtraColumns"
+                    exam-types="$ctrl.executionTypes"
+                    on-filter-change="$ctrl.search(text)"
+                >
                 </exam-list-category>
             </uib-tab>
             <uib-tab index="4" select="$ctrl.changeTab(4)">
-                <uib-tab-heading><div class="make-inline">{{ 'sitnet_draft_exams' | translate }}</div>
+                <uib-tab-heading
+                    ><div class="make-inline">{{ 'sitnet_draft_exams' | translate }}</div>
                     <div ng-if="$ctrl.draftExams" class="make-inline tab-number">
                         {{ $ctrl.filteredDrafts.length }}
                     </div>
                 </uib-tab-heading>
-                <exam-list-category items="$ctrl.filteredDrafts" default-predicate="examActiveEndDate"
-                                    default-reverse="true" exam-types="$ctrl.executionTypes"
-                                    on-filter-change="$ctrl.search(text)">
+                <exam-list-category
+                    items="$ctrl.filteredDrafts"
+                    default-predicate="examActiveEndDate"
+                    default-reverse="true"
+                    exam-types="$ctrl.executionTypes"
+                    on-filter-change="$ctrl.search(text)"
+                >
                 </exam-list-category>
             </uib-tab>
         </uib-tabset>
     </div>
-
 </div>

@@ -15,52 +15,52 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationQuestion', {
-        template: require('./examinationQuestion.template.html'),
-        bindings: {
-            exam: '<',
-            sq: '<',
-            isPreview: '<',
-            isCollaborative: '<'
+angular.module('app.examination').component('examinationQuestion', {
+    template: require('./examinationQuestion.template.html'),
+    bindings: {
+        exam: '<',
+        sq: '<',
+        isPreview: '<',
+        isCollaborative: '<',
+    },
+    controller: [
+        '$sce',
+        '$filter',
+        'Examination',
+        'Attachment',
+        function($sce, $filter, Examination, Attachment) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                vm.sq.expanded = true;
+                const answerData = vm.sq.clozeTestAnswer;
+                if (answerData && typeof answerData.answer === 'string') {
+                    answerData.answer = JSON.parse(answerData.answer);
+                }
+            };
+
+            vm.displayQuestionText = function(truncated) {
+                const text = truncated ? truncate(vm.sq.question.question, 240) : vm.sq.question.question;
+                return $sce.trustAsHtml(text);
+            };
+
+            vm.downloadQuestionAttachment = function() {
+                if (vm.exam.external) {
+                    Attachment.downloadExternalQuestionAttachment(vm.exam, vm.sq);
+                } else if (vm.isCollaborative) {
+                    Attachment.downloadCollaborativeQuestionAttachment(vm.exam.id, vm.sq);
+                } else {
+                    Attachment.downloadQuestionAttachment(vm.sq.question);
+                }
+            };
+
+            vm.isAnswered = function() {
+                return Examination.isAnswered(vm.sq);
+            };
+
+            const truncate = function(content, offset) {
+                return $filter('truncate')(content, offset);
+            };
         },
-        controller: ['$sce', '$filter', 'Examination', 'Attachment',
-            function ($sce, $filter, Examination, Attachment) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.sq.expanded = true;
-                    const answerData = vm.sq.clozeTestAnswer;
-                    if (answerData && typeof answerData.answer === 'string') {
-                        answerData.answer = JSON.parse(answerData.answer);
-                    }
-                };
-
-                vm.displayQuestionText = function (truncated) {
-                    const text = truncated ? truncate(vm.sq.question.question, 240) : vm.sq.question.question;
-                    return $sce.trustAsHtml(text);
-                };
-
-                vm.downloadQuestionAttachment = function () {
-                    if (vm.exam.external) {
-                        Attachment.downloadExternalQuestionAttachment(vm.exam, vm.sq);
-                    } else if (vm.isCollaborative) {
-                        Attachment.downloadCollaborativeQuestionAttachment(vm.exam.id, vm.sq);
-                    } else {
-                        Attachment.downloadQuestionAttachment(vm.sq.question);
-                    }
-                };
-
-                vm.isAnswered = function () {
-                    return Examination.isAnswered(vm.sq);
-                };
-
-                const truncate = function (content, offset) {
-                    return $filter('truncate')(content, offset);
-                };
-
-
-            }
-        ]
-    });
+    ],
+});

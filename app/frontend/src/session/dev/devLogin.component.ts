@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
+
 import { SessionService, User } from '../session.service';
 
 export const DevLoginComponent: angular.IComponentOptions = {
     bindings: {
-        onLoggedIn: '&'
+        onLoggedIn: '&',
     },
     template: `
     <div class="top-row">
@@ -49,8 +49,8 @@ export const DevLoginComponent: angular.IComponentOptions = {
     controller: class DevLoginController {
         onLoggedIn: ({ user: User }) => void;
         credentials: {
-            username: string,
-            password: string
+            username: string;
+            password: string;
         } = { username: '', password: '' };
 
         constructor(private Session: SessionService) {
@@ -60,14 +60,11 @@ export const DevLoginComponent: angular.IComponentOptions = {
         login() {
             this.Session.login(this.credentials.username, this.credentials.password)
                 .then((user: User) => {
-                    this.onLoggedIn({ 'user': user });
+                    this.onLoggedIn({ user: user });
                 })
-                .catch((err) => {
+                .catch(err => {
                     console.log(JSON.stringify(err));
                 });
-
         }
-
-    }
-
+    },
 };

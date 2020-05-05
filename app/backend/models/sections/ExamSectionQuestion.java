@@ -18,7 +18,9 @@ package backend.models.sections;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -82,6 +84,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Transient
     private Double derivedMaxScore;
+
+    @Transient
+    private Double derivedMinScore;
 
     @Column
     private Question.EvaluationType evaluationType;
@@ -162,6 +167,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.derivedMaxScore = getMaxAssessedScore();
     }
 
+    public Double getDerivedMinScore() { return derivedMinScore; }
+
+    public void setDerivedMinScore() { this.derivedMinScore = getMinScore(); }
+
     public String getAnswerInstructions() {
         return answerInstructions;
     }
@@ -219,15 +228,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         Question blueprint = question.copy(optionMap, true);
         blueprint.setParent(question);
         blueprint.save();
-        optionMap.forEach((k, optionCopy) -> {
-            optionCopy.setQuestion(blueprint);
-            optionCopy.save();
-            Optional<ExamSectionQuestionOption> esqoo = options.stream()
-                    .filter(o -> o.getOption().getId().equals(k))
-                    .findFirst();
-            if (esqoo.isPresent()) {
-                ExamSectionQuestionOption esqo = esqoo.get();
-                ExamSectionQuestionOption esqoCopy = esqo.copyWithAnswer();
+        options.forEach(option -> {
+            Optional<MultipleChoiceOption> parentOption = Optional.ofNullable(option.getOption()).filter(opt -> opt.getId() != null);
+            if(parentOption.isPresent()) {
+                MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
+                optionCopy.setQuestion(blueprint);
+                optionCopy.save();
+                ExamSectionQuestionOption esqoCopy = option.copyWithAnswer();
                 esqoCopy.setOption(optionCopy);
                 esqCopy.getOptions().add(esqoCopy);
             } else {
@@ -235,6 +242,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 throw new RuntimeException();
             }
         });
+
         esqCopy.setQuestion(blueprint);
         // Essay Answer
         if (essayAnswer != null) {
@@ -257,7 +265,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         } else {
             // This is a little bit tricky. Need to map the original question options with copied ones so they can be
             // associated with both question and exam section question options :)
-            Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
+            Map<Long, MultipleChoiceOption> optionMap;
+
+            if(question.getType() == Question.Type.ClaimChoiceQuestion) {
+                optionMap = new TreeMap<>();
+            } else {
+                optionMap = new HashMap<>();
+            }
+
             blueprint = question.copy(optionMap, setParent);
             if (setParent) {
                 blueprint.setParent(question);
@@ -266,18 +281,17 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             optionMap.forEach((k, optionCopy) -> {
                 optionCopy.setQuestion(blueprint);
                 optionCopy.save();
-                Optional<ExamSectionQuestionOption> esqoo = options.stream()
+                options.stream()
                         .filter(o -> o.getOption().getId().equals(k))
-                        .findFirst();
-                if (esqoo.isPresent()) {
-                    ExamSectionQuestionOption esqo = esqoo.get();
-                    ExamSectionQuestionOption esqoCopy = esqo.copy();
-                    esqoCopy.setOption(optionCopy);
-                    esqCopy.getOptions().add(esqoCopy);
-                } else {
-                    logger.error("Failed to copy a multi-choice question option!");
-                    throw new RuntimeException();
-                }
+                        .findFirst()
+                        .ifPresentOrElse(esqo -> {
+                            ExamSectionQuestionOption esqoCopy = esqo.copy();
+                            esqoCopy.setOption(optionCopy);
+                            esqCopy.getOptions().add(esqoCopy);
+                        }, () -> {
+                            logger.error("Failed to copy a multi-choice question option!");
+                            throw new RuntimeException();
+                        });
             });
         }
         esqCopy.setQuestion(blueprint);
@@ -370,6 +384,16 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
                 double value = correct * maxScore / (correct + incorrect);
                 return Double.valueOf(df.format(value));
+            case ClaimChoiceQuestion:
+                if (forcedScore != null) {
+                    return forcedScore;
+                }
+                Optional<ExamSectionQuestionOption> answeredOption = options.stream()
+                        .filter(ExamSectionQuestionOption::isAnswered).findFirst();
+                if (answeredOption.isPresent()) {
+                    return answeredOption.get().getScore();
+                }
+                return 0.0;
         }
         return 0.0;
     }
@@ -391,6 +415,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                         .map(ExamSectionQuestionOption::getScore)
                         .filter(score -> score != null && score > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
+            case ClaimChoiceQuestion:
+                return options.stream()
+                        .map(ExamSectionQuestionOption::getScore)
+                        .filter(score -> score != null)
+                        .max(Comparator.comparing(Double::valueOf))
+                        .orElse(0.0);
         }
         return 0.0;
     }
@@ -402,6 +432,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .map(ExamSectionQuestionOption::getScore)
                     .filter(score -> score != null && score < 0)
                     .reduce(0.0, (sum, x) -> sum += x);
+        } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+            return options.stream()
+                    .map(ExamSectionQuestionOption::getScore)
+                    .filter(score -> score != null)
+                    .min(Comparator.comparing(Double::valueOf))
+                    .orElse(0.0);
         }
         return 0.0;
     }
@@ -433,6 +469,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
      */
     @Transient
     public void addOption(ExamSectionQuestionOption option, boolean preserveScores) {
+
+        if (question.getType() == Question.Type.ClaimChoiceQuestion) return;
+
         if (question.getType() != Question.Type.WeightedMultipleChoiceQuestion
                 || option.getScore() == null || preserveScores) {
             options.add(option);
@@ -463,6 +502,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Transient
     public void removeOption(MultipleChoiceOption option, boolean preserveScores) {
+
+        if (question.getType() == Question.Type.ClaimChoiceQuestion) return;
+
         ExamSectionQuestionOption esqo = options.stream()
                 .filter(o -> option.equals(o.getOption()))
                 .findFirst()

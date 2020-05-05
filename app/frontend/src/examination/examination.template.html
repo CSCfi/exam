@@ -1,41 +1,47 @@
 <div id="studentexam">
-
     <!-- HEADER ROW -->
-    <examination-header
-            ng-if="$ctrl.exam" exam="$ctrl.exam" on-timeout="$ctrl.timedOut()" is-preview="$ctrl.isPreview">
+    <examination-header ng-if="$ctrl.exam" exam="$ctrl.exam" on-timeout="$ctrl.timedOut()" is-preview="$ctrl.isPreview">
     </examination-header>
 
     <!-- LEFT COLUMN -->
     <div class="col-md-8 col-xs-8">
-
         <!-- EXAM AREA -->
         <div class="bottom-padding-2">
-
             <!-- EXAM SECTION -->
-            <examination-section ng-if="$ctrl.activeSection" section="$ctrl.activeSection" exam="$ctrl.exam"
-                                 is-preview="$ctrl.isPreview" is-collaborative="$ctrl.isCollaborative">
+            <examination-section
+                ng-if="$ctrl.activeSection"
+                section="$ctrl.activeSection"
+                exam="$ctrl.exam"
+                is-preview="$ctrl.isPreview"
+                is-collaborative="$ctrl.isCollaborative"
+            >
             </examination-section>
 
             <!-- ANSWER INSTRUCTIONS -->
             <answer-instructions ng-if="!$ctrl.activeSection" exam="$ctrl.exam"></answer-instructions>
 
             <!-- NAVIGATION -->
-            <examination-navigation ng-if="$ctrl.exam" exam="$ctrl.exam" active-section="$ctrl.activeSection"
-                                    on-select="$ctrl.selectNewPage(page)">
+            <examination-navigation
+                ng-if="$ctrl.exam"
+                exam="$ctrl.exam"
+                active-section="$ctrl.activeSection"
+                on-select="$ctrl.selectNewPage(page)"
+            >
             </examination-navigation>
-
         </div>
-
     </div>
 
     <!-- RIGHT COLUMN -->
     <div class="col-md-4 col-xs-4 padl0 marb20" style="padding-top:19px;">
         <!-- TOOLBAR -->
-        <examination-toolbar ng-if="$ctrl.exam" exam="$ctrl.exam" active-section="$ctrl.activeSection"
-                             is-preview="$ctrl.isPreview" on-page-select="$ctrl.selectNewPage(page)"
-                             is-collaborative="$ctrl.isCollaborative">
+        <examination-toolbar
+            ng-if="$ctrl.exam"
+            exam="$ctrl.exam"
+            active-section="$ctrl.activeSection"
+            is-preview="$ctrl.isPreview"
+            on-page-select="$ctrl.selectNewPage(page)"
+            is-collaborative="$ctrl.isCollaborative"
+        >
         </examination-toolbar>
-
     </div>
-
 </div>

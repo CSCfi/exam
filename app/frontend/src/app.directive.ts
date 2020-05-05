@@ -18,9 +18,8 @@
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import {
-    IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope
-} from 'angular';
+import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
+import { Exam } from './exam/exam.model';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
@@ -50,69 +49,134 @@ export class UniquenessValidator implements IDirective<UniquenessScope> {
     require = 'ngModel';
     scope = {
         items: '=',
-        property: '@property'
+        property: '@property',
     };
 
     link(scope: UniquenessScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
         const validate = (value: any): void => {
-            const matches = !scope.items ? [] :
-                scope.items.map(i => i[scope.property]).filter(i => i === value);
+            const matches = !scope.items ? [] : scope.items.map(i => i[scope.property]).filter(i => i === value);
             ngModel.$setValidity('uniqueness', matches.length < 2);
         };
 
-        scope.$watch('items', function (items) {
-            validate(ngModel.$viewValue);
-        }, true);
+        scope.$watch(
+            'items',
+            function() {
+                validate(ngModel.$viewValue);
+            },
+            true,
+        );
     }
 
     static factory(): IDirectiveFactory {
         return () => new UniquenessValidator();
     }
 }
+interface ClozeTestScope extends IScope {
+    results: Record<string, any>;
+    content: any;
+    editable: boolean;
+}
+export class ClozeTest implements IDirective<ClozeTestScope> {
+    restrict = 'E';
+    scope = {
+        results: '=',
+        content: '=',
+        editable: '=?',
+    };
+
+    constructor(private $compile: angular.ICompileService) {}
+
+    link(scope: ClozeTestScope, element: IAugmentedJQuery) {
+        const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
+
+        /* 
+            Add span tags with ngNonBindable directive to prevent AngularJS interpolation 
+            (if strings surrounded by multiple curly braces are present).
+        */
+        const regexMultipleCurlyBraces = /\{{2,}(.*?)\}{2,}/g;
+        const escapedContent = scope.content.replace(
+            regexMultipleCurlyBraces,
+            match => `<span ng-non-bindable>${match}</span>`,
+        );
+
+        const replacement = angular.element(escapedContent);
+        const inputs = replacement.find('input');
+
+        const padding = 2; // add some extra length so that all characters are more likely to fit in the input field
+        for (let i = 0; i < inputs.length; ++i) {
+            const input = inputs[i];
+            const id = input.attributes['id'].value;
+            const answer = scope.results ? scope.results[input.id] : null;
+            if (answer) {
+                input.setAttribute('size', answer.length + padding);
+            }
+            input.setAttribute('ng-model', 'results.' + id);
+            if (!editable) {
+                input.setAttribute('ng-disabled', 'true');
+            }
+        }
+        element.replaceWith(replacement);
+        this.$compile(replacement)(scope);
+    }
+
+    static factory(): IDirectiveFactory {
+        const directive = ($compile: angular.ICompileService) => new ClozeTest($compile);
+        directive.$inject = ['$compile'];
+        return directive;
+    }
+}
 
 interface CkEditorScope extends IScope {
     enableClozeTest: boolean;
+    onBlur?: () => any;
 }
 export class CkEditor implements IDirective<CkEditorScope> {
     require = 'ngModel';
     scope = {
-        enableClozeTest: '=?'
+        enableClozeTest: '=?',
+        onBlur: '&',
     };
 
-    constructor(private $translate: angular.translate.ITranslateService) { }
+    constructor(private $translate: angular.translate.ITranslateService) {}
 
     link(scope: CkEditorScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
         // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
         // dysfunctional formatting gets pasted which can break the cloze test markup.
         const removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0],
-            { removeButtons: removals, language: this.$translate.use() });
+        const ck = CKEDITOR.replace(element[0] as HTMLTextAreaElement, {
+            removeButtons: removals,
+            language: this.$translate.use(),
+        });
 
         let modelValue;
         ck.on('instanceReady', () => {
             ck.setData(modelValue);
         });
 
-        const updateModel = () =>
-            _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
+        const updateModel = () => _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
 
         // These events can bring down the UI if not debounced
         ck.on('change', _.debounce(updateModel, 500));
         ck.on('dataReady', _.debounce(updateModel, 500));
         ck.on('key', _.debounce(updateModel, 500));
         ck.on('mode', updateModel); // Editing mode change
+        ck.on('blur', () => {
+            _.defer(() => {
+                updateModel();
+                if (scope.onBlur) {
+                    scope.onBlur();
+                }
+            });
+        });
 
         ngModel.$render = () => {
             modelValue = ngModel.$modelValue;
             ck.setData(ngModel.$viewValue);
         };
-
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $translate: angular.translate.ITranslateService
-        ) => new CkEditor($translate);
+        const directive = ($translate: angular.translate.ITranslateService) => new CkEditor($translate);
         directive.$inject = ['$translate'];
         return directive;
     }
@@ -143,55 +207,10 @@ export class FixedPrecision implements IDirective {
     }
 }
 
-interface ClozeTestScope extends IScope {
-    results: Object;
-    content: any;
-    editable: boolean;
-}
-export class ClozeTest implements IDirective<ClozeTestScope> {
-    restrict = 'E';
-    scope = {
-        results: '=',
-        content: '=',
-        editable: '=?'
-    };
-
-    constructor(private $compile: angular.ICompileService) { }
-
-    link(scope: ClozeTestScope, element: IAugmentedJQuery, attributes: IAttributes) {
-        const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
-        const replacement = angular.element(scope.content);
-        const inputs = replacement.find('input');
-        const padding = 2; // add some extra length so that all characters are more likely to fit in the input field
-        for (let i = 0; i < inputs.length; ++i) {
-            const input = inputs[i];
-            const id = input.attributes['id'].value;
-            const answer = scope.results ? scope.results[input.id] : null;
-            if (answer) {
-                input.setAttribute('size', answer.length + padding);
-            }
-            input.setAttribute('ng-model', 'results.' + id);
-            if (!editable) {
-                input.setAttribute('ng-disabled', 'true');
-            }
-        }
-        element.replaceWith(replacement);
-        this.$compile(replacement)(scope);
-    }
-
-    static factory(): IDirectiveFactory {
-        const directive = (
-            $compile: angular.ICompileService,
-        ) => new ClozeTest($compile);
-        directive.$inject = ['$compile'];
-        return directive;
-    }
-}
-
 export class UiBlur implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiBlur);
@@ -199,9 +218,7 @@ export class UiBlur implements IDirective {
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new UiBlur($parse);
+        const directive = ($parse: angular.IParseService) => new UiBlur($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -210,7 +227,7 @@ export class UiBlur implements IDirective {
 export class UiChange implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const expr: angular.ICompiledExpression = this.$parse(attributes.uiChange);
@@ -218,9 +235,7 @@ export class UiChange implements IDirective {
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new UiChange($parse);
+        const directive = ($parse: angular.IParseService) => new UiChange($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -229,19 +244,15 @@ export class UiChange implements IDirective {
 export class FileModel implements IDirective {
     restrict = 'A';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes) {
         const modelSetter = this.$parse(attributes.fileModel).assign;
-        element.bind('change', () =>
-            scope.$apply(() => modelSetter(scope.$parent, element[0].files[0]))
-        );
+        element.bind('change', () => scope.$apply(() => modelSetter(scope.$parent, element[0].files[0])));
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new FileModel($parse);
+        const directive = ($parse: angular.IParseService) => new FileModel($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -251,16 +262,14 @@ export class FileSelector implements IDirective {
     restrict = 'A';
     require = 'ngModel';
 
-    constructor(private $parse: angular.IParseService) { }
+    constructor(private $parse: angular.IParseService) {}
 
     link(scope, element, attributes, ngModel) {
         element.bind('change', () => ngModel.$setViewValue(element[0].files[0]));
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $parse: angular.IParseService,
-        ) => new FileSelector($parse);
+        const directive = ($parse: angular.IParseService) => new FileSelector($parse);
         directive.$inject = ['$parse'];
         return directive;
     }
@@ -321,8 +330,7 @@ interface SortScope extends IScope {
 }
 export class Sort implements IDirective<SortScope> {
     restrict = 'A';
-    template =
-        `<span class="pointer" ng-click="sort()">{{ text | translate }}&nbsp;
+    template = `<span class="pointer" ng-click="sort()">{{ text | translate }}&nbsp;
             <i class="fa" ng-class="getSortClass()"></i>
         </span>`;
     scope = {
@@ -330,12 +338,12 @@ export class Sort implements IDirective<SortScope> {
         by: '@by',
         text: '@text',
         reverse: '=',
-        onSort: '&?'
+        onSort: '&?',
     };
 
-    constructor(private $timeout: angular.ITimeoutService) { }
+    constructor(private $timeout: angular.ITimeoutService) {}
 
-    link(scope: SortScope, element, attributes) {
+    link(scope: SortScope) {
         scope.sort = () => {
             scope.predicate = scope.by;
             scope.reverse = !scope.reverse;
@@ -344,14 +352,11 @@ export class Sort implements IDirective<SortScope> {
             }
         };
         scope.getSortClass = () =>
-            scope.predicate === scope.by ?
-                (scope.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort';
+            scope.predicate === scope.by ? (scope.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort';
     }
 
     static factory(): IDirectiveFactory {
-        const directive = (
-            $timeout: angular.ITimeoutService,
-        ) => new Sort($timeout);
+        const directive = ($timeout: angular.ITimeoutService) => new Sort($timeout);
         directive.$inject = ['$timeout'];
         return directive;
     }
@@ -359,11 +364,9 @@ export class Sort implements IDirective<SortScope> {
 
 // TODO: turn into a component
 interface TeacherListScope extends IScope {
-    exam: {
-        examOwners: { firstName: string, lastName: string }[],
-        examInspections: { firstName: string, lastName: string }[]
-    };
+    exam: Exam;
     useParent: boolean;
+    display: () => string;
 }
 export class TeacherList implements IDirective<TeacherListScope> {
     restrict = 'E';
@@ -371,23 +374,43 @@ export class TeacherList implements IDirective<TeacherListScope> {
     transclude = false;
     scope = {
         exam: '=exam',
-        useParent: '<?'
+        useParent: '<?',
     };
     template = `
-    <div>
-        <span ng-if="!useParent" ng-repeat="owner in exam.examOwners">
-            <strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>
-        </span>
-        <span ng-if="useParent" ng-repeat="owner in exam.parent.examOwners">
-            <strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>
-        </span>
-        <span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}
-            {{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}
-        </span>
+    <div ng-bind-html="display()">
     </div>`;
+
+    link(scope: TeacherListScope) {
+        scope.display = () => {
+            const owners = scope.useParent && scope.exam.parent ? scope.exam.parent.examOwners : scope.exam.examOwners;
+            const inspectors = scope.exam.examInspections.map(ei => ei.user);
+            const inspectorHtml = inspectors.map(i => `${i.firstName} ${i.lastName}`).join(', ');
+            if (owners.length > 0) {
+                const ownerHtml = `<strong>${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}</strong>`;
+                return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
+            } else if (inspectors.length > 0) {
+                return inspectorHtml;
+            } else {
+                return '';
+            }
+        };
+    }
 
     static factory(): IDirectiveFactory {
         return () => new TeacherList();
     }
+}
 
+export class NgEnter implements IDirective {
+    link(scope, element, attributes) {
+        element.bind('keydown', event => {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                scope.$apply(() => scope.$eval(attributes.ngEnter));
+                event.preventDefault();
+            }
+        });
+    }
+    static factory(): IDirectiveFactory {
+        return () => new NgEnter();
+    }
 }

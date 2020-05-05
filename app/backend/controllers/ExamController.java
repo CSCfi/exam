@@ -54,10 +54,11 @@ import backend.models.User;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
-import backend.system.interceptors.Anonymous;
 import backend.security.Authenticated;
+import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ByodConfigHandler;
+import backend.util.config.ConfigReader;
 
 
 public class ExamController extends BaseController {
@@ -68,11 +69,18 @@ public class ExamController extends BaseController {
 
     private final ExamUpdater examUpdater;
 
+    private final ConfigReader configReader;
+
+    private final ByodConfigHandler byodConfigHandler;
+
     @Inject
-    public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater) {
+    public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater,
+                          ConfigReader configReader, ByodConfigHandler byodConfigHandler) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.examUpdater = examUpdater;
+        this.configReader = configReader;
+        this.byodConfigHandler = byodConfigHandler;
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
@@ -230,6 +238,14 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        // decipher the settings passwords if any
+        if (exam.getRequiresUserAgentAuth()) {
+            exam.getExaminationEventConfigurations().forEach(eec -> {
+                String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                            eec.getEncryptedSettingsPassword(), eec.getSettingsPasswordSalt());
+                eec.setSettingsPassword(plainTextPwd);
+            });
+        }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
@@ -333,7 +349,7 @@ public class ExamController extends BaseController {
 
 
     private boolean didGradeChange(Exam exam, int grading) {
-        boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
@@ -420,7 +436,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_execution_type_not_found");
         }
         // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
-        if (prototype.getAutoEvaluationConfig() != null && !ConfigUtil.isCourseGradeScaleOverridable()) {
+        if (prototype.getAutoEvaluationConfig() != null && !configReader.isCourseGradeScaleOverridable()) {
             prototype.setAutoEvaluationConfig(null);
         }
         Exam copy = prototype.copy(user);
@@ -435,7 +451,7 @@ public class ExamController extends BaseController {
         copy.setExamActiveStartDate(now);
         copy.setExamActiveEndDate(now.plusDays(1));
         // Force anonymous review if globally enabled
-        if (ConfigUtil.isAnonymousReviewEnabled()) {
+        if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
         copy.save();
@@ -457,9 +473,10 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
+        exam.setRequiresUserAgentAuth(false);
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
-            exam.setAnonymous(ConfigUtil.isAnonymousReviewEnabled());
+            exam.setAnonymous(configReader.isAnonymousReviewEnabled());
         }
         AppUtil.setCreator(exam, user);
         exam.save();
@@ -481,8 +498,8 @@ public class ExamController extends BaseController {
             exam.setExamActiveStartDate(start);
             exam.setExamActiveEndDate(start.plusDays(1));
         }
-        exam.setDuration(ConfigUtil.getExamDurations().get(0));
-        if (ConfigUtil.isCourseGradeScaleOverridable()) {
+        exam.setDuration(configReader.getExamDurations().get(0));
+        if (configReader.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
         }
 
@@ -541,12 +558,15 @@ public class ExamController extends BaseController {
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examinationDates")
+                .fetch("examinationEventConfigurations")
+                .fetch("examinationEventConfigurations.examEnrolments")
+                .fetch("examinationEventConfigurations.examinationEvent")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore, claimChoiceType")
                 .fetch("examSections.examMaterials")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")

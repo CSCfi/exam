@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.reports')
-    .component('answersReport', {
-        template: `
+angular.module('app.administrative.reports').component('answersReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_all_exam_answers' | translate}}
@@ -50,26 +48,25 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        controller: ['$filter', 'Files',
-            function ($filter, Files) {
+    controller: [
+        '$filter',
+        'Files',
+        function($filter, Files) {
+            const vm = this;
 
-                const vm = this;
+            vm.getExamAnswerReport = function() {
+                const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
+                const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
+                Files.download('/app/statistics/allexams/' + f + '/' + t, 'exam_answers_' + f + '_' + t + '.xlsx');
+            };
 
-                vm.getExamAnswerReport = function () {
-                    const f = $filter('date')(vm.startDate || new Date(), 'dd.MM.yyyy');
-                    const t = $filter('date')(vm.endDate || new Date(), 'dd.MM.yyyy');
-                    Files.download('/app/statistics/allexams/' + f + '/' + t, 'exam_answers_' + f + '_' + t + '.xlsx');
-                };
+            vm.startDateChanged = function(date) {
+                vm.startDate = date;
+            };
 
-                vm.startDateChanged = function (date) {
-                    vm.startDate = date;
-                };
-
-                vm.endDateChanged = function (date) {
-                    vm.endDate = date;
-                };
-
-            }
-        ]
-    });
-
+            vm.endDateChanged = function(date) {
+                vm.endDate = date;
+            };
+        },
+    ],
+});

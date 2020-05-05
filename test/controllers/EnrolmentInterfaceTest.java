@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -7,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
@@ -44,8 +44,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class,
-                ImmutableList.of("/enrolments")));
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments")));
     }
 
     @Before

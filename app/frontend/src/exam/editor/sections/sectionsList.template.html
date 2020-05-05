@@ -1,11 +1,16 @@
 <!-- Sections -->
 <div class="col-md-12 exam-border">
-
-    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40"
-        ng-if="$ctrl.exam.hasEnrolmentsInEffect">
+    <div
+        class="student-enrolment-wrapper review-view exam-questions-warning mart40"
+        ng-if="$ctrl.exam.hasEnrolmentsInEffect"
+    >
         <div class="col-md-12">
-            <div class="col-md-1"><img src="Images/icon_warning.png" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
+            <div class="col-md-1">
+                <img
+                    src="Images/icon_warning.png"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
+                />
             </div>
             <div class="col-md-11 warning-text">
                 {{'sitnet_upcoming_reservations_exist' | translate}}
@@ -14,16 +19,27 @@
     </div>
 
     <div class="col-md-12 padl0">
-
-        <div sortable objects="$ctrl.exam.examSections" selection=".section-handle"
-            on-move="$ctrl.moveSection(object, from, to)" id="exam">
-            <div ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''"
-                ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
-                <section ng-if="$ctrl.materials" section="section" exam-id="$ctrl.exam.id" materials="$ctrl.materials"
+        <div
+            sortable
+            objects="$ctrl.exam.examSections"
+            selection=".section-handle"
+            on-move="$ctrl.moveSection(object, from, to)"
+            id="exam"
+        >
+            <div
+                ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''"
+                ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
+            >
+                <section
+                    ng-if="$ctrl.materials"
+                    section="section"
+                    exam-id="$ctrl.exam.id"
+                    materials="$ctrl.materials"
                     can-be-optional="$ctrl.exam.executionType.type !== 'MATURITY'"
-                    on-delete="$ctrl.removeSection(section)" on-reload-required="$ctrl.onReloadRequired()"
-                    on-materials-changed="$ctrl.loadMaterials()">
-                </section>
+                    on-delete="$ctrl.removeSection(section)"
+                    on-reload-required="$ctrl.onReloadRequired()"
+                    on-materials-changed="$ctrl.loadMaterials()"
+                ></section>
             </div>
         </div>
         <div class="col-md-12 padl0 mart20">
@@ -34,9 +50,7 @@
                 {{ $ctrl.calculateExamMaxScore() }}
             </div>
         </div>
-
     </div>
-
 </div>
 
 <!-- Buttons -->
@@ -68,14 +82,14 @@
 <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" ng-click="$ctrl.nextTab()">
-                {{'sitnet_exam_publish_tab' | translate}} &#187;</a>
+            <a class="pointer preview" ng-click="$ctrl.nextTab()"> {{'sitnet_exam_publish_tab' | translate}} &#187;</a>
         </div>
     </span>
     <span class="pull-left">
         <div class="review-attachment-button exam-questions-buttons">
             <a class="pointer preview" ng-click="$ctrl.previousTab()">
-                &#171; {{'sitnet_exam_basic_information_tab' | translate}}</a>
+                &#171; {{'sitnet_exam_basic_information_tab' | translate}}</a
+            >
         </div>
     </span>
 </div>

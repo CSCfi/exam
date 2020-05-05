@@ -54,7 +54,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
         return downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
@@ -73,7 +73,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(exam, user, emailComposer)) {
+        if (oldReservation == null && !isAllowedToParticipate(exam, user)) {
             return Optional.of(forbidden("sitnet_no_trials_left"));
         }
         return Optional.empty();
@@ -117,7 +117,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
         return downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
@@ -126,7 +126,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                         return badEnrolment.get();
                     }
                     Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
-                    if (!machine.isPresent()) {
+                    if (machine.isEmpty()) {
                         return forbidden("sitnet_no_machines_available");
                     }
                     // We are good to go :)
@@ -182,7 +182,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         }
         return downloadExam(ce).thenApplyAsync(
                 result -> {
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();

@@ -21,17 +21,14 @@ import { User, SessionService } from '../../../session/session.service';
 export const CollaborativeExamOwnerSelectorComponent: angular.IComponentOptions = {
     template: require('./collaborativeExamOwnerSelector.template.html'),
     bindings: {
-        exam: '<'
+        exam: '<',
     },
     controller: class CollaborativeExamOwnerSelectorController implements angular.IComponentController {
         exam: Exam;
         user: User;
         newOwner: { email: string | null };
 
-        constructor(
-            private $http: angular.IHttpService,
-            private $translate: angular.translate.ITranslateService,
-            private Session: SessionService) {
+        constructor(private $http: angular.IHttpService, private Session: SessionService) {
             'ngInject';
 
             this.newOwner = { email: null };
@@ -39,29 +36,28 @@ export const CollaborativeExamOwnerSelectorComponent: angular.IComponentOptions 
 
         $onInit = () => {
             this.user = this.Session.getUser();
-        }
+        };
 
         addOwner = () => {
             const exists = this.exam.examOwners.some(o => o.email === this.newOwner.email);
             if (!exists) {
-                this.$http.post(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).then(
-                    (response: angular.IHttpResponse<User>) => {
+                this.$http
+                    .post(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner)
+                    .then((response: angular.IHttpResponse<User>) => {
                         this.exam.examOwners.push(response.data);
                         delete this.newOwner.email;
-                    }
-                ).catch(resp => toast.error(resp.data));
+                    })
+                    .catch(resp => toast.error(resp.data));
             }
-        }
+        };
 
         removeOwner = (id: number) => {
-            this.$http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).then(
-                () => this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)
-            ).catch(resp => toast.error(resp.data));
-        }
-
-    }
-
+            this.$http
+                .delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`)
+                .then(() => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)))
+                .catch(resp => toast.error(resp.data));
+        };
+    },
 };
 
 angular.module('app.exam.editor').component('collaborativeExamOwnerSelector', CollaborativeExamOwnerSelectorComponent);
-

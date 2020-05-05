@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.question')
-    .component('examQuestionEditor', {
-        template:
+angular.module('app.question').component('examQuestionEditor', {
+    template:
         '<div id="sitnet-dialog">\n' +
         '    <div class="modal-body">\n' +
         '        <exam-question exam-question="$ctrl.resolve.examQuestion" on-save="$ctrl.onSave(question, examQuestion)" on-cancel="$ctrl.cancel()"\n' +
@@ -26,34 +24,34 @@ angular.module('app.question')
         '    <div class="modal-footer">\n' +
         '    </div>\n' +
         '</div>',
-        bindings: {
-            close: '&',
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$scope',
-            function ($scope) {
-                // This component is used for editing distributed exam questions.
+    bindings: {
+        close: '&',
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$scope',
+        function($scope) {
+            // This component is used for editing distributed exam questions.
 
-                const vm = this;
+            const vm = this;
 
-                vm.onSave = function (question, examQuestion) {
-                    vm.close({
-                        $value: {question: question, examQuestion: examQuestion}
-                    });
-                };
-
-                vm.cancel = function () {
-                    vm.dismiss({$value: 'cancel'});
-                };
-
-                // Close modal if user clicked the back button and no changes made
-                $scope.$on('$routeChangeStart', function () {
-                    if (!window.onbeforeunload) {
-                        vm.cancel();
-                    }
+            vm.onSave = function(question, examQuestion) {
+                vm.close({
+                    $value: { question: question, examQuestion: examQuestion },
                 });
+            };
 
-            }]
-    });
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
+            };
 
+            // Close modal if user clicked the back button and no changes made
+            $scope.$on('$stateChangeStart', function() {
+                if (!window.onbeforeunload) {
+                    vm.cancel();
+                }
+            });
+        },
+    ],
+});

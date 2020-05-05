@@ -15,27 +15,33 @@
 
 import angular from 'angular';
 
-angular.module('app.question')
-    .service('ExamQuestion', ['$resource', function ($resource) {
-
+angular.module('app.question').service('ExamQuestion', [
+    '$resource',
+    function($resource) {
         const self = this;
 
-        self.undistributionApi = $resource('/app/exams/:eid/sections/:sid/questions/:qid',
+        self.undistributionApi = $resource(
+            '/app/exams/:eid/sections/:sid/questions/:qid',
             {
-                eid: '@eid', sid: '@sid', qid: '@qid'
-
+                eid: '@eid',
+                sid: '@sid',
+                qid: '@qid',
             },
             {
-                'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
-            });
+                update: { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } },
+            },
+        );
 
-        self.distributionApi = $resource('/app/exams/:eid/sections/:sid/questions/:qid/distributed',
+        self.distributionApi = $resource(
+            '/app/exams/:eid/sections/:sid/questions/:qid/distributed',
             {
-                eid: '@eid', sid: '@sid', qid: '@qid'
-
+                eid: '@eid',
+                sid: '@sid',
+                qid: '@qid',
             },
             {
-                'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
-            });
-
-    }]);
+                update: { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } },
+            },
+        );
+    },
+]);

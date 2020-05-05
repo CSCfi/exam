@@ -19,10 +19,11 @@ import { SessionService, User } from '../session/session.service';
 export const DashboardComponent: angular.IComponentOptions = {
     template: require('./dashboard.template.html'),
     controller: class DashboardController implements angular.IComponentController {
-
         user: User;
 
-        constructor(private Session: SessionService) { 'ngInject'; }
+        constructor(private Session: SessionService) {
+            'ngInject';
+        }
 
         $onInit() {
             this.user = this.Session.getUser();
@@ -30,5 +31,5 @@ export const DashboardComponent: angular.IComponentOptions = {
                 console.log('not logged in');
             }
         }
-    }
+    },
 };

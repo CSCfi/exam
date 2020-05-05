@@ -16,8 +16,6 @@
  */
 import * as angular from 'angular';
 
-declare function require(name: string): any;
-
 interface Selection {
     value: any;
 }
@@ -35,7 +33,7 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         options: '<',
         limitTo: '<',
         placeholder: '@',
-        onSelect: '&'
+        onSelect: '&',
     },
     controller: class DropDownSelectController implements angular.IComponentController {
         options: Option[]; // everything
@@ -49,15 +47,14 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
 
         constructor() {
             this.labelFilter = (option: Option): boolean => {
-                return option.label != null &&
-                    option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+                return option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
             };
         }
 
         $onInit() {
             this.options = this.options || [];
             this.placeholder = this.placeholder || '-';
-            this.limitTo = this.limitTo || 15;
+            this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
             this.searchFilter = '';
             this.filterOptions();
         }
@@ -70,7 +67,12 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         }
 
         filterOptions() {
-            this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+            // Show all options, if limit is set to 0
+            if (!this.limitTo || this.limitTo === 0) {
+                this.filteredOptions = this.options.filter(this.labelFilter);
+            } else {
+                this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
+            }
         }
 
         selectOption(option: Option) {
@@ -92,6 +94,6 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         clearSelection = () => {
             delete this.selected;
             this.onSelect();
-        }
-    }
+        };
+    },
 };

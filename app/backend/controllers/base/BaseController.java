@@ -16,13 +16,14 @@
 package backend.controllers.base;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,15 +40,12 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.exceptions.MalformedDataException;
-import backend.impl.EmailComposer;
 import backend.impl.NoShowHandler;
 import backend.models.Exam;
-import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
-import backend.models.api.CountsAsTrial;
 import backend.sanitizers.Attrs;
 import backend.system.interceptors.AnonymousJsonAction;
 
@@ -112,7 +110,7 @@ public class BaseController extends Controller {
         return result;
     }
 
-    private void handleNoShow(User user, Long examId, EmailComposer composer) {
+    private void handleNoShow(User user, Long examId) {
 
         List<Reservation> reservations = Ebean.find(Reservation.class)
                 .fetch("enrolment")
@@ -138,36 +136,26 @@ public class BaseController extends Controller {
         noShowHandler.handleNoShows(reservations);
     }
 
-    protected boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {
-        handleNoShow(user, exam.getId(), composer);
+    protected boolean isAllowedToParticipate(Exam exam, User user) {
+        handleNoShow(user, exam.getId());
         Integer trialCount = exam.getTrialCount();
         if (trialCount == null) {
             return true;
         }
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+        List<ExamParticipation> trials = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .where()
                 .eq("user", user)
                 .eq("exam.parent.id", exam.getId())
                 .ne("exam.state", Exam.State.DELETED)
                 .ne("reservation.retrialPermitted", true)
-                .findList();
-        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .where()
-                .eq("user", user)
-                .eq("exam.id", exam.getId())
-                .eq("reservation.noShow", true)
-                .ne("reservation.retrialPermitted", true)
-                .findList();
-        List<CountsAsTrial> trials = new ArrayList<>(participations);
-        trials.addAll(noShows);
-        // Sort by trial time desc
-        trials.sort((o1, o2) -> o1.getTrialTime().isAfter(o2.getTrialTime()) ? -1 : 1);
+                .findList()
+                .stream()
+                .sorted(Comparator.comparing(ExamParticipation::getStarted).reversed())
+                .collect(Collectors.toList());
 
         if (trials.size() >= trialCount) {
-            List<CountsAsTrial> subset = trials.subList(0, trialCount);
-            return subset.stream().anyMatch(CountsAsTrial::isProcessed);
+            return trials.stream().limit(trialCount).anyMatch(ExamParticipation::isProcessed);
         }
         return true;
     }

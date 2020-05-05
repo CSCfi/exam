@@ -1,5 +1,4 @@
 <div class="col-md-12 exam-border">
-
     <div class="review-list-title-row">
         <span class="review-list-subtitle">{{'sitnet_teachers' | translate }}:</span>
         <span class="review-list-subtitle" ng-repeat="owner in $ctrl.exam.examOwners">
@@ -7,8 +6,8 @@
         </span>
         <span class="review-list-subtitle marl20">{{'sitnet_exam_validity' | translate}}:</span>
         <span class="review-list-subtitle">
-            {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} -
-            {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+            {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate |
+            date:'dd.MM.yyyy'}}
         </span>
     </div>
 
@@ -16,19 +15,31 @@
         <span class="review-list-bluetitle">
             <!-- aborted-->
             <a class="pointer" ng-click="$ctrl.openAborted()">
-                {{'sitnet_aborted_exams' | translate}} ({{$ctrl.abortedExams.length}})</a>
+                {{'sitnet_aborted_exams' | translate}} ({{$ctrl.abortedExams.length}})</a
+            >
             <sup class="padl05">
-                <img popover-placement="right" popover-trigger="'mouseenter'"
-                    uib-popover="{{'sitnet_aborted_description' | translate}}" src="Images/icon_tooltip.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                <img
+                    popover-placement="right"
+                    popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_aborted_description' | translate}}"
+                    src="Images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                />
             </sup>
             <!-- tenttiin saapumattomat -->
             <a style="margin-left:100px;" class="pointer" ng-click="$ctrl.openNoShows()">
-                {{'sitnet_no_shows' | translate}} ({{$ctrl.noShows.length}})</a>
+                {{'sitnet_no_shows' | translate}} ({{$ctrl.noShows.length}})</a
+            >
             <sup class="padl05">
-                <img popover-placement="right" popover-trigger="'mouseenter'"
-                    uib-popover="{{'sitnet_no_shows_description' | translate}}" src="Images/icon_tooltip.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                <img
+                    popover-placement="right"
+                    popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_no_shows_description' | translate}}"
+                    src="Images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                />
             </sup>
         </span>
     </div>
@@ -52,8 +63,11 @@
 
         <div class="review-border">
             <!-- Graded and Logged -->
-            <rl-graded-logged exam="$ctrl.exam" reviews="$ctrl.gradedLoggedReviews"
-                on-archive="$ctrl.onArchive(reviews)"></rl-graded-logged>
+            <rl-graded-logged
+                exam="$ctrl.exam"
+                reviews="$ctrl.gradedLoggedReviews"
+                on-archive="$ctrl.onArchive(reviews)"
+            ></rl-graded-logged>
         </div>
 
         <div class="review-border" ng-if="$ctrl.rejectedReviews.length > 0">
@@ -65,7 +79,5 @@
             <!-- Archived -->
             <rl-archived reviews="$ctrl.archivedReviews"></rl-archived>
         </div>
-
     </div>
-
 </div>

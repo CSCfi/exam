@@ -16,56 +16,58 @@ import angular from 'angular';
 import _ from 'lodash';
 import toast from 'toastr';
 
+angular.module('app.review').component('rClozeTest', {
+    template: require('./clozeTest.template.html'),
+    bindings: {
+        sectionQuestion: '<',
+        onScore: '&',
+    },
+    require: {
+        parentCtrl: '^^rExamSection',
+    },
+    controller: [
+        '$sce',
+        '$stateParams',
+        '$translate',
+        'Assessment',
+        'Attachment',
+        function($sce, $stateParams, $translate, Assessment, Attachment) {
+            const vm = this;
 
-angular.module('app.review')
-    .component('rClozeTest', {
-        template: require('./clozeTest.template.html'),
-        bindings: {
-            sectionQuestion: '<',
-            onScore: '&'
+            vm.$onInit = function() {
+                vm.participation = vm.parentCtrl.participation;
+                vm.isScorable = vm.parentCtrl.isScorable;
+            };
+
+            vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
+
+            vm.displayQuestionText = function() {
+                return $sce.trustAsHtml(vm.sectionQuestion.question.question);
+            };
+
+            vm.downloadQuestionAttachment = function() {
+                if (vm.parentCtrl.collaborative) {
+                    const attachment = vm.sectionQuestion.question.attachment;
+                    return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                }
+                return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
+            };
+
+            vm.displayAchievedScore = function() {
+                const max = vm.sectionQuestion.maxScore;
+                const score = vm.sectionQuestion.clozeTestAnswer.score;
+                const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
+                return _.isInteger(value) ? value : value.toFixed(2);
+            };
+
+            vm.insertForcedScore = () => {
+                Assessment.saveForcedScore(vm.sectionQuestion, $stateParams.id, $stateParams.ref, vm.participation._rev)
+                    .then(resp => {
+                        toast.info($translate.instant('sitnet_graded'));
+                        vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
+                    })
+                    .catch(err => toast.error(err.data));
+            };
         },
-        require: {
-            parentCtrl: '^^rExamSection'
-        },
-        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment',
-            function ($sce, $routeParams, $translate, Assessment, Attachment) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.participation = vm.parentCtrl.participation;
-                    vm.isScorable = vm.parentCtrl.isScorable;
-                }
-
-                vm.hasForcedScore = () => _.isNumber(vm.sectionQuestion.forcedScore);
-
-                vm.displayQuestionText = function () {
-                    return $sce.trustAsHtml(vm.sectionQuestion.question.question);
-                };
-
-                vm.downloadQuestionAttachment = function () {
-                    if (vm.parentCtrl.collaborative) {
-                        const attachment = vm.sectionQuestion.question.attachment;
-                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-                    }
-                    return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
-                };
-
-                vm.displayAchievedScore = function () {
-                    const max = vm.sectionQuestion.maxScore;
-                    const score = vm.sectionQuestion.clozeTestAnswer.score;
-                    const value = score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers);
-                    return _.isInteger(value) ? value : value.toFixed(2);
-                }
-
-                vm.insertForcedScore = () => {
-                    Assessment.saveForcedScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
-                        .then(resp => {
-                            toast.info($translate.instant('sitnet_graded'));
-                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
-                        })
-                        .catch(err => toast.error(err.data));
-                }
-            }
-        ]
-    });
+    ],
+});

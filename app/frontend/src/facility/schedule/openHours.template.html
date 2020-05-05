@@ -1,5 +1,4 @@
 <div id="room">
-
     <table style="display:inline-block">
         <thead>
             <tr ng-repeat="time in $ctrl.times">
@@ -12,17 +11,25 @@
         <thead>
             <tr>
                 <th ng-repeat="weekday in $ctrl.weekdayNames">{{weekday}}</th>
-           </tr>
+            </tr>
         </thead>
 
         <tbody>
-           <tr ng-repeat="slot in $ctrl.timeRange()">
-                <td ng-repeat="day in $ctrl.getWeekdays()" class='selectable {{ $ctrl.getType(day, slot) }}' ng-click='$ctrl.selectSlot(day, slot)'>
-                    <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50"
-                         uib-tooltip="{{$ctrl.calculateTime(slot)}}"></div>
+            <tr ng-repeat="slot in $ctrl.timeRange()">
+                <td
+                    ng-repeat="day in $ctrl.getWeekdays()"
+                    class="selectable {{ $ctrl.getType(day, slot) }}"
+                    ng-click="$ctrl.selectSlot(day, slot)"
+                >
+                    <div
+                        class="fullsize"
+                        tooltip-placement="right"
+                        tooltip-animation="false"
+                        tooltip-popup-delay="50"
+                        uib-tooltip="{{$ctrl.calculateTime(slot)}}"
+                    ></div>
                 </td>
             </tr>
         </tbody>
     </table>
-
 </div>

@@ -16,52 +16,54 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('libraryOwnerSelection', {
-        template: require('./libraryOwners.template.html'),
-        bindings: {
-            selections: '<',
-            ownerUpdated: '&'
+angular.module('app.question').component('libraryOwnerSelection', {
+    template: require('./libraryOwners.template.html'),
+    bindings: {
+        selections: '<',
+        ownerUpdated: '&',
+    },
+    controller: [
+        '$translate',
+        'Question',
+        'UserRes',
+        function($translate, Question, UserRes) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                vm.teachers = UserRes.usersByRole.query({ role: 'TEACHER' });
+            };
+
+            vm.onTeacherSelect = function($item) {
+                vm.newTeacher = $item;
+            };
+
+            vm.addOwnerForSelected = function() {
+                // check that atleast one has been selected
+                if (vm.selections.length === 0) {
+                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
+                    return;
+                }
+                if (!vm.newTeacher) {
+                    toast.warning($translate.instant('sitnet_add_question_owner'));
+                    return;
+                }
+
+                const data = {
+                    uid: vm.newTeacher.id,
+                    questionIds: vm.selections.join(),
+                };
+
+                Question.questionOwnerApi.update(
+                    data,
+                    function() {
+                        toast.info($translate.instant('sitnet_question_owner_added'));
+                        vm.ownerUpdated();
+                    },
+                    function() {
+                        toast.info($translate.instant('sitnet_update_failed'));
+                    },
+                );
+            };
         },
-        controller: ['$translate', 'Question', 'UserRes',
-            function ($translate, Question, UserRes) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.teachers = UserRes.usersByRole.query({role: 'TEACHER'});
-                };
-
-                vm.onTeacherSelect = function ($item, $model, $label) {
-                    vm.newTeacher = $item;
-                };
-
-                vm.addOwnerForSelected = function () {
-                    // check that atleast one has been selected
-                    if (vm.selections.length === 0) {
-                        toast.warning($translate.instant('sitnet_choose_atleast_one'));
-                        return;
-                    }
-                    if (!vm.newTeacher) {
-                        toast.warning($translate.instant('sitnet_add_question_owner'));
-                        return;
-                    }
-
-                    const data = {
-                        'uid': vm.newTeacher.id,
-                        'questionIds': vm.selections.join()
-                    };
-
-                    Question.questionOwnerApi.update(data,
-                        function () {
-                            toast.info($translate.instant('sitnet_question_owner_added'));
-                            vm.ownerUpdated();
-                        }, function () {
-                            toast.info($translate.instant('sitnet_update_failed'));
-                        });
-                };
-
-            }
-        ]
-    });
-
+    ],
+});

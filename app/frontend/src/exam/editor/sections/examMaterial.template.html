@@ -7,7 +7,12 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group input-group">
-                        <input ng-model="$ctrl.filter" type="text" class="form-control" placeholder="{{'sitnet_search_by_name' | translate }}">
+                        <input
+                            ng-model="$ctrl.filter"
+                            type="text"
+                            class="form-control"
+                            placeholder="{{'sitnet_search_by_name' | translate }}"
+                        />
                         <div class="input-group-addon">
                             <i class="fa fa-search fa-fw"></i>
                         </div>
@@ -31,8 +36,13 @@
                                 <td>{{material.author}}</td>
                                 <td>{{material.isbn}}</td>
                                 <td>
-                                    <i ng-click="$ctrl.removeMaterial(material)" class="pointer fa fa-trash-o fa-fw"
-                                        popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_remove' | translate}}">
+                                    <i
+                                        ng-click="$ctrl.removeMaterial(material)"
+                                        class="pointer fa fa-trash-o fa-fw"
+                                        popover-placement="left"
+                                        popover-trigger="'mouseenter'"
+                                        uib-popover="{{'sitnet_exam_remove' | translate}}"
+                                    >
                                     </i>
                                 </td>
                             </tr>
@@ -48,23 +58,38 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-
                     <form novalidate>
                         <div class="form-group">
                             <label for="name">{{'sitnet_name' | translate}}</label>
-                            <input id="name" class="form-control" aria-describedby="name" ng-model="$ctrl.newMaterial.name"
-                                required>
+                            <input
+                                id="name"
+                                class="form-control"
+                                aria-describedby="name"
+                                ng-model="$ctrl.newMaterial.name"
+                                required
+                            />
                         </div>
                         <div class="form-group">
                             <label for="author">{{'sitnet_author' | translate}}</label>
-                            <input id="author" class="form-control" aria-describedby="author" ng-model="$ctrl.newMaterial.author">
+                            <input
+                                id="author"
+                                class="form-control"
+                                aria-describedby="author"
+                                ng-model="$ctrl.newMaterial.author"
+                            />
                         </div>
                         <div class="form-group">
                             <label for="isbn">ISBN</label>
-                            <input id="isbn" class="form-control" aria-describedby="isbn" ng-model="$ctrl.newMaterial.isbn">
+                            <input
+                                id="isbn"
+                                class="form-control"
+                                aria-describedby="isbn"
+                                ng-model="$ctrl.newMaterial.isbn"
+                            />
                         </div>
-                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.createMaterial()">{{'sitnet_create_new'
-                            | translate}}</button>
+                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.createMaterial()">
+                            {{'sitnet_create_new' | translate}}
+                        </button>
                     </form>
                 </div>
             </div>

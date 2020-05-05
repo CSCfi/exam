@@ -1,17 +1,22 @@
 <span ng-show="$ctrl.inspection.user.id !== $ctrl.user.id">
     <span class="sitnet-text-ready" ng-show="$ctrl.inspection.ready">
-        {{ $ctrl.inspection.user.firstName }} {{ $ctrl.inspection.user.lastName }} {{'sitnet_ready' | translate}}</span>
-    <span class="sitnet-text-alarm"
-          ng-hide="$ctrl.inspection.ready">
-        {{ $ctrl.inspection.user.firstName }} {{ $ctrl.inspection.user.lastName }} {{'sitnet_in_progress' | translate}}</span>
+        {{ $ctrl.inspection.user.firstName }} {{ $ctrl.inspection.user.lastName }} {{'sitnet_ready' | translate}}</span
+    >
+    <span class="sitnet-text-alarm" ng-hide="$ctrl.inspection.ready">
+        {{ $ctrl.inspection.user.firstName }} {{ $ctrl.inspection.user.lastName }} {{'sitnet_in_progress' |
+        translate}}</span
+    >
 </span>
 <div class="input-group-sm make-inline" ng-hide="$ctrl.inspection.user.id !== $ctrl.user.id">
     <div class="make-inline">{{ $ctrl.inspection.user.firstName }} {{ $ctrl.inspection.user.lastName }}</div>
     <div class="make-inline padl10">
-        <select ng-model="$ctrl.inspection.ready" class="form-control"
-                ng-disabled="$ctrl.disabled"
-                ng-options="s.key as s.value for s in $ctrl.reviewStatuses"
-                ng-change="$ctrl.setInspectionStatus()">
+        <select
+            ng-model="$ctrl.inspection.ready"
+            class="form-control"
+            ng-disabled="$ctrl.disabled"
+            ng-options="s.key as s.value for s in $ctrl.reviewStatuses"
+            ng-change="$ctrl.setInspectionStatus()"
+        >
         </select>
     </div>
 </div>

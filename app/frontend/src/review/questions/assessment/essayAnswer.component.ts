@@ -24,7 +24,7 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
         answer: '<',
         editable: '<',
         action: '@',
-        onSelection: '&'
+        onSelection: '&',
     },
     controller: class EssayAnswerComponentController implements angular.IComponentController {
         answer: ReviewQuestion;
@@ -38,15 +38,16 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.name = this.answer.examSection.exam.creator ?
-                `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}` :
-                this.answer.examSection.exam.id.toString();
+            this.name = this.answer.examSection.exam.creator
+                ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
+                : this.answer.examSection.exam.id.toString();
             this.answer.expanded = true;
             this.answer.essayAnswer = this.answer.essayAnswer || {};
             this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
             if (this.answer.evaluationType === 'Selection') {
-                this.answer.essayAnswer.textualScore =
-                    this.answer.essayAnswer.evaluatedScore ? this.answer.essayAnswer.evaluatedScore.toString() : '';
+                this.answer.essayAnswer.textualScore = this.answer.essayAnswer.evaluatedScore
+                    ? this.answer.essayAnswer.evaluatedScore.toString()
+                    : '';
             }
         }
 
@@ -60,16 +61,16 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
             }
             this.onSelection({ answer: this.answer });
             this.answer.selected = false;
-        }
+        };
 
-        isAssessed = () => this.answer.essayAnswer &&
-            (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore)
+        isAssessed = () =>
+            this.answer.essayAnswer &&
+            (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore);
 
-        displayMaxScore = () => this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1;
+        displayMaxScore = () => (this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1);
 
         downloadAttachment = () => this.Attachment.downloadQuestionAnswerAttachment(this.answer);
-    }
-
+    },
 };
 
 angular.module('app.review').component('essayAnswer', EssayAnswerComponent);

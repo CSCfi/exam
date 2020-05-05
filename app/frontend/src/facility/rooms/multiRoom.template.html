@@ -9,19 +9,32 @@
             <h3 class="col-md-12 header-text">{{'sitnet_room_default_working_hours' | translate}}</h3>
         </div>
         <div class="bottom-row">
-            <open-hours ng-if="$ctrl.rooms" class="col-md-12" week="$ctrl.week" on-select="$ctrl.updateWorkingHours()"></open-hours>
+            <open-hours
+                ng-if="$ctrl.rooms"
+                class="col-md-12"
+                week="$ctrl.week"
+                on-select="$ctrl.updateWorkingHours()"
+            ></open-hours>
         </div>
         <starting-time ng-if="$ctrl.rooms" room-ids="$ctrl.roomIds"></starting-time>
         <div class="top-row">
             <h3 class="col-md-12 header-text">{{'sitnet_exception_datetimes' | translate}}</h3>
         </div>
-        <div class="detail-row-tall"
-             ng-repeat="room in $ctrl.rooms | filter: $ctrl.massEditedRoomFilter | orderBy:'name'">
+        <div
+            class="detail-row-tall"
+            ng-repeat="room in $ctrl.rooms | filter: $ctrl.massEditedRoomFilter | orderBy:'name'"
+        >
             <div class="col-md-12">
                 <b>{{room.name || 'sitnet_no_name' | translate}}</b>
             </div>
-            <exception-list room="room" on-create="$ctrl.addException(exception)" on-delete="$ctrl.deleteException(exception)"
-                            filter="$ctrl.massEditedExceptionFilter" hide-button="true" hide-title="true"></exception-list>
+            <exception-list
+                room="room"
+                on-create="$ctrl.addException(exception)"
+                on-delete="$ctrl.deleteException(exception)"
+                filter="$ctrl.massEditedExceptionFilter"
+                hide-button="true"
+                hide-title="true"
+            ></exception-list>
         </div>
     </div>
     <div class="main-row">

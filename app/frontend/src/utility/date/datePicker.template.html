@@ -1,18 +1,34 @@
 <div class="input-group">
-    <input type="text" class="form-control" uib-datepicker-popup="{{$ctrl.format}}" ng-model="$ctrl.date"
-        ng-model-options="$ctrl.modelOptions" ng-change="$ctrl.dateChanged()" is-open="$ctrl.opened" datepicker-options="$ctrl.options"
-        close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-        clear-text="{{'sitnet_clear' | translate}}" date-validator ng-required="!$ctrl.optional">
+    <input
+        type="text"
+        class="form-control"
+        uib-datepicker-popup="{{$ctrl.format}}"
+        ng-model="$ctrl.date"
+        ng-model-options="$ctrl.modelOptions"
+        ng-change="$ctrl.dateChanged()"
+        is-open="$ctrl.opened"
+        datepicker-options="$ctrl.options"
+        close-text="{{'sitnet_close' | translate}}"
+        current-text="{{'sitnet_today' | translate}}"
+        toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+        clear-text="{{'sitnet_clear' | translate}}"
+        date-validator
+        ng-disabled="$ctrl.disabled"
+        ng-required="!$ctrl.optional"
+    />
     <span class="input-group-btn">
         <button class="btn btn-default green" ng-click="$ctrl.openPicker($event)">
-            <img src="Images/reservation_calendar.svg" alt="exam" onerror="this.onerror=null;this.src='Images/reservation_calendar.png';" />
+            <img
+                src="Images/reservation_calendar.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='Images/reservation_calendar.png';"
+            />
         </button>
     </span>
     <!-- Optional extra button -->
     <span ng-if="$ctrl.extra" class="input-group-btn">
-        <button ng-click="$ctrl.extraClicked()" class="btn btn-primary green border-green" style="margin-left: 1px">{{$ctrl.extraText
-            |
-            translate}}
+        <button ng-click="$ctrl.extraClicked()" class="btn btn-primary green border-green" style="margin-left: 1px">
+            {{$ctrl.extraText | translate}}
         </button>
     </span>
 </div>

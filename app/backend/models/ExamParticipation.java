@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,13 +29,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
-import backend.models.api.CountsAsTrial;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
 import backend.util.datetime.DateTimeAdapter;
 
 @Entity
-public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {
+public class ExamParticipation extends GeneratedIdentityModel {
 
     @ManyToOne
     @JsonBackReference
@@ -50,6 +50,10 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
+
+    @ManyToOne
+    @JsonBackReference
+    private ExaminationEvent examinationEvent;
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
@@ -111,6 +115,14 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
         this.reservation = reservation;
     }
 
+    public ExaminationEvent getExaminationEvent() {
+        return examinationEvent;
+    }
+
+    public void setExaminationEvent(ExaminationEvent examinationEvent) {
+        this.examinationEvent = examinationEvent;
+    }
+
     public DateTime getStarted() {
         return started;
     }
@@ -143,14 +155,9 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
         this.sentForReview = sentForReview;
     }
 
-    @Override
-    public DateTime getTrialTime() {
-        return started;
-    }
-
-    @Override
+    @Transient
     public boolean isProcessed() {
-        return exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED);
+        return exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED);
     }
 
     @Override

@@ -12,61 +12,73 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.software')
-    .factory('SoftwareRes', ['$resource', function ($resource) {
+angular.module('app.software').factory('SoftwareRes', [
+    '$resource',
+    function($resource) {
         return {
-            machines: $resource('/app/software_machine/:mid',
-                {
-                    mid: '@mid'
-                },
-                {
-                    'reset': {method: 'PUT'}
-                }),
-
-            machine: $resource('/app/machine/:mid/software/:sid',
+            machines: $resource(
+                '/app/software_machine/:mid',
                 {
                     mid: '@mid',
-                    sid: '@sid'
                 },
                 {
-                    'add': {method: 'PUT'},
-                    'toggle': {method: 'POST'}
-                }),
+                    reset: { method: 'PUT' },
+                },
+            ),
 
-            softwares: $resource('/app/softwares',
+            machine: $resource(
+                '/app/machine/:mid/software/:sid',
+                {
+                    mid: '@mid',
+                    sid: '@sid',
+                },
+                {
+                    add: { method: 'PUT' },
+                    toggle: { method: 'POST' },
+                },
+            ),
+
+            softwares: $resource(
+                '/app/softwares',
                 {},
                 {
-                    'query': {method: 'GET', isArray: true}
-                }),
-
-            software: $resource('/app/softwares/:id',
-                {
-                    id: '@id'
+                    query: { method: 'GET', isArray: true },
                 },
-                {
-                    'query': {method: 'GET'},
-                    'remove': {method: 'DELETE'}
-                }),
+            ),
 
-            add: $resource('/app/softwares/add/:name',
-                {
-                    name: '@name'
-                },
-                {
-                    'insert': {method: 'POST'}
-                }),
-
-            update: $resource('/app/softwares/update/:id/:name',
+            software: $resource(
+                '/app/softwares/:id',
                 {
                     id: '@id',
-                    name: '@name'
                 },
                 {
-                    'update': {method: 'PUT'}
-                })
-        };
-    }]);
+                    query: { method: 'GET' },
+                    remove: { method: 'DELETE' },
+                },
+            ),
 
+            add: $resource(
+                '/app/softwares/add/:name',
+                {
+                    name: '@name',
+                },
+                {
+                    insert: { method: 'POST' },
+                },
+            ),
+
+            update: $resource(
+                '/app/softwares/update/:id/:name',
+                {
+                    id: '@id',
+                    name: '@name',
+                },
+                {
+                    update: { method: 'PUT' },
+                },
+            ),
+        };
+    },
+]);

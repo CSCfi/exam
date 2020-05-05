@@ -1,0 +1,33 @@
+<div
+    class="padl15 marb10"
+    ng-show="$ctrl.sectionQuestion.reviewExpanded"
+    ng-repeat="option in $ctrl.sectionQuestion.options"
+>
+    <div>
+        <div ng-class="$ctrl.getSelectedOptionClass(option)">
+            <div class="make-inline pull-left">
+                <img
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'CorrectOption'"
+                    src="Images/icon_correct_answer_radio.png"
+                    alt="exam"
+                />
+                <img
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'IncorrectOption'"
+                    src="Images/icon_wrong_answer_radio.png"
+                    alt="exam"
+                />
+                <img
+                    ng-if="$ctrl.determineClaimOptionType(option) == 'SkipOption'"
+                    src="Images/icon_correct_answer_radio_grey.png"
+                    alt="exam"
+                />
+            </div>
+            <div class="make-inline middle-column">
+                <span class="exam-question-option-text" ng-bind-html="option.option.option"></span>
+            </div>
+            <div class="make-inline pull-right answer-score-text">
+                <span> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
+            </div>
+        </div>
+    </div>
+</div>

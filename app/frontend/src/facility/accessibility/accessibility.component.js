@@ -16,38 +16,40 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.accessibility')
-    .component('accessibility', {
-        template: require('./accessibility.template.html'),
-        controller: ['$translate', '$http', function ($translate, $http) {
-
+angular.module('app.facility.accessibility').component('accessibility', {
+    template: require('./accessibility.template.html'),
+    controller: [
+        '$translate',
+        '$http',
+        function($translate, $http) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.newItem = {};
-                $http.get('/app/accessibility').then(function (resp) {
+                $http.get('/app/accessibility').then(function(resp) {
                     vm.accessibilities = resp.data;
                 });
             };
 
-            vm.add = function (item) {
-                $http.post('/app/accessibility', item).then(function (resp) {
+            vm.add = function(item) {
+                $http.post('/app/accessibility', item).then(function(resp) {
                     vm.accessibilities.push(resp.data);
-                    toast.info($translate.instant("sitnet_accessibility_added"));
+                    toast.info($translate.instant('sitnet_accessibility_added'));
                 });
             };
 
-            vm.update = function (accessibility) {
-                $http.put('/app/accessibility', accessibility).then(function () {
-                    toast.info($translate.instant("sitnet_accessibility_updated"));
+            vm.update = function(accessibility) {
+                $http.put('/app/accessibility', accessibility).then(function() {
+                    toast.info($translate.instant('sitnet_accessibility_updated'));
                 });
             };
 
-            vm.remove = function (accessibility) {
-                $http.delete('/app/accessibility/' + accessibility.id).then(function () {
+            vm.remove = function(accessibility) {
+                $http.delete('/app/accessibility/' + accessibility.id).then(function() {
                     vm.accessibilities.splice(vm.accessibilities.indexOf(accessibility), 1);
-                    toast.info($translate.instant("sitnet_accessibility_removed"));
+                    toast.info($translate.instant('sitnet_accessibility_removed'));
                 });
             };
-        }]
-    });
+        },
+    ],
+});

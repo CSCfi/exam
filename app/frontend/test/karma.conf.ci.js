@@ -14,12 +14,12 @@
  *
  */
 
-module.exports = function (config) {
+module.exports = function(config) {
     const common = require('./karma.conf.js');
     common(config);
     config.set({
         singleRun: true,
         autoWatch: false,
-        browsers: ['PhantomJS']
+        browsers: ['PhantomJS'],
     });
 };

@@ -16,6 +16,7 @@
 package backend.system.actors;
 
 import java.util.List;
+import javax.inject.Inject;
 
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
@@ -24,11 +25,14 @@ import play.Logger;
 
 import backend.models.Exam;
 import backend.models.ExamRecord;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 public class ExamExpirationActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
+
+    @Inject
+    private ConfigReader configReader;
 
     @Override
     public Receive createReceive() {
@@ -52,7 +56,7 @@ public class ExamExpirationActor extends AbstractActor {
                     logger.error("no grading time for exam {}", exam.getId());
                     continue;
                 }
-                if (ConfigUtil.getExamExpirationDate(expirationDate).isBefore(now)) {
+                if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
                     cleanExamData(exam);
                     logger.info("Marked exam {} as expired", exam.getId());
                 }

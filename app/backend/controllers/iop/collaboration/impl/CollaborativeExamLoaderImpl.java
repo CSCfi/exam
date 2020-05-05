@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
@@ -19,13 +16,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
-import scala.concurrent.duration.Duration;
 
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.impl.EmailComposer;
@@ -73,6 +70,35 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         }
     }
 
+    private Optional<URL> parseUrl(String examRef, String assessmentRef) {
+        String url = String.format("%s/api/exams/%s/assessments/%s",
+                ConfigFactory.load().getString("sitnet.integration.iop.host"), examRef, assessmentRef);
+        try {
+            return Optional.of(new URL(url));
+        } catch (MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload) {
+        Optional<URL> ou = parseUrl(ce.getExternalRef(), ref);
+        if (ou.isEmpty()) {
+            return CompletableFuture.supplyAsync(Optional::empty);
+        }
+        ((ObjectNode)payload).set("rev", payload.get("_rev")); // TBD: maybe this should be checked on XM
+        WSRequest request = wsClient.url(ou.get().toString());
+        Function<WSResponse, Optional<String>> onSuccess = response -> {
+            if (response.getStatus() != OK) {
+                JsonNode root = response.asJson();
+                logger.error(root.get("message").asText());
+                return Optional.empty();
+            }
+            return Optional.of(response.asJson().get("rev").textValue());
+        };
+        return request.put(payload).thenApplyAsync(onSuccess);
+    }
 
     @Override
     public CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
@@ -105,8 +131,25 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     @Override
-    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
-                                              Model resultModel, User sender) {
+    public CompletionStage<Optional<JsonNode>> downloadAssessment(String examRef, String assessmentRef) {
+        Optional<URL> url = parseUrl(examRef, assessmentRef);
+        if (url.isPresent()) {
+            WSRequest request = wsClient.url(url.get().toString());
+            Function<WSResponse, Optional<JsonNode>> onSuccess = response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != OK) {
+                    logger.warn("non-ok response from XM: {}", root.get("message").asText());
+                    return Optional.empty();
+                }
+                return Optional.of(root);
+            };
+            return request.get().thenApplyAsync(onSuccess);
+        }
+        return CompletableFuture.supplyAsync(Optional::empty);
+    }
+
+    @Override
+    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content,  User sender, Model resultModel, PathProperties pp) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
         if (url.isPresent()) {
             WSRequest request = wsClient.url(url.get().toString());
@@ -115,18 +158,16 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                     JsonNode root = response.asJson();
                     return Results.internalServerError(root.get("message").asText());
                 }
-                if (isPrePublication) {
-                    Set<String> receivers = content.getExamOwners().stream().map(User::getEmail).collect(Collectors.toSet());
-                    as.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
-                            () -> composer.composeCollaborativeExamAnnouncement(receivers, sender, content),
-                            as.dispatcher()
-                    );
-                }
-                return resultModel == null ? Results.ok() : ok(resultModel);
+                return resultModel == null ? Results.ok() : ok(resultModel, pp);
             };
             return request.put(serializeForUpdate(content, ce.getRevision())).thenApplyAsync(onSuccess);
         }
         return defer(Results.internalServerError());
+    }
+
+    @Override
+    public CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content,  User sender) {
+        return uploadExam(ce, content, sender, null, null);
     }
 
     public CompletionStage<Result> deleteExam(CollaborativeExam ce) {
@@ -143,8 +184,8 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
-    protected Result ok(Object object) {
-        String body = Ebean.json().toJson(object);
+    protected Result ok(Object object, PathProperties pp) {
+        String body = pp == null ? Ebean.json().toJson(object) : Ebean.json().toJson(object, pp);
         return Results.ok(body).as("application/json");
     }
 }

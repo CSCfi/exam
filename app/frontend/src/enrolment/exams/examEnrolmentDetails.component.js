@@ -15,33 +15,33 @@
 
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('enrolmentDetails', {
-        template: require('./examEnrolmentDetails.template.html'),
-        bindings: {
-            exam: '<'
+angular.module('app.enrolment').component('enrolmentDetails', {
+    template: require('./examEnrolmentDetails.template.html'),
+    bindings: {
+        exam: '<',
+    },
+    controller: [
+        'Exam',
+        'Enrolment',
+        'DateTime',
+        function(Exam, Enrolment, DateTime) {
+            const vm = this;
+
+            vm.enrollForExam = function() {
+                Enrolment.checkAndEnroll(vm.exam);
+            };
+
+            vm.translateExamType = function() {
+                return Exam.getExamTypeDisplayName(vm.exam.examType.type);
+            };
+
+            vm.translateGradeScale = function() {
+                return Exam.getScaleDisplayName(vm.exam.gradeScale || vm.exam.course.gradeScale);
+            };
+
+            vm.printExamDuration = function() {
+                return DateTime.printExamDuration(vm.exam);
+            };
         },
-        controller: ['Exam', 'Enrolment', 'DateTime',
-            function (Exam, Enrolment, DateTime) {
-
-                const vm = this;
-
-                vm.enrollForExam = function () {
-                    Enrolment.checkAndEnroll(vm.exam);
-                };
-
-                vm.translateExamType = function () {
-                    return Exam.getExamTypeDisplayName(vm.exam.examType.type);
-                };
-
-                vm.translateGradeScale = function () {
-                    return Exam.getScaleDisplayName(vm.exam.gradeScale || vm.exam.course.gradeScale);
-                };
-
-                vm.printExamDuration = function () {
-                    return DateTime.printExamDuration(vm.exam);
-                };
-
-            }
-        ]
-    });
+    ],
+});

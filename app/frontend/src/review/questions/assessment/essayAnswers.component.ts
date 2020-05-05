@@ -18,8 +18,7 @@ import { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 export const EssayAnswerListComponent: angular.IComponentOptions = {
-    template:
-        `<div class="top-row">
+    template: `<div class="top-row">
             <div class="col-md-12" ng-repeat="answer in $ctrl.answers">
                 <essay-answer answer="answer" editable="$ctrl.editable" action="{{$ctrl.actionText}}"
                     on-selection="$ctrl.assessEssay(answer)"></essay-answer>
@@ -37,10 +36,9 @@ export const EssayAnswerListComponent: angular.IComponentOptions = {
         answers: '<',
         isPremature: '<',
         actionText: '@',
-        onAssessed: '&'
+        onAssessed: '&',
     },
     controller: class EssayAnswerListComponentController implements angular.IComponentController {
-
         answers: ReviewQuestion[];
         editable: boolean;
         isPremature: boolean;
@@ -56,7 +54,7 @@ export const EssayAnswerListComponent: angular.IComponentOptions = {
                 return 0;
             }
             return this.answers.filter(this.QuestionReview.isAssessed).length;
-        }
+        };
 
         assessSelected = () => this.onAssessed({ answers: this.answers.filter(this.QuestionReview.isAssessed) });
 
@@ -64,9 +62,8 @@ export const EssayAnswerListComponent: angular.IComponentOptions = {
             if (this.QuestionReview.isAssessed(answer)) {
                 this.onAssessed({ answers: [answer] });
             }
-        }
-
-    }
+        };
+    },
 };
 
 angular.module('app.review').component('essayAnswers', EssayAnswerListComponent);

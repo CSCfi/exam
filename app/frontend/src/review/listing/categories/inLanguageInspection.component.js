@@ -15,47 +15,47 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rlInLanguageInspection', {
-        template: require('./inLanguageInspection.template.html'),
-        bindings: {
-            reviews: '<'
-        },
-        controller: ['ReviewList', 'Exam', 'Session', function (ReviewList, Exam, Session) {
-
+angular.module('app.review').component('rlInLanguageInspection', {
+    template: require('./inLanguageInspection.template.html'),
+    bindings: {
+        reviews: '<',
+    },
+    controller: [
+        'ReviewList',
+        'Exam',
+        'Session',
+        function(ReviewList, Exam, Session) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
                 vm.data.predicate = 'deadline';
 
-                vm.isOwner = (user) =>
+                vm.isOwner = user =>
                     vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
-
             };
 
             vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
-            vm.applyFreeSearchFilter = () =>
-                vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
+            vm.applyFreeSearchFilter = () => (vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items));
 
-            vm.pageSelected = function (page) {
+            vm.pageSelected = function(page) {
                 vm.data.page = page;
-            }
+            };
 
-            const translateGrade = (exam) => {
+            const translateGrade = exam => {
                 const grade = exam.grade ? exam.grade.name : 'NONE';
                 return Exam.getExamGradeDisplayName(grade);
             };
 
             const handleGradedReviews = r => {
                 r.displayName = ReviewList.getDisplayName(r);
-                r.displayedGradingTime = r.exam.languageInspection ?
-                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
+                r.displayedGradingTime = r.exam.languageInspection
+                    ? r.exam.languageInspection.finishedAt
+                    : r.exam.gradedTime;
                 r.displayedGrade = translateGrade(r.exam);
                 r.displayedCredit = Exam.getExamDisplayCredit(r.exam);
             };
-
-
-        }]
-    });
+        },
+    ],
+});

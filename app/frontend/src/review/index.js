@@ -16,7 +16,7 @@
 require('./review.module');
 
 require('./assessment/assessment.service');
-require('./assessment/collaborativeAssessment.service.ts')
+require('./assessment/collaborativeAssessment.service.ts');
 require('./assessment/assessment.component');
 
 require('./assessment/feedback/feedback.component');
@@ -46,19 +46,20 @@ require('./assessment/questions/essayQuestion.component');
 require('./assessment/questions/multiChoiceQuestion.component');
 require('./assessment/questions/multiChoiceAnswer.component');
 require('./assessment/questions/weightedMultiChoiceAnswer.component');
+require('./assessment/questions/claimChoiceAnswer.component');
 
 require('./assessment/sections/examSection.component');
 
 require('./listing/reviewList.service');
-require('./listing/reviewList.component');
+require('./listing/reviewList.component.ts');
 require('./listing/speedReview.component');
-require('./listing/dialogs/abortedExams.component');
+require('./listing/dialogs/abortedExams.component.ts');
 require('./listing/dialogs/archiveDownload.component');
-require('./listing/dialogs/feedback.component');
-require('./listing/dialogs/noShows.component');
+require('./listing/dialogs/feedback.component.ts');
+require('./listing/dialogs/noShows.component.ts');
 
 require('./listing/categories/archived.component');
-require('./listing/categories/inProgress.component');
+require('./listing/categories/inProgress.component.ts');
 require('./listing/categories/inLanguageInspection.component');
 require('./listing/categories/graded.component');
 require('./listing/categories/gradedLogged.component');
@@ -75,3 +76,5 @@ require('./questions/flow/questionFlowCategory.component.ts');
 
 require('./questions/listing/questionReview.component.ts');
 require('./questions/listing/questionReviews.component.ts');
+
+require('./listing/summary/examSummary.component.ts');

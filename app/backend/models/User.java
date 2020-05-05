@@ -52,7 +52,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     private String firstName;
 
     @JsonIgnore
-    private String password;
+    private String password; // for dev-purposes only
 
     private String employeeNumber;
 

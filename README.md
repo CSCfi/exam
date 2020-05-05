@@ -3,19 +3,19 @@
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install sbt, node (^ 8) and postgresql (^ 9.4)
+1.  Prerequisites: install SBT, Java (11), Node (>= 10) and PostgreSQL (>= 9.4).
 
-2.  Create postgresql database
+2.  Create PostgreSQL database
 
         $ createuser -SPRD sitnet
         $ createdb sitnet --owner=sitnet
-        
+
     For tests
-    
+
         $ createdb sitnet_test --owner=sitnet
-        
+
     For protractor
-        
+
         $ createdb sitnet_protractor --owner=sitnet
 
     Requires that you have pg_hba.conf set up to accept local connections etc.  
@@ -27,17 +27,17 @@ EXAM Quickstart for developers
         $ npm install       
 
 4.  Start sbt console
-        
+
         $ cd ../..
-        $ sbt -Dconfig.resource=dev.conf -jvm-debug 9999
+        $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999
 
     This opens up a debug port at 9999 and starts up webpack dev server at 8080. You can run webpack server independent of
     sbt by passing the following build parameter
-    
-        $ sbt -Dconfig.resource=dev.conf -DwithoutWebpackServer=true
-        
-    In which case you can manage the server yourself in a separate terminal like this
-    
+
+        $ sbt -Dconfig.file=conf/dev.conf -DwithoutWebpackServer=true
+
+    in which case you can manage the server yourself in a separate terminal like this
+
         $ cd app/frontend
         $ npm start    
 
@@ -52,8 +52,8 @@ EXAM Quickstart for developers
 
 You can skip running UI tests by passing the following build parameter
 
-    $ sbt -Dconfig.resource=dev.conf -DskipUiTests=true
-    
+    $ sbt -Dconfig.file=conf/dev.conf -DskipUiTests=true
+
 in which case the tests will not be executed after starting the app.     
 
 ## Running Protractor tests with SBT

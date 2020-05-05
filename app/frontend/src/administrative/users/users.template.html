@@ -11,10 +11,18 @@
         <div id="userSearch">
             <div class="col-md-4">
                 <div class="form-group input-group">
-                    <input ng-change="$ctrl.search()" ng-model="$ctrl.filter.text" type="text" class="form-control"
+                    <input
+                        ng-change="$ctrl.search()"
+                        ng-model="$ctrl.filter.text"
+                        type="text"
+                        class="form-control"
                         ng-model-options="{updateOn: 'default blur', debounce: {'default': 1000, 'blur': 0} }"
-                        placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-                        popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_user_search_description' | translate }}">
+                        placeholder="{{'sitnet_search' | translate }}"
+                        popover-placement="top"
+                        popover-popup-delay="500"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{ 'sitnet_user_search_description' | translate }}"
+                    />
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>
@@ -22,13 +30,23 @@
             </div>
             <span class="col-md-8">
                 <span class="dropdown" uib-dropdown>
-                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                        data-toggle="dropdown" aria-expanded="true">
+                    <button
+                        uib-dropdown-toggle
+                        class="btn btn-default dropdown-toggle"
+                        type="button"
+                        id="dropDownMenu1"
+                        data-toggle="dropdown"
+                        aria-expanded="true"
+                    >
                         {{'sitnet_filter_by_role' | translate}}&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
-                        <li ng-repeat="role in $ctrl.roles" role="presentation" ng-class="role.filtered ? 'active': ''"
-                            ng-click="$ctrl.applyRoleFilter(role)">
+                        <li
+                            ng-repeat="role in $ctrl.roles"
+                            role="presentation"
+                            ng-class="role.filtered ? 'active': ''"
+                            ng-click="$ctrl.applyRoleFilter(role)"
+                        >
                             <a role="menuitem" title="{{role.name}}">
                                 <i class="fa pull-right" ng-class="role.icon"></i>
                                 {{role.name | translate}}
@@ -38,14 +56,23 @@
                 </span>
                 <!-- ng-show="permissions.length > 0" -->
                 <span class="dropdown" uib-dropdown>
-                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
-                        data-toggle="dropdown" aria-expanded="true">
+                    <button
+                        uib-dropdown-toggle
+                        class="btn btn-default dropdown-toggle"
+                        type="button"
+                        id="dropDownMenu2"
+                        data-toggle="dropdown"
+                        aria-expanded="true"
+                    >
                         {{'sitnet_filter_by_permission' | translate}}&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu2">
-                        <li ng-repeat="permission in $ctrl.permissions" role="presentation"
+                        <li
+                            ng-repeat="permission in $ctrl.permissions"
+                            role="presentation"
                             ng-class="permission.filtered ? 'active': ''"
-                            ng-click="$ctrl.applyPermissionFilter(permission)">
+                            ng-click="$ctrl.applyPermissionFilter(permission)"
+                        >
                             <a role="menuitem" title="{{permission.name}}">
                                 <i class="fa pull-right" ng-class="permission.icon"></i>
                                 {{permission.name | translate}}&nbsp;
@@ -58,7 +85,8 @@
     </div>
     <div class="main-row">
         <div class="col-md-12">
-            <button ng-show="$ctrl.loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}&hellip;
+            <button ng-show="$ctrl.loader.loading" class="btn btn-success">
+                {{'sitnet_searching' | translate }}&hellip;
                 <i class="fa fa-spinner fa-spin"></i>
             </button>
         </div>
@@ -80,7 +108,8 @@
                 </thead>
                 <tbody>
                     <tr
-                        ng-repeat="user in $ctrl.filteredUsers | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
+                        ng-repeat="user in $ctrl.filteredUsers | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize"
+                    >
                         <td>{{user.lastName}}</td>
                         <td>{{user.firstName}}</td>
                         <td>
@@ -100,8 +129,11 @@
                                         <i ng-if="user.availableRoles.length > 0" class="text-success fa fa-plus"></i>
                                         <i ng-if="user.availableRoles.length === 0" class="text-muted fa fa-plus"></i>
                                     </a>
-                                    <ul class="dropdown-menu pull-right" style="min-width: 17em"
-                                        ng-if="user.availableRoles.length > 0">
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        ng-if="user.availableRoles.length > 0"
+                                    >
                                         <li class="dropdown-header">{{'sitnet_add' | translate}}</li>
                                         <li ng-repeat="role in user.availableRoles">
                                             <a role="menuitem" ng-click="$ctrl.addRole(user, role)">
@@ -114,18 +146,25 @@
                                 <span class="dropdown pointer" uib-dropdown>
                                     <a href class="dropdown-toggle" uib-dropdown-toggle>
                                         <i ng-if="user.removableRoles.length > 1" class="text-danger fa fa-minus"></i>
-                                        <i ng-if="user.removableRoles.length <= 1" class="text-muted fa fa-minus"
-                                            popover-placement="left" popover-popup-delay="500"
+                                        <i
+                                            ng-if="user.removableRoles.length <= 1"
+                                            class="text-muted fa fa-minus"
+                                            popover-placement="left"
+                                            popover-popup-delay="500"
                                             popover-trigger="'mouseenter'"
-                                            uib-popover="{{ 'sitnet_at_least_one_role_required' | translate }}"></i>
+                                            uib-popover="{{ 'sitnet_at_least_one_role_required' | translate }}"
+                                        ></i>
                                     </a>
-                                    <ul class="dropdown-menu pull-right" style="min-width: 17em"
-                                        ng-if="user.removableRoles.length > 1">
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        ng-if="user.removableRoles.length > 1"
+                                    >
                                         <li class="dropdown-header">{{'sitnet_remove' | translate}}</li>
                                         <li ng-repeat="role in user.removableRoles">
                                             <a role="menuitem" ng-click="$ctrl.removeRole(user, role)">
-                                                <i class="fa pull-right"
-                                                    ng-class="role.icon"></i>{{role.name | translate}}
+                                                <i class="fa pull-right" ng-class="role.icon"></i>{{role.name |
+                                                translate}}
                                             </a>
                                         </li>
                                     </ul>
@@ -138,13 +177,20 @@
                             <div class="pull-right">
                                 <span class="dropdown pointer" uib-dropdown>
                                     <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                        <i ng-if="user.availablePermissions.length > 0"
-                                            class="text-success fa fa-plus"></i>
-                                        <i ng-if="user.availablePermissions.length === 0"
-                                            class="text-muted fa fa-plus"></i>
+                                        <i
+                                            ng-if="user.availablePermissions.length > 0"
+                                            class="text-success fa fa-plus"
+                                        ></i>
+                                        <i
+                                            ng-if="user.availablePermissions.length === 0"
+                                            class="text-muted fa fa-plus"
+                                        ></i>
                                     </a>
-                                    <ul class="dropdown-menu pull-right" style="min-width: 17em"
-                                        ng-if="user.availablePermissions.length > 0">
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        ng-if="user.availablePermissions.length > 0"
+                                    >
                                         <li class="dropdown-header">{{'sitnet_add' | translate}}</li>
                                         <li ng-repeat="permission in user.availablePermissions">
                                             <a role="menuitem" ng-click="$ctrl.addPermission(user, permission)">
@@ -156,18 +202,25 @@
                                 </span>
                                 <span class="dropdown pointer" uib-dropdown>
                                     <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                        <i ng-if="user.removablePermissions.length > 0"
-                                            class="text-danger fa fa-minus"></i>
-                                        <i ng-if="user.removablePermissions.length == 0"
-                                            class="text-muted fa fa-minus"></i>
+                                        <i
+                                            ng-if="user.removablePermissions.length > 0"
+                                            class="text-danger fa fa-minus"
+                                        ></i>
+                                        <i
+                                            ng-if="user.removablePermissions.length == 0"
+                                            class="text-muted fa fa-minus"
+                                        ></i>
                                     </a>
-                                    <ul class="dropdown-menu pull-right" style="min-width: 17em"
-                                        ng-if="user.removablePermissions.length > 0">
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        ng-if="user.removablePermissions.length > 0"
+                                    >
                                         <li class="dropdown-header">{{'sitnet_remove' | translate}}</li>
                                         <li ng-repeat="permission in user.removablePermissions">
                                             <a role="menuitem" ng-click="$ctrl.removePermission(user, permission)">
-                                                <i class="fa pull-right" ng-class="permission.icon"></i>{{permission.name |
-                                            translate}}
+                                                <i class="fa pull-right" ng-class="permission.icon"></i
+                                                >{{permission.name | translate}}
                                             </a>
                                         </li>
                                     </ul>
@@ -178,10 +231,13 @@
                 </tbody>
             </table>
             <div ng-show="$ctrl.filteredUsers.length > $ctrl.pageSize">
-                <paginator items="$ctrl.filteredUsers" on-select-page="$ctrl.pageSelected(page)"
-                    page-size="$ctrl.pageSize" current-page="$ctrl.currentPage" />
+                <paginator
+                    items="$ctrl.filteredUsers"
+                    on-select-page="$ctrl.pageSelected(page)"
+                    page-size="$ctrl.pageSize"
+                    current-page="$ctrl.currentPage"
+                />
             </div>
         </div>
     </div>
-
 </div>

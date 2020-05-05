@@ -1,5 +1,4 @@
 <div class="col-md-12 exam-border">
-
     <div class="col-md-12">
         <div class="question-review-info mart40">
             <div class="row">
@@ -9,7 +8,6 @@
                     {{'sitnet_question_review_info_detailed' | translate}}
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -22,11 +20,16 @@
         <div class="col-md-12 mart20">
             <div class="row">
                 <div class="col-md-2 col-md-offset-8">
-                    <strong class="question-review-toolbar-text">{{$ctrl.selectedReviews.length}} {{'sitnet_questions_selected'
-                        | translate }}</strong>
+                    <strong class="question-review-toolbar-text"
+                        >{{$ctrl.selectedReviews.length}} {{'sitnet_questions_selected' | translate }}</strong
+                    >
                 </div>
                 <div class="col-md-2">
-                    <button ng-disabled="$ctrl.selectedReviews.length === 0" class="btn btn-success pull-right" ng-click="$ctrl.startReview()">
+                    <button
+                        ng-disabled="$ctrl.selectedReviews.length === 0"
+                        class="btn btn-success pull-right"
+                        ng-click="$ctrl.startReview()"
+                    >
                         {{'sitnet_review_selected' | translate}} ({{$ctrl.selectedReviews.length}})
                     </button>
                 </div>
@@ -41,7 +44,11 @@
             </span>
         </span>
         <div class="col-md-12">
-            <question-review ng-repeat="review in $ctrl.reviews" review="review" on-selection="$ctrl.onReviewSelection(id, selected)">
+            <question-review
+                ng-repeat="review in $ctrl.reviews"
+                review="review"
+                on-selection="$ctrl.onReviewSelection(id, selected)"
+            >
             </question-review>
         </div>
 
@@ -49,18 +56,20 @@
             <!-- Might make sense to make this a separate component as it is used twice here-->
             <div class="row">
                 <div class="col-md-2 col-md-offset-8">
-                    <strong class="question-review-toolbar-text">{{$ctrl.selectedReviews.length}} {{'sitnet_questions_selected'
-                        | translate }}</strong>
+                    <strong class="question-review-toolbar-text"
+                        >{{$ctrl.selectedReviews.length}} {{'sitnet_questions_selected' | translate }}</strong
+                    >
                 </div>
                 <div class="col-md-2">
-                    <button ng-disabled="$ctrl.selectedReviews.length === 0" class="btn btn-success pull-right" ng-click="$ctrl.startReview()">
+                    <button
+                        ng-disabled="$ctrl.selectedReviews.length === 0"
+                        class="btn btn-success pull-right"
+                        ng-click="$ctrl.startReview()"
+                    >
                         {{'sitnet_review_selected' | translate}} ({{$ctrl.selectedReviews.length}})
                     </button>
                 </div>
             </div>
         </div>
-
     </div>
-
-
 </div>

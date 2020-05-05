@@ -26,46 +26,43 @@ interface Filter {
 export const CollaborativeExamParticipationsComponent: angular.IComponentOptions = {
     template: require('./examParticipations.template.html'),
     controller: class CollaborativeExamParticipationsController implements angular.IComponentController {
-
         collaborative = true;
         originals: Participation[];
         participations: Participation[];
-        pageSize: Number = 10;
-        currentPage: Number = 1;
+        pageSize = 10;
+        currentPage = 1;
         filter: Filter;
 
-        constructor(
-            private CollaborativeExam: CollaborativeExamService
-        ) {
+        constructor(private CollaborativeExam: CollaborativeExamService) {
             'ngInject';
         }
 
         $onInit() {
             this.filter = { ordering: '-ended', text: '' };
-            this.CollaborativeExam.listStudentParticipations().then((participations: Participation[]) => {
-                this.originals = Array.from(participations);
-                this.participations = Array.from(participations);
-            }).catch(angular.noop);
+            this.CollaborativeExam.listStudentParticipations()
+                .then((participations: Participation[]) => {
+                    this.originals = Array.from(participations);
+                    this.participations = Array.from(participations);
+                })
+                .catch(angular.noop);
         }
 
-        pageSelected(page: Number) {
+        pageSelected(page: number) {
             this.currentPage = page;
         }
 
         search() {
-            let text = this.filter.text;
+            const text = this.filter.text;
             if (!text || text.length < 1) {
                 this.participations = this.originals;
                 return;
             }
             this.participations = this.originals.filter((participation: Participation) => {
-                let exam = participation.exam;
+                const exam = participation.exam;
                 return exam && exam.name && exam.name.indexOf(text) > -1;
             });
         }
-
-    }
+    },
 };
 
-angular.module('app.enrolment')
-    .component('collaborativeExamParticipations', CollaborativeExamParticipationsComponent);
+angular.module('app.enrolment').component('collaborativeExamParticipations', CollaborativeExamParticipationsComponent);

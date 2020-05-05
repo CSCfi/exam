@@ -20,9 +20,9 @@ require('./examination.component');
 require('./clock/examinationClock.component');
 require('./header/examinationHeader.component');
 require('./instructions/answerInstructions.component');
-require('./logout/examinationLogout.component');
+require('./logout/examinationLogout.component.ts');
 require('./navigation/examinationNavigation.component');
-require('./navigation/examinationToolbar.component');
+require('./navigation/examinationToolbar.component.ts');
 
 require('./question/examinationQuestion.component');
 require('./question/examinationClozeTest.component');

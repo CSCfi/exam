@@ -13,39 +13,36 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 
-angular.module('app.maturity')
-    .component('unfinishedInspections', {
-        template: require('./unfinishedInspections.template.html'),
-        bindings: {
-            inspections: '<',
+angular.module('app.maturity').component('unfinishedInspections', {
+    template: require('./unfinishedInspections.template.html'),
+    bindings: {
+        inspections: '<',
+    },
+    controller: [
+        '$translate',
+        'LanguageInspections',
+        'Session',
+        function($translate, LanguageInspections, Session) {
+            const vm = this;
+
+            vm.$onInit = () => {
+                vm.user = Session.getUser();
+                vm.sorting = {
+                    predicate: 'created',
+                    reverse: false,
+                };
+
+                vm.getInspectionAmounts = () => {
+                    const amount = vm.inspections.length.toString();
+                    return $translate.instant('sitnet_ongoing_language_inspections_detail').replace('{0}', amount);
+                };
+            };
+
+            vm.assignInspection = inspection => {
+                LanguageInspections.assignInspection(inspection);
+            };
         },
-        controller: ['$translate', 'LanguageInspections', 'Session',
-            function ($translate, LanguageInspections, Session) {
-
-                const vm = this;
-
-                vm.$onInit = () => {
-                    vm.user = Session.getUser();
-                    vm.sorting = {
-                        predicate: 'created',
-                        reverse: false
-                    };
-
-                    vm.getInspectionAmounts = () => {
-                        const amount = vm.inspections.length.toString();
-                        return $translate.instant('sitnet_ongoing_language_inspections_detail').replace('{0}', amount);
-                    };
-                };
-
-                vm.assignInspection = (inspection) => {
-                    LanguageInspections.assignInspection(inspection);
-                };
-
-
-
-            }
-        ]
-    });
-
+    ],
+});

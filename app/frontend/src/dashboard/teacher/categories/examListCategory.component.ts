@@ -19,6 +19,7 @@ import * as toast from 'toastr';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { SessionService } from '../../../session/session.service';
 import { IHttpResponse } from 'angular';
+import { StateService } from '@uirouter/core';
 
 export const ExamListCategoryComponent: ng.IComponentOptions = {
     template: require('./examListCategory.template.html'),
@@ -28,10 +29,9 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
         extraColumns: '<?',
         defaultPredicate: '@',
         defaultReverse: '<?',
-        onFilterChange: '&'
+        onFilterChange: '&',
     },
     controller: class ExamListCategoryController implements ng.IComponentController {
-
         items: any[];
         examTypes: any[];
         extraColumns: any[] = [];
@@ -50,11 +50,12 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
         constructor(
             private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
-            private $location: ng.ILocationService,
+            private $location: ng.ILocationService, // TODO: maybe use states?
+            private $state: StateService,
             private dialogs: angular.dialogservice.IDialogService,
             private Exam: any, // TBD
             private DateTime: DateTimeService,
-            private Session: SessionService
+            private Session: SessionService,
         ) {
             'ngInject';
         }
@@ -63,7 +64,7 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
             this.userId = this.Session.getUser().id;
             this.sorting = {
                 predicate: this.defaultPredicate,
-                reverse: this.defaultReverse
+                reverse: this.defaultReverse,
             };
             this.filterText = this.$location.search().filter;
             if (this.filterText) {
@@ -82,28 +83,34 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
 
         getUsername = () => this.Session.getUserName();
 
-        getExecutionTypeTranslation = (exam) => this.Exam.getExecutionTypeTranslation(exam.executionType.type);
+        getExecutionTypeTranslation = exam => this.Exam.getExecutionTypeTranslation(exam.executionType.type);
 
         copyExam(exam, type) {
-            this.$http.post(`/app/exams/${exam.id}`, { type: type }).then((resp: IHttpResponse<{ id: number }>) => {
-                toast.success(this.$translate.instant('sitnet_exam_copied'));
-                this.$location.path(`/exams/${resp.data.id}/1`);
-            }).catch(resp => toast.error(resp.data));
+            this.$http
+                .post(`/app/exams/${exam.id}`, { type: type })
+                .then((resp: IHttpResponse<{ id: number }>) => {
+                    toast.success(this.$translate.instant('sitnet_exam_copied'));
+                    this.$state.go('examEditor', { id: resp.data.id, tab: 1 });
+                })
+                .catch(resp => toast.error(resp.data));
         }
 
         deleteExam(exam) {
-            const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_remove_exam'));
+            const dialog = this.dialogs.confirm(
+                this.$translate.instant('sitnet_confirm'),
+                this.$translate.instant('sitnet_remove_exam'),
+            );
             dialog.result.then(() => {
-                this.$http.delete(`/app/exams/${exam.id}`).then(() => {
-                    toast.success(this.$translate.instant('sitnet_exam_removed'));
-                    this.items.splice(this.items.indexOf(exam), 1);
-                }).catch(resp => toast.error(resp.data));
+                this.$http
+                    .delete(`/app/exams/${exam.id}`)
+                    .then(() => {
+                        toast.success(this.$translate.instant('sitnet_exam_removed'));
+                        this.items.splice(this.items.indexOf(exam), 1);
+                    })
+                    .catch(resp => toast.error(resp.data));
             });
         }
 
-        isOwner = (exam) => exam.examOwners.some(eo => eo.id === this.userId);
-
-    }
-
+        isOwner = exam => exam.examOwners.some(eo => eo.id === this.userId);
+    },
 };

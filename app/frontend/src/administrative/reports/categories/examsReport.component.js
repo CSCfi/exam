@@ -12,13 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.administrative.reports')
-    .component('examsReport', {
-        template: `
+angular.module('app.administrative.reports').component('examsReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_all_info_from_exam' | translate }} 
@@ -50,23 +48,21 @@ angular.module('app.administrative.reports')
         
         </div>
         `,
-        bindings: {
-            examNames: '<',
-            fileType: '@' // json|xlsx
-        },
-        controller: ['$translate', 'Files', function ($translate, Files) {
-
+    bindings: {
+        examNames: '<',
+        fileType: '@', // json|xlsx
+    },
+    controller: [
+        '$translate',
+        'Files',
+        function($translate, Files) {
             const vm = this;
 
-            vm.$onInit = function () {
-
-            };
-
-            vm.examSelected = function (value) {
+            vm.examSelected = function(value) {
                 vm.exam = value;
             };
 
-            vm.getExams = function () {
+            vm.getExams = function() {
                 if (vm.exam) {
                     const url = `/app/statistics/examnames/${vm.exam.id}/${vm.fileType}`;
                     const fileName = `exams.${vm.fileType}`;
@@ -75,6 +71,6 @@ angular.module('app.administrative.reports')
                     toast.error($translate.instant('sitnet_choose_exam'));
                 }
             };
-        }]
-    });
-
+        },
+    ],
+});

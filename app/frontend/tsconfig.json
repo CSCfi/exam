@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES5",
     "lib": [
       "es6",
       "dom",
       "dom.iterable",
       "scripthost"
     ],
-    "module": "commonjs",
+    "module": "CommonJS",
     "noImplicitAny": false,
     "removeComments": true,
     "noLib": false,
@@ -18,13 +18,8 @@
     "noEmitHelpers": true,
     "importHelpers": true,
     "strictNullChecks": true,
-    "skipLibCheck": true
   },
-  "compileOnSave": false,
   "include": [
     "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
   ]
 }

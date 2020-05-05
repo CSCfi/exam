@@ -1,0 +1,53 @@
+<div id="dashboard">
+    <div>
+        <div class="student-details-title-wrap padtop padleft">
+            <div class="student-exam-search-title">{{'sitnet_collaborative_exams' | translate}}</div>
+        </div>
+    </div>
+
+    <div>
+        <div class="student-details-title-wrap padleft">
+            <span class="form-group">
+                <img class="nopad" src="Images/icon_info.png" alt="info-icon" /> &nbsp;
+                <span>{{ 'sitnet_collaborative_exam_search_description' | translate }}</span>
+            </span>
+        </div>
+    </div>
+
+    <div>
+        <div class="student-details-title-wrap padleft" style="width: 80%;">
+            <div class="form-group input-group search">
+                <input
+                    aria-label="exam-search"
+                    ng-model="$ctrl.filter.text"
+                    ng-change="$ctrl.search()"
+                    ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                    type="text"
+                    class="form-control search"
+                    placeholder="{{'sitnet_search' | translate }}"
+                />
+                <div class="input-group-addon search">
+                    <img class="nopad" src="Images/icon_search.png" alt="search-icon" width="49" height="40" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
+        ng-if="$ctrl.exams.length > 0 && $ctrl.filter.text && $ctrl.filter.text.length > 2"
+        class="student-details-title-wrap padleft"
+    >
+        {{'sitnet_student_exam_search_result' | translate}} {{$ctrl.exams.length}}
+        {{'sitnet_student_exam_search_result_continues' | translate}}
+        <b>"{{$ctrl.filter.text}}"</b>
+    </div>
+    <div class="student-details-title-wrap padleft">
+        <button ng-show="$ctrl.loader.loading" class="btn btn-success">
+            {{'sitnet_searching' | translate }}...
+            <i class="fa fa-spinner fa-spin"></i>
+        </button>
+    </div>
+
+    <div class="exams-list marr30 list-item" ng-hide="$ctrl.loader.loading" ng-repeat="exam in $ctrl.exams">
+        <exam-search-result exam="exam" collaborative="true"></exam-search-result>
+    </div>
+</div>

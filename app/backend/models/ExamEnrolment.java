@@ -30,15 +30,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
-import backend.models.api.CountsAsTrial;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
 import backend.models.json.ExternalExam;
 import backend.util.datetime.DateTimeAdapter;
+import backend.util.datetime.DateTimeUtils;
 
 
 @Entity
-public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment>, CountsAsTrial {
+public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
 
     @ManyToOne
     @JsonBackReference
@@ -58,6 +58,9 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
+
+    @ManyToOne
+    private ExaminationEventConfiguration examinationEventConfiguration;
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
@@ -117,6 +120,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.reservation = reservation;
     }
 
+    public ExaminationEventConfiguration getExaminationEventConfiguration() {
+        return examinationEventConfiguration;
+    }
+
+    public void setExaminationEventConfiguration(ExaminationEventConfiguration examinationEventConfiguration) {
+        this.examinationEventConfiguration = examinationEventConfiguration;
+    }
+
     public String getInformation() {
         return information;
     }
@@ -141,6 +152,18 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.preEnrolledUserEmail = preEnrolledUserEmail;
     }
 
+    @Transient
+    public boolean isActive() {
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        if (exam == null || !exam.getRequiresUserAgentAuth()) {
+            return reservation == null || reservation.getEndAt().isAfter(now);
+        }
+        return examinationEventConfiguration == null ||
+                examinationEventConfiguration.getExaminationEvent()
+                        .getStart().plusMinutes(exam.getDuration()).isAfter(now);
+    }
+
+
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {
         if (reservation == null && other.reservation == null) {
@@ -153,18 +176,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
             return 1;
         }
         return reservation.compareTo(other.reservation);
-    }
-
-    @Override
-    @Transient
-    public DateTime getTrialTime() {
-        return reservation == null ? null : reservation.getStartAt();
-    }
-
-    @Override
-    @Transient
-    public boolean isProcessed() {
-        return reservation == null || !reservation.isNoShow();
     }
 
     @Override

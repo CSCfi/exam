@@ -15,23 +15,21 @@ package backend.controllers.base
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
 import javax.inject.Inject
 import play.Environment
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, InjectedController}
 import play.twirl.api.Html
 
-class Index @Inject()(environment: Environment)
-  extends InjectedController with Logging {
+class Index @Inject()(environment: Environment) extends InjectedController with Logging {
 
   import scala.language.reflectiveCalls
   import scala.reflect.runtime.universe._
 
-  private def getTemplateInstance(clsName: String) = {
+  private def getTemplateInstance(name: String) = {
     val mirror = runtimeMirror(getClass.getClassLoader)
-    val module = mirror.staticModule(clsName)
-    mirror.reflectModule(module).instance.asInstanceOf[ {def render(): Html}]
+    val module = mirror.staticModule(name)
+    mirror.reflectModule(module).instance.asInstanceOf[{ def render(): Html }]
   }
 
   def index(): Action[AnyContent] = Action {
@@ -40,7 +38,8 @@ class Index @Inject()(environment: Environment)
         Ok(getTemplateInstance("backend.views.html.index").render())
       } catch {
         case e: Exception =>
-          logger.error("Production index page template not found. Have you built it with webpack?", e)
+          logger.error("Production index page template not found. Have you built it with webpack?",
+                       e)
           InternalServerError
       }
     } else {
@@ -49,4 +48,3 @@ class Index @Inject()(environment: Environment)
   }
 
 }
-

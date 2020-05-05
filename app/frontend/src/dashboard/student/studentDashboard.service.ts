@@ -12,15 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import 'moment-timezone';
 
 import * as angular from 'angular';
 import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
 import { IQService, IHttpService, IHttpResponse } from 'angular';
 
 interface Reservation {
     machine?: {
-        room: { localTimezone: string },
+        room: { localTimezone: string };
     };
     externalReservation?: {
         roomTz: string;
@@ -34,7 +34,6 @@ interface Reservation {
 }
 
 export class StudentDashboardService {
-
     constructor(private $q: IQService, private $http: IHttpService) {
         'ngInject';
     }
@@ -42,17 +41,20 @@ export class StudentDashboardService {
     listEnrolments(): angular.IPromise<{ result: any[] }> {
         const deferred: angular.IDeferred<{ result: any[] }> = this.$q.defer();
 
-        this.$http.get('/app/student/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
-            const enrolments = resp.data;
-            enrolments.forEach((e) => {
-                if (e.reservation) {
-                    this.setOccasion(e.reservation);
-                }
+        this.$http
+            .get('/app/student/enrolments')
+            .then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
+                const enrolments = resp.data;
+                enrolments.forEach(e => {
+                    if (e.reservation) {
+                        this.setOccasion(e.reservation);
+                    }
+                });
+                deferred.resolve({ result: enrolments });
+            })
+            .catch(resp => {
+                deferred.reject(resp);
             });
-            deferred.resolve({ result: enrolments });
-        }).catch((resp) => {
-            deferred.reject(resp);
-        });
         return deferred.promise;
     }
 
@@ -76,8 +78,7 @@ export class StudentDashboardService {
         }
         reservation.occasion = {
             startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm')
+            endAt: end.format('HH:mm'),
         };
     }
-
 }

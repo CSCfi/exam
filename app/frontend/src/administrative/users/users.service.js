@@ -12,26 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.users')
-    .factory('UserManagement', ['$resource',
-        function ($resource) {
-            return {
-                users: $resource("/app/users"),
-                permissions: $resource("/app/permissions", {}, {
-                    "add": {method: "POST"},
-                    "remove": {method: "DELETE"}
-                }),
-                roles: $resource("/app/users/:id/roles/:role", {
-                        id: "@id", role: "@role"
-                    },
-                    {
-                        "add": {method: "POST", params: {id: "@id", role: "@role"}},
-                        "update": {method: "PUT", params: {id: "@id", role: "@role"}},
-                        "remove": {method: "DELETE", params: {id: "@id", role: "@role"}}
-                    })
-            };
-        }
-    ]);
+angular.module('app.administrative.users').factory('UserManagement', [
+    '$resource',
+    function($resource) {
+        return {
+            users: $resource('/app/users'),
+            permissions: $resource(
+                '/app/permissions',
+                {},
+                {
+                    add: { method: 'POST' },
+                    remove: { method: 'DELETE' },
+                },
+            ),
+            roles: $resource(
+                '/app/users/:id/roles/:role',
+                {
+                    id: '@id',
+                    role: '@role',
+                },
+                {
+                    add: { method: 'POST', params: { id: '@id', role: '@role' } },
+                    update: { method: 'PUT', params: { id: '@id', role: '@role' } },
+                    remove: { method: 'DELETE', params: { id: '@id', role: '@role' } },
+                },
+            ),
+        };
+    },
+]);

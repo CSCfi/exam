@@ -15,33 +15,33 @@
  */
 import angular from 'angular';
 
-describe('RoomStatisticsComponent', function () {
-
+describe('RoomStatisticsComponent', function() {
     let ctrl, $httpBackend, componentController;
 
-    beforeEach(function () {
+    beforeEach(function() {
         angular.mock.module('app.administrative.statistics', 'ngResource');
     });
 
-    beforeEach(angular.mock.module('pascalprecht.translate', function ($translateProvider) {
-        $translateProvider
-            .translations('en', {})
-            .preferredLanguage('en');
-    }));
+    beforeEach(
+        angular.mock.module('pascalprecht.translate', function($translateProvider) {
+            $translateProvider.translations('en', {}).preferredLanguage('en');
+        }),
+    );
 
-    beforeEach(inject(function ($rootScope, $componentController, $injector) {
+    beforeEach(inject(function($rootScope, $componentController, $injector) {
         jasmine.getFixtures().fixturesPath = 'base/unit/fixtures';
         $httpBackend = $injector.get('$httpBackend');
         componentController = $componentController;
     }));
 
-    it('should have load participation statistics', function () {
+    it('should have load participation statistics', function() {
         ctrl = componentController('roomStatistics', null, {
             queryParams: {
-                endDate:'Tue Mar 01 2016 12:00:00 GMT'
-            }
+                endDate: 'Tue Mar 01 2016 12:00:00 GMT',
+            },
         });
-        $httpBackend.expectGET(/\/app\/reports\/participations\?endDate=[\w:+^&]/)
+        $httpBackend
+            .expectGET(/\/app\/reports\/participations\?endDate=[\w:+^&]/)
             .respond(readFixtures('participations.json'));
         ctrl.listParticipations();
         $httpBackend.flush();
@@ -53,14 +53,12 @@ describe('RoomStatisticsComponent', function () {
 
         // Check months
         expect(ctrl.months.length).toEqual(4);
-        let months = ctrl.months.map(function (month) {
-            let date = new Date(month);
-            console.info(date + ", " + date.getTime());
-            return {year: date.getYear(), month: date.getMonth()};
+        const months = ctrl.months.map(function(month) {
+            const date = new Date(month);
+            console.info(date + ', ' + date.getTime());
+            return { year: date.getYear(), month: date.getMonth() };
         });
-        expect(months[0]).toEqual({year: 115, month: 11});
-        expect(months.pop()).toEqual({year: 116, month: 2});
+        expect(months[0]).toEqual({ year: 115, month: 11 });
+        expect(months.pop()).toEqual({ year: 116, month: 2 });
     });
-
 });
-

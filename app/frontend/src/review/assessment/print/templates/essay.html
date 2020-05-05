@@ -7,8 +7,7 @@
     </div>
     <!-- question attachment -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:
-        </div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span ng-hide="$ctrl.sectionQuestion.question.attachment">N/A</span>
             <span ng-show="$ctrl.sectionQuestion.question.attachment">
@@ -19,8 +18,7 @@
 
     <!-- question evaluation criteria -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow"
-             ng-show="$ctrl.sectionQuestion.evaluationCriteria">
+        <div class="sub-header-row col-md-3 newRow" ng-show="$ctrl.sectionQuestion.evaluationCriteria">
             {{ 'sitnet_exam_evaluation_criteria' | translate}}:
         </div>
         <div class="sub-content-row col-md-9" ng-show="$ctrl.sectionQuestion.evaluationCriteria">
@@ -59,27 +57,23 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_length' | translate}}:</div>
         <div class="sub-content-row col-md-9">
-            {{ $ctrl.getWordCount() }} {{'sitnet_words' |
-            translate }},
-            {{ 'sitnet_approximately' | translate }}
-            {{ $ctrl.getCharacterCount() }} {{'sitnet_characters' |
-            translate
-            }}
+            {{ $ctrl.getWordCount() }} {{'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }} {{
+            $ctrl.getCharacterCount() }} {{'sitnet_characters' | translate }}
         </div>
     </div>
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' |
-            translate}}:
-        </div>
-        <div class="sub-content-row col-md-9">{{ $ctrl.sectionQuestion.expectedWordCount }}&nbsp;
-            ({{ 'sitnet_approximately' | translate}} {{$ctrl.sectionQuestion.expectedWordCount * 8}}
-            {{'sitnet_characters' | translate}})
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' | translate}}:</div>
+        <div class="sub-content-row col-md-9">
+            {{ $ctrl.sectionQuestion.expectedWordCount }}&nbsp; ({{ 'sitnet_approximately' | translate}}
+            {{$ctrl.sectionQuestion.expectedWordCount * 8}} {{'sitnet_characters' | translate}})
         </div>
     </div>
     <!-- grade -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">
-            <span ng-show="$ctrl.sectionQuestion.evaluationType === 'Points'">{{'sitnet_word_points' | translate}}:</span>
+            <span ng-show="$ctrl.sectionQuestion.evaluationType === 'Points'"
+                >{{'sitnet_word_points' | translate}}:</span
+            >
             <span ng-hide="$ctrl.sectionQuestion.evaluationType === 'Points'">{{'sitnet_comments' | translate}}:</span>
         </div>
         <div class="sub-content-row col-md-9">

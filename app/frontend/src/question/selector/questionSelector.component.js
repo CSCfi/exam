@@ -16,56 +16,58 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.question')
-    .component('questionSelector', {
-        template: require('./questionSelector.template.html'),
-        bindings: {
-            close: '&',
-            dismiss: '&',
-            resolve: '<'
-        },
-        controller: ['$translate', 'ExamRes', function ($translate, ExamRes) {
-
+angular.module('app.question').component('questionSelector', {
+    template: require('./questionSelector.template.html'),
+    bindings: {
+        close: '&',
+        dismiss: '&',
+        resolve: '<',
+    },
+    controller: [
+        '$translate',
+        'ExamRes',
+        function($translate, ExamRes) {
             const vm = this;
 
-            vm.$onInit = function () {
+            vm.$onInit = function() {
                 vm.questions = [];
             };
 
-            vm.resultsUpdated = function (results) {
+            vm.resultsUpdated = function(results) {
                 vm.questions = results;
             };
 
-            vm.questionSelected = function (selections) {
+            vm.questionSelected = function(selections) {
                 vm.selections = selections;
             };
 
-            vm.questionCopied = function (copy) {
+            vm.questionCopied = function(copy) {
                 toast.info($translate.instant('sitnet_question_copied'));
             };
 
-            vm.addQuestions = function () {
+            vm.addQuestions = function() {
                 // check that at least one has been selected
                 if (vm.selections.length === 0) {
                     toast.warning($translate.instant('sitnet_choose_atleast_one'));
                     return;
                 }
-                const insertQuestion = function (sectionId, to, examId) {
-
-                    ExamRes.sectionquestionsmultiple.insert({
+                const insertQuestion = function(sectionId, to, examId) {
+                    ExamRes.sectionquestionsmultiple.insert(
+                        {
                             eid: examId,
                             sid: sectionId,
                             sequenceNumber: to,
-                            questions: vm.selections.join()
-                        }, function () {
+                            questions: vm.selections.join(),
+                        },
+                        function() {
                             toast.info($translate.instant('sitnet_question_added'));
                             vm.close();
-                        }, function (error) {
+                        },
+                        function(error) {
                             toast.error(error.data);
-                            vm.close({error: error});
-                        }
+                            vm.close({ error: error });
+                        },
                     );
-
                 };
 
                 // calculate the new order number for question sequence
@@ -75,10 +77,9 @@ angular.module('app.question')
                 insertQuestion(vm.resolve.sectionId, to, vm.resolve.examId);
             };
 
-            vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+            vm.cancel = function() {
+                vm.dismiss({ $value: 'cancel' });
             };
-
-        }]
-    });
-
+        },
+    ],
+});

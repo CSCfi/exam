@@ -57,6 +57,7 @@ public class ReservationReminderActor extends AbstractActor {
                     .fetch("enrolment.exam.examSections")
                     .fetch("enrolment.exam.examSections.examMaterials")
                     .where()
+                    .isNotNull("enrolment.exam")
                     .between("startAt", now, tomorrow)
                     .ne("reminderSent", true)
                     .findList()

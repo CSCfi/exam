@@ -20,7 +20,7 @@ import { ExamMaterial } from '../../exam.model';
 export const ExamMaterialComponent: ng.IComponentOptions = {
     template: require('./examMaterial.template.html'),
     bindings: {
-        close: '&'
+        close: '&',
     },
     controller: class ExamMaterialController implements ng.IComponentController {
         close: () => any;
@@ -34,33 +34,35 @@ export const ExamMaterialComponent: ng.IComponentOptions = {
         }
 
         $onInit() {
-            this.$http.get('/app/materials').then((resp: ng.IHttpResponse<ExamMaterial[]>) =>
-                this.materials = resp.data
-            ).catch(angular.noop);
+            this.$http
+                .get('/app/materials')
+                .then((resp: ng.IHttpResponse<ExamMaterial[]>) => (this.materials = resp.data))
+                .catch(angular.noop);
         }
 
         createMaterial = () => {
-            this.$http.post('/app/materials', this.newMaterial).then(
-                (resp: ng.IHttpResponse<ExamMaterial>) => {
+            this.$http
+                .post('/app/materials', this.newMaterial)
+                .then((resp: ng.IHttpResponse<ExamMaterial>) => {
                     this.materials.push(resp.data);
                     delete this.newMaterial;
                     this.materialsChanged = true;
-                }
-            ).catch(err => toast.error(err));
-        }
+                })
+                .catch(err => toast.error(err));
+        };
 
         removeMaterial = (material: ExamMaterial) => {
-            this.$http.delete(`/app/materials/${material.id}`).then(
-                () => {
+            this.$http
+                .delete(`/app/materials/${material.id}`)
+                .then(() => {
                     this.materials.splice(this.materials.indexOf(material), 1);
                     this.materialsChanged = true;
-                }
-            ).catch(err => toast.error(err));
-        }
+                })
+                .catch(err => toast.error(err));
+        };
 
         ok = () => this.close();
-    }
+    },
 };
 
 ng.module('app.exam.editor').component('examMaterial', ExamMaterialComponent);
-

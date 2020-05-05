@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 
 angular.module('app.iop', []);
-

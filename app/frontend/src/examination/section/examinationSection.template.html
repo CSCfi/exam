@@ -13,8 +13,11 @@
                 <div class="row studentexam-header">
                     <!-- DESCRIPTION FOR SECTION -->
                     <div ng-if="$ctrl.section.description.length > 0" class="col-md-12 info-row mart30">
-
-                        <img src="Images/icon_info.svg" alt="info-icon" onerror="this.onerror=null;this.src='Images/icon_info.png';" />
+                        <img
+                            src="Images/icon_info.svg"
+                            alt="info-icon"
+                            onerror="this.onerror=null;this.src='Images/icon_info.png';"
+                        />
                         <span class="padl10">{{$ctrl.section.description}}</span>
                     </div>
                     <div ng-repeat="material in $ctrl.section.examMaterials" class="col-md-12 info-row mart10">
@@ -29,8 +32,13 @@
                     </div>
 
                     <div ng-repeat="sq in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
-                        <examination-question sq="sq" exam="$ctrl.exam" section="$ctrl.section" is-preview="$ctrl.isPreview"
-                            is-collaborative="$ctrl.isCollaborative"></examination-question>
+                        <examination-question
+                            sq="sq"
+                            exam="$ctrl.exam"
+                            section="$ctrl.section"
+                            is-preview="$ctrl.isPreview"
+                            is-collaborative="$ctrl.isCollaborative"
+                        ></examination-question>
                     </div>
                 </div>
             </form>

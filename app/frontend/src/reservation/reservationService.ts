@@ -19,26 +19,29 @@ import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
 
 export class ReservationService {
-
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
         private $translate: ng.translate.ITranslateService,
         private $uibModal: IModalService,
-        private dialogs: angular.dialogservice.IDialogService) {
-
+        private dialogs: angular.dialogservice.IDialogService,
+    ) {
         'ngInject';
     }
 
-
-    printExamState = (reservation) =>
-        reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state
+    printExamState = reservation =>
+        reservation.noShow
+            ? 'NO_SHOW'
+            : reservation.enrolment.exam
+            ? reservation.enrolment.exam.state
+            : reservation.enrolment.collaborativeExam.state;
 
     removeReservation(enrolment) {
         const externalRef = enrolment.reservation.externalRef;
-        const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-            this.$translate.instant('sitnet_are_you_sure'));
+        const dialog = this.dialogs.confirm(
+            this.$translate.instant('sitnet_confirm'),
+            this.$translate.instant('sitnet_are_you_sure'),
+        );
         const successFn = () => {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
@@ -47,53 +50,61 @@ export class ReservationService {
 
         dialog.result.then(() => {
             if (externalRef) {
-                this.$http.delete(`/integration/iop/reservations/external/${externalRef}`)
+                this.$http
+                    .delete(`/integration/iop/reservations/external/${externalRef}`)
                     .then(successFn)
                     .catch(errorFn);
             } else {
-                this.$http.delete(`/app/calendar/reservation/${enrolment.reservation.id}`)
+                this.$http
+                    .delete(`/app/calendar/reservation/${enrolment.reservation.id}`)
                     .then(successFn)
                     .catch(errorFn);
             }
         });
     }
 
-    getReservationCount = exam => exam.examEnrolments.filter(
-        enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime()
-    ).length
+    getReservationCount = exam =>
+        exam.examEnrolments.filter(
+            enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime(),
+        ).length;
 
     changeMachine(reservation) {
-        this.$uibModal.open({
-            component: 'changeMachineDialog',
-            resolve: {
-                reservation: reservation
-            },
-            backdrop: 'static',
-            keyboard: true
-        }).result.then(function (data) {
-            if (!data.machine) {
-                return;
-            }
-            reservation.machine = data.machine;
-        }).catch(angular.noop);
+        this.$uibModal
+            .open({
+                component: 'changeMachineDialog',
+                resolve: {
+                    reservation: reservation,
+                },
+                backdrop: 'static',
+                keyboard: true,
+            })
+            .result.then(function(data) {
+                if (!data.machine) {
+                    return;
+                }
+                reservation.machine = data.machine;
+            })
+            .catch(angular.noop);
     }
 
     cancelReservation(reservation) {
         const deferred = this.$q.defer();
 
-        this.$uibModal.open({
-            component: 'removeReservationDialog',
-            resolve: {
-                reservation: reservation
-            },
-            backdrop: 'static',
-            keyboard: true
-        }).result.then(function () {
-            deferred.resolve();
-        }).catch(function (e) {
-            deferred.reject(e);
-        });
+        this.$uibModal
+            .open({
+                component: 'removeReservationDialog',
+                resolve: {
+                    reservation: reservation,
+                },
+                backdrop: 'static',
+                keyboard: true,
+            })
+            .result.then(function() {
+                deferred.resolve();
+            })
+            .catch(function(e) {
+                deferred.reject(e);
+            });
         return deferred.promise;
     }
-
 }

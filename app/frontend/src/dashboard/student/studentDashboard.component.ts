@@ -12,19 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
-import { StudentDashboardService } from './studentDashboard.service';
-import { DateTimeService } from '../../utility/date/date.service';
-import { SessionService } from '../../session/session.service';
-import { ReservationService } from '../../reservation/reservationService';
-import { EnrolmentService } from '../../enrolment/enrolment.service';
 import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { EnrolmentService } from '../../enrolment/enrolment.service';
+import { ReservationService } from '../../reservation/reservationService';
+import { SessionService } from '../../session/session.service';
+import { DateTimeService } from '../../utility/date/date.service';
+import { StudentDashboardService } from './studentDashboard.service';
 
 export const StudentDashboardComponent: angular.IComponentOptions = {
     template: require('./studentDashboard.template.html'),
     controller: class StudentDashboardController implements angular.IComponentController {
-
         userEnrolments: any[];
 
         constructor(
@@ -32,16 +29,17 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
             private Reservation: ReservationService,
             private DateTime: DateTimeService,
             private Enrolment: EnrolmentService,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
         }
 
         $onInit() {
-            this.StudentDashboard.listEnrolments().then(data =>
-                this.userEnrolments = data.result
-            ).catch(function (e) {
-                console.error(e);
-            });
+            this.StudentDashboard.listEnrolments()
+                .then(data => (this.userEnrolments = data.result))
+                .catch(function(e) {
+                    console.error(e);
+                });
         }
 
         printExamDuration(exam) {
@@ -67,6 +65,5 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
         removeEnrolment(enrolment: ExamEnrolment) {
             this.Enrolment.removeEnrolment(enrolment);
         }
-    }
+    },
 };
-

@@ -12,69 +12,71 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import angular from'angular';
+import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.facility.rooms')
-    .component('roomList', {
-        template: require('./roomList.template.html'),
-        controller: ['$routeParams', 'Session', '$location', 'Room', '$translate',
-            function ($routeParams, Session, $location, Room,  $translate) {
+angular.module('app.facility.rooms').component('roomList', {
+    template: require('./roomList.template.html'),
+    controller: [
+        '$stateParams',
+        'Session',
+        '$state',
+        'Room',
+        '$translate',
+        function($stateParams, Session, $state, Room, $translate) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.user = Session.getUser();
 
-                vm.$onInit = function () {
-                    vm.user = Session.getUser();
-
-                    if (vm.user.isAdmin) {
-                        if (!$routeParams.id) {
-                            Room.rooms.query(function (rooms) {
-                                vm.times = Room.getTimes();
-                                vm.rooms = rooms;
-                                angular.forEach(vm.rooms, function (room) {
-                                    room.examMachines = room.examMachines.filter(function (machine) {
-                                        return !machine.archived;
-                                    });
+                if (vm.user.isAdmin) {
+                    if (!$stateParams.id) {
+                        Room.rooms.query(function(rooms) {
+                            vm.times = Room.getTimes();
+                            vm.rooms = rooms;
+                            angular.forEach(vm.rooms, function(room) {
+                                room.examMachines = room.examMachines.filter(function(machine) {
+                                    return !machine.archived;
                                 });
                             });
-                        }
+                        });
                     }
-                    else {
-                        $location.path("/");
-                    }
-                };
+                } else {
+                    $state.go('dashboard');
+                }
+            };
 
-                vm.disableRoom = function (room) {
-                    Room.disableRoom(room);
-                };
+            vm.disableRoom = function(room) {
+                Room.disableRoom(room);
+            };
 
-                vm.enableRoom = function (room) {
-                    Room.enableRoom(room);
-                };
+            vm.enableRoom = function(room) {
+                Room.enableRoom(room);
+            };
 
-                // Called when create exam button is clicked
-                vm.createExamRoom = function () {
-                    Room.draft.get(
-                        function (room) {
-                            toast.info($translate.instant("sitnet_room_draft_created"));
-                            $location.path("/rooms/" + room.id);
-                        }, function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                };
+            // Called when create exam button is clicked
+            vm.createExamRoom = function() {
+                Room.draft.get(
+                    function(room) {
+                        toast.info($translate.instant('sitnet_room_draft_created'));
+                        $state.go('room', { id: room.id });
+                    },
+                    function(error) {
+                        toast.error(error.data);
+                    },
+                );
+            };
 
-                vm.isArchived = function (machine) {
-                    return machine.isArchived() === false;
-                };
+            vm.isArchived = function(machine) {
+                return machine.isArchived() === false;
+            };
 
-                vm.displayAddress = function (address) {
-                    if (!address || (!address.street && !address.city && !address.zip)) return "N/A";
-                    const street = address.street ? address.street + ", " : "";
-                    const city = (address.city || "").toUpperCase();
-                    return street + address.zip + " " + city;
-                };
-
-            }]
-    });
+            vm.displayAddress = function(address) {
+                if (!address || (!address.street && !address.city && !address.zip)) return 'N/A';
+                const street = address.street ? address.street + ', ' : '';
+                const city = (address.city || '').toUpperCase();
+                return street + address.zip + ' ' + city;
+            };
+        },
+    ],
+});

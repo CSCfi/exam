@@ -18,5 +18,5 @@ import { ReservationController } from '../reservation.controller';
 
 export const AdminReservationComponent: angular.IComponentOptions = {
     template: require('./adminReservations.template.html'),
-    controller: ReservationController
+    controller: ReservationController,
 };

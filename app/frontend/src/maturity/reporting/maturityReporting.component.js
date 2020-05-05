@@ -15,49 +15,45 @@
 
 import angular from 'angular';
 
-angular.module('app.maturity')
-    .component('maturityReporting', {
-        template: require('./maturityReporting.template.html'),
-        controller: ['$translate', 'LanguageInspections',
-            function ($translate, LanguageInspections) {
+angular.module('app.maturity').component('maturityReporting', {
+    template: require('./maturityReporting.template.html'),
+    controller: [
+        'LanguageInspections',
+        function(LanguageInspections) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.selection = { opened: false, month: new Date() };
+                vm.query();
+            };
 
-                vm.$onInit = function () {
-                    vm.selection = { opened: false, month: new Date() };
-                    vm.query();
-                };
+            vm.printReport = function() {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            };
 
-                vm.printReport = function () {
-                    setTimeout(function () {
-                        window.print();
-                    }, 500);
-                };
+            vm.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                vm.selection.opened = true;
+            };
 
-                vm.open = function ($event) {
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    vm.selection.opened = true;
-                };
+            vm.query = function() {
+                const params = {};
+                if (vm.selection.month) {
+                    params.month = vm.selection.month;
+                }
+                LanguageInspections.query(params).then(function(inspections) {
+                    vm.processedInspections = inspections.data.filter(function(i) {
+                        return i.finishedAt;
+                    });
+                });
+            };
 
-                vm.query = function () {
-                    const params = {};
-                    if (vm.selection.month) {
-                        params.month = vm.selection.month;
-                    }
-                    LanguageInspections.query(params).then(
-                        function (inspections) {
-                            vm.processedInspections = inspections.data.filter(function (i) {
-                                return i.finishedAt;
-                            });
-                        });
-                };
-
-                vm.showStatement = function (statement) {
-                    LanguageInspections.showStatement(statement);
-                };
-
-            }
-        ]
-    });
-
+            vm.showStatement = function(statement) {
+                LanguageInspections.showStatement(statement);
+            };
+        },
+    ],
+});

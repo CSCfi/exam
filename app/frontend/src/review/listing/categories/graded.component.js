@@ -16,95 +16,99 @@
 import angular from 'angular';
 import toast from 'toastr';
 
+angular.module('app.review').component('rlGraded', {
+    template: require('./graded.template.html'),
+    bindings: {
+        exam: '<',
+        reviews: '<',
+        onRegistered: '&',
+    },
+    require: {
+        parentCtrl: '^^reviewList',
+    },
+    controller: [
+        '$q',
+        '$translate',
+        'dialogs',
+        'ReviewList',
+        'Exam',
+        'Session',
+        function($q, $translate, dialogs, ReviewList, Exam, Session) {
+            const vm = this;
 
-angular.module('app.review')
-    .component('rlGraded', {
-        template: require('./graded.template.html'),
-        bindings: {
-            exam: '<',
-            reviews: '<',
-            onRegistered: '&'
-        },
-        require: {
-            parentCtrl: '^^reviewList'
-        },
-        controller: ['$q', '$translate', 'dialogs', 'ReviewList', 'Exam', 'Session',
-            function ($q, $translate, dialogs, ReviewList, Exam, Session) {
+            const init = function() {
+                vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
+                vm.data.predicate = 'deadline';
 
-                const vm = this;
+                vm.selections = { all: false, page: false };
+            };
 
-                const init = function () {
-                    vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
-                    vm.data.predicate = 'deadline';
+            vm.$onInit = function() {
+                init();
+                vm.isOwner = user =>
+                    vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
+            };
 
-                    vm.selections = { all: false, page: false };
-                };
-
-                vm.$onInit = function () {
+            vm.$onChanges = function(props) {
+                if (props.reviews) {
                     init();
-                    vm.isOwner = (user) =>
-                        vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
-                };
-
-                vm.$onChanges = function (props) {
-                    if (props.reviews) {
-                        init();
-                        vm.applyFreeSearchFilter();
-                    }
-                };
-
-                vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
-
-                vm.applyFreeSearchFilter = () =>
-                    vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
-
-                vm.sendSelectedToRegistry = () => {
-                    const selection = ReviewList.getSelectedReviews(vm.data.filtered);
-                    if (!selection) {
-                        return;
-                    }
-                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                        $translate.instant('sitnet_confirm_record_review'));
-                    const examId = vm.parentCtrl.collaborative ? vm.exam.id : undefined;
-
-                    dialog.result.then(function (btn) {
-                        const promises = [];
-                        selection.forEach(function (r) {
-                            promises.push(ReviewList.sendToRegistry(r, examId));
-                        });
-                        $q.all(promises).then(function () {
-                            vm.onRegistered({ reviews: selection });
-                            toast.info($translate.instant('sitnet_results_send_ok'));
-                        });
-                    });
-                };
-
-                vm.getLinkToAssessment = (review) =>
-                    vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
-                        : `/assessments/${review.exam.id}`
-
-                vm.pageSelected = function (page) {
-                    vm.data.page = page;
+                    vm.applyFreeSearchFilter();
                 }
+            };
 
-                vm.selectAll = () =>
-                    ReviewList.selectAll(vm.selections, vm.data.filtered);
+            vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
-                vm.selectPage = (selector) =>
-                    ReviewList.selectPage(vm.selections, vm.data.filtered, selector);
+            vm.applyFreeSearchFilter = () => (vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items));
 
-                const translateGrade = (exam) => {
-                    const grade = exam.grade ? exam.grade.name : 'NONE';
-                    return Exam.getExamGradeDisplayName(grade);
-                };
+            vm.sendSelectedToRegistry = () => {
+                const selection = ReviewList.getSelectedReviews(vm.data.filtered);
+                if (!selection) {
+                    return;
+                }
+                const dialog = dialogs.confirm(
+                    $translate.instant('sitnet_confirm'),
+                    $translate.instant('sitnet_confirm_record_review'),
+                );
+                const examId = vm.parentCtrl.collaborative ? vm.exam.id : undefined;
 
-                const handleGradedReviews = r => {
-                    r.displayName = ReviewList.getDisplayName(r, vm.parentCtrl.collaborative);
-                    r.displayedGradingTime = r.exam.languageInspection ?
-                        r.exam.languageInspection.finishedAt : r.exam.gradedTime;
-                    r.displayedGrade = translateGrade(r.exam);
-                    r.displayedCredit = Exam.getExamDisplayCredit(r.exam);
-                };
+                dialog.result.then(function(btn) {
+                    const promises = [];
+                    selection.forEach(function(r) {
+                        promises.push(ReviewList.sendToRegistry(r, examId));
+                    });
+                    $q.all(promises).then(function() {
+                        vm.onRegistered({ reviews: selection });
+                        toast.info($translate.instant('sitnet_results_send_ok'));
+                    });
+                });
+            };
 
-            }]
-    });
+            vm.getLinkToAssessment = review =>
+                vm.parentCtrl.collaborative
+                    ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
+                    : `/assessments/${review.exam.id}`;
+
+            vm.pageSelected = function(page) {
+                vm.data.page = page;
+            };
+
+            vm.selectAll = () => ReviewList.selectAll(vm.selections, vm.data.filtered);
+
+            vm.selectPage = selector => ReviewList.selectPage(vm.selections, vm.data.filtered, selector);
+
+            const translateGrade = exam => {
+                const grade = exam.grade ? exam.grade.name : 'NONE';
+                return Exam.getExamGradeDisplayName(grade);
+            };
+
+            const handleGradedReviews = r => {
+                r.displayName = ReviewList.getDisplayName(r, vm.parentCtrl.collaborative);
+                r.displayedGradingTime = r.exam.languageInspection
+                    ? r.exam.languageInspection.finishedAt
+                    : r.exam.gradedTime;
+                r.displayedGrade = translateGrade(r.exam);
+                r.displayedCredit = Exam.getExamDisplayCredit(r.exam);
+            };
+        },
+    ],
+});

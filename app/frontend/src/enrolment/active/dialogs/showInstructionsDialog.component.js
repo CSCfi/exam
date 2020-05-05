@@ -15,24 +15,23 @@
  */
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('showInstructionsDialog', {
-        template: require('./showInstructionsDialog.template.html'),
-        bindings: {
-            resolve:'<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: function () {
-            const vm = this;
+angular.module('app.enrolment').component('showInstructionsDialog', {
+    template: require('./showInstructionsDialog.template.html'),
+    bindings: {
+        resolve: '<',
+        close: '&',
+        dismiss: '&',
+    },
+    controller: function() {
+        const vm = this;
 
-            vm.$onInit = function () {
-                vm.title = vm.resolve.title;
-                vm.instructions = vm.resolve.instructions;
-            };
+        vm.$onInit = function() {
+            vm.title = vm.resolve.title;
+            vm.instructions = vm.resolve.instructions;
+        };
 
-            vm.ok = function () {
-                vm.close();
-            };
-        }
-    });
+        vm.ok = function() {
+            vm.close();
+        };
+    },
+});

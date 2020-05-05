@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -93,7 +94,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> examOwners;
 
     // Instruction written by teacher, shown during exam
@@ -114,12 +116,16 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @JsonManagedReference
     private Set<ExaminationDate> examinationDates;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private Set<ExaminationEventConfiguration> examinationEventConfigurations;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<Exam> children;
+    private List<Exam> children;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
@@ -226,6 +232,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private String assessmentInfo;
 
+    private Boolean requiresUserAgentAuth;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -250,6 +258,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.examinationDates = examinationDates;
     }
 
+    public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
+        return examinationEventConfigurations;
+    }
+
+    public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
+        this.examinationEventConfigurations = examinationEventConfigurations;
+    }
+
     // Aggregate properties, required as fields by Ebean
     @Transient
     private Double totalScore;
@@ -272,9 +288,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public Double getTotalScore() {
-        return toFixed(examSections.stream()
+        Double totalScore = toFixed(examSections.stream()
                 .map(ExamSection::getTotalScore)
                 .reduce(0.0, (sum, x) -> sum += x));
+
+        return Math.max(totalScore, 0.0);
     }
 
     public Double getMaxScore() {
@@ -450,7 +468,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public String generateHash() {
         String attributes = name + state + new Random().nextDouble();
-        hash = AppUtil.encodeMD5(attributes);
+        this.hash = AppUtil.encodeMD5(attributes);
         return hash;
     }
 
@@ -617,6 +635,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             AppUtil.setModifier(esCopy, user);
             // Shuffle question options before saving
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                if(type == Question.Type.ClaimChoiceQuestion) {
+                    continue;
+                }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));
@@ -737,6 +759,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.anonymous = anonymous;
     }
 
+    public Boolean getRequiresUserAgentAuth() {
+        return requiresUserAgentAuth;
+    }
+
+    public void setRequiresUserAgentAuth(Boolean requiresUserAgentAuth) {
+        this.requiresUserAgentAuth = requiresUserAgentAuth;
+    }
+
     @Transient
     private boolean isCreatedBy(User user) {
         return creator != null && creator.equals(user);
@@ -797,6 +827,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
                     esq.setDerivedMaxScore();
+                    // Also set min scores, if question is claim choice question
+                    Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
+                    if(type == Question.Type.ClaimChoiceQuestion) {
+                        esq.setDerivedMinScore();
+                    }
                     esq.getOptions().forEach(o -> o.setScore(null));
                 });
     }

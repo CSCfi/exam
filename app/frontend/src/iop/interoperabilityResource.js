@@ -12,23 +12,30 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.iop')
-    .factory('InteroperabilityResource', ['$resource', function ($resource) {
+angular.module('app.iop').factory('InteroperabilityResource', [
+    '$resource',
+    function($resource) {
         return {
-            facility: $resource('/integration/iop/facilities/:id',
+            facility: $resource(
+                '/integration/iop/facilities/:id',
                 {
-                    id: '@id'
+                    id: '@id',
                 },
                 {
-                    'update': {method: 'PUT'}
-                }),
+                    update: { method: 'PUT' },
+                },
+            ),
             facilities: $resource('/integration/iop/facilities'),
             organisations: $resource('/integration/iop/organisations'),
-            slots: $resource('/integration/iop/calendar/:examId/:roomRef', {examId: '@examId', roomRef: '@roomRef'}),
-            reservations: $resource('/integration/iop/reservations/external', {}, {'create': {method: 'POST'}}),
-            reservation: $resource('/integration/iop/reservations/external/:ref', {ref: '@ref'}, {'remove': {method: 'DELETE'}})
+            slots: $resource('/integration/iop/calendar/:examId/:roomRef', { examId: '@examId', roomRef: '@roomRef' }),
+            reservations: $resource('/integration/iop/reservations/external', {}, { create: { method: 'POST' } }),
+            reservation: $resource(
+                '/integration/iop/reservations/external/:ref',
+                { ref: '@ref' },
+                { remove: { method: 'DELETE' } },
+            ),
         };
-    }]);
+    },
+]);

@@ -6,7 +6,7 @@ language:
   - scala
 
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 services:
   - postgresql
@@ -18,10 +18,12 @@ before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
-  - nvm install 8.9.1
-  - nvm use 8.9.1
+  - npm i -g npm@v6.10.2
+  - nvm install 10.17.0
+  - nvm use 10.17.0
 
 script:
+  - rm -rf app/frontend/node_modules
   - npm --prefix app/frontend install
   - npm --prefix app/frontend run-script build
   - sbt test
@@ -35,4 +37,3 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - $TRAVIS_BUILD_DIR/app/frontend/node_modules

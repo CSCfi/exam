@@ -19,7 +19,6 @@ import * as toast from 'toastr';
 import * as FileSaver from 'file-saver';
 
 export class FileService {
-
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
@@ -28,27 +27,36 @@ export class FileService {
         private $http: angular.IHttpService,
         private $translate: angular.translate.ITranslateService,
         private $timeout: angular.ITimeoutService,
-        private $window: angular.IWindowService) {
+        private $window: angular.IWindowService,
+    ) {
         'ngInject';
 
-        const svg = new Blob(
-            ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
-            { type: 'image/svg+xml;charset=utf-8' }
-        );
+        const svg = new Blob(["<svg xmlns='http://www.w3.org/2000/svg'></svg>"], {
+            type: 'image/svg+xml;charset=utf-8',
+        });
         const img = new Image();
-        img.onload = () => this._supportsBlobUrls = true;
-        img.onerror = () => this._supportsBlobUrls = false;
+        img.onload = () => (this._supportsBlobUrls = true);
+        img.onerror = () => (this._supportsBlobUrls = false);
         img.src = URL.createObjectURL(svg);
     }
 
     download(url: string, filename: string, params?: any, post?: boolean) {
-        const res = post ? this.$http.post : this.$http.get;
-        res(url, { params: params })
-            .then((resp: IHttpResponse<string>) => {
-                const contentType = resp.headers()['content-type'].split(';')[0];
-                this._saveFile(resp.data, filename, contentType);
-            })
-            .catch(resp => toast.error(resp.data || resp));
+        const cb = (resp: IHttpResponse<string>) => {
+            const contentType = resp.headers()['content-type'].split(';')[0];
+            this._saveFile(resp.data, filename, contentType);
+        };
+        const errCb = resp => toast.error(resp.data || resp);
+        if (post) {
+            this.$http
+                .post(url, { params: params })
+                .then(cb)
+                .catch(errCb);
+        } else {
+            this.$http
+                .get(url)
+                .then(cb)
+                .catch(errCb);
+        }
     }
 
     open(file: Blob) {
@@ -63,13 +71,15 @@ export class FileService {
     getMaxFilesize(): IPromise<{ filesize: number }> {
         const deferred: IDeferred<{ filesize: number }> = this.$q.defer();
         if (this._maxFileSize) {
-            this.$timeout(() => deferred.resolve({ 'filesize': this._maxFileSize }), 10);
+            this.$timeout(() => deferred.resolve({ filesize: this._maxFileSize }), 10);
         }
-        this.$http.get('/app/settings/maxfilesize')
+        this.$http
+            .get('/app/settings/maxfilesize')
             .then((resp: IHttpResponse<{ filesize: number }>) => {
                 this._maxFileSize = resp.data.filesize;
                 return deferred.resolve(resp.data);
-            }).catch(e => deferred.reject(e));
+            })
+            .catch(e => deferred.reject(e));
         return deferred.promise;
     }
 
@@ -82,9 +92,8 @@ export class FileService {
                 if (callback) {
                     callback();
                 }
-            }).catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
-            );
+            })
+            .catch(resp => toast.error(this.$translate.instant(resp.data)));
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
@@ -93,9 +102,7 @@ export class FileService {
                 parent.objectVersion = resp.data.objectVersion;
                 parent.attachment = resp.data.attachment ? resp.data.attachment : resp.data;
             })
-            .catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
-            );
+            .catch(resp => toast.error(this.$translate.instant(resp.data)));
     }
 
     private _saveFile(data: string, fileName: string, contentType: string) {
@@ -140,18 +147,19 @@ export class FileService {
         }
         const fd = new FormData();
         fd.append('file', file);
-        for (let k in params) {
-            if (params.hasOwnProperty(k)) {
+        for (const k in params) {
+            if (Object.prototype.hasOwnProperty.call(params, k)) {
                 fd.append(k, params[k]);
             }
         }
 
-        this.$http.post(url, fd, {
-            transformRequest: angular.identity,
-            headers: { 'Content-Type': undefined }
-        }).then(resp => deferred.resolve(resp))
+        this.$http
+            .post(url, fd, {
+                transformRequest: angular.identity,
+                headers: { 'Content-Type': undefined },
+            })
+            .then(resp => deferred.resolve(resp))
             .catch(resp => deferred.reject(resp));
         return deferred.promise;
     }
-
 }

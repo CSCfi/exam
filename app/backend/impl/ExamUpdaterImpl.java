@@ -20,12 +20,22 @@ import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
-import backend.models.*;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamType;
+import backend.models.Grade;
+import backend.models.GradeEvaluation;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Role;
+import backend.models.User;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
@@ -37,6 +47,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Inject
     private ActorSystem actorSystem;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
 
@@ -83,7 +96,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         if (state.isPresent()) {
             if (state.get() == Exam.State.PRE_PUBLISHED) {
                 // Exam is pre-published or about to be pre-published
-                // Exam is published or about to be published
                 Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
                 // invalid data
                 if (err.isPresent()) {
@@ -108,9 +120,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
                 if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
-                    if (!request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isPresent()) {
+                    if (request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isEmpty()) {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
+                }
+                if (exam.getRequiresUserAgentAuth() && exam.getExaminationEventConfigurations().stream()
+                        .anyMatch(eec ->  eec.getEncryptedSettingsPassword() == null)) {
+                    return Optional.of(badRequest("settings password not configured"));
                 }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
@@ -142,6 +158,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
+        Boolean requiresUserAgentAuth = request.attrs().getOptional(Attrs.REQUIRES_USER_AGENT_AUTH).orElse(false);
+
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
 
@@ -161,10 +179,10 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         });
         exam.setTrialCount(trialCount);
-        // exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
+        exam.setRequiresUserAgentAuth(configReader.isByodExaminationSupported() ? requiresUserAgentAuth : false);
         if (loginRole == Role.Name.ADMIN &&
                 ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
                 !hasFutureReservations(exam)) {
@@ -306,13 +324,11 @@ public class ExamUpdaterImpl implements ExamUpdater {
         if (checkPeriod) {
             Optional<DateTime> start = request.attrs().getOptional(Attrs.START_DATE);
             Optional<DateTime> end = request.attrs().getOptional(Attrs.END_DATE);
-            if (!start.isPresent()) {
+            if (start.isEmpty()) {
                 reason = "sitnet_error_start_date";
-            }
-            else if (!end.isPresent()) {
+            } else if (end.isEmpty()) {
                 reason = "sitnet_error_end_date";
-            }
-            else if (start.get().isAfter(end.get())) {
+            } else if (start.get().isAfter(end.get())) {
                 reason = "sitnet_error_end_sooner_than_start";
             } else if (end.get().isBeforeNow()) {
                 reason = "sitnet_error_end_sooner_than_now";
@@ -328,7 +344,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     private void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {

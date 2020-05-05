@@ -38,6 +38,6 @@ module.exports = merge(common, {
             template: path.resolve(__dirname, '../../backend/views/index.ejs'),
             inject: 'head',
             filename: path.resolve(__dirname, '../../backend/views/index.scala.html'),
-        })
-    ]
+        }),
+    ],
 });

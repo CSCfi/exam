@@ -32,16 +32,12 @@ interface LanguageInspectionData extends LanguageInspection {
 export const LanguageInspectionsComponent: angular.IComponentOptions = {
     template: require('./languageInspections.template.html'),
     controller: class LanguageInspectionsController implements angular.IComponentController {
-
         private startDate: Date;
         private endDate: Date;
         private ongoingInspections: LanguageInspectionData[];
         private processedInspections: LanguageInspectionData[];
 
-        constructor(
-            private Language: LanguageService,
-            private LanguageInspections: LanguageInspectionService
-        ) {
+        constructor(private Language: LanguageService, private LanguageInspections: LanguageInspectionService) {
             'ngInject';
         }
 
@@ -58,44 +54,40 @@ export const LanguageInspectionsComponent: angular.IComponentOptions = {
                 params.end = Date.parse(m.format());
             }
             const refreshAll = _.isEmpty(params);
-            this.LanguageInspections.query(params).then(
-                (resp) => {
-                    const inspections: LanguageInspectionData[] = resp.data.map(i =>
-                        _.assign(i, {
-                            ownerAggregate: i.exam.parent ? i.exam.parent.examOwners
-                                .map(o => `${o.firstName} ${o.lastName}`).join(', ') : '',
-                            studentName: i.exam.creator ?
-                                `${i.exam.creator.firstName} ${i.exam.creator.lastName}` : '',
-                            studentNameAggregate: i.exam.creator ?
-                                `${i.exam.creator.lastName} ${i.exam.creator.firstName}` : '',
-                            inspectorName: i.modifier ?
-                                `${i.modifier.firstName} ${i.modifier.lastName}` : '',
-                            inspectorNameAggregate: i.modifier ?
-                                `${i.modifier.lastName} ${i.modifier.firstName}` : '',
-                            answerLanguage: i.exam.answerLanguage ?
-                                this.Language.getLanguageNativeName(i.exam.answerLanguage) : undefined
-                        })
-                    );
-                    if (refreshAll) {
-                        this.ongoingInspections = inspections.filter(i => !i.finishedAt);
-                    }
-                    this.processedInspections = inspections.filter(i => i.finishedAt);
-                });
-        }
+            this.LanguageInspections.query(params).then(resp => {
+                const inspections: LanguageInspectionData[] = resp.data.map(i =>
+                    _.assign(i, {
+                        ownerAggregate: i.exam.parent
+                            ? i.exam.parent.examOwners.map(o => `${o.firstName} ${o.lastName}`).join(', ')
+                            : '',
+                        studentName: i.exam.creator ? `${i.exam.creator.firstName} ${i.exam.creator.lastName}` : '',
+                        studentNameAggregate: i.exam.creator
+                            ? `${i.exam.creator.lastName} ${i.exam.creator.firstName}`
+                            : '',
+                        inspectorName: i.modifier ? `${i.modifier.firstName} ${i.modifier.lastName}` : '',
+                        inspectorNameAggregate: i.modifier ? `${i.modifier.lastName} ${i.modifier.firstName}` : '',
+                        answerLanguage: i.exam.answerLanguage
+                            ? this.Language.getLanguageNativeName(i.exam.answerLanguage)
+                            : undefined,
+                    }),
+                );
+                if (refreshAll) {
+                    this.ongoingInspections = inspections.filter(i => !i.finishedAt);
+                }
+                this.processedInspections = inspections.filter(i => i.finishedAt);
+            });
+        };
 
-        startDateChanged = (date) => {
+        startDateChanged = date => {
             this.startDate = date;
             this.query();
-        }
+        };
 
-        endDateChanged = (date) => {
+        endDateChanged = date => {
             this.endDate = date;
             this.query();
-        }
-
-    }
+        };
+    },
 };
 
-
 angular.module('app.maturity').component('languageInspections', LanguageInspectionsComponent);
-

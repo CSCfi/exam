@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 require('./reports');
@@ -20,7 +19,9 @@ require('./statistics');
 require('./settings');
 require('./users');
 
-angular.module('app.administrative',
-    ['app.administrative.reports', 'app.administrative.statistics', 'app.administrative.settings', 'app.administrative.users']
-);
-
+angular.module('app.administrative', [
+    'app.administrative.reports',
+    'app.administrative.statistics',
+    'app.administrative.settings',
+    'app.administrative.users',
+]);

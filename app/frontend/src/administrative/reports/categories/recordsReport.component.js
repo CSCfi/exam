@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.reports')
-    .component('recordsReport', {
-        template: `
+angular.module('app.administrative.reports').component('recordsReport', {
+    template: `
         <div class="top-row">
             <h4 class="col-md-12">
                 {{'sitnet_get_graded_logged_csv' | translate}}
@@ -49,27 +47,26 @@ angular.module('app.administrative.reports')
             </div>
         </div>
         `,
-        controller: ['Files', function (Files) {
-
+    controller: [
+        'Files',
+        function(Files) {
             const vm = this;
 
-            vm.getExamRecords = function () {
+            vm.getExamRecords = function() {
                 const start = vm.startDate ? new Date(vm.startDate).getTime() : new Date().getTime();
                 const end = vm.endDate
                     ? new Date(vm.endDate).getTime().setHours(23, 59, 59, 999)
                     : new Date().getTime().setHours(23, 59, 59, 999);
-                Files.download('/app/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
+                Files.download('/app/exam/record', 'examrecords.csv', { startDate: start, endDate: end });
             };
 
-            vm.startDateChanged = function (date) {
+            vm.startDateChanged = function(date) {
                 vm.startDate = date;
             };
 
-            vm.endDateChanged = function (date) {
+            vm.endDateChanged = function(date) {
                 vm.endDate = date;
             };
-
-        }
-        ]
-    });
-
+        },
+    ],
+});

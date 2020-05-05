@@ -44,7 +44,7 @@ import backend.models.Grade;
 import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
-import backend.util.config.ConfigUtil;
+import backend.util.config.ConfigReader;
 
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
@@ -78,10 +78,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private WSClient wsClient;
+    private ConfigReader configReader;
 
     @Inject
-    public ExternalCourseHandlerImpl(WSClient wsClient) {
+    public ExternalCourseHandlerImpl(WSClient wsClient, ConfigReader configReader) {
         this.wsClient = wsClient;
+        this.configReader = configReader;
     }
 
     private Set<Course> getLocalCourses(String code) {
@@ -101,7 +103,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
     @Override
     public CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
-        if (!ConfigUtil.isCourseSearchActive()) {
+        if (!configReader.isCourseSearchActive()) {
             return CompletableFuture.supplyAsync(() -> getLocalCourses(code));
         }
         // Hit the remote end for a possible match. Update local records with matching remote records.

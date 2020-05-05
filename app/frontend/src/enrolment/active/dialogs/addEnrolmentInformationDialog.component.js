@@ -15,27 +15,26 @@
  */
 import angular from 'angular';
 
-angular.module('app.enrolment')
-    .component('addEnrolmentInformationDialog', {
-        template: require('./addEnrolmentInformationDialog.template.html'),
-        bindings: {
-            resolve: '<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: function () {
-            const vm = this;
+angular.module('app.enrolment').component('addEnrolmentInformationDialog', {
+    template: require('./addEnrolmentInformationDialog.template.html'),
+    bindings: {
+        resolve: '<',
+        close: '&',
+        dismiss: '&',
+    },
+    controller: function() {
+        const vm = this;
 
-            vm.$onInit = function () {
-              vm.information = vm.resolve.information;
-            };
+        vm.$onInit = function() {
+            vm.information = vm.resolve.information;
+        };
 
-            vm.ok = function () {
-                vm.close({$value: vm.information});
-            };
+        vm.ok = function() {
+            vm.close({ $value: vm.information });
+        };
 
-            vm.cancel = function () {
-                vm.dismiss();
-            };
-        }
-    });
+        vm.cancel = function() {
+            vm.dismiss();
+        };
+    },
+});

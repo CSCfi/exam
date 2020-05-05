@@ -17,17 +17,21 @@ package backend.controllers.iop.collaboration.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Model;
+import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Http;
@@ -36,6 +40,7 @@ import play.mvc.Result;
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
 import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
@@ -58,7 +63,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     if (isAuthorizedToView(exam, user)) {
                         ExamSection section = createDraft(exam, user);
                         exam.getExamSections().add(section);
-                        return uploadExam(ce, exam, false, section, user);
+                        return uploadExam(ce, exam, user, section, null);
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
@@ -80,8 +85,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         if (err.isPresent()) {
                             return wrapAsPromise(err.get());
                         }
-                        return uploadExam(ce, exam, false, resultProvider.apply(exam).orElse(null),
-                                user);
+                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), null);
                     }
                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                 }
@@ -220,7 +224,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public CompletionStage<Result> addQuestion(Long examId, Long sectionId, Http.Request request) {
-        Integer seq = request.body().asJson().get("sequenceNumber").asInt();
+        int seq = request.body().asJson().get("sequenceNumber").asInt();
         final Long sectionQuestionId = newId();
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             Optional<ExamSection> section = exam.getExamSections().stream()
@@ -236,11 +240,25 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 }
                 ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
-                question.getOptions().forEach(o -> o.setId(newId()));
+
+                if(question.getType() == Question.Type.ClaimChoiceQuestion) {
+                    // Naturally order generated ids before saving them to question options
+                    // Option ids will be used to retain option order on collaborative exams
+                    List<MultipleChoiceOption> options = question.getOptions();
+                    List<Long> generatedIds = Stream.generate(() -> newId())
+                            .limit(options.size())
+                            .collect(Collectors.toList());
+                    generatedIds.sort(Comparator.naturalOrder());
+                    for(int i = 0; i < options.size(); i++) {
+                        options.get(i).setId(generatedIds.get(i));
+                    }
+                } else {
+                    question.getOptions().forEach(o -> o.setId(newId()));
+                }
                 esq.setId(sectionQuestionId);
                 esq.setQuestion(question);
                 // Assert that the sequence number provided is within limits
-                Integer sequence = Math.min(Math.max(0, seq), es.getSectionQuestions().size());
+                int sequence = Math.min(Math.max(0, seq), es.getSectionQuestions().size());
                 updateSequences(es.getSectionQuestions(), sequence);
                 esq.setSequenceNumber(sequence);
                 if (es.getSectionQuestions().contains(esq) || es.hasQuestion(question)) {
@@ -257,6 +275,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 esq.setCreated(DateTime.now());
 
                 updateExamQuestion(esq, question);
+                cleanUser(user);
                 AppUtil.setModifier(es, user);
                 es.getSectionQuestions().add(esq);
                 return Optional.empty();
@@ -295,6 +314,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         if (num >= seq) {
                             sibling.setSequenceNumber(num - 1);
                         }
+                    }
+                    // Update lottery item count if needed
+                    if (es.isLotteryOn() && es.getLotteryItemCount() > es.getSectionQuestions().size()) {
+                        es.setLotteryItemCount(es.getSectionQuestions().size());
                     }
                     return Optional.empty();
                 } else {
@@ -362,7 +385,9 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         .filter(o -> o.getId() == null)
                                         .forEach(o -> o.setId(newId()));
                                 updateExamQuestion(esq, questionBody);
-                                return uploadExam(ce, exam, false, null, user);
+                                PathProperties pp = PathProperties.parse(
+                                        "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))");
+                                return uploadExam(ce, exam, user, esq, pp);
                             } else {
                                 return wrapAsPromise(notFound("sitnet_error_not_found"));
 
@@ -387,6 +412,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
         section.setSequenceNumber(exam.getExamSections().size());
         section.setExpanded(true);
         section.setId(newId());
+        cleanUser(user);
         AppUtil.setCreator(section, user);
         return section;
     }

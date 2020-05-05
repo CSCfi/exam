@@ -14,53 +14,49 @@
  */
 
 import angular from 'angular';
-import moment from 'moment';
 
-angular.module('app.maturity')
-    .component('reviewedInspections', {
-        template: require('./reviewedInspections.template.html'),
-        bindings: {
-            inspections: '<',
-            onStartDateChange: '&',
-            onEndDateChange: '&'
+angular.module('app.maturity').component('reviewedInspections', {
+    template: require('./reviewedInspections.template.html'),
+    bindings: {
+        inspections: '<',
+        onStartDateChange: '&',
+        onEndDateChange: '&',
+    },
+    controller: [
+        'filterFilter',
+        'LanguageInspections',
+        function(filterFilter, LanguageInspections) {
+            const vm = this;
+
+            vm.$onInit = function() {
+                vm.sorting = {
+                    predicate: 'exam.created',
+                    reverse: true,
+                };
+                vm.pageSize = 10;
+                vm.filterText = '';
+                vm.filterTextChanged();
+            };
+
+            vm.pageSelected = function(page) {
+                vm.currentPage = page;
+            };
+
+            vm.filterTextChanged = function() {
+                vm.filteredInspections = filterFilter(vm.inspections, vm.filterText);
+            };
+
+            vm.startDateChanged = function(date) {
+                vm.onStartDateChange({ date: date });
+            };
+
+            vm.endDateChanged = function(date) {
+                vm.onEndDateChange({ date: date });
+            };
+
+            vm.showStatement = function(statement) {
+                LanguageInspections.showStatement(statement);
+            };
         },
-        controller: ['filterFilter', 'LanguageInspections',
-            function (filterFilter, LanguageInspections) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.sorting = {
-                        predicate: 'exam.created',
-                        reverse: true
-                    };
-                    vm.pageSize = 10;
-                    vm.filterText = '';
-                    vm.filterTextChanged();
-                };
-
-                vm.pageSelected = function (page) {
-                    vm.currentPage = page;
-                }
-
-                vm.filterTextChanged = function () {
-                    vm.filteredInspections = filterFilter(vm.inspections, vm.filterText);
-                }
-
-                vm.startDateChanged = function (date) {
-                    vm.onStartDateChange({ date: date });
-                };
-
-                vm.endDateChanged = function (date) {
-                    vm.onEndDateChange({ date: date });
-                };
-
-                vm.showStatement = function (statement) {
-                    LanguageInspections.showStatement(statement);
-                };
-
-
-            }
-        ]
-    });
-
+    ],
+});

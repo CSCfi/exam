@@ -26,9 +26,9 @@ export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
         categoryTitle: '@',
         reviews: '<',
         allDone: '<',
-        onSelection: '&'
-    }, controller: class QuestionFlowCategoryComponentController implements angular.IComponentController {
-
+        onSelection: '&',
+    },
+    controller: class QuestionFlowCategoryComponentController implements angular.IComponentController {
         categoryTitle: string;
         reviews: QuestionReview[];
         allDone: boolean;
@@ -37,24 +37,23 @@ export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
         constructor(
             private $sce: angular.ISCEService,
             private QuestionReview: QuestionReviewService,
-            private Session: SessionService) {
+            private Session: SessionService,
+        ) {
             'ngInject';
         }
 
         displayQuestionText = (review: QuestionReview) => {
             const text = truncate(review.question.question, 50);
             return this.$sce.trustAsHtml(text);
-        }
+        };
 
         isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
         getAssessedAnswerCount = (review: QuestionReview) =>
-            this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
+            this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
 
         selectQuestion = (review: QuestionReview) => this.onSelection({ review: review });
-
-    }
-
+    },
 };
 
 angular.module('app.review').component('questionFlowCategory', QuestionFlowCategoryComponent);

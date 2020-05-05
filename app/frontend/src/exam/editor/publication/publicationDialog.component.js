@@ -14,36 +14,41 @@
  *
  */
 import angular from 'angular';
-angular.module('app.exam.editor')
-    .component('publicationDialog', {
-        template: require('./publicationDialog.template.html'),
-        bindings: {
-            resolve: '<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: ['$translate', function ($translate) {
+angular.module('app.exam.editor').component('publicationDialog', {
+    template: require('./publicationDialog.template.html'),
+    bindings: {
+        resolve: '<',
+        close: '&',
+        dismiss: '&',
+    },
+    controller: [
+        '$translate',
+        function($translate) {
             const vm = this;
 
-            vm.getConfirmationText = function () {
-                let confirmation = vm.resolve.prePublication ? $translate.instant('sitnet_pre_publish_exam_confirm') :
-                    $translate.instant('sitnet_publish_exam_confirm');
+            vm.getConfirmationText = function() {
+                let confirmation = vm.resolve.prePublication
+                    ? $translate.instant('sitnet_pre_publish_exam_confirm')
+                    : $translate.instant('sitnet_publish_exam_confirm');
                 if (vm.resolve.exam.executionType.type !== 'PRINTOUT' && !vm.resolve.prePublication) {
                     confirmation += ' ' + $translate.instant('sitnet_publish_exam_confirm_enroll');
                 }
                 return confirmation;
             };
 
-            vm.getTitle = function () {
-                return vm.resolve.prePublication ? 'sitnet_pre_publish_exam_confirm_dialog_title' : 'sitnet_publish_exam_confirm_dialog_title';
-            }
+            vm.getTitle = function() {
+                return vm.resolve.prePublication
+                    ? 'sitnet_pre_publish_exam_confirm_dialog_title'
+                    : 'sitnet_publish_exam_confirm_dialog_title';
+            };
 
-            vm.ok = function () {
+            vm.ok = function() {
                 vm.close();
             };
 
-            vm.cancel = function () {
+            vm.cancel = function() {
                 vm.dismiss();
             };
-        }]
-    });
+        },
+    ],
+});

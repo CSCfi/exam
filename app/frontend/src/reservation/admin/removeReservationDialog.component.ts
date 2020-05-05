@@ -22,10 +22,9 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
     bindings: {
         resolve: '<',
         close: '&',
-        dismiss: '&'
+        dismiss: '&',
     },
     controller: class RemoveReservationDialogController implements angular.IComponentController {
-
         resolve: { reservation: { id: number; externalUserRef: string; externalRef: string } };
         close: (_: { $value: string }) => void;
         dismiss: (_: { $value: string }) => void;
@@ -33,25 +32,24 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
         reservation: { id: number; externalUserRef: string; externalRef: string };
         message = { text: undefined };
 
-        constructor(
-            private $http: angular.IHttpService,
-        ) {
+        constructor(private $http: angular.IHttpService) {
             'ngInject';
         }
 
         ok() {
             this.reservation = this.resolve.reservation;
-            const url = this.reservation.externalUserRef ?
-                `/integration/iop/reservations/external/${this.reservation.externalRef}/force ` :
-                `/app/reservations/${this.reservation.id}`;
-            this.$http.delete(url, {
-                data: { msg: this.message.text },
-                headers: { 'Content-Type': 'application/json' }
-            }).then(() => this.close({ $value: 'Accepted' }))
+            const url = this.reservation.externalUserRef
+                ? `/integration/iop/reservations/external/${this.reservation.externalRef}/force `
+                : `/app/reservations/${this.reservation.id}`;
+            this.$http
+                .delete(url, {
+                    data: { msg: this.message.text },
+                    headers: { 'Content-Type': 'application/json' },
+                })
+                .then(() => this.close({ $value: 'Accepted' }))
                 .catch(resp => toast.error(resp.data));
         }
 
         cancel = () => this.dismiss({ $value: 'Dismissed' });
-
-    }
+    },
 };

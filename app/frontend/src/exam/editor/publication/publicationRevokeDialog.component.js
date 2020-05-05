@@ -15,22 +15,21 @@
  */
 import angular from 'angular';
 
-angular.module('app.exam.editor')
-    .component('publicationRevokeDialog', {
-        template: require('./publicationRevokeDialog.template.html'),
-        bindings: {
-            resolve: '<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: function () {
-            const vm = this;
-            vm.ok = function () {
-                vm.close();
-            };
+angular.module('app.exam.editor').component('publicationRevokeDialog', {
+    template: require('./publicationRevokeDialog.template.html'),
+    bindings: {
+        resolve: '<',
+        close: '&',
+        dismiss: '&',
+    },
+    controller: function() {
+        const vm = this;
+        vm.ok = function() {
+            vm.close();
+        };
 
-            vm.cancel = function () {
-                vm.dismiss();
-            };
-        }
-    });
+        vm.cancel = function() {
+            vm.dismiss();
+        };
+    },
+});

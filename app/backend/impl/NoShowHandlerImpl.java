@@ -108,12 +108,20 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
     @Override
     public void handleNoShowAndNotify(Reservation reservation) {
-        reservation.setNoShow(true);
-        reservation.update();
-        logger.info("Marked reservation {} as no-show",
-                reservation.getId());
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
+        if (exam.isPrivate()) {
+            // For no-shows with private examinations we remove the reservation so student can re-reserve.
+            // This is needed because student is not able to re-enroll by himself.
+            enrolment.setReservation(null);
+            enrolment.update();
+            reservation.delete();
+        } else {
+            reservation.setNoShow(true);
+            reservation.update();
+        }
+        logger.info("Marked reservation {} as no-show", reservation.getId());
+
         String examName = exam == null ?
                 enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
         String courseCode = exam == null ? "" : enrolment.getExam().getCourse().getCode();

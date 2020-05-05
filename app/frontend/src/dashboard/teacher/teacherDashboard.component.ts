@@ -14,8 +14,9 @@
  */
 
 import * as angular from 'angular';
-import { TeacherDashboardService } from './teacherDashboard.service';
+import { ReviewerExam, TeacherDashboardService } from './teacherDashboard.service';
 import { SessionService } from '../../session/session.service';
+import { ExamExecutionType } from '../../exam/exam.model';
 
 interface ExtraColumn {
     text: string;
@@ -27,27 +28,27 @@ interface ExtraColumn {
 export const TeacherDashboardComponent: angular.IComponentOptions = {
     template: require('./teacherDashboard.template.html'),
     controller: class TeacherDashboardController implements angular.IComponentController {
-
         activeTab: number;
         userId: number;
         activeExtraColumns: ExtraColumn[];
         finishedExtraColumns: ExtraColumn[];
         archivedExtraColumns: ExtraColumn[];
         draftExtraColumns: ExtraColumn[];
-        finishedExams: any[];
-        filteredFinished: any[];
-        activeExams: any[];
-        filteredActive: any[];
-        archivedExams: any[];
-        filteredArchived: any[];
-        draftExams: any[];
-        filteredDrafts: any[];
+        executionTypes: ExamExecutionType[];
+        finishedExams: ReviewerExam[];
+        filteredFinished: ReviewerExam[];
+        activeExams: ReviewerExam[];
+        filteredActive: ReviewerExam[];
+        archivedExams: ReviewerExam[];
+        filteredArchived: ReviewerExam[];
+        draftExams: ReviewerExam[];
+        filteredDrafts: ReviewerExam[];
 
         constructor(
             private $location: angular.ILocationService,
             private $filter: angular.IFilterService,
             private TeacherDashboard: TeacherDashboardService,
-            private Session: SessionService
+            private Session: SessionService,
         ) {
             'ngInject';
             this.activeExtraColumns = [
@@ -55,39 +56,42 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
                     text: 'sitnet_participation_unreviewed',
                     property: 'unassessedCount',
                     link: '/exams/__/4',
-                    checkOwnership: false
-                }, {
+                    checkOwnership: false,
+                },
+                {
                     text: 'sitnet_participation_unfinished',
                     property: 'unfinishedCount',
                     link: '/exams/__/4',
-                    checkOwnership: true
-                }, {
+                    checkOwnership: true,
+                },
+                {
                     text: 'sitnet_dashboard_title_waiting_reservation',
                     property: 'reservationCount',
                     link: '/reservations/__',
-                    checkOwnership: false
-                }
+                    checkOwnership: false,
+                },
             ];
             this.finishedExtraColumns = [
                 {
                     text: 'sitnet_participation_unreviewed',
                     property: 'unassessedCount',
                     link: '/exams/__/4',
-                    checkOwnership: false
-                }, {
+                    checkOwnership: false,
+                },
+                {
                     text: 'sitnet_participation_unfinished',
                     property: 'unfinishedCount',
                     link: '/exams/__/4',
-                    checkOwnership: true
-                }
+                    checkOwnership: true,
+                },
             ];
             this.archivedExtraColumns = [
                 {
                     text: 'sitnet_participations_assessed',
                     property: 'assessedCount',
                     link: '/exams/__/4',
-                    checkOwnership: true
-                }
+                    checkOwnership: true,
+                },
             ];
             this.draftExtraColumns = [];
         }
@@ -103,10 +107,9 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
             });
         }
 
-        changeTab = (index) => this.$location.search('tab', index);
+        changeTab = (index: number) => this.$location.search('tab', index);
 
-        search(text) {
-
+        search(text: string) {
             // Use same search parameter for all the 4 result tables
             this.filteredFinished = this.$filter('filter')(this.finishedExams, text);
             this.filteredActive = this.$filter('filter')(this.activeExams, text);
@@ -118,14 +121,13 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
 
             // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
             this.filteredFinished = this.filteredFinished.filter(
-                exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
+                exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+            );
 
             // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-            this.filteredActive = this.filteredActive.filter(exam =>
-                exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId));
-
+            this.filteredActive = this.filteredActive.filter(
+                exam => exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === this.userId),
+            );
         }
-
-    }
+    },
 };
-

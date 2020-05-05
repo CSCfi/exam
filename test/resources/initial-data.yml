@@ -178,17 +178,7 @@ grades:
     name: REJECTED
     gradeScale: *approvedrejected
 
-################################################################
-
-attachments:
-
-  - &att1 !!backend.models.Attachment
-    fileName: pika.ohje
-    filePath: /weepee/csc/sitnet/data/attachments/question/20/pika.ohje
-    mimeType: application/octet-stream
-
 ######################################################################
-
 
 question-essay:
 
@@ -199,24 +189,28 @@ question-essay:
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
+    defaultMaxScore: 4.0
 
   - &essay2 !!backend.models.questions.Question
     type: EssayQuestion
     creator: *olli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
+    defaultMaxScore: 4.0
 
   - &essay3 !!backend.models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
+    defaultMaxScore: 4.0
 
   - &essay_algo_01 !!backend.models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Kuvaile ahneen algoritmin toimintaperiaate.
+    defaultMaxScore: 4.0
 
 ######################################################################
 
@@ -265,12 +259,12 @@ question-multiple-choice:
     creator: *olli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    attachment: *att1
     options:
         - !!backend.models.questions.MultipleChoiceOption {option: 3, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: 42, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: 99, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: 7, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &multi2 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -282,6 +276,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &multi3 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -292,6 +287,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Antiteflon, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Adheesio, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Hakman, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &multi4 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -303,6 +299,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &multi5 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -313,6 +310,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Tulevaisuus valkenee, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus1 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -323,6 +321,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: kosmonautti, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: kosmetologi, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: kosmologi, correctOption: true}
+    defaultMaxScore: 4.0
 
   - &avaruus2 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -333,6 +332,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Ytimessä, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Säteilyvyöhykkeessä, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Konvektiovyöhykkeessä, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus3 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -343,6 +343,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Aikaa, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Etäisyyttä, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Painoa, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus4 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -353,6 +354,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus5 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -364,6 +366,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Meteori, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus6 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -374,6 +377,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Aineen palamisesta ilmakehässä, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Kaasujen hehkumisesta, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false}
+    defaultMaxScore: 4.0
 
   - &avaruus7 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -384,7 +388,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Maa, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Jupiter, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Venus, correctOption: false}
-
+    defaultMaxScore: 4.0
 
   - &avaruus8 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -395,7 +399,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Jupiterin korkeapaineen aluetta, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Mars-planeettaa, correctOption: false}
-
+    defaultMaxScore: 4.0
 
   - &avaruus9 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -406,7 +410,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false}
-
+    defaultMaxScore: 4.0
 
   - &avaruus10 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -417,7 +421,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Kuu on Auringon ja Maan välissä, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Kuu tulee uudelleen näkyviin, correctOption: false}
-
+    defaultMaxScore: 4.0
 
   - &avaruus11 !!backend.models.questions.Question
     type: MultipleChoiceQuestion
@@ -428,6 +432,7 @@ question-multiple-choice:
         - !!backend.models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false}
         - !!backend.models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true}
         - !!backend.models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false}
+    defaultMaxScore: 4.0
 
 ######################################################################
 
@@ -442,6 +447,20 @@ question-weighted-multiple-choice:
           - &kampi !!backend.models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
           - &kumpi !!backend.models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
           - &molemmat !!backend.models.questions.MultipleChoiceOption {option: Molemmat, defaultScore: -1}
+
+######################################################################
+
+question-claim-choice:
+
+  - &claim1 !!backend.models.questions.Question
+      type: ClaimChoiceQuestion
+      question: Suomen pääkaupunki on Helsinki
+      creator: *olli
+      created: 2014-01-18 12:30:05.123
+      options:
+        - &tosi !!backend.models.questions.MultipleChoiceOption {option: Tosi, defaultScore: 1, claimChoiceType: CorrectOption}
+        - &epatosi !!backend.models.questions.MultipleChoiceOption {option: Epätosi, defaultScore: -1, claimChoiceType: IncorrectOption}
+        - &eos !!backend.models.questions.MultipleChoiceOption {option: En osaa sanoa, defaultScore: 0, claimChoiceType: SkipOption}
 
 ######################################################################
 
@@ -617,6 +636,7 @@ exams:
     grade:
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
+    requiresUserAgentAuth: false
     examLanguages:
       - *fi
       - *sv
@@ -642,6 +662,7 @@ exams:
     state: REVIEW
     grade:
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *fi
       - *sv
@@ -662,6 +683,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *fi
       - *sv
@@ -681,6 +703,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *fi
 
@@ -699,6 +722,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *fi
 
@@ -717,6 +741,7 @@ exams:
     examSections:
     state: SAVED
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *de
 
@@ -734,6 +759,7 @@ exams:
     executionType: *public
     examSections:
     state: SAVED
+    requiresUserAgentAuth: false
     examLanguages:
       - *sv
 
@@ -753,6 +779,7 @@ exams:
     examSections:
     state: GRADED
     duration: 90
+    requiresUserAgentAuth: false
     examLanguages:
       - *de
 
@@ -763,6 +790,7 @@ exam-sections:
   - &alkeet_mv_osio1 !!backend.models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
+    optional: true
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio2 !!backend.models.sections.ExamSection
@@ -824,6 +852,11 @@ exam-sections:
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *ooad
+
+  - &claimsection !!backend.models.sections.ExamSection
+    name: Väittämä-osio
+    sequenceNumber: 3
+    exam: *alkeidenperusteetGraded
 
 ######################################################################
 
@@ -1176,6 +1209,15 @@ section-questions:
       - !!backend.models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
       - !!backend.models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
       - !!backend.models.sections.ExamSectionQuestionOption {option: *molemmat, score: -2}
+
+  - !!backend.models.sections.ExamSectionQuestion
+    examSection: *claimsection
+    question: *claim1
+    sequenceNumber: 0
+    options:
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *eos, score: 0}
 
 ################################################################
 

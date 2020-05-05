@@ -10,7 +10,7 @@
                 {{'sitnet_machine_name' | translate}}
             </div>
             <div>
-                <input type="text" class="form-control" ng-model="$ctrl.machine.name" autofocus>
+                <input type="text" class="form-control" ng-model="$ctrl.machine.name" autofocus />
             </div>
         </div>
     </div>
@@ -19,7 +19,7 @@
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="$ctrl.machine.accessible" ui-change="$ctrl.updateMachine()">
+                    <input type="checkbox" ng-model="$ctrl.machine.accessible" ui-change="$ctrl.updateMachine()" />
                     {{'sitnet_machine_accessible' | translate}}
                 </label>
             </div>
@@ -27,8 +27,13 @@
                 {{'sitnet_machine_accessibility' | translate}}
             </div>
             <div>
-                <input type="text" ng-disabled="!$ctrl.machine.accessible" class="form-control"
-                       ng-model="$ctrl.machine.accessibilityInfo" ui-change="$ctrl.updateMachine()">
+                <input
+                    type="text"
+                    ng-disabled="!$ctrl.machine.accessible"
+                    class="form-control"
+                    ng-model="$ctrl.machine.accessibilityInfo"
+                    ui-change="$ctrl.updateMachine()"
+                />
             </div>
         </div>
     </div>
@@ -38,35 +43,50 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_other_identifier' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="$ctrl.machine.otherIdentifier"
-                       ui-change="$ctrl.updateMachine()">
+                <input
+                    type="text"
+                    class="form-control"
+                    ng-model="$ctrl.machine.otherIdentifier"
+                    ui-change="$ctrl.updateMachine()"
+                />
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_surveillance_camera' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="$ctrl.machine.surveillanceCamera"
-                       ui-change="$ctrl.updateMachine()">
+                <input
+                    type="text"
+                    class="form-control"
+                    ng-model="$ctrl.machine.surveillanceCamera"
+                    ui-change="$ctrl.updateMachine()"
+                />
             </div>
         </div>
     </div>
     <!-- Video recordings & IP-address information -->
     <div class="detail-row">
-
         <!-- Video recordings URL -->
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_video_recordings' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="$ctrl.machine.videoRecordings"
-                       ui-change="$ctrl.updateMachine()">
+                <input
+                    type="text"
+                    class="form-control"
+                    ng-model="$ctrl.machine.videoRecordings"
+                    ui-change="$ctrl.updateMachine()"
+                />
             </div>
         </div>
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_ip_address' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="$ctrl.machine.ipAddress"
-                       ui-change="$ctrl.updateMachine()">
+                <input
+                    type="text"
+                    class="form-control"
+                    ng-model="$ctrl.machine.ipAddress"
+                    ui-change="$ctrl.updateMachine()"
+                />
             </div>
         </div>
     </div>
@@ -76,8 +96,13 @@
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
             <div class="input-group">
-                <button ng-repeat="software in $ctrl.software" class="btn" ng-class="software.class"
-                        ng-click="$ctrl.toggleSoftware(software)" style="margin-right: 0.2em;">
+                <button
+                    ng-repeat="software in $ctrl.software"
+                    class="btn"
+                    ng-class="software.class"
+                    ng-click="$ctrl.toggleSoftware(software)"
+                    style="margin-right: 0.2em;"
+                >
                     {{software.name}}
                 </button>
             </div>
@@ -89,22 +114,27 @@
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="$ctrl.machine.outOfService" ui-change="$ctrl.updateMachine()">
+                    <input type="checkbox" ng-model="$ctrl.machine.outOfService" ui-change="$ctrl.updateMachine()" />
                     {{'sitnet_out_of_service' | translate}}
                 </label>
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_reason' | translate}}
             </div>
-            <textarea ng-disabled="!$ctrl.machine.outOfService" class="form-control ng-pristine ng-valid"
-                      ng-model="$ctrl.machine.statusComment" ui-change="$ctrl.updateMachine()">
+            <textarea
+                ng-disabled="!$ctrl.machine.outOfService"
+                class="form-control ng-pristine ng-valid"
+                ng-model="$ctrl.machine.statusComment"
+                ui-change="$ctrl.updateMachine()"
+            >
             </textarea>
         </div>
     </div>
 
     <div class="main-row">
         <div class="col-md-12">
-            <button ng-click="$ctrl.updateMachineAndExit()" class="btn btn-primary">{{'sitnet_save' | translate}}
+            <button ng-click="$ctrl.updateMachineAndExit()" class="btn btn-primary">
+                {{'sitnet_save' | translate}}
             </button>
         </div>
     </div>

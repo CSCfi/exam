@@ -1,4 +1,8 @@
-<div class="padl15 marb10" ng-show="$ctrl.sectionQuestion.reviewExpanded" ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'id'">
+<div
+    class="padl15 marb10"
+    ng-show="$ctrl.sectionQuestion.reviewExpanded"
+    ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'id'"
+>
     <div ng-if="option.answered">
         <div ng-if="option.score >= 0" class="exam-answered-correct">
             <div class="make-inline pull-left">
@@ -8,8 +12,7 @@
                 <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
             </div>
             <div class="make-inline pull-right">
-                <span class="text-success">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}</span>
+                <span class="text-success"> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
             </div>
         </div>
         <div ng-if="option.score < 0" class="exam-answered-wrong">
@@ -20,8 +23,7 @@
                 <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
             </div>
             <div class="make-inline pull-right">
-                <span class="text-danger">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}</span>
+                <span class="text-danger"> {{option.score}} {{'sitnet_unit_points' | translate }}</span>
             </div>
         </div>
     </div>
@@ -38,7 +40,8 @@
             </div>
             <div class="make-inline pull-right">
                 <span ng-class="option.score >= 0 ? 'text-success' : 'text-danger'">
-                    {{option.score}} {{'sitnet_unit_points' | translate }}</span>
+                    {{option.score}} {{'sitnet_unit_points' | translate }}</span
+                >
             </div>
         </div>
     </div>

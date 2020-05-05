@@ -15,49 +15,52 @@
 
 import angular from 'angular';
 
-angular.module('app.review')
-    .component('rMaturityToolbar', {
-        template: require('./toolbar.template.html'),
-        bindings: {
-            exam: '<',
-            valid: '<'
+angular.module('app.review').component('rMaturityToolbar', {
+    template: require('./toolbar.template.html'),
+    bindings: {
+        exam: '<',
+        valid: '<',
+    },
+    controller: [
+        '$translate',
+        'Maturity',
+        'Assessment',
+        'Session',
+        'Exam',
+        function($translate, Maturity, Assessment, Session, Exam) {
+            const vm = this;
+
+            vm.isOwnerOrAdmin = function() {
+                return Exam.isOwnerOrAdmin(vm.exam);
+            };
+
+            vm.isReadOnly = function() {
+                return Assessment.isReadOnly(vm.exam);
+            };
+
+            vm.isUnderLanguageInspection = function() {
+                return (
+                    Session.getUser().isLanguageInspector &&
+                    vm.exam.languageInspection &&
+                    !vm.exam.languageInspection.finishedAt
+                );
+            };
+
+            vm.saveAssessment = function() {
+                Assessment.saveAssessment(vm.exam, vm.isOwnerOrAdmin());
+            };
+
+            vm.getNextState = function() {
+                return Maturity.getNextState(vm.exam);
+            };
+
+            vm.proceed = function(alternate) {
+                Maturity.proceed(vm.exam, alternate);
+            };
+
+            vm.isMissingStatement = function() {
+                return Maturity.isMissingStatement(vm.exam);
+            };
         },
-        controller: ['$translate', 'Maturity', 'Assessment', 'Session', 'Exam',
-            function ($translate, Maturity, Assessment, Session, Exam) {
-
-                const vm = this;
-
-                vm.isOwnerOrAdmin = function () {
-                    return Exam.isOwnerOrAdmin(vm.exam);
-                };
-
-                vm.isReadOnly = function () {
-                    return Assessment.isReadOnly(vm.exam);
-                };
-
-                vm.isUnderLanguageInspection = function () {
-                    return Session.getUser().isLanguageInspector &&
-                        vm.exam.languageInspection &&
-                        !vm.exam.languageInspection.finishedAt;
-                };
-
-                vm.saveAssessment = function () {
-                    Assessment.saveAssessment(vm.exam, vm.isOwnerOrAdmin());
-                };
-
-                vm.getNextState = function () {
-                    return Maturity.getNextState(vm.exam);
-                };
-
-                vm.proceed = function (alternate) {
-                    Maturity.proceed(vm.exam, alternate);
-                };
-
-                vm.isMissingStatement = function () {
-                    return Maturity.isMissingStatement(vm.exam);
-                };
-
-            }
-
-        ]
-    });
+    ],
+});

@@ -12,62 +12,62 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
-angular.module('app.administrative.statistics')
-    .component('statistics', {
-        template: require('./statistics.template.html'),
-        controller: ['Statistics', function (Statistics) {
+angular.module('app.administrative.statistics').component('statistics', {
+    template: require('./statistics.template.html'),
+    controller: [
+        'Statistics',
+        function(Statistics) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                vm.departments = [];
+                vm.limitations = {};
+                vm.queryParams = {};
 
-                vm.$onInit = function () {
-                    vm.departments = [];
-                    vm.limitations = {};
-                    vm.queryParams = {};
-
-                    Statistics.departments.get(function (data) {
-                        data.departments.forEach(function (d) {
-                            vm.departments.push({name: d});
-                        });
+                Statistics.departments.get(function(data) {
+                    data.departments.forEach(function(d) {
+                        vm.departments.push({ name: d });
                     });
-                };
+                });
+            };
 
-                const setQueryParams = function () {
-                    const params = {};
-                    if (vm.startDate) {
-                        params.start = vm.startDate;
-                    }
-                    if (vm.endDate) {
-                        params.end = vm.endDate;
-                    }
-                    const departments = vm.departments.filter(function (d) {
-                        return d.filtered;
-                    });
-                    if (departments.length > 0) {
-                        params.dept = departments.map(function (d) {
+            const setQueryParams = function() {
+                const params = {};
+                if (vm.startDate) {
+                    params.start = vm.startDate;
+                }
+                if (vm.endDate) {
+                    params.end = vm.endDate;
+                }
+                const departments = vm.departments.filter(function(d) {
+                    return d.filtered;
+                });
+                if (departments.length > 0) {
+                    params.dept = departments
+                        .map(function(d) {
                             return d.name;
-                        }).join();
-                    }
-                    vm.queryParams = params;
-                };
+                        })
+                        .join();
+                }
+                vm.queryParams = params;
+            };
 
-                vm.setDepartmentFilter = function (dept) {
-                    dept.filtered = !dept.filtered;
-                    setQueryParams();
-                };
+            vm.setDepartmentFilter = function(dept) {
+                dept.filtered = !dept.filtered;
+                setQueryParams();
+            };
 
-                vm.startDateChanged = function (date) {
-                    vm.startDate = date;
-                    setQueryParams();
-                };
+            vm.startDateChanged = function(date) {
+                vm.startDate = date;
+                setQueryParams();
+            };
 
-                vm.endDateChanged = function (date) {
-                    vm.endDate = date;
-                    setQueryParams();
-                };
-
-            }]
-    });
-
+            vm.endDateChanged = function(date) {
+                vm.endDate = date;
+                setQueryParams();
+            };
+        },
+    ],
+});

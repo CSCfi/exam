@@ -18,10 +18,11 @@ package backend.system;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -37,15 +38,20 @@ import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
+import backend.models.ExaminationEvent;
+import backend.models.ExaminationEventConfiguration;
+import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.security.SessionHandler;
+import backend.util.config.ByodConfigHandler;
 import backend.util.datetime.DateTimeUtils;
 
 
@@ -53,17 +59,20 @@ public class SystemRequestHandler implements ActionCreator {
 
     private SessionHandler sessionHandler;
     private Environment environment;
+    private ByodConfigHandler byodConfigHandler;
 
     private static final Logger.ALogger logger = Logger.of(SystemRequestHandler.class);
 
     @Inject
-    public SystemRequestHandler(SessionHandler sessionHandler, Environment environment) {
+    public SystemRequestHandler(SessionHandler sessionHandler, Environment environment,
+                                ByodConfigHandler byodConfigHandler) {
         this.sessionHandler = sessionHandler;
         this.environment = environment;
+        this.byodConfigHandler = byodConfigHandler;
     }
 
     @Override
-    public Action createAction(Http.Request request, Method actionMethod) {
+    public Action.Simple createAction(Http.Request request, Method actionMethod) {
         Optional<Session> os = sessionHandler.getSession(request);
         Optional<String> ot = sessionHandler.getSessionToken(request);
         boolean temporalStudent = os.isPresent() && os.get().isTemporalStudent();
@@ -79,22 +88,30 @@ public class SystemRequestHandler implements ActionCreator {
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session);
-            boolean isStudent = hasRole(Role.Name.STUDENT, session);
+            boolean isStudent = isStudent(session);
             if ((user == null || !isStudent) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
-            } else {
+            } else if (user != null){
                 // requests are candidates for extra processing
                 return propagateAction(getReservationHeaders(request, user));
+            } else {
+                return new Action.Simple() {
+                    @Override
+                    public CompletionStage<Result> call(Http.Request request) {
+                        return CompletableFuture.supplyAsync(Results::forbidden);
+                    }
+                };
             }
         });
     }
 
-    private boolean hasRole(Role.Name name, Session session) {
-        return session != null && session.getLoginRole() != null && name.toString().equals(session.getLoginRole());
+    private boolean isStudent(Session session) {
+        return session != null && session.getLoginRole() != null &&
+                Role.Name.STUDENT.toString().equals(session.getLoginRole());
     }
 
-    private Optional<Action> validateSession(Session session, String token) {
+    private Optional<Action.Simple> validateSession(Session session, String token) {
         if (session == null) {
             if (token == null) {
                 logger.debug("User not logged in");
@@ -136,15 +153,15 @@ public class SystemRequestHandler implements ActionCreator {
         return headers;
     }
 
-    private Action propagateAction() {
+    private Action.Simple propagateAction() {
         return propagateAction(Collections.emptyMap());
     }
 
-    private Action propagateAction(Map<String, String> headers) {
+    private Action.Simple propagateAction(Map<String, String> headers) {
         return new Action.Simple() {
             @Override
             public CompletionStage<Result> call(Http.Request request) {
-                return  delegate.call(request).thenApply(r -> {
+                return delegate.call(request).thenApply(r -> {
                     Result result = r.withHeaders("Cache-Control", "no-cache;no-store", "Pragma", "no-cache");
                     for (Map.Entry<String, String> entry : headers.entrySet()) {
                         result = result.withHeader(entry.getKey(), entry.getValue());
@@ -169,46 +186,57 @@ public class SystemRequestHandler implements ActionCreator {
                 .isPresent();
     }
 
-    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String,
-            String> headers) {
+    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request,
+                                Map<String, String> headers) {
+        boolean requiresUserAgentAuth = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
         // Loose the checks for dev usage to facilitate for easier testing
-        if (environment.isDev()) {
+        if (environment.isDev() && !requiresUserAgentAuth) {
             return true;
         }
-        ExamMachine examMachine = enrolment.getReservation().getMachine();
-        ExamRoom room = examMachine.getRoom();
 
-        String machineIp = examMachine.getIpAddress();
-        String remoteIp = request.remoteAddress();
-
-        logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
-
-        if (!remoteIp.equals(machineIp)) {
-            String message;
-            String header;
-
-            // Is this a known machine?
-            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
-            if (lookedUp == null) {
-                // IP not known
-                header = "x-exam-unknown-machine";
-                message = room.getCampus() + ":::" +
-                        room.getBuildingName() + ":::" +
-                        room.getRoomCode() + ":::" +
-                        examMachine.getName() + ":::" +
-                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
-            } else if (lookedUp.getRoom().getId().equals(room.getId())) {
-                // Right room, wrong machine
-                header = "x-exam-wrong-machine";
-                message = enrolment.getId() + ":::" + lookedUp.getId();
-            } else {
-                // Wrong room
-                header = "x-exam-wrong-room";
-                message = enrolment.getId() + ":::" + lookedUp.getId();
+        if (requiresUserAgentAuth && enrolment.getExam() != null) {
+            ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
+            Optional<Result> error =
+                    byodConfigHandler.checkUserAgent(request, config.getConfigKey());
+            if (error.isPresent()) {
+                String msg = ISODateTimeFormat.dateTime().print(
+                        new DateTime(config.getExaminationEvent().getStart()));
+                headers.put("x-exam-wrong-agent-config", msg);
+                return false;
             }
-            headers.put(header, Base64.encodeBase64String(message.getBytes()));
-            logger.debug("room and machine not ok. " + message);
-            return false;
+        } else {
+            ExamMachine examMachine = enrolment.getReservation().getMachine();
+            ExamRoom room = examMachine.getRoom();
+            String machineIp = examMachine.getIpAddress();
+            String remoteIp = request.remoteAddress();
+            logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
+            if (!remoteIp.equals(machineIp)) {
+                String message;
+                String header;
+
+                // Is this a known machine?
+                ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
+                if (lookedUp == null) {
+                    // IP not known
+                    header = "x-exam-unknown-machine";
+                    message = room.getCampus() + ":::" +
+                            room.getBuildingName() + ":::" +
+                            room.getRoomCode() + ":::" +
+                            examMachine.getName() + ":::" +
+                            ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                } else if (lookedUp.getRoom().getId().equals(room.getId())) {
+                    // Right room, wrong machine
+                    header = "x-exam-wrong-machine";
+                    message = enrolment.getId() + ":::" + lookedUp.getId();
+                } else {
+                    // Wrong room
+                    header = "x-exam-wrong-room";
+                    message = enrolment.getId() + ":::" + lookedUp.getId();
+                }
+                headers.put(header, Base64.encodeBase64String(message.getBytes()));
+                logger.debug("room and machine not ok. " + message);
+                return false;
+            }
         }
         logger.debug("room and machine ok");
         return true;
@@ -239,13 +267,30 @@ public class SystemRequestHandler implements ActionCreator {
         }
     }
 
+    private DateTime getStartTime(ExamEnrolment enrolment) {
+        return enrolment.getReservation() != null ? enrolment.getReservation().getStartAt() :
+                enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+    }
+
+    private boolean isInsideBounds(ExamEnrolment ee, DateTime earliest, DateTime latest) {
+        Reservation reservation = ee.getReservation();
+        ExaminationEvent event = ee.getExaminationEventConfiguration() != null ?
+                ee.getExaminationEventConfiguration().getExaminationEvent() : null;
+        return (reservation != null && reservation.getStartAt().isBefore(latest) &&
+                reservation.getEndAt().isAfter(earliest))
+                || (event != null && event.getStart().isBefore(latest) &&
+                event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest));
+    }
+
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
         DateTime future = now.plusMinutes(minutesToFuture);
-        List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
+        Set<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
+                .fetch("examinationEventConfiguration")
+                .fetch("examinationEventConfiguration.examinationEvent")
                 .fetch("exam")
                 .fetch("externalExam")
                 .fetch("collaborativeExam")
@@ -261,15 +306,15 @@ public class SystemRequestHandler implements ActionCreator {
                 .jsonEqualTo("externalExam.content", "state", Exam.State.PUBLISHED.toString())
                 .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .endJunction()
-                .le("reservation.startAt", future)
-                .gt("reservation.endAt", now)
+                .or()
                 .isNotNull("reservation.machine")
-                .orderBy("reservation.startAt")
-                .findList();
-        if (results.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(results.get(0));
+                .isNotNull("examinationEventConfiguration")
+                .endOr()
+                .findSet();
+        // filter out enrolments that are over or not starting until tomorrow and pick the earliest (if any)
+        return results.stream()
+                .filter(ee -> isInsideBounds(ee, now, future))
+                .min(Comparator.comparing(this::getStartTime));
     }
 
 }

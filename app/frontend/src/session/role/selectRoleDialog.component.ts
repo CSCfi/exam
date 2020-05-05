@@ -55,10 +55,9 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
     bindings: {
         resolve: '<',
         close: '&',
-        dismiss: '&'
+        dismiss: '&',
     },
     controller: class SelectRoleDialogController implements IComponentController {
-
         user: User;
         resolve: { user: User };
         close: (x: { $value: Role }) => any;
@@ -75,5 +74,5 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
         cancel() {
             this.dismiss();
         }
-    }
+    },
 };

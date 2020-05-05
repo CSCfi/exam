@@ -27,6 +27,6 @@ import backend.models.User;
 
 @ImplementedBy(ExternalReservationHandlerImpl.class)
 public interface ExternalReservationHandler {
-    CompletionStage<Result> removeReservation(Reservation reservation, User user);
+    CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg);
     CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation);
 }

@@ -12,17 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import '@babel/polyfill';
+// Polyfills, import first
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+//
 import * as angular from 'angular';
 import 'angular-resource';
-import 'angular-route';
+import 'angular-ui-router';
 import 'angular-animate';
 import 'angular-ui-bootstrap';
 import 'ngstorage';
 import 'angular-translate';
 import 'angular-dialog-service';
 import 'angular-dynamic-locale';
-
 import configs from './app.config';
 import runBlock from './app.run';
 import SessionModule from './session';
@@ -38,30 +40,31 @@ import './maturity'; // TODO: make a proper exportable module
 import './administrative';
 import './exam/printout';
 
-
 import 'toastr/toastr.scss';
 import 'font-awesome/css/font-awesome.min.css';
 import './assets/styles/main.scss';
 
-angular.module('app', [
-    'ngAnimate',
-    'ngResource',
-    'ngRoute',
-    'ngStorage',
-    'ui.bootstrap',
-    'pascalprecht.translate',
-    'tmh.dynamicLocale',
-    'dialogs.services',
-    'dialogs.controllers',
-    SessionModule,
-    NavigationModule,
-    UtilityModule,
-    DashboardModule,
-    CollaborativeExamModule,
-    'app.enrolment',
-    'app.maturity',
-    'app.administrative'
-]).config(configs)
+angular
+    .module('app', [
+        'ngAnimate',
+        'ngResource',
+        'ui.router',
+        'ngStorage',
+        'ui.bootstrap',
+        'pascalprecht.translate',
+        'tmh.dynamicLocale',
+        'dialogs.services',
+        'dialogs.controllers',
+        SessionModule,
+        NavigationModule,
+        UtilityModule,
+        DashboardModule,
+        CollaborativeExamModule,
+        'app.enrolment',
+        'app.maturity',
+        'app.administrative',
+    ])
+    .config(configs)
     .run(runBlock)
     .filter('truncate', filters.TruncateFilter.factory())
     .filter('diffInMinutesTo', filters.DiffInMinutesFilter.factory())
@@ -72,8 +75,8 @@ angular.module('app', [
     .directive('dateValidator', directives.DateValidator.factory())
     .directive('uniqueValue', directives.UniquenessValidator.factory())
     .directive('ckEditor', directives.CkEditor.factory())
-    .directive('fixedPrecision', directives.FixedPrecision.factory())
     .directive('clozeTest', directives.ClozeTest.factory())
+    .directive('fixedPrecision', directives.FixedPrecision.factory())
     .directive('uiBlur', directives.UiBlur.factory())
     .directive('uiChange', directives.UiChange.factory())
     .directive('fileModel', directives.FileModel.factory())
@@ -82,4 +85,5 @@ angular.module('app', [
     .directive('focusOn', directives.FocusOn.factory())
     .directive('lowercase', directives.Lowercase.factory())
     .directive('sort', directives.Sort.factory())
-    .directive('teacherList', directives.TeacherList.factory());
+    .directive('teacherList', directives.TeacherList.factory())
+    .directive('ngEnter', directives.NgEnter.factory());

@@ -15,22 +15,20 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationClozeTest', {
-        template: require('./examinationClozeTest.template.html'),
-        bindings: {
-            sq: '<',
-            examHash: '<'
+angular.module('app.examination').component('examinationClozeTest', {
+    template: require('./examinationClozeTest.template.html'),
+    bindings: {
+        sq: '<',
+        examHash: '<',
+    },
+    controller: [
+        'Examination',
+        function(Examination) {
+            const vm = this;
+
+            vm.saveAnswer = function() {
+                Examination.saveTextualAnswer(vm.sq, vm.examHash, false);
+            };
         },
-        controller: ['Examination',
-            function (Examination) {
-
-                const vm = this;
-
-                vm.saveAnswer = function () {
-                    Examination.saveTextualAnswer(vm.sq, vm.examHash, false);
-                };
-
-            }
-        ]
-    });
+    ],
+});

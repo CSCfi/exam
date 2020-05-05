@@ -22,4 +22,3 @@ require('../examination/examination.module');
 require('../question');
 
 angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question']);
-

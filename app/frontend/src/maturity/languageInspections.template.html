@@ -1,29 +1,28 @@
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
                 <div class="student-enroll-title marl20">{{'sitnet_language_inspections' | translate}}</div>
             </div>
-
         </div>
     </div>
 
     <div class="tab-wrapper-exams">
         <div class="review-border">
             <!-- Under review language inspection -->
-            <unfinished-inspections ng-if="$ctrl.ongoingInspections"
-                                    inspections="$ctrl.ongoingInspections">
+            <unfinished-inspections ng-if="$ctrl.ongoingInspections" inspections="$ctrl.ongoingInspections">
             </unfinished-inspections>
         </div>
 
         <div class="review-border">
             <!-- Reviewed language inspection -->
-            <reviewed-inspections ng-if="$ctrl.processedInspections" inspections="$ctrl.processedInspections"
-                                  on-end-date-change="$ctrl.endDateChanged(date)"
-                                  on-start-date-change="$ctrl.startDateChanged(date)">
+            <reviewed-inspections
+                ng-if="$ctrl.processedInspections"
+                inspections="$ctrl.processedInspections"
+                on-end-date-change="$ctrl.endDateChanged(date)"
+                on-start-date-change="$ctrl.startDateChanged(date)"
+            >
             </reviewed-inspections>
         </div>
     </div>
 </div>
-

@@ -15,173 +15,187 @@
 import angular from 'angular';
 import toast from 'toastr';
 
+angular.module('app.administrative.users').component('users', {
+    template: require('./users.template.html'),
+    controller: [
+        '$translate',
+        'UserManagement',
+        'Session',
+        function($translate, UserManagement, Session) {
+            const vm = this;
 
-angular.module('app.administrative.users')
-    .component('users', {
-        template: require('./users.template.html'),
-        controller: ['$translate', 'UserManagement', 'Session',
-            function ($translate, UserManagement, Session) {
+            vm.$onInit = function() {
+                vm.users = [];
+                vm.pageSize = 30;
+                vm.filter = {};
+                vm.roles = [
+                    { type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog' },
+                    { type: 'TEACHER', name: 'sitnet_teacher', icon: 'fa-university' },
+                    { type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap' },
+                ];
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.users = [];
-                    vm.pageSize = 30;
-                    vm.filter = {};
-                    vm.roles = [
-                        { type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog' },
-                        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'fa-university' },
-                        { type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap' }
-                    ];
-
-                    UserManagement.permissions.query(function (permissions) {
-                        permissions.forEach(function (p) {
-                            if (p.type === 'CAN_INSPECT_LANGUAGE') {
-                                p.name = 'sitnet_can_inspect_language';
-                                p.icon = 'fa-pencil';
-                            }
-                        });
-                        vm.permissions = permissions;
+                UserManagement.permissions.query(function(permissions) {
+                    permissions.forEach(function(p) {
+                        if (p.type === 'CAN_INSPECT_LANGUAGE') {
+                            p.name = 'sitnet_can_inspect_language';
+                            p.icon = 'fa-pencil';
+                        }
                     });
+                    vm.permissions = permissions;
+                });
 
-
-                    vm.loader = {
-                        loading: false
-                    };
-
+                vm.loader = {
+                    loading: false,
                 };
+            };
 
-                vm.pageSelected = page => vm.currentPage = page;
+            vm.pageSelected = page => (vm.currentPage = page);
 
-                vm.search = () => {
-                    vm.loader.loading = true;
-                    search();
-                };
+            vm.search = () => {
+                vm.loader.loading = true;
+                search();
+            };
 
-                vm.hasRole = (user, role) => user.roles.some(r => r.name === role);
+            vm.hasRole = (user, role) => user.roles.some(r => r.name === role);
 
-                vm.hasPermission = (user, permission) => user.permissions.some(p => p.type === permission);
+            vm.hasPermission = (user, permission) => user.permissions.some(p => p.type === permission);
 
-                vm.applyRoleFilter = function (role) {
-                    vm.roles.forEach(function (r) {
-                        r.filtered = r.type === role.type ? !r.filtered : false;
+            vm.applyRoleFilter = function(role) {
+                vm.roles.forEach(function(r) {
+                    r.filtered = r.type === role.type ? !r.filtered : false;
+                });
+                filterUsers();
+            };
+
+            vm.applyPermissionFilter = function(permission) {
+                vm.permissions.forEach(function(p) {
+                    p.filtered = p.type === permission.type ? !p.filtered : false;
+                });
+                filterUsers();
+            };
+
+            vm.isUnfiltered = function(user) {
+                // Do not show logged in user in results
+                if (user.id === Session.getUser().id) {
+                    return false;
+                }
+                let result = true;
+                vm.roles
+                    .filter(function(role) {
+                        return role.filtered;
+                    })
+                    .forEach(function(role) {
+                        if (!vm.hasRole(user, role.type)) {
+                            result = false;
+                        }
                     });
-                    filterUsers();
-                };
-
-                vm.applyPermissionFilter = function (permission) {
-                    vm.permissions.forEach(function (p) {
-                        p.filtered = p.type === permission.type ? !p.filtered : false;
-                    });
-                    filterUsers();
-                };
-
-                vm.isUnfiltered = function (user) {
-                    // Do not show logged in user in results
-                    if (user.id === Session.getUser().id) {
-                        return false;
-                    }
-                    let result = true;
-                    vm.roles.filter(
-                        function (role) {
-                            return role.filtered;
-                        }).forEach(function (role) {
-                            if (!vm.hasRole(user, role.type)) {
-                                result = false;
-                            }
-                        });
-                    if (!result) {
-                        return result;
-                    }
-                    vm.permissions.filter(
-                        function (permission) {
-                            return permission.filtered;
-                        }).forEach(function (permission) {
-                            if (!vm.hasPermission(user, permission.type)) {
-                                result = false;
-                            }
-                        });
+                if (!result) {
                     return result;
-                };
-
-                vm.addRole = function (user, role) {
-                    UserManagement.roles.add({ id: user.id, role: role.type }, function () {
-                        user.roles.push({ name: role.type });
-                        updateEditOptions(user);
-                    });
-                };
-
-                vm.addPermission = function (user, permission) {
-                    UserManagement.permissions.add({ id: user.id, permission: permission.type }, function () {
-                        user.permissions.push({ type: permission.type });
-                        updateEditOptions(user);
-                    });
-                };
-
-                vm.removeRole = function (user, role) {
-                    UserManagement.roles.remove({ id: user.id, role: role.type }, function () {
-                        const i = user.roles.map(function (r) {
-                            return r.name;
-                        }).indexOf(role.type);
-                        user.roles.splice(i, 1);
-                        updateEditOptions(user);
-                        filterUsers();
-                    });
-                };
-
-                vm.removePermission = function (user, permission) {
-                    UserManagement.permissions.remove({ id: user.id, permission: permission.type }, function () {
-                        const i = user.permissions.map(function (p) {
-                            return p.type;
-                        }).indexOf(permission.type);
-                        user.permissions.splice(i, 1);
-                        updateEditOptions(user);
-                        filterUsers();
-                    });
-                };
-
-                const filterUsers = () => vm.filteredUsers = vm.users.filter(vm.isUnfiltered);
-
-                const updateEditOptions = function (user) {
-                    user.availableRoles = [];
-                    user.removableRoles = [];
-                    vm.roles.forEach(function (role) {
-                        if (user.roles.map(function (r) {
-                            return r.name;
-                        }).indexOf(role.type) === -1) {
-                            user.availableRoles.push(angular.copy(role));
-                        } else {
-                            user.removableRoles.push(angular.copy(role));
+                }
+                vm.permissions
+                    .filter(function(permission) {
+                        return permission.filtered;
+                    })
+                    .forEach(function(permission) {
+                        if (!vm.hasPermission(user, permission.type)) {
+                            result = false;
                         }
                     });
-                    user.availablePermissions = [];
-                    user.removablePermissions = [];
-                    vm.permissions.forEach(function (permission) {
-                        if (user.permissions.map(function (p) {
-                            return p.type;
-                        }).indexOf(permission.type) === -1) {
-                            user.availablePermissions.push(angular.copy(permission));
-                        } else {
-                            user.removablePermissions.push(angular.copy(permission));
-                        }
-                    });
-                };
+                return result;
+            };
 
-                const search = function () {
-                    UserManagement.users.query({ filter: vm.filter.text }, function (users) {
+            vm.addRole = function(user, role) {
+                UserManagement.roles.add({ id: user.id, role: role.type }, function() {
+                    user.roles.push({ name: role.type });
+                    updateEditOptions(user);
+                });
+            };
+
+            vm.addPermission = function(user, permission) {
+                UserManagement.permissions.add({ id: user.id, permission: permission.type }, function() {
+                    user.permissions.push({ type: permission.type });
+                    updateEditOptions(user);
+                });
+            };
+
+            vm.removeRole = function(user, role) {
+                UserManagement.roles.remove({ id: user.id, role: role.type }, function() {
+                    const i = user.roles
+                        .map(function(r) {
+                            return r.name;
+                        })
+                        .indexOf(role.type);
+                    user.roles.splice(i, 1);
+                    updateEditOptions(user);
+                    filterUsers();
+                });
+            };
+
+            vm.removePermission = function(user, permission) {
+                UserManagement.permissions.remove({ id: user.id, permission: permission.type }, function() {
+                    const i = user.permissions
+                        .map(function(p) {
+                            return p.type;
+                        })
+                        .indexOf(permission.type);
+                    user.permissions.splice(i, 1);
+                    updateEditOptions(user);
+                    filterUsers();
+                });
+            };
+
+            const filterUsers = () => (vm.filteredUsers = vm.users.filter(vm.isUnfiltered));
+
+            const updateEditOptions = function(user) {
+                user.availableRoles = [];
+                user.removableRoles = [];
+                vm.roles.forEach(function(role) {
+                    if (
+                        user.roles
+                            .map(function(r) {
+                                return r.name;
+                            })
+                            .indexOf(role.type) === -1
+                    ) {
+                        user.availableRoles.push(angular.copy(role));
+                    } else {
+                        user.removableRoles.push(angular.copy(role));
+                    }
+                });
+                user.availablePermissions = [];
+                user.removablePermissions = [];
+                vm.permissions.forEach(function(permission) {
+                    if (
+                        user.permissions
+                            .map(function(p) {
+                                return p.type;
+                            })
+                            .indexOf(permission.type) === -1
+                    ) {
+                        user.availablePermissions.push(angular.copy(permission));
+                    } else {
+                        user.removablePermissions.push(angular.copy(permission));
+                    }
+                });
+            };
+
+            const search = function() {
+                UserManagement.users.query(
+                    { filter: vm.filter.text },
+                    function(users) {
                         vm.users = users;
-                        vm.users.forEach(function (user) {
+                        vm.users.forEach(function(user) {
                             updateEditOptions(user);
                         });
                         filterUsers();
                         vm.loader.loading = false;
-                    }, function (err) {
+                    },
+                    function(err) {
                         vm.loader.loading = false;
                         toast.error($translate.instant(err.data));
-                    });
-                };
-
-            }
-        ]
-    });
-
+                    },
+                );
+            };
+        },
+    ],
+});

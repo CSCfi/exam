@@ -16,23 +16,22 @@
 
 import angular from 'angular';
 
-angular.module('app.maturity')
-    .component('inspectionStatementDialog', {
-        template: require('./inspectionStatementDialog.template.html'),
-        bindings: {
-            resolve: '<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: function () {
-            const vm = this;
+angular.module('app.maturity').component('inspectionStatementDialog', {
+    template: require('./inspectionStatementDialog.template.html'),
+    bindings: {
+        resolve: '<',
+        close: '&',
+        dismiss: '&',
+    },
+    controller: function() {
+        const vm = this;
 
-            vm.$onInit = function () {
-                vm.statement = vm.resolve.statement;
-            };
+        vm.$onInit = function() {
+            vm.statement = vm.resolve.statement;
+        };
 
-            vm.ok = function () {
-                vm.close();
-            };
-        }
-    });
+        vm.ok = function() {
+            vm.close();
+        };
+    },
+});

@@ -15,49 +15,58 @@
 
 import angular from 'angular';
 
-angular.module('app.examination')
-    .component('examinationEssayQuestion', {
-        template: require('./examinationEssayQuestion.template.html'),
-        bindings: {
-            sq: '<',
-            exam: '<',
-            isPreview: '<'
-        },
-        controller: ['Examination', 'Attachment', 'Files',
-            function (Examination, Attachment, Files) {
+angular.module('app.examination').component('examinationEssayQuestion', {
+    template: require('./examinationEssayQuestion.template.html'),
+    bindings: {
+        sq: '<',
+        exam: '<',
+        isPreview: '<',
+    },
+    controller: [
+        'Examination',
+        'Attachment',
+        'Files',
+        function(Examination, Attachment, Files) {
+            const vm = this;
 
-                const vm = this;
+            vm.$onInit = function() {
+                Examination.setQuestionColors(vm.sq);
+            };
 
-                vm.$onInit = function () {
-                    Examination.setQuestionColors(vm.sq);
-                };
+            vm.saveAnswer = function() {
+                Examination.saveTextualAnswer(vm.sq, vm.exam.hash, false);
+            };
 
-                vm.saveAnswer = function () {
-                    Examination.saveTextualAnswer(vm.sq, vm.exam.hash, false);
-                };
+            vm.removeQuestionAnswerAttachment = function() {
+                if (vm.exam.external) {
+                    Attachment.removeExternalQuestionAnswerAttachment(vm.sq, vm.exam.hash);
+                    return;
+                }
+                Attachment.removeQuestionAnswerAttachment(vm.sq);
+            };
 
-                vm.removeQuestionAnswerAttachment = function () {
+            vm.selectFile = function() {
+                if (vm.isPreview) {
+                    return;
+                }
+                Attachment.selectFile(false).then(function(data) {
                     if (vm.exam.external) {
-                        Attachment.removeExternalQuestionAnswerAttachment(vm.sq, vm.exam.hash);
+                        Files.uploadAnswerAttachment(
+                            '/app/iop/attachment/question/answer',
+                            data.attachmentFile,
+                            { questionId: vm.sq.id, examId: vm.exam.hash },
+                            vm.sq.essayAnswer,
+                        );
                         return;
                     }
-                    Attachment.removeQuestionAnswerAttachment(vm.sq);
-                };
-
-                vm.selectFile = function () {
-                    if (vm.isPreview) {
-                        return;
-                    }
-                    Attachment.selectFile(false).then(function (data) {
-                        if (vm.exam.external) {
-                            Files.uploadAnswerAttachment('/app/iop/attachment/question/answer', data.attachmentFile,
-                                {questionId: vm.sq.id, examId: vm.exam.hash}, vm.sq.essayAnswer);
-                            return;
-                        }
-                        Files.uploadAnswerAttachment('/app/attachment/question/answer', data.attachmentFile,
-                            {questionId: vm.sq.id, answerId: vm.sq.essayAnswer.id}, vm.sq.essayAnswer);
-                    });
-                };
-            }
-        ]
-    });
+                    Files.uploadAnswerAttachment(
+                        '/app/attachment/question/answer',
+                        data.attachmentFile,
+                        { questionId: vm.sq.id, answerId: vm.sq.essayAnswer.id },
+                        vm.sq.essayAnswer,
+                    );
+                });
+            };
+        },
+    ],
+});
