@@ -78,7 +78,7 @@ const config = {
             },
             {
                 test: /\.template.html$/,
-                use: 'ng-cache-loader?prefix=[dir]/[dir]',
+                use: 'ng-cache-loader?prefix=[dir]/[dir]&-caseSensitive',
                 exclude: '/node_modules/',
             },
             {
