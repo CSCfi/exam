@@ -141,7 +141,7 @@
         <tbody>
             <tr
                 ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
-        | offset: $ctrl.currentPageGradedLogged*$ctrl.data.pageSize | limitTo:$ctrl.data.pageSize"
+        | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo:$ctrl.data.pageSize"
             >
                 <td class="table-column-checkbox">
                     <input type="checkbox" ng-model="review.selected" class="selectionBox" value="{{review.exam.id}}" />
@@ -183,24 +183,24 @@
                 <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
             </tr>
             <!--Fill if page not full-->
-            <tr ng-if=" $ctrl.data.filtered.length === 0">
-                <td ng-if="$ctrl.showId()" colspan="10">{{'sitnet_review_no_result' | translate}}</td>
-                <td ng-if="!$ctrl.showId()" colspan="9">{{'sitnet_review_no_result' | translate}}</td>
+            <tr ng-if="$ctrl.data.filtered.length === 0">
+                <td ng-if="$ctrl.showId()" colspan="11">{{'sitnet_review_no_result' | translate}}</td>
+                <td ng-if="!$ctrl.showId()" colspan="10">{{'sitnet_review_no_result' | translate}}</td>
             </tr>
             <tr ng-repeat="r in [] | pagefill: $ctrl.data.filtered.length:$ctrl.data.page:$ctrl.data.pageSize">
-                <td ng-if="$ctrl.showId()" colspan="10">&nbsp;</td>
-                <td ng-if="!$ctrl.showId()" colspan="9">&nbsp;</td>
+                <td ng-if="$ctrl.showId()" colspan="11">&nbsp;</td>
+                <td ng-if="!$ctrl.showId()" colspan="10">&nbsp;</td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<div class="detail-row">
-    <div class="col-md-12" ng-show="$ctrl.data.toggle && $ctrl.data.filtered.length > $ctrl.data.pageSize">
+<div class="detail-row" ng-show="$ctrl.data.toggle">
+    <div class="col-md-12" ng-show="$ctrl.data.filtered.length > $ctrl.data.pageSize">
         <paginator
             items="$ctrl.data.filtered"
-            page-size="$ctrl.data.pageSize"
             on-select-page="$ctrl.pageSelected(page)"
+            page-size="$ctrl.data.pageSize"
             current-page="$ctrl.data.page"
         ></paginator>
     </div>
