@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.enrolment').component('enrolmentDetails', {
@@ -21,14 +20,23 @@ angular.module('app.enrolment').component('enrolmentDetails', {
         exam: '<',
     },
     controller: [
+        '$state',
         'Exam',
         'Enrolment',
         'DateTime',
-        function(Exam, Enrolment, DateTime) {
+        function($state, Exam, Enrolment, DateTime) {
             const vm = this;
 
             vm.enrollForExam = function() {
                 Enrolment.checkAndEnroll(vm.exam);
+            };
+
+            vm.makeReservation = function() {
+                if (vm.exam.implementation !== 'AQUARIUM') {
+                    $state.go('dashboard');
+                } else {
+                    $state.go('calendar', { id: vm.exam.id });
+                }
             };
 
             vm.translateExamType = function() {

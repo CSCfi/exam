@@ -133,6 +133,8 @@ public class EnrolmentController extends BaseController {
             .fetch("examInspections.user")
             .fetch("examType")
             .fetch("executionType")
+            .fetch("examinationEventConfigurations")
+            .fetch("examinationEventConfigurations.examinationEvent")
             .where()
             .eq("state", Exam.State.PUBLISHED)
             .eq("course.code", code)
