@@ -126,6 +126,7 @@ angular.module('app.review').component('speedReview', {
                         data,
                         () => {
                             this.examReviews.splice(this.examReviews.indexOf(review), 1);
+                            this.examReviews = angular.copy(this.examReviews);
                             exam.gradedTime = new Date().getTime();
                             exam.grade = grade;
                             deferred.resolve();
