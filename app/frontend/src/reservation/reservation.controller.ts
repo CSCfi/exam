@@ -15,6 +15,7 @@
 import { StateParams } from '@uirouter/core';
 import * as angular from 'angular';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../session/session.service';
@@ -121,65 +122,82 @@ export class ReservationController implements angular.IComponentController {
                 .get('/app/reservations', { params: params })
                 .then((resp: angular.IHttpResponse<any[]>) => {
                     const reservations = resp.data;
-                    reservations.forEach(r => {
-                        r.userAggregate = r.user
-                            ? `${r.user.lastName}  ${r.user.firstName}`
-                            : r.externalUserRef
-                            ? r.externalUserRef
-                            : r.enrolment.exam.id;
-                        // Transfer exam taken here
-                        if (!r.enrolment || r.enrolment.externalExam) {
-                            r.enrolment = r.enrolment || {};
-                            const state =
-                                r.enrolment.externalExam && r.enrolment.externalExam.finished
-                                    ? 'EXTERNAL_FINISHED'
-                                    : 'EXTERNAL_UNFINISHED';
-                            r.enrolment.exam = { external: true, examOwners: [], state: state };
-                        }
-                        // Transfer exam taken elsewhere
-                        if (r.externalReservation) {
-                            r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
-                            r.machine = {
-                                name: r.externalReservation.machineName,
-                                room: { name: r.externalReservation.roomName },
-                            };
-                        }
-                        // Collaborative exam
-                        if (r.enrolment.collaborativeExam) {
-                            if (!r.enrolment.exam) {
-                                r.enrolment.exam = r.enrolment.collaborativeExam;
-                            }
-                            r.enrolment.exam.examOwners = [];
-                        }
-                        if (!r.enrolment.exam) {
-                            console.warn('no exam for enrolment ' + r.enrolment.id);
-                        } else {
-                            const exam = r.enrolment.exam.parent || r.enrolment.exam;
-                            r.enrolment.teacherAggregate = exam.examOwners
-                                .map(function(o) {
-                                    return o.lastName + o.firstName;
-                                })
-                                .join();
-                            const state = this.Reservation.printExamState(r);
-                            r.stateOrd = [
-                                'PUBLISHED',
-                                'NO_SHOW',
-                                'STUDENT_STARTED',
-                                'ABORTED',
-                                'REVIEW',
-                                'REVIEW_STARTED',
-                                'GRADED',
-                                'GRADED_LOGGED',
-                                'REJECTED',
-                                'ARCHIVED',
-                                'EXTERNAL_UNFINISHED',
-                                'EXTERNAL_FINISHED',
-                            ].indexOf(state);
-                        }
-                    });
-                    this.reservations = reservations.filter(
-                        r => r.externalReservation || !this.externalReservationsOnly,
-                    );
+                    this.$http
+                        .get('/app/events', { params: params })
+                        .then((resp: angular.IHttpResponse<any>) => {
+                            const events = resp.data.map(e => {
+                                return {
+                                    enrolment: e,
+                                    startAt: e.examinationEventConfiguration.examinationEvent.start,
+                                    endAt: moment(e.examinationEventConfiguration.examinationEvent.start)
+                                        .add(e.exam.duration, 'm')
+                                        .toISOString(),
+                                };
+                            });
+                            const allEvents: any[] = reservations.concat(events).sort((a, b) => a.startAt - b.startAt);
+                            allEvents.forEach(r => {
+                                r.userAggregate = r.user
+                                    ? `${r.user.lastName}  ${r.user.firstName}`
+                                    : r.externalUserRef
+                                    ? r.externalUserRef
+                                    : r.enrolment.exam.id;
+                                // Transfer exam taken here
+                                if (!r.enrolment || r.enrolment.externalExam) {
+                                    r.enrolment = r.enrolment || {};
+                                    const state =
+                                        r.enrolment.externalExam && r.enrolment.externalExam.finished
+                                            ? 'EXTERNAL_FINISHED'
+                                            : 'EXTERNAL_UNFINISHED';
+                                    r.enrolment.exam = { external: true, examOwners: [], state: state };
+                                }
+                                // Transfer exam taken elsewhere
+                                if (r.externalReservation) {
+                                    r.org = {
+                                        name: r.externalReservation.orgName,
+                                        code: r.externalReservation.orgCode,
+                                    };
+                                    r.machine = {
+                                        name: r.externalReservation.machineName,
+                                        room: { name: r.externalReservation.roomName },
+                                    };
+                                }
+                                // Collaborative exam
+                                if (r.enrolment.collaborativeExam) {
+                                    if (!r.enrolment.exam) {
+                                        r.enrolment.exam = r.enrolment.collaborativeExam;
+                                    }
+                                    r.enrolment.exam.examOwners = [];
+                                }
+                                if (!r.enrolment.exam) {
+                                    console.warn('no exam for enrolment ' + r.enrolment.id);
+                                } else {
+                                    const exam = r.enrolment.exam.parent || r.enrolment.exam;
+                                    r.enrolment.teacherAggregate = exam.examOwners
+                                        .map(function(o) {
+                                            return o.lastName + o.firstName;
+                                        })
+                                        .join();
+                                    const state = this.Reservation.printExamState(r);
+                                    r.stateOrd = [
+                                        'PUBLISHED',
+                                        'NO_SHOW',
+                                        'STUDENT_STARTED',
+                                        'ABORTED',
+                                        'REVIEW',
+                                        'REVIEW_STARTED',
+                                        'GRADED',
+                                        'GRADED_LOGGED',
+                                        'REJECTED',
+                                        'ARCHIVED',
+                                        'EXTERNAL_UNFINISHED',
+                                        'EXTERNAL_FINISHED',
+                                    ].indexOf(state);
+                                }
+                            });
+                            const foo = allEvents.filter(r => r.externalReservation || !this.externalReservationsOnly);
+                            this.reservations = foo;
+                        })
+                        .catch(resp => toast.error(resp));
                 })
                 .catch(resp => {
                     toast.error(resp);

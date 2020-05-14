@@ -94,7 +94,7 @@
                             <span class="exam-code">{{ exam.course.code }}</span>
                         </td>
                         <td>
-                            <span class="exam-type">{{ $ctrl.getExecutionTypeTranslation(exam) | translate }}</span>
+                            <span class="exam-type">{{ $ctrl.getExecutionTypeTranslation(exam) }}</span>
                         </td>
                         <td class="table-column-open-until">
                             <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">

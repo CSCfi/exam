@@ -114,14 +114,22 @@
             <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external" class="width15">
                 {{'sitnet_exam_status_external' | translate}}
             </td>
-            <td class="reservation-search">
+            <td class="reservation-search" ng-if="r.enrolment.exam.implementation === 'AQUARIUM'">
                 {{r.startAt | adjustdst | date:'dd.MM.yyyy'}} <br />{{r.startAt | adjustdst | date:'HH:mm'}}-{{r.endAt |
                 adjustdst | date:'HH:mm'}}
             </td>
+            <td class="reservation-search" ng-if="r.enrolment.exam.implementation !== 'AQUARIUM'">
+                {{r.startAt | date:'dd.MM.yyyy'}} <br />{{r.startAt | date:'HH:mm'}}-{{r.endAt | date:'HH:mm'}}
+            </td>
             <td class="reservation-search">
-                {{r.machine.room.name}}
-                <span ng-if="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
-                <br />{{r.machine.name}}
+                <span ng-if="r.enrolment.exam.implementation === 'AQUARIUM'">
+                    {{r.machine.room.name}}
+                    <span ng-if="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
+                    <br />{{r.machine.name}}
+                </span>
+                <span ng-if="r.enrolment.exam.implementation !== 'AQUARIUM'"
+                    ><strong class="text text-primary">BYOD</strong></span
+                >
             </td>
             <td class="reservation-search {{$ctrl.getStateclass(r)}}">
                 {{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}

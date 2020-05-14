@@ -83,7 +83,11 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
 
         getUsername = () => this.Session.getUserName();
 
-        getExecutionTypeTranslation = exam => this.Exam.getExecutionTypeTranslation(exam.executionType.type);
+        getExecutionTypeTranslation = exam => {
+            const type = this.Exam.getExecutionTypeTranslation(exam.executionType.type);
+            const impl = this.Exam.getExamImplementationTranslation(exam.implementation);
+            return `${this.$translate.instant(type)} - ${this.$translate.instant(impl)}`;
+        };
 
         copyExam(exam, type) {
             this.$http
