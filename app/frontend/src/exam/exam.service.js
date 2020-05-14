@@ -261,6 +261,20 @@ angular.module('app.exam').service('Exam', [
             return translation;
         };
 
+        self.getExamImplementationTranslation = function(impl) {
+            let translation;
+            if (impl === 'AQUARIUM') {
+                translation = 'sitnet_examination_type_aquarium';
+            }
+            if (impl === 'CLIENT_AUTH') {
+                translation = 'sitnet_examination_type_seb';
+            }
+            if (impl === 'WHATEVER') {
+                translation = 'sitnet_examination_type_home_exam';
+            }
+            return translation;
+        };
+
         self.getSectionTotalScore = function(section) {
             let score = 0;
 
