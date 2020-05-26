@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +40,7 @@ import org.jsoup.select.Elements;
 public class ClozeTestAnswer extends GeneratedIdentityModel {
     private static final String CLOZE_SELECTOR = "span[cloze=true]";
 
-    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\\\/]");
+    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\/]");
 
     @Column(columnDefinition = "TEXT")
     private String answer;
@@ -168,12 +169,13 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     private Map<String, String> asMap(Gson gson) {
-        Type mapType = new TypeToken<Map<String, String>>() {
-            /* pass */
-        }
-        .getType();
+        Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         Map<String, String> map = gson.fromJson(answer, mapType);
-        return map == null ? Collections.emptyMap() : map;
+        if (map != null) {
+            map.values().removeIf(Objects::isNull);
+            return map;
+        }
+        return Collections.emptyMap();
     }
 
     private boolean isNumeric(Element blank) {
@@ -181,7 +183,6 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     private boolean isCorrectNumericAnswer(Element blank, String rawAnswer) {
-        String key = blank.attr("id");
         if (rawAnswer.isBlank()) {
             return false;
         }
@@ -205,7 +206,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             return isCorrectNumericAnswer(blank, rawAnswer);
         }
         // Get rid of excess whitespace
-        String answer = rawAnswer == null ? "" : rawAnswer.trim().replaceAll(" +", " ");
+        String answer = rawAnswer.trim().replaceAll(" +", " ");
         String correctAnswer = blank
             .text()
             .trim()
@@ -234,7 +235,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     // DTO
-    public class Score {
+    public static class Score {
         int correctAnswers;
         int incorrectAnswers;
 

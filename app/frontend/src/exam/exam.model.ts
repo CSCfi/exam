@@ -15,7 +15,7 @@ export interface GradeEvaluation {
 
 export interface AutoEvaluationConfig {
     id: number;
-    releaseDate: VarDate | null;
+    releaseDate: string | number | null;
     amountDays: number | null;
     releaseType: { name: string };
     gradeEvaluations: GradeEvaluation[];
@@ -122,8 +122,8 @@ export interface CollaborativeExam {
     state: CollaborativeExamState;
     examOwners: User[];
     executionType: ExamExecutionType;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
 }
 
 export interface Participation {
@@ -152,8 +152,8 @@ export interface ExamImpl {
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
     duration: number;
     course: Course | null;
     external: boolean;
