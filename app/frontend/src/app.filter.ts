@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
-import * as moment from 'moment';
 import * as _ from 'lodash';
+import * as moment from 'moment';
+
 const truncate = require('truncate-html').default;
 
 export class TruncateFilter {
@@ -28,7 +28,7 @@ export class TruncateFilter {
 
 export class DiffInMinutesFilter {
     static factory(): angular.FilterFactory {
-        return () => (from: VarDate, to: VarDate): number => {
+        return () => (from: string, to: string): number => {
             const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
             return Math.round(diff);
         };
@@ -37,7 +37,7 @@ export class DiffInMinutesFilter {
 
 export class DiffInDaysFilter {
     static factory(): angular.FilterFactory {
-        return () => (date: VarDate): string => {
+        return () => (date: string): string => {
             const msInDay = 1000 * 60 * 60 * 24;
             const diff = (new Date(date).getTime() - new Date().getTime()) / msInDay;
             if (diff < 0) {
