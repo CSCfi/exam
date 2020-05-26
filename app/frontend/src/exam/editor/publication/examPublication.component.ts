@@ -93,8 +93,8 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             });
         };
 
-        startDateChanged = (date: VarDate) => (this.exam.examActiveStartDate = date);
-        endDateChanged = (date: VarDate) => (this.exam.examActiveEndDate = date);
+        startDateChanged = (date: string) => (this.exam.examActiveStartDate = date);
+        endDateChanged = (date: string) => (this.exam.examActiveEndDate = date);
 
         autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
             angular.extend(this.exam.autoEvaluationConfig, config);
