@@ -988,7 +988,13 @@ class EmailComposerImpl implements EmailComposer {
             .filter(
                 ee -> {
                     Reservation reservation = ee.getReservation();
-                    return (reservation != null && reservation.getEndAt().isAfter(DateTime.now()));
+                    ExaminationEventConfiguration eec = ee.getExaminationEventConfiguration();
+                    if (reservation != null) {
+                        return reservation.getStartAt().isAfter(DateTime.now());
+                    } else if (eec != null) {
+                        return eec.getExaminationEvent().getStart().isAfter(DateTime.now());
+                    }
+                    return false;
                 }
             )
             .sorted()
@@ -1003,6 +1009,7 @@ class EmailComposerImpl implements EmailComposer {
             .fetch("course")
             .fetch("examEnrolments")
             .fetch("examEnrolments.reservation")
+            .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
             .where()
             .disjunction()
             .eq("examOwners", teacher)
@@ -1032,7 +1039,10 @@ class EmailComposerImpl implements EmailComposer {
                                 noEnrolments
                             );
                     } else {
-                        DateTime date = adjustDST(t._2.get(0).getReservation().getStartAt());
+                        ExamEnrolment first = t._2.get(0);
+                        DateTime date = first.getReservation() != null
+                            ? adjustDST(first.getReservation().getStartAt())
+                            : first.getExaminationEventConfiguration().getExaminationEvent().getStart();
                         stringValues.put(
                             "enrolments",
                             messaging.get(lang, "email.template.enrolment.first", t._2.size(), DTF.print(date))
