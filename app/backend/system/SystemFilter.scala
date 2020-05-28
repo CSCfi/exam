@@ -24,7 +24,8 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
     ("x-exam-start-exam", "ongoingExamHash"),
     ("x-exam-upcoming-exam", "upcomingExamHash"),
     ("x-exam-wrong-machine", "wrongMachineData"),
-    ("x-exam-wrong-room", "wrongRoomData")
+    ("x-exam-wrong-room", "wrongRoomData"),
+    ("x-exam-wrong-agent-config", "wrongAgent")
   )
 
   import ResultImplicits._
