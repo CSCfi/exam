@@ -252,6 +252,11 @@ public class BaseController extends Controller {
         } else {
             payload.remove("wrongRoomData");
         }
+        if (headers.containsKey("x-exam-wrong-agent-config")) {
+            payload.put("wrongAgent", headers.get("x-exam-wrong-agent-config"));
+        } else {
+            payload.remove("wrongRoomData");
+        }
         return new Http.Session(payload);
     }
 

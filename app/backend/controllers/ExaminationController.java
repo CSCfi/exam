@@ -237,7 +237,7 @@ public class ExaminationController extends BaseController {
                                 return notFound("sitnet_error_exam_not_found");
                             }
                             Optional<ExamParticipation> oep = findParticipation(exam, user);
-
+                            Http.Session session = request.session().removing("ongoingExamHash");
                             if (oep.isPresent()) {
                                 ExamParticipation ep = oep.get();
                                 setDurations(ep);
@@ -257,9 +257,9 @@ public class ExaminationController extends BaseController {
                                     notifyTeachers(exam);
                                 }
                                 autoEvaluationHandler.autoEvaluate(exam);
-                                return ok("Exam sent for review");
+                                return ok("Exam sent for review").withSession(session);
                             } else {
-                                return ok("exam already returned");
+                                return ok("exam already returned").withSession(session);
                             }
                         }
                     )
@@ -281,7 +281,7 @@ public class ExaminationController extends BaseController {
                                 return notFound("sitnet_error_exam_not_found");
                             }
                             Optional<ExamParticipation> oep = findParticipation(exam, user);
-
+                            Http.Session session = request.session().removing("ongoingExamHash");
                             if (oep.isPresent()) {
                                 setDurations(oep.get());
                                 oep.get().save();
@@ -290,9 +290,9 @@ public class ExaminationController extends BaseController {
                                 if (exam.isPrivate()) {
                                     notifyTeachers(exam);
                                 }
-                                return ok("Exam aborted");
+                                return ok("Exam aborted").withSession(session);
                             } else {
-                                return forbidden("Exam already returned");
+                                return forbidden("Exam already returned").withSession(session);
                             }
                         }
                     )
