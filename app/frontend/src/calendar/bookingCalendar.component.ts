@@ -158,6 +158,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                     const customButton = $('.fc-myCustomButton-button');
 
                     const today = moment();
+                    const endOfWeek = view.end.endOf('week');
 
                     customButton.text(_.capitalize(view.start.locale(this.$translate.use()).format('MMMM YYYY')));
 
@@ -168,7 +169,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                         prevButton.removeClass('fc-state-disabled');
                         prevButton.prop('disabled', false);
                     }
-                    if (this.maxDate >= view.start && this.maxDate <= view.end) {
+                    if (this.maxDate >= view.start && this.maxDate <= endOfWeek) {
                         nextButton.prop('disabled', true);
                         nextButton.addClass('fc-state-disabled');
                     } else {
