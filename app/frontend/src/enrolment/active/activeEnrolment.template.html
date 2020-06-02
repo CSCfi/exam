@@ -294,25 +294,15 @@
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ 'sitnet_examination_events' | translate }}:
+                        {{ 'sitnet_examination_event' | translate }}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
-                        <span
-                            class="marr20"
-                            ng-repeat="config in $ctrl.enrolment.exam.examinationEventConfigurations | orderBy:'examinationEvent.start'"
-                        >
-                            <span
-                                ng-if="config.id === $ctrl.enrolment.examinationEventConfiguration.id"
-                                class="text text-success"
+                        <span class="marr20">
+                            <strong
+                                >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start |
+                                date:'dd.MM.yyyy HH:mm' }}</strong
                             >
-                                <strong>{{ config.examinationEvent.start | date:'dd.MM.yyyy HH:mm' }}</strong>
-                            </span>
-                            <span
-                                ng-if="config.id !== $ctrl.enrolment.examinationEventConfiguration.id"
-                                class="text-muted"
-                            >
-                                <strong>{{ config.examinationEvent.start | date:'dd.MM.yyyy HH:mm' }}</strong>
-                            </span>
+                            {{$ctrl.enrolment.examinationEventConfiguration.examinationEvent.description}}
                         </span>
                     </div>
                 </div>
