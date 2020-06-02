@@ -18,7 +18,7 @@ public class ByodConfigHandlerTest {
         running(app, () -> {
             ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
             String key = bch.calculateConfigKey("123456");
-            assertThat(key).isEqualTo("485445b7b7df8fe16b2b7e736eb74f6aaf203924d0ea92d87e179bb5a4c0be43");
+            assertThat(key).isEqualTo("3a4072a8144f15ad5d10fc6d6632bdff0ee5b9c7532b9832bd9e58c52f9bcf24");
         });
 
     }
