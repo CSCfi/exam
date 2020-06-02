@@ -37,46 +37,46 @@
             {{$ctrl.sq.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
         </span>
     </div>
-
-    <div class="col-md-8 pull-right">
-        <div class="row mart10" ng-show="$ctrl.sq.essayAnswer.attachment.fileName">
-            <span class="pull-right">
-                <span class="padr10 filename-text">{{$ctrl.sq.essayAnswer.attachment.fileName | uppercase}}</span>
+    <div ng-if="$ctrl.exam.implementation !== 'CLIENT_AUTH'">
+        <div class="col-md-8 pull-right">
+            <div class="row mart10" ng-show="$ctrl.sq.essayAnswer.attachment.fileName">
+                <span class="pull-right">
+                    <span class="padr10 filename-text">{{$ctrl.sq.essayAnswer.attachment.fileName | uppercase}}</span>
+                    <a
+                        tabindex="0"
+                        class="pointer green_button right-for-section marr15"
+                        ng-click="$ctrl.removeQuestionAnswerAttachment()"
+                        ng-enter="$ctrl.removeQuestionAnswerAttachment()"
+                    >
+                        {{'sitnet_remove_answer_attachment' | translate }}
+                        <img
+                            src="Images/icon_attachment.svg"
+                            alt="attachment"
+                            onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
+                        />
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="row mart10" ng-show="$ctrl.sq.essayAnswer && !$ctrl.sq.essayAnswer.attachment">
+            <div class="pull-right">
+                <span class="padr10 filename-text" ng-show="!$ctrl.sq.essayAnswer.attachment.fileName">
+                    {{'sitnet_no_attachment' | translate }}
+                </span>
                 <a
                     tabindex="0"
-                    class="pointer green_button right-for-section marr15"
-                    ng-click="$ctrl.removeQuestionAnswerAttachment()"
-                    ng-enter="$ctrl.removeQuestionAnswerAttachment()"
+                    class="pointer green_button right-for-section marr30"
+                    ng-click="$ctrl.selectFile()"
+                    ng-enter="$ctrl.selectFile()"
                 >
-                    {{'sitnet_remove_answer_attachment' | translate }}
+                    {{'sitnet_upload_answer_attachment' | translate }}
                     <img
                         src="Images/icon_attachment.svg"
-                        alt="attachment"
+                        alt="exam"
                         onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
                     />
                 </a>
-            </span>
-        </div>
-    </div>
-
-    <div class="row mart10" ng-show="$ctrl.sq.essayAnswer && !$ctrl.sq.essayAnswer.attachment">
-        <div class="pull-right">
-            <span class="padr10 filename-text" ng-show="!$ctrl.sq.essayAnswer.attachment.fileName">
-                {{'sitnet_no_attachment' | translate }}
-            </span>
-            <a
-                tabindex="0"
-                class="pointer green_button right-for-section marr30"
-                ng-click="$ctrl.selectFile()"
-                ng-enter="$ctrl.selectFile()"
-            >
-                {{'sitnet_upload_answer_attachment' | translate }}
-                <img
-                    src="Images/icon_attachment.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_attachment.png';"
-                />
-            </a>
+            </div>
         </div>
     </div>
 </div>
