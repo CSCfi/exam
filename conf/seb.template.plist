@@ -23,7 +23,7 @@
         <key>allowDisplayMirroring</key>
         <false/>
         <key>allowDownUploads</key>
-        <true/>
+        <false/>
         <key>allowFlashFullscreen</key>
         <false/>
         <key>allowPDFPlugIn</key>
