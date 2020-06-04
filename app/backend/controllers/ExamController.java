@@ -188,7 +188,7 @@ public class ExamController extends BaseController {
             "examinationDates(*), " +
             "examOwners(id, firstName, lastName), executionType(type), " +
             "examInspections(id, user(id, firstName, lastName)), " +
-            "examEnrolments(id, user(id), reservation(id, endAt)))"
+            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
         Query<Exam> query = Ebean.createQuery(Exam.class);
         props.apply(query);
