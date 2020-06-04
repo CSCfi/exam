@@ -975,5 +975,6 @@
   "sitnet_examination_type_home_exam": "Home exam",
   "sitnet_section_max_score": "Aihealueen pisteet EN",
   "sitnet_evaluation_select_amount_description": "Hyväksytty / Hylätty -kysymysten lukumäärä aihealueessa. EN",
-  "sitnet_word_passed_max": "Hyväksytty max EN"
+  "sitnet_word_passed_max": "Hyväksytty max EN",
+  "sitnet_word_minutes": "Minutes EN"
 }
