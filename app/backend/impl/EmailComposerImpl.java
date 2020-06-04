@@ -311,7 +311,7 @@ class EmailComposerImpl implements EmailComposer {
             exam.getCourse() != null ? String.format("(%s)", exam.getCourse().getCode()) : ""
         );
         String teacherName = getTeachers(exam);
-        DateTime startDate = adjustDST(config.getExaminationEvent().getStart());
+        DateTime startDate = config.getExaminationEvent().getStart();
         String examDuration = String.format(
             "%dh %dmin",
             exam.getDuration() / MINUTES_IN_HOUR,
