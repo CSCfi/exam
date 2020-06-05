@@ -32,11 +32,13 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         reviews: ExamParticipation[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
+        gradeTimeData: Array<{ x: number; y: number }>;
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
         abortedExams: ExamParticipation[];
         noShows: unknown[];
         collaborative: boolean;
+        gradeDistributionChart: any;
         gradeTimeChart: any;
 
         constructor(
@@ -53,9 +55,11 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
 
         private refresh = () => {
             this.getNoShows();
-            this.buildGradeDistribution();
+            this.calculateGradeDistribution();
+            this.renderGradeDistributionChart();
             this.gradedCount = this.reviews.filter(r => r.exam.gradedTime).length;
             this.abortedExams = this.reviews.filter(r => r.exam.state === 'ABORTED');
+            this.calculateGradeTimeValues();
             this.renderGradeTimeChart();
         };
 
@@ -94,13 +98,35 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             return `${effectiveCount} (${totalCount})`;
         };
 
-        buildGradeDistribution = () => {
+        calculateGradeDistribution = () => {
             const grades: string[] = this.reviews
                 .filter(r => r.exam.gradedTime)
                 .map(r => (r.exam.grade ? r.exam.grade.name : this.$translate.instant('sitnet_no_grading')));
             this.gradeDistribution = _.countBy(grades);
             this.gradeDistributionData = Object.values(this.gradeDistribution);
             this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
+        };
+
+        renderGradeDistributionChart = () => {
+            const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
+
+            this.gradeDistributionChart = new Chart('gradeDistributionChart', {
+                type: 'doughnut',
+                data: {
+                    datasets: [
+                        {
+                            data: this.gradeDistributionData,
+                            backgroundColor: chartColors,
+                        },
+                    ],
+                    labels: this.gradeDistributionLabels,
+                },
+                options: {
+                    legend: { display: false },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                },
+            });
         };
 
         getAverageTime = () => {
@@ -123,11 +149,13 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             }
         };
 
-        renderGradeTimeChart = () => {
-            /* Calculate required chart values */
-            const chartData = this.reviews
+        calculateGradeTimeValues = () => {
+            this.gradeTimeData = this.reviews
                 .sort((a, b) => (a.duration > b.duration ? 1 : -1))
                 .map(r => ({ x: r.duration, y: r.exam.totalScore }));
+        };
+
+        renderGradeTimeChart = () => {
             const { duration } = this.exam;
             const examMaxScore = this.Exam.getMaxScore(this.exam);
 
@@ -139,14 +167,14 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                         {
                             showLine: false,
                             pointBackgroundColor: '#F7464A',
-                            data: chartData,
+                            data: this.gradeTimeData,
                         },
                     ],
                 },
                 options: {
-                    legend: {
-                        display: false,
-                    },
+                    legend: { display: false },
+                    responsive: true,
+                    maintainAspectRatio: false,
                     tooltips: {
                         displayColors: false,
                         callbacks: {
@@ -161,10 +189,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                     scales: {
                         yAxes: [
                             {
-                                ticks: {
-                                    max: examMaxScore,
-                                    min: 0,
-                                },
+                                ticks: { max: examMaxScore, min: 0 },
                                 display: true,
                                 scaleLabel: {
                                     display: true,
@@ -174,10 +199,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                         ],
                         xAxes: [
                             {
-                                ticks: {
-                                    max: duration,
-                                    min: 0,
-                                },
+                                ticks: { max: duration, min: 0 },
                                 display: true,
                                 scaleLabel: {
                                     display: true,
