@@ -105,7 +105,7 @@ GET           /app/student/enrolments                                  backend.c
 GET           /app/student/exam/:eid/info                              backend.controllers.StudentActionsController.getExamInfo(eid: Long, request: Request)
 GET           /app/student/exams                                       backend.controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String], request: Request)
 GET           /app/student/enrolments/:eid                             backend.controllers.StudentActionsController.getEnrolment(eid: Long, request: Request)
-
+GET           /app/student/enrolments/:eid/configFile                  backend.controllers.StudentActionsController.getExamConfigFile(eid: Long, request: Request)
 
 ############### Section interface ###############
 
