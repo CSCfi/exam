@@ -17,6 +17,7 @@ import * as angular from 'angular';
 import { IHttpResponse } from 'angular';
 import { User } from '../../session/session.service';
 import { Exam, ExamExecutionType } from '../../exam/exam.model';
+import { ReservationService } from '../../reservation/reservationService';
 
 export interface ReviewerExam extends Exam {
     ownerAggregate: string;
@@ -39,7 +40,7 @@ export class TeacherDashboardService {
         private $http: angular.IHttpService,
         private $q: angular.IQService,
         private Exam: any, // TBD
-        private Reservation: any, // TBD
+        private Reservation: ReservationService,
     ) {
         'ngInject';
     }
