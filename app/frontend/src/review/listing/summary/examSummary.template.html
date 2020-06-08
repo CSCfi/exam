@@ -212,14 +212,8 @@
             </div>
         </div>
     </div>
-    <div style="height:50%;width:50%;padding-top:40%;">
-        <canvas
-            id="doughnut"
-            class="chart chart-doughnut"
-            chart-data="$ctrl.gradeDistributionData"
-            chart-labels="$ctrl.gradeDistributionLabels"
-        >
-        </canvas>
+    <div class="col-md-6" style="height: 370px;padding-top:30px;">
+        <canvas id="gradeDistributionChart"></canvas>
     </div>
 
     <div class="col-md-12 mart40">
@@ -228,16 +222,8 @@
         </div>
     </div>
 
-    <div style="height:50%;width:50%;padding-top:10%;">
-        <canvas
-            id="line"
-            class="chart chart-line"
-            chart-data="$ctrl.gradeTimeData"
-            chart-labels="$ctrl.gradeTimeLabels"
-            chart-series="$ctrl.chartSeries"
-            chart-options="$ctrl.chartOptions"
-        >
-        </canvas>
+    <div class="col-md-6" style="height: 370px;padding-top:30px;">
+        <canvas id="gradeTimeChart"></canvas>
     </div>
 
     <div class="col-md-12 mart40">

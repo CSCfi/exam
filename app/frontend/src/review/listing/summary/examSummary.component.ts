@@ -14,6 +14,7 @@
  */
 import * as ng from 'angular';
 import * as _ from 'lodash';
+import * as Chart from 'chart.js';
 
 import { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { FileService } from '../../../utility/file/file.service';
@@ -31,15 +32,14 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         reviews: ExamParticipation[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
-        gradeTimeData: number[][];
-        gradeTimeLabels: number[];
+        gradeTimeData: Array<{ x: number; y: number }>;
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
-        chartOptions: any;
-        chartSeries: any;
         abortedExams: ExamParticipation[];
         noShows: unknown[];
         collaborative: boolean;
+        gradeDistributionChart: any;
+        gradeTimeChart: any;
 
         constructor(
             private Files: FileService,
@@ -47,42 +47,29 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
             private $http: angular.IHttpService,
+            private $rootScope: angular.IRootScopeService,
+            private Exam: any,
         ) {
             'ngInject';
         }
 
         private refresh = () => {
             this.getNoShows();
-            this.buildGradeDistribution();
+            this.calculateGradeDistribution();
+            this.renderGradeDistributionChart();
             this.gradedCount = this.reviews.filter(r => r.exam.gradedTime).length;
             this.abortedExams = this.reviews.filter(r => r.exam.state === 'ABORTED');
-            this.buildGradeTime();
-            this.chartSeries = [this.$translate.instant('sitnet_word_points')];
-            this.chartOptions = {
-                scales: {
-                    xAxes: [
-                        {
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.$translate.instant('sitnet_minutes'),
-                            },
-                        },
-                    ],
-                    yAxes: [
-                        {
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.$translate.instant('sitnet_word_points').toLowerCase(),
-                            },
-                        },
-                    ],
-                },
-            };
+            this.calculateGradeTimeValues();
+            this.renderGradeTimeChart();
         };
 
-        $onInit = () => this.refresh();
+        $onInit = () => {
+            this.refresh();
+            // Had to manually update chart locales
+            this.$rootScope.$on('$localeChangeSuccess', () => {
+                this.updateChartLocale();
+            });
+        };
 
         $onChanges = () => this.refresh();
 
@@ -111,13 +98,35 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             return `${effectiveCount} (${totalCount})`;
         };
 
-        buildGradeDistribution = () => {
+        calculateGradeDistribution = () => {
             const grades: string[] = this.reviews
                 .filter(r => r.exam.gradedTime)
                 .map(r => (r.exam.grade ? r.exam.grade.name : this.$translate.instant('sitnet_no_grading')));
             this.gradeDistribution = _.countBy(grades);
             this.gradeDistributionData = Object.values(this.gradeDistribution);
             this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
+        };
+
+        renderGradeDistributionChart = () => {
+            const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
+
+            this.gradeDistributionChart = new Chart('gradeDistributionChart', {
+                type: 'doughnut',
+                data: {
+                    datasets: [
+                        {
+                            data: this.gradeDistributionData,
+                            backgroundColor: chartColors,
+                        },
+                    ],
+                    labels: this.gradeDistributionLabels,
+                },
+                options: {
+                    legend: { display: false },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                },
+            });
         };
 
         getAverageTime = () => {
@@ -140,13 +149,78 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             }
         };
 
-        buildGradeTime = () => {
-            const gradeTimes: { duration: number; score: number }[] = this.reviews
+        calculateGradeTimeValues = () => {
+            this.gradeTimeData = this.reviews
                 .sort((a, b) => (a.duration > b.duration ? 1 : -1))
-                .map(r => ({ duration: r.duration, score: r.exam.totalScore }));
-            this.gradeTimeLabels = gradeTimes.map(g => g.duration);
-            this.gradeTimeData = [gradeTimes.map(g => g.score)];
+                .map(r => ({ x: r.duration, y: r.exam.totalScore }));
         };
+
+        renderGradeTimeChart = () => {
+            const { duration } = this.exam;
+            const examMaxScore = this.Exam.getMaxScore(this.exam);
+
+            // This could be done as a separate chart component after Angular migration
+            this.gradeTimeChart = new Chart('gradeTimeChart', {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            showLine: false,
+                            pointBackgroundColor: '#F7464A',
+                            data: this.gradeTimeData,
+                        },
+                    ],
+                },
+                options: {
+                    legend: { display: false },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        displayColors: false,
+                        callbacks: {
+                            label: tooltipItem => {
+                                const { xLabel, yLabel } = tooltipItem;
+                                const pointsLabel = this.$translate.instant('sitnet_word_points');
+                                const minutesLabel = this.$translate.instant('sitnet_word_minutes');
+                                return `${pointsLabel}: ${yLabel} ${minutesLabel}: ${xLabel}`;
+                            },
+                        },
+                    },
+                    scales: {
+                        yAxes: [
+                            {
+                                ticks: { max: examMaxScore, min: 0 },
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: this.$translate.instant('sitnet_word_points').toLowerCase(),
+                                },
+                            },
+                        ],
+                        xAxes: [
+                            {
+                                ticks: { max: duration, min: 0 },
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: this.$translate.instant('sitnet_word_minutes').toLowerCase(),
+                                },
+                            },
+                        ],
+                    },
+                },
+            });
+        };
+
+        updateChartLocale() {
+            this.gradeTimeChart.options.scales.yAxes[0].scaleLabel.labelString = this.$translate
+                .instant('sitnet_word_points')
+                .toLowerCase();
+            this.gradeTimeChart.options.scales.xAxes[0].scaleLabel.labelString = this.$translate
+                .instant('sitnet_word_minutes')
+                .toLowerCase();
+            this.gradeTimeChart.update();
+        }
 
         printQuestionScoresReport = () => {
             const ids = this.reviews.map(r => r.exam.id);
