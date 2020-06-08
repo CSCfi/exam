@@ -976,5 +976,13 @@
   "sitnet_section_max_score": "Aihealueen pisteet SV",
   "sitnet_evaluation_select_amount_description": "Hyväksytty / Hylätty -kysymysten lukumäärä aihealueessa. SV",
   "sitnet_word_passed_max": "Hyväksytty max SV",
-  "sitnet_seb_file": "Tenttitiedosto SV"
+  "sitnet_seb_file": "Tenttitiedosto SV",
+  "sitnet_exam_name_description": "Tentin viimeisin nimi (joka sillä hetkellä on tentissä tallennettuna, aiemmat eivät näy) SV",
+  "sitnet_course_name_description": "Opintojakso, johon tentti on kytketty tällä hetkellä (aiemmat mahdolliset opintojaksot eivät näy) SV",
+  "sitnet_exam_validity_period_description": "Ajanjakso, jolla tentti on tai on ollut avoinna opiskelijoiden suorituksille. SV",
+  "sitnet_exam_amount_questions_description": "Tentissä tällä hetkellä mukaan arvotut kysymykset verrattuna kaikkiin tentin kategorioissa oleviin kysymyksiin. SV",
+  "sitnet_exam_amount_reservations_description": "Montako suoritusta kaikista suorituksista on arvioitu tällä hetkellä (ei huomioi noshow, tentin keskeyttäneitä, eikä tulevia varauksia) SV",
+  "sitnet_exam_average_time_description": "Tenttisuoritusten keston keskiarvo SV",
+  "sitnet_feedback_summary_description": "Montako lukitun arvioinnin palautetta on luettu ja montako niitä on annettu (huom! vain lukitut arvioinnit näkyvät tässä). Huom! Tässä eivät näy vain tallennetut palautteet ja arvioinnit, pitää olla lukittu. SV",
+  "sitnet_exam_grade_distribution_description": "Tallennettujen ja lukittujen arviointien jakauma (molemmat näkyvät tässä) SV"
 }

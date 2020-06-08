@@ -9,6 +9,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_name' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_name_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6">
                 <div class="">{{$ctrl.exam.name}}</div>
@@ -17,6 +27,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_course_name' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_course_name_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6">
                 <div class="">{{$ctrl.exam.course.name}}</div>
@@ -25,6 +45,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_validity' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_validity_period_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6">
                 {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate |
@@ -34,6 +64,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_amount_questions' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_amount_questions_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6" ng-if="$ctrl.exam">
                 {{$ctrl.getQuestionCounts()}}
@@ -42,6 +82,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_amount_reservations' | translate}} / {{'sitnet_exam_amount_participations' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_amount_reservations_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6" ng-if="$ctrl.reviews">
                 {{$ctrl.gradedCount}} / {{$ctrl.getRegisteredCount()}} ({{$ctrl.gradedCount / $ctrl.getRegisteredCount()
@@ -51,6 +101,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_average_time' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_exam_average_time_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6" ng-if="$ctrl.reviews.length > 0">
                 {{$ctrl.getAverageTime() | number : 0}} min
@@ -59,11 +119,6 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_aborted_exams' | translate}}
-            </div>
-            <div class="col-md-6">
-                <a class="pointer bold underline" ng-if="$ctrl.reviews.length > 0" ng-click="$ctrl.openAborted()">
-                    {{$ctrl.abortedExams.length}}
-                </a>
                 <sup class="padl05">
                     <img
                         popover-placement="right"
@@ -75,15 +130,15 @@
                     />
                 </sup>
             </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" ng-if="$ctrl.reviews.length > 0" ng-click="$ctrl.openAborted()">
+                    {{$ctrl.abortedExams.length}}
+                </a>
+            </div>
         </div>
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_no_shows' | translate}}
-            </div>
-            <div class="col-md-6">
-                <a class="pointer bold underline" ng-click="$ctrl.openNoShows()">
-                    {{$ctrl.noShows.length}}
-                </a>
                 <sup class="padl05">
                     <img
                         popover-placement="right"
@@ -94,6 +149,11 @@
                         onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
                     />
                 </sup>
+            </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" ng-click="$ctrl.openNoShows()">
+                    {{$ctrl.noShows.length}}
+                </a>
             </div>
         </div>
     </div>
@@ -108,6 +168,16 @@
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_feedback_messages_read' | translate}}
+                <sup class="padl05">
+                    <img
+                        popover-placement="right"
+                        popover-trigger="'mouseenter'"
+                        uib-popover="{{'sitnet_feedback_summary_description' | translate}}"
+                        src="Images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
             <div class="col-md-6" ng-if="$ctrl.reviews">
                 {{$ctrl.getReadFeedback()}} / {{$ctrl.getTotalFeedback()}} ({{$ctrl.getFeedbackPercentage() | number :
@@ -119,6 +189,16 @@
     <div class="col-md-12 mart40">
         <div class="review-list-title">
             {{'sitnet_exam_grade_distribution' | translate}}
+            <sup class="padl05">
+                <img
+                    popover-placement="right"
+                    popover-trigger="'mouseenter'"
+                    uib-popover="{{'sitnet_exam_grade_distribution_description' | translate}}"
+                    src="Images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                />
+            </sup>
         </div>
     </div>
 
