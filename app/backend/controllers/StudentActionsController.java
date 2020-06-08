@@ -27,7 +27,9 @@ import backend.repository.EnrolmentRepository;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
+import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -35,7 +37,10 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,17 +63,23 @@ public class StudentActionsController extends CollaborationController {
     private final HttpExecutionContext ec;
     private final ExternalCourseHandler externalCourseHandler;
     private final EnrolmentRepository enrolmentRepository;
+    private final ByodConfigHandler byodConfigHandler;
+    private final FileHandler fileHandler;
 
     @Inject
     public StudentActionsController(
         HttpExecutionContext ec,
         ExternalCourseHandler courseHandler,
         EnrolmentRepository enrolmentRepository,
-        ConfigReader configReader
+        ConfigReader configReader,
+        ByodConfigHandler byodConfigHandler,
+        FileHandler fileHandler
     ) {
         this.ec = ec;
         this.externalCourseHandler = courseHandler;
         this.enrolmentRepository = enrolmentRepository;
+        this.byodConfigHandler = byodConfigHandler;
+        this.fileHandler = fileHandler;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
     }
 
@@ -269,6 +280,45 @@ public class StudentActionsController extends CollaborationController {
     public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok, ec.current());
+    }
+
+    @Authenticated
+    public Result getExamConfigFile(Long enrolmentId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .idEq(enrolmentId)
+            .eq("user", user)
+            .eq("exam.implementation", Exam.Implementation.CLIENT_AUTH)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .isNotNull("examinationEventConfiguration")
+            .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return forbidden();
+        } else {
+            String examName = oee.get().getExam().getName();
+            ExaminationEventConfiguration eec = oee.get().getExaminationEventConfiguration();
+            String fileName = examName.replace(" ", "-");
+            File file;
+            try {
+                file = File.createTempFile(fileName, ".seb");
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] data = byodConfigHandler.getExamConfig(
+                    eec.getHash(),
+                    eec.getEncryptedSettingsPassword(),
+                    eec.getSettingsPasswordSalt()
+                );
+                fos.write(data);
+                fos.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            String contentDisposition = fileHandler.getContentDisposition(file);
+            byte[] data = fileHandler.read(file);
+            String body = Base64.getEncoder().encodeToString(data);
+            return ok(body).withHeader("Content-Disposition", contentDisposition);
+        }
     }
 
     @Authenticated

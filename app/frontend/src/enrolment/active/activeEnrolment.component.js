@@ -27,7 +27,8 @@ angular.module('app.enrolment').component('activeEnrolment', {
         'dialogs',
         'Enrolment',
         'Reservation',
-        function($translate, $state, dialogs, Enrolment, Reservation) {
+        'Files',
+        function($translate, $state, dialogs, Enrolment, Reservation, Files) {
             const vm = this;
 
             vm.removeReservation = function() {
@@ -94,6 +95,12 @@ angular.module('app.enrolment').component('activeEnrolment', {
             vm.goToCalendar = function() {
                 $state.go(vm.getNextState(), { id: vm.getNextStateParams() });
             };
+
+            vm.downloadSebFile = () =>
+                Files.download(
+                    `/app/student/enrolments/${vm.enrolment.id}/configFile`,
+                    vm.enrolment.exam.name.replace(' ', '-') + '.seb',
+                );
         },
     ],
 });
