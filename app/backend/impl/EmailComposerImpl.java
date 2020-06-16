@@ -334,7 +334,12 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("cancellation_info", messaging.get(lang, "email.examinationEvent.cancel.info"));
         stringValues.put("cancellation_link", hostName);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.examinationEvent.cancel.link.text"));
-        stringValues.put("settings_file_info", messaging.get(lang, "email.examinationEvent.file.info"));
+        stringValues.put(
+            "settings_file_info",
+            exam.getImplementation() == Exam.Implementation.CLIENT_AUTH
+                ? String.format("<p>%s</p>", messaging.get(lang, "email.examinationEvent.file.info"))
+                : ""
+        );
         String content = replaceAll(template, stringValues);
 
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
@@ -809,7 +814,9 @@ class EmailComposerImpl implements EmailComposer {
             exam.getDuration()
         );
         String reservationInfo = messaging.get(lang, "email.template.participant.notification.please.reserve");
-        String bookingLink = String.format("%s/calendar/%d", hostName, exam.getId());
+        String bookingLink = exam.getImplementation() == Exam.Implementation.AQUARIUM
+            ? String.format("%s/calendar/%d", hostName, exam.getId())
+            : hostName;
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("title", title);
         stringValues.put("exam_info", examInfo);
