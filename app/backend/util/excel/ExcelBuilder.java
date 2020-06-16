@@ -83,7 +83,7 @@ public class ExcelBuilder {
 
     private static void appendCellsToRow(Row row, List<Tuple2<String, CellType>> cells) {
         int currentIndex = row.getLastCellNum() > 0 ? row.getLastCellNum() : 0;
-        for(Tuple2<String, CellType> cell : cells) {
+        for (Tuple2<String, CellType> cell : cells) {
             Cell cellRef = row.createCell(currentIndex);
             setValue(cellRef, cell._1, cell._2);
             currentIndex++;
@@ -125,19 +125,26 @@ public class ExcelBuilder {
     }
 
     public static ByteArrayOutputStream buildScoreExcel(Long examId, Collection<Long> childIds) throws IOException {
-        String parentQuestionIdSql = String.join(" ",
+        String parentQuestionIdSql = String.join(
+            " ",
             "select q.id from exam",
             "inner join exam_section as es on es.exam_id = exam.id",
             "inner join exam_section_question as esq on es.id = esq.exam_section_id",
             "inner join question as q on esq.question_id = q.id",
-            "where exam.id = :id");
+            "where exam.id = :id"
+        );
         List<Long> parentQuestionIds = new LinkedList<>();
-        Ebean.createSqlQuery(parentQuestionIdSql)
+        Ebean
+            .createSqlQuery(parentQuestionIdSql)
             .setParameter("id", examId)
-            .findEachRow(((resultSet, rowNum) -> {
-                Long questionId = resultSet.getLong(1);
-                parentQuestionIds.add(questionId);
-            }));
+            .findEachRow(
+                (
+                    (resultSet, rowNum) -> {
+                        Long questionId = resultSet.getLong(1);
+                        parentQuestionIds.add(questionId);
+                    }
+                )
+            );
         List<Exam> childExams = Ebean
             .find(Exam.class)
             .fetch("examParticipation.user")
@@ -161,7 +168,8 @@ public class ExcelBuilder {
         List<String> parentQuestionKeys = getListWithNumberedDuplicates(parentQuestionIds);
         List<String> deletedQuestionKeys = getListWithNumberedDuplicates(deletedQuestionIds);
 
-        List<String> questionHeaderKeys = Stream.concat(parentQuestionKeys.stream(), deletedQuestionKeys.stream())
+        List<String> questionHeaderKeys = Stream
+            .concat(parentQuestionKeys.stream(), deletedQuestionKeys.stream())
             .collect(Collectors.toList());
 
         Workbook wb = new XSSFWorkbook();
@@ -175,20 +183,23 @@ public class ExcelBuilder {
         }
 
         /* Create question header cell tuples */
-        List<Tuple2<String, CellType>> questionHeaderCells = questionHeaderKeys.stream()
-            .map(id -> {
-                if(deletedQuestionKeys.contains(id)) {
-                    return Tuple.of("removed", CellType.STRING);
-                } else {
-                    return Tuple.of("questionId_" + id, CellType.STRING);
+        List<Tuple2<String, CellType>> questionHeaderCells = questionHeaderKeys
+            .stream()
+            .map(
+                id -> {
+                    if (deletedQuestionKeys.contains(id)) {
+                        return Tuple.of("removed", CellType.STRING);
+                    } else {
+                        return Tuple.of("questionId_" + id, CellType.STRING);
+                    }
                 }
-            })
+            )
             .collect(Collectors.toList());
 
         appendCellsToRow(headerRow, questionHeaderCells);
 
         /* Iterate child exams and create excel rows */
-        for(Exam exam : childExams) {
+        for (Exam exam : childExams) {
             // Skip exam if there is no participation
             if (exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
                 continue;
@@ -209,22 +220,24 @@ public class ExcelBuilder {
             appendCellsToRow(currentRow, defaultCells);
 
             /* Create and append score rows */
-            if(!isGraded) {
+            if (!isGraded) {
                 /* Set "-" for questions that were included in the child exam but aren't yet graded */
-                List<Long> questionIds = exam.getExamSections().stream()
+                List<Long> questionIds = exam
+                    .getExamSections()
+                    .stream()
                     .flatMap(es -> es.getSectionQuestions().stream())
                     .map(esq -> getQuestionId(esq))
                     .collect(Collectors.toList());
                 List<String> questionKeys = getListWithNumberedDuplicates(questionIds);
-                for(String key : questionKeys) {
+                for (String key : questionKeys) {
                     int currentIndex = ScoreReportDefaultHeaders.length + questionHeaderKeys.indexOf(key);
                     currentRow.createCell(currentIndex).setCellValue("-");
                 }
             } else {
                 /* Set scores for questions that were included in the child exam */
                 Map<String, Tuple2<String, CellType>> scoreCells = getScoreCellMapWithDuplicateKeysNumbered(exam);
-                for(String key : scoreCells.keySet()) {
-                    if(questionHeaderKeys.contains(key)) {
+                for (String key : scoreCells.keySet()) {
+                    if (questionHeaderKeys.contains(key)) {
                         int index = ScoreReportDefaultHeaders.length + questionHeaderKeys.indexOf(key);
                         Cell currentCell = currentRow.createCell(index);
                         Tuple2<String, CellType> cellTuple = scoreCells.get(key);
@@ -250,8 +263,8 @@ public class ExcelBuilder {
     private static List<String> getListWithNumberedDuplicates(List<Long> questionIds) {
         Set<String> questionKeys = new LinkedHashSet<>();
         Map<Long, Integer> duplicates = new HashMap<>();
-        for(Long questionId : questionIds) {
-            if(!questionKeys.add(questionId.toString())) {
+        for (Long questionId : questionIds) {
+            if (!questionKeys.add(questionId.toString())) {
                 Integer duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
                 duplicates.put(questionId, duplicateCount);
                 questionKeys.add(questionId + "#" + (duplicateCount + 1));
@@ -264,15 +277,17 @@ public class ExcelBuilder {
     private static Map<String, Tuple2<String, CellType>> getScoreCellMapWithDuplicateKeysNumbered(Exam childExam) {
         Map<String, Tuple2<String, CellType>> cellMap = new HashMap<>();
         Map<Long, Integer> duplicates = new HashMap<>();
-        List<ExamSectionQuestion> questionList = childExam.getExamSections().stream()
-            .flatMap(es -> es.getSectionQuestions()
-            .stream()).collect(Collectors.toList());
+        List<ExamSectionQuestion> questionList = childExam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .collect(Collectors.toList());
 
-        for(ExamSectionQuestion esq : questionList) {
+        for (ExamSectionQuestion esq : questionList) {
             Long questionId = getQuestionId(esq);
             String questionKey = questionId.toString();
             Tuple2<String, CellType> scoreCell = getScoreTuple(esq);
-            if(cellMap.get(questionKey) == null) {
+            if (cellMap.get(questionKey) == null) {
                 cellMap.put(questionId.toString(), scoreCell);
             } else {
                 Integer duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
@@ -310,8 +325,8 @@ public class ExcelBuilder {
 
     /* Get question score cell tuple, scores will be represented as strings */
     private static Tuple2<String, CellType> getScoreTuple(ExamSectionQuestion esq) {
-        if(esq.getEvaluationType() == Question.EvaluationType.Selection) {
-            if(esq.isApproved() && !esq.isRejected()) {
+        if (esq.getEvaluationType() == Question.EvaluationType.Selection) {
+            if (esq.isApproved() && !esq.isRejected()) {
                 return Tuple.of("APPROVED", CellType.STRING);
             } else {
                 return Tuple.of("REJECTED", CellType.STRING);
