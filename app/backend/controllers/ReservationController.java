@@ -25,7 +25,6 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
-import backend.models.ExaminationEvent;
 import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
@@ -333,6 +332,9 @@ public class ReservationController extends BaseController {
             .stream()
             .filter(
                 ee -> {
+                    if (end.isEmpty()) {
+                        return true;
+                    }
                     DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
                         DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser())
                     );
@@ -491,10 +493,5 @@ public class ReservationController extends BaseController {
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return writeAnonymousResult(request, result, anonIds);
-    }
-
-    private class Examination {
-        Reservation reservation;
-        ExaminationEvent event;
     }
 }
