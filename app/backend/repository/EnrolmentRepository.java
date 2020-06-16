@@ -156,13 +156,17 @@ public class EnrolmentRepository {
     }
 
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
-        boolean requiresClientAuth =
-            enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
+        boolean requiresReservation =
+            enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM;
         // Loose the checks for dev usage to facilitate for easier testing
-        if (environment.isDev() && !requiresClientAuth) {
+        if (environment.isDev() && requiresReservation) {
             return true;
         }
+        boolean requiresClientAuth =
+            enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
+
         if (requiresClientAuth) {
+            // SEB examination
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
             Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
             if (error.isPresent()) {
@@ -170,7 +174,8 @@ public class EnrolmentRepository {
                 headers.put("x-exam-wrong-agent-config", msg);
                 return false;
             }
-        } else {
+        } else if (requiresReservation) {
+            // Aquarium examination
             ExamMachine examMachine = enrolment.getReservation().getMachine();
             ExamRoom room = examMachine.getRoom();
             String machineIp = examMachine.getIpAddress();
@@ -209,7 +214,6 @@ public class EnrolmentRepository {
                 return false;
             }
         }
-        logger.debug("room and machine ok");
         return true;
     }
 
