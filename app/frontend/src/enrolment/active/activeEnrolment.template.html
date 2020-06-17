@@ -289,37 +289,54 @@
                 </div>
             </div>
         </div>
-
-        <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ 'sitnet_examination_event' | translate }}:
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
-                        <span class="marr20">
-                            <strong
-                                >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start |
-                                date:'dd.MM.yyyy HH:mm' }}</strong
-                            >
-                            {{$ctrl.enrolment.examinationEventConfiguration.examinationEvent.description}}
-                        </span>
+        <div ng-if="$ctrl.enrolment.examinationEventConfiguration">
+            <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_examination_event' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                            <span class="marr20">
+                                <strong
+                                    >{{ $ctrl.enrolment.examinationEventConfiguration.examinationEvent.start |
+                                    date:'dd.MM.yyyy HH:mm' }}</strong
+                                >
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation === 'CLIENT_AUTH'">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ 'sitnet_seb_file' | translate }}:
+            <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_instructions' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                            <span class="marr20">
+                                <strong
+                                    >{{$ctrl.enrolment.examinationEventConfiguration.examinationEvent.description}}</strong
+                                >
+                            </span>
+                        </div>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
-                        <span class="marr20">
-                            <a ng-click="$ctrl.downloadSebFile()" class="text text-success"
-                                ><strong>{{'sitnet_download' | translate}}</strong></a
-                            >
-                        </span>
+                </div>
+            </div>
+
+            <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation === 'CLIENT_AUTH'">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_seb_file' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                            <span class="marr20">
+                                <a ng-click="$ctrl.downloadSebFile()" class="text text-success"
+                                    ><strong>{{'sitnet_download' | translate}}</strong></a
+                                >
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
