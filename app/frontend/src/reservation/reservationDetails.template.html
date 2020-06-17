@@ -122,12 +122,12 @@
                 {{r.startAt | date:'dd.MM.yyyy'}} <br />{{r.startAt | date:'HH:mm'}}-{{r.endAt | date:'HH:mm'}}
             </td>
             <td class="reservation-search">
-                <span ng-if="r.enrolment.exam.implementation === 'AQUARIUM'">
+                <span ng-if="r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM'">
                     {{r.machine.room.name}}
                     <span ng-if="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
                     <br />{{r.machine.name}}
                 </span>
-                <span ng-if="r.enrolment.exam.implementation !== 'AQUARIUM'"
+                <span ng-if="!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM'"
                     ><strong class="text text-primary">BYOD</strong></span
                 >
             </td>
@@ -137,7 +137,7 @@
 
             <td class="reservation-search" ng-if="$ctrl.isAdminView">
                 <button
-                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
+                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow && r.enrolment.exam.implementation === 'AQUARIUM'"
                     ng-click="$ctrl.removeReservation(r)"
                     class="btn btn-primary pull-left"
                 >
@@ -161,7 +161,7 @@
             </td>
             <td class="reservation-search" ng-if="$ctrl.isAdminView">
                 <button
-                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow && !r.externalReservation"
+                    ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow && !r.externalReservation && r.enrolment.exam.implementation === 'AQUARIUM'"
                     ng-click="$ctrl.changeReservationMachine(r)"
                     class="btn btn-primary pull-left"
                 >
