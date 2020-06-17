@@ -12,6 +12,7 @@ import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -53,12 +54,11 @@ public class ReportAPIController extends BaseController {
         List<ExamEnrolment> participations = el.orderBy("reservation.startAt").findList();
 
         /* Relations from exam to software exist on parent exam, therefore fetch parent exam IDs separately */
-        List<Long> parentExamIds = participations
+        Set<Long> parentExamIds = participations
             .stream()
             .filter(participation -> participation.getExam() != null && participation.getExam().getParent() != null)
             .map(participation -> participation.getExam().getParent().getId())
-            .distinct()
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
 
         Map<Long, List<Software>> softwaresByExam = Ebean
             .find(Exam.class)
