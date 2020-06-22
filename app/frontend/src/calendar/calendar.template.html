@@ -308,7 +308,7 @@
                         </li>
 
                         <li
-                            ng-repeat="room in $ctrl.rooms | filter:$ctrl.limitations.rooms"
+                            ng-repeat="room in $ctrl.rooms | filter:$ctrl.limitations.rooms | orderBy:'name'"
                             ng-hide="room.filtered"
                             role="presentation"
                             ng-class="room.outOfService ? 'disabled' : ''"
