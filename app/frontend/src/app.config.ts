@@ -32,7 +32,7 @@ export default function configs(
 
     // IE caches each and every GET unless the following is applied:
     const defaults: angular.IHttpProviderDefaults = $httpProvider.defaults;
-    const ieHeaders = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
+    const ieHeaders = { 'Cache-Control': 'no-cache;no-store', Pragma: 'no-cache', Expires: 0 };
     Object.assign(defaults.headers, { get: ieHeaders });
 
     ['en', 'fi', 'sv'].forEach(
