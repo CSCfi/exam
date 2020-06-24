@@ -16,7 +16,7 @@ public class SystemRequestHandler implements play.http.ActionCreator {
             @Override
             public CompletionStage<Result> call(Http.Request req) {
                 AuditLogger.log(req);
-                return delegate.call(req).thenApply(r -> r.withHeader("Expires", "0"));
+                return delegate.call(req);
             }
         };
     }

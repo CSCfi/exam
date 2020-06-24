@@ -39,7 +39,7 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
         }
       case s => Some(s)
     }
-    val result = src.withHeaders(("Cache-Control", "no-cache;no-store"), ("Pragma", "no-cache"))
+    val result = src.withHeaders(("Cache-Control", "no-cache;no-store"), ("Pragma", "no-cache"), ("Expires", "0"))
     session match {
       case None => result.withNewSession
       case Some(s) =>
