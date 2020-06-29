@@ -35,7 +35,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: SelectableQuestion[];
     @Input() disableLinks: boolean;
     @Input() tableClass: string;
-    @Output() onSelection = new EventEmitter<number[]>();
+    @Output('on-selection') onSelection = new EventEmitter<number[]>();
     @Output() onCopy = new EventEmitter<LibraryQuestion>();
 
     user: User;
@@ -114,7 +114,19 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     printOwners = (question: LibraryQuestion) => question.questionOwners.map(o => this.printOwner(o, false)).join(', ');
 
+    renderMailTo = (owner?: User) => {
+        if (!(owner && owner.email)) {
+            return '';
+        }
+
+        return `mailto:${owner.email}`;
+    };
+
     printOwner = (owner: User, showId: boolean): string => {
+        if (!owner) {
+            return '';
+        }
+
         let user = owner.firstName + ' ' + owner.lastName;
         if (showId && owner.userIdentifier) {
             user += ' (' + owner.userIdentifier + ')';
@@ -171,11 +183,11 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.questionSelected();
     };
 
-    private showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
-        if(_.isNumber(scoreColumnValue)) {
+    private showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
+        if (_.isNumber(scoreColumnValue)) {
             return scoreColumnValue;
         } else {
             return this.translate.instant(scoreColumnValue);
         }
-    }
+    };
 }

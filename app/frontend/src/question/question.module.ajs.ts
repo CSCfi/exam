@@ -19,8 +19,8 @@ import { QuestionComponent } from './basequestion/question.component';
 import { LibraryService } from './library/library.service';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
-import { LibraryComponent } from './library/library.upgrade.component';
-import { LibraryExportComponent } from './library/export/libraryExport.component.upgrade';
+import { LibraryComponent } from './library/library.component';
+import { LibraryExportComponent } from './library/export/libraryExport.component';
 import { QuestionService } from './question.service';
 
 angular

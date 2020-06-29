@@ -38,19 +38,25 @@ export class LibraryService {
     ) {}
 
     private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
-        const params = new HttpParams();
+        let params = new HttpParams();
+
+        const returnAppendedHttpParams = (key: string, idArray: number[], paramsObj: HttpParams) => {
+            return idArray.reduce((paramObj, currentId) => paramObj.append(key, currentId.toString()), paramsObj);
+        };
+
         if (courseIds.length > 0) {
-            params.set('courseIds', courseIds.join());
+            params = returnAppendedHttpParams('course', courseIds, params);
         }
         if (sectionIds.length > 0) {
-            params.set('sectionIds', sectionIds.join());
+            params = returnAppendedHttpParams('section', sectionIds, params);
         }
         if (tagIds.length > 0) {
-            params.set('tagIds', tagIds.join());
+            params = returnAppendedHttpParams('tag', tagIds, params);
         }
         if (examIds && examIds.length > 0) {
-            params.set('examIds', examIds.join());
+            params = returnAppendedHttpParams('exam', examIds, params);
         }
+
         return params;
     };
 

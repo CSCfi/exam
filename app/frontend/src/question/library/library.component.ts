@@ -25,11 +25,9 @@ import { LibraryQuestion } from './library.service';
 })
 export class LibraryComponent implements OnInit {
     questions: LibraryQuestion[];
+    selections: number[];
 
-    constructor(
-        private state: StateService,
-        private translate: TranslateService
-    ) {}
+    constructor(private state: StateService, private translate: TranslateService) {}
 
     ngOnInit() {
         this.questions = [];
@@ -39,8 +37,8 @@ export class LibraryComponent implements OnInit {
         this.questions = results;
     }
 
-    questionSelected(selections: LibraryQuestion[]) {
-        this.questions = selections;
+    questionSelected(selections: number[]) {
+        this.selections = selections;
     }
 
     questionCopied(copy: LibraryQuestion) {

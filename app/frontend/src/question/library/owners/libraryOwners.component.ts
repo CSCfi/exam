@@ -16,7 +16,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { User } from '../../../session/session.service';
@@ -29,14 +29,10 @@ import { QuestionService } from '../../question.service';
 })
 export class LibraryOwnerSelection implements OnInit {
     @Input() selections: number[];
-    @Output() ownerUpdated = new EventEmitter<void>();
+    showOwnerSelection = false;
 
     teachers: User[];
-    newTeacher: {
-        id: number;
-        name: string;
-        email: string;
-    };
+    selectedTeacherId: number | undefined;
 
     constructor(private translate: TranslateService, private Question: QuestionService, private User: UserService) {}
 
@@ -48,19 +44,14 @@ export class LibraryOwnerSelection implements OnInit {
 
     private filterByName = (src: User[], q: string): User[] => {
         if (!q) return src;
-        return src.filter(u =>
-            [`${u.firstName} ${u.lastName}`, `${u.lastName} ${u.firstName}`].some(n =>
-                n.toLowerCase().includes(q.toLowerCase()),
-            ),
-        );
+        return src.filter(u => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
     };
 
-    listTeachers$ = (criteria$: Observable<string>): Observable<User> =>
+    listTeachers$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap(text => (this.newTeacher.name = text)),
             debounceTime(100),
             distinctUntilChanged(),
-            exhaustMap(text => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
+            map(text => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
             take(8),
             catchError(err => {
                 toast.error(err.data);
@@ -68,9 +59,9 @@ export class LibraryOwnerSelection implements OnInit {
             }),
         );
 
-    nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
+    nameFormatter = (data: { name: string; email: string }) => `${data.name}${data.email ? ' ' + data.email : ''}`;
 
-    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newTeacher.id = event.item.id);
+    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.selectedTeacherId = event.item.id);
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected
@@ -78,15 +69,14 @@ export class LibraryOwnerSelection implements OnInit {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
             return;
         }
-        if (!this.newTeacher) {
+        if (!this.selectedTeacherId) {
             toast.warning(this.translate.instant('sitnet_add_question_owner'));
             return;
         }
 
-        this.Question.addOwnerForQuestions$(this.newTeacher.id, this.selections).subscribe(
+        this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_question_owner_added'));
-                this.ownerUpdated.emit();
             },
             () => toast.info(this.translate.instant('sitnet_update_failed')),
         );
