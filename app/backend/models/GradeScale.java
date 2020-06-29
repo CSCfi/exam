@@ -16,18 +16,20 @@
 package backend.models;
 
 import io.ebean.Model;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-import javax.persistence.*;
 import java.util.Optional;
 import java.util.Set;
+import javax.persistence.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class GradeScale extends Model {
 
     public enum Type {
-        ZERO_TO_FIVE(1), LATIN(2), APPROVED_REJECTED(3), OTHER(4);
+        ZERO_TO_FIVE(1),
+        LATIN(2),
+        APPROVED_REJECTED(3),
+        OTHER(4);
 
         private final int value;
 
@@ -59,7 +61,7 @@ public class GradeScale extends Model {
     }
 
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column
     private int id;
 
@@ -129,5 +131,4 @@ public class GradeScale extends Model {
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
     }
-
 }

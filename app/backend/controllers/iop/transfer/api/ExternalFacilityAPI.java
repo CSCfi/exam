@@ -16,19 +16,15 @@
 package backend.controllers.iop.transfer.api;
 
 import backend.controllers.iop.transfer.impl.FacilityController;
-import com.google.inject.ImplementedBy;
-
 import backend.models.ExamRoom;
-import play.mvc.Result;
-
+import com.google.inject.ImplementedBy;
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletionStage;
+import play.mvc.Result;
 
 @ImplementedBy(FacilityController.class)
 public interface ExternalFacilityAPI {
-
     CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException;
     CompletionStage<Result> activateFacility(Long roomId) throws MalformedURLException;
     CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException;
-
 }

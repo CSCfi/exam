@@ -970,6 +970,6 @@
   "sitnet_collaborative_exam_search_description_teacher": "You can search by exam name or teacher's email",
   "sitnet_incorrect_claim_question_options": "Invalid answer options",
   "sitnet_export_questions": "Export questions to Moodle XML format (only essays and multiple choice questions)",
-  "sitnet_remove_examination_event": "Poista tenttitilaisuus EN",
-  "sitnet_event_enrolments_exist": "Tilaisuuteen on ilmoittautuneita. Tilaisuuden poistaminen ei ole mahdollista EN"
+  "sitnet_remove_examination_event": "Remove exam event ",
+  "sitnet_event_enrolments_exist": "It is not possible to remove the exam event, because there are enrolments for the event."
 }

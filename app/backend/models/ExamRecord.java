@@ -18,23 +18,23 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.dto.ExamScore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
-
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
-
     @OneToOne
     private User teacher;
+
     @OneToOne
     private User student;
+
     @OneToOne
     private Exam exam;
+
     @OneToOne
     @JsonManagedReference
     private ExamScore examScore;
@@ -82,5 +82,4 @@ public class ExamRecord extends GeneratedIdentityModel {
     public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
     }
-
 }

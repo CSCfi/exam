@@ -15,6 +15,11 @@
 
 package backend.util;
 
+import backend.impl.EmailComposer;
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.OwnedModel;
+import com.typesafe.config.ConfigFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -23,20 +28,12 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
-
-import com.typesafe.config.ConfigFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
 
-import backend.impl.EmailComposer;
-import backend.models.Exam;
-import backend.models.User;
-import backend.models.base.OwnedModel;
-
 public final class AppUtil {
-
     private static final Logger.ALogger logger = Logger.of(AppUtil.class);
 
     private AppUtil() {}
@@ -77,7 +74,7 @@ public final class AppUtil {
     }
 
     @NotNull
-    public static  String createFilePath(Environment environment, String... pathParams) {
+    public static String createFilePath(Environment environment, String... pathParams) {
         StringBuilder path = getAttachmentPath(environment);
         for (String param : pathParams) {
             path.append(File.separator).append(param);

@@ -28,7 +28,6 @@ import akka.util.ByteString;
 import scala.Tuple2;
 
 public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
-
     private final int chunkSize;
 
     public Inlet<ByteString> in = Inlet.create("ChunkMaker.in");
@@ -50,34 +49,41 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
             private ByteString buffer = ByteString.emptyByteString();
 
             {
-                setHandler(out, new AbstractOutHandler() {
-                    @Override
-                    public void onPull() {
-                        emitChunk();
-                    }
-                });
+                setHandler(
+                    out,
+                    new AbstractOutHandler() {
 
-                setHandler(in, new AbstractInHandler() {
-
-                    @Override
-                    public void onPush() {
-                        ByteString elem = grab(in);
-                        buffer = buffer.concat(elem);
-                        emitChunk();
-                    }
-
-                    @Override
-                    public void onUpstreamFinish() {
-                        if (buffer.isEmpty()) {
-                            completeStage();
-                            return;
-                        }
-
-                        if (isAvailable(out)) {
+                        @Override
+                        public void onPull() {
                             emitChunk();
                         }
                     }
-                });
+                );
+
+                setHandler(
+                    in,
+                    new AbstractInHandler() {
+
+                        @Override
+                        public void onPush() {
+                            ByteString elem = grab(in);
+                            buffer = buffer.concat(elem);
+                            emitChunk();
+                        }
+
+                        @Override
+                        public void onUpstreamFinish() {
+                            if (buffer.isEmpty()) {
+                                completeStage();
+                                return;
+                            }
+
+                            if (isAvailable(out)) {
+                                emitChunk();
+                            }
+                        }
+                    }
+                );
             }
 
             private void emitChunk() {
@@ -96,5 +102,4 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
             }
         };
     }
-
 }

@@ -17,20 +17,17 @@ package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
+import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.Date;
-import java.util.List;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class Course extends GeneratedIdentityModel {
-
     private String code;
 
     private String name;
@@ -244,9 +241,7 @@ public class Course extends GeneratedIdentityModel {
 
         Course course = (Course) o;
 
-        return new EqualsBuilder()
-                .append(code, course.code)
-                .isEquals();
+        return new EqualsBuilder().append(code, course.code).isEquals();
     }
 
     @Override
@@ -256,11 +251,19 @@ public class Course extends GeneratedIdentityModel {
 
     @Override
     public String toString() {
-        return "Course{" +
-                "id=" + getId() +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", credits=" + credits +
-                '}';
+        return (
+            "Course{" +
+            "id=" +
+            getId() +
+            ", code='" +
+            code +
+            '\'' +
+            ", name='" +
+            name +
+            '\'' +
+            ", credits=" +
+            credits +
+            '}'
+        );
     }
 }

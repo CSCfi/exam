@@ -15,22 +15,21 @@
 
 package backend.security;
 
-import java.util.List;
-
 import be.objectify.deadbolt.java.cache.HandlerCache;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import java.util.List;
 import play.Environment;
 import play.inject.Binding;
 import play.inject.Module;
 
 public class DeadboltHook extends Module {
+
     @Override
     public List<Binding<?>> bindings(Environment environment, Config config) {
         return ImmutableList.of(
-                bindClass(AuthorizationHandler.class).toSelf().eagerly(),
-                bindClass(HandlerCache.class).to(DeadboltCache.class).eagerly()
+            bindClass(AuthorizationHandler.class).toSelf().eagerly(),
+            bindClass(HandlerCache.class).to(DeadboltCache.class).eagerly()
         );
     }
-
 }

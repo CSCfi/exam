@@ -15,22 +15,20 @@
 
 package backend.models.calendar;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import backend.models.ExamRoom;
 import backend.models.base.GeneratedIdentityModel;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExceptionWorkingHours extends GeneratedIdentityModel {
-
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date startDate;
@@ -99,9 +97,13 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
         this.outOfService = outOfService;
     }
 
-    public void setMassEdited(boolean massEdited) {this.massEdited = massEdited; }
+    public void setMassEdited(boolean massEdited) {
+        this.massEdited = massEdited;
+    }
 
-    public boolean getMassEdited() {return massEdited;}
+    public boolean getMassEdited() {
+        return massEdited;
+    }
 
     @Override
     public boolean equals(Object other) {

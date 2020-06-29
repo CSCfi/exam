@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -15,20 +15,17 @@
 
 package backend.system.actors;
 
-import java.util.List;
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-
 import backend.models.Exam;
 import backend.models.ExamRecord;
 import backend.util.config.ConfigReader;
+import io.ebean.Ebean;
+import java.util.List;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
 
 public class ExamExpirationActor extends AbstractActor {
-
     private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
 
     @Inject
@@ -36,33 +33,40 @@ public class ExamExpirationActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(String.class, s -> {
-            logger.debug("Starting exam expiration check ->");
-            List<Exam> exams = Ebean.find(Exam.class)
-                    .where()
-                    .disjunction()
-                    .eq("state", Exam.State.GRADED_LOGGED)
-                    .eq("state", Exam.State.ARCHIVED)
-                    .eq("state", Exam.State.ABORTED)
-                    .eq("state", Exam.State.REJECTED)
-                    .endJunction()
-                    .findList();
+        return receiveBuilder()
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Starting exam expiration check ->");
+                    List<Exam> exams = Ebean
+                        .find(Exam.class)
+                        .where()
+                        .disjunction()
+                        .eq("state", Exam.State.GRADED_LOGGED)
+                        .eq("state", Exam.State.ARCHIVED)
+                        .eq("state", Exam.State.ABORTED)
+                        .eq("state", Exam.State.REJECTED)
+                        .endJunction()
+                        .findList();
 
-            DateTime now = DateTime.now();
-            for (Exam exam : exams) {
-                DateTime expirationDate = exam.getState() == Exam.State.ABORTED ?
-                        exam.getExamParticipation().getEnded() : exam.getGradedTime();
-                if (expirationDate == null) {
-                    logger.error("no grading time for exam {}", exam.getId());
-                    continue;
+                    DateTime now = DateTime.now();
+                    for (Exam exam : exams) {
+                        DateTime expirationDate = exam.getState() == Exam.State.ABORTED
+                            ? exam.getExamParticipation().getEnded()
+                            : exam.getGradedTime();
+                        if (expirationDate == null) {
+                            logger.error("no grading time for exam {}", exam.getId());
+                            continue;
+                        }
+                        if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
+                            cleanExamData(exam);
+                            logger.info("Marked exam {} as expired", exam.getId());
+                        }
+                    }
+                    logger.debug("<- done");
                 }
-                if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
-                    cleanExamData(exam);
-                    logger.info("Marked exam {} as expired", exam.getId());
-                }
-            }
-            logger.debug("<- done");
-        }).build();
+            )
+            .build();
     }
 
     /**
@@ -74,5 +78,4 @@ public class ExamExpirationActor extends AbstractActor {
         exam.update();
         Ebean.find(ExamRecord.class).where().eq("exam", exam).findList().forEach(ExamRecord::delete);
     }
-
 }

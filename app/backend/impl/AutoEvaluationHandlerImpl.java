@@ -15,6 +15,13 @@
 
 package backend.impl;
 
+import akka.actor.ActorSystem;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.Grade;
+import backend.models.GradeEvaluation;
+import backend.models.GradeScale;
+import backend.models.User;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -22,21 +29,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-
-import akka.actor.ActorSystem;
 import org.joda.time.DateTime;
 import play.Logger;
 import scala.concurrent.duration.Duration;
 
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.Grade;
-import backend.models.GradeEvaluation;
-import backend.models.GradeScale;
-import backend.models.User;
-
 public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
-
     private final EmailComposer composer;
 
     private final ActorSystem actor;
@@ -60,13 +57,16 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
                 exam.setAutoEvaluationNotified(DateTime.now());
                 exam.update();
                 User student = exam.getCreator();
-                actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
+                actor
+                    .scheduler()
+                    .scheduleOnce(
+                        Duration.create(5, TimeUnit.SECONDS),
                         () -> composer.composeInspectionReady(student, null, exam),
-                        actor.dispatcher());
+                        actor.dispatcher()
+                    );
                 logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
             }
         }
-
     }
 
     private void process(Exam exam) {
@@ -88,14 +88,14 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
 
     private Optional<GradeScale> resolveScale(Exam exam) {
         if (exam.getGradeScale() != null) {
-           return Optional.of(exam.getGradeScale());
+            return Optional.of(exam.getGradeScale());
         }
         if (exam.getCourse() != null && exam.getCourse().getGradeScale() != null) {
             return Optional.of(exam.getCourse().getGradeScale());
         }
         if (exam.getParent() != null && exam.getParent().getGradeScale() != null) {
             return Optional.of(exam.getParent().getGradeScale());
-        } else if (exam.getParent() != null && exam.getParent().getCourse() != null){
+        } else if (exam.getParent() != null && exam.getParent().getCourse() != null) {
             GradeScale scale = exam.getParent().getCourse().getGradeScale();
             return scale == null ? Optional.empty() : Optional.of(scale);
         }
@@ -123,8 +123,15 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
                 threshold = ge.getPercentage();
             }
             if (grade != null) {
-                logger.info("Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
-                        exam.getId(), totalScore, maxScore, percentage, grade.getName(), threshold);
+                logger.info(
+                    "Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
+                    exam.getId(),
+                    totalScore,
+                    maxScore,
+                    percentage,
+                    grade.getName(),
+                    threshold
+                );
                 break;
             }
             prev = ge;
@@ -135,6 +142,4 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
         }
         return grade;
     }
-
-
 }

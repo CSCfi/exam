@@ -15,21 +15,19 @@
 
 package backend.util.config;
 
+import backend.models.ExamExecutionType;
+import backend.models.Role;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-
-import backend.models.ExamExecutionType;
-import backend.models.Role;
 
 public class ConfigReaderImpl implements ConfigReader {
 
@@ -117,18 +115,26 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public boolean isMaturitySupported() {
-        return Ebean.find(ExamExecutionType.class)
+        return (
+            Ebean
+                .find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.MATURITY.toString())
-                .findCount() == 1;
+                .findCount() ==
+            1
+        );
     }
 
     @Override
     public boolean isPrintoutSupported() {
-        return Ebean.find(ExamExecutionType.class)
+        return (
+            Ebean
+                .find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.PRINTOUT.toString())
-                .findCount() == 1;
+                .findCount() ==
+            1
+        );
     }
 
     @Override
@@ -160,5 +166,4 @@ public class ConfigReaderImpl implements ConfigReader {
     public String getHomeOrganisationRef() {
         return ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
     }
-
 }

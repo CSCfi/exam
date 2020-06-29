@@ -15,11 +15,10 @@
 
 package backend.sanitizers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Http;
@@ -67,5 +66,4 @@ public class CalendarReservationSanitizer extends BaseSanitizer {
         }
         return request;
     }
-
 }

@@ -15,7 +15,20 @@
 
 package backend.util.csv;
 
-
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamRecord;
+import backend.models.Grade;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.dto.ExamScore;
+import backend.util.AppUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -25,13 +38,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,29 +45,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import play.Logger;
 
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.ExamRecord;
-import backend.models.Grade;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.dto.ExamScore;
-import backend.util.AppUtil;
-
-
 public class CsvBuilderImpl implements CsvBuilder {
-
     private static final Logger.ALogger logger = Logger.of(CsvBuilderImpl.class);
 
     @Override
     public File build(Long startDate, Long endDate) throws IOException {
         Date start = new Date(startDate);
         Date end = new Date(endDate);
-        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .fetch("examScore")
-                .where()
-                .between("timeStamp", start, end)
-                .findList();
+        List<ExamRecord> examRecords = Ebean
+            .find(ExamRecord.class)
+            .fetch("examScore")
+            .where()
+            .between("timeStamp", start, end)
+            .findList();
 
         File file = File.createTempFile("csv-output", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
@@ -75,13 +71,13 @@ public class CsvBuilderImpl implements CsvBuilder {
 
     @Override
     public File build(Long examId, Collection<Long> childIds) throws IOException {
-
-        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .fetch("examScore")
-                .where()
-                .eq("exam.parent.id", examId)
-                .in("exam.id", childIds)
-                .findList();
+        List<ExamRecord> examRecords = Ebean
+            .find(ExamRecord.class)
+            .fetch("examScore")
+            .where()
+            .eq("exam.parent.id", examId)
+            .in("exam.id", childIds)
+            .findList();
 
         File file = File.createTempFile("csv-output-", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
@@ -98,9 +94,9 @@ public class CsvBuilderImpl implements CsvBuilder {
         File file = File.createTempFile("csv-output-", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
         writer.writeNext(getHeaders());
-        StreamSupport.stream(node.spliterator(), false).forEach(assessment ->
-            writer.writeNext(values(assessment).toArray(String[]::new))
-        );
+        StreamSupport
+            .stream(node.spliterator(), false)
+            .forEach(assessment -> writer.writeNext(values(assessment).toArray(String[]::new)));
         writer.close();
         return file;
     }
@@ -125,13 +121,15 @@ public class CsvBuilderImpl implements CsvBuilder {
                 logger.warn("Invalid input, unable to grade");
                 continue;
             }
-            ExpressionList<Exam> el = Ebean.find(Exam.class).where()
-                    .idEq(examId)
-                    .isNotNull("parent")
-                    .disjunction()
-                    .eq("state", Exam.State.REVIEW)
-                    .eq("state", Exam.State.REVIEW_STARTED)
-                    .endJunction();
+            ExpressionList<Exam> el = Ebean
+                .find(Exam.class)
+                .where()
+                .idEq(examId)
+                .isNotNull("parent")
+                .disjunction()
+                .eq("state", Exam.State.REVIEW)
+                .eq("state", Exam.State.REVIEW_STARTED)
+                .endJunction();
             if (role == Role.Name.ADMIN) {
                 el = el.eq("parent.examOwners", user);
             }
@@ -141,10 +139,12 @@ public class CsvBuilderImpl implements CsvBuilder {
                 continue;
             }
             String gradeName = records[1];
-            List<Grade> grades = Ebean.find(Grade.class).where()
-                    .eq("name", gradeName)
-                    .eq("gradeScale", exam.getGradeScale())
-                    .findList();
+            List<Grade> grades = Ebean
+                .find(Grade.class)
+                .where()
+                .eq("name", gradeName)
+                .eq("gradeScale", exam.getGradeScale())
+                .findList();
             if (grades.isEmpty()) {
                 logger.warn("No grade found with name {}", gradeName);
             } else if (grades.size() > 1) {
@@ -175,11 +175,27 @@ public class CsvBuilderImpl implements CsvBuilder {
     }
 
     private String[] getHeaders() {
-        return new String[]{"id",
-                "studentFirstName", "studentLastName", "studentEmail",
-                "examName", "examDate", "creditType", "credits", "creditLanguage", "studentGrade", "gradeScale", "examScore",
-                "lecturer", "lecturerFirstName", "lecturerLastName", "lecturerEmail", "lecturerEmployeeNumber",
-                "date", "additionalInfo"};
+        return new String[] {
+            "id",
+            "studentFirstName",
+            "studentLastName",
+            "studentEmail",
+            "examName",
+            "examDate",
+            "creditType",
+            "credits",
+            "creditLanguage",
+            "studentGrade",
+            "gradeScale",
+            "examScore",
+            "lecturer",
+            "lecturerFirstName",
+            "lecturerLastName",
+            "lecturerEmail",
+            "lecturerEmployeeNumber",
+            "date",
+            "additionalInfo"
+        };
     }
 
     private Stream<String> values(JsonNode assessment) {
@@ -188,15 +204,26 @@ public class CsvBuilderImpl implements CsvBuilder {
         JsonNode teacher = exam.get("gradedByUser");
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         JsonNode[] nodes = {
-                assessment.get("_id"), student.get("firstName"), student.get("lastName"),
-                student.get("email"), exam.get("name"),
-                new TextNode(dtf.print(assessment.get("ended").asLong())),
-                exam.get("creditType").get("type"), exam.get("customCredit"), exam.get("answerLanguage"),
-                exam.get("grade").get("name"), exam.get("gradeScale").get("description"), exam.get("totalScore"),
-                teacher.path("eppn"), teacher.get("firstName"), teacher.get("lastName"),
-                teacher.get("email"), teacher.path("employeeNumber"), exam.get("gradedTime"), exam.path("additionalInfo")
+            assessment.get("_id"),
+            student.get("firstName"),
+            student.get("lastName"),
+            student.get("email"),
+            exam.get("name"),
+            new TextNode(dtf.print(assessment.get("ended").asLong())),
+            exam.get("creditType").get("type"),
+            exam.get("customCredit"),
+            exam.get("answerLanguage"),
+            exam.get("grade").get("name"),
+            exam.get("gradeScale").get("description"),
+            exam.get("totalScore"),
+            teacher.path("eppn"),
+            teacher.get("firstName"),
+            teacher.get("lastName"),
+            teacher.get("email"),
+            teacher.path("employeeNumber"),
+            exam.get("gradedTime"),
+            exam.path("additionalInfo")
         };
         return Stream.of(nodes).map(JsonNode::asText);
-
     }
 }

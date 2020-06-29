@@ -15,6 +15,14 @@
 
 package backend.models.json;
 
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.util.json.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.ebean.annotation.DbJsonB;
+import io.ebean.text.json.EJson;
 import java.io.IOException;
 import java.util.Map;
 import javax.persistence.Column;
@@ -23,21 +31,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.ebean.annotation.DbJsonB;
-import io.ebean.text.json.EJson;
 import org.joda.time.DateTime;
-
-import backend.models.Exam;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.util.json.JsonDeserializer;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {
-
     @Column
     private String externalRef; // exam.hash of the remote parent exam
 
@@ -142,5 +139,4 @@ public class ExternalExam extends GeneratedIdentityModel {
         setContent(map);
         update();
     }
-
 }

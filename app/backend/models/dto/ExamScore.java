@@ -15,27 +15,23 @@
 
 package backend.models.dto;
 
+import backend.models.Exam;
+import backend.models.ExamRecord;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.util.excel.ExcelBuilder.CellType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-
-import backend.models.Exam;
-import backend.models.ExamRecord;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.util.excel.ExcelBuilder.CellType;
-
-
 @Entity
 public class ExamScore extends GeneratedIdentityModel {
-
     @OneToOne(mappedBy = "examScore")
     @JsonBackReference
     private ExamRecord examRecord;
@@ -246,19 +242,41 @@ public class ExamScore extends GeneratedIdentityModel {
 
     @Transient
     public static String[] getHeaders() {
-        return new String[]{"id",
-                "student", "studentFirstName", "studentLastName", "studentEmail", "studentId", "identifier",
-                "courseUnitCode", "courseUnitName", "courseImplementation", "courseUnitLevel", "institutionName",
-                "examDate", "creditType", "credits", "creditLanguage", "studentGrade", "gradeScale", "examScore",
-                "lecturer", "lecturerFirstName", "lecturerLastName", "lecturerId", "lecturerEmployeeNumber",
-                "date", "additionalInfo"};
+        return new String[] {
+            "id",
+            "student",
+            "studentFirstName",
+            "studentLastName",
+            "studentEmail",
+            "studentId",
+            "identifier",
+            "courseUnitCode",
+            "courseUnitName",
+            "courseImplementation",
+            "courseUnitLevel",
+            "institutionName",
+            "examDate",
+            "creditType",
+            "credits",
+            "creditLanguage",
+            "studentGrade",
+            "gradeScale",
+            "examScore",
+            "lecturer",
+            "lecturerFirstName",
+            "lecturerLastName",
+            "lecturerId",
+            "lecturerEmployeeNumber",
+            "date",
+            "additionalInfo"
+        };
     }
 
     @Transient
     public List<Tuple2<String, CellType>> asCells(User student, User teacher, Exam exam) {
         List<Tuple2<String, CellType>> cells = new ArrayList<>();
         cells.add(Tuple.of(Long.toString(getId()), CellType.STRING));
-        cells.add(Tuple.of(this.student,  CellType.STRING));
+        cells.add(Tuple.of(this.student, CellType.STRING));
         cells.add(Tuple.of(student.getFirstName(), CellType.STRING));
         cells.add(Tuple.of(student.getLastName(), CellType.STRING));
         cells.add(Tuple.of(student.getEmail(), CellType.STRING));
@@ -286,10 +304,8 @@ public class ExamScore extends GeneratedIdentityModel {
         return cells;
     }
 
-
     @Transient
     public String[] asArray(User student, User teacher, Exam exam) {
         return asCells(student, teacher, exam).stream().map(t -> t._1).toArray(String[]::new);
     }
-
 }

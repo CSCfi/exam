@@ -15,21 +15,18 @@
 
 package backend.models.sections;
 
+import backend.models.User;
+import backend.models.base.OwnedModel;
+import backend.util.AppUtil;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
-import backend.models.User;
-import backend.models.base.OwnedModel;
-import backend.util.AppUtil;
-
 @Entity
 public final class ExamMaterial extends OwnedModel {
-
     private String name;
     private String isbn;
     private String author;
@@ -77,16 +74,12 @@ public final class ExamMaterial extends OwnedModel {
 
         ExamMaterial that = (ExamMaterial) o;
 
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .isEquals();
+        return new EqualsBuilder().append(id, that.id).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .toHashCode();
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 
     public ExamMaterial copy(User user) {

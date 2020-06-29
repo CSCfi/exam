@@ -1,12 +1,17 @@
 package backend.impl;
 
+import backend.exceptions.NotFoundException;
+import backend.models.Exam;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.User;
+import com.google.inject.ImplementedBy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import com.google.inject.ImplementedBy;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -15,27 +20,34 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
 
-import backend.exceptions.NotFoundException;
-import backend.models.Exam;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.User;
-
 @ImplementedBy(CalendarHandlerImpl.class)
 public interface CalendarHandler {
-
     Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids);
     List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam);
-    Set<TimeSlot> handleReservations(Map<Interval, Optional<Integer>> examSlots, Collection<Reservation> reservations,
-                                     Exam exam, Collection<ExamMachine> machines, User user);
+    Set<TimeSlot> handleReservations(
+        Map<Interval, Optional<Integer>> examSlots,
+        Collection<Reservation> reservations,
+        Exam exam,
+        Collection<ExamMachine> machines,
+        User user
+    );
     Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration);
     LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException;
-    Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end,
-                                           Collection<Integer> aids);
+    Optional<ExamMachine> getRandomMachine(
+        ExamRoom room,
+        Exam exam,
+        DateTime start,
+        DateTime end,
+        Collection<Integer> aids
+    );
 
-    Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user,
-                                  Collection<Long> sectionIds);
+    Reservation createReservation(
+        DateTime start,
+        DateTime end,
+        ExamMachine machine,
+        User user,
+        Collection<Long> sectionIds
+    );
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();
     boolean isDoable(Reservation reservation, Collection<Integer> aids);
@@ -93,8 +105,5 @@ public interface CalendarHandler {
         public int hashCode() {
             return new HashCodeBuilder().append(start).append(end).build();
         }
-
     }
-
-
 }

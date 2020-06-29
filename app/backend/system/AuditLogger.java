@@ -19,26 +19,25 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 
-import backend.models.User;
-
 class AuditLogger {
-
     private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
-    public static void log(Http.Request request, User user) {
+    public static void log(Http.Request request) {
         String method = request.method();
-        String userString = user == null ?
-                "user <NULL>" :
-                String.format("user #%d [%s]", user.getId(), user.getEmail());
+        Http.Session session = request.session();
+        String userString = session == null || session.get("id").isEmpty()
+            ? "user <NULL>"
+            : String.format("user #%d [%s]", Long.parseLong(session.get("id").get()), session.get("email").orElse(""));
         String uri = request.uri();
         StringBuilder logEntry = new StringBuilder(
-                String.format("%s %s %s %s", DateTime.now(), userString, method, uri));
+            String.format("%s %s %s %s", DateTime.now(), userString, method, uri)
+        );
         if (!method.equals("GET")) {
-            String body = request.body() == null || request.body().asJson() == null ? null :
-                    request.body().asJson().toString();
+            String body = request.body() == null || request.body().asJson() == null
+                ? null
+                : request.body().asJson().toString();
             logEntry.append(String.format(" data: %s", body));
         }
         logger.debug(logEntry.toString());
     }
-
 }

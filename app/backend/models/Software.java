@@ -15,18 +15,15 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import backend.models.base.GeneratedIdentityModel;
-
 @Entity
 public class Software extends GeneratedIdentityModel {
-
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwareInfo")
     @JsonBackReference
     private List<ExamMachine> machines;
@@ -69,7 +66,6 @@ public class Software extends GeneratedIdentityModel {
         Software software = (Software) o;
 
         return !(name != null ? !name.equals(software.name) : software.name != null);
-
     }
 
     @Override
@@ -78,5 +74,4 @@ public class Software extends GeneratedIdentityModel {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
-
 }

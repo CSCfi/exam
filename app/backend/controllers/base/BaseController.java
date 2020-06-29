@@ -15,30 +15,6 @@
 
 package backend.controllers.base;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
-import play.Logger;
-import play.data.Form;
-import play.data.FormFactory;
-import play.libs.typedmap.TypedKey;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.exceptions.MalformedDataException;
 import backend.impl.NoShowHandler;
 import backend.models.Exam;
@@ -48,13 +24,35 @@ import backend.models.Role;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.system.interceptors.AnonymousJsonAction;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import play.Logger;
+import play.data.Form;
+import play.data.FormFactory;
+import play.libs.typedmap.TypedKey;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class BaseController extends Controller {
-
     private static final Logger.ALogger logger = Logger.of(BaseController.class);
 
     @Inject
     protected FormFactory formFactory;
+
     @Inject
     private NoShowHandler noShowHandler;
 
@@ -96,43 +94,47 @@ public class BaseController extends Controller {
             // Possible that user provided us two names. Lets try out some combinations of first and last names
             String name1 = rawFilter.split(" ")[0];
             String name2 = rawFilter.split(" ")[1];
-            result = result.disjunction().conjunction()
+            result =
+                result
+                    .disjunction()
+                    .conjunction()
                     .ilike(fnField, String.format("%%%s%%", name1))
                     .ilike(lnField, String.format("%%%s%%", name2))
-                    .endJunction().conjunction()
+                    .endJunction()
+                    .conjunction()
                     .ilike(fnField, String.format("%%%s%%", name2))
                     .ilike(lnField, String.format("%%%s%%", name1))
-                    .endJunction().endJunction();
+                    .endJunction()
+                    .endJunction();
         } else {
-            result = result.ilike(fnField, condition)
-                    .ilike(lnField, condition);
+            result = result.ilike(fnField, condition).ilike(lnField, condition);
         }
         return result;
     }
 
     private void handleNoShow(User user, Long examId) {
-
-        List<Reservation> reservations = Ebean.find(Reservation.class)
-                .fetch("enrolment")
-                .fetch("enrolment.exam")
-                .where()
-                .eq("user", user)
-                .eq("noShow", false)
-                .lt("endAt", new Date())
-                // Either a) exam id matches and exam state is published OR
-                //        b) collaborative exam id matches and exam is NULL
-                .or()
-                .and()
-                .eq("enrolment.exam.id", examId)
-                .eq("enrolment.exam.state", Exam.State.PUBLISHED)
-                .endAnd()
-                .and()
-                .eq("enrolment.collaborativeExam.id", examId)
-                .isNull("enrolment.exam")
-                .endAnd()
-                .endOr()
-                .isNull("externalReservation")
-                .findList();
+        List<Reservation> reservations = Ebean
+            .find(Reservation.class)
+            .fetch("enrolment")
+            .fetch("enrolment.exam")
+            .where()
+            .eq("user", user)
+            .eq("noShow", false)
+            .lt("endAt", new Date())
+            // Either a) exam id matches and exam state is published OR
+            //        b) collaborative exam id matches and exam is NULL
+            .or()
+            .and()
+            .eq("enrolment.exam.id", examId)
+            .eq("enrolment.exam.state", Exam.State.PUBLISHED)
+            .endAnd()
+            .and()
+            .eq("enrolment.collaborativeExam.id", examId)
+            .isNull("enrolment.exam")
+            .endAnd()
+            .endOr()
+            .isNull("externalReservation")
+            .findList();
         noShowHandler.handleNoShows(reservations);
     }
 
@@ -142,17 +144,18 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamParticipation> trials = Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("exam.parent.id", exam.getId())
-                .ne("exam.state", Exam.State.DELETED)
-                .ne("reservation.retrialPermitted", true)
-                .findList()
-                .stream()
-                .sorted(Comparator.comparing(ExamParticipation::getStarted).reversed())
-                .collect(Collectors.toList());
+        List<ExamParticipation> trials = Ebean
+            .find(ExamParticipation.class)
+            .fetch("exam")
+            .where()
+            .eq("user", user)
+            .eq("exam.parent.id", exam.getId())
+            .ne("exam.state", Exam.State.DELETED)
+            .ne("reservation.retrialPermitted", true)
+            .findList()
+            .stream()
+            .sorted(Comparator.comparing(ExamParticipation::getStarted).reversed())
+            .collect(Collectors.toList());
 
         if (trials.size() >= trialCount) {
             return trials.stream().limit(trialCount).anyMatch(ExamParticipation::isProcessed);
@@ -161,7 +164,7 @@ public class BaseController extends Controller {
     }
 
     protected CompletionStage<Result> wrapAsPromise(Result result) {
-        return CompletableFuture.supplyAsync(() -> result);
+        return CompletableFuture.completedFuture(result);
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous, boolean admin) {

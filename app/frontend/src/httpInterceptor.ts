@@ -15,27 +15,14 @@
 import { HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { SessionService } from './session/session.service';
-
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(private Session: SessionService) {}
-
     intercept(req: HttpRequest<unknown>, next: HttpHandler) {
-        // Get the auth token from the service.
-        const token = this.Session.getToken();
-        if (!token) {
-            return next.handle(req);
-        }
-
-        const authReq = req.clone({
-            headers: req.headers
-                .set('Cache-Control', 'no-cache')
-                .set('Pragma', 'no-cache')
-                .set('x-exam-authentication', token),
+        const uncachedReq = req.clone({
+            headers: req.headers.set('Cache-Control', 'no-cache').set('Pragma', 'no-cache'),
         });
 
         // send cloned request with headers to the next handler.
-        return next.handle(authReq);
+        return next.handle(uncachedReq);
     }
 }

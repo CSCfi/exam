@@ -18,16 +18,14 @@ package backend.models;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.List;
+import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.*;
-import java.util.List;
-
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "creator_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "creator_id" }))
 public class Tag extends OwnedModel {
-
     @Column(nullable = false, length = 32)
     private String name;
 
@@ -65,6 +63,4 @@ public class Tag extends OwnedModel {
     public int hashCode() {
         return new HashCodeBuilder().append(name).build();
     }
-
-
 }
