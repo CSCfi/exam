@@ -2,16 +2,19 @@ package backend.impl;
 
 import backend.exceptions.NotFoundException;
 import backend.models.Exam;
+import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -51,9 +54,20 @@ public interface CalendarHandler {
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();
     boolean isDoable(Reservation reservation, Collection<Integer> aids);
+    CompletionStage<Optional<Integer>> handleExternalReservation(
+        ExamEnrolment enrolment,
+        JsonNode node,
+        DateTime start,
+        DateTime end,
+        User user,
+        String orgRef,
+        String roomRef,
+        Collection<Long> sectionIds
+    );
+    Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user);
 
     class TimeSlot {
-        private final Interval interval;
+        Interval interval;
         private final String start;
         private final String end;
         private final int availableMachines;
@@ -61,16 +75,11 @@ public interface CalendarHandler {
         private final String conflictingExam;
 
         public TimeSlot(Interval interval, int machineCount, String exam) {
-            this.interval = interval;
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
             availableMachines = machineCount;
             ownReservation = machineCount < 0;
             conflictingExam = exam;
-        }
-
-        Interval getInterval() {
-            return interval;
         }
 
         public String getStart() {

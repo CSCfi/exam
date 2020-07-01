@@ -101,11 +101,10 @@ export default function configs(
             },
         })
         .state('externalCalendar', {
-            url: '/iop/calendar/{id}?selected',
+            url: '/iop/calendar/{id}?selected&isCollaborative',
             component: 'calendar',
             resolve: {
                 isExternal: () => true,
-                isCollaborative: () => false,
             },
         })
         .state('collaborativeCalendar', {

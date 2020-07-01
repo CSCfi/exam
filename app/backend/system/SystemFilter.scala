@@ -58,8 +58,9 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
 
   override def apply(next: RequestHeader => Future[mvc.Result])(
       rh: RequestHeader): Future[mvc.Result] = rh.path match {
-    case p if p.startsWith("/app") => next.apply(rh).map(result => processResult(result)(rh))
-    case _                         => next.apply(rh)
+    case p if p.startsWith("/app") | p.startsWith("/integration") =>
+      next.apply(rh).map(processResult(_)(rh))
+    case _ => next.apply(rh)
   }
 
 }

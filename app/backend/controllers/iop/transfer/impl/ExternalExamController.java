@@ -19,6 +19,7 @@ import akka.actor.ActorSystem;
 import backend.controllers.ExaminationController;
 import backend.controllers.SettingsController;
 import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.impl.AutoEvaluationHandler;
@@ -99,6 +100,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private EmailComposer emailComposer;
+
+    @Inject
+    private CollaborativeExamLoader collaborativeExamLoader;
 
     private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
@@ -249,30 +253,37 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
-        final Exam exam = enrolment.getExam();
-        final List<CompletableFuture<Void>> futures = new ArrayList<>();
-        if (exam.getAttachment() != null) {
-            futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
+        if (enrolment.getCollaborativeExam() != null) {
+            return collaborativeExamLoader
+                .downloadExam(enrolment.getCollaborativeExam())
+                .thenApplyAsync(e -> ok(e, getPath()));
+        } else {
+            final Exam exam = enrolment.getExam();
+
+            final List<CompletableFuture<Void>> futures = new ArrayList<>();
+            if (exam.getAttachment() != null) {
+                futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
+            }
+            exam
+                .getExamSections()
+                .stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .map(ExamSectionQuestion::getQuestion)
+                .filter(question -> question.getAttachment() != null)
+                .distinct()
+                .forEach(
+                    question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+                );
+            return CompletableFuture
+                .allOf(futures.toArray(new CompletableFuture[0]))
+                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+                .exceptionally(
+                    t -> {
+                        logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                        return internalServerError();
+                    }
+                );
         }
-        exam
-            .getExamSections()
-            .stream()
-            .flatMap(examSection -> examSection.getSectionQuestions().stream())
-            .map(ExamSectionQuestion::getQuestion)
-            .filter(question -> question.getAttachment() != null)
-            .distinct()
-            .forEach(
-                question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
-            );
-        return CompletableFuture
-            .allOf(futures.toArray(new CompletableFuture[0]))
-            .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
-            .exceptionally(
-                t -> {
-                    logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
-                    return internalServerError();
-                }
-            );
     }
 
     @SubjectNotPresent
@@ -384,7 +395,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return createQuery()
             .where()
             .eq("reservation.externalRef", ref)
+            .or()
             .isNull("exam.parent")
+            .isNotNull("collaborativeExam")
+            .endOr()
             .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
             .findOneOrEmpty();
     }
