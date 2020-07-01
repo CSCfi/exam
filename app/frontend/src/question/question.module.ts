@@ -21,14 +21,26 @@ import { UtilityModule } from '../utility/utility.module';
 import { QuestionComponent } from './basequestion/question.component';
 import { QuestionBodyComponent } from './basequestion/questionBody.component.upgrade';
 import { LibraryService } from './library/library.service';
+import { LibraryComponent } from './library/library.component';
+
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
+import { LibraryOwnerSelection } from './library/owners/libraryOwners.component';
+import { LibraryExportComponent } from './library/export/libraryExport.component';
 import { QuestionService } from './question.service';
 
 @NgModule({
     imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
-    declarations: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent, QuestionBodyComponent],
-    entryComponents: [LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
+    declarations: [
+        LibraryComponent,
+        LibrarySearchComponent,
+        LibraryResultsComponent,
+        QuestionComponent,
+        QuestionBodyComponent,
+        LibraryOwnerSelection,
+        LibraryExportComponent,
+    ],
+    entryComponents: [LibraryComponent, LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}

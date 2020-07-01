@@ -37,6 +37,7 @@ export interface User {
     eppn: string;
     firstName: string;
     lastName: string;
+    name?: string;
     email: string;
     lang: string;
     loginRole: string | null;

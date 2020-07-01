@@ -458,6 +458,6 @@ export class QuestionService {
             uid: uid,
             questionIds: qids.join(),
         };
-        return this.http.put(this.questionOwnerApi(uid), data);
+        return this.http.post(this.questionOwnerApi(uid), data);
     };
 }

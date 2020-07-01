@@ -1,27 +1,27 @@
 <div class="row col-md-12">
     <div class="col-md-6">
-        <div class="form-group input-group search question-search padl20">
-            <div>
+        <div class="form-group search question-search padl20">
+            <div class="input-group">
                 <input
                     class="form-control hgt40 wdt400"
-                    (ngModelChange)="applySearchFilter()"
+                    (input)="applySearchFilter()"
                     [(ngModel)]="filter.text"
                     placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
                 />
-                <div class="input-group-addon search">
+                <div class="input-group-append">
                     <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
-        <div class="form-group input-group search question-search padl20" *ngIf="user.isAdmin">
-            <div>
+        <div class="form-group search question-search padl20" *ngIf="user.isAdmin">
+            <div class="input-group">
                 <input
-                    class="form-control searcht hgt40 wdt400"
-                    (ngModalChange)="applySearchFilter()"
-                    [(ngModel)]="ilter.owner"
+                    class="form-control hgt40 wdt400"
+                    (input)="applySearchFilter()"
+                    [(ngModel)]="filter.owner"
                     placeholder="{{ 'sitnet_search_by_owner' | translate }}"
                 />
-                <div class="input-group-addon search">
+                <div class="input-group-append search">
                     <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
@@ -29,34 +29,37 @@
     </div>
     <div class="col-md-6">
         <div id="filters" class="form-group question-search">
-            <span class="dropdown" uib-dropdown>
+            <span class="m-1" ngbDropdown>
                 <button
-                    uib-dropdown-toggle
-                    class="btn btn-default dropdown-toggle"
+                    class="btn btn-outline-secondary btn-sm"
                     type="button"
                     id="dropDownMenu1"
-                    data-toggle="dropdown"
+                    ngbDropdownToggle
                     (click)="listCourses()"
                 >
                     {{ 'sitnet_course' | translate }}&nbsp;
                     <span class="caret"></span>
                 </button>
                 <ul
-                    class="dropdown-menu scrollable-menu"
+                    class="scrollable-menu"
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
+                    ngbDropdownMenu
                 >
-                    <li role="presentation" class="input-group">
+                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
                         <input
-                            ([ng-model])="(limitations.courses)"
+                            [(ngModel)]="limitations.course"
                             (ngModelChange)="filterCourses()"
                             class="form-control"
                             (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
+                            aria-describedby="search-icon-1"
                         />
-                        <div class="input-group-addon">
-                            <i class="fa fa-search fa-fw"></i>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i id="search-icon-1" class="fa fa-search fa-fw"></i>
+                            </div>
                         </div>
                     </li>
                     <li
@@ -64,34 +67,37 @@
                         [hidden]="course.filtered"
                         role="presentation"
                         (click)="applyFilter(course)"
+                        ngbDropdownItem
                     >
                         <a role="menuitem">{{ course.name | truncate: 30 }}</a>
                     </li>
                 </ul>
             </span>
-            <span class="dropdown" uib-dropdown>
+            <span class="m-1" ngbDropdown>
                 <button
-                    uib-dropdown-toggle
-                    class="btn btn-default dropdown-toggle"
+                    ngbDropdownToggle
+                    class="btn btn-outline-secondary btn-sm"
                     type="button"
                     id="dropDownMenu2"
-                    data-toggle="dropdown"
-                    ng-click="$ctrl.listExams()"
+                    (click)="listExams()"
                 >
                     {{ 'sitnet_exam' | translate }}&nbsp;
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu scrollable-menu pull-left" role="menu" aria-labelledby="dropDownMenu2">
-                    <li role="presentation" class="input-group">
+                <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
+                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
                         <input
-                            ([ngModel])="(limitations.exams)"
+                            [(ngModel)]="limitations.exam"
                             (ngModelChange)="filterExams()"
                             class="form-control"
                             (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
+                            aria-describedby="search-icon-2"
                         />
-                        <div class="input-group-addon">
-                            <i class="fa fa-search fa-fw"></i>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i id="search-icon-2" class="fa fa-search fa-fw"></i>
+                            </div>
                         </div>
                     </li>
                     <li
@@ -99,36 +105,38 @@
                         [hidden]="exam.filtered"
                         role="presentation"
                         (click)="applyFilter(exam)"
+                        ngbDropdownItem
                     >
                         <a role="menuitem">{{ exam.name | truncate: 30 }}</a>
                     </li>
                 </ul>
             </span>
 
-            <span class="dropdown" uib-dropdown>
+            <span class="m-1" ngbDropdown>
                 <button
-                    uib-dropdown-toggle
-                    class="btn btn-default dropdown-toggle"
+                    ngbDropdownToggle
+                    class="btn btn-outline-secondary btn-sm"
                     type="button"
                     id="dropDownMenu3"
-                    data-toggle="dropdown"
                     (click)="listTags()"
                 >
                     {{ 'sitnet_category' | translate }}&nbsp;
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu scrollable-menu" role="menu" aria-labelledby="dropDownMenu3">
-                    <li role="presentation" class="input-group">
+                <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
                         <input
-                            ([ngModel])="(limitations.tags)"
+                            [(ngModel)]="limitations.tag"
                             (ngModelChange)="filterTags()"
                             class="form-control"
                             (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
+                            aria-describedby="search-icon-3"
                         />
-
-                        <div class="input-group-addon">
-                            <i class="fa fa-search fa-fw"></i>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i id="search-icon-3" class="fa fa-search fa-fw"></i>
+                            </div>
                         </div>
                     </li>
                     <li
@@ -136,6 +144,7 @@
                         [hidden]="tag.filtered"
                         role="presentation"
                         (click)="applyFilter(tag)"
+                        ngbDropdownItem
                     >
                         <a
                             role="menuitem"

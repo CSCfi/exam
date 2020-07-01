@@ -6,10 +6,10 @@
                     <input
                         type="checkbox"
                         name="select_all"
-                        ng-model="allSelected"
-                        ng-change="selectAll()"
+                        [(ngModel)]="allSelected"
+                        (change)="selectAll()"
                         placement="top"
-                        trigger="mouseenter"
+                        triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
                     />
                 </th>
@@ -49,7 +49,7 @@
                 <th>
                     <table-sort
                         by="typeOrd"
-                        text="sitnet_questio_type"
+                        text="sitnet_question_type"
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('typeOrd')"
@@ -60,7 +60,7 @@
                 <th>
                     <table-sort
                         by="attachment.fileName"
-                        text="sitnet_question"
+                        text="sitnet_attachment"
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('attachment.fileName')"
@@ -116,7 +116,7 @@
                                 class="fa fa-group text-primary"
                                 ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
                                 placement="right"
-                                trigger="mouseenter"
+                                triggers="mouseenter:mouseleave"
                             ></i>
                         </span>
                     </div>
@@ -128,7 +128,7 @@
                         <small>{{ question.modifier.firstName }} {{ question.modifier.lastName }}</small>
                     </span>
                 </td>
-                <td>{{ question.displayedMaxScore | translate }}</td>
+                <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
                 <td>
                     <span *ngIf="question.type === 'MultipleChoiceQuestion'">{{
                         'sitnet_question_mc' | translate
@@ -151,9 +151,11 @@
                     </a>
                 </td>
                 <td>{{ printTags(question) }}</td>
-                <td *ngIf="user.isAdmin" class="question-table-name">
-                    <span ng-repeat="owner in question.questionOwners">
-                        <a href="mailto:{{ owner.email }}"> {{ printOwner(owner, true) }}{{ $last ? '' : ', ' }} </a>
+                <td class="question-table-name">
+                    <span *ngIf="user.isAdmin">
+                        <a *ngFor="let owner of question.questionOwners; let isLast = last" [href]="renderMailTo(owner)"
+                            >{{ printOwner(owner, true) }}{{ isLast ? '' : ', ' }}</a
+                        >
                     </span>
                 </td>
                 <td class="padl20">
@@ -161,17 +163,17 @@
                         <i
                             class="fa fa-trash-o fa-fw"
                             placement="left"
-                            trigger="mouseenter"
+                            triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
                         ></i>
                     </a>
                 </td>
                 <td class="padl20 padr10">
-                    <a ng-click="copyQuestion(question, false)">
+                    <a (click)="copyQuestion(question, false)">
                         <i
                             class="fa fa-clone fa-fw"
                             placement="left"
-                            trigger="mouseenter"
+                            triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_copy' | translate }}"
                         ></i>
                     </a>

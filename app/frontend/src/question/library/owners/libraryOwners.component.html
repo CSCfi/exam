@@ -10,7 +10,6 @@
             <div class="input-group">
                 <input
                     class="form-control question-add-owners"
-                    [(ngModel)]="newTeacher.name"
                     placeholder="{{ 'sitnet_add_question_owner' | translate }}"
                     [ngbTypeahead]="listTeachers$"
                     (selectItem)="setQuestionOwner($event)"

@@ -1,0 +1,45 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title marl20 marr-20">{{ 'sitnet_library_new' | translate }}</div>
+            </div>
+            <div class="teacher-toolbar">
+                <div class="make-inline">
+                    <div class="review-attachment-button print-button">
+                        <a uiSref="newQuestion({next: 'library'})" class="pointer">
+                            {{ 'sitnet_toolbar_new_question' | translate }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reservation-border">
+        <library-search (on-update)="resultsUpdated($event)"></library-search>
+        <div *ngIf="selections && selections.length > 0" class="padl30 questions-selections-box">
+            <div class="make-inline">
+                <span class="padr10">{{ selections.length }} {{ 'sitnet_questions_selected' | translate }}</span>
+            </div>
+
+            <div class="row margin-20">
+                <div class="col-md-3">
+                    <library-owner-selection [selections]="selections"></library-owner-selection>
+                </div>
+                <div class="col-md-9">
+                    <library-export selections="selections"></library-export>
+                </div>
+            </div>
+        </div>
+
+        <div class="row margin-20">
+            <library-results
+                [questions]="questions"
+                (on-copy)="questionCopied($event)"
+                (on-selection)="questionSelected($event)"
+            >
+            </library-results>
+        </div>
+    </div>
+</div>

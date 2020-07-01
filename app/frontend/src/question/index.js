@@ -30,7 +30,6 @@ require('./examquestion/examQuestion.component');
 require('./examquestion/examQuestionEditor.component');
 require('./examquestion/baseQuestionEditor.component');
 require('./library/library.service.ts');
-require('./library/library.component');
 require('./library/owners/libraryOwners.component');
 require('./library/export/libraryExport.component.ts');
 require('./library/results/libraryResults.component');
