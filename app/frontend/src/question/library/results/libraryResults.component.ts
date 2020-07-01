@@ -18,7 +18,6 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 import * as _ from 'lodash';
 
-import { Question } from '../../../exam/exam.model';
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';

@@ -64,16 +64,12 @@ export const SessionComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
-                this.Session.getEnv()
-                    .then((value: 'DEV' | 'PROD') => {
-                        if (value === 'PROD') {
-                            this.Session.login('', '')
-                                .then((user: User) => (this.user = user))
-                                .catch(angular.noop);
-                        }
-                        this.devLoginRequired = value === 'DEV';
-                    })
-                    .catch(angular.noop);
+                this.Session.getEnv$().subscribe((value: 'DEV' | 'PROD') => {
+                    if (value === 'PROD') {
+                        this.Session.login$('', '').subscribe((user: User) => (this.user = user), angular.noop);
+                    }
+                    this.devLoginRequired = value === 'DEV';
+                }, angular.noop);
             }
         }
 

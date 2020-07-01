@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, take, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { User } from '../../../session/session.service';
