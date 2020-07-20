@@ -10,7 +10,7 @@
         "test": "protractor conf.js"
     },
     "dependencies": {
-        "lodash": "^4.17.15",
+        "lodash": "^4.17.19",
         "eslint": "^6.4.0",
         "pg": "^7",
         "protractor": "^5.4.1",
