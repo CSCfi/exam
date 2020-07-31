@@ -75,6 +75,7 @@ public interface CalendarHandler {
         private final String conflictingExam;
 
         public TimeSlot(Interval interval, int machineCount, String exam) {
+            this.interval = interval;
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
             availableMachines = machineCount;

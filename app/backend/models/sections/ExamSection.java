@@ -162,12 +162,12 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
-    public ExamSection copyWithAnswers(Exam exam) {
+    public ExamSection copyWithAnswers(Exam exam, boolean hasParent) {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copyWithAnswers());
+            section.getSectionQuestions().add(esq.copyWithAnswers(hasParent));
         }
         return section;
     }

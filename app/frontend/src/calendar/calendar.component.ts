@@ -244,11 +244,13 @@ export const CalendarComponent: ng.IComponentOptions = {
                 });
         };
 
-        makeInternalReservation = () =>
-            this.$state.go('calendar', {
+        makeInternalReservation = () => {
+            const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
+            this.$state.go(nextState, {
                 id: this.$stateParams.id,
                 selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
             });
+        };
 
         private adjust = (date: string, tz: string): string => {
             const adjusted: moment.Moment = moment.tz(date, tz);

@@ -80,6 +80,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -148,7 +149,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copyWithAnswers(clone);
+            ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
             esCopy.save();
@@ -179,7 +180,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return wrapAsPromise(badRequest());
         }
         Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findOne();
-        if (parent == null) {
+        if (parent == null && enrolment.getCollaborativeExam() == null) {
             return wrapAsPromise(notFound());
         }
         Exam clone = createCopy(ee.deserialize(), parent, enrolment.getUser());
@@ -188,6 +189,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
         ExamParticipation ep = new ExamParticipation();
         ep.setExam(clone);
+        ep.setCollaborativeExam(enrolment.getCollaborativeExam());
         ep.setUser(enrolment.getUser());
         ep.setStarted(ee.getStarted());
         ep.setEnded(ee.getFinished());
@@ -205,10 +207,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
             autoEvaluationHandler.autoEvaluate(clone);
         }
         ep.save();
-
-        // Fetch external attachments to local exam.
-        externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
-        return wrapAsPromise(created());
+        if (enrolment.getCollaborativeExam() != null) {
+            // Fetch external attachments to local exam.
+            return externalAttachmentLoader
+                .fetchExternalAttachmentsAsLocal(clone)
+                .thenComposeAsync(__ -> collaborativeExamLoader.createAssessment(ep))
+                .thenComposeAsync(
+                    ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
+                );
+        } else {
+            // Fetch external attachments to local exam.
+            externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
+            return wrapAsPromise(created());
+        }
     }
 
     private void notifyTeachers(Exam exam) {
@@ -256,7 +267,16 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment.getCollaborativeExam() != null) {
             return collaborativeExamLoader
                 .downloadExam(enrolment.getCollaborativeExam())
-                .thenApplyAsync(e -> ok(e, getPath()));
+                .thenApplyAsync(
+                    oe -> {
+                        if (oe.isPresent()) {
+                            // TODO: attachments
+                            return ok(oe.get(), getPath());
+                        } else {
+                            return internalServerError("could not download collaborative exam");
+                        }
+                    }
+                );
         } else {
             final Exam exam = enrolment.getExam();
 
