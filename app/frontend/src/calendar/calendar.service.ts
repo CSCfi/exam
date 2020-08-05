@@ -102,9 +102,12 @@ export class CalendarService {
             });
     }
 
-    private reserveExternal(slot: Slot, promise: IDeferred<any>) {
+    private reserveExternal(slot: Slot, collaborative = false, promise: IDeferred<any>) {
+        const url = collaborative
+            ? '/integration/iop/calendar/external/reservation'
+            : '/integration/iop/reservations/external';
         this.$http
-            .post('/integration/iop/reservations/external', slot)
+            .post(url, slot)
             .then(() => {
                 this.$state.go('dashboard');
                 promise.resolve();
@@ -135,7 +138,7 @@ export class CalendarService {
             sectionIds: sectionIds,
         };
         if (org._id !== null) {
-            this.reserveExternal(slot, deferred);
+            this.reserveExternal(slot, collaborative, deferred);
         } else {
             this.reserveInternal(slot, accs, deferred, collaborative);
         }

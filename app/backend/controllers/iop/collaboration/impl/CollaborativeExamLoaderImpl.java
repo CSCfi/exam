@@ -1,7 +1,9 @@
 package backend.controllers.iop.collaboration.impl;
 
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.models.Exam;
+import backend.models.ExamParticipation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,10 +21,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -33,6 +37,9 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Inject
     WSClient wsClient;
 
+    @Inject
+    private ExternalAttachmentLoader externalAttachmentLoader;
+
     private Optional<URL> parseUrl(String examRef) {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
         .append("/api/exams");
@@ -41,6 +48,20 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         }
         try {
             return Optional.of(new URL(sb.toString()));
+        } catch (MalformedURLException e) {
+            logger.error("Malformed URL {}", e);
+            return Optional.empty();
+        }
+    }
+
+    private Optional<URL> parseAssessmentUrl(String examRef) {
+        try {
+            return Optional.of(
+                new URL(
+                    ConfigFactory.load().getString("sitnet.integration.iop.host") +
+                    String.format("/api/exams/%s/assessments", examRef)
+                )
+            );
         } catch (MalformedURLException e) {
             logger.error("Malformed URL {}", e);
             return Optional.empty();
@@ -72,6 +93,60 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             logger.error("Malformed URL {}", e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public PathProperties getAssessmentPath() {
+        String path =
+            "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
+            "exam(id, name, state, instruction, hash, duration, executionType(id, type), " +
+            "examLanguages(code), attachment(id, externalId, fileName)" +
+            "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
+            "creditType(*), examType(*), executionType(*)" +
+            "gradeScale(*, grades(*))" +
+            "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
+            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
+            "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
+            "options(*, option(*))" +
+            "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
+            "clozeTestAnswer(id, question, answer, objectVersion)" +
+            ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " +
+            "reservation(*, machine(*, room(*))) )" +
+            "))";
+        return PathProperties.parse(path);
+    }
+
+    @Override
+    public CompletionStage<Boolean> createAssessment(ExamParticipation participation) {
+        String ref = participation.getCollaborativeExam().getExternalRef();
+        logger.debug("Sending back collaborative assessment for exam " + ref);
+        Optional<URL> ou = parseAssessmentUrl(ref);
+        if (ou.isEmpty()) {
+            return CompletableFuture.completedFuture(false);
+        }
+        WSRequest request = wsClient.url(ou.get().toString());
+        request.setContentType("application/json");
+        Function<WSResponse, Boolean> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.CREATED) {
+                logger.error("Failed in sending assessment for exam " + ref);
+                return false;
+            }
+            participation.setSentForReview(DateTime.now());
+            participation.update();
+            logger.info("Assessment for exam " + ref + " processed successfully");
+            return true;
+        };
+
+        return externalAttachmentLoader
+            .uploadAssessmentAttachments(participation.getExam())
+            .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(participation, getAssessmentPath())))
+            .thenApplyAsync(onSuccess)
+            .exceptionally(
+                t -> {
+                    logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                    return false;
+                }
+            );
     }
 
     @Override

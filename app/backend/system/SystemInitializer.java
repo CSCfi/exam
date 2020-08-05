@@ -26,6 +26,7 @@ import io.ebean.Ebean;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -196,8 +197,9 @@ class SystemInitializer {
 
         lifecycle.addStopHook(
             () -> {
+                logger.info("running shutdown hooks");
                 cancelTasks();
-                return CompletableFuture.completedFuture(null);
+                return CompletableFuture.completedFuture(Optional.empty());
             }
         );
     }

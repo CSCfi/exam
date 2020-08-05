@@ -237,7 +237,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             for (JsonNode scale : node) {
                 String type = scale.get("type").asText();
                 Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
-                if (!scaleType.isPresent()) {
+                if (scaleType.isEmpty()) {
                     // not understood
                     logger.warn("Skipping over unknown grade scale type {}", type);
                 } else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
@@ -270,9 +270,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                         g.setName(grade.get("description").asText());
                         g.setGradeScale(gs);
                         // Dumb JSON API gives us boolean values as strings
-                        boolean marksRejection = grade.get("isFailed") != null
-                            ? Boolean.valueOf(grade.get("isFailed").asText("false"))
-                            : false;
+                        boolean marksRejection =
+                            grade.get("isFailed") != null &&
+                            Boolean.parseBoolean(grade.get("isFailed").asText("false"));
                         g.setMarksRejection(marksRejection);
                         g.save();
                         gs.getGrades().add(g);

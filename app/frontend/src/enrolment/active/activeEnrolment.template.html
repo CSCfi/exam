@@ -19,15 +19,20 @@
 
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
-                    <a
-                        ui-sref="enrolments({id: {{ $ctrl.enrolment.exam.id }}, code: '{{$ctrl.enrolment.exam.course.code}}' })"
-                    >
-                        {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a
-                    >
+                    <div ng-if="$ctrl.enrolment.exam">
+                        <a
+                            ui-sref="enrolments({id: {{ $ctrl.enrolment.exam.id }}, code: '{{$ctrl.enrolment.exam.course.code}}' })"
+                        >
+                            {{ $ctrl.enrolment.exam.name }}</a
+                        >
+                    </div>
+                    <div ng-if="$ctrl.enrolment.collaborativeExam">
+                        {{ $ctrl.enrolment.collaborativeExam.name}}
+                    </div>
                     <small ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small
                     >
-                    <small ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'"
+                    <small ng-if="$ctrl.enrolment.exam && $ctrl.enrolment.exam.implementation !== 'AQUARIUM'"
                         >({{ 'sitnet_examination_type_seb' | translate }})</small
                     >
                     <br />
@@ -37,7 +42,7 @@
                         >{{'sitnet_state_ready' | translate}}</span
                     >
                     <span
-                        ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !$ctrl.enrolment.reservation && !$ctrl.enrolment.examinationEventConfiguration"
+                        ng-if="($ctrl.enrolment.exam.state ==='PUBLISHED' || $ctrl.enrolment.collaborativeExam.state === 'PUBLISHED') && !$ctrl.enrolment.reservation && !$ctrl.enrolment.examinationEventConfiguration"
                         class="exam-needs-reservation"
                         >{{'sitnet_state_needs_reservation_title' | translate}}</span
                     >
@@ -136,7 +141,7 @@
                             </li>
                             <!-- enrolment without reservation, allow making reservation -->
                             <li
-                                ng-if="!$ctrl.enrolment.reservation && $ctrl.enrolment.exam.implementation === 'AQUARIUM'"
+                                ng-if="!$ctrl.enrolment.reservation && ($ctrl.enrolment.exam.implementation === 'AQUARIUM' || $ctrl.enrolment.collaborativeExam)"
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
@@ -191,7 +196,7 @@
                         {{ 'sitnet_teachers' | translate }}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                        <div>
+                        <div ng-if="$ctrl.enrolment.exam">
                             <teacher-list exam="$ctrl.enrolment.exam" />
                         </div>
                         <div>
@@ -290,7 +295,7 @@
             </div>
         </div>
         <div ng-if="$ctrl.enrolment.examinationEventConfiguration">
-            <div class="row mart20" ng-if="$ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
+            <div class="row mart20" ng-if="$ctrl.enrolment.exam && $ctrl.enrolment.exam.implementation !== 'AQUARIUM'">
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
