@@ -40,7 +40,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.makeReservation = () => {
-                if (vm.enrolment.exam.implementation !== 'AQUARIUM') {
+                if (vm.enrolment.exam && vm.enrolment.exam.implementation !== 'AQUARIUM') {
                     Enrolment.selectExaminationEvent(vm.enrolment.exam, vm.enrolment);
                 } else {
                     vm.goToCalendar();
@@ -48,6 +48,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.hasUpcomingAlternativeEvents = () =>
+                vm.enrolment.exam &&
                 vm.enrolment.exam.examinationEventConfigurations.some(
                     eec =>
                         new Date(eec.examinationEvent.start) > new Date() &&

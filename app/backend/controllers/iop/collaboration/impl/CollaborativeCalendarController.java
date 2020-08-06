@@ -61,7 +61,7 @@ public class CollaborativeCalendarController extends CollaborationController {
             );
     }
 
-    private Optional<Result> checkEnrolment(ExamEnrolment enrolment, Exam exam, User user) {
+    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, Exam exam, User user) {
         // Removal not permitted if old reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
         if (
