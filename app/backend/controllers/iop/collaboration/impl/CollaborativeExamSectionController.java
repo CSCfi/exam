@@ -269,10 +269,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     // Option ids will be used to retain option order on collaborative exams
                     List<MultipleChoiceOption> options = question.getOptions();
                     List<Long> generatedIds = Stream
-                        .generate(() -> newId())
+                        .generate(this::newId)
                         .limit(options.size())
+                        .sorted(Comparator.naturalOrder())
                         .collect(Collectors.toList());
-                    generatedIds.sort(Comparator.naturalOrder());
                     for (int i = 0; i < options.size(); i++) {
                         options.get(i).setId(generatedIds.get(i));
                     }
@@ -299,6 +299,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 esq.setCreated(DateTime.now());
 
                 updateExamQuestion(esq, question);
+                esq.getOptions().forEach(o -> o.setId(newId()));
                 cleanUser(user);
                 AppUtil.setModifier(es, user);
                 es.getSectionQuestions().add(esq);

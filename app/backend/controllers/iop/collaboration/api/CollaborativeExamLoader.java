@@ -2,6 +2,7 @@ package backend.controllers.iop.collaboration.api;
 
 import backend.controllers.iop.collaboration.impl.CollaborativeExamLoaderImpl;
 import backend.models.Exam;
+import backend.models.ExamParticipation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,4 +32,8 @@ public interface CollaborativeExamLoader {
     CompletionStage<Optional<String>> uploadAssessment(CollaborativeExam ce, String ref, JsonNode payload);
 
     CompletionStage<Result> deleteExam(CollaborativeExam ce);
+
+    CompletionStage<Boolean> createAssessment(ExamParticipation participation);
+
+    PathProperties getAssessmentPath();
 }

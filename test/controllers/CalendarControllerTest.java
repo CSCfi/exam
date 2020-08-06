@@ -301,7 +301,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start))
                         .put("end", ISODateTimeFormat.dateTime().print(end)));
-        assertThat(result.status()).isEqualTo(404);
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
         // Verify

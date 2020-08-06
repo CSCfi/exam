@@ -97,6 +97,9 @@ export const CalendarComponent: ng.IComponentOptions = {
         }
 
         $onInit() {
+            if (this.$stateParams.isCollaborative) {
+                this.isCollaborative = true;
+            }
             this.$scope.$on('$localeChangeSuccess', () => {
                 const optionalRoom = this.selectedRoom;
                 if (optionalRoom !== undefined) {
@@ -108,8 +111,7 @@ export const CalendarComponent: ng.IComponentOptions = {
                 .get('/app/settings/iop/examVisit')
                 .then((resp: ng.IHttpResponse<{ isExamVisitSupported: boolean }>) => {
                     this.isInteroperable = resp.data.isExamVisitSupported;
-                    // TODO: allow making external reservations to collaborative exams in the future
-                    if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
+                    if (this.isInteroperable && this.isExternal) {
                         this.$http.get('/integration/iop/organisations').then((resp: ng.IHttpResponse<any[]>) => {
                             this.organisations = resp.data.filter(org => !org.homeOrg && org.facilities.length > 0);
                         });
@@ -192,7 +194,7 @@ export const CalendarComponent: ng.IComponentOptions = {
             const text = this.$translate
                 .instant('sitnet_description_reservation_window')
                 .replace('{}', this.reservationWindowSize.toString());
-            return `${text} ( ${this.reservationWindowEndDate.format('DD.MM.YYYY')} )`;
+            return `${text} (${this.reservationWindowEndDate.format('DD.MM.YYYY')})`;
         }
 
         selectedAccessibilities() {
@@ -237,15 +239,18 @@ export const CalendarComponent: ng.IComponentOptions = {
                     this.$state.go('externalCalendar', {
                         id: this.$stateParams.id,
                         selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+                        isCollaborative: this.isCollaborative,
                     });
                 });
         };
 
-        makeInternalReservation = () =>
-            this.$state.go('calendar', {
+        makeInternalReservation = () => {
+            const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
+            this.$state.go(nextState, {
                 id: this.$stateParams.id,
                 selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
             });
+        };
 
         private adjust = (date: string, tz: string): string => {
             const adjusted: moment.Moment = moment.tz(date, tz);
@@ -278,11 +283,14 @@ export const CalendarComponent: ng.IComponentOptions = {
             error: (_: ng.IHttpResponse<any>) => void,
             date: string,
             room: Room,
-            accessibility,
+            accessibility: number[],
         ) {
             if (this.isExternal) {
+                const url = this.isCollaborative
+                    ? `/integration/iop/exams/${this.$stateParams.id}/external/calendar/${room._id}`
+                    : `/integration/iop/calendar/${this.$stateParams.id}/${room._id}`;
                 this.$http
-                    .get(`/integration/iop/calendar/${this.$stateParams.id}/${room._id}`, {
+                    .get(url, {
                         params: {
                             org: this.selectedOrganisation._id,
                             date: date,

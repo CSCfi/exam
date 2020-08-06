@@ -112,9 +112,6 @@ public class CalendarController extends BaseController {
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
-        if (enrolment == null) {
-            return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
-        }
         if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return Optional.of(forbidden("SEB exam does not take reservations"));
         }
@@ -195,7 +192,7 @@ public class CalendarController extends BaseController {
                 .endJunction()
                 .findOneOrEmpty();
             if (optionalEnrolment.isEmpty()) {
-                return wrapAsPromise(notFound());
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
             Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
