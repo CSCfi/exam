@@ -71,7 +71,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                             PathProperties.parse(
                                 "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
                                 "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction)"
+                                "enrollInstruction, implementation, examinationEventConfigurations)"
                             )
                         );
                     }
@@ -108,7 +108,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                             PathProperties.parse(
                                 "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
                                 "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction)"
+                                "enrollInstruction, implementation, examinationEventConfigurations)"
                             )
                         );
                     }
@@ -148,7 +148,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                                     .findList();
 
                                 if (enrolments.isEmpty()) {
-                                    return notFound("error not found");
+                                    return notFound("not found");
                                 }
                                 return ok(enrolments);
                             }

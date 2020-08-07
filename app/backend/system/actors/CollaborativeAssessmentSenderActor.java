@@ -54,7 +54,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                         .isNotNull("started")
                         .isNotNull("ended")
                         .findList();
-                    enrolments.forEach(collaborativeExamLoader::createAssessment);
+                    enrolments.forEach(collaborativeExamLoader::createAssessmentWithAttachments);
                     logger.debug("<- done");
                 }
             )
