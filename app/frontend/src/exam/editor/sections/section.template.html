@@ -238,13 +238,12 @@
                     class="sortable-{{$ctrl.section.id}}"
                     ng-show="$ctrl.section.sectionQuestions"
                     class="sectionQuestion"
-                    ng-repeat="sectionQuestion in $ctrl.section.sectionQuestions | orderBy:sequenceNumber"
+                    ng-repeat="sectionQuestion in $ctrl.section.sectionQuestions | orderBy:'sequenceNumber'"
                 >
                     <section-question
                         section-question="sectionQuestion"
                         lottery-on="$ctrl.section.lotteryOn"
                         on-delete="$ctrl.removeQuestion(sectionQuestion)"
-                        on-update="$ctrl.onReloadRequired()"
                     >
                     </section-question>
                 </li>

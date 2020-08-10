@@ -96,13 +96,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         if (err.isPresent()) {
                                             return wrapAsPromise(err.get());
                                         }
-                                        return uploadExam(
-                                            ce,
-                                            exam,
-                                            user,
-                                            resultProvider.apply(exam).orElse(null),
-                                            null
+                                        PathProperties pp = PathProperties.parse(
+                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                                         );
+                                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                                     }
                                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                                 }
