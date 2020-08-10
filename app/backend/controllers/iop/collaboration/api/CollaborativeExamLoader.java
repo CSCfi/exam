@@ -35,5 +35,7 @@ public interface CollaborativeExamLoader {
 
     CompletionStage<Boolean> createAssessment(ExamParticipation participation);
 
+    CompletionStage<Boolean> createAssessmentWithAttachments(ExamParticipation participation);
+
     PathProperties getAssessmentPath();
 }

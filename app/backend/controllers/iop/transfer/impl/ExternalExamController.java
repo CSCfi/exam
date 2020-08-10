@@ -208,10 +208,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
         }
         ep.save();
         if (enrolment.getCollaborativeExam() != null) {
-            // Fetch external attachments to local exam.
-            return externalAttachmentLoader
-                .fetchExternalAttachmentsAsLocal(clone)
-                .thenComposeAsync(__ -> collaborativeExamLoader.createAssessment(ep))
+            return collaborativeExamLoader
+                .createAssessment(ep)
                 .thenComposeAsync(
                     ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
@@ -270,7 +268,6 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .thenApplyAsync(
                     oe -> {
                         if (oe.isPresent()) {
-                            // TODO: attachments
                             return ok(oe.get(), getPath());
                         } else {
                             return internalServerError("could not download collaborative exam");

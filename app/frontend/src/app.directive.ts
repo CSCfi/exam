@@ -385,7 +385,7 @@ export class TeacherList implements IDirective<TeacherListScope> {
             const owners = scope.useParent && scope.exam.parent ? scope.exam.parent.examOwners : scope.exam.examOwners;
             const inspectors = scope.exam.examInspections.map(ei => ei.user);
             const inspectorHtml = inspectors.map(i => `${i.firstName} ${i.lastName}`).join(', ');
-            if (owners.length > 0) {
+            if (owners.filter(o => o.lastName).length > 0) {
                 const ownerHtml = `<strong>${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}</strong>`;
                 return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
             } else if (inspectors.length > 0) {
