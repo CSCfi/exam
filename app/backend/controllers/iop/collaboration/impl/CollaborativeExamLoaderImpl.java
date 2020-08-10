@@ -117,6 +117,19 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     @Override
+    public CompletionStage<Boolean> createAssessmentWithAttachments(ExamParticipation participation) {
+        String ref = participation.getCollaborativeExam().getExternalRef();
+        logger.debug("Sending back collaborative assessment for exam " + ref);
+        Optional<URL> ou = parseAssessmentUrl(ref);
+        if (ou.isEmpty()) {
+            return CompletableFuture.completedFuture(false);
+        }
+        return externalAttachmentLoader
+            .uploadAssessmentAttachments(participation.getExam())
+            .thenComposeAsync(__ -> createAssessment(participation));
+    }
+
+    @Override
     public CompletionStage<Boolean> createAssessment(ExamParticipation participation) {
         String ref = participation.getCollaborativeExam().getExternalRef();
         logger.debug("Sending back collaborative assessment for exam " + ref);
@@ -137,9 +150,8 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             return true;
         };
 
-        return externalAttachmentLoader
-            .uploadAssessmentAttachments(participation.getExam())
-            .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(participation, getAssessmentPath())))
+        return request
+            .post(Ebean.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
             .exceptionally(
                 t -> {
