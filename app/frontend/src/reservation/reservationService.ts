@@ -65,7 +65,7 @@ export class ReservationService {
     getReservationCount = exam =>
         exam.examEnrolments.filter(
             enrolment =>
-                (enrolment.reservation && enrolment.reservation.endAt > new Date().getTime()) ||
+                (enrolment.reservation && new Date(enrolment.reservation.endAt) > new Date()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
