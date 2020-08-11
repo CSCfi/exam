@@ -30,7 +30,6 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         sectionQuestion: '<',
         lotteryOn: '<',
         onDelete: '&',
-        onUpdate: '&',
     },
     require: {
         parentCtrl: '^^section',
@@ -39,7 +38,6 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         sectionQuestion: ExamSectionQuestion;
         lotteryOn: boolean;
         onDelete: (_: { sectionQuestion: ExamSectionQuestion }) => any;
-        onUpdate: () => any;
         parentCtrl: { collaborative: boolean; section: ExamSection; examId: number };
 
         constructor(
@@ -147,8 +145,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                                     '/integration/iop/attachment/question',
                                     attachment.file,
                                     { examId: this.parentCtrl.examId, questionId: this.sectionQuestion.id },
-                                    data.question,
-                                    () => this.onUpdate(),
+                                    this.sectionQuestion.question,
                                 );
                             } else if (attachment.removed) {
                                 this.Attachment.eraseCollaborativeQuestionAttachment(
@@ -156,15 +153,11 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                                     this.sectionQuestion.id,
                                 ).then(() => {
                                     delete this.sectionQuestion.question.attachment;
-                                    this.onUpdate();
                                 });
                             }
                         })
                         .catch(resp => {
                             toast.error(resp.data);
-                            if (this.parentCtrl.collaborative) {
-                                this.onUpdate();
-                            }
                         });
                 });
         };

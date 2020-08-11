@@ -25,14 +25,12 @@ export const SectionsListComponent: ng.IComponentOptions = {
         collaborative: '<',
         onNextTabSelected: '&',
         onPreviousTabSelected: '&',
-        onNewLibraryQuestion: '&',
     },
     controller: class SectionsListComponentController implements ng.IComponentController {
         exam: Exam;
         collaborative: boolean;
         onPreviousTabSelected: () => any;
         onNextTabSelected: () => any;
-        onNewLibraryQuestion: () => any;
         materials: ExamMaterial[];
 
         constructor(
@@ -146,8 +144,6 @@ export const SectionsListComponent: ng.IComponentOptions = {
             }
             return this.exam.executionType.type === 'PUBLIC';
         };
-
-        onReloadRequired = () => this.onNewLibraryQuestion();
     },
 };
 
