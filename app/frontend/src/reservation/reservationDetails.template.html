@@ -114,7 +114,10 @@
             <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external" class="width15">
                 {{'sitnet_exam_status_external' | translate}}
             </td>
-            <td class="reservation-search" ng-if="r.enrolment.exam.implementation === 'AQUARIUM'">
+            <td
+                class="reservation-search"
+                ng-if="r.enrolment.exam.external || r.enrolment.exam.implementation === 'AQUARIUM'"
+            >
                 {{r.startAt | adjustdst | date:'dd.MM.yyyy'}} <br />{{r.startAt | adjustdst | date:'HH:mm'}}-{{r.endAt |
                 adjustdst | date:'HH:mm'}}
             </td>

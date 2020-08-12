@@ -97,7 +97,7 @@ export const CalendarComponent: ng.IComponentOptions = {
         }
 
         $onInit() {
-            if (this.$stateParams.isCollaborative) {
+            if (this.$stateParams.isCollaborative === 'true') {
                 this.isCollaborative = true;
             }
             this.$scope.$on('$localeChangeSuccess', () => {
