@@ -19,14 +19,15 @@ import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
+import backend.util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -74,7 +75,18 @@ public class ReservationAPIController extends BaseController {
         if (roomId.isPresent()) {
             el = el.eq("machine.room.id", roomId.get());
         }
-        Set<Reservation> reservations = el.orderBy("startAt").findSet();
+        List<Reservation> reservations = el
+            .findSet()
+            .stream()
+            .peek(
+                r -> {
+                    r.setStartAt(DateTimeUtils.adjustDST(r.getStartAt()));
+                    r.setEndAt(DateTimeUtils.adjustDST(r.getEndAt()));
+                }
+            )
+            .sorted(Comparator.comparing(Reservation::getStartAt))
+            .collect(Collectors.toList());
+
         return ok(reservations, pp);
     }
 
