@@ -194,6 +194,7 @@ public class IntegrationTestCase {
 
     protected void logout() {
         request(Helpers.POST, "/app/logout", null);
+        this.session = new Http.Session();
     }
 
     protected <T> T deserialize(Class<T> model, JsonNode node) {
