@@ -165,7 +165,11 @@ public class ExternalCalendarController extends CalendarController {
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
-        reservation.delete();
+        if (reservation.getEnrolment() != null) {
+            reservation.getEnrolment().delete(); // cascades to reservation
+        } else {
+            reservation.delete();
+        }
         return ok();
     }
 
