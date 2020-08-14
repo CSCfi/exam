@@ -1,18 +1,18 @@
 package controllers.iop;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamRoom;
+import backend.models.GeneralSettings;
+import backend.models.GradeEvaluation;
+import backend.models.Language;
+import backend.models.Reservation;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.models.json.ExternalExam;
+import backend.util.json.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
@@ -27,8 +27,21 @@ import com.typesafe.config.ConfigFactory;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
@@ -39,21 +52,6 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamRoom;
-import backend.models.GeneralSettings;
-import backend.models.GradeEvaluation;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.util.json.JsonDeserializer;
-
-import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
 public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
@@ -671,6 +669,34 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String mailBody = GreenMailUtil.getBody(mails[0]);
         assertThat(mailBody).contains("External Room R1");
+    }
+
+    @Test
+    public void testRequestReservationRemovalAfterRemoteLogin() throws Exception {
+        initialize(null);
+        String eppn = "newuser@test.org";
+        assertThat(user).isNull();
+
+        Reservation reservation = new Reservation();
+        reservation.setExternalUserRef(eppn);
+        reservation.setExternalRef(RESERVATION_REF);
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.save();
+
+        login(eppn);
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.externalRef",
+                RESERVATION_REF).findOne();
+        logout();
+
+        Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
+        assertThat(result.status()).isEqualTo(200);
+
+        assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+        assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId())).isNull();
+        assertThat(Ebean.find(ExternalExam.class, enrolment.getExternalExam().getId())).isNull();
+
     }
 
 
