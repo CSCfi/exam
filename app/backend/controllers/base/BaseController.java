@@ -22,7 +22,6 @@ import backend.models.ExamParticipation;
 import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
-import backend.repository.EnrolmentRepository;
 import backend.sanitizers.Attrs;
 import backend.system.interceptors.AnonymousJsonAction;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,9 +34,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -59,9 +56,6 @@ public class BaseController extends Controller {
 
     @Inject
     protected HttpExecutionContext ec;
-
-    @Inject
-    protected EnrolmentRepository enrolmentRepository;
 
     @Inject
     private NoShowHandler noShowHandler;
@@ -212,55 +206,5 @@ public class BaseController extends Controller {
             logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
-    }
-
-    protected CompletionStage<Result> checkStudentSession(Http.Request request, Http.Session session, Result result) {
-        if (isStudent(session) && session.get("id").isPresent()) {
-            return enrolmentRepository
-                .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
-                .thenApplyAsync(
-                    headers -> {
-                        Http.Session newSession = updateSession(session, headers);
-                        return result.withSession(newSession);
-                    },
-                    ec.current()
-                );
-        } else {
-            return wrapAsPromise(result.withSession(session));
-        }
-    }
-
-    private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
-        Map<String, String> payload = new HashMap<>(session.data());
-        if (headers.containsKey("x-exam-start-exam")) {
-            payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));
-        } else {
-            payload.remove("ongoingExamHash");
-        }
-        if (headers.containsKey("x-exam-upcoming-exam")) {
-            payload.put("upcomingExamHash", headers.get("x-exam-upcoming-exam"));
-        } else {
-            payload.remove("upcomingExamHash");
-        }
-        if (headers.containsKey("x-exam-wrong-machine")) {
-            payload.put("wrongMachineData", headers.get("x-exam-wrong-machine"));
-        } else {
-            payload.remove("wrongMachineData");
-        }
-        if (headers.containsKey("x-exam-wrong-room")) {
-            payload.put("wrongRoomData", headers.get("x-exam-wrong-room"));
-        } else {
-            payload.remove("wrongRoomData");
-        }
-        if (headers.containsKey("x-exam-wrong-agent-config")) {
-            payload.put("wrongAgent", headers.get("x-exam-wrong-agent-config"));
-        } else {
-            payload.remove("wrongRoomData");
-        }
-        return new Http.Session(payload);
-    }
-
-    private boolean isStudent(Http.Session session) {
-        return (session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get()));
     }
 }

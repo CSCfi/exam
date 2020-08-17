@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -37,7 +38,7 @@ import play.mvc.Result;
 
 public class EnrolmentRepository {
     private final Environment environment;
-    private final EbeanServer db;
+    private final Provider<EbeanConfig> config;
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
 
@@ -46,12 +47,12 @@ public class EnrolmentRepository {
     @Inject
     public EnrolmentRepository(
         Environment environment,
-        EbeanConfig ebeanConfig,
+        Provider<EbeanConfig> ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler
     ) {
         this.environment = environment;
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+        this.config = ebeanConfig;
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
     }
@@ -131,6 +132,7 @@ public class EnrolmentRepository {
     }
 
     private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         User user = db.find(User.class, userId);
         if (user == null) return Collections.emptyMap();
         Map<String, String> headers = new HashMap<>();
@@ -152,6 +154,7 @@ public class EnrolmentRepository {
     }
 
     private boolean isOnExamMachine(Http.RequestHeader request) {
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
@@ -186,6 +189,7 @@ public class EnrolmentRepository {
                 String header;
 
                 // Is this a known machine?
+                EbeanServer db = Ebean.getServer(config.get().defaultServer());
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
                     // IP not known
@@ -285,6 +289,7 @@ public class EnrolmentRepository {
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         Set<ExamEnrolment> results = db
             .find(ExamEnrolment.class)
             .fetch("reservation")
