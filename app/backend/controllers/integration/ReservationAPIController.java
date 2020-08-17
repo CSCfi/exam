@@ -101,7 +101,7 @@ public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getRoomOpeningHours(Long roomId, Optional<String> date) {
-        if (!date.isPresent()) {
+        if (date.isEmpty()) {
             return badRequest("no search date given");
         }
         LocalDate searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date.get());

@@ -26,6 +26,7 @@ import backend.models.Reservation;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.dto.Credentials;
+import backend.repository.EnrolmentRepository;
 import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
@@ -66,6 +67,7 @@ public class SessionController extends BaseController {
     private final Environment environment;
     private final ExternalExamAPI externalExamAPI;
     private final ConfigReader configReader;
+    private final EnrolmentRepository enrolmentRepository;
 
     private static final Logger.ALogger logger = Logger.of(SessionController.class);
 
@@ -78,14 +80,19 @@ public class SessionController extends BaseController {
         .load()
         .getString("sitnet.user.studentIds.multiple.organisations");
     private static final int SESSION_TIMEOUT_MINUTES = 30;
-
     private static final String URN_PREFIX = "urn:";
 
     @Inject
-    public SessionController(Environment environment, ExternalExamAPI externalExamAPI, ConfigReader configReader) {
+    public SessionController(
+        Environment environment,
+        ExternalExamAPI externalExamAPI,
+        ConfigReader configReader,
+        EnrolmentRepository enrolmentRepository
+    ) {
         this.environment = environment;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
+        this.enrolmentRepository = enrolmentRepository;
     }
 
     @ActionMethod
@@ -472,6 +479,56 @@ public class SessionController extends BaseController {
         String reason = alarmTime.isBeforeNow() ? "alarm" : "";
         // check for upcoming student reservations
         return checkStudentSession(request, session, ok(reason));
+    }
+
+    private CompletionStage<Result> checkStudentSession(Http.Request request, Http.Session session, Result result) {
+        if (isStudent(session) && session.get("id").isPresent()) {
+            return enrolmentRepository
+                .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
+                .thenApplyAsync(
+                    headers -> {
+                        Http.Session newSession = updateSession(session, headers);
+                        return result.withSession(newSession);
+                    },
+                    ec.current()
+                );
+        } else {
+            return wrapAsPromise(result.withSession(session));
+        }
+    }
+
+    private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
+        Map<String, String> payload = new HashMap<>(session.data());
+        if (headers.containsKey("x-exam-start-exam")) {
+            payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));
+        } else {
+            payload.remove("ongoingExamHash");
+        }
+        if (headers.containsKey("x-exam-upcoming-exam")) {
+            payload.put("upcomingExamHash", headers.get("x-exam-upcoming-exam"));
+        } else {
+            payload.remove("upcomingExamHash");
+        }
+        if (headers.containsKey("x-exam-wrong-machine")) {
+            payload.put("wrongMachineData", headers.get("x-exam-wrong-machine"));
+        } else {
+            payload.remove("wrongMachineData");
+        }
+        if (headers.containsKey("x-exam-wrong-room")) {
+            payload.put("wrongRoomData", headers.get("x-exam-wrong-room"));
+        } else {
+            payload.remove("wrongRoomData");
+        }
+        if (headers.containsKey("x-exam-wrong-agent-config")) {
+            payload.put("wrongAgent", headers.get("x-exam-wrong-agent-config"));
+        } else {
+            payload.remove("wrongRoomData");
+        }
+        return new Http.Session(payload);
+    }
+
+    private boolean isStudent(Http.Session session) {
+        return (session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get()));
     }
 
     private static Optional<String> parse(String src) {
