@@ -225,12 +225,12 @@ def create_student_exam(user_id, parent):
     return data
 
 
-def create_participation(enrolment):
+def create_participation(enrolment, n):
     data = {
         'id': next_id('exam_participation'),
         'user_id': enrolment['user_id'],
         'exam_id': enrolment['exam_id'],
-        'started': datetime.now(),
+        'started': datetime.now() + timedelta(minutes=n),
         'reservation_id': enrolment['reservation_id']
     }
     cursor.execute(insert_stmt(data, 'exam_participation'))
@@ -317,7 +317,7 @@ def main():
     parent_exam = get_parent_exam(exam_id)
     parent_sections = get_parent_sections(exam_id)
 
-    for _ in xrange(n):
+    for i in xrange(n):
         student_exam = create_student_exam(user_id, parent_exam)
         student_section_questions = []
         for ps in parent_sections:
@@ -326,7 +326,7 @@ def main():
                 student_section_questions.append(create_section_question(user_id, psq, ss['id']))
 
         enrolment = create_enrolment(user_id, student_exam['id'], room_id)
-        participation = create_participation(enrolment)
+        participation = create_participation(enrolment, i)
         [answer_question(sq) for sq in student_section_questions]
         turn_exam(participation, student_exam)
 
