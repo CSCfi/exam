@@ -16,7 +16,7 @@ def flatten(l):
 
 
 def md5_hash(n):
-    return md5(''.join(random.choice(string.ascii_lowercase) for _ in xrange(n))).hexdigest()
+    return md5(''.join(random.choice(string.ascii_lowercase) for _ in range(n)).encode('utf-8')).hexdigest()
 
 
 def insert_stmt(obj, table, with_version=True):
@@ -42,50 +42,50 @@ def next_id(table):
     return int(cursor.fetchone()[0])
 
 
-def get_select_result(unique=False):
+def select(unique=False):
     names = [desc[0] for desc in cursor.description]
     result = map(dict, [[(names[i], row[i]) for (i, name) in enumerate(names)] for row in cursor])
-    return result[0] if unique else result
+    return list(result)[0] if unique else list(result)
 
 
-def get_machine_id(room_id):
+def machine_id(room_id):
     cursor.execute('SELECT max(id) FROM exam_machine WHERE room_id=%s AND out_of_service=false' % room_id)
     return cursor.fetchone()[0]
 
 
-def get_parent_question(question_id):
+def parent_question(question_id):
     cursor.execute('SELECT * FROM question WHERE id=%s' % question_id)
-    return get_select_result(unique=True)
+    return select(unique=True)
 
 
-def get_parent_options(question_id):
+def parent_options(question_id):
     cursor.execute('SELECT * FROM multiple_choice_option WHERE question_id=%s' % question_id)
-    return get_select_result()
+    return select()
 
 
-def get_parent_section_questions(section_id):
+def parent_section_questions(section_id):
     cursor.execute('SELECT * FROM exam_section_question WHERE exam_section_id=%s' % section_id)
-    return get_select_result()
+    return select()
 
 
-def get_parent_sections(exam_id):
+def parent_sections(exam_id):
     cursor.execute('SELECT * FROM exam_section WHERE exam_id=%s' % exam_id)
-    return get_select_result()
+    return select()
 
 
-def get_parent_section(section_id):
+def parent_section(section_id):
     cursor.execute('SELECT * FROM exam_section WHERE id=%s' % section_id)
-    return get_select_result(unique=True)
+    return select(unique=True)
 
 
-def get_parent_section_question_options(section_question_id):
+def parent_section_question_options(section_question_id):
     cursor.execute('SELECT * FROM exam_section_question_option WHERE exam_section_question_id=%s' % section_question_id)
-    return get_select_result()
+    return select()
 
 
-def get_parent_exam(exam_id):
+def parent_exam(exam_id):
     cursor.execute('SELECT * FROM exam WHERE id=%s' % exam_id)
-    return get_select_result(unique=True)
+    return select(unique=True)
 
 
 def create_reservation(user_id, room_id):
@@ -93,7 +93,7 @@ def create_reservation(user_id, room_id):
         'id': next_id('reservation'),
         'start_at': datetime.now(),
         'end_at': datetime.now() + timedelta(minutes=45),
-        'machine_id': get_machine_id(room_id),
+        'machine_id': machine_id(room_id),
         'user_id': user_id,
     }
     cursor.execute(insert_stmt(data, 'reservation'))
@@ -154,7 +154,7 @@ def create_question_option(question_id, parent):
     return data
 
 
-def get_option_map(question_id, options):
+def option_map(question_id, options):
     return dict((o['id'], create_question_option(question_id, o)) for o in options)
 
 
@@ -170,11 +170,15 @@ def create_section_question_option(section_question_id, option_id, parent):
     return data
 
 
+def find_parent_option(option_id, opts):
+    return next(psq for psq in opts if psq['option_id'] == option_id)
+
+
 def create_section_question(user_id, parent, section_id):
-    parent_question = get_parent_question(parent['question_id'])
-    parent_options = get_parent_options(parent['question_id'])
-    parent_section_question_options = get_parent_section_question_options(parent['id'])
-    student_question = create_question(user_id, parent_question)
+    pq = parent_question(parent['question_id'])
+    pos = parent_options(parent['question_id'])
+    psqos = parent_section_question_options(parent['id'])
+    student_question = create_question(user_id, pq)
 
     skipped = ['id', 'exam_section_id', 'question_id', 'created', 'creator_id', 'modified', 'modifier_id',
                'object_version']
@@ -190,16 +194,13 @@ def create_section_question(user_id, parent, section_id):
     })
     cursor.execute(insert_stmt(data, 'exam_section_question'))
 
-    option_map = get_option_map(student_question['id'], parent_options)
-
-    def find_parent_option(option_id):
-        return next(psq for psq in parent_section_question_options if psq['option_id'] == option_id)
+    om = option_map(student_question['id'], pos)
 
     options = [
-        create_section_question_option(data['id'], option_map[k]['id'], find_parent_option(k)) for k in option_map
+        create_section_question_option(data['id'], om[k]['id'], find_parent_option(k, psqos)) for k in om
     ]
 
-    student_question.update({'options': option_map.values()})
+    student_question.update({'options': om.values()})
     data.update({
         'options': options,
         'question': student_question
@@ -314,15 +315,15 @@ def main():
     room_id = int(args['room_id'])
     n = int(args['amount'])
 
-    parent_exam = get_parent_exam(exam_id)
-    parent_sections = get_parent_sections(exam_id)
+    pe = parent_exam(exam_id)
+    pss = parent_sections(exam_id)
 
-    for i in xrange(n):
-        student_exam = create_student_exam(user_id, parent_exam)
+    for i in range(n):
+        student_exam = create_student_exam(user_id, pe)
         student_section_questions = []
-        for ps in parent_sections:
+        for ps in pss:
             ss = create_section(user_id, student_exam['id'], ps)
-            for psq in get_parent_section_questions(ps['id']):
+            for psq in parent_section_questions(ps['id']):
                 student_section_questions.append(create_section_question(user_id, psq, ss['id']))
 
         enrolment = create_enrolment(user_id, student_exam['id'], room_id)
