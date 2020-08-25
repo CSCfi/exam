@@ -59,7 +59,7 @@
                                 class="arrow_icon"
                                 alt="{{ 'sitnet_change_enrolment_info' | translate }}"
                                 src="Images/settings_dots.png"
-                                popover-placement="left"
+                                popover-placement="top-right"
                                 popover-trigger="'mouseenter'"
                                 uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}"
                             />
@@ -128,13 +128,7 @@
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a
-                                        popover-placement="top"
-                                        popover-popup-delay="500"
-                                        popover-trigger="'mouseenter'"
-                                        uib-popover="{{ 'sitnet_remove' | translate }}"
-                                        ng-click="$ctrl.removeEnrolment()"
-                                    >
+                                    <a ng-click="$ctrl.removeEnrolment()">
                                         {{ 'sitnet_student_remove_enrolment' | translate }}
                                     </a>
                                 </span>
