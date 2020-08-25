@@ -4,21 +4,21 @@
     </div>
 </div>
 
-<div id="dashboard" ng-init="$ctrl.view = 'ROOMS'">
+<div id="dashboard" ng-init="$ctrl.view = 'RESPONSES'">
     <!-- TAB NAVIGATION -->
     <div class="main-row">
         <ul class="nav nav-tabs">
+            <li role="presentation" ng-class="{'active' : $ctrl.view === 'RESPONSES'}">
+                <a class="pointer" ng-click="$ctrl.view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
+            </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'ROOMS'}">
-                <a class="pointer" ng-click="$ctrl.view='ROOMS'">{{'sitnet_exam_rooms' | translate}}</a>
+                <a class="pointer" ng-click="$ctrl.view='ROOMS'">{{'sitnet_statistics_rooms' | translate}}</a>
             </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'EXAMS'}">
                 <a class="pointer" ng-click="$ctrl.view='EXAMS'">{{'sitnet_exams' | translate}}</a>
             </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'RESERVATIONS'}">
                 <a class="pointer" ng-click="$ctrl.view='RESERVATIONS'">{{'sitnet_reservations' | translate}}</a>
-            </li>
-            <li role="presentation" ng-class="{'active' : $ctrl.view === 'RESPONSES'}">
-                <a class="pointer" ng-click="$ctrl.view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
             </li>
         </ul>
     </div>

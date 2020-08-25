@@ -149,6 +149,7 @@ export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamImpl {
     id: number;
+    created: Date;
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
@@ -199,6 +200,7 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    externalExam?: { started: Date };
     duration: number;
 }
 
