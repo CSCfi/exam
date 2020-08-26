@@ -165,6 +165,7 @@ export class ReservationController implements angular.IComponentController {
                                 if (r.enrolment.collaborativeExam) {
                                     if (!r.enrolment.exam) {
                                         r.enrolment.exam = r.enrolment.collaborativeExam;
+                                        r.enrolment.exam.implementation = 'AQUARIUM';
                                     }
                                     r.enrolment.exam.examOwners = [];
                                 }
