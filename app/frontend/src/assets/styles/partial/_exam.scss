@@ -18,8 +18,12 @@
     margin-top:1em;
   }
 
+  .section-handle {
+    border: dashed 1px transparent;
+  }
+
   .section-handle:hover {
-    border: dashed 1px $sitnet-teacher-turquoise-dark-inactive;
+    border-color: $sitnet-teacher-turquoise-dark-inactive;
     cursor: move;
   }
 
