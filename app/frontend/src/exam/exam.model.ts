@@ -70,6 +70,7 @@ export interface Question {
     type: string;
     attachment: Attachment;
     tags: Tag[];
+    defaultEvaluationCriteria?: string;
 }
 
 export interface ReverseExamSection extends ExamSection {
