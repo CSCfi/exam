@@ -31,6 +31,9 @@ export const EssayAnswerListComponent: angular.IComponentOptions = {
                     {{ $ctrl.actionText | translate }} ({{$ctrl.countSelected()}})</button>
             </div>
         </div>`,
+    require: {
+        parentCtrl: '^^questionAssessment',
+    },
     bindings: {
         editable: '<',
         answers: '<',
