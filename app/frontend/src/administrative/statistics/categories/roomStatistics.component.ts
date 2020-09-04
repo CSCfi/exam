@@ -33,7 +33,7 @@ export const RoomStatisticsComponent: angular.IComponentOptions = {
                     <thead>
                     <th class="warning">{{'sitnet_year' | translate}}</th>
                     <th class="warning">{{'sitnet_month' | translate}}</th>
-                    <th ng-repeat="room in $ctrl.rooms">{{room.split(':')[1]}}</th>
+                    <th ng-repeat="room in $ctrl.rooms">{{room.split('___')[1]}}</th>
                     <th class="success">{{'sitnet_total' | translate}}</th>
                     </thead>
                     <tbody>
