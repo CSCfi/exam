@@ -114,7 +114,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
     public void handleNoShowAndNotify(Reservation reservation) {
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
-        if (exam.isPrivate()) {
+        if (exam != null && exam.isPrivate()) {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
             enrolment.setReservation(null);

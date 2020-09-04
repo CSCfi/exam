@@ -419,7 +419,6 @@ public class SessionController extends BaseController {
 
     @ActionMethod
     public Result logout(Http.Request request) {
-        Result result = ok().withNewSession();
         Map<String, String> session = request.session().data();
         if (!session.isEmpty()) {
             Long userId = Long.parseLong(session.get("id"));
@@ -427,9 +426,10 @@ public class SessionController extends BaseController {
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                result = ok(Json.toJson(node));
+                return ok(Json.toJson(node)).withNewSession();
             }
         }
+        Result result = ok().withNewSession();
         return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
     }
 
