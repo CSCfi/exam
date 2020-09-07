@@ -127,6 +127,7 @@ export class ReservationController implements angular.IComponentController {
                         .then((resp: angular.IHttpResponse<any>) => {
                             const events = resp.data.map(e => {
                                 return {
+                                    user: e.user,
                                     enrolment: e,
                                     startAt: e.examinationEventConfiguration.examinationEvent.start,
                                     endAt: moment(e.examinationEventConfiguration.examinationEvent.start)
@@ -195,8 +196,9 @@ export class ReservationController implements angular.IComponentController {
                                     ].indexOf(state);
                                 }
                             });
-                            const foo = allEvents.filter(r => r.externalReservation || !this.externalReservationsOnly);
-                            this.reservations = foo;
+                            this.reservations = allEvents.filter(
+                                r => r.externalReservation || !this.externalReservationsOnly,
+                            );
                         })
                         .catch(resp => toast.error(resp));
                 })
