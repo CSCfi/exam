@@ -394,6 +394,7 @@ public class ReservationController extends BaseController {
                 query
                     .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
                     .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
+                    .ne("enrolment.exam.state", Exam.State.DELETED) // Hide deleted exams from teachers
                     .disjunction()
                     .eq("enrolment.exam.parent.examOwners", user)
                     .eq("enrolment.exam.examOwners", user)
@@ -455,18 +456,11 @@ public class ReservationController extends BaseController {
             query =
                 query
                     .disjunction()
-                    .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
-                    .isNotNull("externalUserRef") // External student reservation
-                    .endJunction()
-                    .disjunction()
                     .eq("enrolment.exam.parent.id", examId.get())
                     .eq("enrolment.exam.id", examId.get())
                     .endJunction();
         } else if (externalRef.isPresent()) {
-            query =
-                query
-                    .eq("enrolment.collaborativeExam.externalRef", externalRef.get())
-                    .ne("enrolment.collaborativeExam.state", Exam.State.DELETED);
+            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
