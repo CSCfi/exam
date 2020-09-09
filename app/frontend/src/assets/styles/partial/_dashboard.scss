@@ -1077,10 +1077,15 @@
       }
 
     }
+
+    .disabled-button-popover-wrapper {
+      cursor: not-allowed;
+    }
+
     button:disabled {
-      background-color: #7F7F7F;
-      color: #ffffff;
-      border: 1px solid black;
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: not-allowed;
     }
 
     a:hover, button:active, button:focus, button:active:focus {
