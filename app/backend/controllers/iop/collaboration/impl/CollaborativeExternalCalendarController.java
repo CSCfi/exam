@@ -1,12 +1,9 @@
 package backend.controllers.iop.collaboration.impl;
 
-import akka.actor.ActorSystem;
 import backend.exceptions.NotFoundException;
 import backend.impl.CalendarHandler;
-import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
-import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.sanitizers.Attrs;
@@ -27,35 +24,24 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import scala.concurrent.duration.Duration;
 
 public class CollaborativeExternalCalendarController extends CollaborativeCalendarController {
     @Inject
     CalendarHandler calendarHandler;
 
     @Inject
-    EmailComposer emailComposer;
-
-    @Inject
     private ConfigReader configReader;
-
-    @Inject
-    ActorSystem system;
-
-    private static final Logger.ALogger logger = Logger.of(CollaborativeExternalCalendarController.class);
 
     @Authenticated
     @With(ExternalCalendarReservationSanitizer.class)
@@ -105,7 +91,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                     }
                     // Make ext request here
                     // Lets do this
-                    URL url = null;
+                    URL url;
                     try {
                         url = parseUrl(orgRef, roomRef);
                     } catch (MalformedURLException e) {
@@ -136,6 +122,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                                 return calendarHandler
                                     .handleExternalReservation(
                                         enrolment,
+                                        exam,
                                         root,
                                         start,
                                         end,
@@ -156,26 +143,6 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                         );
                 }
             );
-    }
-
-    private Result makeNewReservation(ExamEnrolment enrolment, Exam exam, Reservation reservation, User user) {
-        reservation.save();
-        enrolment.setReservation(reservation);
-        enrolment.setReservationCanceled(false);
-        enrolment.save();
-        // Send some emails asynchronously
-        system
-            .scheduler()
-            .scheduleOnce(
-                Duration.create(1, TimeUnit.SECONDS),
-                () -> {
-                    emailComposer.composeReservationNotification(user, reservation, exam, false);
-                    logger.info("Reservation confirmation email sent to {}", user.getEmail());
-                },
-                system.dispatcher()
-            );
-
-        return ok();
     }
 
     @Authenticated

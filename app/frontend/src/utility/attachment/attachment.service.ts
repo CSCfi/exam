@@ -260,14 +260,8 @@ export class AttachmentService {
         });
     }
 
-    downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
-        if (sq.question.attachment.id) {
-            this.Files.download(
-                `/app/iop/attachment/exam/${exam.hash}/question/${sq.id}`,
-                sq.question.attachment.fileName,
-            );
-        }
-    }
+    downloadExternalQuestionAttachment = (exam: Exam, sq: ExamSectionQuestion) =>
+        this.Files.download(`/app/iop/attachment/exam/${exam.hash}/question/${sq.id}`, sq.question.attachment.fileName);
 
     downloadQuestionAttachment(question: Question) {
         if (question.attachment.id) {

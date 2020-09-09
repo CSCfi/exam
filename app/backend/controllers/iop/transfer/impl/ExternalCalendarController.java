@@ -57,7 +57,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -75,8 +74,6 @@ public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private ConfigReader configReader;
-
-    private static final Logger.ALogger logger = Logger.of(ExternalCalendarController.class);
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
         throws MalformedURLException {
@@ -307,7 +304,17 @@ public class ExternalCalendarController extends CalendarController {
                         return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                     }
                     return calendarHandler
-                        .handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef, sectionIds)
+                        .handleExternalReservation(
+                            enrolment,
+                            enrolment.getExam(),
+                            root,
+                            start,
+                            end,
+                            user,
+                            orgRef,
+                            roomRef,
+                            sectionIds
+                        )
                         .thenApplyAsync(
                             err -> {
                                 if (err.isEmpty()) {
