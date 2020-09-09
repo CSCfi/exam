@@ -56,6 +56,7 @@ public interface CalendarHandler {
     boolean isDoable(Reservation reservation, Collection<Integer> aids);
     CompletionStage<Optional<Integer>> handleExternalReservation(
         ExamEnrolment enrolment,
+        Exam exam,
         JsonNode node,
         DateTime start,
         DateTime end,
