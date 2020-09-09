@@ -250,7 +250,7 @@
         </div>
 
         <!-- EXAM ATTACHMENT -->
-        <div class="row col-md-12 margin-20">
+        <div class="row col-md-12 margin-20" ng-if="$ctrl.exam.implementation !== 'CLIENT_AUTH'">
             <div class="col-md-3 exam-basic-title">
                 {{'sitnet_exam_attachment' | translate}}
                 <sup>
