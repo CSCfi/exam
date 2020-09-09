@@ -382,7 +382,7 @@
   "sitnet_grading_info": "Grading information",
   "sitnet_give_feedback": "Give feedback to the student",
   "sitnet_hide_feedback": "Save the feedback",
-  "sitnet_send_result_to_registry": "Lock the assessment",
+  "sitnet_send_result_to_registry": "Save and lock the assessment EN",
   "sitnet_not_a_valid_custom_credit": "The number of study credits is invalid",
   "sitnet_essay_length_recommendation_bounds": "The value should be a number between 1 and 1000000",
   "sitnet_questions_reordered": "The questions have been reorganized",
@@ -986,5 +986,7 @@
   "sitnet_feedback_summary_description": "Montako lukitun arvioinnin palautetta on luettu ja montako niitä on annettu (huom! vain lukitut arvioinnit näkyvät tässä). Huom! Tässä eivät näy vain tallennetut palautteet ja arvioinnit, pitää olla lukittu. EN",
   "sitnet_exam_grade_distribution_description": "Tallennettujen ja lukittujen arviointien jakauma (molemmat näkyvät tässä) EN",
   "sitnet_word_minutes": "Minutes EN",
-  "sitnet_statistics_rooms": "Tilat EN"
+  "sitnet_statistics_rooms": "Tilat EN",
+  "sitnet_save_changes_popover_info": "Tallenna arviointi keskeneräisenä. Arvosanan antamisen jälkeen toiset arvioijat eivät voi enää muokata arviointejaan. EN",
+  "sitnet_send_result_to_registry_popover_info": "Tentillä tulee olla vaaditut arvioinnit ja arvosana ennen lopullisen arvioinnin lukitsemista. Lukittuasi arvioinnin et voi enää muuttaa sitä ja opiskelija saa sähköpostitse tiedon arvioinnista. EN"
 }
