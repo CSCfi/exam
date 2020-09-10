@@ -440,6 +440,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public CompletionStage<Optional<Integer>> handleExternalReservation(
         ExamEnrolment enrolment,
+        Exam exam,
         JsonNode node,
         DateTime start,
         DateTime end,
@@ -504,24 +505,23 @@ public class CalendarHandlerImpl implements CalendarHandler {
                         err -> {
                             if (err.isEmpty()) {
                                 Ebean.delete(oldReservation);
-                                postProcessRemoval(reservation, enrolment, user, machineNode);
+                                postProcessRemoval(reservation, exam, user, machineNode);
                             }
                             return err;
                         }
                     );
             } else {
                 Ebean.delete(oldReservation);
-                postProcessRemoval(reservation, enrolment, user, machineNode);
+                postProcessRemoval(reservation, exam, user, machineNode);
                 return CompletableFuture.completedFuture(Optional.empty());
             }
         } else {
-            postProcessRemoval(reservation, enrolment, user, machineNode);
+            postProcessRemoval(reservation, exam, user, machineNode);
             return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 
-    private void postProcessRemoval(Reservation reservation, ExamEnrolment enrolment, User user, JsonNode node) {
-        Exam exam = enrolment.getExam();
+    private void postProcessRemoval(Reservation reservation, Exam exam, User user, JsonNode node) {
         // Attach the external machine data just so that email can be generated
         reservation.setMachine(parseExternalMachineData(node));
         // Send some emails asynchronously
