@@ -77,9 +77,15 @@
                                         {{'sitnet_student_change_reservation' | translate}}
                                     </a>
                                     <a
-                                        ng-if="$ctrl.enrolment.reservation.externalReservation"
+                                        ng-if="$ctrl.enrolment.reservation.externalReservation && $ctrl.enrolment.exam"
                                         class="text-info"
                                         ui-sref="externalCalendar({ id: {{$ctrl.enrolment.exam.id}} })"
+                                        >{{'sitnet_student_change_reservation' | translate}}
+                                    </a>
+                                    <a
+                                        ng-if="$ctrl.enrolment.reservation.externalReservation && $ctrl.enrolment.collaborativeExam"
+                                        class="text-info"
+                                        ui-sref="externalCalendar({ id: {{$ctrl.enrolment.collaborativeExam.id}}, isCollaborative: true })"
                                         >{{'sitnet_student_change_reservation' | translate}}
                                     </a>
                                 </span>
