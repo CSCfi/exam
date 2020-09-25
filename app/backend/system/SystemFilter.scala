@@ -24,6 +24,7 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
     ("x-exam-start-exam", "ongoingExamHash"),
     ("x-exam-upcoming-exam", "upcomingExamHash"),
     ("x-exam-wrong-machine", "wrongMachineData"),
+    ("x-exam-unknown-machine", "unknownMachineData"),
     ("x-exam-wrong-room", "wrongRoomData"),
     ("x-exam-wrong-agent-config", "wrongAgent")
   )
@@ -39,7 +40,9 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
         }
       case s => Some(s)
     }
-    val result = src.withHeaders(("Cache-Control", "no-cache;no-store"), ("Pragma", "no-cache"), ("Expires", "0"))
+    val result = src.withHeaders(("Cache-Control", "no-cache;no-store"),
+                                 ("Pragma", "no-cache"),
+                                 ("Expires", "0"))
     session match {
       case None => result.withNewSession
       case Some(s) =>
