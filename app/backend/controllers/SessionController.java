@@ -81,6 +81,20 @@ public class SessionController extends BaseController {
         .getString("sitnet.user.studentIds.multiple.organisations");
     private static final int SESSION_TIMEOUT_MINUTES = 30;
     private static final String URN_PREFIX = "urn:";
+    private static final Map<String, String> SESSION_HEADER_MAP = Map.of(
+        "x-exam-start-exam",
+        "ongoingExamHash",
+        "x-exam-upcoming-exam",
+        "upcomingExamHash",
+        "x-exam-wrong-machine",
+        "wrongMachineData",
+        "x-exam-unknown-machine",
+        "unknownMachineData",
+        "x-exam-wrong-room",
+        "wrongRoomData",
+        "x-exam-wrong-agent-config",
+        "wrongAgent"
+    );
 
     @Inject
     public SessionController(
@@ -499,31 +513,16 @@ public class SessionController extends BaseController {
 
     private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
         Map<String, String> payload = new HashMap<>(session.data());
-        if (headers.containsKey("x-exam-start-exam")) {
-            payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));
-        } else {
-            payload.remove("ongoingExamHash");
-        }
-        if (headers.containsKey("x-exam-upcoming-exam")) {
-            payload.put("upcomingExamHash", headers.get("x-exam-upcoming-exam"));
-        } else {
-            payload.remove("upcomingExamHash");
-        }
-        if (headers.containsKey("x-exam-wrong-machine")) {
-            payload.put("wrongMachineData", headers.get("x-exam-wrong-machine"));
-        } else {
-            payload.remove("wrongMachineData");
-        }
-        if (headers.containsKey("x-exam-wrong-room")) {
-            payload.put("wrongRoomData", headers.get("x-exam-wrong-room"));
-        } else {
-            payload.remove("wrongRoomData");
-        }
-        if (headers.containsKey("x-exam-wrong-agent-config")) {
-            payload.put("wrongAgent", headers.get("x-exam-wrong-agent-config"));
-        } else {
-            payload.remove("wrongRoomData");
-        }
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> headers.containsKey(e.getKey()))
+            .forEach(e -> payload.put(e.getValue(), headers.get(e.getKey())));
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> !headers.containsKey(e.getKey()))
+            .forEach(e -> payload.remove(e.getValue()));
         return new Http.Session(payload);
     }
 

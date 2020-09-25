@@ -3,6 +3,7 @@ package controllers.iop;
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
 import backend.models.ExamRoom;
 import backend.models.GeneralSettings;
 import backend.models.GradeEvaluation;
@@ -515,6 +516,30 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
         assertThat(parsedExam.getId()).isEqualTo(13630); // ID that is in enrolment.json
+    }
+
+    @Test
+    public void testLoginAsTemporalStudentVisitorWrongMachine() throws Exception {
+        initialize(null);
+        String eppn = "newuser@test.org";
+        assertThat(user).isNull();
+
+        ExamMachine machine = room.getExamMachines().get(0);
+        machine.setIpAddress("128.0.0.2");
+        machine.update();
+        Reservation reservation = new Reservation();
+        reservation.setExternalUserRef(eppn);
+        reservation.setExternalRef(RESERVATION_REF);
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.save();
+
+        login(eppn);
+
+        // See that user is informed of wrong ip
+        Result result = get("/app/checkSession");
+        assertThat(result.headers().containsKey("x-exam-unknown-machine")).isTrue();
     }
 
     @Test
