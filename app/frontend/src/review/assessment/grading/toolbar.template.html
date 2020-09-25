@@ -10,7 +10,7 @@
     <span class="pull-right">
         <div ng-show="!ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons">
             <button
-                class="pointer warning"
+                class="pointer warning-filled"
                 ng-if="$ctrl.isMaturityRejection()"
                 ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.valid"
                 ng-click="$ctrl.rejectMaturity()"
