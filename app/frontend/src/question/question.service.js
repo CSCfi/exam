@@ -134,6 +134,7 @@ function QuestionService(
     };
 
     this.getMinimumOptionScore = sectionQuestion => {
+        if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') return 0;
         const optionScores = sectionQuestion.options.map(o => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
         return Math.min(...scores);
@@ -286,15 +287,6 @@ function QuestionService(
         $sessionStorage.questionFilters[category] = JSON.stringify(data);
     };
 
-    this.range = (min, max, step) => {
-        step |= 1;
-        const input = [];
-        for (let i = min; i <= max; i += step) {
-            input.push(i);
-        }
-        return input;
-    };
-
     const getQuestionData = question => {
         const questionToUpdate = {
             type: question.type,
@@ -439,7 +431,7 @@ function QuestionService(
     };
 
     this.getInvalidClaimOptionTypes = options => {
-        let invalidOptions = [];
+        const invalidOptions = [];
 
         const hasCorrectOption = options.some(
             opt => opt.claimChoiceType === 'CorrectOption' && opt.defaultScore > 0 && opt.option,
@@ -519,7 +511,7 @@ function QuestionService(
     };
 
     this.getInvalidDistributedClaimOptionTypes = options => {
-        let invalidOptions = [];
+        const invalidOptions = [];
 
         const hasCorrectOption = options.some(opt => {
             const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
