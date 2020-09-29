@@ -415,7 +415,7 @@
                 </a>
 
                 <div
-                    ng-if="!$ctrl.enrolment.reservation && !$ctrl.enrolment.exam.implementation === 'AQUARIUM'"
+                    ng-if="!$ctrl.enrolment.reservation && ($ctrl.enrolment.exam.implementation === 'AQUARIUM' || $ctrl.enrolment.collaborativeExam)"
                     class="student-message-dialog-button-save"
                 >
                     <a
