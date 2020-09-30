@@ -20,7 +20,7 @@
         <div ng-show="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
             <button
                 class="btn inspection-button"
-                ng-class="$ctrl.getNextState().warn ? 'cancel' : ''"
+                ng-class="$ctrl.getNextState().warn ? 'warning-filled' : ''"
                 ng-disabled="!$ctrl.getNextState().canProceed || !$ctrl.valid ||
                         ($ctrl.getNextState().validate && !$ctrl.getNextState().validate($ctrl.exam))"
                 ng-click="$ctrl.proceed()"
