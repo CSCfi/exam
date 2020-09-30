@@ -123,7 +123,10 @@
                 {{r.startAt | adjustdst | date:'dd.MM.yyyy'}} <br />{{r.startAt | adjustdst | date:'HH:mm'}}-{{r.endAt |
                 adjustdst | date:'HH:mm'}}
             </td>
-            <td class="reservation-search" ng-if="r.enrolment.exam.implementation !== 'AQUARIUM'">
+            <td
+                class="reservation-search"
+                ng-if="!r.enrolment.exam.external && r.enrolment.exam.implementation !== 'AQUARIUM'"
+            >
                 {{r.startAt | date:'dd.MM.yyyy'}} <br />{{r.startAt | date:'HH:mm'}}-{{r.endAt | date:'HH:mm'}}
             </td>
             <td class="reservation-search">
