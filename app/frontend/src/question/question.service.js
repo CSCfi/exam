@@ -134,10 +134,11 @@ function QuestionService(
     };
 
     this.getMinimumOptionScore = sectionQuestion => {
-        if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') return 0;
         const optionScores = sectionQuestion.options.map(o => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
-        return Math.min(...scores);
+        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
+            ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
+            : Math.min(...scores);
     };
 
     this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
