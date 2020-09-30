@@ -64,7 +64,7 @@
     }
 
     &.exam-view-warning {
-      border-left: #ED4459 4px solid;
+      border-left: $sitnet-red 4px solid;
       margin-left: 0px;
       margin-right: 0px;
     }
@@ -75,7 +75,7 @@
     }
 
     &.exam-questions-warning {
-      border-left: #ED4459 4px solid;
+      border-left: $sitnet-red 4px solid;
       margin-left: 0px;
       margin-right: 40px;
 
@@ -163,7 +163,7 @@
   }
 
   .question-flow-badge {
-    background-color: #ed4459;
+    background-color: $sitnet-red;
   }
 
   .triangle-line {
@@ -405,13 +405,21 @@
       text-decoration: none;
     }
 
+    .enrolment-menu-button {
+      background: none;
+      border: none;
+    }
+
+    .enrolment-menu-button:focus {
+      outline: 5px auto #266B99;
+    }
+
     ul a:hover {
       text-decoration: underline;
     }
 
     img {
       vertical-align: baseline;
-      margin-left: 10px;
     }
   }
 
@@ -568,7 +576,7 @@
         }
 
         &.no_show {
-          color: #ED4459 !important;
+          color: $sitnet-red !important;
         }
 
         &.review {
@@ -888,7 +896,7 @@
 
   .tab-number {
     @extend .badge;
-    background-color: #ED4459 !important;
+    background-color: $sitnet-red !important;
   }
 
   .tab-wrapper-exams {
@@ -1065,8 +1073,14 @@
 
       &.warning {
         background-color: white;
-        border: #ED4459 1px solid;;
-        color: #ED4459;
+        border: $sitnet-red 1px solid;
+        color: $sitnet-red;
+      }
+
+      &.warning-filled {
+        background-color: $sitnet-red;
+        border: $sitnet-red 1px solid;
+        color: white;
       }
 
       &.cancel {
@@ -1106,9 +1120,15 @@
       }
 
       &.warning {
-        background-color: #ED4459;
-        border: #ED4459 1px solid;;
+        background-color: $sitnet-dark-red;
+        border: $sitnet-dark-red 1px solid;
         color: #ffffff;
+      }
+
+      &.warning-filled {
+        background-color: $sitnet-dark-red;
+        border: $sitnet-dark-red 1px solid;
+        color: white;
       }
 
       &.cancel {
@@ -1512,7 +1532,7 @@
   }
 
   .reddish {
-    color: #ED4459;
+    color: $sitnet-red;
   }
 
   .grayish {
@@ -1712,11 +1732,11 @@
   }
 
   .claim-choice-incorrect-answer {
-    border: 1px solid #ED4459;
-    background-color: rgba($color: #ED4459, $alpha: 0.1);
+    border: 1px solid $sitnet-red;
+    background-color: rgba($color: $sitnet-red, $alpha: 0.1);
 
     .claim-choice-option-description {
-      color: #ED4459;
+      color: $sitnet-red;
     }
 
     input:disabled {
@@ -1737,8 +1757,8 @@
   }
 
   .claim-choice-warning {
-    background-color: rgba($color: #ED4459, $alpha: 0.1);
-    border-left: 6px solid #ED4459;
+    background-color: rgba($color: $sitnet-red, $alpha: 0.1);
+    border-left: 6px solid $sitnet-red;
     padding: 10px;
   }
 
@@ -1921,8 +1941,8 @@
 
     &.cancel {
       background-color: white;
-      border: #ED4459 1px solid;
-      color: #ED4459;
+      border: $sitnet-red 1px solid;
+      color: $sitnet-red;
     }
 
     &.button[disabled] {
