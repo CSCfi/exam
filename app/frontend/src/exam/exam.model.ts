@@ -60,7 +60,7 @@ export interface Attachment {
 }
 
 export interface Tag {
-    id: number;
+    id?: number;
     name: string;
 }
 
