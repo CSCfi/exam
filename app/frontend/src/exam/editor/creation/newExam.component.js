@@ -29,7 +29,7 @@ angular.module('app.exam.editor').component('newExam', {
                     $http
                         .get('/app/settings/byod')
                         .then(resp => (vm.byodExaminationSupported = resp.data.isByodExaminationSupported))
-                        .catch(e => console.log(e));
+                        .catch(angular.noop);
                 });
             };
 
