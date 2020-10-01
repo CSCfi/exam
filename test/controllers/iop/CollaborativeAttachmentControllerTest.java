@@ -16,36 +16,34 @@
 
 package controllers.iop;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static org.fest.assertions.Assertions.assertThat;
 
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.json.CollaborativeExam;
+import backend.models.questions.EssayAnswer;
+import backend.models.sections.ExamSectionQuestion;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.BaseServlet;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.json.CollaborativeExam;
-import backend.models.questions.EssayAnswer;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam> {
-
+public class CollaborativeAttachmentControllerTest
+    extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam> {
     private final String baseURL = "/integration/iop/attachment";
 
     @Test
@@ -60,11 +58,17 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     @Test
     @RunAsTeacher
     public void testAddAttachmentToQuestionAsTeacher() throws Exception {
-        getExamSectionQuestion(examServlet.getExam(), examSectionQuestion.getId())
-                .getQuestion().setAttachment(null);
+        getExamSectionQuestion(examServlet.getExam(), examSectionQuestion.getId()).getQuestion().setAttachment(null);
         final String path = "/question";
-        uploadAttachment(path, ImmutableMap.of("examId", externalExam.getId().toString(),
-                "questionId", examSectionQuestion.getId().toString()));
+        uploadAttachment(
+            path,
+            ImmutableMap.of(
+                "examId",
+                externalExam.getId().toString(),
+                "questionId",
+                examSectionQuestion.getId().toString()
+            )
+        );
         examServlet.getWaiter().await(10000, 1);
         assertLastCall(Helpers.PUT, examServlet);
         final Exam exam = examServlet.getExam();
@@ -78,8 +82,7 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     @Test
     @RunAsTeacher
     public void testDownloadQuestionAttachmentAsTeacher() throws IOException {
-        String url = String.format(baseURL + "/exam/%d/question/%d",
-                externalExam.getId(), examSectionQuestion.getId());
+        String url = String.format(baseURL + "/exam/%d/question/%d", externalExam.getId(), examSectionQuestion.getId());
         Result result = request(Helpers.GET, url, null);
         assertThat(result.status()).isEqualTo(Helpers.OK);
         assertLastCall(Helpers.GET, attachmentServlet);
@@ -89,8 +92,15 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     @Test
     @RunAsStudent
     public void testAddAttachmentToQuestionAnswerAsStudent() throws Exception {
-        uploadAttachment("/question/answer", ImmutableMap.of("examId", externalExam.getId().toString(),
-                "questionId", examSectionQuestion.getId().toString()));
+        uploadAttachment(
+            "/question/answer",
+            ImmutableMap.of(
+                "examId",
+                externalExam.getId().toString(),
+                "questionId",
+                examSectionQuestion.getId().toString()
+            )
+        );
         examServlet.getWaiter().await(10000, 1);
         assertLastCall(Helpers.PUT, examServlet);
         final Exam exam = examServlet.getExam();
@@ -105,8 +115,7 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     @RunAsStudent
     public void testDeleteQuestionAnswerAttachmentAsStudent() throws Exception {
         final EssayAnswer essayAnswer = examSectionQuestion.getEssayAnswer();
-        final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
+        final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         attachment.setExternalId("abcdefg12345");
         essayAnswer.setAttachment(attachment);
         examServlet.setExam(exam);
@@ -116,7 +125,11 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
         assertThat(sqBefore.getEssayAnswer()).isNotNull();
         assertThat(sqBefore.getEssayAnswer().getAttachment()).isNotNull();
 
-        final String s = String.format(baseURL + "/question/%d/answer/%s", examSectionQuestion.getId(), externalExam.getId());
+        final String s = String.format(
+            baseURL + "/question/%d/answer/%s",
+            examSectionQuestion.getId(),
+            externalExam.getId()
+        );
         final Result result = request(Helpers.DELETE, s, null);
         assertThat(result.status()).isEqualTo(Helpers.OK);
         assertLastCall(Helpers.DELETE, attachmentServlet);
@@ -131,7 +144,11 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     @Test
     @RunAsTeacher
     public void testDeleteQuestionAnswerAttachmentAsTeacher() {
-        final String s = String.format(baseURL + "/question/%d/answer/%s", examSectionQuestion.getId(), externalExam.getId());
+        final String s = String.format(
+            baseURL + "/question/%d/answer/%s",
+            examSectionQuestion.getId(),
+            externalExam.getId()
+        );
         final Result result = request(Helpers.DELETE, s, null);
         assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
     }
@@ -141,21 +158,25 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
     }
 
     private void uploadAttachment(String path, Map<String, String> idParts) {
-        final Http.RequestBuilder requestBuilder =
-                getRequestBuilder(Helpers.POST, baseURL + path);
+        final Http.RequestBuilder requestBuilder = getRequestBuilder(Helpers.POST, baseURL + path);
 
         Materializer mat = app.injector().instanceOf(Materializer.class);
 
-        final List<Http.MultipartFormData.Part<Source<ByteString, ?>>> dataParts = idParts.entrySet().stream()
-                .map(e -> new Http.MultipartFormData.DataPart(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
+        final List<Http.MultipartFormData.Part<Source<ByteString, ?>>> dataParts = idParts
+            .entrySet()
+            .stream()
+            .map(e -> new Http.MultipartFormData.DataPart(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
 
         Source<ByteString, ?> src = FileIO.fromPath(testImage.toPath());
-        Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
-                new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
+        Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp = new Http.MultipartFormData.FilePart<>(
+            "file",
+            "test_image.png",
+            "image/png",
+            src
+        );
         dataParts.add(fp);
-        requestBuilder.bodyRaw(dataParts,
-                new play.libs.Files.SingletonTemporaryFileCreator(), mat);
+        requestBuilder.bodyRaw(dataParts, new play.libs.Files.SingletonTemporaryFileCreator(), mat);
         Result result = Helpers.route(app, requestBuilder);
         assertThat(result.status()).isEqualTo(Helpers.CREATED);
         assertLastCall(Helpers.POST, attachmentServlet);

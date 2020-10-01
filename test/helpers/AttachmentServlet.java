@@ -16,27 +16,25 @@
 
 package helpers;
 
-import net.jodah.concurrentunit.Waiter;
-import org.apache.commons.io.IOUtils;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Objects;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Objects;
+import net.jodah.concurrentunit.Waiter;
+import org.apache.commons.io.IOUtils;
 
 public class AttachmentServlet extends BaseServlet {
-
     private File testFile;
 
     public AttachmentServlet() {
         final ClassLoader classLoader = AttachmentServlet.class.getClassLoader();
-        this.testFile = new File(Objects.requireNonNull(classLoader.getResource("test_files/test_image.png"))
-                .getFile());
+        this.testFile =
+            new File(Objects.requireNonNull(classLoader.getResource("test_files/test_image.png")).getFile());
         this.waiter = new Waiter();
     }
 
@@ -56,7 +54,10 @@ public class AttachmentServlet extends BaseServlet {
         response.setHeader("Content-Disposition", "attachment; filename=\"test_image.png\"");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        try (FileInputStream fis = new FileInputStream(testFile); ServletOutputStream sos = response.getOutputStream()) {
+        try (
+            FileInputStream fis = new FileInputStream(testFile);
+            ServletOutputStream sos = response.getOutputStream()
+        ) {
             IOUtils.copy(fis, sos);
             sos.flush();
         } catch (IOException e) {
@@ -71,7 +72,9 @@ public class AttachmentServlet extends BaseServlet {
             req.getPart("file");
         }
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.getWriter().write("{\"id\": \"abcdefg123456\", \"displayName\": \"test_image.png\", \"mimeType\": \"image/png\"}");
+        resp
+            .getWriter()
+            .write("{\"id\": \"abcdefg123456\", \"displayName\": \"test_image.png\", \"mimeType\": \"image/png\"}");
         resp.getWriter().flush();
     }
 
@@ -87,5 +90,4 @@ public class AttachmentServlet extends BaseServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
-
 }

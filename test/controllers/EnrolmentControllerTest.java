@@ -1,14 +1,17 @@
 package controllers;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.IntStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.json.ExternalExam;
+import backend.util.json.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -20,6 +23,14 @@ import com.icegreen.greenmail.util.ServerSetup;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -32,22 +43,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.json.ExternalExam;
-import backend.util.json.JsonDeserializer;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
-
 public class EnrolmentControllerTest extends IntegrationTestCase {
-
     private Exam exam;
     private User user;
     private ExamEnrolment enrolment;
@@ -57,8 +53,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     private static Server server;
 
     @Rule
-    public final GreenMailRule greenMail =
-            new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
     public static class CourseInfoServlet extends HttpServlet {
 
@@ -70,7 +65,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments")));
+        server =
+            RemoteServerHelper.createAndStartServer(
+                31246,
+                ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
+            );
     }
 
     @AfterClass
@@ -98,12 +97,16 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     public void testPreEnrollWithEmail() throws Exception {
         String eppn = "student@uni.org";
         String email = "student@foo.bar";
-        exam.setExecutionType(Ebean.find(ExamExecutionType.class)
-                .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
-                .findOne());
+        exam.setExecutionType(
+            Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
+        );
         exam.update();
 
-        Result result = request(Helpers.POST, "/app/enrolments/student/" + exam.getId(), Json.newObject().put("email", email));
+        Result result = request(
+            Helpers.POST,
+            "/app/enrolments/student/" + exam.getId(),
+            Json.newObject().put("email", email)
+        );
         assertThat(result.status()).isEqualTo(200);
 
         User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
@@ -122,12 +125,16 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testPreEnrollWithEppn() throws Exception {
         String eppn = "student@uni.org";
-        exam.setExecutionType(Ebean.find(ExamExecutionType.class)
-                .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
-                .findOne());
+        exam.setExecutionType(
+            Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
+        );
         exam.update();
 
-        Result result = request(Helpers.POST, "/app/enrolments/student/" + exam.getId(), Json.newObject().put("email", eppn));
+        Result result = request(
+            Helpers.POST,
+            "/app/enrolments/student/" + exam.getId(),
+            Json.newObject().put("email", eppn)
+        );
         assertThat(result.status()).isEqualTo(200);
 
         User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
@@ -150,8 +157,10 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         ee.setHash(UUID.randomUUID().toString());
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
-        ee.setContent(EJson.parseObject(
-                Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read())
+        ee.setContent(
+            EJson.parseObject(
+                Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read()
+            )
         );
         ExamMachine machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1");
@@ -178,13 +187,20 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateEnrolment() throws Exception {
         // Execute
-        Result result = request(Helpers.POST,
-                String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/enrolments/%d", exam.getId()),
+            Json.newObject().put("code", exam.getCourse().getCode())
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
-                .eq("user.id", user.getId()).findOne();
+        ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .eq("exam.id", exam.getId())
+            .eq("user.id", user.getId())
+            .findOne();
         assertThat(enrolment).isNotNull();
     }
 
@@ -194,15 +210,31 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         final int callCount = 10;
         final Waiter waiter = new Waiter();
 
-        IntStream.range(0, callCount).parallel().forEach(i -> new Thread(() -> {
-            request(Helpers.POST,
-                    String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
-            waiter.resume();
-        }).start());
+        IntStream
+            .range(0, callCount)
+            .parallel()
+            .forEach(
+                i ->
+                    new Thread(
+                        () -> {
+                            request(
+                                Helpers.POST,
+                                String.format("/app/enrolments/%d", exam.getId()),
+                                Json.newObject().put("code", exam.getCourse().getCode())
+                            );
+                            waiter.resume();
+                        }
+                    )
+                        .start()
+            );
 
         waiter.await(5000, callCount);
-        final int count = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
-                .eq("user.id", user.getId()).findCount();
+        final int count = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .eq("exam.id", exam.getId())
+            .eq("user.id", user.getId())
+            .findCount();
         assertThat(count).isEqualTo(1);
     }
 
@@ -215,8 +247,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         enrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST,
-                String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/enrolments/%d", exam.getId()),
+            Json.newObject().put("code", exam.getCourse().getCode())
+        );
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
@@ -242,8 +277,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         enrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST,
-                String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/enrolments/%d", exam.getId()),
+            Json.newObject().put("code", exam.getCourse().getCode())
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -269,8 +307,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         enrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST,
-                String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/enrolments/%d", exam.getId()),
+            Json.newObject().put("code", exam.getCourse().getCode())
+        );
         assertThat(result.status()).isEqualTo(403); // Not found
         assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
@@ -295,8 +336,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         enrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST,
-                String.format("/app/enrolments/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/enrolments/%d", exam.getId()),
+            Json.newObject().put("code", exam.getCourse().getCode())
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -306,5 +350,4 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(e.getEnrolledOn().isAfter(enrolledOn));
         assertThat(e.getReservation()).isNull();
     }
-
 }

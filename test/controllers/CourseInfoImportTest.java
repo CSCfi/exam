@@ -1,16 +1,28 @@
 package controllers;
 
-import base.IntegrationTestCase;
-import base.RunAsAdmin;
-import base.RunAsStudent;
-import base.RunAsTeacher;
-import io.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import backend.models.Course;
 import backend.models.Grade;
 import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
+import base.IntegrationTestCase;
+import base.RunAsAdmin;
+import base.RunAsStudent;
+import base.RunAsTeacher;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Ebean;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -20,30 +32,19 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
 public class CourseInfoImportTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
-
         private static File jsonFile;
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            try (FileInputStream fis = new FileInputStream(jsonFile); ServletOutputStream sos = response.getOutputStream()) {
+            try (
+                FileInputStream fis = new FileInputStream(jsonFile);
+                ServletOutputStream sos = response.getOutputStream()
+            ) {
                 IOUtils.copy(fis, sos);
                 sos.flush();
             } catch (IOException e) {
@@ -87,8 +88,11 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
-        List<Grade> grades = Ebean.find(Grade.class).where()
-                .eq("gradeScale.id", course.getGradeScale().getId()).findList();
+        List<Grade> grades = Ebean
+            .find(Grade.class)
+            .where()
+            .eq("gradeScale.id", course.getGradeScale().getId())
+            .findList();
         assertThat(grades).hasSize(7);
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
         // Check that the imported course got into db
@@ -154,8 +158,11 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
-        List<Grade> grades = Ebean.find(Grade.class).where()
-                .eq("gradeScale.id", course.getGradeScale().getId()).findList();
+        List<Grade> grades = Ebean
+            .find(Grade.class)
+            .where()
+            .eq("gradeScale.id", course.getGradeScale().getId())
+            .findList();
         assertThat(grades).hasSize(7);
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
     }
@@ -204,5 +211,4 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
     }
-
 }

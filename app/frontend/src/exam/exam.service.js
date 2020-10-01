@@ -46,9 +46,9 @@ angular.module('app.exam').service('Exam', [
             }).length;
         };
 
-        self.createExam = function(executionType) {
+        self.createExam = function(executionType, examinationType = 'AQUARIUM') {
             ExamRes.draft.create(
-                { executionType: executionType },
+                { executionType: executionType, implementation: examinationType },
                 function(response) {
                     toast.info($translate.instant('sitnet_exam_added'));
                     //return response.id;

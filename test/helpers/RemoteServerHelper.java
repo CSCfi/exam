@@ -1,5 +1,8 @@
 package helpers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,10 +12,6 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -20,11 +19,13 @@ import play.libs.Json;
 
 public class RemoteServerHelper {
 
-
     public static void writeResponseFromFile(HttpServletResponse response, String filePath) {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
-        try (FileInputStream fis = new FileInputStream(new File(filePath)); ServletOutputStream sos = response.getOutputStream()) {
+        try (
+            FileInputStream fis = new FileInputStream(new File(filePath));
+            ServletOutputStream sos = response.getOutputStream()
+        ) {
             IOUtils.copy(fis, sos);
             sos.flush();
         } catch (IOException e) {
@@ -54,7 +55,8 @@ public class RemoteServerHelper {
         }
     }
 
-    public static Server createAndStartServer(int port, Map<Class<? extends Servlet>, List<String>> handlers) throws Exception {
+    public static Server createAndStartServer(int port, Map<Class<? extends Servlet>, List<String>> handlers)
+        throws Exception {
         Server server = new Server(port);
         server.setStopAtShutdown(true);
         ServletHandler sh = new ServletHandler();
@@ -67,5 +69,4 @@ public class RemoteServerHelper {
     public static void shutdownServer(Server server) throws Exception {
         server.stop();
     }
-
 }
