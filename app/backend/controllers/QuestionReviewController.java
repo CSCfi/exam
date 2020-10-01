@@ -103,6 +103,15 @@ public class QuestionReviewController extends BaseController {
             .filter(esq -> questionIds.isEmpty() || questionIds.contains(esq.getQuestion().getParent().getId()))
             .collect(Collectors.toList());
 
+        // Get evaluation criterias from parent exam section questions
+        Map<Question, String> evaluationCriteriaMap = exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
+            .filter(esq -> esq.getEvaluationCriteria() != null && esq.getQuestion() != null)
+            .collect(Collectors.toMap(ExamSectionQuestion::getQuestion, ExamSectionQuestion::getEvaluationCriteria));
+
         // Group essay answers by question and throw them in the ordered map
         questionMap.putAll(answers.stream().collect(Collectors.groupingBy(esq -> esq.getQuestion().getParent())));
 
@@ -116,7 +125,14 @@ public class QuestionReviewController extends BaseController {
         List<String> results = questionMap
             .entrySet()
             .stream()
-            .map(e -> new QuestionEntry(e.getKey(), e.getValue()).toJson())
+            .map(
+                e -> {
+                    Question key = e.getKey();
+                    List<ExamSectionQuestion> value = e.getValue();
+                    String evaluationCriteria = evaluationCriteriaMap.get(key);
+                    return new QuestionEntry(e.getKey(), e.getValue(), evaluationCriteria).toJson();
+                }
+            )
             .collect(Collectors.toList());
 
         String json = String.format("[%s]", String.join(", ", results));
@@ -127,8 +143,9 @@ public class QuestionReviewController extends BaseController {
     private static class QuestionEntry {
         private String question;
         private List<String> answers;
+        private String evaluationCriteria;
 
-        QuestionEntry(Question question, List<ExamSectionQuestion> answers) {
+        QuestionEntry(Question question, List<ExamSectionQuestion> answers, String evaluationCriteria) {
             PathProperties pp = PathProperties.parse(
                 "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
                 "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
@@ -136,10 +153,16 @@ public class QuestionReviewController extends BaseController {
             );
             this.question = Ebean.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
             this.answers = answers.stream().map(a -> Ebean.json().toJson(a, pp)).collect(Collectors.toList());
+            this.evaluationCriteria = Ebean.json().toJson(evaluationCriteria);
         }
 
         private String toJson() {
-            return String.format("{\"question\": %s, \"answers\": %s}", question, answers);
+            return String.format(
+                "{\"question\": %s, \"answers\": %s, \"evaluationCriteria\": %s}",
+                question,
+                answers,
+                evaluationCriteria
+            );
         }
     }
 }
