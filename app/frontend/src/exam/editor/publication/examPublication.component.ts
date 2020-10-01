@@ -20,7 +20,7 @@ import * as moment from 'moment';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
-import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
+import { AutoEvaluationConfig, Exam, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
 
 export const ExamPublicationComponent: angular.IComponentOptions = {
     template: require('./examPublication.template.html'),
@@ -52,6 +52,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             private $state: StateService,
             private $uibModal: IModalService,
             private $window: angular.IWindowService,
+            private dialogs: angular.dialogservice.IDialogService,
             private Session: SessionService,
             private Exam: any,
         ) {
@@ -134,6 +135,67 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 },
             );
             return deferred.promise;
+        };
+
+        addExaminationEvent = () => {
+            this.$uibModal
+                .open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    animation: true,
+                    component: 'examinationEventDialog',
+                    resolve: {
+                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
+                    },
+                })
+                .result.then((data: ExaminationEventConfiguration) => {
+                    this.Exam.addExaminationEvent(this.exam.id, data).then((config: ExaminationEventConfiguration) => {
+                        this.exam.examinationEventConfigurations.push(config);
+                    });
+                });
+        };
+
+        modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+            this.$uibModal
+                .open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    animation: true,
+                    component: 'examinationEventDialog',
+                    resolve: {
+                        config: () => configuration,
+                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
+                    },
+                })
+                .result.then((data: ExaminationEventConfiguration) => {
+                    this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).then(
+                        (config: ExaminationEventConfiguration) => {
+                            const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                            console.log(index);
+                            this.exam.examinationEventConfigurations.splice(index, 1, config);
+                            console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
+                        },
+                    );
+                })
+                .catch(angular.noop);
+        };
+
+        removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+            if (configuration.examEnrolments.length > 0) {
+                return;
+            }
+            const dialog = this.dialogs.confirm(
+                this.$translate.instant('sitnet_remove_examination_event'),
+                this.$translate.instant('sitnet_are_you_sure'),
+            );
+            dialog.result.then(() =>
+                this.Exam.removeExaminationEvent(this.exam.id, configuration).then(() => {
+                    this.exam.examinationEventConfigurations.splice(
+                        this.exam.examinationEventConfigurations.indexOf(configuration),
+                        1,
+                    );
+                }),
+            );
         };
 
         setExamDuration = (duration: number) => {

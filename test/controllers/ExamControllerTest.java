@@ -1,5 +1,11 @@
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
+import backend.models.Exam;
+import backend.models.ExamType;
+import backend.models.sections.ExamSection;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -8,20 +14,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.sections.ExamSection;
-import backend.models.ExamType;
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ExamControllerTest extends IntegrationTestCase {
 
@@ -37,12 +37,18 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetActiveExams() {
         // Setup
-        List<Exam> activeExams = Ebean.find(Exam.class).where()
-                .eq("creator.id", userId).in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT).findList();
-        activeExams.forEach(e -> {
-            e.getExamOwners().add(e.getCreator());
-            e.update();
-        });
+        List<Exam> activeExams = Ebean
+            .find(Exam.class)
+            .where()
+            .eq("creator.id", userId)
+            .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
+            .findList();
+        activeExams.forEach(
+            e -> {
+                e.getExamOwners().add(e.getCreator());
+                e.update();
+            }
+        );
         Set<Long> ids = new HashSet<>();
         for (Exam e : activeExams) {
             e.setExamActiveStartDate(DateTime.now());
@@ -50,7 +56,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             e.update();
             ids.add(e.getId());
         }
-        String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
+        String[] expectedPaths = { "id", "name", "course.code", "examActiveStartDate", "examActiveEndDate" };
 
         // Execute
         Result result = get("/app/reviewerexams");
@@ -73,7 +79,11 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateDraftExamUnauthorized() {
         // Execute
-        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
+        Result result = request(
+            Helpers.POST,
+            "/app/exams",
+            Json.newObject().put("executionType", "PUBLIC").put("implementation", "AQUARIUM")
+        );
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -85,7 +95,11 @@ public class ExamControllerTest extends IntegrationTestCase {
         int originalRowCount = Ebean.find(Exam.class).findCount();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
+        Result result = request(
+            Helpers.POST,
+            "/app/exams",
+            Json.newObject().put("executionType", "PUBLIC").put("implementation", "AQUARIUM")
+        );
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -109,7 +123,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         int rowCount = Ebean.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
-
 
     @Test
     @RunAsTeacher
@@ -194,20 +207,51 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
     private String[] getExamFields() {
-        return new String[]{"id", "name", "course.id", "course.code", "course.name", "course.level",
-                "course.courseUnitType", "course.credits", "course.institutionName", "course.department", "parent",
-                "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
-                "examActiveEndDate", "duration", "gradeScale", "gradeScale.description", "grade",
-                "customCredit", "answerLanguage", "state", "examFeedback", "creditType", "expanded",
-                "attachment"};
+        return new String[] {
+            "id",
+            "name",
+            "course.id",
+            "course.code",
+            "course.name",
+            "course.level",
+            "course.courseUnitType",
+            "course.credits",
+            "course.institutionName",
+            "course.department",
+            "parent",
+            "examType",
+            "instruction",
+            "enrollInstruction",
+            "shared",
+            "examActiveStartDate",
+            "examActiveEndDate",
+            "duration",
+            "gradeScale",
+            "gradeScale.description",
+            "grade",
+            "customCredit",
+            "answerLanguage",
+            "state",
+            "examFeedback",
+            "creditType",
+            "expanded",
+            "attachment"
+        };
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = {"name", "id", "expanded", "lotteryOn", "sequenceNumber", "description", "lotteryItemCount"};
+        String[] fields = {
+            "name",
+            "id",
+            "expanded",
+            "lotteryOn",
+            "sequenceNumber",
+            "description",
+            "lotteryItemCount"
+        };
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];
         }
         return fields;
     }
-
 }

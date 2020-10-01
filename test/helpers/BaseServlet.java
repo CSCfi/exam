@@ -16,9 +16,8 @@
 
 package helpers;
 
-import net.jodah.concurrentunit.Waiter;
-
 import javax.servlet.http.HttpServlet;
+import net.jodah.concurrentunit.Waiter;
 
 public class BaseServlet extends HttpServlet {
     protected static String calledMethod;

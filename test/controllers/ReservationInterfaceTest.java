@@ -1,18 +1,18 @@
 package controllers;
 
-import base.IntegrationTestCase;
-import io.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import backend.models.ExamRoom;
 import backend.models.calendar.ExceptionWorkingHours;
+import base.IntegrationTestCase;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
 
 public class ReservationInterfaceTest extends IntegrationTestCase {
 
@@ -69,5 +69,4 @@ public class ReservationInterfaceTest extends IntegrationTestCase {
         ExamRoom examRoom = deserialize(ExamRoom.class, node);
         assertThat(examRoom.getCalendarExceptionEvents()).hasSize(1);
     }
-
 }
