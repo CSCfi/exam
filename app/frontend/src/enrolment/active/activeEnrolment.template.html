@@ -54,16 +54,20 @@
                 <!-- settings menu -->
                 <div class="student-exam-settings">
                     <span uib-dropdown>
-                        <a href id="simple-dropdown" uib-dropdown-toggle>
+                        <button
+                            id="simple-dropdown"
+                            class="enrolment-menu-button"
+                            uib-dropdown-toggle
+                            popover-placement="top-right"
+                            popover-trigger="'mouseenter focus'"
+                            uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}"
+                        >
                             <img
                                 class="arrow_icon"
                                 alt="{{ 'sitnet_change_enrolment_info' | translate }}"
                                 src="Images/settings_dots.png"
-                                popover-placement="top-right"
-                                popover-trigger="'mouseenter'"
-                                uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}"
                             />
-                        </a>
+                        </button>
                         <ul class="dropdown-menu settings" uib-dropdown-menu aria-labelledby="simple-dropdown">
                             <!-- enrolment with reservation, allow changing -->
                             <li ng-if="$ctrl.enrolment.reservation">
@@ -114,6 +118,8 @@
                                         ng-if="$ctrl.enrolment.reservation"
                                         class="text-danger pointer"
                                         ng-click="$ctrl.removeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.removeReservation()"
                                         >{{'sitnet_student_remove_reservation' | translate}}
                                     </a>
                                 </span>
@@ -122,8 +128,13 @@
                             <li ng-if="$ctrl.enrolment.examinationEventConfiguration">
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a class="text-danger pointer" ng-click="$ctrl.removeReservation()"
-                                        >{{'sitnet_student_remove_reservation' | translate}}
+                                    <a
+                                        class="text-danger pointer"
+                                        ng-click="$ctrl.removeReservation()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.removeReservation()"
+                                    >
+                                        {{'sitnet_student_remove_reservation' | translate}}
                                     </a>
                                 </span>
                             </li>
@@ -134,7 +145,11 @@
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a ng-click="$ctrl.removeEnrolment()">
+                                    <a
+                                        ng-click="$ctrl.removeEnrolment()"
+                                        tabindex="0"
+                                        ng-enter="$ctrl.removeReservation()"
+                                    >
                                         {{ 'sitnet_student_remove_enrolment' | translate }}
                                     </a>
                                 </span>
@@ -337,9 +352,14 @@
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
                             <span class="marr20">
-                                <a ng-click="$ctrl.downloadSebFile()" class="text text-success"
-                                    ><strong>{{'sitnet_download' | translate}}</strong></a
+                                <a
+                                    ng-click="$ctrl.downloadSebFile()"
+                                    class="text text-success"
+                                    tabindex="0"
+                                    ng-enter="$ctrl.downloadSebFile()"
                                 >
+                                    <strong>{{'sitnet_download' | translate}}</strong>
+                                </a>
                             </span>
                         </div>
                     </div>
@@ -349,7 +369,12 @@
 
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer" ng-click="$ctrl.showGuide = !$ctrl.showGuide">
+                <a
+                    class="infolink pointer"
+                    ng-click="$ctrl.showGuide = !$ctrl.showGuide"
+                    tabindex="0"
+                    ng-enter="$ctrl.showGuide = !$ctrl.showGuide"
+                >
                     {{ 'sitnet_room_guidance' | translate}}
                     <img
                         class="arrow_icon"
@@ -371,6 +396,8 @@
                     class="infolink pointer"
                     ng-show="$ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction"
                     ng-click="$ctrl.showInstructions = !$ctrl.showInstructions"
+                    ng-enter="$ctrl.showInstructions = !$ctrl.showInstructions"
+                    tabindex="0"
                 >
                     {{ 'sitnet_view_instructions' | translate}}
                     <img
@@ -422,7 +449,12 @@
         </div>
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer" ng-click="$ctrl.showMaterials = !$ctrl.showMaterials">
+                <a
+                    class="infolink pointer"
+                    ng-click="$ctrl.showMaterials = !$ctrl.showMaterials"
+                    ng-enter="$ctrl.showMaterials = !$ctrl.showMaterials"
+                    tabindex="0"
+                >
                     {{ 'sitnet_exam_materials' | translate}}
                     <img
                         class="arrow_icon"

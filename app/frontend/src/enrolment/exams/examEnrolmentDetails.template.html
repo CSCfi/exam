@@ -137,6 +137,8 @@
         ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft"
         class="student-message-dialog-button-save"
     >
-        <a class="link-button" ng-click="$ctrl.makeReservation()">{{'sitnet_student_new_reservation' | translate}}</a>
+        <button class="link-button" ng-click="$ctrl.makeReservation()">
+            {{'sitnet_student_new_reservation' | translate}}
+        </button>
     </div>
 </div>

@@ -24,7 +24,9 @@ angular.module('app.common').component('historyBack', {
             const vm = this;
 
             vm.goBack = function(event) {
-                event.preventDefault();
+                if (event) {
+                    event.preventDefault();
+                }
                 $window.history.back();
             };
         },
