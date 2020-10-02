@@ -31,17 +31,20 @@ angular.module('app.review').component('rExamSection', {
         '$translate',
         'Attachment',
         'Exam',
-        function($sce, $translate, Attachment, Exam) {
+        'Question',
+        function($sce, $translate, Attachment, Exam, Question) {
             const vm = this;
 
             vm.$onInit = function() {
                 vm.exam = vm.parentCtrl.exam;
                 vm.participation = vm.parentCtrl.participation;
                 vm.collaborative = vm.parentCtrl.collaborative;
+                vm.selectionEvaluatedAmounts = vm.getSectionQuestionAmounts();
             };
 
             vm.scoreSet = function(revision) {
                 vm.onScore({ revision: revision });
+                vm.selectionEvaluatedAmounts = vm.getSectionQuestionAmounts();
             };
 
             vm.displayQuestionText = function() {
@@ -70,18 +73,8 @@ angular.module('app.review').component('rExamSection', {
                 return Exam.getSectionTotalScore(vm.section);
             };
 
-            vm.getSelectionEvaluatedQuestionAmount = function() {
-                return vm.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length;
-            };
-
-            vm.getPassedQuestions = function() {
-                return vm.section.sectionQuestions.filter(
-                    esq =>
-                        esq.evaluationType === 'Selection' &&
-                        esq.essayAnswer &&
-                        esq.essayAnswer.evaluatedScore &&
-                        esq.essayAnswer.evaluatedScore === 1,
-                ).length;
+            vm.getSectionQuestionAmounts = function() {
+                return Question.getQuestionAmountsBySection(vm.section);
             };
         },
     ],

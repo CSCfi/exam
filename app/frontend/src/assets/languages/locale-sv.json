@@ -988,5 +988,6 @@
   "sitnet_word_minutes": "Minuter",
   "sitnet_statistics_rooms": "Utrymmen",
   "sitnet_save_changes_popover_info": "Spara bedömningen som halvfärdig. Efter att bedömningen gjorts kan inte andra bedömare längre ändra sina egna bedömningar.",
-  "sitnet_send_result_to_registry_popover_info": "Tenterna ska ha de bedömningar och vitsord som krävs innan den slutliga bedömningen låses. Efter att du låst bedömningen kan du inte längre ändra den och studenten får information per e-post om bedömningen."
+  "sitnet_send_result_to_registry_popover_info": "Tenterna ska ha de bedömningar och vitsord som krävs innan den slutliga bedömningen låses. Efter att du låst bedömningen kan du inte längre ändra den och studenten får information per e-post om bedömningen.",
+  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä SV"
 }
