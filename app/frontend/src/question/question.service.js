@@ -120,6 +120,23 @@ function QuestionService(
         return data;
     };
 
+    this.getQuestionAmountsBySection = section => {
+        const data = { accepted: 0, rejected: 0 };
+        angular.forEach(section.sectionQuestions, sectionQuestion => {
+            const question = sectionQuestion.question;
+            if (question.type === 'EssayQuestion') {
+                if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
+                    if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
+                        data.accepted++;
+                    } else if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 0) {
+                        data.rejected++;
+                    }
+                }
+            }
+        });
+        return data;
+    };
+
     // For weighted mcq
     this.calculateDefaultMaxPoints = question =>
         question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
