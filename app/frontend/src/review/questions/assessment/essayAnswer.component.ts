@@ -15,14 +15,11 @@
 
 import * as angular from 'angular';
 import * as _ from 'lodash';
-import { ReviewQuestion, QuestionReview } from '../../review.model';
+import { ReviewQuestion } from '../../review.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
 export const EssayAnswerComponent: angular.IComponentOptions = {
     template: require('./essayAnswer.template.html'),
-    require: {
-        parentCtrl: '^^essayAnswers',
-    },
     bindings: {
         answer: '<',
         editable: '<',
@@ -35,8 +32,6 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
         action: string;
         name: string;
         onSelection: (_: { answer: ReviewQuestion }) => any;
-        criteria: string | undefined;
-        parentCtrl: { parentCtrl: { selectedReview: QuestionReview } };
 
         constructor(private Assessment: any, private Attachment: AttachmentService) {
             'ngInject';
@@ -54,7 +49,6 @@ export const EssayAnswerComponent: angular.IComponentOptions = {
                     ? this.answer.essayAnswer.evaluatedScore.toString()
                     : '';
             }
-            this.criteria = this.parentCtrl.parentCtrl.selectedReview.question.defaultEvaluationCriteria;
         }
 
         getWordCount = () => this.Assessment.countWords(this.answer.essayAnswer.answer);
