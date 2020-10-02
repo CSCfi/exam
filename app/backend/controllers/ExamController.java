@@ -478,7 +478,8 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result createExamDraft(Http.Request request) {
-        String executionType = formFactory.form().bindFromRequest(request).get("executionType");
+        String executionType = request.body().asJson().get("executionType").asText();
+        String implementation = request.body().asJson().get("implementation").asText();
         ExamExecutionType examExecutionType = Ebean
             .find(ExamExecutionType.class)
             .where()
@@ -491,7 +492,7 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
-        exam.setImplementation(Exam.Implementation.AQUARIUM);
+        exam.setImplementation(Exam.Implementation.valueOf(implementation));
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());

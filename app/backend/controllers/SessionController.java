@@ -469,8 +469,7 @@ public class SessionController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result extendSession(Http.Request request) {
-        return ok()
-            .withSession(request.session().adding("since", ISODateTimeFormat.dateTimeParser().print(DateTime.now())));
+        return ok().withSession(request.session().adding("since", ISODateTimeFormat.dateTime().print(DateTime.now())));
     }
 
     @ActionMethod

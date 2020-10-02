@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, ExaminationEventConfiguration, GradeScale } from '../../exam.model';
+import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -47,7 +47,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
-            private dialogs: angular.dialogservice.IDialogService,
             private Exam: any,
             private SettingsResource: any,
             private Attachment: AttachmentService,
@@ -180,67 +179,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
                     this.Files.upload(url, data.attachmentFile, { examId: this.exam.id }, this.exam);
                 });
-        };
-
-        addExaminationEvent = () => {
-            this.$uibModal
-                .open({
-                    backdrop: 'static',
-                    keyboard: true,
-                    animation: true,
-                    component: 'examinationEventDialog',
-                    resolve: {
-                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
-                    },
-                })
-                .result.then((data: ExaminationEventConfiguration) => {
-                    this.Exam.addExaminationEvent(this.exam.id, data).then((config: ExaminationEventConfiguration) => {
-                        this.exam.examinationEventConfigurations.push(config);
-                    });
-                });
-        };
-
-        modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-            this.$uibModal
-                .open({
-                    backdrop: 'static',
-                    keyboard: true,
-                    animation: true,
-                    component: 'examinationEventDialog',
-                    resolve: {
-                        config: () => configuration,
-                        requiresPassword: () => this.exam.implementation === 'CLIENT_AUTH',
-                    },
-                })
-                .result.then((data: ExaminationEventConfiguration) => {
-                    this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).then(
-                        (config: ExaminationEventConfiguration) => {
-                            const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                            console.log(index);
-                            this.exam.examinationEventConfigurations.splice(index, 1, config);
-                            console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                        },
-                    );
-                })
-                .catch(angular.noop);
-        };
-
-        removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-            if (configuration.examEnrolments.length > 0) {
-                return;
-            }
-            const dialog = this.dialogs.confirm(
-                this.$translate.instant('sitnet_remove_examination_event'),
-                this.$translate.instant('sitnet_are_you_sure'),
-            );
-            dialog.result.then(() =>
-                this.Exam.removeExaminationEvent(this.exam.id, configuration).then(() => {
-                    this.exam.examinationEventConfigurations.splice(
-                        this.exam.examinationEventConfigurations.indexOf(configuration),
-                        1,
-                    );
-                }),
-            );
         };
 
         downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);

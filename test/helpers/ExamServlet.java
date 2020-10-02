@@ -18,19 +18,16 @@ package helpers;
 
 import backend.models.Exam;
 import backend.util.json.JsonDeserializer;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.jodah.concurrentunit.Waiter;
-import play.libs.Json;
-
+import java.io.IOException;
+import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.stream.Collectors;
+import net.jodah.concurrentunit.Waiter;
+import play.libs.Json;
 
 public class ExamServlet extends BaseServlet {
-
     private static String calledMethod;
     private Exam exam;
     private Waiter waiter;

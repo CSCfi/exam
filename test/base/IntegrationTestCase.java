@@ -1,5 +1,9 @@
 package base;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamInspection;
@@ -34,7 +38,6 @@ import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.io.FileUtils;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +49,8 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 
 public class IntegrationTestCase {
-
     protected static final int MAIL_TIMEOUT = 20000;
     protected Application app;
     protected Long userId;
@@ -70,14 +70,22 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
-        HAKA_HEADERS.put("schacPersonalUniqueCode",
-                "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
-                        "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
-                        "urn:schac:personalUniqueCode:int:studentID:org1.org:11111");
+        HAKA_HEADERS.put(
+            "schacPersonalUniqueCode",
+            "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
+            "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
+            "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+        );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
-        HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
-                    URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        HAKA_HEADERS.put(
+            "logouturl",
+            URLEncoder.encode(
+                "https://logout.foo.bar.com?returnUrl=" +
+                URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
+            )
+        );
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -138,7 +146,13 @@ public class IntegrationTestCase {
         return request(method, path, body, HAKA_HEADERS, followRedirects);
     }
 
-    protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
+    protected Result request(
+        String method,
+        String path,
+        JsonNode body,
+        Map<String, String> headers,
+        boolean followRedirects
+    ) {
         Http.RequestBuilder request = getRequestBuilder(method, path, headers);
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
@@ -236,15 +250,24 @@ public class IntegrationTestCase {
 
     protected void initExamSectionQuestions(Exam exam) {
         exam.setExamSections(new TreeSet<>(exam.getExamSections()));
-        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
-            u.setLanguage(Ebean.find(Language.class, "en"));
-            u.update();
-        });
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
+        exam
+            .getExamInspections()
+            .stream()
+            .map(ExamInspection::getUser)
+            .forEach(
+                u -> {
+                    u.setLanguage(Ebean.find(Language.class, "en"));
+                    u.update();
+                }
+            );
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+            .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+            .forEach(
+                esq -> {
                     for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                         ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
                         esqo.setOption(o);
@@ -252,7 +275,8 @@ public class IntegrationTestCase {
                         esq.getOptions().add(esqo);
                     }
                     esq.save();
-                });
+                }
+            );
     }
 
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
@@ -287,7 +311,6 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-
             Yaml yaml = new Yaml(new JodaPropertyConstructor());
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = yaml.load(is);
@@ -354,9 +377,12 @@ public class IntegrationTestCase {
 
     @NotNull
     protected ExamSectionQuestion getExamSectionQuestion(Exam exam, Long id) throws Exception {
-        return exam.getExamSections().stream()
-                .flatMap(examSection -> examSection.getSectionQuestions().stream())
-                .filter(sq -> id == null || sq.getId().equals(id))
-                .findFirst().orElseThrow(() -> new Exception("Null section question"));
+        return exam
+            .getExamSections()
+            .stream()
+            .flatMap(examSection -> examSection.getSectionQuestions().stream())
+            .filter(sq -> id == null || sq.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new Exception("Null section question"));
     }
 }

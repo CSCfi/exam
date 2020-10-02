@@ -35,7 +35,7 @@
                         <select
                             class="form-control"
                             ng-model="$ctrl.type"
-                            ng-change="$ctrl.createExam()"
+                            ng-change="$ctrl.selectType()"
                             required
                             ng-options="type.name | translate for type in $ctrl.executionTypes"
                         >
@@ -44,6 +44,54 @@
                     </div>
                 </div>
             </div>
+            <div class="padl40 padr40" ng-if="$ctrl.byodExaminationSupported && $ctrl.type.type === 'PUBLIC'">
+                <div class="col-md-12 margin-20 padl0 padr0">
+                    <div class="col-md-3 exam-basic-title padl0">
+                        {{'sitnet_examination_type' | translate}}
+                        <sup>
+                            <img
+                                popover-placement="right"
+                                popover-trigger="'mouseenter'"
+                                uib-popover="{{'sitnet_examination_type_description' | translate}}"
+                                src="Images/icon_tooltip.svg"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                            />
+                        </sup>
+                    </div>
+                    <div class="col-md-9">
+                        <button
+                            class="btn btn-review"
+                            ng-class="$ctrl.examinationType === 'AQUARIUM' ? 'btn-primary' : ''"
+                            ng-click="$ctrl.examinationType = 'AQUARIUM'"
+                        >
+                            {{'sitnet_examination_type_aquarium' | translate }}</button
+                        >&nbsp;
+                        <button
+                            class="btn btn-review"
+                            ng-class="$ctrl.examinationType === 'CLIENT_AUTH' ? 'btn-primary' : ''"
+                            ng-click="$ctrl.examinationType = 'CLIENT_AUTH'"
+                        >
+                            {{'sitnet_examination_type_seb' | translate }}
+                        </button>
+                        <button
+                            class="btn btn-review"
+                            ng-class="$ctrl.examinationType === 'WHATEVER' ? 'btn-primary' : ''"
+                            ng-click="$ctrl.examinationType = 'WHATEVER'"
+                        >
+                            {{'sitnet_examination_type_home_exam' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12" ng-if="$ctrl.byodExaminationSupported">
+        <div class="marl50 mart40">
+            <button class="btn btn-success" ng-click="$ctrl.createExam()" ng-disabled="!$ctrl.type">
+                {{ 'sitnet_create_new' | translate }}
+            </button>
         </div>
     </div>
 </div>
