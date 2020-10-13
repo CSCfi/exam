@@ -17,9 +17,8 @@ import toast from 'toastr';
 const moment = require('moment');
 
 angular.module('app.enrolment').service('WrongLocation', [
-    '$timeout',
     '$translate',
-    function($timeout, $translate) {
+    function($translate) {
         const self = this;
 
         self.display = function(data) {
@@ -29,6 +28,9 @@ angular.module('app.enrolment').service('WrongLocation', [
             };
             const startsAt = moment(data[4]);
             const now = moment();
+            if (now.isDST()) {
+                startsAt.add(-1, 'hour');
+            }
             let parts;
             if (startsAt.isAfter(now)) {
                 parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
