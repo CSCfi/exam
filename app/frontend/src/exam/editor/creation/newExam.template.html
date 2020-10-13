@@ -44,7 +44,7 @@
                     </div>
                 </div>
             </div>
-            <div class="padl40 padr40" ng-if="$ctrl.byodExaminationSupported && $ctrl.type.type === 'PUBLIC'">
+            <div class="padl40 padr40" ng-if="$ctrl.byodExaminationSupported && $ctrl.type.type !== 'PRINTOUT'">
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{'sitnet_examination_type' | translate}}
