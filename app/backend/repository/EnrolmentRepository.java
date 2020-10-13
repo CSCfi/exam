@@ -161,6 +161,7 @@ public class EnrolmentRepository {
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
         boolean requiresReservation =
             enrolment.getExternalExam() != null ||
+            enrolment.getCollaborativeExam() != null ||
             (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM);
         // Loose the checks for dev usage to facilitate for easier testing
         if (environment.isDev() && requiresReservation) {
