@@ -989,5 +989,6 @@
   "sitnet_statistics_rooms": "Premises",
   "sitnet_save_changes_popover_info": "Save the assessment as unfinished. The assessment can still be changed if exam grade is not yet given.",
   "sitnet_send_result_to_registry_popover_info": "The exam grade has to be given before the assessment can be locked. When locked you cannot change the assessment anymore and the student will be sent an email about the assessment.",
-  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä EN"
+  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä EN",
+  "sitnet_missing_examination_event_configurations": "Exam event is missing, you cannot publish the exam. Go back to basic information to add an exam event."
 }

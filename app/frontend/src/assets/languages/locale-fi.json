@@ -989,5 +989,6 @@
   "sitnet_statistics_rooms": "Tilat",
   "sitnet_save_changes_popover_info": "Tallenna arviointi keskeneräisenä. Suorituksen arviointeja voi vielä muokata, mikäli arvosanaa ei ole annettu.",
   "sitnet_send_result_to_registry_popover_info": "Tentillä tulee olla vaaditut arvioinnit ja arvosana ennen lopullisen arvioinnin lukitsemista. Lukittuasi arvioinnin et voi enää muuttaa sitä ja opiskelija saa sähköpostitse tiedon arvioinnista.",
-  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä FI"
+  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä FI",
+  "sitnet_missing_examination_event_configurations": "Tenttitilaisuus puuttuu, tenttiä ei voi julkaista. Palaa takaisin perustietoihin ja lisää tenttitilaisuus."
 }
