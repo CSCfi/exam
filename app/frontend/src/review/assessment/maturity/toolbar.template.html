@@ -33,8 +33,8 @@
             class="review-attachment-button exam-questions-buttons marl10"
         >
             <button
-                class="btn inspection-button cancel"
-                ng-class="$ctrl.getNextState().alternateState.warn ? 'btn-danger' : 'btn-primary'"
+                class="btn inspection-button"
+                ng-class="$ctrl.getNextState().alternateState.warn ? 'warning-filled' : 'btn-primary'"
                 ng-disabled="!$ctrl.getNextState().alternateState.canProceed || !$ctrl.valid ||
                         ($ctrl.getNextState().alternateState.validate &&
                         !$ctrl.getNextState().alternateState.validate($ctrl.exam))"
