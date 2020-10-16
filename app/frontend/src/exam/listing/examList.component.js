@@ -43,6 +43,17 @@ angular.module('app.exam').component('examList', {
                 };
 
                 Exam.listExecutionTypes().then(function(types) {
+                    types.forEach(t => {
+                        if (t.type !== 'PRINTOUT') {
+                            t.examinationTypes = [
+                                { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
+                                { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
+                                { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
+                            ];
+                        } else {
+                            t.examinationTypes = [];
+                        }
+                    });
                     vm.executionTypes = types;
                 });
             };
@@ -79,9 +90,9 @@ angular.module('app.exam').component('examList', {
                 Exam.createExam(executionType);
             };
 
-            vm.copyExam = function(exam, type) {
+            vm.copyExam = function(exam, type, examinationType = 'AQUARIUM') {
                 ExamRes.exams.copy(
-                    { id: exam.id, type: type },
+                    { id: exam.id, type: type, examinationType: examinationType },
                     function(copy) {
                         toast.success($translate.instant('sitnet_exam_copied'));
                         $state.go('examEditor', { id: copy.id, tab: 1 });

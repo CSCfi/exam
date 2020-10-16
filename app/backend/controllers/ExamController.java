@@ -448,6 +448,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
+        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
         ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
@@ -460,6 +461,7 @@ public class ExamController extends BaseController {
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
         copy.setExecutionType(executionType);
+        copy.setImplementation(Exam.Implementation.valueOf(examinationType));
         AppUtil.setCreator(copy, user);
         copy.setParent(null);
         copy.setCourse(null);

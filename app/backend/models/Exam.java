@@ -627,6 +627,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             "examSections",
             "examEnrolments",
             "examParticipation",
+            "examinationEventConfigurations",
             "examInspections",
             "autoEvaluationConfig",
             "creator",
