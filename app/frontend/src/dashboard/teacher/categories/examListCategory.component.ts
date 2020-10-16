@@ -70,6 +70,17 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
             if (this.filterText) {
                 this.search();
             }
+            this.examTypes.forEach(t => {
+                if (t.type !== 'PRINTOUT') {
+                    t.examinationTypes = [
+                        { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
+                        { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
+                        { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
+                    ];
+                } else {
+                    t.examinationTypes = [];
+                }
+            });
         }
 
         search() {
@@ -89,9 +100,9 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
             return `${this.$translate.instant(type)} - ${this.$translate.instant(impl)}`;
         };
 
-        copyExam(exam, type) {
+        copyExam(exam, type, examinationType = 'AQUARIUM') {
             this.$http
-                .post(`/app/exams/${exam.id}`, { type: type })
+                .post(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
                 .then((resp: IHttpResponse<{ id: number }>) => {
                     toast.success(this.$translate.instant('sitnet_exam_copied'));
                     this.$state.go('examEditor', { id: resp.data.id, tab: 1 });
