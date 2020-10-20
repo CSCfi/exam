@@ -110,6 +110,17 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         getExecutionTypeTranslation = () =>
             !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type);
 
+        getExaminationTypeName = () => {
+            switch (this.exam.implementation) {
+                case 'AQUARIUM':
+                    return 'sitnet_examination_type_aquarium';
+                case 'CLIENT_AUTH':
+                    return 'sitnet_examination_type_seb';
+                case 'WHATEVER':
+                    return 'sitnet_examination_type_home_exam';
+            }
+        };
+
         checkExamType = (type: string) => (this.exam.examType.type === type ? 'btn-primary' : '');
 
         setExamType = (type: string) => {

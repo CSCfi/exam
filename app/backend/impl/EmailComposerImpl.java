@@ -893,8 +893,9 @@ class EmailComposerImpl implements EmailComposer {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = fileHandler.read(templatePath);
         Lang lang = getLang(student);
+        String sanitizedCode = courseCode.isEmpty() ? courseCode : String.format(" (%s)", courseCode);
         String subject = messaging.get(lang, "email.template.noshow.student.subject");
-        String message = messaging.get(lang, "email.template.noshow.student.message", examName, courseCode);
+        String message = messaging.get(lang, "email.template.noshow.student.message", examName, sanitizedCode);
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
         String content = replaceAll(template, stringValues);
