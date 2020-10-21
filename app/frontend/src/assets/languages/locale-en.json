@@ -189,7 +189,7 @@
   "sitnet_room_code": "Room code",
   "sitnet_room_contact_person": "Contact person",
   "sitnet_room_default_working_hours": "Opening hours",
-  "sitnet_room_guidance": "Guidance",
+  "sitnet_room_guidance": "Instructions on the exam room.",
   "sitnet_room_out_of_service": "Room is out of service",
   "sitnet_room_videorecordings_url": "Video recordings URL",
   "sitnet_save": "Save",
@@ -352,7 +352,7 @@
   "sitnet_calendar_instructions": "Instructions",
   "sitnet_redirect_to_exam_notice": "You will be directed to the exam when the exam time starts",
   "sitnet_redirect_to_exam_offset": "To the exam start time",
-  "sitnet_exam_is_about_to_begin": "Your next exam will start at",
+  "sitnet_exam_is_about_to_begin": "Your next exam is about to start.",
   "sitnet_course_not_found": "The course could not be found",
   "sitnet_course_added": "The course has been added",
   "sitnet_logged_on_wrong_machine": "You have logged in to a wrong computer",
@@ -915,7 +915,7 @@
   "sitnet_optional": "Selected",
   "sitnet_required": "Required",
   "sitnet_seb_exam_about_to_begin": "You have a Safe Exam Browser exam starting at",
-  "sitnet_seb_exam_ongoing": "You have a Safe Exam Browser exam going on, please log back in via Safe Exam browser to start the exam.",
+  "sitnet_seb_exam_ongoing": "You have a Safe Exam Browser exam going on. To start the exam, please log back in with the SEB file that you received as attachment of the booking confimation email.",
   "sitnet_examination_type": "Exam mode",
   "sitnet_examination_type_aquarium": "EXAM room",
   "sitnet_examination_type_seb": "BYOD - restricted (beta)",
@@ -989,7 +989,7 @@
   "sitnet_statistics_rooms": "Premises",
   "sitnet_save_changes_popover_info": "Save the assessment as unfinished. The assessment can still be changed if exam grade is not yet given.",
   "sitnet_send_result_to_registry_popover_info": "The exam grade has to be given before the assessment can be locked. When locked you cannot change the assessment anymore and the student will be sent an email about the assessment.",
-  "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä EN",
-  "sitnet_missing_examination_event_configurations": "Exam event is missing, you cannot publish the exam. Go back to basic information to add an exam event.",
-  "sitnet_no_questions_to_review": "Ei arvioitavia kysymyksiä EN"
+  "sitnet_section_accepted_and_rejected": "Pass / fail in the section:",
+  "sitnet_missing_examination_event_configurations": "Exam event is missing, you cannot publish the exam. Go back to the Publish tab and add an exam event.",
+  "sitnet_no_questions_to_review": "No questions to evaluate."
 }
