@@ -180,8 +180,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
     public CompletionStage<Result> reorderSections(Long examId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
-            Integer from = Integer.parseInt(df.get("from"));
-            Integer to = Integer.parseInt(df.get("to"));
+            int from = Integer.parseInt(df.get("from"));
+            int to = Integer.parseInt(df.get("to"));
             Optional<Result> err = checkBounds(from, to);
             if (err.isPresent()) {
                 return err;
@@ -207,8 +207,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
     public CompletionStage<Result> reorderSectionQuestions(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
-            Integer from = Integer.parseInt(df.get("from"));
-            Integer to = Integer.parseInt(df.get("to"));
+            int from = Integer.parseInt(df.get("from"));
+            int to = Integer.parseInt(df.get("to"));
             Optional<Result> err = checkBounds(from, to);
             if (err.isPresent()) {
                 return err;
@@ -434,6 +434,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                                     .filter(o -> o.getId() == null)
                                                     .forEach(o -> o.setId(newId()));
                                                 updateExamQuestion(esq, questionBody);
+                                                esq.getOptions().forEach(o -> o.setId(newId()));
                                                 PathProperties pp = PathProperties.parse(
                                                     "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                                                 );
