@@ -64,7 +64,7 @@ angular.module('app.enrolment').component('waitingRoom', {
                     return moment(vm.enrolment.examinationEventConfiguration.examinationEvent.start);
                 }
                 const start = moment(vm.enrolment.reservation.startAt);
-                if (moment().isDST) {
+                if (moment().isDST()) {
                     start.add(-1, 'hour');
                 }
                 return start;
