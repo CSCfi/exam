@@ -55,6 +55,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -364,11 +365,20 @@ public class ExternalExamController extends BaseController implements ExternalEx
                             .map(Question::getType)
                             .orElseGet(null);
                         if (questionType == Question.Type.ClaimChoiceQuestion) {
-                            return;
+                            Set<ExamSectionQuestionOption> sorted = esq
+                                .getOptions()
+                                .stream()
+                                .collect(
+                                    Collectors.toCollection(
+                                        () -> new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                                    )
+                                );
+                            esq.setOptions(sorted);
+                        } else {
+                            List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                            Collections.shuffle(shuffled);
+                            esq.setOptions(new HashSet<>(shuffled));
                         }
-                        List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
-                        Collections.shuffle(shuffled);
-                        esq.setOptions(new HashSet<>(shuffled));
                     }
                 );
 
