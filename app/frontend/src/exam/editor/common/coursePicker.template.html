@@ -1,7 +1,12 @@
 <script type="text/ng-template" id="course_template.html">
-    <a style="cursor: pointer;">
-        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
-        <span style="font-size:0.90em;color:#000;text-transform: uppercase;cursor:pointer;">{{match.model.code}} {{match.model.name}}</span>
+    <style>
+        li:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <a style="font-size:0.90em;color:#000;cursor:pointer;"> <!-- TBD: check the final requirements on how this should look like-->
+        <span ng-if="match.model.code.indexOf('_') === -1" style="text-transform: uppercase;">{{match.model.code}} {{match.model.name}}</span>
+        <span ng-if="match.model.code.indexOf('_') > -1">{{match.model.code}} <br />{{match.model.name}}</span>
     </a>
 </script>
 
@@ -19,7 +24,7 @@
         /></sup>
     </div>
 </div>
-<form>
+<form autocomplete="off">
     <div class="col-md-3">
         <label for="courseCode" class="exam-basic-selecttitle">{{'sitnet_course_code' | translate}}</label>
         <div class="input-group">

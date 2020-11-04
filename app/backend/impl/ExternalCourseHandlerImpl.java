@@ -30,7 +30,16 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -74,8 +83,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         R exec(T t) throws RemoteException, ParseException;
     }
 
-    private WSClient wsClient;
-    private ConfigReader configReader;
+    private final WSClient wsClient;
+    private final ConfigReader configReader;
 
     @Inject
     public ExternalCourseHandlerImpl(WSClient wsClient, ConfigReader configReader) {
@@ -159,7 +168,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
             // disabled for now.
             // BeanUtils.copyProperties(external, local, "id", "objectVersion");
-            //local.update();
+            // local.update();
             external.setId(local.getId());
         }
     }
@@ -311,15 +320,19 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());
-            course.setCode(node.get("courseUnitCode").asText());
+            String code = node.get("courseUnitCode").asText();
+            if (node.has("courseImplementation")) {
+                String impl = node.get("courseImplementation").asText();
+                course.setCourseImplementation(impl);
+                course.setCode(String.format("%s_%s", code, impl));
+            } else {
+                course.setCode(code);
+            }
             if (node.has("courseUnitLevel")) {
                 course.setLevel(node.get("courseUnitLevel").asText());
             }
             if (node.has("courseUnitType")) {
                 course.setCourseUnitType(node.get("courseUnitType").asText());
-            }
-            if (node.has("courseImplementation")) {
-                course.setCourseImplementation(node.get("courseImplementation").asText());
             }
             if (node.has("credits")) {
                 course.setCredits(node.get("credits").asDouble());
