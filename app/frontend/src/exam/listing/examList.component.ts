@@ -96,7 +96,7 @@ export const ExamListingComponent: angular.IComponentOptions = {
 
         copyExam = (exam: Exam, type: string, examinationType = 'AQUARIUM') =>
             this.$http
-                .post('/app/exams', { id: exam.id, type: type, examinationType: examinationType })
+                .post(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
                 .then((resp: angular.IHttpResponse<Exam>) => {
                     toast.success(this.$translate.instant('sitnet_exam_copied'));
                     this.$state.go('examEditor', { id: resp.data.id, tab: 1 });
