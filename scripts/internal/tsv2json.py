@@ -44,7 +44,7 @@ def main():
         tsv_content = read_file(input_dir, lang)
         json_content = tsv_to_json(tsv_content)
         write(json_content, output_dir,lang)
-        print json_content
 
+        
 if __name__ == "__main__":
     main()

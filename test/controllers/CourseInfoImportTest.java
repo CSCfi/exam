@@ -84,7 +84,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
-        assertThat(course.getCode()).isEqualTo("2121219");
+        assertThat(course.getCode()).isEqualTo("2121219_abcdefghijklmnop");
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
@@ -96,7 +96,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         assertThat(grades).hasSize(7);
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
         // Check that the imported course got into db
-        assertThat(Ebean.find(Course.class).where().eq("code", "2121219")).isNotNull();
+        assertThat(Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop")).isNotNull();
     }
 
     @Test
