@@ -15,25 +15,22 @@
 
 package backend.models.json;
 
-import java.util.List;
-import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.joda.time.DateTime;
-
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.base.GeneratedIdentityModel;
 import backend.util.datetime.DateTimeAdapter;
 import backend.util.json.JsonDeserializer;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
+import javax.persistence.*;
+import org.joda.time.DateTime;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {
-
     @Column
     private String externalRef; // REFERENCE TO EXAM ELSEWHERE
 
@@ -189,5 +186,4 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         objectNode.put("id", id).put("externalRef", externalRef);
         return JsonDeserializer.deserialize(Exam.class, objectNode);
     }
-
 }

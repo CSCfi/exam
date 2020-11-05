@@ -1,5 +1,28 @@
 package controllers.iop;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Language;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.util.AppUtil;
+import base.IntegrationTestCase;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetup;
+import helpers.AttachmentServlet;
+import helpers.RemoteServerHelper;
+import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,15 +39,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import base.IntegrationTestCase;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.ServerSetup;
-import helpers.AttachmentServlet;
-import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -44,24 +58,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.util.AppUtil;
-
-import static org.fest.assertions.Assertions.assertThat;
-
 public class ExternalExamControllerTest extends IntegrationTestCase {
-
     private static final Logger.ALogger logger = Logger.of(ExternalExamControllerTest.class);
     private static final String RESERVATION_REF = "0e6d16c51f857a20ab578f57f105032e";
     private static final String RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f";
@@ -87,7 +84,10 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
             response.setStatus(HttpServletResponse.SC_OK);
 
             File file = new File("test/resources/enrolment_with_lottery.json");
-            try (FileInputStream fis = new FileInputStream(file); ServletOutputStream sos = response.getOutputStream()) {
+            try (
+                FileInputStream fis = new FileInputStream(file);
+                ServletOutputStream sos = response.getOutputStream()
+            ) {
                 IOUtils.copy(fis, sos);
                 sos.flush();
             } catch (IOException e) {
@@ -154,7 +154,14 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
+        exam =
+            Ebean
+                .find(Exam.class)
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .where()
+                .idEq(1L)
+                .findOne();
         initExamSectionQuestions(exam);
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
@@ -193,9 +200,13 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Test
     public void testRequestEnrolment() throws Exception {
         login("student@funet.fi");
-        Reservation external = Ebean.find(Reservation.class)
-                .fetch("enrolment")
-                .fetch("enrolment.externalExam").where().idEq(reservation.getId()).findOne();
+        Reservation external = Ebean
+            .find(Reservation.class)
+            .fetch("enrolment")
+            .fetch("enrolment.externalExam")
+            .where()
+            .idEq(reservation.getId())
+            .findOne();
         assertThat(external.getEnrolment()).isNotNull();
         assertThat(external.getEnrolment().getExternalExam()).isNotNull();
         // Check that lottery was taken in effect
@@ -274,8 +285,11 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         enrolment.setReservation(reservation);
         enrolment.update();
 
-        Result result = request(Helpers.POST, "/integration/iop/reservations/" + RESERVATION_REF_2 + "/noshow",
-                Json.newObject());
+        Result result = request(
+            Helpers.POST,
+            "/integration/iop/reservations/" + RESERVATION_REF_2 + "/noshow",
+            Json.newObject()
+        );
         assertThat(result.status()).isEqualTo(200);
 
         Reservation r = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findOne();
@@ -286,11 +300,13 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Test
     public void testProvideEnrolmentWithAttachments() throws Exception {
         final File testFile = getTestFile("test_files/test.txt");
-        final Attachment examAttachment = createAttachment("test.txt", testFile.getAbsolutePath(),
-                "plain/text");
+        final Attachment examAttachment = createAttachment("test.txt", testFile.getAbsolutePath(), "plain/text");
         final File testImage = getTestFile("test_files/test_image.png");
-        final Attachment questionAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
+        final Attachment questionAttachment = createAttachment(
+            "test_image.png",
+            testImage.getAbsolutePath(),
+            "image/png"
+        );
 
         exam.setAttachment(examAttachment);
         exam.save();
@@ -309,13 +325,14 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(jsonNode).isNotNull();
         assertAttachment(examAttachment, jsonNode.path("attachment"));
 
-        final JsonNode questionJson = StreamSupport.stream(jsonNode.path("examSections").spliterator(), false)
-                .flatMap(node -> StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
-                .filter(node -> node.get("id").asLong() == sectionQuestion.getId())
-                .map(node -> node.path("question"))
-                .filter(node -> node.get("id").asLong() == question.getId())
-                .findFirst()
-                .orElseThrow(() -> new Exception("Question not found!"));
+        final JsonNode questionJson = StreamSupport
+            .stream(jsonNode.path("examSections").spliterator(), false)
+            .flatMap(node -> StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
+            .filter(node -> node.get("id").asLong() == sectionQuestion.getId())
+            .map(node -> node.path("question"))
+            .filter(node -> node.get("id").asLong() == question.getId())
+            .findFirst()
+            .orElseThrow(() -> new Exception("Question not found!"));
         assertAttachment(questionAttachment, questionJson.path("attachment"));
         attachmentServlet.getWaiter().await(10000, 2);
         assertThat(new File(testUpload.toString() + "/" + "test.txt").exists()).isTrue();
@@ -329,5 +346,4 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(json.get("filePath").asText()).isEqualTo(attachment.getFilePath());
         assertThat(json.get("externalId").isNull()).isFalse();
     }
-
 }

@@ -15,12 +15,34 @@
 
 package backend.controllers;
 
-import java.io.UnsupportedEncodingException;
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.exceptions.NotFoundException;
+import backend.models.ExamEnrolment;
+import backend.models.Language;
+import backend.models.Organisation;
+import backend.models.Reservation;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.dto.Credentials;
+import backend.repository.EnrolmentRepository;
+import backend.util.AppUtil;
+import backend.util.config.ConfigReader;
+import backend.util.datetime.DateTimeUtils;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,67 +54,59 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import be.objectify.deadbolt.java.actions.SubjectPresent;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalExamAPI;
-import backend.exceptions.NotFoundException;
-import backend.models.ExamEnrolment;
-import backend.models.Language;
-import backend.models.Organisation;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.dto.Credentials;
-import backend.security.SessionHandler;
-import backend.util.AppUtil;
-import backend.util.config.ConfigReader;
-import backend.util.datetime.DateTimeUtils;
-
 public class SessionController extends BaseController {
-
     private final Environment environment;
-
-    private final SessionHandler sessionHandler;
-
     private final ExternalExamAPI externalExamAPI;
-
     private final ConfigReader configReader;
+    private final EnrolmentRepository enrolmentRepository;
 
     private static final Logger.ALogger logger = Logger.of(SessionController.class);
 
     private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
     private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
-    private static final Boolean MULTI_STUDENT_ID_ON =
-            ConfigFactory.load().getBoolean("sitnet.user.studentIds.multiple.enabled");
-    private static final String MULTI_STUDENT_ID_ORGS =
-            ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
+    private static final Boolean MULTI_STUDENT_ID_ON = ConfigFactory
+        .load()
+        .getBoolean("sitnet.user.studentIds.multiple.enabled");
+    private static final String MULTI_STUDENT_ID_ORGS = ConfigFactory
+        .load()
+        .getString("sitnet.user.studentIds.multiple.organisations");
     private static final int SESSION_TIMEOUT_MINUTES = 30;
-
     private static final String URN_PREFIX = "urn:";
+    private static final Map<String, String> SESSION_HEADER_MAP = Map.of(
+        "x-exam-start-exam",
+        "ongoingExamHash",
+        "x-exam-upcoming-exam",
+        "upcomingExamHash",
+        "x-exam-wrong-machine",
+        "wrongMachineData",
+        "x-exam-unknown-machine",
+        "unknownMachineData",
+        "x-exam-wrong-room",
+        "wrongRoomData",
+        "x-exam-wrong-agent-config",
+        "wrongAgent"
+    );
 
     @Inject
-    public SessionController(Environment environment, SessionHandler sessionHandler, ExternalExamAPI externalExamAPI,
-                             ConfigReader configReader) {
+    public SessionController(
+        Environment environment,
+        ExternalExamAPI externalExamAPI,
+        ConfigReader configReader,
+        EnrolmentRepository enrolmentRepository
+    ) {
         this.environment = environment;
-        this.sessionHandler = sessionHandler;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
+        this.enrolmentRepository = enrolmentRepository;
     }
 
     @ActionMethod
@@ -113,16 +127,13 @@ public class SessionController extends BaseController {
 
     private CompletionStage<Result> hakaLogin(Http.Request request) {
         Optional<String> id = parse(request.header("eppn").orElse(""));
-        if (!id.isPresent()) {
+        if (id.isEmpty()) {
             return wrapAsPromise(badRequest("No credentials!"));
         }
         String eppn = id.get();
         Reservation externalReservation = getUpcomingExternalReservation(eppn);
         boolean isTemporaryVisitor = externalReservation != null;
-        User user = Ebean.find(User.class)
-                .where()
-                .eq("eppn", eppn)
-                .findOne();
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         boolean newUser = user == null;
         try {
             if (newUser) {
@@ -151,9 +162,12 @@ public class SessionController extends BaseController {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         String pwd = AppUtil.encodeMD5(credentials.getPassword());
-        User user = Ebean.find(User.class)
-                .where().eq("eppn", credentials.getUsername() + "@funet.fi")
-                .eq("password", pwd).findOne();
+        User user = Ebean
+            .find(User.class)
+            .where()
+            .eq("eppn", credentials.getUsername() + "@funet.fi")
+            .eq("password", pwd)
+            .findOne();
 
         if (user == null) {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
@@ -165,53 +179,63 @@ public class SessionController extends BaseController {
         return handleExternalReservationAndCreateSession(user, externalReservation, request);
     }
 
-    private CompletionStage<Result> handleExternalReservationAndCreateSession(User user, Reservation reservation, Http.Request request) {
+    private CompletionStage<Result> handleExternalReservationAndCreateSession(
+        User user,
+        Reservation reservation,
+        Http.Request request
+    ) {
         if (reservation != null) {
             try {
-                return handleExternalReservation(user, reservation).
-                        thenApplyAsync(r -> createSession(user, true, request));
+                return handleExternalReservation(user, reservation)
+                    .thenComposeAsync(r -> createSession(user, true, request));
             } catch (MalformedURLException e) {
                 return wrapAsPromise(internalServerError());
             }
         } else {
-            return wrapAsPromise(createSession(user, false, request));
+            return createSession(user, false, request);
         }
     }
 
     private boolean isUserPreEnrolled(String mail, User user) {
-        return mail.equalsIgnoreCase(user.getEmail()) || mail.equalsIgnoreCase(user.getEppn());
+        return (mail.equalsIgnoreCase(user.getEmail()) || mail.equalsIgnoreCase(user.getEppn()));
     }
 
     private void associateWithPreEnrolments(User user) {
         // Associate pre-enrolment with a real user now that he/she is logged in
-        Ebean.find(ExamEnrolment.class)
-                .where()
-                .isNotNull("preEnrolledUserEmail")
-                .findSet()
-                .stream()
-                .filter(ee -> isUserPreEnrolled(ee.getPreEnrolledUserEmail(), user))
-                .forEach(ee -> {
+        Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .isNotNull("preEnrolledUserEmail")
+            .findSet()
+            .stream()
+            .filter(ee -> isUserPreEnrolled(ee.getPreEnrolledUserEmail(), user))
+            .forEach(
+                ee -> {
                     ee.setPreEnrolledUserEmail(null);
                     ee.setUser(user);
                     ee.update();
-                });
+                }
+            );
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
-        List<Reservation> reservations = Ebean.find(Reservation.class).where()
-                .eq("externalUserRef", eppn)
-                .isNotNull("externalRef")
-                .le("startAt", future)
-                .gt("endAt", now)
-                .orderBy("startAt")
-                .findList();
+        List<Reservation> reservations = Ebean
+            .find(Reservation.class)
+            .where()
+            .eq("externalUserRef", eppn)
+            .isNotNull("externalRef")
+            .le("startAt", future)
+            .gt("endAt", now)
+            .orderBy("startAt")
+            .findList();
         return reservations.isEmpty() ? null : reservations.get(0);
     }
 
-    private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
+    private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation)
+        throws MalformedURLException {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findOne();
         if (enrolment != null) {
             // already imported
@@ -219,9 +243,9 @@ public class SessionController extends BaseController {
         }
         reservation.setUser(user);
         reservation.update();
-        return externalExamAPI.requestEnrolment(user, reservation)
-                .thenApplyAsync(e -> e == null ? internalServerError() : ok());
-
+        return externalExamAPI
+            .requestEnrolment(user, reservation)
+            .thenApplyAsync(e -> e == null ? internalServerError() : ok());
     }
 
     private static Language getLanguage(String code) {
@@ -264,33 +288,44 @@ public class SessionController extends BaseController {
             // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
-            return Arrays.stream(src.split(";"))
-                    .filter(s -> s.contains("studentID:"))
-                    .collect(Collectors.toMap(
-                            this::parseStudentIdDomain,
-                            this::parseStudentIdValue,
-                            (v1, v2) -> {
-                                logger.error("Duplicate user identifier key for values {} and {}. It will be marked with a null string", v1, v2);
-                                return "null";
-                            },
-                            () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
-                                    ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
+            return Arrays
+                .stream(src.split(";"))
+                .filter(s -> s.contains("studentID:"))
+                .collect(
+                    Collectors.toMap(
+                        this::parseStudentIdDomain,
+                        this::parseStudentIdValue,
+                        (v1, v2) -> {
+                            logger.error(
+                                "Duplicate user identifier key for values {} and {}. It will be marked with a null string",
+                                v1,
+                                v2
+                            );
+                            return "null";
+                        },
+                        () ->
+                            new TreeMap<>(
+                                Comparator.comparingInt(
+                                    o -> !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
+                                )
                             )
-                    ).entrySet().stream()
-                    .map(e -> String.format("%s:%s", e.getKey(), e.getValue()))
-                    .collect(Collectors.joining(" "));
+                    )
+                )
+                .entrySet()
+                .stream()
+                .map(e -> String.format("%s:%s", e.getKey(), e.getValue()))
+                .collect(Collectors.joining(" "));
         }
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
-        return parse(request.header("displayName").orElse("")).map(n ->
-                n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
+        return parse(request.header("displayName").orElse(""))
+            .map(n -> n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
     private String parseGivenName(Http.Request request) {
         return parse(request.header("givenName").orElse(""))
-                .orElse(parseDisplayName(request)
-                        .orElseThrow(IllegalArgumentException::new));
+            .orElse(parseDisplayName(request).orElseThrow(IllegalArgumentException::new));
     }
 
     private Organisation findOrganisation(String attribute) {
@@ -298,52 +333,64 @@ public class SessionController extends BaseController {
     }
 
     private void updateUser(User user, Http.Request request) throws AddressException {
-        user.setOrganisation(parse(request.header("homeOrganisation").orElse(""))
-                .map(this::findOrganisation).orElse(null));
-        user.setUserIdentifier(parse(request.header("schacPersonalUniqueCode").orElse(""))
-                .map(this::parseUserIdentifier).orElse(null));
-        user.setEmail(parse(request.header("mail").orElse(""))
-                .flatMap(this::validateEmail).orElseThrow(() -> new AddressException("invalid mail address")));
+        user.setOrganisation(
+            parse(request.header("homeOrganisation").orElse("")).map(this::findOrganisation).orElse(null)
+        );
+        user.setUserIdentifier(
+            parse(request.header("schacPersonalUniqueCode").orElse("")).map(this::parseUserIdentifier).orElse(null)
+        );
+        user.setEmail(
+            parse(request.header("mail").orElse(""))
+                .flatMap(this::validateEmail)
+                .orElseThrow(() -> new AddressException("invalid mail address"))
+        );
 
-        user.setLastName(parse(request.header("sn").orElse(""))
-                .orElseThrow(IllegalArgumentException::new));
+        user.setLastName(parse(request.header("sn").orElse("")).orElseThrow(IllegalArgumentException::new));
         user.setFirstName(parseGivenName(request));
         user.setEmployeeNumber(parse(request.header("employeeNumber").orElse("")).orElse(null));
         user.setLogoutUrl(parse(request.header("logouturl").orElse("")).orElse(null));
     }
 
-    private User createNewUser(String eppn, Http.Request request, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
+    private User createNewUser(String eppn, Http.Request request, boolean ignoreRoleNotFound)
+        throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request.header("unscoped-affiliation").orElse(""))
-                .orElseThrow(() -> new NotFoundException("role not found")), ignoreRoleNotFound));
-        user.setLanguage(getLanguage(parse(request.header("preferredLanguage").orElse(""))
-                .orElse(null)));
+        user
+            .getRoles()
+            .addAll(
+                parseRoles(
+                    parse(request.header("unscoped-affiliation").orElse(""))
+                        .orElseThrow(() -> new NotFoundException("role not found")),
+                    ignoreRoleNotFound
+                )
+            );
+        user.setLanguage(getLanguage(parse(request.header("preferredLanguage").orElse("")).orElse(null)));
         user.setEppn(eppn);
         updateUser(user, request);
         return user;
     }
 
-    private Result createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
-        Session session = new Session();
-        session.setSince(DateTime.now());
-        session.setUserId(user.getId());
-        session.setValid(true);
+    private CompletionStage<Result> createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
+        payload.put("id", user.getId().toString());
+        payload.put("email", user.getEmail());
+        if (!user.getPermissions().isEmpty()) {
+            // For now we support just a single permission
+            payload.put("permissions", user.getPermissions().get(0).getValue());
+        }
         // If (regular) user has just one role, set it as the one used for login
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
-            session.setLoginRole(user.getRoles().get(0).getName());
+            payload.put("role", user.getRoles().get(0).getName());
         }
-        List<Role> roles = isTemporaryVisitor ?
-                Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() :
-                user.getRoles();
+        List<Role> roles = isTemporaryVisitor
+            ? Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
+            : user.getRoles();
         if (isTemporaryVisitor) {
-            session.setTemporalStudent(true);
-            session.setLoginRole(roles.get(0).getName()); // forced login as student
+            payload.put("visitingStudent", "true");
+            payload.put("role", roles.get(0).getName()); // forced login as student
         }
-        String token = createSession(session, request);
-
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
-        result.put("token", token);
         result.put("firstName", user.getFirstName());
         result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
@@ -352,7 +399,7 @@ public class SessionController extends BaseController {
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         result.put("email", user.getEmail());
-        return ok(result);
+        return checkStudentSession(request, new Http.Session(payload), ok(result));
     }
 
     // prints HAKA attributes, used for debugging
@@ -361,7 +408,7 @@ public class SessionController extends BaseController {
         Http.Headers attributes = request.getHeaders();
         ObjectNode node = Json.newObject();
 
-        for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
+        for (Map.Entry<String, List<String>> entry : attributes.asMap().entrySet()) {
             node.put(entry.getKey(), String.join(", ", entry.getValue()));
         }
 
@@ -386,99 +433,106 @@ public class SessionController extends BaseController {
 
     @ActionMethod
     public Result logout(Http.Request request) {
-        Result result = ok();
-        Optional<Session> os = getSession(request);
-        if (os.isPresent()) {
-            Session session = os.get();
-            User user = Ebean.find(User.class, session.getUserId());
-            session.setValid(false);
-            updateSession(session, request);
-            logger.info("Set session for user #{} as invalid", session.getUserId());
+        Map<String, String> session = request.session().data();
+        if (!session.isEmpty()) {
+            Long userId = Long.parseLong(session.get("id"));
+            User user = Ebean.find(User.class, userId);
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                result = ok(Json.toJson(node));
+                return ok(Json.toJson(node)).withNewSession();
             }
         }
-        return result.discardingCookie(CSRF_COOKIE);
+        Result result = ok().withNewSession();
+        return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
     }
 
     @SubjectPresent
-    public Result setLoginRole(Long uid, String roleName, Http.Request request) {
-        Optional<Session> os = getSession(request);
-        if (!os.isPresent()) {
-            return unauthorized();
+    public CompletionStage<Result> setLoginRole(String roleName, Http.Request request) {
+        Http.Session session = request.session();
+        if (session.get("id").isEmpty()) {
+            return wrapAsPromise(unauthorized());
         }
-        User user = Ebean.find(User.class, uid);
+        User user = Ebean.find(User.class, Long.parseLong(session.get("id").get()));
         if (user == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
         if (role == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         if (!user.getRoles().contains(role)) {
-            return forbidden();
+            return wrapAsPromise(forbidden());
         }
-        Session session = os.get();
-        session.setLoginRole(roleName);
-        updateSession(session, request);
-        return ok();
+        return checkStudentSession(request, session.adding("role", roleName), ok());
     }
 
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result extendSession(Http.Request request) {
-        Optional<Session> os = getSession(request);
-        if (!os.isPresent()) {
-            return unauthorized();
-        }
-        Session session = os.get();
-        session.setSince(DateTime.now());
-        updateSession(session, request);
-        return ok();
+        return ok().withSession(request.session().adding("since", ISODateTimeFormat.dateTime().print(DateTime.now())));
     }
 
     @ActionMethod
-    public Result checkSession(Http.Request request) {
-        Optional<Session> os = getSession(request);
-        if (!os.isPresent() || os.get().getSince() == null) {
+    public CompletionStage<Result> checkSession(Http.Request request) {
+        Http.Session session = request.session();
+        if (session.get("since").isEmpty()) {
             logger.info("Session not found");
-            return ok("no_session");
+            return wrapAsPromise(ok("no_session"));
         }
-        DateTime expirationTime = os.get().getSince().plusMinutes(SESSION_TIMEOUT_MINUTES);
+        DateTime expirationTime = ISODateTimeFormat
+            .dateTimeParser()
+            .parseDateTime(session.get("since").get())
+            .plusMinutes(SESSION_TIMEOUT_MINUTES);
         DateTime alarmTime = expirationTime.minusMinutes(2);
         logger.debug("Session expiration due at {}", expirationTime);
         if (expirationTime.isBeforeNow()) {
             logger.info("Session has expired");
-            return ok("no_session");
-        } else if (alarmTime.isBeforeNow()) {
-            return ok("alarm");
+            return wrapAsPromise(ok("no_session").withNewSession());
         }
-        return ok();
+        String reason = alarmTime.isBeforeNow() ? "alarm" : "";
+        // check for upcoming student reservations
+        return checkStudentSession(request, session, ok(reason));
     }
 
-    private Optional<Session> getSession(Http.Request request) {
-        return sessionHandler.getSession(request);
+    private CompletionStage<Result> checkStudentSession(Http.Request request, Http.Session session, Result result) {
+        if (isStudent(session) && session.get("id").isPresent()) {
+            return enrolmentRepository
+                .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
+                .thenApplyAsync(
+                    headers -> {
+                        Http.Session newSession = updateSession(session, headers);
+                        return result.withSession(newSession);
+                    },
+                    ec.current()
+                );
+        } else {
+            return wrapAsPromise(result.withSession(session));
+        }
     }
 
-    private void updateSession(Session session, Http.Request request) {
-        sessionHandler.updateSession(request, session);
+    private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
+        Map<String, String> payload = new HashMap<>(session.data());
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> headers.containsKey(e.getKey()))
+            .forEach(e -> payload.put(e.getValue(), headers.get(e.getKey())));
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> !headers.containsKey(e.getKey()))
+            .forEach(e -> payload.remove(e.getValue()));
+        return new Http.Session(payload);
     }
 
-    private String createSession(Session session, Http.Request request) {
-        return sessionHandler.createSession(request, session);
+    private boolean isStudent(Http.Session session) {
+        return (session.get("role").isPresent() && Role.Name.STUDENT.toString().equals(session.get("role").get()));
     }
 
     private static Optional<String> parse(String src) {
         if (src == null || src.isEmpty()) {
             return Optional.empty();
         }
-        try {
-            return Optional.of(URLDecoder.decode(src, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return Optional.of(URLDecoder.decode(src, StandardCharsets.UTF_8));
     }
-
 }

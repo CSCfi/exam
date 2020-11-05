@@ -15,7 +15,7 @@ export interface GradeEvaluation {
 
 export interface AutoEvaluationConfig {
     id: number;
-    releaseDate: VarDate | null;
+    releaseDate: string | number | null;
     amountDays: number | null;
     releaseType: { name: string };
     gradeEvaluations: GradeEvaluation[];
@@ -60,7 +60,7 @@ export interface Attachment {
 }
 
 export interface Tag {
-    id: number;
+    id?: number;
     name: string;
 }
 
@@ -70,6 +70,7 @@ export interface Question {
     type: string;
     attachment: Attachment;
     tags: Tag[];
+    defaultEvaluationCriteria?: string;
 }
 
 export interface ReverseExamSection extends ExamSection {
@@ -122,8 +123,8 @@ export interface CollaborativeExam {
     state: CollaborativeExamState;
     examOwners: User[];
     executionType: ExamExecutionType;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
 }
 
 export interface Participation {
@@ -140,18 +141,21 @@ export interface ExaminationEvent {
 
 export interface ExaminationEventConfiguration {
     id?: number;
-    settingsPassword: string;
+    settingsPassword?: string;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
 
+export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
+
 export interface ExamImpl {
     id: number;
+    created: Date;
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
     duration: number;
     course: Course | null;
     external: boolean;
@@ -184,7 +188,7 @@ export interface ExamImpl {
     customCredit: number;
     additionalInfo: string;
     examInspections: { user: User; ready: boolean }[];
-    requiresUserAgentAuth: boolean;
+    implementation: Implementation;
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
 }
@@ -197,6 +201,7 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    externalExam?: { started: Date };
     duration: number;
 }
 

@@ -15,6 +15,9 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,16 +26,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.joda.time.Interval;
-
-import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 public class ExamMachine extends GeneratedIdentityModel {
-
     private String name;
 
     private String otherIdentifier;
@@ -205,8 +202,7 @@ public class ExamMachine extends GeneratedIdentityModel {
 
     @Transient
     public boolean isReservedDuring(Interval interval) {
-        return reservations.stream()
-                .anyMatch(r -> interval.overlaps(r.toInterval()));
+        return reservations.stream().anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
     @Override

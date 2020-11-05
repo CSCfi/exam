@@ -17,9 +17,8 @@ import toast from 'toastr';
 const moment = require('moment');
 
 angular.module('app.enrolment').service('WrongLocation', [
-    '$timeout',
     '$translate',
-    function($timeout, $translate) {
+    function($translate) {
         const self = this;
 
         self.display = function(data) {
@@ -89,9 +88,6 @@ angular.module('app.enrolment').service('WrongLocation', [
             };
             const startsAt = moment(startsAtTxt);
             const now = moment();
-            if (now.isDST()) {
-                startsAt.add(-1, 'hour');
-            }
             if (startsAt.isAfter(now)) {
                 toast.warning(
                     `${$translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,

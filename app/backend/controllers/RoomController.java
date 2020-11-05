@@ -15,36 +15,7 @@
 
 package backend.controllers;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.beans.BeanUtils;
-import play.Logger;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-import scala.concurrent.duration.Duration;
-
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalFacilityAPI;
 import backend.models.Accessibility;
@@ -60,9 +31,35 @@ import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.beans.BeanUtils;
+import play.Logger;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
 public class RoomController extends BaseController {
-
     private final boolean examVisitActivated;
     private final String defaultTimeZoneId;
     private ExternalFacilityAPI externalApi;
@@ -79,9 +76,10 @@ public class RoomController extends BaseController {
 
     private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
         if (room.getExternalRef() != null && examVisitActivated) {
-            return externalApi.updateFacility(room)
-                    .thenApplyAsync(x -> ok("updated"))
-                    .exceptionally(throwable -> internalServerError(throwable.getMessage()));
+            return externalApi
+                .updateFacility(room)
+                .thenApplyAsync(x -> ok("updated"))
+                .exceptionally(throwable -> internalServerError(throwable.getMessage()));
         } else {
             return wrapAsPromise(ok());
         }
@@ -90,25 +88,32 @@ public class RoomController extends BaseController {
     private void asyncUpdateRemote(ExamRoom room) {
         // Handle remote updates in dedicated threads
         if (room.getExternalRef() != null && examVisitActivated) {
-            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                try {
-                    externalApi.updateFacility(room);
-                } catch (MalformedURLException e) {
-                    logger.error("Remote update of exam room #{} failed", room.getExternalRef());
-                }
-            }, system.dispatcher());
+            system
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        try {
+                            externalApi.updateFacility(room);
+                        } catch (MalformedURLException e) {
+                            logger.error("Remote update of exam room #{} failed", room.getExternalRef());
+                        }
+                    },
+                    system.dispatcher()
+                );
         }
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result getExamRooms(Http.Request request) {
-        ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class)
-                .fetch("accessibilities")
-                .fetch("examMachines")
-                .fetch("defaultWorkingHours")
-                .fetch("calendarExceptionEvents")
-                .where();
+        ExpressionList<ExamRoom> query = Ebean
+            .find(ExamRoom.class)
+            .fetch("accessibilities")
+            .fetch("examMachines")
+            .fetch("defaultWorkingHours")
+            .fetch("calendarExceptionEvents")
+            .where();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN)) {
             query = query.ne("state", ExamRoom.State.INACTIVE.toString());
@@ -118,7 +123,8 @@ public class RoomController extends BaseController {
             room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
         PathProperties props = PathProperties.parse(
-                "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))");
+            "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))"
+        );
         return ok(rooms, props);
     }
 
@@ -129,11 +135,12 @@ public class RoomController extends BaseController {
             return notFound("room not found");
         }
         PathProperties props = PathProperties.parse(
-                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibilities(*), mailAddress(*), examStartingHours(*), examMachines(*))");
+            "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibilities(*), mailAddress(*), examStartingHours(*), examMachines(*))"
+        );
         return ok(examRoom, props);
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public Result createExamRoomDraft() {
         ExamRoom examRoom = new ExamRoom();
         examRoom.setState("SAVED");
@@ -143,9 +150,12 @@ public class RoomController extends BaseController {
         return ok(Json.toJson(examRoom));
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> updateExamRoom(Long id, Http.Request request) throws MalformedURLException {
-        ExamRoom room = formFactory.form(ExamRoom.class).bindFromRequest(request,
+        ExamRoom room = formFactory
+            .form(ExamRoom.class)
+            .bindFromRequest(
+                request,
                 "name",
                 "roomCode",
                 "buildingName",
@@ -161,7 +171,9 @@ public class RoomController extends BaseController {
                 "statusComment",
                 "outOfService",
                 "state",
-                "expanded").get();
+                "expanded"
+            )
+            .get();
         ExamRoom existing = Ebean.find(ExamRoom.class, id);
         if (existing == null) {
             return wrapAsPromise(notFound());
@@ -186,15 +198,14 @@ public class RoomController extends BaseController {
         return updateRemote(existing);
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> updateExamRoomAddress(Long id, Http.Request request) throws MalformedURLException {
         MailAddress address = bindForm(MailAddress.class, request);
         MailAddress existing = Ebean.find(MailAddress.class, id);
         if (existing == null) {
             return wrapAsPromise(notFound());
         }
-        Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing)
-                .findOneOrEmpty();
+        Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing).findOneOrEmpty();
         if (room.isEmpty()) {
             return wrapAsPromise(notFound());
         }
@@ -224,7 +235,7 @@ public class RoomController extends BaseController {
         return result;
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public Result updateExamRoomWorkingHours(Http.Request request) {
         JsonNode root = request.body().asJson();
         List<Long> roomIds = new ArrayList<>();
@@ -254,9 +265,8 @@ public class RoomController extends BaseController {
         return ok();
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public Result updateExamStartingHours(Http.Request request) {
-
         JsonNode root = request.body().asJson();
         List<Long> roomIds = new ArrayList<>();
         for (JsonNode roomId : root.get("roomIds")) {
@@ -266,12 +276,14 @@ public class RoomController extends BaseController {
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
 
         for (ExamRoom examRoom : rooms) {
-
             if (examRoom == null) {
                 return notFound();
             }
-            List<ExamStartingHour> previous = Ebean.find(ExamStartingHour.class)
-                    .where().eq("room.id", examRoom.getId()).findList();
+            List<ExamStartingHour> previous = Ebean
+                .find(ExamStartingHour.class)
+                .where()
+                .eq("room.id", examRoom.getId())
+                .findList();
             Ebean.deleteAll(previous);
 
             JsonNode node = request.body().asJson();
@@ -291,9 +303,8 @@ public class RoomController extends BaseController {
         return ok();
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public Result addRoomExceptionHour(Http.Request request) {
-
         final JsonNode exception = request.body().asJson().get("exception");
         final JsonNode ids = request.body().asJson().get("roomIds");
 
@@ -303,9 +314,10 @@ public class RoomController extends BaseController {
         DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("startDate").asText());
         DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("endDate").asText());
 
-        List<Long> roomIds = StreamSupport.stream(ids.spliterator(), false)
-                .map(JsonNode::asLong)
-                .collect(Collectors.toList());
+        List<Long> roomIds = StreamSupport
+            .stream(ids.spliterator(), false)
+            .map(JsonNode::asLong)
+            .collect(Collectors.toList());
 
         ExceptionWorkingHours hours = null;
 
@@ -333,7 +345,7 @@ public class RoomController extends BaseController {
         return ok(Json.toJson(hours));
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public Result updateExamRoomAccessibility(Long id, Http.Request request) {
         JsonNode json = request.body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
@@ -362,7 +374,7 @@ public class RoomController extends BaseController {
         return ok();
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> removeRoomExceptionHour(Long roomId, Long exceptionId) throws MalformedURLException {
         ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, exceptionId);
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
@@ -374,9 +386,8 @@ public class RoomController extends BaseController {
         return updateRemote(room);
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> inactivateExamRoom(Long id) throws MalformedURLException {
-
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
             return wrapAsPromise(notFound());
@@ -385,16 +396,14 @@ public class RoomController extends BaseController {
         room.update();
 
         if (room.getExternalRef() != null && examVisitActivated) {
-            return externalApi.inactivateFacility(room.getId())
-                    .thenApplyAsync(response -> ok(Json.toJson(room)));
+            return externalApi.inactivateFacility(room.getId()).thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {
             return wrapAsPromise(ok(Json.toJson(room)));
         }
     }
 
-    @Restrict(@Group({"ADMIN"}))
+    @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> activateExamRoom(Long id) throws MalformedURLException {
-
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
             return wrapAsPromise(notFound());
@@ -403,12 +412,9 @@ public class RoomController extends BaseController {
         room.update();
 
         if (room.getExternalRef() != null && examVisitActivated) {
-            return externalApi.activateFacility(room.getId())
-                    .thenApplyAsync(response -> ok(Json.toJson(room)));
+            return externalApi.activateFacility(room.getId()).thenApplyAsync(response -> ok(Json.toJson(room)));
         } else {
             return wrapAsPromise(ok(Json.toJson(room)));
         }
     }
 }
-
-

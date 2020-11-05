@@ -120,6 +120,23 @@ function QuestionService(
         return data;
     };
 
+    this.getQuestionAmountsBySection = section => {
+        const data = { accepted: 0, rejected: 0 };
+        angular.forEach(section.sectionQuestions, sectionQuestion => {
+            const question = sectionQuestion.question;
+            if (question.type === 'EssayQuestion') {
+                if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
+                    if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
+                        data.accepted++;
+                    } else if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 0) {
+                        data.rejected++;
+                    }
+                }
+            }
+        });
+        return data;
+    };
+
     // For weighted mcq
     this.calculateDefaultMaxPoints = question =>
         question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
@@ -136,7 +153,9 @@ function QuestionService(
     this.getMinimumOptionScore = sectionQuestion => {
         const optionScores = sectionQuestion.options.map(o => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
-        return Math.min(...scores);
+        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
+            ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
+            : Math.min(...scores);
     };
 
     this.getCorrectClaimChoiceOptionDefaultScore = sectionQuestion => {
@@ -284,15 +303,6 @@ function QuestionService(
             $sessionStorage.questionFilters = {};
         }
         $sessionStorage.questionFilters[category] = JSON.stringify(data);
-    };
-
-    this.range = (min, max, step) => {
-        step |= 1;
-        const input = [];
-        for (let i = min; i <= max; i += step) {
-            input.push(i);
-        }
-        return input;
     };
 
     const getQuestionData = question => {

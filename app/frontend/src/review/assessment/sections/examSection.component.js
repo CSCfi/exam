@@ -28,18 +28,23 @@ angular.module('app.review').component('rExamSection', {
     },
     controller: [
         '$sce',
+        '$translate',
         'Attachment',
-        function($sce, Attachment) {
+        'Exam',
+        'Question',
+        function($sce, $translate, Attachment, Exam, Question) {
             const vm = this;
 
             vm.$onInit = function() {
                 vm.exam = vm.parentCtrl.exam;
                 vm.participation = vm.parentCtrl.participation;
                 vm.collaborative = vm.parentCtrl.collaborative;
+                vm.selectionEvaluatedAmounts = vm.getSectionQuestionAmounts();
             };
 
             vm.scoreSet = function(revision) {
                 vm.onScore({ revision: revision });
+                vm.selectionEvaluatedAmounts = vm.getSectionQuestionAmounts();
             };
 
             vm.displayQuestionText = function() {
@@ -58,6 +63,18 @@ angular.module('app.review').component('rExamSection', {
                     ' / ' +
                     max
                 );
+            };
+
+            vm.getSectionMaxScore = function() {
+                return Exam.getSectionMaxScore(vm.section);
+            };
+
+            vm.getSectionTotalScore = function() {
+                return Exam.getSectionTotalScore(vm.section);
+            };
+
+            vm.getSectionQuestionAmounts = function() {
+                return Question.getQuestionAmountsBySection(vm.section);
             };
         },
     ],

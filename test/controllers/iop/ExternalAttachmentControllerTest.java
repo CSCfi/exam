@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -16,31 +16,29 @@
 
 package controllers.iop;
 
-import java.io.IOException;
-import java.util.Arrays;
-import javax.validation.constraints.NotNull;
+import static org.fest.assertions.Assertions.assertThat;
 
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.json.ExternalExam;
+import backend.models.questions.EssayAnswer;
+import backend.models.sections.ExamSectionQuestion;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.validation.constraints.NotNull;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.json.ExternalExam;
-import backend.models.questions.EssayAnswer;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmentControllerTest<ExternalExam> {
 
@@ -66,8 +64,7 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
     @Test
     @RunAsTeacher
     public void testDownloadQuestionAttachmentAsTeacher() throws IOException {
-        String url = String.format("/app/iop/attachment/exam/%s/question/%d",
-                EXAM_HASH, examSectionQuestion.getId());
+        String url = String.format("/app/iop/attachment/exam/%s/question/%d", EXAM_HASH, examSectionQuestion.getId());
         Result result = request(Helpers.GET, url, null);
         assertThat(result.status()).isEqualTo(200);
         assertLastCall(Helpers.GET);
@@ -80,21 +77,32 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         externalExam.setCreator(getLoggerUser());
         externalExam.save();
 
-        final Http.RequestBuilder requestBuilder =
-                getRequestBuilder(Helpers.POST, "/app/iop/attachment/question/answer");
+        final Http.RequestBuilder requestBuilder = getRequestBuilder(
+            Helpers.POST,
+            "/app/iop/attachment/question/answer"
+        );
 
         Materializer mat = app.injector().instanceOf(Materializer.class);
 
         Http.MultipartFormData.DataPart examId = new Http.MultipartFormData.DataPart("examId", EXAM_HASH);
-        Http.MultipartFormData.DataPart questionId =
-                new Http.MultipartFormData.DataPart("questionId", examSectionQuestion.getId().toString());
+        Http.MultipartFormData.DataPart questionId = new Http.MultipartFormData.DataPart(
+            "questionId",
+            examSectionQuestion.getId().toString()
+        );
 
         Source<ByteString, ?> src = FileIO.fromPath(testImage.toPath());
-        Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
-                new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
+        Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp = new Http.MultipartFormData.FilePart<>(
+            "file",
+            "test_image.png",
+            "image/png",
+            src
+        );
 
-        requestBuilder.bodyRaw(Arrays.asList(examId, questionId, fp),
-                new play.libs.Files.SingletonTemporaryFileCreator(), mat);
+        requestBuilder.bodyRaw(
+            Arrays.asList(examId, questionId, fp),
+            new play.libs.Files.SingletonTemporaryFileCreator(),
+            mat
+        );
         Result result = Helpers.route(app, requestBuilder);
         assertThat(result.status()).isEqualTo(201);
         assertLastCall(Helpers.POST);
@@ -119,13 +127,16 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         externalExam.save();
 
         final EssayAnswer essayAnswer = examSectionQuestion.getEssayAnswer();
-        final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
+        final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         attachment.setExternalId("abcdefg12345");
         essayAnswer.setAttachment(attachment);
         externalExam.serialize(exam);
 
-        final String s = String.format("/app/iop/attachment/question/%d/answer/%s", examSectionQuestion.getId(), EXAM_HASH);
+        final String s = String.format(
+            "/app/iop/attachment/question/%d/answer/%s",
+            examSectionQuestion.getId(),
+            EXAM_HASH
+        );
         final Result result = request(Helpers.DELETE, s, null);
         assertThat(result.status()).isEqualTo(200);
         assertLastCall(Helpers.DELETE);

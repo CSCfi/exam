@@ -2,10 +2,8 @@
   "compilerOptions": {
     "target": "ES5",
     "lib": [
-      "es6",
-      "dom",
-      "dom.iterable",
-      "scripthost"
+      "DOM",
+      "ESNext",
     ],
     "module": "CommonJS",
     "noImplicitAny": false,

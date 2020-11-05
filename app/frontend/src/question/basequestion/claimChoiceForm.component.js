@@ -80,8 +80,8 @@ angular.module('app.question').component('claimChoiceForm', {
                 </div>
                 <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
                     <div class="claim-choice-warning" ng-if="$ctrl.missingOptions.length > 0">
-                        <i class="fa fa-exclamation-triangle" style="color:#ED4459;"></i>
-                        <span style="color:#ED4459;">
+                        <i class="fa fa-exclamation-triangle" style="color:#E8172F;"></i>
+                        <span style="color:#E8172F;">
                             {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
                             <span ng-repeat="opt in $ctrl.missingOptions">
                                 {{ opt | translate }}{{ $last ? '' : ',' }}

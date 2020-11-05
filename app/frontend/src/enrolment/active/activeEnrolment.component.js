@@ -27,7 +27,8 @@ angular.module('app.enrolment').component('activeEnrolment', {
         'dialogs',
         'Enrolment',
         'Reservation',
-        function($translate, $state, dialogs, Enrolment, Reservation) {
+        'Files',
+        function($translate, $state, dialogs, Enrolment, Reservation, Files) {
             const vm = this;
 
             vm.removeReservation = function() {
@@ -39,7 +40,7 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.makeReservation = () => {
-                if (vm.enrolment.exam.requiresUserAgentAuth) {
+                if (vm.enrolment.exam && vm.enrolment.exam.implementation !== 'AQUARIUM') {
                     Enrolment.selectExaminationEvent(vm.enrolment.exam, vm.enrolment);
                 } else {
                     vm.goToCalendar();
@@ -47,11 +48,12 @@ angular.module('app.enrolment').component('activeEnrolment', {
             };
 
             vm.hasUpcomingAlternativeEvents = () =>
+                vm.enrolment.exam &&
                 vm.enrolment.exam.examinationEventConfigurations.some(
                     eec =>
-                        eec.examinationEvent.start > new Date() &&
-                        (!this.enrolment.examinationEventConfiguration ||
-                            eec.id !== this.enrolment.examinationEventConfiguration.id),
+                        new Date(eec.examinationEvent.start) > new Date() &&
+                        (!vm.enrolment.examinationEventConfiguration ||
+                            eec.id !== vm.enrolment.examinationEventConfiguration.id),
                 );
 
             vm.removeEnrolment = function() {
@@ -94,6 +96,12 @@ angular.module('app.enrolment').component('activeEnrolment', {
             vm.goToCalendar = function() {
                 $state.go(vm.getNextState(), { id: vm.getNextStateParams() });
             };
+
+            vm.downloadSebFile = () =>
+                Files.download(
+                    `/app/student/enrolments/${vm.enrolment.id}/configFile`,
+                    vm.enrolment.exam.name.replace(' ', '-') + '.seb',
+                );
         },
     ],
 });

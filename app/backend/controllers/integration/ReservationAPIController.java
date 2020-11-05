@@ -15,52 +15,53 @@
 
 package backend.controllers.integration;
 
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-
 public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
-        PathProperties pp = PathProperties.parse("(startAt, endAt, externalUserRef, noShow, " +
-                "user(firstName, lastName, email, userIdentifier), " +
-                "enrolment( " +
-                "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
-                                "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
-                "collaborativeExam(name)" +
-                "), " +
-                "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
+        PathProperties pp = PathProperties.parse(
+            "(startAt, endAt, externalUserRef, noShow, " +
+            "user(firstName, lastName, email, userIdentifier), " +
+            "enrolment( " +
+            "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
+            "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
+            "collaborativeExam(name)" +
+            "), " +
+            "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
+        );
         Query<Reservation> query = Ebean.find(Reservation.class);
         pp.apply(query);
-        ExpressionList<Reservation> el = query.where()
-                .or()// *
-                .and() // **
-                .isNotNull("enrolment")
-                .or() // ***
-                .isNotNull("enrolment.collaborativeExam")
-                .ne("enrolment.exam.state", Exam.State.DELETED)
-                .endOr() // ***
-                .endAnd() // **
-                .isNotNull("externalUserRef")
-                .endOr(); // *
+        ExpressionList<Reservation> el = query
+            .where()
+            .or() // *
+            .and() // **
+            .isNotNull("enrolment")
+            .or() // ***
+            .isNotNull("enrolment.collaborativeExam")
+            .ne("enrolment.exam.state", Exam.State.DELETED)
+            .endOr() // ***
+            .endAnd() // **
+            .isNotNull("externalUserRef")
+            .endOr(); // *
 
         if (start.isPresent()) {
             DateTime startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(start.get());
@@ -74,7 +75,18 @@ public class ReservationAPIController extends BaseController {
         if (roomId.isPresent()) {
             el = el.eq("machine.room.id", roomId.get());
         }
-        Set<Reservation> reservations = el.orderBy("startAt").findSet();
+        List<Reservation> reservations = el
+            .findSet()
+            .stream()
+            .peek(
+                r -> {
+                    r.setStartAt(DateTimeUtils.adjustDST(r.getStartAt()));
+                    r.setEndAt(DateTimeUtils.adjustDST(r.getEndAt()));
+                }
+            )
+            .sorted(Comparator.comparing(Reservation::getStartAt))
+            .collect(Collectors.toList());
+
         return ok(reservations, pp);
     }
 
@@ -89,7 +101,7 @@ public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getRoomOpeningHours(Long roomId, Optional<String> date) {
-        if (!date.isPresent()) {
+        if (date.isEmpty()) {
             return badRequest("no search date given");
         }
         LocalDate searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date.get());
@@ -100,13 +112,19 @@ public class ReservationAPIController extends BaseController {
         if (room == null) {
             return notFound("room not found");
         }
-        room.setCalendarExceptionEvents(room.getCalendarExceptionEvents().stream().filter(ee -> {
-            LocalDate start = new LocalDate(ee.getStartDate()).withDayOfMonth(1);
-            LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
-            return !start.isAfter(searchDate) && !end.isBefore(searchDate);
-
-        }).collect(Collectors.toList()));
+        room.setCalendarExceptionEvents(
+            room
+                .getCalendarExceptionEvents()
+                .stream()
+                .filter(
+                    ee -> {
+                        LocalDate start = new LocalDate(ee.getStartDate()).withDayOfMonth(1);
+                        LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
+                        return !start.isAfter(searchDate) && !end.isBefore(searchDate);
+                    }
+                )
+                .collect(Collectors.toList())
+        );
         return ok(room, pp);
     }
-
 }

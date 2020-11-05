@@ -15,28 +15,26 @@
 
 package backend.controllers.integration;
 
-
+import backend.controllers.base.BaseController;
+import backend.models.ExamRecord;
+import backend.models.dto.ExamScore;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
-import backend.models.ExamRecord;
-import backend.models.dto.ExamScore;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class ExamRecordAPIController extends BaseController {
-
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
+
     static {
         SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
@@ -58,11 +56,12 @@ public class ExamRecordAPIController extends BaseController {
 
     private static List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .fetch("examScore")
-                .where()
-                .gt("timeStamp", start.toDate())
-                .findList();
+        List<ExamRecord> examRecords = Ebean
+            .find(ExamRecord.class)
+            .fetch("examScore")
+            .where()
+            .gt("timeStamp", start.toDate())
+            .findList();
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
@@ -70,5 +69,4 @@ public class ExamRecordAPIController extends BaseController {
         Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
         return SORTED_MAPPER.writeValueAsString(obj);
     }
-
 }

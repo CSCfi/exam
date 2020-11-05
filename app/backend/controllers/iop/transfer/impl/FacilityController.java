@@ -15,15 +15,9 @@
 
 package backend.controllers.iop.transfer.impl;
 
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import javax.inject.Inject;
-
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalFacilityAPI;
+import backend.models.ExamRoom;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,6 +25,13 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -38,12 +39,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalFacilityAPI;
-import backend.models.ExamRoom;
-
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
-
     @Inject
     private WSClient wsClient;
 
@@ -58,28 +54,31 @@ public class FacilityController extends BaseController implements ExternalFacili
     }
 
     private static URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") +
-                String.format("/api/organisations/%s/facilities", orgRef));
+        return new URL(
+            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            String.format("/api/organisations/%s/facilities", orgRef)
+        );
     }
 
     private String toJson(ExamRoom room) {
         PathProperties pp = PathProperties.parse(
-                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
-                        "examStartingHours(*), accessibilities(*))");
+            "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
+            "examStartingHours(*), accessibilities(*))"
+        );
         return Ebean.json().toJson(room, pp);
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
+            return CompletableFuture.completedFuture(Results.notFound());
         }
         URL url = parseUrl(room.getExternalRef());
         WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
         if (room.getExternalRef() == null && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
             // Add new
-            Function<WSResponse, Result>  onSuccess = response -> {
+            Function<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
                 if (response.getStatus() != 201) {
                     return internalServerError(root.get("message").asText("Connection refused"));
@@ -90,9 +89,9 @@ public class FacilityController extends BaseController implements ExternalFacili
                 return ok(Json.newObject().put("externalRef", externalRef));
             };
             return request.post(toJson(room)).thenApplyAsync(onSuccess);
-        } else if (room.getExternalRef() != null){
+        } else if (room.getExternalRef() != null) {
             // Remove
-            Function<WSResponse, Result>  onSuccess = response -> {
+            Function<WSResponse, Result> onSuccess = response -> {
                 int status = response.getStatus();
                 if (status == 404 || status == 200) {
                     // 404 would mean that facility does not exist remotely, remove its reference here also
@@ -101,23 +100,24 @@ public class FacilityController extends BaseController implements ExternalFacili
                 } else {
                     return internalServerError("Connection refused");
                 }
-                return ok(Json.newObject().set("externalRef", NullNode.getInstance()));
+                JsonNode ref = Json.newObject().set("externalRef", NullNode.getInstance());
+                return ok(ref);
             };
             return request.delete().thenApplyAsync(onSuccess);
         } else {
             // Tried to add an inactive facility
-            return CompletableFuture.supplyAsync(Results::badRequest);
+            return CompletableFuture.completedFuture(Results.badRequest());
         }
     }
 
-    @Restrict({@Group("STUDENT")})
+    @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> listFacilities(Optional<String> organisation) throws MalformedURLException {
         if (!organisation.isPresent()) {
             return wrapAsPromise(badRequest());
         }
         URL url = parseExternalUrl(organisation.get());
         WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, Result>  onSuccess = response -> {
+        Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != 200) {
                 return internalServerError(root.get("message").asText("Connection refused"));
@@ -125,7 +125,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             return ok(root);
         };
         return request.get().thenApplyAsync(onSuccess);
-    };
+    }
 
     @Override
     public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {
@@ -143,5 +143,4 @@ public class FacilityController extends BaseController implements ExternalFacili
     public CompletionStage<Result> inactivateFacility(Long roomId) throws MalformedURLException {
         return updateFacility(roomId);
     }
-
 }

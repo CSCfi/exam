@@ -15,29 +15,7 @@
 
 package backend.controllers;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.FetchConfig;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
 import backend.impl.ExamUpdater;
@@ -59,10 +37,28 @@ import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
 import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
 
 public class ExamController extends BaseController {
-
     protected final EmailComposer emailComposer;
 
     protected final ActorSystem actor;
@@ -74,8 +70,13 @@ public class ExamController extends BaseController {
     private final ByodConfigHandler byodConfigHandler;
 
     @Inject
-    public ExamController(EmailComposer emailComposer, ActorSystem actor, ExamUpdater examUpdater,
-                          ConfigReader configReader, ByodConfigHandler byodConfigHandler) {
+    public ExamController(
+        EmailComposer emailComposer,
+        ActorSystem actor,
+        ExamUpdater examUpdater,
+        ConfigReader configReader,
+        ByodConfigHandler byodConfigHandler
+    ) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.examUpdater = examUpdater;
@@ -84,20 +85,21 @@ public class ExamController extends BaseController {
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
-        return Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("creator")
-                .fetch("examOwners")
-                .fetch("examInspections.user")
-                .fetch("examSections")
-                .fetch("executionType")
-                .fetch("parent")
-                .where()
-                .disjunction()
-                .eq("state", Exam.State.PUBLISHED)
-                .eq("state", Exam.State.SAVED)
-                .eq("state", Exam.State.DRAFT)
-                .endJunction();
+        return Ebean
+            .find(Exam.class)
+            .fetch("course")
+            .fetch("creator")
+            .fetch("examOwners")
+            .fetch("examInspections.user")
+            .fetch("examSections")
+            .fetch("executionType")
+            .fetch("parent")
+            .where()
+            .disjunction()
+            .eq("state", Exam.State.PUBLISHED)
+            .eq("state", Exam.State.SAVED)
+            .eq("state", Exam.State.DRAFT)
+            .endJunction();
     }
 
     private List<Exam> getAllExams(String filter) {
@@ -106,24 +108,19 @@ public class ExamController extends BaseController {
             query = query.disjunction();
             query = applyUserFilter("examOwners", query, filter);
             String condition = String.format("%%%s%%", filter);
-            query = query
-                    .ilike("name", condition)
-                    .ilike("course.code", condition)
-                    .endJunction();
+            query = query.ilike("name", condition).ilike("course.code", condition).endJunction();
         }
         return query.findList();
     }
 
     private static List<Exam> getAllExamsOfTeacher(User user) {
-        return createPrototypeQuery()
-                .eq("examOwners", user)
-                .orderBy("created").findList();
+        return createPrototypeQuery().eq("examOwners", user).orderBy("created").findList();
     }
 
     // HELPER METHODS END
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams;
@@ -135,21 +132,29 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({ @Group("ADMIN") })
     public Result listPrintouts() {
-        List<Exam> printouts = Ebean.find(Exam.class).where()
-                .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
-                .eq("state", Exam.State.PUBLISHED)
-                .ge("examinationDates.date", LocalDate.now())
-                .findList();
-        PathProperties pp = PathProperties.parse("(id, name, course(code), examinationDates(date), examOwners(firstName, lastName))");
+        List<Exam> printouts = Ebean
+            .find(Exam.class)
+            .where()
+            .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
+            .eq("state", Exam.State.PUBLISHED)
+            .ge("examinationDates.date", LocalDate.now())
+            .findList();
+        PathProperties pp = PathProperties.parse(
+            "(id, name, course(code), examinationDates(date), examOwners(firstName, lastName))"
+        );
         return ok(printouts, pp);
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds,
-                            Optional<List<Long>> tagIds, Http.Request request) {
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result listExams(
+        Optional<List<Long>> courseIds,
+        Optional<List<Long>> sectionIds,
+        Optional<List<Long>> tagIds,
+        Http.Request request
+    ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
@@ -177,29 +182,32 @@ public class ExamController extends BaseController {
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams(Http.Request request) {
         // Get list of exams that user is assigned to inspect or is creator of
-        PathProperties props = PathProperties.parse("(*, course(id, code), " +
-                "children(id, state, examInspections(user(id, firstName, lastName))), " +
-                "examinationDates(*), " +
-                "examOwners(id, firstName, lastName), executionType(type), " +
-                "examInspections(id, user(id, firstName, lastName)), " +
-                "examEnrolments(id, user(id), reservation(id, endAt)))");
+        PathProperties props = PathProperties.parse(
+            "(*, course(id, code), " +
+            "children(id, state, examInspections(user(id, firstName, lastName))), " +
+            "examinationDates(*), " +
+            "examOwners(id, firstName, lastName), executionType(type), " +
+            "examInspections(id, user(id, firstName, lastName)), " +
+            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
+        );
         Query<Exam> query = Ebean.createQuery(Exam.class);
         props.apply(query);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams = query
-                .where()
-                .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
-                .disjunction()
-                .eq("examInspections.user", user)
-                .eq("examOwners", user)
-                .endJunction()
-                .isNull("parent")
-                .orderBy("created").findList();
+            .where()
+            .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
+            .disjunction()
+            .eq("examInspections.user", user)
+            .eq("examOwners", user)
+            .endJunction()
+            .isNull("parent")
+            .orderBy("created")
+            .findList();
         return ok(exams, props);
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result deleteExam(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
@@ -220,31 +228,37 @@ public class ExamController extends BaseController {
 
     private static Exam doGetExam(Long id) {
         return prototypeQuery()
-                .where()
-                .idEq(id)
-                .disjunction()
-                .eq("state", Exam.State.DRAFT)
-                .eq("state", Exam.State.SAVED)
-                .eq("state", Exam.State.PUBLISHED)
-                .endJunction()
-                .findOne();
+            .where()
+            .idEq(id)
+            .disjunction()
+            .eq("state", Exam.State.DRAFT)
+            .eq("state", Exam.State.SAVED)
+            .eq("state", Exam.State.PUBLISHED)
+            .endJunction()
+            .findOne();
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    @Anonymous(filteredProperties = {"user"})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Anonymous(filteredProperties = { "user" })
     public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
         // decipher the settings passwords if any
-        if (exam.getRequiresUserAgentAuth()) {
-            exam.getExaminationEventConfigurations().forEach(eec -> {
-                String plainTextPwd = byodConfigHandler.getPlaintextPassword(
-                            eec.getEncryptedSettingsPassword(), eec.getSettingsPasswordSalt());
-                eec.setSettingsPassword(plainTextPwd);
-            });
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
+            exam
+                .getExaminationEventConfigurations()
+                .forEach(
+                    eec -> {
+                        String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                            eec.getEncryptedSettingsPassword(),
+                            eec.getSettingsPasswordSalt()
+                        );
+                        eec.setSettingsPassword(plainTextPwd);
+                    }
+                );
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
@@ -254,55 +268,52 @@ public class ExamController extends BaseController {
         return forbidden("sitnet_error_access_forbidden");
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamTypes() {
         List<ExamType> types = Ebean.find(ExamType.class).where().ne("deprecated", true).findList();
         return ok(types);
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamGradeScales() {
         List<GradeScale> scales = Ebean.find(GradeScale.class).fetch("grades").findList();
         return ok(scales);
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamExecutionTypes() {
-        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class)
-                .where()
-                .ne("active", false)
-                .findList();
+        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).where().ne("active", false).findList();
         return ok(types);
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamPreview(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("executionType")
-                .fetch("examinationDates")
-                .fetch("examLanguages")
-                .fetch("examSections")
-                .fetch("examSections.examMaterials")
-                .fetch("examSections.sectionQuestions", new FetchConfig().query())
-                .fetch("examSections.sectionQuestions.question")
-                .fetch("examSections.sectionQuestions.question.attachment")
-                .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option")
-                .fetch("examSections.sectionQuestions.clozeTestAnswer")
-                .fetch("attachment")
-                .fetch("creator")
-                .fetch("examOwners")
-                .where()
-                .idEq(id)
-                .findOne();
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("course")
+            .fetch("executionType")
+            .fetch("examinationDates")
+            .fetch("examLanguages")
+            .fetch("examSections")
+            .fetch("examSections.examMaterials")
+            .fetch("examSections.sectionQuestions", new FetchConfig().query())
+            .fetch("examSections.sectionQuestions.question")
+            .fetch("examSections.sectionQuestions.question.attachment")
+            .fetch("examSections.sectionQuestions.options")
+            .fetch("examSections.sectionQuestions.options.option")
+            .fetch("examSections.sectionQuestions.clozeTestAnswer")
+            .fetch("attachment")
+            .fetch("creator")
+            .fetch("examOwners")
+            .where()
+            .idEq(id)
+            .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
-                user.hasRole(Role.Name.ADMIN)) {
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             examUpdater.preparePreview(exam);
             return ok(exam);
         }
@@ -331,7 +342,7 @@ public class ExamController extends BaseController {
 
     @Authenticated
     @With(ExamUpdateSanitizer.class)
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExam(Long id, Http.Request request) {
         Exam exam = prototypeQuery().where().idEq(id).findOne();
         if (exam == null) {
@@ -339,14 +350,18 @@ public class ExamController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
-            return examUpdater.updateTemporalFieldsAndValidate(exam, user, request)
-                    .orElseGet(() -> examUpdater.updateStateAndValidate(exam, user, request)
-                            .orElseGet(() -> handleExamUpdate(exam, user, request)));
+            return examUpdater
+                .updateTemporalFieldsAndValidate(exam, user, request)
+                .orElseGet(
+                    () ->
+                        examUpdater
+                            .updateStateAndValidate(exam, user, request)
+                            .orElseGet(() -> handleExamUpdate(exam, user, request))
+                );
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
     }
-
 
     private boolean didGradeChange(Exam exam, int grading) {
         boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
@@ -361,7 +376,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExamSoftware(Long eid, Long sid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -385,52 +400,55 @@ public class ExamController extends BaseController {
     }
 
     private static boolean softwareRequirementDoable(Exam exam) {
-        List<ExamMachine> machines = Ebean.find(ExamMachine.class)
-                .where()
-                .eq("archived", false)
-                .findList();
+        List<ExamMachine> machines = Ebean.find(ExamMachine.class).where().eq("archived", false).findList();
 
-        return machines.stream().anyMatch((m) -> m.getSoftwareInfo().containsAll(exam.getSoftwareInfo()));
+        return machines.stream().anyMatch(m -> m.getSoftwareInfo().containsAll(exam.getSoftwareInfo()));
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExamLanguage(Long eid, String code, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return examUpdater.updateLanguage(exam, code, user).orElseGet(() -> {
-            exam.update();
-            return ok();
-        });
+        return examUpdater
+            .updateLanguage(exam, code, user)
+            .orElseGet(
+                () -> {
+                    exam.update();
+                    return ok();
+                }
+            );
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result copyExam(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam prototype = Ebean.find(Exam.class) // TODO: check if all this fetching is necessary
-                .fetch("creator", "id")
-                .fetch("examType", "id, type")
-                .fetch("examSections", "id, name, sequenceNumber")
-                .fetch("examSections.sectionQuestions")
-                .fetch("examSections.sectionQuestions.question", "id, type, question")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option")
-                .fetch("examLanguages", "code")
-                .fetch("attachment", "fileName")
-                .fetch("examOwners", "firstName, lastName")
-                .fetch("examInspections.user", "firstName, lastName")
-                .where()
-                .idEq(id)
-                .findOne();
+        Exam prototype = Ebean
+            .find(Exam.class) // TODO: check if all this fetching is necessary
+            .fetch("creator", "id")
+            .fetch("examType", "id, type")
+            .fetch("examSections", "id, name, sequenceNumber")
+            .fetch("examSections.sectionQuestions")
+            .fetch("examSections.sectionQuestions.question", "id, type, question")
+            .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+            .fetch("examSections.sectionQuestions.options")
+            .fetch("examSections.sectionQuestions.options.option", "id, option")
+            .fetch("examLanguages", "code")
+            .fetch("attachment", "fileName")
+            .fetch("examOwners", "firstName, lastName")
+            .fetch("examInspections.user", "firstName, lastName")
+            .where()
+            .idEq(id)
+            .findOne();
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
+        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
         ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
@@ -443,6 +461,7 @@ public class ExamController extends BaseController {
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
         copy.setExecutionType(executionType);
+        copy.setImplementation(Exam.Implementation.valueOf(examinationType));
         AppUtil.setCreator(copy, user);
         copy.setParent(null);
         copy.setCourse(null);
@@ -459,13 +478,15 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result createExamDraft(Http.Request request) {
-        String executionType = formFactory.form().bindFromRequest(request).get("executionType");
-        ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
-                .where()
-                .eq("type", executionType)
-                .findOne();
+        String executionType = request.body().asJson().get("executionType").asText();
+        String implementation = request.body().asJson().get("implementation").asText();
+        ExamExecutionType examExecutionType = Ebean
+            .find(ExamExecutionType.class)
+            .where()
+            .eq("type", executionType)
+            .findOne();
         if (examExecutionType == null) {
             return badRequest("Unsupported execution type");
         }
@@ -473,7 +494,7 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
-        exam.setRequiresUserAgentAuth(false);
+        exam.setImplementation(Exam.Implementation.valueOf(implementation));
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());
@@ -517,7 +538,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateCourse(Long eid, Long cid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -548,40 +569,46 @@ public class ExamController extends BaseController {
     }
 
     private static Query<Exam> prototypeQuery() {
-        return Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("course.organisation")
-                .fetch("course.gradeScale")
-                .fetch("course.gradeScale.grades", new FetchConfig().query())
-                .fetch("examType")
-                .fetch("autoEvaluationConfig")
-                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
-                .fetch("executionType")
-                .fetch("examinationDates")
-                .fetch("examinationEventConfigurations")
-                .fetch("examinationEventConfigurations.examEnrolments")
-                .fetch("examinationEventConfigurations.examinationEvent")
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore, claimChoiceType")
-                .fetch("examSections.examMaterials")
-                .fetch("gradeScale")
-                .fetch("gradeScale.grades")
-                .fetch("grade")
-                .fetch("examEnrolments", "preEnrolledUserEmail")
-                .fetch("examEnrolments.user")
-                .fetch("examEnrolments.reservation", "endAt")
-                .fetch("children", "id")
-                .fetch("children.examEnrolments", "id")
-                .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
-                .fetch("creditType")
-                .fetch("attachment")
-                .fetch("softwares")
-                .fetch("examLanguages")
-                .fetch("examOwners");
+        return Ebean
+            .find(Exam.class)
+            .fetch("course")
+            .fetch("course.organisation")
+            .fetch("course.gradeScale")
+            .fetch("course.gradeScale.grades", new FetchConfig().query())
+            .fetch("examType")
+            .fetch("autoEvaluationConfig")
+            .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
+            .fetch("executionType")
+            .fetch("examinationDates")
+            .fetch("examinationEventConfigurations")
+            .fetch("examinationEventConfigurations.examEnrolments")
+            .fetch("examinationEventConfigurations.examinationEvent")
+            .fetch("examSections")
+            .fetch(
+                "examSections.sectionQuestions",
+                "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType"
+            )
+            .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
+            .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+            .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
+            .fetch(
+                "examSections.sectionQuestions.options.option",
+                "id, option, correctOption, defaultScore, claimChoiceType"
+            )
+            .fetch("examSections.examMaterials")
+            .fetch("gradeScale")
+            .fetch("gradeScale.grades")
+            .fetch("grade")
+            .fetch("examEnrolments", "preEnrolledUserEmail")
+            .fetch("examEnrolments.user")
+            .fetch("examEnrolments.reservation", "endAt")
+            .fetch("children", "id")
+            .fetch("children.examEnrolments", "id")
+            .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
+            .fetch("creditType")
+            .fetch("attachment")
+            .fetch("softwares")
+            .fetch("examLanguages")
+            .fetch("examOwners");
     }
-
 }

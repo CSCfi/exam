@@ -55,7 +55,7 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            if (!this.isPreview) {
+            if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
                 this.$http
                     .get('/app/enrolments/room/' + this.exam.hash)
                     .then((resp: angular.IHttpResponse<Room>) => (this.room = resp.data));
@@ -79,7 +79,11 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
             dialog.result.then(() =>
                 // Save all textual answers regardless of empty or not
                 this.Examination.saveAllTextualAnswersOfExam(this.exam).then(() =>
-                    this.Examination.logout('sitnet_exam_returned', this.exam.hash, this.exam.requiresUserAgentAuth),
+                    this.Examination.logout(
+                        'sitnet_exam_returned',
+                        this.exam.hash,
+                        this.exam.implementation === 'CLIENT_AUTH',
+                    ),
                 ),
             );
         };
@@ -96,7 +100,7 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
                         this.$window.onbeforeunload = null;
                         this.$state.go('examinationLogout', {
                             reason: 'aborted',
-                            quitLinkEnabled: this.exam.requiresUserAgentAuth,
+                            quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
                         });
                     })
                     .catch(err => toast.error(err.data)),

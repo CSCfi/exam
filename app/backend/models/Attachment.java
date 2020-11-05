@@ -16,16 +16,15 @@
 package backend.models;
 
 import backend.models.base.OwnedModel;
-
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
 public class Attachment extends OwnedModel {
-
     private String fileName;
     private String filePath;
     private String mimeType;
+
     @Transient
     private String externalId;
 

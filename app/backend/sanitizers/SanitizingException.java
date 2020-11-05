@@ -20,6 +20,4 @@ class SanitizingException extends Exception {
     SanitizingException(String msg) {
         super(msg);
     }
-
-
 }

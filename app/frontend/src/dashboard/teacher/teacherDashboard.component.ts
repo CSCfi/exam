@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
-import { ReviewerExam, TeacherDashboardService } from './teacherDashboard.service';
-import { SessionService } from '../../session/session.service';
+
 import { ExamExecutionType } from '../../exam/exam.model';
+import { SessionService } from '../../session/session.service';
+import { ReviewerExam, TeacherDashboardService } from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;
@@ -34,7 +34,7 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
         finishedExtraColumns: ExtraColumn[];
         archivedExtraColumns: ExtraColumn[];
         draftExtraColumns: ExtraColumn[];
-        executionTypes: ExamExecutionType[];
+        executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[];
         finishedExams: ReviewerExam[];
         filteredFinished: ReviewerExam[];
         activeExams: ReviewerExam[];
@@ -46,6 +46,7 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
 
         constructor(
             private $location: angular.ILocationService,
+            private $http: angular.IHttpService,
             private $filter: angular.IFilterService,
             private TeacherDashboard: TeacherDashboardService,
             private Session: SessionService,
@@ -104,6 +105,22 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
                 this.filteredActive = this.activeExams;
                 this.filteredArchived = this.archivedExams;
                 this.filteredDrafts = this.draftExams;
+                this.$http
+                    .get('/app/settings/byod')
+                    .then((resp: angular.IHttpResponse<{ isByodExaminationSupported: boolean }>) => {
+                        const byodSupported = resp.data.isByodExaminationSupported;
+                        this.executionTypes.forEach(t => {
+                            if (t.type !== 'PRINTOUT' && byodSupported) {
+                                t.examinationTypes = [
+                                    { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
+                                    { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
+                                    { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
+                                ];
+                            } else {
+                                t.examinationTypes = [];
+                            }
+                        });
+                    });
             });
         }
 

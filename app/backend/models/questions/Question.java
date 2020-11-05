@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -15,12 +15,25 @@
 
 package backend.models.questions;
 
+import backend.models.Attachment;
+import backend.models.Tag;
+import backend.models.User;
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
+import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
+import backend.models.sections.ExamSectionQuestion;
+import backend.sanitizers.SanitizingHelper;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.annotation.EnumValue;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,12 +45,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.annotation.EnumValue;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -48,30 +55,27 @@ import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.Attachment;
-import backend.models.Tag;
-import backend.models.User;
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
-
-import backend.sanitizers.SanitizingHelper;
-
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
 
     public enum Type {
-        @EnumValue("1") MultipleChoiceQuestion,
-        @EnumValue("2") EssayQuestion,
-        @EnumValue("3") WeightedMultipleChoiceQuestion,
-        @EnumValue("4") ClozeTestQuestion,
-        @EnumValue("5") ClaimChoiceQuestion
+        @EnumValue("1")
+        MultipleChoiceQuestion,
+        @EnumValue("2")
+        EssayQuestion,
+        @EnumValue("3")
+        WeightedMultipleChoiceQuestion,
+        @EnumValue("4")
+        ClozeTestQuestion,
+        @EnumValue("5")
+        ClaimChoiceQuestion
     }
 
     public enum EvaluationType {
-        @EnumValue("1") Points,
-        @EnumValue("2") Selection
+        @EnumValue("1")
+        Points,
+        @EnumValue("2")
+        Selection
     }
 
     @Column
@@ -115,7 +119,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @OneToOne(cascade = CascadeType.ALL)
     private Attachment attachment;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, mappedBy = "question")
     @JsonManagedReference
     private List<MultipleChoiceOption> options;
 
@@ -123,7 +127,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
     private List<Tag> tags;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "question_owner", joinColumns = @JoinColumn(name = "question_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(
+        name = "question_owner",
+        joinColumns = @JoinColumn(name = "question_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> questionOwners;
 
     public String getState() {
@@ -273,14 +281,17 @@ public class Question extends OwnedModel implements AttachmentContainer {
             Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
             if (answers.size() != distinctIds.size()) {
                 reason = "duplicate ids found";
-            } else if (answers.stream()
-                    .map(a -> a.attr("precision"))
-                    .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))) {
+            } else if (
+                answers.stream().map(a -> a.attr("precision")).anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))
+            ) {
                 reason = "invalid precision found";
-            } else if (answers.stream()
+            } else if (
+                answers
+                    .stream()
                     .filter(a -> a.attr("numeric").equals("true"))
                     .map(Element::text)
-                    .anyMatch(t -> !NumberUtils.isParsable(t))) {
+                    .anyMatch(t -> !NumberUtils.isParsable(t))
+            ) {
                 reason = "non-numeric correct answer for numeric question";
             }
         }
@@ -289,29 +300,36 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     @Transient
     private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
-
         // Check that all required option conditions are met, discarding possible duplicates
-        return StreamSupport.stream(options.spliterator(), false)
-                .filter(n -> {
-                    ClaimChoiceOptionType type = SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null);
-                    Double defaultScore = n.get("defaultScore").asDouble();
-                    String option = n.get("option").asText();
+        return (
+            StreamSupport
+                .stream(options.spliterator(), false)
+                .filter(
+                    n -> {
+                        ClaimChoiceOptionType type = SanitizingHelper
+                            .parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class)
+                            .orElse(null);
+                        double defaultScore = n.get("defaultScore").asDouble();
+                        String option = n.get("option").asText();
 
-                    if(type == null) {
-                        return false;
+                        if (type == null) {
+                            return false;
+                        }
+
+                        return (
+                            (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0 && !option.isEmpty()) ||
+                            (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0 && !option.isEmpty()) ||
+                            (type == ClaimChoiceOptionType.SkipOption && defaultScore == 0 && !option.isEmpty())
+                        );
                     }
-
-                    return (
-                        (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0 && !option.isEmpty()) ||
-                        (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0 && !option.isEmpty()) ||
-                        (type == ClaimChoiceOptionType.SkipOption && defaultScore == 0 && !option.isEmpty())
-                    );
-                })
+                )
                 .map(n -> SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null))
-                .filter(n -> n != null)
+                .filter(Objects::nonNull)
                 .distinct()
                 .limit(3)
-                .count() == 3;
+                .count() ==
+            3
+        );
     }
 
     @Transient
@@ -333,8 +351,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         ArrayNode an = (ArrayNode) node.get("options");
                         if (an.size() < 2) {
                             reason = "sitnet_minimum_of_two_options_required";
-                        } else if (StreamSupport.stream(an.spliterator(), false)
-                                .noneMatch(n -> n.get("correctOption").asBoolean())) {
+                        } else if (
+                            StreamSupport
+                                .stream(an.spliterator(), false)
+                                .noneMatch(n -> n.get("correctOption").asBoolean())
+                        ) {
                             reason = "sitnet_correct_option_required";
                         }
                     } else {
@@ -346,8 +367,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         reason = "sitnet_minimum_of_two_options_required";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
-                        if (StreamSupport.stream(options.spliterator(), false)
-                                .noneMatch(n -> n.get("defaultScore").asDouble() > 0)) {
+                        if (
+                            StreamSupport
+                                .stream(options.spliterator(), false)
+                                .noneMatch(n -> n.get("defaultScore").asDouble() > 0)
+                        ) {
                             reason = "sitnet_correct_option_required";
                         }
                     }
@@ -360,13 +384,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     }
                     break;
                 case ClaimChoiceQuestion:
-                    if(!nodeExists(node, "options") || node.get("options").size() != 3) {
+                    if (!nodeExists(node, "options") || node.get("options").size() != 3) {
                         reason = "sitnet_three_answers_required_in_claim_question";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         boolean hasValidOptions = getClaimChoiceOptionsValidationResult(options);
 
-                        if(!hasValidOptions) {
+                        if (!hasValidOptions) {
                             reason = "sitnet_incorrect_claim_question_options";
                         }
                     }
@@ -398,15 +422,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
             case MultipleChoiceQuestion:
                 return defaultMaxScore == null ? 0 : defaultMaxScore;
             case WeightedMultipleChoiceQuestion:
-                return options.stream()
-                        .map(MultipleChoiceOption::getDefaultScore)
-                        .filter(score -> score != null && score > 0)
-                        .reduce(0.0, (sum, x) -> sum += x);
+                return options
+                    .stream()
+                    .map(MultipleChoiceOption::getDefaultScore)
+                    .filter(score -> score != null && score > 0)
+                    .reduce(0.0, (sum, x) -> sum += x);
             case ClaimChoiceQuestion:
-                return options.stream()
-                        .mapToDouble(option -> option.getDefaultScore())
-                        .max()
-                        .orElse(0.0);
+                return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).max().orElse(0.0);
         }
         return 0.0;
     }
@@ -414,15 +436,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @Transient
     public Double getMinDefaultScore() {
         if (getType() == Type.WeightedMultipleChoiceQuestion) {
-            return options.stream()
-                    .map(MultipleChoiceOption::getDefaultScore)
-                    .filter(score -> score != null && score < 0)
-                    .reduce(0.0, (sum, x) -> sum += x);
-        } else if(getType() == Type.ClaimChoiceQuestion) {
-            return options.stream()
-                    .mapToDouble(option -> option.getDefaultScore())
-                    .min()
-                    .orElse(0.0);
+            return options
+                .stream()
+                .map(MultipleChoiceOption::getDefaultScore)
+                .filter(score -> score != null && score < 0)
+                .reduce(0.0, (sum, x) -> sum += x);
+        } else if (getType() == Type.ClaimChoiceQuestion) {
+            return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).min().orElse(0.0);
         }
         return 0.0;
     }
@@ -445,7 +465,18 @@ public class Question extends OwnedModel implements AttachmentContainer {
             BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");
             question.setParent(this);
         } else {
-            BeanUtils.copyProperties(this, question, "id", "options", "tags", "children", "questionOwners", "creator", "modifier");
+            BeanUtils.copyProperties(
+                this,
+                question,
+                "id",
+                "parent",
+                "options",
+                "tags",
+                "children",
+                "questionOwners",
+                "creator",
+                "modifier"
+            );
         }
         for (MultipleChoiceOption o : options) {
             if (optionMap == null) {
@@ -472,8 +503,6 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     @Override
     public String toString() {
-        return "Question [type=" + type
-                + ", id=" + id + "]";
+        return "Question [type=" + type + ", id=" + id + "]";
     }
-
 }

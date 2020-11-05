@@ -18,18 +18,30 @@ angular.module('app.exam.editor').component('newExam', {
     template: require('./newExam.template.html'),
     controller: [
         'Exam',
-        function(Exam) {
+        '$http',
+        function(Exam, $http) {
             const vm = this;
 
             vm.$onInit = function() {
                 Exam.listExecutionTypes().then(function(types) {
                     vm.executionTypes = types;
+                    vm.examinationType = 'AQUARIUM';
+                    $http
+                        .get('/app/settings/byod')
+                        .then(resp => (vm.byodExaminationSupported = resp.data.isByodExaminationSupported))
+                        .catch(angular.noop);
                 });
+            };
+
+            vm.selectType = () => {
+                if (!vm.byodExaminationSupported) {
+                    Exam.createExam(vm.type.type, vm.examinationType);
+                }
             };
 
             vm.createExam = function() {
                 if (vm.type) {
-                    Exam.createExam(vm.type.type);
+                    Exam.createExam(vm.type.type, vm.examinationType);
                 }
             };
         },

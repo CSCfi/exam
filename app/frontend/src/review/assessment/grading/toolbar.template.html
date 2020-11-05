@@ -8,20 +8,9 @@
     </div>
 
     <span class="pull-right">
-        <div ng-show="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons">
+        <div ng-show="!ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons">
             <button
-                class="pointer preview"
-                ng-if="!$ctrl.isMaturityRejection()"
-                ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.valid"
-                ng-click="$ctrl.createExamRecord()"
-            >
-                {{'sitnet_send_result_to_registry' | translate}}
-            </button>
-        </div>
-
-        <div ng-show="!ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <button
-                class="pointer preview"
+                class="pointer warning-filled"
                 ng-if="$ctrl.isMaturityRejection()"
                 ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.valid"
                 ng-click="$ctrl.rejectMaturity()"
@@ -30,9 +19,33 @@
             </button>
         </div>
         <div ng-if="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <button class="pointer" ng-disabled="$ctrl.isReadOnly()" ng-click="$ctrl.saveAssessment()">
+            <button
+                class="pointer"
+                ng-disabled="$ctrl.isReadOnly()"
+                ng-click="$ctrl.saveAssessment()"
+                popover-placement="top"
+                popover-trigger="'mouseenter'"
+                uib-popover="{{ 'sitnet_save_changes_popover_info' | translate }}"
+            >
                 {{'sitnet_save_changes' | translate}}
             </button>
+        </div>
+        <div ng-show="!$ctrl.isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <span
+                class="disabled-button-popover-wrapper"
+                popover-placement="top"
+                popover-trigger="'mouseenter'"
+                uib-popover="{{'sitnet_send_result_to_registry_popover_info' | translate}}"
+            >
+                <button
+                    class="pointer"
+                    ng-if="!$ctrl.isMaturityRejection()"
+                    ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.valid"
+                    ng-click="$ctrl.createExamRecord()"
+                >
+                    {{'sitnet_send_result_to_registry' | translate}}
+                </button>
+            </span>
         </div>
     </span>
 </div>

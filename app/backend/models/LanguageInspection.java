@@ -15,21 +15,18 @@
 
 package backend.models;
 
+import backend.models.base.OwnedModel;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import backend.models.base.OwnedModel;
-
 @Entity
 public class LanguageInspection extends OwnedModel {
-
     @OneToOne
     private Exam exam;
 
@@ -103,16 +100,11 @@ public class LanguageInspection extends OwnedModel {
 
         LanguageInspection that = (LanguageInspection) o;
 
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .isEquals();
+        return new EqualsBuilder().append(id, that.id).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .toHashCode();
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
-
 }

@@ -15,6 +15,18 @@
 
 package backend.models;
 
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.util.AppUtil;
+import backend.util.datetime.DateTimeAdapter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.ebean.annotation.EnumValue;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -23,11 +35,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,44 +53,51 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.ebean.annotation.EnumValue;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.util.AppUtil;
-import backend.util.datetime.DateTimeAdapter;
-
-
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
 
     public enum State {
-        @EnumValue("1") DRAFT,
-        @EnumValue("2") SAVED,
-        @EnumValue("3") PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
-        @EnumValue("4") STUDENT_STARTED, // EXAM STARTED BY STUDENT
-        @EnumValue("5") REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
-        @EnumValue("6") REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
-        @EnumValue("7") GRADED,          // GRADE GIVEN
-        @EnumValue("13") PRE_PUBLISHED,  // COLLABORATIVE EXAM READY FOR TEACHERS FOR EDITING
+        @EnumValue("1")
+        DRAFT,
+        @EnumValue("2")
+        SAVED,
+        @EnumValue("3")
+        PUBLISHED, // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+        @EnumValue("4")
+        STUDENT_STARTED, // EXAM STARTED BY STUDENT
+        @EnumValue("5")
+        REVIEW, // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+        @EnumValue("6")
+        REVIEW_STARTED, // REVIEW STARTED BY TEACHERS
+        @EnumValue("7")
+        GRADED, // GRADE GIVEN
+        @EnumValue("13")
+        PRE_PUBLISHED, // COLLABORATIVE EXAM READY FOR TEACHERS FOR EDITING
         /* FINAL STATES */
-        @EnumValue("8") GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
-        @EnumValue("9") ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
-        @EnumValue("10") ABORTED,        // EXAM ABORTED BY STUDENT WHILST TAKING
-        @EnumValue("11") DELETED,        // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
-        @EnumValue("12") REJECTED        // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("8")
+        GRADED_LOGGED, // EXAM PROCESSED AND READY FOR REGISTRATION
+        @EnumValue("9")
+        ARCHIVED, // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+        @EnumValue("10")
+        ABORTED, // EXAM ABORTED BY STUDENT WHILST TAKING
+        @EnumValue("11")
+        DELETED, // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        @EnumValue("12")
+        REJECTED // EXAM NOT QUALIFIED FOR REGISTRATION
+    }
+
+    public enum Implementation {
+        @EnumValue("1")
+        AQUARIUM,
+        @EnumValue("2")
+        CLIENT_AUTH,
+        @EnumValue("3")
+        WHATEVER
     }
 
     private static final DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
@@ -94,8 +113,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(
+        name = "exam_owner",
+        joinColumns = @JoinColumn(name = "exam_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> examOwners;
 
     // Instruction written by teacher, shown during exam
@@ -179,6 +201,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private State state;
 
+    // Implementation
+    private Implementation implementation;
+
     @ManyToOne
     private Grade grade;
 
@@ -232,8 +257,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private String assessmentInfo;
 
-    private Boolean requiresUserAgentAuth;
-
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -269,17 +292,22 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // Aggregate properties, required as fields by Ebean
     @Transient
     private Double totalScore;
+
     @Transient
     private Double maxScore;
+
     @Transient
     private int rejectedAnswerCount;
+
     @Transient
     private int approvedAnswerCount;
 
     @Transient
     private boolean cloned;
+
     @Transient
     private boolean external;
+
     @Transient
     private String externalRef;
 
@@ -288,29 +316,23 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public Double getTotalScore() {
-        Double totalScore = toFixed(examSections.stream()
-                .map(ExamSection::getTotalScore)
-                .reduce(0.0, (sum, x) -> sum += x));
+        Double totalScore = toFixed(
+            examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, (sum, x) -> sum += x)
+        );
 
         return Math.max(totalScore, 0.0);
     }
 
     public Double getMaxScore() {
-        return toFixed(examSections.stream()
-                .map(ExamSection::getMaxScore)
-                .reduce(0.0, (sum, x) -> sum += x));
+        return toFixed(examSections.stream().map(ExamSection::getMaxScore).reduce(0.0, (sum, x) -> sum += x));
     }
 
     private int getApprovedAnswerCount() {
-        return examSections.stream()
-                .map(ExamSection::getApprovedCount)
-                .reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getApprovedCount).reduce(0, (sum, x) -> sum += x);
     }
 
     private int getRejectedAnswerCount() {
-        return examSections.stream()
-                .map(ExamSection::getRejectedCount)
-                .reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getRejectedCount).reduce(0, (sum, x) -> sum += x);
     }
 
     // These are dumb, required to be explicitly set by EBean
@@ -598,8 +620,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Exam createCopy(User user, boolean produceStudentExam, boolean setParent, Set<Long> selectedSections) {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipation",
-                "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
+        BeanUtils.copyProperties(
+            this,
+            clone,
+            "id",
+            "examSections",
+            "examEnrolments",
+            "examParticipation",
+            "examinationEventConfigurations",
+            "examInspections",
+            "autoEvaluationConfig",
+            "creator",
+            "created",
+            produceStudentExam ? "examOwners" : "none"
+        );
         if (setParent) {
             clone.setParent(this);
         }
@@ -623,9 +657,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         }
         Set<ExamSection> sections = new TreeSet<>();
         if (produceStudentExam) {
-            sections.addAll(examSections.stream()
+            sections.addAll(
+                examSections
+                    .stream()
                     .filter(es -> !es.isOptional() || selectedSections.contains(es.getId()))
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toSet())
+            );
         } else {
             sections.addAll(examSections);
         }
@@ -636,7 +673,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             // Shuffle question options before saving
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
-                if(type == Question.Type.ClaimChoiceQuestion) {
+                if (type == Question.Type.ClaimChoiceQuestion) {
                     continue;
                 }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
@@ -759,12 +796,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.anonymous = anonymous;
     }
 
-    public Boolean getRequiresUserAgentAuth() {
-        return requiresUserAgentAuth;
+    public Implementation getImplementation() {
+        return implementation;
     }
 
-    public void setRequiresUserAgentAuth(Boolean requiresUserAgentAuth) {
-        this.requiresUserAgentAuth = requiresUserAgentAuth;
+    public void setImplementation(Implementation implementation) {
+        this.implementation = implementation;
     }
 
     @Transient
@@ -801,14 +838,17 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public boolean isViewableForLanguageInspector(User user) {
-        return executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
-                user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE) && languageInspection != null &&
-                languageInspection.getAssignee() != null;
+        return (
+            executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
+            user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE) &&
+            languageInspection != null &&
+            languageInspection.getAssignee() != null
+        );
     }
 
     @Transient
     public boolean isPrivate() {
-        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout();
+        return (!executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout());
     }
 
     @Transient
@@ -823,17 +863,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public void setDerivedMaxScores() {
-        examSections.stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .forEach(esq -> {
+        examSections
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .forEach(
+                esq -> {
                     esq.setDerivedMaxScore();
                     // Also set min scores, if question is claim choice question
                     Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
-                    if(type == Question.Type.ClaimChoiceQuestion) {
+                    if (type == Question.Type.ClaimChoiceQuestion) {
                         esq.setDerivedMinScore();
                     }
                     esq.getOptions().forEach(o -> o.setScore(null));
-                });
+                }
+            );
     }
 
     @Override
@@ -853,20 +896,30 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Override
     public String toString() {
-        return "Exam{" +
-                "course=" + course +
-                ", id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", examType=" + examType +
-                ", hash='" + hash + '\'' +
-                ", state='" + state + '\'' +
-                '}';
+        return (
+            "Exam{" +
+            "course=" +
+            course +
+            ", id='" +
+            id +
+            '\'' +
+            ", name='" +
+            name +
+            '\'' +
+            ", examType=" +
+            examType +
+            ", hash='" +
+            hash +
+            '\'' +
+            ", state='" +
+            state +
+            '\'' +
+            '}'
+        );
     }
 
     @Override
     public int compareTo(@Nonnull Exam other) {
         return created.compareTo(other.created);
     }
-
-
 }

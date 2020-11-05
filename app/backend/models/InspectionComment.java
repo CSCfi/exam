@@ -15,15 +15,13 @@
 
 package backend.models;
 
+import backend.models.base.OwnedModel;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
-import backend.models.base.OwnedModel;
-
 @Entity
 public class InspectionComment extends OwnedModel {
-
     @Column(columnDefinition = "TEXT")
     private String comment;
 

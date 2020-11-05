@@ -35,9 +35,8 @@
                     section="section"
                     exam-id="$ctrl.exam.id"
                     materials="$ctrl.materials"
-                    can-be-optional="$ctrl.exam.executionType.type !== 'MATURITY'"
+                    can-be-optional="$ctrl.exam.executionType.type !== 'MATURITY' && $ctrl.exam.implementation === 'AQUARIUM'"
                     on-delete="$ctrl.removeSection(section)"
-                    on-reload-required="$ctrl.onReloadRequired()"
                     on-materials-changed="$ctrl.loadMaterials()"
                 ></section>
             </div>

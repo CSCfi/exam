@@ -15,19 +15,16 @@
 
 package backend.system.actors;
 
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-
 import backend.impl.EmailComposer;
 import backend.models.Reservation;
 import backend.util.datetime.DateTimeUtils;
+import io.ebean.Ebean;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
 
 public class ReservationReminderActor extends AbstractActor {
-
     private static final Logger.ALogger logger = Logger.of(ReservationReminderActor.class);
 
     private EmailComposer emailComposer;
@@ -38,33 +35,36 @@ public class ReservationReminderActor extends AbstractActor {
     }
 
     private void remind(Reservation r) {
-        emailComposer.composeReservationNotification(
-                r.getUser(), r, r.getEnrolment().getExam(), true);
+        emailComposer.composeReservationNotification(r.getUser(), r, r.getEnrolment().getExam(), true);
         r.setReminderSent(true);
         r.update();
     }
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(String.class, s -> {
-            logger.debug("Starting reservation reminder task ->");
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-            DateTime tomorrow = now.plusDays(1);
-            Ebean.find(Reservation.class)
-                    .fetch("optionalSections")
-                    .fetch("optionalSections.examMaterials")
-                    .fetch("enrolment")
-                    .fetch("enrolment.exam.examSections")
-                    .fetch("enrolment.exam.examSections.examMaterials")
-                    .where()
-                    .isNotNull("enrolment.exam")
-                    .between("startAt", now, tomorrow)
-                    .ne("reminderSent", true)
-                    .findList()
-                    .forEach(this::remind);
-            logger.debug("<- done");
-
-        }).build();
+        return receiveBuilder()
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Starting reservation reminder task ->");
+                    DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+                    DateTime tomorrow = now.plusDays(1);
+                    Ebean
+                        .find(Reservation.class)
+                        .fetch("optionalSections")
+                        .fetch("optionalSections.examMaterials")
+                        .fetch("enrolment")
+                        .fetch("enrolment.exam.examSections")
+                        .fetch("enrolment.exam.examSections.examMaterials")
+                        .where()
+                        .isNotNull("enrolment.exam")
+                        .between("startAt", now, tomorrow)
+                        .ne("reminderSent", true)
+                        .findList()
+                        .forEach(this::remind);
+                    logger.debug("<- done");
+                }
+            )
+            .build();
     }
-
 }

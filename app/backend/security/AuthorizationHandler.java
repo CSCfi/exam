@@ -15,35 +15,27 @@
 
 package backend.security;
 
+import backend.models.Permission;
+import backend.models.Role;
+import backend.models.User;
+import be.objectify.deadbolt.java.DeadboltHandler;
+import be.objectify.deadbolt.java.DynamicResourceHandler;
+import be.objectify.deadbolt.java.models.Subject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import be.objectify.deadbolt.java.DeadboltHandler;
-import be.objectify.deadbolt.java.DynamicResourceHandler;
-import be.objectify.deadbolt.java.models.Subject;
-import io.ebean.Ebean;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-
-
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
 
-    private SessionHandler sessionHandler;
-
     @Inject
-    AuthorizationHandler(final SessionHandler sessionHandler) {
-        this.sessionHandler = sessionHandler;
-    }
+    AuthorizationHandler() {}
 
     @Override
     public long getId() {
@@ -52,34 +44,35 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(Http.RequestHeader request) {
-
-        Optional<Session> os = sessionHandler.getSession(request);
-        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
-        // filter out roles not found in session
-        if (user != null) {
-            Session session = os.get();
-            List<Role> roles = Ebean.find(Role.class).where()
-                    .eq("name", session.getLoginRole()).findList();
-            user.setRoles(roles);
-            return CompletableFuture.supplyAsync(() -> Optional.of(user));
+        Http.Session session = request.session();
+        if (session.get("id").isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-        return CompletableFuture.supplyAsync(Optional::empty);
-
+        User user = new User();
+        session.get("role").ifPresent(r -> user.setRoles(List.of(Role.withName(session.get("role").get()))));
+        session
+            .get("permissions")
+            .ifPresent(
+                p -> {
+                    Optional<Permission> permission = Permission.withValue(p);
+                    permission.ifPresent(value -> user.setPermissions(List.of(value)));
+                }
+            );
+        return CompletableFuture.completedFuture(Optional.of(user));
     }
 
     @Override
     public CompletionStage<Result> onAuthFailure(Http.RequestHeader request, Optional<String> content) {
-        return CompletableFuture.supplyAsync(() -> Results.forbidden("Authentication failure"));
+        return CompletableFuture.completedFuture(Results.forbidden("Authentication failure"));
     }
 
     @Override
     public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.RequestHeader request) {
         return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
     }
-
 }

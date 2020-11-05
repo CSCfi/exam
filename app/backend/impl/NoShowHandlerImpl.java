@@ -15,6 +15,11 @@
 
 package backend.impl;
 
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.Reservation;
+import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,21 +27,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-
-import com.typesafe.config.ConfigFactory;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.Reservation;
-
 public class NoShowHandlerImpl implements NoShowHandler {
-
     private final EmailComposer composer;
 
     private final WSClient wsClient;
@@ -50,7 +47,6 @@ public class NoShowHandlerImpl implements NoShowHandler {
         this.composer = composer;
         this.wsClient = wsClient;
     }
-
 
     private void send(Reservation reservation) throws MalformedURLException {
         URL url = parseUrl(reservation.getExternalRef());
@@ -73,44 +69,52 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     private boolean isLocal(ExamEnrolment ee) {
-        return ee.getExam() != null && ee.getExam().getState() == Exam.State.PUBLISHED;
+        return (ee.getExam() != null && ee.getExam().getState() == Exam.State.PUBLISHED);
     }
 
     private boolean isCollaborative(ExamEnrolment ee) {
-        return ee.getCollaborativeExam() != null &&  ee.getExam() == null;
+        return ee.getCollaborativeExam() != null && ee.getExam() == null;
     }
 
     @Override
     public void handleNoShows(List<Reservation> noShows) {
-        Stream<Reservation> locals = noShows.stream()
-                .filter(ns -> ns.getExternalRef() == null && ns.getEnrolment() != null)
-                .filter(ns -> isLocal(ns.getEnrolment()) || isCollaborative(ns.getEnrolment()));
+        Stream<Reservation> locals = noShows
+            .stream()
+            .filter(ns -> ns.getExternalRef() == null && ns.getEnrolment() != null)
+            .filter(ns -> isLocal(ns.getEnrolment()) || isCollaborative(ns.getEnrolment()));
         locals.forEach(this::handleNoShowAndNotify);
 
-        Stream<Reservation> externals = noShows.stream().filter(ns ->
-                ns.getExternalRef() != null && (
+        Stream<Reservation> externals = noShows
+            .stream()
+            .filter(
+                ns ->
+                    ns.getExternalRef() != null &&
+                    (
                         ns.getUser() == null ||
-                                ns.getEnrolment() == null ||
-                                ns.getEnrolment().getExternalExam() == null ||
-                                ns.getEnrolment().getExternalExam().getStarted() == null)
-        );
-        externals.forEach(r -> {
-            // Send to XM for further processing
-            // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
-            // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
-            try {
-                send(r);
-            } catch (IOException e) {
-                logger.error("Failed in sending assessment back", e);
+                        ns.getEnrolment() == null ||
+                        ns.getEnrolment().getExternalExam() == null ||
+                        ns.getEnrolment().getExternalExam().getStarted() == null
+                    )
+            );
+        externals.forEach(
+            r -> {
+                // Send to XM for further processing
+                // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
+                // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
+                try {
+                    send(r);
+                } catch (IOException e) {
+                    logger.error("Failed in sending assessment back", e);
+                }
             }
-        });
+        );
     }
 
     @Override
     public void handleNoShowAndNotify(Reservation reservation) {
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
-        if (exam.isPrivate()) {
+        if (exam != null && exam.isPrivate()) {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
             enrolment.setReservation(null);
@@ -122,21 +126,21 @@ public class NoShowHandlerImpl implements NoShowHandler {
         }
         logger.info("Marked reservation {} as no-show", reservation.getId());
 
-        String examName = exam == null ?
-                enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
+        String examName = exam == null ? enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
         String courseCode = exam == null ? "" : enrolment.getExam().getCourse().getCode();
 
         // Notify student
         composer.composeNoShowMessage(reservation.getUser(), examName, courseCode);
         if (exam != null && exam.isPrivate()) {
             // Notify teachers
-            Stream.concat(
-                    exam.getExamOwners().stream(),
-                    exam.getExamInspections().stream().map(ExamInspection::getUser)
-            ).forEach(teacher -> {
-                composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
-                logger.info("Email sent to {}", teacher.getEmail());
-            });
+            Stream
+                .concat(exam.getExamOwners().stream(), exam.getExamInspections().stream().map(ExamInspection::getUser))
+                .forEach(
+                    teacher -> {
+                        composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
+                        logger.info("Email sent to {}", teacher.getEmail());
+                    }
+                );
         }
     }
 }

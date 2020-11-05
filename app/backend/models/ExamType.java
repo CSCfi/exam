@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
@@ -15,15 +15,12 @@
 
 package backend.models;
 
-
 import backend.models.base.GeneratedIdentityModel;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
 public class ExamType extends GeneratedIdentityModel {
-
     private String type;
 
     @Column(columnDefinition = "boolean default false")

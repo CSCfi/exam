@@ -32,7 +32,7 @@ export default function configs(
 
     // IE caches each and every GET unless the following is applied:
     const defaults: angular.IHttpProviderDefaults = $httpProvider.defaults;
-    const ieHeaders = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
+    const ieHeaders = { 'Cache-Control': 'no-cache;no-store', Pragma: 'no-cache', Expires: 0 };
     Object.assign(defaults.headers, { get: ieHeaders });
 
     ['en', 'fi', 'sv'].forEach(
@@ -101,11 +101,10 @@ export default function configs(
             },
         })
         .state('externalCalendar', {
-            url: '/iop/calendar/{id}?selected',
+            url: '/iop/calendar/{id}?selected&isCollaborative',
             component: 'calendar',
             resolve: {
                 isExternal: () => true,
-                isCollaborative: () => false,
             },
         })
         .state('collaborativeCalendar', {
@@ -227,17 +226,18 @@ export default function configs(
                     const location = b64ToUtf8(unknownMachine).split(':::');
                     WrongLocation.display(location); // Show warning notice on screen
                 } else if (wrongRoom) {
+                    $rootScope.$broadcast('wrongLocation');
                     parts = b64ToUtf8(wrongRoom).split(':::');
                     $state.go('wrongRoom', { eid: parts[0], mid: parts[1] });
-                    $rootScope.$broadcast('wrongLocation');
                 } else if (wrongMachine) {
+                    $rootScope.$broadcast('wrongLocation');
                     parts = b64ToUtf8(wrongMachine).split(':::');
                     $state.go('wrongMachine', { eid: parts[0], mid: parts[1] });
-                    $rootScope.$broadcast('wrongLocation');
                 } else if (wrongUserAgent) {
                     WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                 } else if (enrolmentId) {
                     // Go to waiting room
+                    $rootScope.$broadcast('upcomingExam');
                     const id = enrolmentId === 'none' ? '' : enrolmentId;
                     if (enrolmentId === 'none') {
                         // No upcoming exams
@@ -245,11 +245,10 @@ export default function configs(
                     } else {
                         $state.go('waitingRoom', { id: id });
                     }
-                    $rootScope.$broadcast('upcomingExam');
                 } else if (hash) {
                     // Start/continue exam
-                    $state.go('examination', { hash: hash });
                     $rootScope.$broadcast('examStarted');
+                    $state.go('examination', { hash: hash });
                 }
                 return response;
             },
@@ -262,7 +261,7 @@ export default function configs(
                     if (response.data.match(/^".*"$/g)) {
                         response.data = response.data.slice(1, response.data.length - 1);
                     }
-                    const parts = response.data.split(' ');
+                    const parts = response.data.split(' ').filter(p => p.length > 0);
                     $translate(parts).then((t: string[]) => {
                         for (let i = 0; i < parts.length; i++) {
                             if (parts[i].substring(0, 7) === 'sitnet_') {

@@ -17,16 +17,14 @@ package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.List;
 
 @Entity
 public class Organisation extends GeneratedIdentityModel {
-
     private String code;
 
     private String name;
@@ -82,9 +80,17 @@ public class Organisation extends GeneratedIdentityModel {
 
     @Override
     public String toString() {
-        return "Organisation{" +
-                "name='" + name + '\'' +
-                ", nameAbbreviation='" + nameAbbreviation + '\'' +
-                ", code='" + code + '}';
+        return (
+            "Organisation{" +
+            "name='" +
+            name +
+            '\'' +
+            ", nameAbbreviation='" +
+            nameAbbreviation +
+            '\'' +
+            ", code='" +
+            code +
+            '}'
+        );
     }
 }

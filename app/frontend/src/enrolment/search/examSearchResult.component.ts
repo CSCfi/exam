@@ -44,7 +44,7 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
         };
 
         makeReservation = () => {
-            if (this.exam.requiresUserAgentAuth) {
+            if (this.exam.implementation !== 'AQUARIUM') {
                 this.$state.go('dashboard');
             } else {
                 this.$state.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });

@@ -15,6 +15,17 @@
 
 package backend.controllers.iop.transfer.impl;
 
+import akka.actor.ActorSystem;
+import backend.controllers.iop.transfer.api.ExternalReservationHandler;
+import backend.impl.EmailComposer;
+import backend.models.ExamEnrolment;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.util.datetime.DateTimeUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,11 +35,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.inject.Inject;
-
-import akka.actor.ActorSystem;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -39,16 +45,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
-import backend.controllers.iop.transfer.api.ExternalReservationHandler;
-import backend.impl.EmailComposer;
-import backend.models.ExamEnrolment;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.util.datetime.DateTimeUtils;
-
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
-
     @Inject
     WSClient wsClient;
 
@@ -60,9 +57,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
 
     private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
 
-
-    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
-            throws MalformedURLException {
+    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
         sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
         if (reservationRef != null) {
@@ -78,7 +73,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         try {
             url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
         } catch (MalformedURLException e) {
-            return CompletableFuture.supplyAsync(() -> Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+            return CompletableFuture.completedFuture(Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
         }
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Optional<Integer>> onSuccess = response -> {
@@ -91,22 +86,25 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("reservation.externalRef", ref)
-                .findOne();
+        final ExamEnrolment enrolment = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("reservation.machine")
+            .fetch("reservation.machine.room")
+            .where()
+            .eq("user.id", user.getId())
+            .eq("reservation.externalRef", ref)
+            .findOne();
         if (enrolment == null) {
-            return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s for current user.", ref)));
+            return CompletableFuture.completedFuture(
+                Results.notFound(String.format("No reservation with ref %s for current user.", ref))
+            );
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
         }
         // good to go
         ExternalReservation external = reservation.getExternalReservation();
@@ -124,11 +122,22 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
 
             // send email asynchronously
             boolean isStudentUser = user.equals(enrolment.getUser());
-            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(),
-                        reservation, msg, isStudentUser, enrolment);
-                logger.info("Reservation cancellation confirmation email sent");
-            }, system.dispatcher());
+            system
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composeReservationCancellationNotification(
+                            enrolment.getUser(),
+                            reservation,
+                            msg,
+                            isStudentUser,
+                            enrolment
+                        );
+                        logger.info("Reservation cancellation confirmation email sent");
+                    },
+                    system.dispatcher()
+                );
 
             return Results.ok();
         };
@@ -139,13 +148,12 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Override
     public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
         if (reservation.getExternalReservation() == null) {
-            return CompletableFuture.supplyAsync(Results::ok);
+            return CompletableFuture.completedFuture(Results.ok());
         }
         try {
             return requestRemoval(reservation.getExternalRef(), user, msg);
         } catch (IOException e) {
-            return CompletableFuture.supplyAsync(() -> Results.internalServerError(e.getMessage()));
+            return CompletableFuture.completedFuture(Results.internalServerError(e.getMessage()));
         }
     }
-
 }

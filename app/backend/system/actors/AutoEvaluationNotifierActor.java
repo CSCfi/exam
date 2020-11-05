@@ -15,22 +15,19 @@
 
 package backend.system.actors;
 
-import java.util.Optional;
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import play.Logger;
-
 import backend.impl.EmailComposer;
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.User;
 import backend.util.datetime.DateTimeUtils;
+import io.ebean.Ebean;
+import java.util.Optional;
+import javax.inject.Inject;
+import org.joda.time.DateTime;
+import play.Logger;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
-
     private static final Logger.ALogger logger = Logger.of(AutoEvaluationNotifierActor.class);
 
     private EmailComposer composer;
@@ -42,24 +39,30 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(String.class, s -> {
-            logger.debug("Auto evaluation notification check started ->");
-            Ebean.find(Exam.class)
-                    .fetch("autoEvaluationConfig")
-                    .where()
-                    .eq("state", Exam.State.GRADED)
-                    .isNotNull("gradedTime")
-                    .isNotNull("autoEvaluationConfig")
-                    .isNotNull("grade")
-                    .isNotNull("creditType")
-                    .isNotNull("answerLanguage")
-                    .isNull("autoEvaluationNotified")
-                    .findList()
-                    .stream()
-                    .filter(this::isPastReleaseDate)
-                    .forEach(this::notifyStudent);
-            logger.debug("<- done");
-        }).build();
+        return receiveBuilder()
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Auto evaluation notification check started ->");
+                    Ebean
+                        .find(Exam.class)
+                        .fetch("autoEvaluationConfig")
+                        .where()
+                        .eq("state", Exam.State.GRADED)
+                        .isNotNull("gradedTime")
+                        .isNotNull("autoEvaluationConfig")
+                        .isNotNull("grade")
+                        .isNotNull("creditType")
+                        .isNotNull("answerLanguage")
+                        .isNull("autoEvaluationNotified")
+                        .findList()
+                        .stream()
+                        .filter(this::isPastReleaseDate)
+                        .forEach(this::notifyStudent);
+                    logger.debug("<- done");
+                }
+            )
+            .build();
     }
 
     private DateTime adjustReleaseDate(DateTime date) {
@@ -75,7 +78,8 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
                 releaseDate = Optional.of(adjustReleaseDate(new DateTime(config.getReleaseDate())));
                 break;
             case GIVEN_AMOUNT_DAYS:
-                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays())));
+                releaseDate =
+                    Optional.of(adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays())));
                 break;
             case AFTER_EXAM_PERIOD:
                 releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()).plusDays(1)));
@@ -101,5 +105,4 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
             logger.error("Sending mail to {} failed", student.getEmail());
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package base;
 
+import java.util.Date;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.yaml.snakeyaml.constructor.Construct;
@@ -8,8 +9,6 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeId;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import java.util.Date;
-
 class JodaPropertyConstructor extends Constructor {
 
     JodaPropertyConstructor() {
@@ -17,9 +16,9 @@ class JodaPropertyConstructor extends Constructor {
     }
 
     class TimeStampConstruct extends Constructor.ConstructScalar {
+
         @Override
         public Object construct(Node nnode) {
-
             if (nnode.getTag() == Tag.TIMESTAMP) {
                 Construct dateConstructor = yamlConstructors.get(Tag.TIMESTAMP);
                 if (nnode.getType().isAssignableFrom(DateTime.class)) {
@@ -32,6 +31,5 @@ class JodaPropertyConstructor extends Constructor {
                 return super.construct(nnode);
             }
         }
-
     }
 }

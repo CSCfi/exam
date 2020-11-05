@@ -15,31 +15,34 @@
 
 package backend.controllers;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class TagController extends BaseController {
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result listTags(Optional<String> filter, Optional<List<Long>> examIds, Optional<List<Long>> courseIds,
-                           Optional<List<Long>> sectionIds, Http.Request request) {
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result listTags(
+        Optional<String> filter,
+        Optional<List<Long>> examIds,
+        Optional<List<Long>> courseIds,
+        Optional<List<Long>> sectionIds,
+        Http.Request request
+    ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
         if (!user.hasRole(Role.Name.ADMIN)) {
@@ -61,5 +64,4 @@ public class TagController extends BaseController {
         Set<Tag> tags = query.findSet();
         return ok(tags, PathProperties.parse("(*, creator(id))"));
     }
-
 }

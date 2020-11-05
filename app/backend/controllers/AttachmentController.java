@@ -15,28 +15,10 @@
 
 package backend.controllers;
 
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.StandardCopyOption;
-import java.util.concurrent.CompletionStage;
-import javax.inject.Inject;
-
 import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Pattern;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import play.Environment;
-import play.libs.Files;
-import play.mvc.Http;
-import play.mvc.Http.MultipartFormData.FilePart;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
@@ -52,10 +34,23 @@ import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
-
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import play.Environment;
+import play.libs.Files;
+import play.mvc.Http;
+import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
-
     @Inject
     private Environment environment;
 
@@ -70,10 +65,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             container.save();
             a.delete();
             // Remove the file from disk if no references to it are found
-            boolean removeFromDisk = Ebean.find(Attachment.class).where()
-                    .eq("filePath", filePath)
-                    .findList()
-                    .isEmpty();
+            boolean removeFromDisk = Ebean.find(Attachment.class).where().eq("filePath", filePath).findList().isEmpty();
             if (removeFromDisk) {
                 AppUtil.removeAttachmentFile(a.getFilePath());
             }
@@ -90,7 +82,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("STUDENT")})
+    @Restrict({ @Group("STUDENT") })
     @Override
     public CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -98,11 +90,13 @@ public class AttachmentController extends BaseController implements LocalAttachm
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
 
         // first check if answer already exist
-        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
-                .where()
-                .idEq(qid)
-                .eq("examSection.exam.creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
-                .findOne();
+        ExamSectionQuestion question = Ebean
+            .find(ExamSectionQuestion.class)
+            .fetch("essayAnswer")
+            .where()
+            .idEq(qid)
+            .eq("examSection.exam.creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .findOne();
         if (question == null) {
             return wrapAsPromise(forbidden());
         }
@@ -114,8 +108,14 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
         String newFilePath;
         try {
-            newFilePath = copyFile(filePart.getRef(), "question", Long.toString(qid), "answer",
-                    question.getEssayAnswer().getId().toString());
+            newFilePath =
+                copyFile(
+                    filePart.getRef(),
+                    "question",
+                    Long.toString(qid),
+                    "answer",
+                    question.getEssayAnswer().getId().toString()
+                );
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
@@ -129,7 +129,11 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(answer));
     }
 
-    private CompletionStage<Result> replaceAndFinish(AttachmentContainer ac, FilePart<Files.TemporaryFile> fp, String path) {
+    private CompletionStage<Result> replaceAndFinish(
+        AttachmentContainer ac,
+        FilePart<Files.TemporaryFile> fp,
+        String path
+    ) {
         // Remove existing one if found
         removePrevious(ac);
 
@@ -141,16 +145,17 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(attachment));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
         MultipartForm mf = getForm(request);
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
-        Question question = Ebean.find(Question.class)
-                .fetch("examSectionQuestions.examSection.exam.parent")
-                .where()
-                .idEq(qid)
-                .findOne();
+        Question question = Ebean
+            .find(Question.class)
+            .fetch("examSectionQuestions.examSection.exam.parent")
+            .where()
+            .idEq(qid)
+            .findOne();
         if (question == null) {
             return wrapAsPromise(notFound());
         }
@@ -164,10 +169,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(question, filePart, newFilePath);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public Result deleteQuestionAttachment(Long id) {
-
         Question question = Ebean.find(Question.class, id);
         if (question == null) {
             return notFound();
@@ -177,20 +181,20 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamSectionQuestion question;
         if (user.hasRole(Role.Name.STUDENT)) {
-            question = Ebean.find(ExamSectionQuestion.class).where()
-                    .idEq(qid)
-                    .eq("examSection.exam.creator", user)
-                    .findOne();
+            question =
+                Ebean.find(ExamSectionQuestion.class).where().idEq(qid).eq("examSection.exam.creator", user).findOne();
         } else {
             question = Ebean.find(ExamSectionQuestion.class, qid);
         }
-        if (question != null && question.getEssayAnswer() != null && question.getEssayAnswer().getAttachment() != null) {
+        if (
+            question != null && question.getEssayAnswer() != null && question.getEssayAnswer().getAttachment() != null
+        ) {
             EssayAnswer answer = question.getEssayAnswer();
             Attachment aa = answer.getAttachment();
             answer.setAttachment(null);
@@ -203,7 +207,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public CompletionStage<Result> deleteExamAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -219,7 +223,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public CompletionStage<Result> deleteFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -245,10 +249,10 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public CompletionStage<Result> addAttachmentToExam(Http.Request request) {
-        MultipartForm mf  = getForm(request);
+        MultipartForm mf = getForm(request);
         long eid = Long.parseLong(mf.getForm().get("examId")[0]);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -269,7 +273,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Override
     public CompletionStage<Result> addFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
@@ -321,13 +325,16 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Question question;
         if (user.hasRole(Role.Name.STUDENT)) {
-            question = Ebean.find(Question.class).where()
+            question =
+                Ebean
+                    .find(Question.class)
+                    .where()
                     .idEq(id)
                     .eq("examSectionQuestions.examSection.exam.creator", user)
                     .findOne();
@@ -341,18 +348,20 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {
         // TODO: Authorization?
         ExamSectionQuestion question = getExamSectionQuestion(request, qid);
-        if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
+        if (
+            question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null
+        ) {
             return wrapAsPromise(notFound());
         }
         return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> downloadExamAttachment(Long id, Http.Request request) {
         // TODO: Authorization?
@@ -364,7 +373,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> downloadFeedbackAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -381,12 +390,15 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
-        User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
-                .isNotNull("languageInspection.statement.attachment");
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        ExpressionList<Exam> query = Ebean
+            .find(Exam.class)
+            .where()
+            .idEq(id)
+            .isNotNull("languageInspection.statement.attachment");
         if (user.hasRole(Role.Name.STUDENT)) {
             query = query.eq("creator", user);
         }
@@ -405,7 +417,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
     private CompletionStage<Result> serveAttachment(Attachment attachment) {
         File file = new File(attachment.getFilePath());
         if (!file.exists()) {
-            return wrapAsPromise(internalServerError("Requested file does not exist on disk even though referenced from database!"));
+            return wrapAsPromise(
+                internalServerError("Requested file does not exist on disk even though referenced from database!")
+            );
         }
         final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
         return serveAsBase64Stream(attachment, source);
@@ -414,10 +428,12 @@ public class AttachmentController extends BaseController implements LocalAttachm
     private ExamSectionQuestion getExamSectionQuestion(Http.Request request, Long id) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.STUDENT)) {
-            return Ebean.find(ExamSectionQuestion.class).where()
-                    .idEq(id)
-                    .eq("examSection.exam.creator", user)
-                    .findOne();
+            return Ebean
+                .find(ExamSectionQuestion.class)
+                .where()
+                .idEq(id)
+                .eq("examSection.exam.creator", user)
+                .findOne();
         }
         return Ebean.find(ExamSectionQuestion.class, id);
     }
@@ -429,8 +445,11 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     private void copyFile(Files.TemporaryFile sourceFile, File destFile) throws IOException {
-        java.nio.file.Files.copy(sourceFile.path(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES);
+        java.nio.file.Files.copy(
+            sourceFile.path(),
+            destFile.toPath(),
+            StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.COPY_ATTRIBUTES
+        );
     }
-
 }

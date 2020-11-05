@@ -16,38 +16,38 @@
 
 package backend.util;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+import backend.util.json.JsonFilter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.libs.Json;
-
-import backend.util.json.JsonFilter;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public class JsonFilterTest {
 
     @Test
     public void testFilterProperties() throws Exception {
-        final String json = FileUtils
-                .readFileToString(new File(Objects.requireNonNull(getClass().getClassLoader()
-                                .getResource("jsonfilter_testdata.json")).toURI()),
-                        "UTF-8");
+        final String json = FileUtils.readFileToString(
+            new File(
+                Objects.requireNonNull(getClass().getClassLoader().getResource("jsonfilter_testdata.json")).toURI()
+            ),
+            "UTF-8"
+        );
         final ArrayNode array = (ArrayNode) Json.parse(json);
         final JsonNode node1 = array.get(0);
         final JsonNode item = node1.get("item");
         final JsonNode description = item.get("description");
         final ArrayNode offers = (ArrayNode) item.get("offers");
 
-        final String[] filters = new String[]{"creator", "modifier"};
+        final String[] filters = new String[] { "creator", "modifier" };
         assertThatJsonHasProperties(node1, filters);
         assertThatJsonHasProperties(item, filters);
         assertThatJsonHasProperties(description, filters);
@@ -65,13 +65,15 @@ public class JsonFilterTest {
 
     @Test
     public void testFilterPropertiesWithIds() throws Exception {
-        final String json = FileUtils
-                .readFileToString(new File(Objects.requireNonNull(getClass().getClassLoader()
-                                .getResource("jsonfilter_testdata.json")).toURI()),
-                        "UTF-8");
+        final String json = FileUtils.readFileToString(
+            new File(
+                Objects.requireNonNull(getClass().getClassLoader().getResource("jsonfilter_testdata.json")).toURI()
+            ),
+            "UTF-8"
+        );
         final JsonNode root = Json.parse(json);
 
-        final String[] filters = new String[]{"creator", "modifier"};
+        final String[] filters = new String[] { "creator", "modifier" };
 
         // Filter json
         final Set<Long> ids = new HashSet<>();

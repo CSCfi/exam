@@ -64,7 +64,7 @@
     }
 
     &.exam-view-warning {
-      border-left: #ED4459 4px solid;
+      border-left: $sitnet-red 4px solid;
       margin-left: 0px;
       margin-right: 0px;
     }
@@ -75,7 +75,7 @@
     }
 
     &.exam-questions-warning {
-      border-left: #ED4459 4px solid;
+      border-left: $sitnet-red 4px solid;
       margin-left: 0px;
       margin-right: 40px;
 
@@ -163,7 +163,7 @@
   }
 
   .question-flow-badge {
-    background-color: #ed4459;
+    background-color: $sitnet-red;
   }
 
   .triangle-line {
@@ -219,6 +219,7 @@
     border: 2px solid #EDEDED;
     border-radius: 3px;
     text-align: center;
+    vertical-align: top;
     padding: 3px;
     font-weight: bold;
     font-family: $sitnet-family-helvetica;
@@ -404,13 +405,21 @@
       text-decoration: none;
     }
 
+    .enrolment-menu-button {
+      background: none;
+      border: none;
+    }
+
+    .enrolment-menu-button:focus {
+      outline: 5px auto #266B99;
+    }
+
     ul a:hover {
       text-decoration: underline;
     }
 
     img {
       vertical-align: baseline;
-      margin-left: 10px;
     }
   }
 
@@ -567,7 +576,7 @@
         }
 
         &.no_show {
-          color: #ED4459 !important;
+          color: $sitnet-red !important;
         }
 
         &.review {
@@ -887,7 +896,7 @@
 
   .tab-number {
     @extend .badge;
-    background-color: #ED4459 !important;
+    background-color: $sitnet-red !important;
   }
 
   .tab-wrapper-exams {
@@ -964,6 +973,39 @@
       font-size: 20px;
       letter-spacing: 0.63px;
     }
+
+    .score-details {
+      float: right;
+      font-size: 16px;
+      vertical-align: bottom;
+      margin-top: 6px;
+      color: #555555;
+    }
+  }
+
+  .review-list-footer {
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    font-weight: normal;
+    color: #2C2C2C;
+    float: right;
+    padding-right: 15px;
+
+    .score-label {
+      color: #555555;
+      width: 230px;
+
+      .score-value {
+        float: right;
+      }
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .review-list-footer {
+      float: left;
+      padding-left: 30px;
+    }
   }
 
   .review-list-subtitle {
@@ -1031,8 +1073,14 @@
 
       &.warning {
         background-color: white;
-        border: #ED4459 1px solid;;
-        color: #ED4459;
+        border: $sitnet-red 1px solid;
+        color: $sitnet-red;
+      }
+
+      &.warning-filled {
+        background-color: $sitnet-red;
+        border: $sitnet-red 1px solid;
+        color: white;
       }
 
       &.cancel {
@@ -1043,10 +1091,15 @@
       }
 
     }
+
+    .disabled-button-popover-wrapper {
+      cursor: not-allowed;
+    }
+
     button:disabled {
-      background-color: #7F7F7F;
-      color: #ffffff;
-      border: 1px solid black;
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: not-allowed;
     }
 
     a:hover, button:active, button:focus, button:active:focus {
@@ -1067,9 +1120,15 @@
       }
 
       &.warning {
-        background-color: #ED4459;
-        border: #ED4459 1px solid;;
+        background-color: $sitnet-dark-red;
+        border: $sitnet-dark-red 1px solid;
         color: #ffffff;
+      }
+
+      &.warning-filled {
+        background-color: $sitnet-dark-red;
+        border: $sitnet-dark-red 1px solid;
+        color: white;
       }
 
       &.cancel {
@@ -1473,7 +1532,7 @@
   }
 
   .reddish {
-    color: #ED4459;
+    color: $sitnet-red;
   }
 
   .grayish {
@@ -1673,11 +1732,11 @@
   }
 
   .claim-choice-incorrect-answer {
-    border: 1px solid #ED4459;
-    background-color: rgba($color: #ED4459, $alpha: 0.1);
+    border: 1px solid $sitnet-red;
+    background-color: rgba($color: $sitnet-red, $alpha: 0.1);
 
     .claim-choice-option-description {
-      color: #ED4459;
+      color: $sitnet-red;
     }
 
     input:disabled {
@@ -1698,8 +1757,8 @@
   }
 
   .claim-choice-warning {
-    background-color: rgba($color: #ED4459, $alpha: 0.1);
-    border-left: 6px solid #ED4459;
+    background-color: rgba($color: $sitnet-red, $alpha: 0.1);
+    border-left: 6px solid $sitnet-red;
     padding: 10px;
   }
 
@@ -1882,8 +1941,8 @@
 
     &.cancel {
       background-color: white;
-      border: #ED4459 1px solid;
-      color: #ED4459;
+      border: $sitnet-red 1px solid;
+      color: $sitnet-red;
     }
 
     &.button[disabled] {
@@ -1984,5 +2043,13 @@
       font-weight: 400;
     }
   }
+
+  .dropdown-submenu{position:relative;}
+  .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+  .dropdown-submenu:hover>.dropdown-menu{display:block;}
+  .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+  .dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+  .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+  
 }
 

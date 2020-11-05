@@ -1,6 +1,6 @@
-dist: trusty
+os: linux
 
-sudo: false
+dist: xenial
 
 language:
   - scala

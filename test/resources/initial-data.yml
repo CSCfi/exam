@@ -40,12 +40,16 @@ languages:
 
     - &fi !!backend.models.Language
       code: fi
+      name: suomi
     - &sv !!backend.models.Language
       code: sv
+      name: svenska
     - &en !!backend.models.Language
       code: en
+      name: English
     - &de !!backend.models.Language
       code: de
+      name: Deutsch
 
 ######################################################################
 
@@ -636,7 +640,7 @@ exams:
     grade:
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *fi
       - *sv
@@ -662,7 +666,7 @@ exams:
     state: REVIEW
     grade:
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *fi
       - *sv
@@ -683,7 +687,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *fi
       - *sv
@@ -703,7 +707,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *fi
 
@@ -722,7 +726,7 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *fi
 
@@ -741,7 +745,7 @@ exams:
     examSections:
     state: SAVED
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *de
 
@@ -759,7 +763,7 @@ exams:
     executionType: *public
     examSections:
     state: SAVED
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *sv
 
@@ -779,7 +783,7 @@ exams:
     examSections:
     state: GRADED
     duration: 90
-    requiresUserAgentAuth: false
+    implementation: AQUARIUM
     examLanguages:
       - *de
 

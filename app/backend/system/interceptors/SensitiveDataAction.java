@@ -15,11 +15,9 @@
 
 package backend.system.interceptors;
 
-
-import java.util.concurrent.CompletionStage;
-
 import akka.stream.Materializer;
 import com.google.inject.Inject;
+import java.util.concurrent.CompletionStage;
 import play.mvc.Http;
 import play.mvc.Result;
 
@@ -33,7 +31,8 @@ class SensitiveDataAction extends JsonFilterAction<SensitiveDataPolicy> {
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        return delegate.call(request)
-                .thenCompose(result -> filterJsonResponse(result, configuration.sensitiveFieldNames()));
+        return delegate
+            .call(request)
+            .thenCompose(result -> filterJsonResponse(result, configuration.sensitiveFieldNames()));
     }
 }

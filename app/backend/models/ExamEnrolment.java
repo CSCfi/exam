@@ -15,6 +15,13 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.json.CollaborativeExam;
+import backend.models.json.ExternalExam;
+import backend.util.datetime.DateTimeAdapter;
+import backend.util.datetime.DateTimeUtils;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -23,23 +30,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.json.CollaborativeExam;
-import backend.models.json.ExternalExam;
-import backend.util.datetime.DateTimeAdapter;
-import backend.util.datetime.DateTimeUtils;
-
-
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
-
     @ManyToOne
     @JsonBackReference
     private User user;
@@ -155,14 +151,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @Transient
     public boolean isActive() {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        if (exam == null || !exam.getRequiresUserAgentAuth()) {
+        if (exam == null || exam.getImplementation() == Exam.Implementation.AQUARIUM) {
             return reservation == null || reservation.getEndAt().isAfter(now);
         }
-        return examinationEventConfiguration == null ||
-                examinationEventConfiguration.getExaminationEvent()
-                        .getStart().plusMinutes(exam.getDuration()).isAfter(now);
+        return (
+            examinationEventConfiguration == null ||
+            examinationEventConfiguration.getExaminationEvent().getStart().plusMinutes(exam.getDuration()).isAfter(now)
+        );
     }
-
 
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {

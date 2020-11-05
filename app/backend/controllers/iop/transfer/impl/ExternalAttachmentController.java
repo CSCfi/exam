@@ -16,17 +16,6 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import javax.inject.Inject;
-
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import play.libs.ws.WSClient;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalAttachmentInterface;
 import backend.models.Exam;
@@ -34,11 +23,20 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.util.config.ConfigReader;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import play.libs.ws.WSClient;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
-
     @Inject
     private WSClient wsClient;
+
     @Inject
     private ConfigReader configReader;
 
@@ -77,8 +75,7 @@ public class ExternalAttachmentController extends BaseController implements Exte
     @Override
     public Optional<ExternalExam> getExternalExam(String id, Http.Request request) {
         final User user = getUser(request);
-        final ExpressionList<ExternalExam> query = Ebean.find(ExternalExam.class).where()
-                .eq("hash", id);
+        final ExpressionList<ExternalExam> query = Ebean.find(ExternalExam.class).where().eq("hash", id);
         if (user.hasRole(Role.Name.STUDENT)) {
             query.eq("creator", user);
         }
@@ -86,7 +83,11 @@ public class ExternalAttachmentController extends BaseController implements Exte
     }
 
     @Override
-    public CompletionStage<Result> updateExternalAssessment(ExternalExam exam, String assessmentRef, Http.Request request) {
+    public CompletionStage<Result> updateExternalAssessment(
+        ExternalExam exam,
+        String assessmentRef,
+        Http.Request request
+    ) {
         return wrapAsPromise(notAcceptable());
     }
 
@@ -99,5 +100,4 @@ public class ExternalAttachmentController extends BaseController implements Exte
     public ConfigReader getConfigReader() {
         return configReader;
     }
-
 }

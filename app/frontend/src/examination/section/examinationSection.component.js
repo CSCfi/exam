@@ -46,6 +46,14 @@ angular.module('app.examination').component('examinationSection', {
                 cancelAutosaver();
             };
 
+            vm.getSectionMaxScore = function() {
+                return Examination.getSectionMaxScore(vm.section);
+            };
+
+            vm.getAmountOfSelectionEvaluatedQuestions = function() {
+                return vm.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length;
+            };
+
             const resetAutosaver = function() {
                 cancelAutosaver();
                 if (vm.section) {

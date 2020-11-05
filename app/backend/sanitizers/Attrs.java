@@ -15,18 +15,17 @@
 
 package backend.sanitizers;
 
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.User;
 import java.util.Collection;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;
 
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.User;
-
 public enum Attrs {
     ;
+
     public static final TypedKey<String> ENROLMENT_INFORMATION = TypedKey.create("enrolmentInformation");
     public static final TypedKey<String> INSTRUCTION = TypedKey.create("instruction");
     public static final TypedKey<String> LANG = TypedKey.create("lang");
@@ -58,7 +57,6 @@ public enum Attrs {
     public static final TypedKey<Boolean> FEEDBACK_STATUS = TypedKey.create("feedbackStatus");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
-    public static final TypedKey<Boolean> REQUIRES_USER_AGENT_AUTH = TypedKey.create("requiresUserAgentAuth");
     public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
@@ -67,4 +65,5 @@ public enum Attrs {
     public static final TypedKey<Long> OBJECT_VERSION = TypedKey.create("objectVersion");
     public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
     public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
+    public static final TypedKey<Exam.Implementation> EXAM_IMPL = TypedKey.create("implementation");
 }

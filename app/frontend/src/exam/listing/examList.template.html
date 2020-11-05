@@ -12,24 +12,9 @@
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
             </span>
-
-            <div class="dropdown" uib-dropdown>
-                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" uib-dropdown-toggle>
-                    {{'sitnet_toolbar_new_exam' | translate}}
-                </a>
-                <ul class="dropdown-menu" role="menu">
-                    <li role="presentation">
-                        <a
-                            ng-repeat="type in $ctrl.executionTypes"
-                            role="menuitem"
-                            ng-click="$ctrl.createExam(type.type)"
-                            class="pointer"
-                        >
-                            {{type.name | translate}}
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <a class="header-top-link" ui-sref="newExam">
+                {{'sitnet_toolbar_new_exam' | translate}}
+            </a>
         </div>
     </div>
 
@@ -185,14 +170,45 @@
                             <td class="text-center">
                                 <span class="dropdown pointer" uib-dropdown>
                                     <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                        <i class="fa fa-lg fa-copy text-info"></i>
+                                        <img
+                                            src="Images/icon_copy.svg"
+                                            alt="exam"
+                                            onerror="this.onerror=null;this.src='Images/icon_copy.png'"
+                                            popover-placement="left"
+                                            popover-trigger="'mouseenter'"
+                                            uib-popover="{{'sitnet_copy' | translate}}"
+                                        />
                                     </a>
                                     <ul class="dropdown-menu pull-right" style="min-width: 17em">
                                         <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
-                                        <li ng-repeat="type in $ctrl.executionTypes">
-                                            <a role="menuitem" ng-click="$ctrl.copyExam(exam, type.type)">
+                                        <li
+                                            ng-class="type.examinationTypes.length > 0 ? 'dropdown-submenu pull-left': ''"
+                                            ng-repeat="type in $ctrl.executionTypes"
+                                        >
+                                            <a role="menuitem" ng-if="type.examinationTypes.length > 0">
                                                 {{type.name | translate}}
                                             </a>
+                                            <a
+                                                role="menuitem"
+                                                ng-if="type.examinationTypes.length === 0"
+                                                ng-click="$ctrl.copyExam(exam, type.type)"
+                                            >
+                                                {{type.name | translate}}
+                                            </a>
+                                            <ul class="dropdown-menu" ng-if="type.examinationTypes.length > 0">
+                                                <li class="dropdown-header">
+                                                    {{'sitnet_examination_type' | translate}} ({{type.name |
+                                                    translate}})
+                                                </li>
+                                                <li ng-repeat="et in type.examinationTypes">
+                                                    <a
+                                                        role="menuitem"
+                                                        ng-click="$ctrl.copyExam(exam, type.type, et.type)"
+                                                    >
+                                                        {{et.name | translate}}
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
                                 </span>

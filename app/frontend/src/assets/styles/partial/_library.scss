@@ -46,8 +46,8 @@
 
       &.warning {
         background-color: white;
-        border: #ED4459 1px solid;;
-        color: #ED4459;
+        border: $sitnet-red 1px solid;
+        color: $sitnet-red;
       }
 
     }
@@ -71,8 +71,8 @@
       }
 
       &.warning {
-        background-color: #ED4459;
-        border: #ED4459 1px solid;;
+        background-color: $sitnet-red;
+        border: $sitnet-red 1px solid;
         color: #ffffff;
       }
 
@@ -149,7 +149,7 @@
         }
 
         &.no_show {
-          color:#ED4459 !important;
+          color: $sitnet-red !important;
         }
 
         &.review {

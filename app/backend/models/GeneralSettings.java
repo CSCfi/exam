@@ -16,12 +16,10 @@
 package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
-
 import javax.persistence.Entity;
 
 @Entity
 public class GeneralSettings extends GeneratedIdentityModel {
-
     private String name;
 
     private String value;

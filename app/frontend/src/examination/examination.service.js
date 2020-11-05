@@ -28,20 +28,23 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
     self.startExam = function(hash, isPreview, isCollaboration, id) {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
         const deferred = $q.defer();
-        $http
-            .get(isCollaboration ? url.replace('/app/', '/integration/iop/') : url)
-            .then(function(resp) {
-                if (resp.data.cloned) {
-                    // we came here with a reference to the parent exam so do not render page just yet,
-                    // reload with reference to student exam that we just created
-                    $state.go('examination', { hash: resp.data.hash });
-                }
-                _external = resp.data.external;
-                deferred.resolve(resp.data);
-            })
-            .catch(function(resp) {
-                deferred.reject(resp.data);
-            });
+        $http.get('/app/checkSession').then(() => {
+            $http
+                .get(isCollaboration ? url.replace('/app/', '/integration/iop/') : url)
+                .then(function(resp) {
+                    if (resp.data.cloned) {
+                        // we came here with a reference to the parent exam so do not render page just yet,
+                        // reload with reference to student exam that we just created
+                        $state.go('examination', { hash: resp.data.hash });
+                    }
+                    _external = resp.data.external;
+                    deferred.resolve(resp.data);
+                })
+                .catch(function(resp) {
+                    deferred.reject(resp.data);
+                });
+        });
+
         return deferred.promise;
     };
 
@@ -213,6 +216,19 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
             .catch(function(resp) {
                 toast.error($translate.instant(resp.data));
             });
+    };
+
+    self.getSectionMaxScore = function(section) {
+        if (!section || !section.sectionQuestions) {
+            return 0;
+        }
+
+        const sum = section.sectionQuestions
+            .filter(esq => esq.question.type && esq.evaluationType !== 'Selection')
+            .map(esq => esq.derivedMaxScore)
+            .reduce((acc, current) => acc + current, 0);
+
+        return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 }
 

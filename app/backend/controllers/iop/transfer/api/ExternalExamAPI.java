@@ -15,16 +15,13 @@
 
 package backend.controllers.iop.transfer.api;
 
-
-import java.net.MalformedURLException;
-import java.util.concurrent.CompletionStage;
-
-import com.google.inject.ImplementedBy;
-
 import backend.controllers.iop.transfer.impl.ExternalExamController;
 import backend.models.ExamEnrolment;
 import backend.models.Reservation;
 import backend.models.User;
+import com.google.inject.ImplementedBy;
+import java.net.MalformedURLException;
+import java.util.concurrent.CompletionStage;
 
 @FunctionalInterface
 @ImplementedBy(ExternalExamController.class)

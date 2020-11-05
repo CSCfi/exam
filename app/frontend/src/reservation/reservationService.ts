@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 /// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
 
 export class ReservationService {
     constructor(
@@ -65,7 +64,10 @@ export class ReservationService {
 
     getReservationCount = exam =>
         exam.examEnrolments.filter(
-            enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime(),
+            enrolment =>
+                (enrolment.reservation && new Date(enrolment.reservation.endAt) > new Date()) ||
+                (enrolment.examinationEventConfiguration &&
+                    new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
 
     changeMachine(reservation) {

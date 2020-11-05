@@ -83,11 +83,15 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
 
         getUsername = () => this.Session.getUserName();
 
-        getExecutionTypeTranslation = exam => this.Exam.getExecutionTypeTranslation(exam.executionType.type);
+        getExecutionTypeTranslation = exam => {
+            const type = this.Exam.getExecutionTypeTranslation(exam.executionType.type);
+            const impl = this.Exam.getExamImplementationTranslation(exam.implementation);
+            return `${this.$translate.instant(type)} - ${this.$translate.instant(impl)}`;
+        };
 
-        copyExam(exam, type) {
+        copyExam(exam, type, examinationType = 'AQUARIUM') {
             this.$http
-                .post(`/app/exams/${exam.id}`, { type: type })
+                .post(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
                 .then((resp: IHttpResponse<{ id: number }>) => {
                     toast.success(this.$translate.instant('sitnet_exam_copied'));
                     this.$state.go('examEditor', { id: resp.data.id, tab: 1 });

@@ -46,9 +46,9 @@ angular.module('app.exam').service('Exam', [
             }).length;
         };
 
-        self.createExam = function(executionType) {
+        self.createExam = function(executionType, examinationType = 'AQUARIUM') {
             ExamRes.draft.create(
-                { executionType: executionType },
+                { executionType: executionType, implementation: examinationType },
                 function(response) {
                     toast.info($translate.instant('sitnet_exam_added'));
                     //return response.id;
@@ -84,7 +84,7 @@ angular.module('app.exam').service('Exam', [
                 objectVersion: exam.objectVersion,
                 attachment: exam.attachment,
                 anonymous: exam.anonymous,
-                requiresUserAgentAuth: exam.requiresUserAgentAuth,
+                implementation: exam.implementation,
                 settingsPassword: exam.settingsPassword,
             };
             for (const k in overrides) {
@@ -261,6 +261,24 @@ angular.module('app.exam').service('Exam', [
             return translation;
         };
 
+        self.getExamImplementationTranslation = function(impl) {
+            let translation;
+            if (impl === 'AQUARIUM') {
+                translation = 'sitnet_examination_type_aquarium';
+            }
+            if (impl === 'CLIENT_AUTH') {
+                translation = 'sitnet_examination_type_seb';
+            }
+            if (impl === 'WHATEVER') {
+                translation = 'sitnet_examination_type_home_exam';
+            }
+            return translation;
+        };
+
+        function isInteger(n) {
+            return typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
+        }
+
         self.getSectionTotalScore = function(section) {
             let score = 0;
 
@@ -290,7 +308,8 @@ angular.module('app.exam').service('Exam', [
                         break;
                 }
             });
-            return score;
+
+            return isInteger(score) ? score : parseFloat(score.toFixed(2));
         };
 
         self.getSectionMaxScore = function(section) {
@@ -321,10 +340,6 @@ angular.module('app.exam').service('Exam', [
             });
             if (section.lotteryOn) {
                 score = (score * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
-            }
-
-            function isInteger(n) {
-                return typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
             }
 
             return isInteger(score) ? score : parseFloat(score.toFixed(2));

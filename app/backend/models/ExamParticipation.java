@@ -15,6 +15,11 @@
 
 package backend.models;
 
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.json.CollaborativeExam;
+import backend.util.datetime.DateTimeAdapter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -22,20 +27,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.json.CollaborativeExam;
-import backend.util.datetime.DateTimeAdapter;
-
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel {
-
     @ManyToOne
     @JsonBackReference
     private User user;
@@ -157,7 +154,7 @@ public class ExamParticipation extends GeneratedIdentityModel {
 
     @Transient
     public boolean isProcessed() {
-        return exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED);
+        return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
     }
 
     @Override

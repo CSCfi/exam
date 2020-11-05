@@ -1,12 +1,32 @@
 package base;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.Language;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.util.json.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,13 +37,6 @@ import java.util.Objects;
 import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,29 +50,11 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.models.Grade;
-import backend.models.GradeScale;
-import backend.models.Language;
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.util.json.JsonDeserializer;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
-
 public class IntegrationTestCase {
-
     protected static final int MAIL_TIMEOUT = 20000;
-    protected static Application app;
-    private String sessionToken;
+    protected Application app;
     protected Long userId;
+    protected Http.Session session;
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
@@ -75,18 +70,22 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
-        HAKA_HEADERS.put("schacPersonalUniqueCode",
-                "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
-                        "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
-                        "urn:schac:personalUniqueCode:int:studentID:org1.org:11111");
+        HAKA_HEADERS.put(
+            "schacPersonalUniqueCode",
+            "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
+            "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
+            "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+        );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
-        try {
-            HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
-                    URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        HAKA_HEADERS.put(
+            "logouturl",
+            URLEncoder.encode(
+                "https://logout.foo.bar.com?returnUrl=" +
+                URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
+            )
+        );
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -118,11 +117,7 @@ public class IntegrationTestCase {
 
     @After
     public void tearDown() {
-        if (sessionToken != null) {
-            logout();
-            sessionToken = null;
-            userId = null;
-        }
+        logout();
         Helpers.stop(app);
         // Clear exam upload directory
         String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
@@ -151,7 +146,13 @@ public class IntegrationTestCase {
         return request(method, path, body, HAKA_HEADERS, followRedirects);
     }
 
-    protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
+    protected Result request(
+        String method,
+        String path,
+        JsonNode body,
+        Map<String, String> headers,
+        boolean followRedirects
+    ) {
         Http.RequestBuilder request = getRequestBuilder(method, path, headers);
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
@@ -172,6 +173,9 @@ public class IntegrationTestCase {
         Http.RequestBuilder request = fakeRequest(method, path);
         for (Map.Entry<String, String> header : headers.entrySet()) {
             request = request.header(header.getKey(), header.getValue());
+        }
+        if (this.session != null) {
+            request = request.session(this.session.data());
         }
         return request;
     }
@@ -196,14 +200,15 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("eppn", eppn);
         headers.forEach(HAKA_HEADERS::put);
         Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
-        assertThat(result.status()).isEqualTo(200);
+        this.session = result.session();
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode user = Json.parse(contentAsString(result));
-        sessionToken = user.get("token").asText();
         userId = user.get("id").asLong();
     }
 
     protected void logout() {
         request(Helpers.POST, "/app/logout", null);
+        this.session = new Http.Session();
     }
 
     protected <T> T deserialize(Class<T> model, JsonNode node) {
@@ -240,20 +245,29 @@ public class IntegrationTestCase {
                 results.add(String.format("$[%d].%s", i, path));
             }
         }
-        return results.toArray(new String[results.size()]);
+        return results.toArray(new String[0]);
     }
 
     protected void initExamSectionQuestions(Exam exam) {
         exam.setExamSections(new TreeSet<>(exam.getExamSections()));
-        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
-            u.setLanguage(Ebean.find(Language.class, "en"));
-            u.update();
-        });
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
+        exam
+            .getExamInspections()
+            .stream()
+            .map(ExamInspection::getUser)
+            .forEach(
+                u -> {
+                    u.setLanguage(Ebean.find(Language.class, "en"));
+                    u.update();
+                }
+            );
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+            .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+            .forEach(
+                esq -> {
                     for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                         ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
                         esqo.setOption(o);
@@ -261,7 +275,8 @@ public class IntegrationTestCase {
                         esq.getOptions().add(esqo);
                     }
                     esq.save();
-                });
+                }
+            );
     }
 
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
@@ -270,7 +285,7 @@ public class IntegrationTestCase {
             try {
                 Object object = JsonPath.read(document, path);
                 if (isIndefinite(path)) {
-                    Collection c = (Collection) object;
+                    Collection<?> c = (Collection<?>) object;
                     assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
                 } else if (!shouldExist) {
                     Assert.fail("Expected path not to be found: " + path);
@@ -287,7 +302,6 @@ public class IntegrationTestCase {
         return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
-    @SuppressWarnings("unchecked")
     private void addTestData() throws Exception {
         int userCount;
         try {
@@ -297,28 +311,19 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-
             Yaml yaml = new Yaml(new JodaPropertyConstructor());
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
-            Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
+            Map<String, List<Object>> all = yaml.load(is);
             is.close();
             Ebean.saveAll(all.get("role"));
             Ebean.saveAll(all.get("exam-type"));
             Ebean.saveAll(all.get("exam-execution-type"));
-            if (Ebean.find(Language.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("languages"));
-            }
+            Ebean.saveAll(all.get("languages"));
             Ebean.saveAll(all.get("organisations"));
             Ebean.saveAll(all.get("attachments"));
-
             Ebean.saveAll(all.get("users"));
-
-            if (Ebean.find(GradeScale.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("grade-scales"));
-            }
-            if (Ebean.find(Grade.class).findCount() == 0) { // Might already be inserted by evolution
-                Ebean.saveAll(all.get("grades"));
-            }
+            Ebean.saveAll(all.get("grade-scales"));
+            Ebean.saveAll(all.get("grades"));
             Ebean.saveAll(all.get("question-essay"));
             Ebean.saveAll(all.get("question-multiple-choice"));
             Ebean.saveAll(all.get("question-weighted-multiple-choice"));
@@ -372,9 +377,12 @@ public class IntegrationTestCase {
 
     @NotNull
     protected ExamSectionQuestion getExamSectionQuestion(Exam exam, Long id) throws Exception {
-        return exam.getExamSections().stream()
-                .flatMap(examSection -> examSection.getSectionQuestions().stream())
-                .filter(sq -> id == null || sq.getId().equals(id))
-                .findFirst().orElseThrow(() -> new Exception("Null section question"));
+        return exam
+            .getExamSections()
+            .stream()
+            .flatMap(examSection -> examSection.getSectionQuestions().stream())
+            .filter(sq -> id == null || sq.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new Exception("Null section question"));
     }
 }

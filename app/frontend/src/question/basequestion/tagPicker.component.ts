@@ -77,7 +77,7 @@ export const TagPickerComponent: angular.IComponentOptions = {
                     .then((resp: angular.IHttpResponse<Tag[]>) => {
                         const tags = resp.data;
                         if (filter) {
-                            tags.unshift({ id: 0, name: filter });
+                            tags.unshift({ name: filter });
                         }
                         // filter out the ones already tagged for this question and slice
                         const filtered = tags

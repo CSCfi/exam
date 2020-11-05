@@ -29,7 +29,6 @@ export const SectionComponent: ng.IComponentOptions = {
         canBeOptional: '<',
         materials: '<',
         onDelete: '&',
-        onReloadRequired: '&', // TODO: try to live without this callback?
         onMaterialsChanged: '&',
     },
     require: {
@@ -40,7 +39,6 @@ export const SectionComponent: ng.IComponentOptions = {
         examId: number;
         canBeOptional: boolean;
         onDelete: (_: { section: ExamSection }) => any;
-        onReloadRequired: () => any;
         onMaterialsChanged: () => any;
         parentCtrl: { collaborative: boolean };
         collaborative: boolean;
@@ -53,6 +51,7 @@ export const SectionComponent: ng.IComponentOptions = {
             private dialogs: angular.dialogservice.IDialogService,
             private Question: any,
             private Files: FileService,
+            private Exam: any,
         ) {
             'ngInject';
         }
@@ -117,7 +116,6 @@ export const SectionComponent: ng.IComponentOptions = {
         };
 
         private insertExamQuestion = (question: Question, seq: number) => {
-            // TODO: see if we could live without reloading the whole exam from back?
             const resource = this.parentCtrl.collaborative
                 ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
                 : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
@@ -127,23 +125,37 @@ export const SectionComponent: ng.IComponentOptions = {
             }
             this.$http
                 .post(resource, data)
-                .then((resp: IHttpResponse<ExamSectionQuestion>) => {
+                .then((resp: IHttpResponse<ExamSection | ExamSectionQuestion>) => {
+                    // Add new section question to existing section
+                    if (!this.parentCtrl.collaborative) {
+                        const section = resp.data as ExamSection;
+                        const examSectionQuestion = section.sectionQuestions.find(
+                            esq => esq.question.id === question.id,
+                        );
+                        if (examSectionQuestion) {
+                            this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
+                        }
+                        return;
+                    }
                     // Collaborative exam question handling.
-                    this.addAttachment(resp.data, question, this.onReloadRequired);
+                    const newSectionQuestion = resp.data as ExamSectionQuestion;
+                    this.addAttachment(newSectionQuestion, question, () => {
+                        const uploadedAttachment = question.attachment;
+                        if (uploadedAttachment) {
+                            newSectionQuestion.question.attachment = uploadedAttachment;
+                        }
+                    });
+                    this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
                 })
                 .catch(resp => toast.error(resp.data));
         };
 
         private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
-            if (!this.parentCtrl.collaborative) {
-                callback();
-                return;
-            }
             const attachment = question.attachment;
             if (!attachment) {
-                callback();
                 return;
             }
+
             if (attachment.modified && attachment.file) {
                 this.Files.upload(
                     '/integration/iop/attachment/question',
@@ -293,11 +305,17 @@ export const SectionComponent: ng.IComponentOptions = {
                         questionCount: this.section.sectionQuestions.length,
                     },
                 })
-                .result.then(() => {
-                    // TODO: see if we could live without reloading the whole exam from back?
-                    this.onReloadRequired();
+                .result.then((modalValue: ExamSectionQuestion[] | undefined) => {
+                    if (modalValue && Array.isArray(modalValue)) {
+                        this.section.sectionQuestions = [...this.section.sectionQuestions, ...modalValue];
+                    }
                 });
         };
+
+        getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
+
+        getAmountOfSelectionEvaluatedQuestions = () =>
+            this.section.sectionQuestions.filter(q => q.evaluationType === 'Selection').length;
     },
 };
 

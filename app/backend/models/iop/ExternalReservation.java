@@ -15,18 +15,15 @@
 
 package backend.models.iop;
 
+import backend.controllers.RoomLike;
+import backend.models.MailAddress;
+import backend.models.base.GeneratedIdentityModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-import backend.controllers.RoomLike;
-import backend.models.MailAddress;
-import backend.models.base.GeneratedIdentityModel;
-
-
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {
-
     private String orgRef;
 
     private String orgName;
@@ -170,5 +167,4 @@ public class ExternalReservation extends GeneratedIdentityModel implements RoomL
     public void setRoomInstructionSV(String roomInstructionSV) {
         this.roomInstructionSV = roomInstructionSV;
     }
-
 }

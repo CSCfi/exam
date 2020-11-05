@@ -15,14 +15,11 @@
 
 package backend.models;
 
-import javax.persistence.Entity;
-
 import backend.models.base.GeneratedIdentityModel;
-
+import javax.persistence.Entity;
 
 @Entity
 public class MailAddress extends GeneratedIdentityModel {
-
     private String street;
 
     private String zip;

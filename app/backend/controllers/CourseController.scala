@@ -15,26 +15,23 @@
 
 package backend.controllers
 
-import javax.inject.Inject
 import backend.impl.ExternalCourseHandler
-import backend.models.{Course, Role, Session, User}
+import backend.models.{Course, Role, User}
 import backend.security.Authenticator
 import backend.util.scala.JavaJsonResultProducer
 import io.ebean.Ebean
-import play.api.cache.SyncCacheApi
+import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 
-import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
-class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: SyncCacheApi)
+class CourseController @Inject()(externalApi: ExternalCourseHandler)
     extends InjectedController
     with Authenticator
     with JavaJsonResultProducer {
-
-  override def sessionCache: SyncCacheApi = cache
 
   def listCourses(filterType: Option[String],
                   criteria: Option[String],
@@ -60,8 +57,7 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: Sync
     }
   }
 
-  def getUserCourses(session: Session,
-                     user: User,
+  def getUserCourses(user: User,
                      examIds: Option[List[Long]],
                      sectionIds: Option[List[Long]],
                      tagIds: Option[List[Long]]): Result = {
@@ -88,7 +84,7 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: Sync
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
     Action.async { request =>
       getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-        case Some((_, user)) =>
+        case Some(user) =>
           listCourses(filterType, criteria, user)
         case _ =>
           Future.successful(forbid())
@@ -107,8 +103,8 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: Sync
                        sectionIds: Option[List[Long]],
                        tagIds: Option[List[Long]]): Action[AnyContent] = Action { request =>
     getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-      case Some((session, user)) =>
-        getUserCourses(session, user, examIds, sectionIds, tagIds)
+      case Some(user) =>
+        getUserCourses(user, examIds, sectionIds, tagIds)
       case _ =>
         forbid()
     }

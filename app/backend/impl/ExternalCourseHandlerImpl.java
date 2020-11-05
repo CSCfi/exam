@@ -15,6 +15,16 @@
 
 package backend.impl;
 
+import backend.models.Course;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.Organisation;
+import backend.models.User;
+import backend.util.config.ConfigReader;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -28,27 +38,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
-import backend.models.Course;
-import backend.models.Grade;
-import backend.models.GradeScale;
-import backend.models.Organisation;
-import backend.models.User;
-import backend.util.config.ConfigReader;
-
-
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
-
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
@@ -58,6 +54,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final Logger.ALogger logger = Logger.of(ExternalCourseHandlerImpl.class);
 
     private static class RemoteException extends Exception {
+
         RemoteException(String message) {
             super(message);
         }
@@ -87,34 +84,40 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private Set<Course> getLocalCourses(String code) {
-        return Ebean.find(Course.class).where()
-                .ilike("code", code + "%")
-                .disjunction()
-                .isNull("endDate")
-                .gt("endDate", new Date())
-                .endJunction()
-                .disjunction()
-                .isNull("startDate")
-                .lt("startDate", new Date())
-                .endJunction()
-                .orderBy("code")
-                .findSet();
+        return Ebean
+            .find(Course.class)
+            .where()
+            .ilike("code", code + "%")
+            .disjunction()
+            .isNull("endDate")
+            .gt("endDate", new Date())
+            .endJunction()
+            .disjunction()
+            .isNull("startDate")
+            .lt("startDate", new Date())
+            .endJunction()
+            .orderBy("code")
+            .findSet();
     }
 
     @Override
     public CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
         if (!configReader.isCourseSearchActive()) {
-            return CompletableFuture.supplyAsync(() -> getLocalCourses(code));
+            return CompletableFuture.completedFuture(getLocalCourses(code));
         }
         // Hit the remote end for a possible match. Update local records with matching remote records.
         // Finally return all matches (old & new)
         URL url = parseUrl(user.getOrganisation(), code);
-        return downloadCourses(url).thenApplyAsync(courses -> {
-            courses.forEach(this::saveOrUpdate);
-            Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
-            return Stream.concat(getLocalCourses(code).stream(), courses.stream())
-                    .collect(Collectors.toCollection(supplier));
-        });
+        return downloadCourses(url)
+            .thenApplyAsync(
+                courses -> {
+                    courses.forEach(this::saveOrUpdate);
+                    Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
+                    return Stream
+                        .concat(getLocalCourses(code).stream(), courses.stream())
+                        .collect(Collectors.toCollection(supplier));
+                }
+            );
     }
 
     @Override
@@ -174,10 +177,15 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
             throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
         };
-        return request.get().thenApplyAsync(onSuccess).exceptionally(t -> {
-            logger.error("Connection error occurred", t);
-            return Collections.emptyList();
-        });
+        return request
+            .get()
+            .thenApplyAsync(onSuccess)
+            .exceptionally(
+                t -> {
+                    logger.error("Connection error occurred", t);
+                    return Collections.emptyList();
+                }
+            );
     }
 
     private static URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
@@ -206,7 +214,6 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return new URL(url);
     }
 
-
     private static URL parseUrl(User user) throws MalformedURLException {
         if (user.getUserIdentifier() == null) {
             throw new MalformedURLException("User has no identier number!");
@@ -215,12 +222,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
             throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url = url.replace(USER_ID_PLACEHOLDER, user.getUserIdentifier()).replace(USER_LANG_PLACEHOLDER,
-                user.getLanguage().getCode());
+        url =
+            url
+                .replace(USER_ID_PLACEHOLDER, user.getUserIdentifier())
+                .replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
         return new URL(url);
     }
-
-
 
     private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode node = src;
@@ -230,14 +237,16 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             for (JsonNode scale : node) {
                 String type = scale.get("type").asText();
                 Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
-                if (!scaleType.isPresent()) {
+                if (scaleType.isEmpty()) {
                     // not understood
                     logger.warn("Skipping over unknown grade scale type {}", type);
                 } else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
                     // This needs custom handling
                     if (!scale.has("code") || !scale.has("name")) {
-                        logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
-                                scale.asText());
+                        logger.warn(
+                            "Skipping over grade scale of type OTHER, required nodes are missing: {}",
+                            scale.asText()
+                        );
                         continue;
                     }
                     Long externalRef = scale.get("code").asLong();
@@ -261,9 +270,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                         g.setName(grade.get("description").asText());
                         g.setGradeScale(gs);
                         // Dumb JSON API gives us boolean values as strings
-                        boolean marksRejection = grade.get("isFailed") != null ?
-                                Boolean.valueOf(grade.get("isFailed").asText("false")) :
-                                false;
+                        boolean marksRejection =
+                            grade.get("isFailed") != null &&
+                            Boolean.parseBoolean(grade.get("isFailed").asText("false"));
                         g.setMarksRejection(marksRejection);
                         g.save();
                         gs.getGrades().add(g);
@@ -279,8 +288,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
     private Optional<Course> parseCourse(JsonNode node) throws ParseException {
         // check that this is a course node, response can also contain error messages and so on
-        if (node.has("identifier") && node.has("courseUnitCode") &&
-                node.has("courseUnitTitle") && node.has("institutionName")) {
+        if (
+            node.has("identifier") &&
+            node.has("courseUnitCode") &&
+            node.has("courseUnitTitle") &&
+            node.has("institutionName")
+        ) {
             Course course = new Course();
             if (node.has("endDate")) {
                 Date endDate = DF.parse(node.get("endDate").asText());
@@ -365,5 +378,4 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         }
         return Optional.empty();
     }
-
 }
