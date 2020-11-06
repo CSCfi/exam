@@ -225,7 +225,15 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
         // This is a little bit tricky. Need to map the original question options with copied ones so they can be
         // associated with both question and exam section question options :)
-        Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
+
+        Map<Long, MultipleChoiceOption> optionMap;
+
+        if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+            optionMap = new TreeMap<>();
+        } else {
+            optionMap = new HashMap<>();
+        }
+
         Question blueprint = question.copy(optionMap, hasParent);
         if (hasParent) {
             blueprint.setParent(question);
