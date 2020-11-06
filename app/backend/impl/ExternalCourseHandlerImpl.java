@@ -47,6 +47,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -114,16 +115,16 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (!configReader.isCourseSearchActive()) {
             return CompletableFuture.completedFuture(getLocalCourses(code));
         }
-        // Hit the remote end for a possible match. Update local records with matching remote records.
-        // Finally return all matches (old & new)
+        // Hit the remote end for possible matches. Update local records with matching remote records.
+        // Finally return all matches (local & remote)
         URL url = parseUrl(user.getOrganisation(), code);
         return downloadCourses(url)
             .thenApplyAsync(
-                courses -> {
-                    courses.forEach(this::saveOrUpdate);
+                remotes -> {
+                    remotes.forEach(this::saveOrUpdate);
                     Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
                     return Stream
-                        .concat(getLocalCourses(code).stream(), courses.stream())
+                        .concat(getLocalCourses(code).stream(), remotes.stream())
                         .collect(Collectors.toCollection(supplier));
                 }
             );
@@ -159,18 +160,20 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private void saveOrUpdate(Course external) {
-        Course local = Ebean.find(Course.class).where().eq("code", external.getCode()).findOne();
-        if (local == null) {
-            // New course, add it
-            external.save();
-        } else {
-            // Existing course, update information
-
-            // disabled for now.
-            // BeanUtils.copyProperties(external, local, "id", "objectVersion");
-            // local.update();
-            external.setId(local.getId());
-        }
+        Ebean
+            .find(Course.class)
+            .where()
+            .eq("code", external.getCode())
+            .findOneOrEmpty()
+            .ifPresentOrElse(
+                local -> {
+                    // Existing course, update information
+                    BeanUtils.copyProperties(external, local, "id", "objectVersion");
+                    local.update();
+                    external.setId(local.getId());
+                },
+                external::save
+            );
     }
 
     private CompletionStage<List<Course>> downloadCourses(URL url) {
