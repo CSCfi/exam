@@ -54,7 +54,7 @@ angular.module('app.enrolment').component('examParticipation', {
                     !vm.participation.exam.examFeedback.feedbackStatus
                 ) {
                     CollaborativeAssessment.setCommentRead(
-                        vm.participation.collaborativeExam.id,
+                        vm.participation.examId,
                         vm.participation._id,
                         vm.participation._rev,
                     ).then(() => {

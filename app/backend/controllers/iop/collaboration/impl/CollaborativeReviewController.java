@@ -587,11 +587,11 @@ public class CollaborativeReviewController extends CollaborationController {
     }
 
     @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> setFeedbackRead(Long id, String ref, Http.Request request) {
-        return findCollaborativeExam(id)
+    public CompletionStage<Result> setFeedbackRead(String examRef, String assessmentRef, Http.Request request) {
+        return findCollaborativeExam(examRef)
             .map(
                 ce ->
-                    getURL(ce, ref)
+                    getURL(ce, assessmentRef)
                         .map(
                             url -> {
                                 JsonNode body = request.body().asJson();
