@@ -36,7 +36,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class CollaborativeStudentActionController extends CollaborationController {
-    private WSClient wsClient;
+    private final WSClient wsClient;
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeStudentActionController.class);
 
@@ -50,7 +50,7 @@ public class CollaborativeStudentActionController extends CollaborationControlle
     public CompletionStage<Result> getFinishedExams(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         final Optional<URL> url = parseUrl();
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
         final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());

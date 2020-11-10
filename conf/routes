@@ -354,7 +354,7 @@ PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.c
 PUT           /integration/iop/reviews/:id/:ref/question/:qid/force    backend.controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
 PUT           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String, request: Request)
-POST          /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: Long, ref: String, request: Request)
+POST          /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: String, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/info                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String, request: Request)
 PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
 POST          /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
