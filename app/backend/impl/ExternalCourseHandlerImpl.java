@@ -167,9 +167,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .findOneOrEmpty()
             .ifPresentOrElse(
                 local -> {
-                    // Existing course, update information
-                    BeanUtils.copyProperties(external, local, "id", "objectVersion");
-                    local.update();
+                    // Existing course
+                    if (external.getCourseImplementation() != null) {
+                        // update only those courses that specify an implementation
+                        BeanUtils.copyProperties(external, local, "id", "objectVersion");
+                        local.update();
+                    }
                     external.setId(local.getId());
                 },
                 external::save
