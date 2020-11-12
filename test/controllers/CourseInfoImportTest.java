@@ -116,9 +116,10 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
 
-        Course course = Ebean.find(Course.class).where().eq("code", "2121219").findOne();
+        Course course = Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop").findOne();
         assertThat(course).isNotNull();
         assertThat(course.getName()).endsWith("2");
+        assertThat(course.getGradeScale().getDisplayName()).isEqualTo("1-2");
     }
 
     @Test
