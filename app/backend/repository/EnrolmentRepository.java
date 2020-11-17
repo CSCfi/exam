@@ -75,7 +75,7 @@ public class EnrolmentRepository {
             .fetch("exam")
             .fetch("exam.examinationEventConfigurations.examinationEvent")
             .fetch("exam.executionType")
-            .fetch("exam.examSections", "name, description")
+            .fetch("exam.examSections", "name, description, optional")
             .fetch("exam.course", "name, code")
             .fetch("exam.examLanguages")
             .fetch("exam.examOwners", "firstName, lastName")
