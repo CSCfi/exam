@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +45,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
@@ -58,6 +58,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+    private static final String USER_IDENTIFIER = ConfigFactory
+        .load()
+        .getString("sitnet.integration.enrolmentPermissionCheck.id");
 
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
 
@@ -142,15 +145,11 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             if (root.has("exception")) {
                 throw new RemoteException(root.get("exception").asText());
             } else if (root.has("data")) {
-                Set<String> results = new HashSet<>();
-                for (JsonNode course : root.get("data")) {
-                    if (course.has("course_code")) {
-                        results.add(course.get("course_code").asText());
-                    } else {
-                        logger.warn("Unexpected content {}", course.asText());
-                    }
-                }
-                return results;
+                return StreamSupport
+                    .stream(root.get("data").spliterator(), false)
+                    .filter(c -> c.has("course_code"))
+                    .map(c -> c.get("course_code").asText())
+                    .collect(Collectors.toSet());
             } else {
                 logger.warn("Unexpected content {}", root.asText());
                 throw new RemoteException("sitnet_request_timed_out");
@@ -230,17 +229,15 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private static URL parseUrl(User user) throws MalformedURLException {
-        if (user.getUserIdentifier() == null) {
+        if (USER_IDENTIFIER.equals("userIdentifier") && user.getUserIdentifier() == null) {
             throw new MalformedURLException("User has no identier number!");
         }
         String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
-        if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
+        if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
             throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url =
-            url
-                .replace(USER_ID_PLACEHOLDER, user.getUserIdentifier())
-                .replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
+        String identifier = USER_IDENTIFIER.equals("userIdentifier") ? user.getUserIdentifier() : user.getEppn();
+        url = url.replace(USER_ID_PLACEHOLDER, identifier).replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
         return new URL(url);
     }
 
