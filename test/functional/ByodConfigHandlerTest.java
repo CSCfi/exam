@@ -4,11 +4,12 @@ import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.running;
 
 import backend.util.config.ByodConfigHandler;
+import base.IntegrationTestCase;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 
-public class ByodConfigHandlerTest {
+public class ByodConfigHandlerTest extends IntegrationTestCase {
     private Application app = new GuiceApplicationBuilder().build();
 
     @Test
@@ -18,7 +19,7 @@ public class ByodConfigHandlerTest {
             () -> {
                 ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
                 String key = bch.calculateConfigKey("123456");
-                assertThat(key).isEqualTo("3a4072a8144f15ad5d10fc6d6632bdff0ee5b9c7532b9832bd9e58c52f9bcf24");
+                assertThat(key).isEqualTo("7eaf7f312acd3594c65f1c01f822a5df6cfd9c868ee77e5a0918edb0dba13efd");
             }
         );
     }

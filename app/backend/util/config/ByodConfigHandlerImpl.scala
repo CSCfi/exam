@@ -19,11 +19,13 @@ import scala.io.Source
 import scala.xml.{Node, XML}
 
 object ByodConfigHandlerImpl {
-  private val StartUrlPlaceholder = "*** startURL ***"
-  private val QuitPwdPlaceholder  = "*** quitPwd ***"
-  private val PasswordEncryption  = "pswd"
-  private val ConfigKeyHeader     = "X-SafeExamBrowser-ConfigKeyHash"
-  private val IgnoredKeys         = Seq("originatorVersion")
+  private val StartUrlPlaceholder      = "*** startURL ***"
+  private val QuitPwdPlaceholder       = "*** quitPwd ***"
+  private val QuitLinkPlaceholder      = "*** quitLink ***"
+  private val AllowQuittingPlaceholder = "<!-- allowQuit /-->"
+  private val PasswordEncryption       = "pswd"
+  private val ConfigKeyHeader          = "X-SafeExamBrowser-ConfigKeyHash"
+  private val IgnoredKeys              = Seq("originatorVersion")
 }
 class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environment)
     extends ByodConfigHandler {
@@ -37,13 +39,23 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   private val protocol = new URL(configReader.getHostName).getProtocol
 
   private def getTemplate(hash: String): Node = {
-    val path     = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
-    val startUrl = s"${configReader.getHostName}?exam=$hash"
-    val source   = Source.fromFile(path)
-    val template = source.mkString.replace(StartUrlPlaceholder, startUrl)
+    val path         = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
+    val startUrl     = s"${configReader.getHostName}?exam=$hash"
+    val quitLink     = configReader.getQuitExaminationLink
+    val quitPwdPlain = configReader.getQuitPassword
+    val quitPwd      = DigestUtils.sha256Hex(quitPwdPlain)
+    val allowQuitting = quitPwdPlain match {
+      case p if p.isEmpty => "<false/>"
+      case _              => "<true/>"
+    }
+    val source = Source.fromFile(path)
+    val template = source.mkString
+      .replace(StartUrlPlaceholder, startUrl)
+      .replace(QuitLinkPlaceholder, quitLink)
+      .replace(QuitPwdPlaceholder, quitPwd)
+      .replace(AllowQuittingPlaceholder, allowQuitting)
     source.close
-    val quitPwd = DigestUtils.sha256Hex(configReader.getQuitPassword)
-    XML.loadString(template.replace(QuitPwdPlaceholder, quitPwd))
+    XML.loadString(template)
   }
 
   private def compress(data: Array[Byte]): Array[Byte] = {
