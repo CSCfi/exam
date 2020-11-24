@@ -39,16 +39,13 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   private val protocol = new URL(configReader.getHostName).getProtocol
 
   private def getTemplate(hash: String): Node = {
-    val path         = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
-    val startUrl     = s"${configReader.getHostName}?exam=$hash"
-    val quitLink     = configReader.getQuitExaminationLink
-    val quitPwdPlain = configReader.getQuitPassword
-    val quitPwd      = DigestUtils.sha256Hex(quitPwdPlain)
-    val allowQuitting = quitPwdPlain match {
-      case p if p.isEmpty => "<false/>"
-      case _              => "<true/>"
-    }
-    val source = Source.fromFile(path)
+    val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
+    val startUrl      = s"${configReader.getHostName}?exam=$hash"
+    val quitLink      = configReader.getQuitExaminationLink
+    val quitPwdPlain  = configReader.getQuitPassword
+    val quitPwd       = DigestUtils.sha256Hex(quitPwdPlain)
+    val allowQuitting = if (quitPwdPlain.isEmpty) "<false/>" else "<true/>"
+    val source        = Source.fromFile(path)
     val template = source.mkString
       .replace(StartUrlPlaceholder, startUrl)
       .replace(QuitLinkPlaceholder, quitLink)
