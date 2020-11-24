@@ -31,7 +31,7 @@
         <key>allowPreferencesWindow</key>
         <false/>
         <key>allowQuit</key>
-        <true/>
+        <!-- allowQuit /-->
         <key>allowScreenSharing</key>
         <false/>
         <key>allowSiri</key>
@@ -344,7 +344,7 @@
         <key>proxySettingsPolicy</key>
         <integer>0</integer>
         <key>quitURL</key>
-        <string>http://quit.seb.now</string>
+        <string>*** quitLink ***</string>
         <key>quitURLConfirm</key>
         <true/>
         <key>removeBrowserProfile</key>
