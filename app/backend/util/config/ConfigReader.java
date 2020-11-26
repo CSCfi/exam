@@ -26,6 +26,7 @@ public interface ConfigReader {
     String getAppVersion();
     boolean isAnonymousReviewEnabled();
     String getQuitExaminationLink();
+    String getExaminationAdminPassword();
     String getSettingsPasswordEncryptionKey();
     String getQuitPassword();
     String getHomeOrganisationRef();
