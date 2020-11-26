@@ -16,17 +16,18 @@
 package backend.validators;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import com.google.inject.Inject;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.StreamSupport;
+import javax.inject.Inject;
 import play.Environment;
 import play.Logger;
 import play.mvc.Action;
@@ -37,35 +38,32 @@ import play.mvc.Results;
 class JsonSchemaValidator extends Action<JsonValidator> {
     private static final Logger.ALogger logger = Logger.of(JsonSchemaValidator.class);
 
-    private Environment env;
+    private final Environment env;
 
     @Inject
     JsonSchemaValidator(Environment env) {
         this.env = env;
     }
 
-    private JsonSchema getSchema() throws IOException, ProcessingException {
+    private JsonSchema getSchema() throws IOException {
         String fileName = String.format(
             "%s/conf/schemas/%s.json",
             env.rootPath().getAbsolutePath(),
             configuration.schema()
         );
-        JsonNode schemaNode = JsonLoader.fromFile(new File(fileName));
-        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-        return factory.getJsonSchema(schemaNode);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        InputStream is = new FileInputStream(new File(fileName));
+        JsonSchema schema = factory.getSchema(is);
+        is.close();
+        return schema;
     }
 
     private boolean isValid(JsonNode input) throws Exception {
-        ProcessingReport report = getSchema().validate(input);
-        if (!report.isSuccess()) {
-            StreamSupport
-                .stream(report.spliterator(), true)
-                .forEach(
-                    m ->
-                        logger.error("JSON validation error: schema={}, err={}", configuration.schema(), m.getMessage())
-                );
-        }
-        return report.isSuccess();
+        Set<ValidationMessage> errors = getSchema().validate(input);
+        errors.forEach(
+            e -> logger.error("JSON validation error: schema={}, err={}", configuration.schema(), e.getMessage())
+        );
+        return errors.isEmpty();
     }
 
     @Override
