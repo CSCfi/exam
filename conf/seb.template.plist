@@ -180,7 +180,7 @@
         <key>forceAppFolderInstall</key>
         <true/>
         <key>hashedAdminPassword</key>
-        <string></string>
+        <string>*** adminPwd ***</string>
         <key>hashedQuitPassword</key>
         <string>*** quitPwd ***</string>
         <key>hideBrowserWindowToolbar</key>

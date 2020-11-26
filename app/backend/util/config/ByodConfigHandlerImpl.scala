@@ -22,6 +22,7 @@ object ByodConfigHandlerImpl {
   private val StartUrlPlaceholder      = "*** startURL ***"
   private val QuitPwdPlaceholder       = "*** quitPwd ***"
   private val QuitLinkPlaceholder      = "*** quitLink ***"
+  private val AdminPwdPlaceholder      = "*** adminPwd ***"
   private val AllowQuittingPlaceholder = "<!-- allowQuit /-->"
   private val PasswordEncryption       = "pswd"
   private val ConfigKeyHeader          = "X-SafeExamBrowser-ConfigKeyHash"
@@ -42,6 +43,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
     val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
     val startUrl      = s"${configReader.getHostName}?exam=$hash"
     val quitLink      = configReader.getQuitExaminationLink
+    val adminPwd      = DigestUtils.sha256Hex(configReader.getExaminationAdminPassword)
     val quitPwdPlain  = configReader.getQuitPassword
     val quitPwd       = DigestUtils.sha256Hex(quitPwdPlain)
     val allowQuitting = if (quitPwdPlain.isEmpty) "<false/>" else "<true/>"
@@ -49,6 +51,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
     val template = source.mkString
       .replace(StartUrlPlaceholder, startUrl)
       .replace(QuitLinkPlaceholder, quitLink)
+      .replace(AdminPwdPlaceholder, adminPwd)
       .replace(QuitPwdPlaceholder, quitPwd)
       .replace(AllowQuittingPlaceholder, allowQuitting)
     source.close

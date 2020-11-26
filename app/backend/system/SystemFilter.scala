@@ -51,8 +51,14 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
           .withHeaders(remaining.map(h => (h._1, s.get(h._2).get)): _*)
           .discardingHeaders(discarded.map(_._1): _*)
         request.path match {
-          case path if path.contains("checkSession") | path.contains("logout") =>
-            response.withSession(s)
+          case path if path.contains("checkSession") =>
+            s.get("upcomingExamHash") match {
+              case Some(_) => // Don't let session expire when awaiting exam to start
+                response.withSession(
+                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+              case _ => response.withSession(s)
+            }
+          case path if path.contains("logout") => response.withSession(s)
           case _ =>
             response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
         }

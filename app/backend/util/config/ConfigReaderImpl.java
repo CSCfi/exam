@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -150,6 +151,13 @@ public class ConfigReaderImpl implements ConfigReader {
     @Override
     public String getQuitExaminationLink() {
         return ConfigFactory.load().getString("sitnet.exam.seb.quitLink");
+    }
+
+    @Override
+    public String getExaminationAdminPassword() {
+        return ConfigFactory.load().getBoolean("sitnet.exam.seb.adminPwd.randomize")
+            ? UUID.randomUUID().toString()
+            : ConfigFactory.load().getString("sitnet.exam.seb.adminPwd.value");
     }
 
     @Override
