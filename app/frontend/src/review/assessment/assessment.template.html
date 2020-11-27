@@ -41,7 +41,8 @@
         <div class="review-border">
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title">
-                    <span ng-if="$ctrl.exam.course">{{$ctrl.exam.course.code}} - </span>{{$ctrl.exam.name}}
+                    <span ng-if="$ctrl.exam.course"><course-code course="$ctrl.exam.course"></course-code> - </span
+                    >{{$ctrl.exam.name}}
                     <a class="pointer" ng-click="$ctrl.hideGeneralInfo = !$ctrl.hideGeneralInfo">
                         <img
                             ng-show="hideGeneralInfo"

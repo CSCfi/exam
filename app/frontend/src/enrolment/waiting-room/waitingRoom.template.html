@@ -51,7 +51,9 @@
                             {{ 'sitnet_course_name' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            <span class="exam-code">{{$ctrl.enrolment.exam.course.code}}</span>
+                            <span class="exam-code"
+                                ><course-code course="$ctrl.enrolment.exam.course"></course-code
+                            ></span>
                             {{ $ctrl.enrolment.exam.course.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>

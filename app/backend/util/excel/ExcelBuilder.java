@@ -67,9 +67,7 @@ public class ExcelBuilder {
         scoreReportCells.add(Tuple.of(student.getEmail(), CellType.STRING));
         scoreReportCells.add(Tuple.of(student.getIdentifier(), CellType.STRING));
         scoreReportCells.add(Tuple.of(exam.getState().name(), CellType.STRING));
-        scoreReportCells.add(
-            Tuple.of(examScore.isPresent() ? examScore.get().getId().toString() : "", CellType.STRING)
-        );
+        scoreReportCells.add(Tuple.of(examScore.map(score -> score.getId().toString()).orElse(""), CellType.STRING));
         return scoreReportCells;
     }
 
@@ -160,7 +158,7 @@ public class ExcelBuilder {
             .flatMap(exam -> exam.getExamSections().stream())
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> isQuestionRemoved(esq, parentQuestionIds))
-            .map(esq -> getQuestionId(esq))
+            .map(ExcelBuilder::getQuestionId)
             .distinct()
             .collect(Collectors.toList());
 
@@ -226,7 +224,7 @@ public class ExcelBuilder {
                     .getExamSections()
                     .stream()
                     .flatMap(es -> es.getSectionQuestions().stream())
-                    .map(esq -> getQuestionId(esq))
+                    .map(ExcelBuilder::getQuestionId)
                     .collect(Collectors.toList());
                 List<String> questionKeys = getListWithNumberedDuplicates(questionIds);
                 for (String key : questionKeys) {
@@ -265,12 +263,12 @@ public class ExcelBuilder {
         Map<Long, Integer> duplicates = new HashMap<>();
         for (Long questionId : questionIds) {
             if (!questionKeys.add(questionId.toString())) {
-                Integer duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
+                int duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
                 duplicates.put(questionId, duplicateCount);
                 questionKeys.add(questionId + "#" + (duplicateCount + 1));
             }
         }
-        return questionKeys.stream().collect(Collectors.toList());
+        return new ArrayList<>(questionKeys);
     }
 
     /* Returns a map of score cells with duplicate IDs as keys (also numbered in the same way as the method above) */
@@ -290,7 +288,7 @@ public class ExcelBuilder {
             if (cellMap.get(questionKey) == null) {
                 cellMap.put(questionId.toString(), scoreCell);
             } else {
-                Integer duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
+                int duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
                 duplicates.put(questionId, duplicateCount);
                 cellMap.put(questionId.toString() + "#" + (duplicateCount + 1), scoreCell);
             }
