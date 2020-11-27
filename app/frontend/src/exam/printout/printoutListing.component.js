@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 import moment from 'moment';
 
@@ -41,7 +40,7 @@ angular.module('app.exam').component('printoutListing', {
         '                <tbody>\n' +
         '                <tr ng-repeat="exam in $ctrl.printouts | orderBy:$ctrl.predicate:$ctrl.reverse">\n' +
         '                    <td>{{ exam.examinationDatesAggregate }}</td>\n' +
-        '                    <td>{{exam.course.code}}</td>\n' +
+        '                    <td><course-code course="exam.course"></course-code></td>\n' +
         '                    <td><a class="exams-info-title bold-button" ui-sref="printoutListing({id: {{exam.id}} })">{{exam.name}}</a>\n' +
         '                    <td>\n' +
         '                        <teacher-list exam="exam"/>\n' +

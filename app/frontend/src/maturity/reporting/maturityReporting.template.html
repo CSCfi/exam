@@ -69,7 +69,7 @@
 
                     <tbody>
                         <tr ng-repeat="inspection in $ctrl.processedInspections | orderBy: 'finishedAt'">
-                            <td>{{ inspection.exam.course.code }}</td>
+                            <td><course-code course="inspection.exam.course"></course-code></td>
                             <td>{{ inspection.exam.name }}</td>
                             <td>
                                 <span ng-repeat="owner in inspection.exam.parent.examOwners">

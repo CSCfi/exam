@@ -61,9 +61,9 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         updateTitle = (code: string | null, name: string | null) => {
             if (code && name) {
-                this.examInfo.title = code.split('_')[0] + ' ' + name;
+                this.examInfo.title = `${code.split('_')[0]} ${name}`;
             } else if (code) {
-                this.examInfo.title = code.split('_')[0] + ' ' + this.$translate.instant('sitnet_no_name');
+                this.examInfo.title = `${code.split('_')[0]} ${this.$translate.instant('sitnet_no_name')}`;
             } else {
                 this.examInfo.title = name;
             }
