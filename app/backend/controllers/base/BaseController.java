@@ -210,4 +210,15 @@ public class BaseController extends Controller {
             throw new RuntimeException(e);
         }
     }
+
+    protected JsonNode serialize(Object o, PathProperties pp) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = Ebean.json().toJson(o, pp);
+            return mapper.readTree(json);
+        } catch (IOException e) {
+            logger.error("unable to serialize");
+            throw new RuntimeException(e);
+        }
+    }
 }

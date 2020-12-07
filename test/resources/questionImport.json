@@ -1,0 +1,984 @@
+{
+  "type": "QUESTION",
+  "orgRef": "thisissomeorgref",
+  "path": "/integration/iop/data",
+  "owner": "teacher@funet.fi",
+  "ids": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    1,
+    2,
+    5,
+    6,
+    7,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "EssayQuestion",
+      "question": "<u>Kerro toiseen maailmansotaan johtaneista syistä.</u> **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 2,
+      "created": "2014-03-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "EssayQuestion",
+      "question": "Mitä tarkoitetaan \"oliolla\" ohjelmistokehityksessä?  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 5,
+      "created": "2014-01-04T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 1,
+          "option": "3",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 2,
+          "option": "42",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 3,
+          "option": "99",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 4,
+          "option": "7",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 6,
+      "created": "2014-01-03T12:40:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Mikä on ikuisen elämän salaisuus?  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 5,
+          "option": "IDDQD",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 6,
+          "option": "IDKFA",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 7,
+          "option": "IDCLIP",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 8,
+          "option": "IDCHOPPERS",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 7,
+      "created": "2014-01-01T12:10:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 9,
+          "option": "Antiteflon",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 10,
+          "option": "Adheesio",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 11,
+          "option": "Hakman",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 10,
+      "created": "2014-01-07T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 19,
+          "option": "kosmonautti",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 20,
+          "option": "kosmetologi",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 41,
+          "option": "kosmologi",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 11,
+      "created": "2014-01-08T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Auringon fuusioreaktiot tapahtuvat  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 42,
+          "option": "Ytimessä",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 43,
+          "option": "Säteilyvyöhykkeessä",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 44,
+          "option": "Konvektiovyöhykkeessä",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 12,
+      "created": "2014-01-09T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "AU mittaa  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 45,
+          "option": "Aikaa",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 46,
+          "option": "Etäisyyttä",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 47,
+          "option": "Painoa",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 13,
+      "created": "2014-01-10T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Ekliptika on  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 48,
+          "option": "Maapallon ratataso Aurinkoon nähden",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 49,
+          "option": "Maapallon kiertoradan muoto",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 50,
+          "option": "Kuun sirppi",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 14,
+      "created": "2014-01-11T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Tähdenlento eli  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 51,
+          "option": "Meteoroidi",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 52,
+          "option": "Meteori",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 53,
+          "option": "Meteoriitti",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 54,
+          "option": "Meteorologi",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 15,
+      "created": "2014-01-12T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 55,
+          "option": "Aineen palamisesta ilmakehässä",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 56,
+          "option": "Kaasujen hehkumisesta",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 57,
+          "option": "Auringon valon heijastumisesta kiintoaineesta",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 16,
+      "created": "2014-01-13T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Aurinkokunnan suurin planeetta halkaisijaltaan on  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 58,
+          "option": "Maa",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 59,
+          "option": "Jupiter",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 60,
+          "option": "Venus",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 17,
+      "created": "2014-01-14T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "The Great Red Spot tarkoittaa  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 21,
+          "option": "Alkuräjähdystä edeltänyttä tiheää pistettä",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 22,
+          "option": "Jupiterin korkeapaineen aluetta",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 23,
+          "option": "Mars-planeettaa",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 18,
+      "created": "2014-01-15T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Vuodenajat aiheutuvat  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 24,
+          "option": "Maapallon akselikulman vaihtelemisesta",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 25,
+          "option": "Maapallon kiertämisestä Auringon ympäri",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 26,
+          "option": "Auringon ja Maan etäisyys muuttuu vuoden aikana",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 19,
+      "created": "2014-01-16T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Uudenkuun aikaan  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 27,
+          "option": "Kuu on kiertoradallaan Maasta katsottuna Auringon takana",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 28,
+          "option": "Kuu on Auringon ja Maan välissä",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 29,
+          "option": "Kuu tulee uudelleen näkyviin",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 20,
+      "created": "2014-01-17T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "MultipleChoiceQuestion",
+      "question": "Vuoksen ja luoteen aiheuttavat pääasiassa  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 30,
+          "option": "Kuun vetovoima",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 31,
+          "option": "Auringon vetovoima",
+          "correctOption": true,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 32,
+          "option": "Maapallon pinnanmuodot",
+          "correctOption": false,
+          "defaultScore": null,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 21,
+      "created": "2014-01-18T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "WeightedMultipleChoiceQuestion",
+      "question": "Kumpi vai kampi  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": null,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 33,
+          "option": "Kampi",
+          "correctOption": false,
+          "defaultScore": 1.0,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 34,
+          "option": "Kumpi",
+          "correctOption": false,
+          "defaultScore": 1.0,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        },
+        {
+          "id": 35,
+          "option": "Molemmat",
+          "correctOption": false,
+          "defaultScore": -1.0,
+          "claimChoiceType": null,
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 22,
+      "created": "2014-01-18T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "ClaimChoiceQuestion",
+      "question": "Suomen pääkaupunki on Helsinki  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": null,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [
+        {
+          "id": 36,
+          "option": "Tosi",
+          "correctOption": false,
+          "defaultScore": 1.0,
+          "claimChoiceType": "CorrectOption",
+          "objectVersion": 1
+        },
+        {
+          "id": 37,
+          "option": "Epätosi",
+          "correctOption": false,
+          "defaultScore": -1.0,
+          "claimChoiceType": "IncorrectOption",
+          "objectVersion": 1
+        },
+        {
+          "id": 38,
+          "option": "En osaa sanoa",
+          "correctOption": false,
+          "defaultScore": 0.0,
+          "claimChoiceType": "SkipOption",
+          "objectVersion": 1
+        }
+      ],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 23,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "ClozeTestQuestion",
+      "question": "<p><span cloze=\"true\" id=\"1\">Pariisi</span>on Ranskan pääkaupunki. <span cloze=\"true\" id=\"2\">Berliini</span>on Saksan pääkaupunki.</p>  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 24,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "ClozeTestQuestion",
+      "question": "<p><span cloze=\"true\" id=\"1\">Budapest</span>on Unkarin pääkaupunki. <span cloze=\"true\" id=\"2\">Tukholma</span>on Ruotsin pääkaupunki.</p>  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 25,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "ClozeTestQuestion",
+      "question": "<p><span cloze=\"true\" id=\"1\">Istanbul</span>on Turkin pääkaupunki. <span cloze=\"true\" id=\"2\">Ateena</span>on Kreikan pääkaupunki.</p>  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    },
+    {
+      "id": 26,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "ClozeTestQuestion",
+      "question": "<p><span cloze=\"true\" id=\"1\">Rooma</span>on Italian pääkaupunki. <span cloze=\"true\" id=\"2\">Madrid</span>on Espanjan pääkaupunki.</p>  **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": null,
+      "options": [],
+      "tags": [],
+      "objectVersion": 1
+    }
+  ]
+}

@@ -991,5 +991,7 @@
   "sitnet_send_result_to_registry_popover_info": "Tenterna ska ha de bedömningar och vitsord som krävs innan den slutliga bedömningen låses. Efter att du låst bedömningen kan du inte längre ändra den och studenten får information per e-post om bedömningen.",
   "sitnet_section_accepted_and_rejected": "Godkända / underkända för sektionen:",
   "sitnet_missing_examination_event_configurations": "Tentamenstillfället saknas, tenten kan inte publiceras. Gå tillbaka och lägg till tentamenstillfälle.",
-  "sitnet_no_questions_to_review": "Inga frågor att bedöma"
+  "sitnet_no_questions_to_review": "Inga frågor att bedöma",
+  "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään SV",
+  "sitnet_questions_transferred": "Kysymykset kopioitu SV"
 }
