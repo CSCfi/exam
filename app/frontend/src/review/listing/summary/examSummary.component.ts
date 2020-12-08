@@ -40,6 +40,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         collaborative: boolean;
         gradeDistributionChart: any;
         gradeTimeChart: any;
+        sectionScores: _.Dictionary<{ max: number; totals: number[] }>;
 
         constructor(
             private Files: FileService,
@@ -69,6 +70,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             this.$rootScope.$on('$localeChangeSuccess', () => {
                 this.updateChartLocale();
             });
+            this.calcSectionMaxAndAverages();
         };
 
         $onChanges = () => this.refresh();
@@ -129,9 +131,11 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             });
         };
 
+        calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
+
         getAverageTime = () => {
             const durations = this.reviews.map(r => r.duration);
-            return durations.reduce((sum, b) => sum + b, 0) / durations.length;
+            return this.calcAverage(durations);
         };
 
         getNoShows = () => {
@@ -260,6 +264,38 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                     noShows: () => this.noShows,
                 },
             });
+
+        calcSectionMaxAndAverages = () => {
+            const sectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
+                (obj, current) => ({
+                    ...obj,
+                    [current.name]: this.Exam.getSectionMaxScore(current),
+                }),
+                {},
+            );
+            const parentSectionNames = Object.keys(sectionMaxScores);
+            const childExamSections = this.reviews
+                .flatMap(r => r.exam.examSections)
+                .filter(es => parentSectionNames.includes(es.name));
+            const sectionTotalScores: _.Dictionary<number[]> = childExamSections.reduce((obj, curr) => {
+                const { name } = curr;
+                const max = sectionMaxScores[name] || 0;
+                const score = Math.min(this.Exam.getSectionTotalScore(curr), max);
+                const scores = obj[name] || [];
+                return { ...obj, [name]: [...scores, score] };
+            }, {});
+
+            this.sectionScores = parentSectionNames.reduce(
+                (obj, name) => ({
+                    ...obj,
+                    [name]: {
+                        max: sectionMaxScores[name],
+                        totals: sectionTotalScores[name],
+                    },
+                }),
+                {},
+            );
+        };
     },
 };
 

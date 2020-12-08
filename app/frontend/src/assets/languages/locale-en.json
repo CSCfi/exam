@@ -991,5 +991,7 @@
   "sitnet_send_result_to_registry_popover_info": "The exam grade has to be given before the assessment can be locked. When locked you cannot change the assessment anymore and the student will be sent an email about the assessment.",
   "sitnet_section_accepted_and_rejected": "Pass / fail in the section:",
   "sitnet_missing_examination_event_configurations": "Exam event is missing, you cannot publish the exam. Go back to the Publish tab and add an exam event.",
-  "sitnet_no_questions_to_review": "No questions to evaluate."
+  "sitnet_no_questions_to_review": "No questions to evaluate.",
+  "sitnet_section_averages": "Aihealueiden pistekeskiarvot EN",
+  "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet EN"
 }
