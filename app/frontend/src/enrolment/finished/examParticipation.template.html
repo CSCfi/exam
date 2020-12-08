@@ -1,4 +1,7 @@
-<div class="student-enrolment-wrapper marr20 marl20">
+<div
+    class="student-enrolment-wrapper marr20 marl20"
+    ng-class="{'unseen-review': $ctrl.participation.reviewedExam.examFeedback.feedbackStatus === null}"
+>
     <div class="col-md-12">
         <div class="student-exam-header-row">
             <div>
