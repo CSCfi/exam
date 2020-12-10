@@ -20,6 +20,7 @@ import backend.models.ExamRecord;
 import backend.models.User;
 import backend.models.dto.ExamScore;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import io.ebean.Ebean;
 import io.vavr.Tuple;
@@ -35,6 +36,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 
 public class ExcelBuilder {
 
@@ -53,6 +57,15 @@ public class ExcelBuilder {
         "examState",
         "submissionId"
     };
+
+    private static Map<String, String> getStudentReportHeaderMap(User student) {
+        Map<String, String> studentReportDefaultHeaders = new LinkedHashMap<>();
+        studentReportDefaultHeaders.put("reports.studentFirstName", student.getFirstName());
+        studentReportDefaultHeaders.put("reports.studentLastName", student.getLastName());
+        studentReportDefaultHeaders.put("reports.studentEmail", student.getEmail());
+        studentReportDefaultHeaders.put("reports.studentId", student.getUserIdentifier());
+        return studentReportDefaultHeaders;
+    }
 
     private static List<Tuple2<String, CellType>> getScoreReportDefaultCells(
         User student,
@@ -76,6 +89,30 @@ public class ExcelBuilder {
             cell.setCellValue(Double.parseDouble(value));
         } else {
             cell.setCellValue(value);
+        }
+    }
+
+    private static void appendCell(Row row, String value) {
+        int cellIndex = row.getLastCellNum() < 0 ? 0 : row.getLastCellNum();
+        Cell cell = row.createCell(cellIndex);
+        cell.setCellValue(value);
+    }
+
+    private static void appendCell(Row row, Double value) {
+        int cellIndex = row.getLastCellNum() < 0 ? 0 : row.getLastCellNum();
+        Cell cell = row.createCell(cellIndex);
+        cell.setCellValue(value);
+    }
+
+    private static Tuple2<String, CellType> getScoreTuple(ExamSectionQuestion esq) {
+        if (esq.getEvaluationType() == Question.EvaluationType.Selection) {
+            if (esq.isApproved() && !esq.isRejected()) {
+                return Tuple.of("APPROVED", CellType.STRING);
+            } else {
+                return Tuple.of("REJECTED", CellType.STRING);
+            }
+        } else {
+            return Tuple.of(esq.getAssessedScore().toString(), CellType.DECIMAL);
         }
     }
 
@@ -116,6 +153,59 @@ public class ExcelBuilder {
         }
         // HOX! autosize apparently crashes OpenJDK-11 for some reason
         IntStream.range(0, headers.length).forEach(i -> sheet.autoSizeColumn(i, true));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        wb.write(bos);
+        bos.close();
+        return bos;
+    }
+
+    public static ByteArrayOutputStream buildStudentReport(Exam exam, User student, MessagesApi messages)
+        throws IOException {
+        Lang lang;
+
+        if (student.getLanguage() != null && student.getLanguage().getCode() != null) {
+            lang = Lang.forCode(student.getLanguage().getCode());
+        } else {
+            lang = Lang.forCode("en");
+        }
+
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet(messages.get(lang, "reports.scores"));
+        Map<String, String> defaultHeaders = getStudentReportHeaderMap(student);
+        Row headerRow = sheet.createRow(sheet.getLastRowNum());
+        Row valueRow = sheet.createRow(sheet.getLastRowNum() + 1);
+
+        for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
+            String header = entry.getKey();
+            String value = entry.getValue();
+            appendCell(headerRow, messages.get(lang, header));
+            appendCell(valueRow, value);
+        }
+
+        for (ExamSection es : exam.getExamSections()) {
+            for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                sheet.setColumnWidth(headerRow.getLastCellNum(), 6000);
+                if (esq.getQuestion().getType() == Question.Type.ClozeTestQuestion) {
+                    esq.getClozeTestAnswer().setQuestion(esq);
+                    String sanitizedQuestion = Jsoup.parse(esq.getClozeTestAnswer().getQuestion()).text();
+                    appendCell(headerRow, sanitizedQuestion);
+                } else {
+                    String sanitizedQuestion = Jsoup.parse(esq.getQuestion().getQuestion()).text();
+                    appendCell(headerRow, sanitizedQuestion);
+                }
+                Tuple2<String, CellType> scoreCellTuple = getScoreTuple(esq);
+                Cell valueCell = valueRow.createCell(valueRow.getLastCellNum());
+                setValue(valueCell, scoreCellTuple._1, scoreCellTuple._2);
+            }
+            appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName()));
+            sheet.autoSizeColumn(headerRow.getLastCellNum() - 1, true);
+            appendCell(valueRow, es.getTotalScore());
+        }
+        appendCell(headerRow, messages.get(lang, "reports.scores.totalScore"));
+        sheet.autoSizeColumn(headerRow.getLastCellNum() - 1, true);
+        appendCell(valueRow, exam.getTotalScore());
+
+        IntStream.range(0, defaultHeaders.size()).forEach(i -> sheet.autoSizeColumn(i, true));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
@@ -319,18 +409,5 @@ public class ExcelBuilder {
         }
 
         return !parentIds.contains(question.getQuestion().getParent().getId());
-    }
-
-    /* Get question score cell tuple, scores will be represented as strings */
-    private static Tuple2<String, CellType> getScoreTuple(ExamSectionQuestion esq) {
-        if (esq.getEvaluationType() == Question.EvaluationType.Selection) {
-            if (esq.isApproved() && !esq.isRejected()) {
-                return Tuple.of("APPROVED", CellType.STRING);
-            } else {
-                return Tuple.of("REJECTED", CellType.STRING);
-            }
-        } else {
-            return Tuple.of(esq.getAssessedScore().toString(), CellType.DECIMAL);
-        }
     }
 }

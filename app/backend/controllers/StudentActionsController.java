@@ -29,6 +29,7 @@ import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
+import backend.util.excel.ExcelBuilder;
 import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -37,6 +38,7 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,6 +53,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
+import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -65,6 +68,8 @@ public class StudentActionsController extends CollaborationController {
     private final EnrolmentRepository enrolmentRepository;
     private final ByodConfigHandler byodConfigHandler;
     private final FileHandler fileHandler;
+    private final MessagesApi messagesApi;
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     @Inject
     public StudentActionsController(
@@ -73,7 +78,8 @@ public class StudentActionsController extends CollaborationController {
         EnrolmentRepository enrolmentRepository,
         ConfigReader configReader,
         ByodConfigHandler byodConfigHandler,
-        FileHandler fileHandler
+        FileHandler fileHandler,
+        MessagesApi messagesApi
     ) {
         this.ec = ec;
         this.externalCourseHandler = courseHandler;
@@ -81,6 +87,7 @@ public class StudentActionsController extends CollaborationController {
         this.byodConfigHandler = byodConfigHandler;
         this.fileHandler = fileHandler;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
+        this.messagesApi = messagesApi;
     }
 
     @Authenticated
@@ -148,6 +155,43 @@ public class StudentActionsController extends CollaborationController {
         exam.setTotalScore();
         PathProperties pp = PathProperties.parse("(*)");
         return ok(exam, pp);
+    }
+
+    @Authenticated
+    public Result getExamScoreReport(Long eid, Http.Request request) {
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("examParticipation.user")
+            .fetch("examSections.sectionQuestions.question")
+            .fetch("examSections.sectionQuestions.clozeTestAnswer")
+            .where()
+            .eq("id", eid)
+            .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .disjunction()
+            .eq("state", Exam.State.GRADED_LOGGED)
+            .eq("state", Exam.State.ARCHIVED)
+            .conjunction()
+            .eq("state", Exam.State.GRADED)
+            .isNotNull("autoEvaluationConfig")
+            .isNotNull("autoEvaluationNotified")
+            .endJunction()
+            .endJunction()
+            .findOne();
+
+        if (exam == null || exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+
+        User student = exam.getExamParticipation().getUser();
+        ByteArrayOutputStream bos;
+        try {
+            bos = ExcelBuilder.buildStudentReport(exam, student, messagesApi);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_excel_file");
+        }
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
+            .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
+            .as(XLSX_MIME);
     }
 
     private Set<ExamEnrolment> getNoShows(User user, String filter) {

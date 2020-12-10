@@ -22,8 +22,11 @@ angular.module('app.enrolment').component('examFeedback', {
         collaborative: '<',
     },
     controller: [
+        '$translate',
+        '$filter',
         'Attachment',
-        function(Attachment) {
+        'Files',
+        function($translate, $filter, Attachment, Files) {
             const vm = this;
 
             vm.downloadFeedbackAttachment = function() {
@@ -37,6 +40,19 @@ angular.module('app.enrolment').component('examFeedback', {
 
             vm.downloadStatementAttachment = function() {
                 Attachment.downloadStatementAttachment(vm.assessment);
+            };
+
+            vm.downloadScoreReport = function() {
+                const url = `/app/feedback/exams/${vm.assessment.id}/report`;
+                Files.download(
+                    url,
+                    $translate.instant('sitnet_grading_info') +
+                        '_' +
+                        $filter('date')(Date.now(), 'dd-MM-yyyy') +
+                        '.xlsx',
+                    null,
+                    false,
+                );
             };
         },
     ],
