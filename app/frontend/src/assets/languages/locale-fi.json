@@ -992,6 +992,8 @@
   "sitnet_section_accepted_and_rejected": "Aihealueen hyväksyttyjä / hylättyjä:",
   "sitnet_missing_examination_event_configurations": "Tenttitilaisuus puuttuu, tenttiä ei voi julkaista. Palaa takaisin julkaisuasetuksiin ja lisää vähintään yksi tenttitilaisuus.",
   "sitnet_no_questions_to_review": "Ei arvioitavia kysymyksiä",
+  "sitnet_section_averages": "Aihealueiden pistekeskiarvot FI",
+  "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet FI",
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään",
   "sitnet_questions_transferred": "Kysymykset kopioitu"
 }

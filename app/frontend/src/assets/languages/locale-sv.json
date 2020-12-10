@@ -992,6 +992,8 @@
   "sitnet_section_accepted_and_rejected": "Godkända / underkända för sektionen:",
   "sitnet_missing_examination_event_configurations": "Tentamenstillfället saknas, tenten kan inte publiceras. Gå tillbaka och lägg till tentamenstillfälle.",
   "sitnet_no_questions_to_review": "Inga frågor att bedöma",
+  "sitnet_section_averages": "Aihealueiden pistekeskiarvot SV",
+  "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet SV",
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään SV",
   "sitnet_questions_transferred": "Kysymykset kopioitu SV"
 }
