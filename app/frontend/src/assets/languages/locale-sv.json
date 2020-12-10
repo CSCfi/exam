@@ -996,5 +996,7 @@
   "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet SV",
   "sitnet_student_score_report": "Raportti kysymyskohtaisista pisteistä SV",
   "sitnet_download_report": "Lataa raportti SV",
-  "sitnet_error_creating_excel_file": "Virhe raportin luomisessa SV"
+  "sitnet_error_creating_excel_file": "Virhe raportin luomisessa SV",
+  "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään SV",
+  "sitnet_questions_transferred": "Kysymykset kopioitu SV"
 }

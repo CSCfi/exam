@@ -17,12 +17,12 @@ import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
 
-export const LibraryExportComponent: angular.IComponentOptions = {
-    template: require('./libraryExport.template.html'),
+export const LibraryFileExportComponent: angular.IComponentOptions = {
+    template: require('./libraryFileExport.template.html'),
     bindings: {
         selections: '<',
     },
-    controller: class LibraryExportController implements angular.IComponentController {
+    controller: class LibraryFileExportController implements angular.IComponentController {
         selections: number[];
 
         constructor(private Files: FileService, private $translate: angular.translate.ITranslateService) {
@@ -39,4 +39,4 @@ export const LibraryExportComponent: angular.IComponentOptions = {
     },
 };
 
-angular.module('app.question').component('libraryExport', LibraryExportComponent);
+angular.module('app.question').component('libraryFileExport', LibraryFileExportComponent);

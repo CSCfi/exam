@@ -109,20 +109,6 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         return option;
     }
 
-    public String toString() {
-        return (
-            "MultipleChoiceOption{" +
-            "id=" +
-            getId() +
-            ", option='" +
-            option +
-            '\'' +
-            ", correctOption=" +
-            correctOption +
-            '}'
-        );
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

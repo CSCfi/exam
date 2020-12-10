@@ -22,6 +22,8 @@ import backend.models.dto.ExamScore;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
+import backend.util.config.ConfigReader;
+import backend.util.config.ConfigReaderImpl;
 import io.ebean.Ebean;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -31,7 +33,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -263,6 +271,15 @@ public class ExcelBuilder {
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Question scores");
 
+        ConfigReader configReader = new ConfigReaderImpl();
+        String hostname = configReader.getHostName();
+
+        CellStyle linkStyle = wb.createCellStyle();
+        Font linkFont = wb.createFont();
+        linkFont.setColor(IndexedColors.BLUE.getIndex());
+        linkFont.setUnderline(HSSFFont.U_SINGLE);
+        linkStyle.setFont(linkFont);
+
         /* Create header row */
         Row headerRow = sheet.createRow(0);
         /* Set default header cells */
@@ -270,21 +287,22 @@ public class ExcelBuilder {
             headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders[i]);
         }
 
-        /* Create question header cell tuples */
-        List<Tuple2<String, CellType>> questionHeaderCells = questionHeaderKeys
+        questionHeaderKeys
             .stream()
-            .map(
+            .forEach(
                 id -> {
                     if (deletedQuestionKeys.contains(id)) {
-                        return Tuple.of("removed", CellType.STRING);
+                        headerRow.createCell(headerRow.getLastCellNum()).setCellValue("removed");
                     } else {
-                        return Tuple.of("questionId_" + id, CellType.STRING);
+                        Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
+                        link.setAddress(hostname + "/questions/" + id);
+                        Cell cell = headerRow.createCell(headerRow.getLastCellNum());
+                        cell.setCellStyle(linkStyle);
+                        cell.setHyperlink(link);
+                        cell.setCellValue("questionId_" + id);
                     }
                 }
-            )
-            .collect(Collectors.toList());
-
-        appendCellsToRow(headerRow, questionHeaderCells);
+            );
 
         /* Iterate child exams and create excel rows */
         for (Exam exam : childExams) {
@@ -337,7 +355,7 @@ public class ExcelBuilder {
 
         /* Autosize cells */
         IntStream
-            .range(0, questionHeaderCells.size() + ScoreReportDefaultHeaders.length)
+            .range(0, questionHeaderKeys.size() + ScoreReportDefaultHeaders.length)
             .forEach(i -> sheet.autoSizeColumn(i, true));
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
