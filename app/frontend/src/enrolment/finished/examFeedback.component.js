@@ -46,10 +46,7 @@ angular.module('app.enrolment').component('examFeedback', {
                 const url = `/app/feedback/exams/${vm.assessment.id}/report`;
                 Files.download(
                     url,
-                    $translate.instant('sitnet_grading_info') +
-                        '_' +
-                        $filter('date')(Date.now(), 'dd-MM-yyyy') +
-                        '.xlsx',
+                    vm.assessment.name + '_' + $filter('date')(Date.now(), 'dd-MM-yyyy') + '.xlsx',
                     null,
                     false,
                 );

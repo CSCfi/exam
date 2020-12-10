@@ -44,7 +44,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jsoup.Jsoup;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 
@@ -189,31 +188,45 @@ public class ExcelBuilder {
             appendCell(headerRow, messages.get(lang, header));
             appendCell(valueRow, value);
         }
-
+        int questionNumber;
         for (ExamSection es : exam.getExamSections()) {
+            questionNumber = 1;
             for (ExamSectionQuestion esq : es.getSectionQuestions()) {
-                sheet.setColumnWidth(headerRow.getLastCellNum(), 6000);
-                if (esq.getQuestion().getType() == Question.Type.ClozeTestQuestion) {
-                    esq.getClozeTestAnswer().setQuestion(esq);
-                    String sanitizedQuestion = Jsoup.parse(esq.getClozeTestAnswer().getQuestion()).text();
-                    appendCell(headerRow, sanitizedQuestion);
-                } else {
-                    String sanitizedQuestion = Jsoup.parse(esq.getQuestion().getQuestion()).text();
-                    appendCell(headerRow, sanitizedQuestion);
+                String questionType = "";
+                switch (esq.getQuestion().getType()) {
+                    case EssayQuestion:
+                        questionType = messages.get(lang, "reports.question.type.essay");
+                        break;
+                    case ClozeTestQuestion:
+                        questionType = messages.get(lang, "reports.question.type.cloze");
+                        break;
+                    case MultipleChoiceQuestion:
+                        questionType = messages.get(lang, "reports.question.type.multiplechoice");
+                        break;
+                    case WeightedMultipleChoiceQuestion:
+                        questionType = messages.get(lang, "reports.question.type.weightedmultiplechoide");
+                        break;
+                    case ClaimChoiceQuestion:
+                        questionType = messages.get(lang, "reports.question.type.claim");
+                        break;
                 }
+
+                appendCell(
+                    headerRow,
+                    String.format("%s %d: %s", messages.get(lang, "reports.question"), questionNumber, questionType)
+                );
+                questionNumber++;
                 Tuple2<String, CellType> scoreCellTuple = getScoreTuple(esq);
                 Cell valueCell = valueRow.createCell(valueRow.getLastCellNum());
                 setValue(valueCell, scoreCellTuple._1, scoreCellTuple._2);
             }
             appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName()));
-            sheet.autoSizeColumn(headerRow.getLastCellNum() - 1, true);
             appendCell(valueRow, es.getTotalScore());
         }
         appendCell(headerRow, messages.get(lang, "reports.scores.totalScore"));
-        sheet.autoSizeColumn(headerRow.getLastCellNum() - 1, true);
         appendCell(valueRow, exam.getTotalScore());
 
-        IntStream.range(0, defaultHeaders.size()).forEach(i -> sheet.autoSizeColumn(i, true));
+        IntStream.range(0, headerRow.getLastCellNum()).forEach(i -> sheet.autoSizeColumn(i, true));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
