@@ -1,0 +1,65 @@
+<div ng-if="$ctrl.selections.length > 0" class="padl30 questions-selections-box" id="library">
+    <div class="make-inline">
+        <div class="question-add-owners-box">
+            <span class="padl10">
+                <i class="fa fa-share fa-fw" style="color:#266B99;"></i>&nbsp;
+                <a class="bold-button" ng-click="$ctrl.showOrganisationSelection = !$ctrl.showOrganisationSelection">
+                    {{'sitnet_transfer_questions' | translate}}
+                </a>
+            </span>
+            <div ng-show="$ctrl.showOrganisationSelection" class="question-pick-organisation-box">
+                <!-- org pick TODO: make a component out of this-->
+                <div class="dropdown" uib-dropdown>
+                    <button
+                        style="width:13em;"
+                        uib-dropdown-toggle
+                        class="btn btn-default dropdown-toggle"
+                        type="button"
+                        id="dropDownMenu21"
+                        data-toggle="dropdown"
+                    >
+                        {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                        <span class="caret"></span>
+                    </button>
+                    <ul
+                        class="dropdown-menu"
+                        style="padding-left: 0; min-width: 17em"
+                        role="menu"
+                        aria-labelledby="dropDownMenu21"
+                    >
+                        <li role="presentation" class="input-group">
+                            <input
+                                aria-label="search for faculty"
+                                ng-model="$ctrl.filter"
+                                class="form-control"
+                                ng-click="$event.stopPropagation()"
+                                placeholder="{{'sitnet_search' | translate }}"
+                            />
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li
+                            ng-repeat="org in $ctrl.organisations | filter:$ctrl.filter"
+                            ng-hide="org.filtered"
+                            role="presentation"
+                            ng-click="$ctrl.organisation = org"
+                        >
+                            <a role="menuitem">{{org.code}}&nbsp;({{org.name}})</a>
+                        </li>
+                    </ul>
+                </div>
+                <span>
+                    <input
+                        type="button"
+                        class="btn green border-green whitetext mart10"
+                        ng-disabled="!$ctrl.organisation"
+                        ng-click="$ctrl.transfer()"
+                        value="{{'sitnet_add' | translate}}"
+                    />
+                    <span ng-if="$ctrl.organisation" class="padl10 vertm">({{$ctrl.organisation.code}})</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

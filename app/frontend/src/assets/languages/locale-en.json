@@ -993,5 +993,7 @@
   "sitnet_missing_examination_event_configurations": "Exam event is missing, you cannot publish the exam. Go back to the Publish tab and add an exam event.",
   "sitnet_no_questions_to_review": "No questions to evaluate.",
   "sitnet_section_averages": "Aihealueiden pistekeskiarvot EN",
-  "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet EN"
+  "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet EN",
+  "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään EN",
+  "sitnet_questions_transferred": "Kysymykset kopioitu EN"
 }

@@ -380,6 +380,11 @@ POST          /integration/iop/attachment/exam/:id/statement           backend.c
 DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long, request: Request)
 GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long, request: Request)
 
+############# Integration data transfer #################
+POST          /integration/iop/export                                  backend.controllers.iop.transfer.impl.DataTransferController.exportData(request: Request)
++ nocsrf
+POST          /integration/iop/import                                  backend.controllers.iop.transfer.impl.DataTransferController.importData(request: Request)
+
 ################# Time interface ######################
 GET           /app/time/:hash                                          backend.controllers.TimeController.getRemainingExamTime(hash: String, request: Request)
 
