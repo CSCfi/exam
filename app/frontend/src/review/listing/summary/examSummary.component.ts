@@ -266,17 +266,27 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
             });
 
         calcSectionMaxAndAverages = () => {
-            const sectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
+            const parentSectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
                 (obj, current) => ({
                     ...obj,
                     [current.name]: this.Exam.getSectionMaxScore(current),
                 }),
                 {},
             );
-            const parentSectionNames = Object.keys(sectionMaxScores);
-            const childExamSections = this.reviews
+            const childExamSections = this.reviews.flatMap(r => r.exam.examSections);
+
+            /* Get section max scores from child exams as well, in case sections got renamed/deleted from parent */
+            const childSectionMaxScores = this.reviews
                 .flatMap(r => r.exam.examSections)
-                .filter(es => parentSectionNames.includes(es.name));
+                .filter(es => !parentSectionMaxScores[es.name])
+                .reduce((obj, current) => {
+                    const prevMax = obj[current.name] || 0;
+                    const newMax = this.Exam.getSectionMaxScore(current);
+                    return { ...obj, [current.name]: Math.max(prevMax, newMax) };
+                }, {});
+
+            const sectionMaxScores = { ...childSectionMaxScores, ...parentSectionMaxScores };
+
             const sectionTotalScores: _.Dictionary<number[]> = childExamSections.reduce((obj, curr) => {
                 const { name } = curr;
                 const max = sectionMaxScores[name] || 0;
@@ -285,7 +295,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
                 return { ...obj, [name]: [...scores, score] };
             }, {});
 
-            this.sectionScores = parentSectionNames.reduce(
+            this.sectionScores = Object.keys(sectionMaxScores).reduce(
                 (obj, name) => ({
                     ...obj,
                     [name]: {
