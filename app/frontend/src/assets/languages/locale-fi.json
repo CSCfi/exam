@@ -994,6 +994,9 @@
   "sitnet_no_questions_to_review": "Ei arvioitavia kysymyksiä",
   "sitnet_section_averages": "Aihealueiden pistekeskiarvot FI",
   "sitnet_section_averages_tooltip": "Aihealueen pisteiden keskiarvo / aihealueen maksimipisteet FI",
+  "sitnet_student_score_report": "Raportti kysymyskohtaisista pisteistä FI",
+  "sitnet_download_report": "Lataa raportti FI",
+  "sitnet_error_creating_excel_file": "Virhe raportin luomisessa FI",
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään",
   "sitnet_questions_transferred": "Kysymykset kopioitu"
 }

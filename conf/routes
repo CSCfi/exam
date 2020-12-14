@@ -100,6 +100,7 @@ POST          /app/iop/student/exam/:hash/clozetest/:questionId        backend.c
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                 backend.controllers.StudentActionsController.getExamFeedback(eid: Long, request: Request)
 GET           /app/feedback/exams/:eid/score                           backend.controllers.StudentActionsController.getExamScore(eid: Long, request: Request)
+GET           /app/feedback/exams/:eid/report                          backend.controllers.StudentActionsController.getExamScoreReport(eid: Long, request: Request)
 GET           /app/student/finishedexams                               backend.controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String], request: Request)
 GET           /app/student/enrolments                                  backend.controllers.StudentActionsController.getEnrolmentsForUser(request: Request)
 GET           /app/student/exam/:eid/info                              backend.controllers.StudentActionsController.getExamInfo(eid: Long, request: Request)
