@@ -1,6 +1,7 @@
 package backend.controllers.iop.transfer.impl;
 
 import backend.controllers.base.BaseController;
+import backend.models.Attachment;
 import backend.models.User;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
@@ -12,35 +13,52 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import play.Environment;
+import play.Logger;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class DataTransferController extends BaseController {
+    private static final Logger.ALogger logger = Logger.of(DataTransferController.class);
 
     enum DataType {
         QUESTION
     }
 
+    private final Environment environment;
     private final WSClient wsClient;
 
     @Inject
-    DataTransferController(WSClient wsClient) {
+    DataTransferController(Environment environment, WSClient wsClient) {
+        this.environment = environment;
         this.wsClient = wsClient;
     }
 
@@ -52,6 +70,12 @@ public class DataTransferController extends BaseController {
             return importQuestions(body);
         }
         return notAcceptable();
+    }
+
+    private JsonNode questionToJson(Question question, JsonNode node, PathProperties pp) {
+        JsonNode questionNode = serialize(question, pp);
+        ((ObjectNode) questionNode).set("attachment", node);
+        return questionNode;
     }
 
     @Authenticated
@@ -76,10 +100,52 @@ public class DataTransferController extends BaseController {
                 .eq("creator", user)
                 .endOr()
                 .findSet();
+
+            // attachments to JSON node (fileName, mime, data in B64)
+            Map<Question, Attachment> attachments = questions
+                .stream()
+                .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
+                .collect(Collectors.toMap(Function.identity(), Question::getAttachment));
+            Map<Question, JsonNode> qn = attachments
+                .entrySet()
+                .stream()
+                .collect(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> {
+                            Attachment attachment = e.getValue();
+                            File file = new File(attachment.getFilePath());
+                            try (InputStream is = new FileInputStream(file)) {
+                                final byte[] encoded = Base64.getEncoder().encode(is.readAllBytes());
+                                return Json
+                                    .newObject()
+                                    .put("fileName", attachment.getFileName())
+                                    .put("mimeType", attachment.getMimeType())
+                                    .put("data", Base64.getEncoder().encode(encoded));
+                            } catch (IOException ioe) {
+                                logger.error("Failed to encode attachment to Base64", ioe);
+                                return NullNode.getInstance();
+                            }
+                        }
+                    )
+                );
+
             JsonNode data =
                 ((ObjectNode) body).put("path", path)
                     .put("owner", user.getEppn())
-                    .set("questions", serialize(questions, pp));
+                    .set(
+                        "questions",
+                        Json
+                            .newArray()
+                            .addAll(
+                                qn
+                                    .entrySet()
+                                    .stream()
+                                    .map(e -> questionToJson(e.getKey(), e.getValue(), pp))
+                                    .collect(Collectors.toList())
+                            )
+                    );
+
             URL url = parseURL(body.get("orgRef").asText());
             WSRequest wsr = wsClient.url(url.toString());
             return wsr
@@ -106,6 +172,20 @@ public class DataTransferController extends BaseController {
         return new URL(url);
     }
 
+    private Attachment importAttachment(JsonNode node, Long id) throws IOException {
+        String path = AppUtil.createFilePath(environment, id.toString());
+        File file = new File(path);
+        try (OutputStream os = new FileOutputStream(file)) {
+            byte[] data = Base64.getDecoder().decode(node.get("data").asText().getBytes(StandardCharsets.UTF_8));
+            os.write(data);
+        }
+        Attachment attachment = new Attachment();
+        attachment.setFilePath(path);
+        attachment.setFileName(node.get("fileName").asText());
+        attachment.setMimeType(node.get("mimeType").asText());
+        return attachment;
+    }
+
     private Result importQuestions(JsonNode node) {
         String eppn = node.get("owner").asText();
         Optional<User> ou = Ebean.find(User.class).where().eq("eppn", eppn).findOneOrEmpty();
@@ -118,6 +198,10 @@ public class DataTransferController extends BaseController {
             .stream(questionNode.spliterator(), false)
             .forEach(
                 n -> {
+                    Optional<JsonNode> attachmentNode = n.has("attachment") &&
+                        n.get("attachment").getNodeType() == JsonNodeType.OBJECT
+                        ? Optional.of(n.get("attachment"))
+                        : Optional.empty();
                     Question question = JsonDeserializer.deserialize(Question.class, n);
                     Question copy = question.copy();
                     copy.setParent(null);
@@ -129,6 +213,18 @@ public class DataTransferController extends BaseController {
                     copy.getQuestionOwners().add(user);
                     copy.update();
                     Ebean.saveAll(copy.getOptions());
+                    attachmentNode.ifPresent(
+                        an -> {
+                            try {
+                                Attachment attachment = importAttachment(an, question.getId());
+                                attachment.save();
+                                question.setAttachment(attachment);
+                                question.update();
+                            } catch (IOException e) {
+                                logger.error("Failed to create attachment for imported question", e);
+                            }
+                        }
+                    );
                 }
             );
         return created();

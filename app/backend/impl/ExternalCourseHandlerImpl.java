@@ -253,61 +253,72 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return new URL(url);
     }
 
-    private List<GradeScale> getGradeScales(JsonNode src) {
-        JsonNode node = src;
-        List<GradeScale> scales = new ArrayList<>();
-        if (node.has("gradeScale")) {
-            node = node.get("gradeScale");
-            for (JsonNode scale : node) {
-                String type = scale.get("type").asText();
-                Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
-                if (scaleType.isEmpty()) {
-                    // not understood
-                    logger.warn("Skipping over unknown grade scale type {}", type);
-                } else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
-                    // This needs custom handling
-                    if (!scale.has("code") || !scale.has("name")) {
-                        logger.warn(
-                            "Skipping over grade scale of type OTHER, required nodes are missing: {}",
-                            scale.asText()
-                        );
-                        continue;
-                    }
-                    Long externalRef = scale.get("code").asLong();
-                    GradeScale gs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOne();
-                    if (gs != null) {
-                        scales.add(gs);
-                        continue;
-                    }
-                    gs = new GradeScale();
-                    gs.setDescription(GradeScale.Type.OTHER.toString());
-                    gs.setExternalRef(externalRef);
-                    gs.setDisplayName(scale.get("name").asText());
-                    logger.info("saving scale " + externalRef);
-                    gs.save();
-                    for (JsonNode grade : scale.get("grades")) {
-                        if (!grade.has("description")) {
-                            logger.warn("Skipping over grade, required nodes are missing: {}", grade.asText());
-                            continue;
-                        }
-                        Grade g = new Grade();
-                        g.setName(grade.get("description").asText());
-                        g.setGradeScale(gs);
-                        // Dumb JSON API gives us boolean values as strings
-                        boolean marksRejection =
-                            grade.get("isFailed") != null &&
-                            Boolean.parseBoolean(grade.get("isFailed").asText("false"));
-                        g.setMarksRejection(marksRejection);
-                        g.save();
-                        gs.getGrades().add(g);
-                    }
-                    scales.add(gs);
-                } else {
-                    scales.add(Ebean.find(GradeScale.class, scaleType.get().getValue()));
-                }
-            }
+    private Optional<GradeScale> importScale(JsonNode node) {
+        Long externalRef = node.get("code").asLong();
+        Optional<GradeScale> ogs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOneOrEmpty();
+        if (ogs.isPresent()) {
+            return ogs;
         }
-        return scales;
+        GradeScale gs = new GradeScale();
+        gs.setDescription(GradeScale.Type.OTHER.toString());
+        gs.setExternalRef(externalRef);
+        gs.setDisplayName(node.get("name").asText());
+        logger.info("saving scale " + externalRef);
+        gs.save();
+        Stream<JsonNode> gradesNode = StreamSupport
+            .stream(node.get("grades").spliterator(), false)
+            .filter(n -> n.has("description"));
+        Set<Grade> grades = gradesNode
+            .map(
+                n -> {
+                    Grade grade = new Grade();
+                    grade.setName(n.get("description").asText());
+                    grade.setGradeScale(gs);
+                    // Dumb JSON API gives us boolean values as strings
+                    boolean marksRejection =
+                        n.get("isFailed") != null && Boolean.parseBoolean(n.get("isFailed").asText("false"));
+                    grade.setMarksRejection(marksRejection);
+                    grade.save();
+                    return grade;
+                }
+            )
+            .collect(Collectors.toSet());
+        gs.setGrades(grades);
+        return Optional.of(gs);
+    }
+
+    private List<GradeScale> getGradeScales(JsonNode src) {
+        JsonNode scaleNode = src.path("gradeScale");
+        if (!scaleNode.isMissingNode()) {
+            Set<JsonNode> scales = StreamSupport
+                .stream(scaleNode.spliterator(), false)
+                .filter(s -> s.has("type"))
+                .collect(Collectors.toSet());
+            Stream<GradeScale> externals = scales
+                .stream()
+                .filter(
+                    s -> {
+                        String type = s.get("type").asText();
+                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                        return gst.isPresent() && gst.get() == GradeScale.Type.OTHER;
+                    }
+                )
+                .filter(n -> n.has("code") && n.has("name"))
+                .map(this::importScale)
+                .flatMap(Optional::stream);
+            Stream<GradeScale> locals = scales
+                .stream()
+                .filter(
+                    s -> {
+                        String type = s.get("type").asText();
+                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                        return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
+                    }
+                )
+                .map(n -> Ebean.find(GradeScale.class, n.get("type").asText()));
+            return Stream.concat(externals, locals).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     private Optional<Course> parseCourse(JsonNode node) throws ParseException {
@@ -368,12 +379,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 course.setGradeScale(scales.get(0));
             }
             // in array form
-            course.setCampus(getFirstChildNameValue(node, "campus").orElse(null));
-            course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme").orElse(null));
-            course.setDepartment(getFirstChildNameValue(node, "department").orElse(null));
-            course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible").orElse(null));
-            course.setLecturer(getFirstChildNameValue(node, "lecturer").orElse(null));
-            course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage").orElse(null));
+            course.setCampus(getFirstName(node, "campus"));
+            course.setDegreeProgramme(getFirstName(node, "degreeProgramme"));
+            course.setDepartment(getFirstName(node, "department"));
+            course.setLecturerResponsible(getFirstName(node, "lecturerResponsible"));
+            course.setLecturer(getFirstName(node, "lecturer"));
+            course.setCreditsLanguage(getFirstName(node, "creditsLanguage"));
             return Optional.of(course);
         }
         return Optional.empty();
@@ -394,16 +405,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return results;
     }
 
-    private static Optional<String> getFirstChildNameValue(JsonNode json, String columnName) {
-        if (json.has(columnName)) {
-            JsonNode array = json.get(columnName);
-            if (array.has(0)) {
-                JsonNode child = array.get(0);
-                if (child.has("name")) {
-                    return Optional.of(child.get("name").asText());
-                }
-            }
-        }
-        return Optional.empty();
+    private String getFirstName(JsonNode json, String columnName) {
+        JsonNode node = json.path(columnName).path(0).path("name");
+        return node.isMissingNode() ? null : node.asText();
     }
 }
