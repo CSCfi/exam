@@ -1,4 +1,4 @@
-package controllers;
+package controllers.integration;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -31,7 +31,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 
-public class CourseInfoImportTest extends IntegrationTestCase {
+public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
         private static File jsonFile;

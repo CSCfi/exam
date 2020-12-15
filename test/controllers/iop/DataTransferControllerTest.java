@@ -2,6 +2,7 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import backend.models.Attachment;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.Question;
@@ -31,6 +32,7 @@ import play.test.Helpers;
 
 public class DataTransferControllerTest extends IntegrationTestCase {
     private static final String ORG_REF = "thisissomeorgref";
+    static File testImage = getTestFile("test_files/test_image.png");
     private static Server server;
 
     public static class DataTransferServlet extends HttpServlet {
@@ -74,6 +76,30 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     }
 
     @Test
+    @RunAsTeacher
+    public void testExportQuestionWithAttachment() {
+        User user = getLoggerUser();
+        Question question = Ebean
+            .find(Question.class)
+            .where()
+            .or()
+            .eq("questionOwners", user)
+            .eq("creator", user)
+            .endOr()
+            .findList()
+            .get(0);
+        final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
+        question.setAttachment(attachment);
+        question.save();
+        ArrayNode an = new ObjectMapper()
+        .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+        an.add(question.getId());
+        ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
+        Result result = request(Helpers.POST, "/integration/iop/export", body);
+        assertThat(result.status()).isEqualTo(201);
+    }
+
+    @Test
     public void testImportQuestion() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         File from = new File("test/resources/questionImport.json");
@@ -82,5 +108,17 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/integration/iop/import", json);
         assertThat(result.status()).isEqualTo(201);
         assertThat(Ebean.find(Question.class).where().like("question", "% **import").findCount()).isEqualTo(22);
+    }
+
+    @Test
+    public void testImportQuestionWithAttachment() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        File from = new File("test/resources/questionImportWithAttachment.json");
+        JsonNode json = mapper.readTree(from);
+
+        Result result = request(Helpers.POST, "/integration/iop/import", json);
+        assertThat(result.status()).isEqualTo(201);
+        Question question = Ebean.find(Question.class).where().like("question", "% **import").findOne();
+        assertThat(question.getAttachment()).isNotNull();
     }
 }
