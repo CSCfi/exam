@@ -216,10 +216,10 @@ public class DataTransferController extends BaseController {
                     attachmentNode.ifPresent(
                         an -> {
                             try {
-                                Attachment attachment = importAttachment(an, question.getId());
+                                Attachment attachment = importAttachment(an, copy.getId());
                                 attachment.save();
-                                question.setAttachment(attachment);
-                                question.update();
+                                copy.setAttachment(attachment);
+                                copy.update();
                             } catch (IOException e) {
                                 logger.error("Failed to create attachment for imported question", e);
                             }
