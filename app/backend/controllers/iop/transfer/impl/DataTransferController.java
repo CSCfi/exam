@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -116,12 +115,12 @@ public class DataTransferController extends BaseController {
                             Attachment attachment = e.getValue();
                             File file = new File(attachment.getFilePath());
                             try (InputStream is = new FileInputStream(file)) {
-                                final byte[] encoded = Base64.getEncoder().encode(is.readAllBytes());
+                                final String encoded = Base64.getEncoder().encodeToString(is.readAllBytes());
                                 return Json
                                     .newObject()
                                     .put("fileName", attachment.getFileName())
                                     .put("mimeType", attachment.getMimeType())
-                                    .put("data", Base64.getEncoder().encode(encoded));
+                                    .put("data", encoded);
                             } catch (IOException ioe) {
                                 logger.error("Failed to encode attachment to Base64", ioe);
                                 return NullNode.getInstance();
@@ -173,10 +172,10 @@ public class DataTransferController extends BaseController {
     }
 
     private Attachment importAttachment(JsonNode node, Long id) throws IOException {
-        String path = AppUtil.createFilePath(environment, id.toString());
+        String path = AppUtil.createFilePath(environment, "question", id.toString());
         File file = new File(path);
         try (OutputStream os = new FileOutputStream(file)) {
-            byte[] data = Base64.getDecoder().decode(node.get("data").asText().getBytes(StandardCharsets.UTF_8));
+            byte[] data = Base64.getDecoder().decode(node.get("data").asText());
             os.write(data);
         }
         Attachment attachment = new Attachment();
