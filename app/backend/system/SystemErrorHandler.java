@@ -44,6 +44,9 @@ public class SystemErrorHandler implements HttpErrorHandler {
             case Http.Status.FORBIDDEN:
                 result = Results.unauthorized(Json.toJson(new ApiError(message)));
                 break;
+            case Http.Status.REQUEST_ENTITY_TOO_LARGE:
+                result = Results.status(statusCode, Json.toJson(new ApiError(message)));
+                break;
             default:
                 result = Results.internalServerError(Json.toJson(new ApiError(message)));
         }
