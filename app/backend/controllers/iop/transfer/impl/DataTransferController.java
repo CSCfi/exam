@@ -39,14 +39,25 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import play.Environment;
 import play.Logger;
+import play.http.HttpErrorHandler;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class DataTransferController extends BaseController {
     private static final Logger.ALogger logger = Logger.of(DataTransferController.class);
+
+    static class DataTransferBodyParser extends BodyParser.Json {
+        private static final int FIVE_MB = 5000 * 1024;
+
+        @Inject
+        DataTransferBodyParser(HttpErrorHandler errorHandler) {
+            super(FIVE_MB, errorHandler);
+        }
+    }
 
     enum DataType {
         QUESTION
@@ -61,8 +72,8 @@ public class DataTransferController extends BaseController {
         this.wsClient = wsClient;
     }
 
-    // TODO: validation
     @SubjectNotPresent
+    @BodyParser.Of(DataTransferBodyParser.class)
     public Result importData(Http.Request request) {
         JsonNode body = request.body().asJson();
         if (body.get("type").asText().equals(DataType.QUESTION.toString())) {
