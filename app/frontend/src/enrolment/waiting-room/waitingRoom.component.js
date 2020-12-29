@@ -22,9 +22,9 @@ angular.module('app.enrolment').component('waitingRoom', {
         '$stateParams',
         '$timeout',
         '$translate',
-        '$state',
+        'Session',
         'StudentExamRes',
-        function($stateParams, $timeout, $translate, $state, StudentExamRes) {
+        function($stateParams, $timeout, $translate, Session, StudentExamRes) {
             const vm = this;
 
             vm.$onInit = function() {
@@ -37,7 +37,9 @@ angular.module('app.enrolment').component('waitingRoom', {
                             vm.enrolment = enrolment;
                             const offset = calculateOffset();
                             vm.timeout = $timeout(function() {
-                                $state.go('examination', { hash: vm.enrolment.exam.hash });
+                                // do not just blindly try to start examination, check from server first by requesting a session check
+                                // we should then be forwarded to examination by http interceptor if examination is really allowed to starrt
+                                Session.checkSession();
                             }, offset);
                             if (vm.enrolment.reservation) {
                                 const room = vm.enrolment.reservation.machine.room;
