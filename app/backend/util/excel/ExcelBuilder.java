@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.Cell;
@@ -99,16 +98,18 @@ public class ExcelBuilder {
         }
     }
 
-    private static void appendCell(Row row, String value) {
+    private static int appendCell(Row row, String value) {
         int cellIndex = row.getLastCellNum() < 0 ? 0 : row.getLastCellNum();
         Cell cell = row.createCell(cellIndex);
         cell.setCellValue(value);
+        return cellIndex;
     }
 
-    private static void appendCell(Row row, Double value) {
+    private static int appendCell(Row row, Double value) {
         int cellIndex = row.getLastCellNum() < 0 ? 0 : row.getLastCellNum();
         Cell cell = row.createCell(cellIndex);
         cell.setCellValue(value);
+        return cellIndex;
     }
 
     private static Tuple2<String, CellType> getScoreTuple(ExamSectionQuestion esq) {
@@ -226,7 +227,7 @@ public class ExcelBuilder {
         appendCell(headerRow, messages.get(lang, "reports.scores.totalScore"));
         appendCell(valueRow, exam.getTotalScore());
 
-        IntStream.range(0, headerRow.getLastCellNum()).forEach(i -> sheet.autoSizeColumn(i, true));
+        autosizeColumns(headerRow, sheet);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
@@ -234,26 +235,28 @@ public class ExcelBuilder {
     }
 
     public static ByteArrayOutputStream buildScoreExcel(Long examId, Collection<Long> childIds) throws IOException {
-        String parentQuestionIdSql = String.join(
-            " ",
-            "select q.id from exam",
-            "inner join exam_section as es on es.exam_id = exam.id",
-            "inner join exam_section_question as esq on es.id = esq.exam_section_id",
-            "inner join question as q on esq.question_id = q.id",
-            "where exam.id = :id"
-        );
-        List<Long> parentQuestionIds = new LinkedList<>();
-        Ebean
-            .createSqlQuery(parentQuestionIdSql)
-            .setParameter("id", examId)
-            .findEachRow(
-                (
-                    (resultSet, rowNum) -> {
-                        Long questionId = resultSet.getLong(1);
-                        parentQuestionIds.add(questionId);
-                    }
-                )
-            );
+        /* Create workbook and new sheet */
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("Question scores");
+
+        /* Read hostname from config, needed for hyperlinks */
+        ConfigReader configReader = new ConfigReaderImpl();
+        String hostname = configReader.getHostName();
+
+        /* Create cell style for hyperlinks */
+        CellStyle linkStyle = wb.createCellStyle();
+        Font linkFont = wb.createFont();
+        linkFont.setColor(IndexedColors.BLUE.getIndex());
+        linkFont.setUnderline(HSSFFont.U_SINGLE);
+        linkStyle.setFont(linkFont);
+
+        Exam parentExam = Ebean
+            .find(Exam.class)
+            .fetch("examSections.sectionQuestions.question")
+            .where()
+            .eq("id", examId)
+            .findOne();
+
         List<Exam> childExams = Ebean
             .find(Exam.class)
             .fetch("examParticipation.user")
@@ -264,34 +267,41 @@ public class ExcelBuilder {
             .in("id", childIds)
             .findList();
 
-        List<Long> deletedQuestionIds = childExams
+        /* Deleted question ids are used to set question headers as "removed" */
+        Set<Long> deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams);
+
+        /* First we need to map all question ids to section names from parent and child exams */
+        // section name -> question id
+        Map<String, Set<Long>> questionIdsBySectionName = new LinkedHashMap<>();
+
+        parentExam
+            .getExamSections()
+            .stream()
+            .forEach(
+                es -> {
+                    String sectionName = es.getName();
+                    Set<Long> questionIds = extractQuestionIdsFromSection(es);
+                    questionIdsBySectionName.put(sectionName, questionIds);
+                }
+            );
+
+        /* Go through child exams and add missing questions/sections to map */
+        childExams
             .stream()
             .flatMap(exam -> exam.getExamSections().stream())
-            .flatMap(es -> es.getSectionQuestions().stream())
-            .filter(esq -> isQuestionRemoved(esq, parentQuestionIds))
-            .map(ExcelBuilder::getQuestionId)
-            .distinct()
-            .collect(Collectors.toList());
-
-        /* Get question IDs by numbering duplicates */
-        List<String> parentQuestionKeys = getListWithNumberedDuplicates(parentQuestionIds);
-        List<String> deletedQuestionKeys = getListWithNumberedDuplicates(deletedQuestionIds);
-
-        List<String> questionHeaderKeys = Stream
-            .concat(parentQuestionKeys.stream(), deletedQuestionKeys.stream())
-            .collect(Collectors.toList());
-
-        Workbook wb = new XSSFWorkbook();
-        Sheet sheet = wb.createSheet("Question scores");
-
-        ConfigReader configReader = new ConfigReaderImpl();
-        String hostname = configReader.getHostName();
-
-        CellStyle linkStyle = wb.createCellStyle();
-        Font linkFont = wb.createFont();
-        linkFont.setColor(IndexedColors.BLUE.getIndex());
-        linkFont.setUnderline(HSSFFont.U_SINGLE);
-        linkStyle.setFont(linkFont);
+            .forEach(
+                es -> {
+                    String sectionName = es.getName();
+                    Set<Long> childQuestionIds = extractQuestionIdsFromSection(es);
+                    if (questionIdsBySectionName.containsKey(sectionName)) {
+                        /* Section exists, merge question id set from child exam to parent question ids */
+                        questionIdsBySectionName.get(sectionName).addAll(childQuestionIds);
+                    } else {
+                        /* Add new entry since section didn't exist */
+                        questionIdsBySectionName.put(sectionName, childQuestionIds);
+                    }
+                }
+            );
 
         /* Create header row */
         Row headerRow = sheet.createRow(0);
@@ -300,26 +310,52 @@ public class ExcelBuilder {
             headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders[i]);
         }
 
-        questionHeaderKeys
-            .stream()
+        /* These variables will store spreadsheet column indexes for question/section/total scores */
+        // section name -> question id -> column index
+        Map<String, Map<Long, Integer>> questionColumnIndexesBySectionName = new HashMap<>();
+        // section name -> column index
+        Map<String, Integer> sectionTotalIndexesBySectionName = new HashMap<>();
+        // index for total score column
+        int totalScoreIndex;
+
+        /* Start inserting header columns to spreadsheet, save column indexes to maps above */
+        questionIdsBySectionName
+            .entrySet()
             .forEach(
-                id -> {
-                    if (deletedQuestionKeys.contains(id)) {
-                        headerRow.createCell(headerRow.getLastCellNum()).setCellValue("removed");
-                    } else {
-                        Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
-                        link.setAddress(hostname + "/questions/" + id);
-                        Cell cell = headerRow.createCell(headerRow.getLastCellNum());
-                        cell.setCellStyle(linkStyle);
-                        cell.setHyperlink(link);
-                        cell.setCellValue("questionId_" + id);
+                sectionMap -> {
+                    String sectionName = sectionMap.getKey();
+                    Map<Long, Integer> columnIndexesByQuestionIds = new HashMap<>();
+                    for (Long questionId : sectionMap.getValue()) {
+                        if (deletedQuestionIds.contains(questionId)) {
+                            /* Question is deleted, set header as "removed" */
+                            int columnIndex = appendCell(headerRow, "removed");
+                            columnIndexesByQuestionIds.put(questionId, columnIndex); // saves the column index
+                        } else {
+                            /* Question exists on parent, create question header cell with id and add hyperlink to question */
+                            Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
+                            int columnIndex = headerRow.getLastCellNum();
+                            link.setAddress(hostname + "/questions/" + questionId);
+                            Cell cell = headerRow.createCell(columnIndex);
+                            cell.setCellStyle(linkStyle);
+                            cell.setHyperlink(link);
+                            cell.setCellValue("questionId_" + questionId);
+                            columnIndexesByQuestionIds.put(questionId, columnIndex);
+                        }
                     }
+                    /* Save "question id -> column index" hashmap under current section name */
+                    questionColumnIndexesBySectionName.put(sectionName, columnIndexesByQuestionIds);
+
+                    /* Set header cell for section's total score column and save column index again */
+                    int sectionTotalIdx = appendCell(headerRow, "Aihealueen " + sectionName + " pisteet");
+                    sectionTotalIndexesBySectionName.put(sectionName, sectionTotalIdx);
                 }
             );
+        /* Also set exam's total score column header and save index */
+        totalScoreIndex = appendCell(headerRow, "Kokonaispisteet");
 
         /* Iterate child exams and create excel rows */
         for (Exam exam : childExams) {
-            // Skip exam if there is no participation
+            /* Skip exam if there is no participation */
             if (exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
                 continue;
             }
@@ -327,50 +363,53 @@ public class ExcelBuilder {
             User student = exam.getExamParticipation().getUser();
             Optional<ExamScore> examScore = Optional.ofNullable(exam.getExamRecord()).map(ExamRecord::getExamScore);
             boolean isGraded =
-                (
-                    exam.getState() == Exam.State.GRADED ||
-                    exam.getState() == Exam.State.GRADED_LOGGED ||
-                    exam.getState() == Exam.State.ARCHIVED
-                );
+                exam.getState() == Exam.State.GRADED ||
+                exam.getState() == Exam.State.GRADED_LOGGED ||
+                exam.getState() == Exam.State.ARCHIVED;
 
             /* Get non-score cells and append them to a new excel row */
             List<Tuple2<String, CellType>> defaultCells = getScoreReportDefaultCells(student, exam, examScore);
             Row currentRow = sheet.createRow(sheet.getLastRowNum() + 1);
             appendCellsToRow(currentRow, defaultCells);
 
-            /* Create and append score rows */
-            if (!isGraded) {
-                /* Set "-" for questions that were included in the child exam but aren't yet graded */
-                List<Long> questionIds = exam
-                    .getExamSections()
-                    .stream()
-                    .flatMap(es -> es.getSectionQuestions().stream())
-                    .map(ExcelBuilder::getQuestionId)
-                    .collect(Collectors.toList());
-                List<String> questionKeys = getListWithNumberedDuplicates(questionIds);
-                for (String key : questionKeys) {
-                    int currentIndex = ScoreReportDefaultHeaders.length + questionHeaderKeys.indexOf(key);
-                    currentRow.createCell(currentIndex).setCellValue("-");
-                }
-            } else {
-                /* Set scores for questions that were included in the child exam */
-                Map<String, Tuple2<String, CellType>> scoreCells = getScoreCellMapWithDuplicateKeysNumbered(exam);
-                for (String key : scoreCells.keySet()) {
-                    if (questionHeaderKeys.contains(key)) {
-                        int index = ScoreReportDefaultHeaders.length + questionHeaderKeys.indexOf(key);
-                        Cell currentCell = currentRow.createCell(index);
-                        Tuple2<String, CellType> cellTuple = scoreCells.get(key);
-                        setValue(currentCell, cellTuple._1, cellTuple._2);
+            /* Start inserting question/section scores to spreadsheet columns */
+            for (ExamSection es : exam.getExamSections()) {
+                String sectionName = es.getName();
+                for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                    Long questionId = getQuestionId(esq);
+                    /* Get column index from nested hashmap with section name and question id */
+                    int questionColumnIndex = questionColumnIndexesBySectionName.get(sectionName).get(questionId);
+
+                    /* Set score if exam is graded, otherwise add "-" to the question cell */
+                    if (isGraded) {
+                        Tuple2<String, CellType> scoreTuple = getScoreTuple(esq);
+                        Cell currentCell = currentRow.createCell(questionColumnIndex);
+                        setValue(currentCell, scoreTuple._1, scoreTuple._2);
+                    } else {
+                        currentRow.createCell(questionColumnIndex).setCellValue("-");
                     }
                 }
+                /* Get the index of section total score column */
+                int sectionIndex = sectionTotalIndexesBySectionName.get(sectionName);
+
+                /* Again, set score if exam was graded, otherwise "-" */
+                if (isGraded) {
+                    currentRow.createCell(sectionIndex).setCellValue(es.getTotalScore());
+                } else {
+                    currentRow.createCell(sectionIndex).setCellValue("-");
+                }
+            }
+
+            /* Lastly set exam total score to correct column (or "-" if !isGraded) */
+            if (isGraded) {
+                currentRow.createCell(totalScoreIndex).setCellValue(exam.getTotalScore());
+            } else {
+                currentRow.createCell(totalScoreIndex).setCellValue("-");
             }
         }
 
         /* Autosize cells */
-        IntStream
-            .range(0, questionHeaderKeys.size() + ScoreReportDefaultHeaders.length)
-            .forEach(i -> sheet.autoSizeColumn(i, true));
-
+        autosizeColumns(headerRow, sheet);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
@@ -378,44 +417,26 @@ public class ExcelBuilder {
         return bos;
     }
 
-    /* Returns a new list from given list with duplicate IDs numbered as 2, 2#2, 2#3 etc. */
-    private static List<String> getListWithNumberedDuplicates(List<Long> questionIds) {
-        Set<String> questionKeys = new LinkedHashSet<>();
-        Map<Long, Integer> duplicates = new HashMap<>();
-        for (Long questionId : questionIds) {
-            if (!questionKeys.add(questionId.toString())) {
-                int duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
-                duplicates.put(questionId, duplicateCount);
-                questionKeys.add(questionId + "#" + (duplicateCount + 1));
-            }
-        }
-        return new ArrayList<>(questionKeys);
+    private static Set<Long> extractQuestionIdsFromSection(ExamSection es) {
+        return es.getSectionQuestions().stream().map(ExcelBuilder::getQuestionId).collect(Collectors.toSet());
     }
 
-    /* Returns a map of score cells with duplicate IDs as keys (also numbered in the same way as the method above) */
-    private static Map<String, Tuple2<String, CellType>> getScoreCellMapWithDuplicateKeysNumbered(Exam childExam) {
-        Map<String, Tuple2<String, CellType>> cellMap = new HashMap<>();
-        Map<Long, Integer> duplicates = new HashMap<>();
-        List<ExamSectionQuestion> questionList = childExam
+    private static Set<Long> getDeletedQuestionIds(Exam parent, List<Exam> childExams) {
+        Set<Long> parentQuestionIds = parent
             .getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
-            .collect(Collectors.toList());
+            .filter(esq -> esq.getQuestion() != null && esq.getQuestion().getId() != null)
+            .map(esq -> esq.getQuestion().getId())
+            .collect(Collectors.toSet());
 
-        for (ExamSectionQuestion esq : questionList) {
-            Long questionId = getQuestionId(esq);
-            String questionKey = questionId.toString();
-            Tuple2<String, CellType> scoreCell = getScoreTuple(esq);
-            if (cellMap.get(questionKey) == null) {
-                cellMap.put(questionId.toString(), scoreCell);
-            } else {
-                int duplicateCount = duplicates.get(questionId) != null ? duplicates.get(questionId) + 1 : 1;
-                duplicates.put(questionId, duplicateCount);
-                cellMap.put(questionId.toString() + "#" + (duplicateCount + 1), scoreCell);
-            }
-        }
-
-        return cellMap;
+        return childExams
+            .stream()
+            .flatMap(exam -> exam.getExamSections().stream())
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> isQuestionRemoved(esq, parentQuestionIds))
+            .map(ExcelBuilder::getQuestionId)
+            .collect(Collectors.toSet());
     }
 
     private static Long getQuestionId(ExamSectionQuestion question) {
@@ -430,7 +451,7 @@ public class ExcelBuilder {
         return question.getQuestion().getParent().getId();
     }
 
-    private static boolean isQuestionRemoved(ExamSectionQuestion question, List<Long> parentIds) {
+    private static boolean isQuestionRemoved(ExamSectionQuestion question, Set<Long> parentIds) {
         if (question.getQuestion() == null) {
             return true;
         }
@@ -440,5 +461,10 @@ public class ExcelBuilder {
         }
 
         return !parentIds.contains(question.getQuestion().getParent().getId());
+    }
+
+    private static void autosizeColumns(Row header, Sheet sheet) {
+        /* Autosize cells */
+        IntStream.range(0, header.getLastCellNum()).forEach(i -> sheet.autoSizeColumn(i, true));
     }
 }
