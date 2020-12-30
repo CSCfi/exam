@@ -158,7 +158,9 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                     const customButton = $('.fc-myCustomButton-button');
 
                     const today = moment();
-                    const endOfWeek = view.end.endOf('week');
+                    // If Sunday has events, then for some reason view.end points to Sunday next week. Might be a bug.
+                    const weekFix = view.isHiddenDay(0) ? 0 : -1;
+                    const endOfWeek = view.end.endOf('week').add(weekFix, 'weeks');
 
                     customButton.text(_.capitalize(view.start.locale(this.$translate.use()).format('MMMM YYYY')));
 

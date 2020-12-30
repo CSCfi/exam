@@ -112,10 +112,15 @@ public class DataTransferController extends BaseController {
                 .findSet();
 
             // attachments to JSON node (fileName, mime, data in B64)
-            Map<Question, Attachment> attachments = questions
+            Map<Question, Optional<Attachment>> attachments = questions
                 .stream()
-                .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
-                .collect(Collectors.toMap(Function.identity(), Question::getAttachment));
+                .filter(q -> q.getAttachment() == null || new File(q.getAttachment().getFilePath()).exists())
+                .collect(
+                    Collectors.toMap(
+                        Function.identity(),
+                        q -> q.getAttachment() != null ? Optional.of(q.getAttachment()) : Optional.empty()
+                    )
+                );
             Map<Question, JsonNode> qn = attachments
                 .entrySet()
                 .stream()
@@ -123,17 +128,22 @@ public class DataTransferController extends BaseController {
                     Collectors.toMap(
                         Map.Entry::getKey,
                         e -> {
-                            Attachment attachment = e.getValue();
-                            File file = new File(attachment.getFilePath());
-                            try (InputStream is = new FileInputStream(file)) {
-                                final String encoded = Base64.getEncoder().encodeToString(is.readAllBytes());
-                                return Json
-                                    .newObject()
-                                    .put("fileName", attachment.getFileName())
-                                    .put("mimeType", attachment.getMimeType())
-                                    .put("data", encoded);
-                            } catch (IOException ioe) {
-                                logger.error("Failed to encode attachment to Base64", ioe);
+                            Optional<Attachment> oa = e.getValue();
+                            if (oa.isPresent()) {
+                                Attachment attachment = oa.get();
+                                File file = new File(attachment.getFilePath());
+                                try (InputStream is = new FileInputStream(file)) {
+                                    final String encoded = Base64.getEncoder().encodeToString(is.readAllBytes());
+                                    return Json
+                                        .newObject()
+                                        .put("fileName", attachment.getFileName())
+                                        .put("mimeType", attachment.getMimeType())
+                                        .put("data", encoded);
+                                } catch (IOException ioe) {
+                                    logger.error("Failed to encode attachment to Base64", ioe);
+                                    return NullNode.getInstance();
+                                }
+                            } else {
                                 return NullNode.getInstance();
                             }
                         }
@@ -219,6 +229,7 @@ public class DataTransferController extends BaseController {
                     AppUtil.setModifier(copy, user);
                     copy.save();
                     copy.getTags().addAll(question.getTags());
+                    copy.getTags().forEach(t -> t.setCreator(user));
                     copy.getQuestionOwners().clear();
                     copy.getQuestionOwners().add(user);
                     copy.update();

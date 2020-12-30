@@ -292,7 +292,7 @@ export class SessionService {
         this._scheduler = this.$interval(this.checkSession, this.PING_INTERVAL);
     }
 
-    private checkSession = () => {
+    checkSession = () => {
         this.$http
             .get('/app/checkSession')
             .then(resp => {
