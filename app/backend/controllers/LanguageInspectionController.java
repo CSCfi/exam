@@ -104,7 +104,7 @@ public class LanguageInspectionController extends BaseController {
         }
         LanguageInspection inspection = new LanguageInspection();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setCreator(inspection, user);
+        inspection.setCreatorWithDate(user);
         inspection.setExam(exam);
         inspection.save();
         return ok();
@@ -121,7 +121,7 @@ public class LanguageInspectionController extends BaseController {
             return forbidden("Inspection already taken");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setModifier(inspection, user);
+        inspection.setModifierWithDate(user);
         inspection.setAssignee(user);
         inspection.setStartedAt(new Date());
         inspection.update();
@@ -150,14 +150,18 @@ public class LanguageInspectionController extends BaseController {
         return checkInspection(inspection)
             .orElseGet(
                 () -> {
-                    if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+                    if (
+                        inspection == null ||
+                        inspection.getStatement() == null ||
+                        inspection.getStatement().getComment().isEmpty()
+                    ) {
                         return forbidden("No statement given");
                     }
                     inspection.setFinishedAt(new Date());
                     inspection.setApproved(isApproved);
 
                     User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    AppUtil.setModifier(inspection, user);
+                    inspection.setModifierWithDate(user);
                     inspection.update();
 
                     Set<User> recipients = inspection.getExam().getParent().getExamOwners();
@@ -198,15 +202,15 @@ public class LanguageInspectionController extends BaseController {
                     Comment statement = inspection.getStatement();
                     if (statement == null) {
                         statement = new Comment();
-                        AppUtil.setCreator(statement, user);
+                        statement.setCreatorWithDate(user);
                         statement.save();
                         inspection.setStatement(statement);
                         inspection.update();
                     }
                     statement.setComment(text.get());
-                    AppUtil.setModifier(statement, user);
+                    statement.setModifierWithDate(user);
                     statement.update();
-                    AppUtil.setModifier(inspection, user);
+                    inspection.setModifierWithDate(user);
                     inspection.update();
                     return ok(inspection);
                 }

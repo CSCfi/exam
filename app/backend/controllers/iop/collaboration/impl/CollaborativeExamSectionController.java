@@ -24,7 +24,6 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import backend.util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -298,7 +297,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 updateExamQuestion(esq, question);
                 esq.getOptions().forEach(o -> o.setId(newId()));
                 cleanUser(user);
-                AppUtil.setModifier(es, user);
+                es.setModifierWithDate(user);
                 es.getSectionQuestions().add(esq);
                 return Optional.empty();
             } else {
@@ -464,7 +463,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
         section.setExpanded(true);
         section.setId(newId());
         cleanUser(user);
-        AppUtil.setCreator(section, user);
+        section.setCreatorWithDate(user);
         return section;
     }
 }

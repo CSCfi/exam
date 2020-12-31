@@ -43,7 +43,6 @@ import backend.sanitizers.CommaJoinedListSanitizer;
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
-import backend.util.AppUtil;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
@@ -95,6 +94,8 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class ReviewController extends BaseController {
+    private static final double HUNDRED = 100d;
+
     @Inject
     protected EmailComposer emailComposer;
 
@@ -492,7 +493,7 @@ public class ReviewController extends BaseController {
             return forbidden();
         }
         Comment comment = bindForm(Comment.class, request);
-        AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+        comment.setCreatorWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
         comment.save();
 
         exam.setExamFeedback(comment);
@@ -518,7 +519,7 @@ public class ReviewController extends BaseController {
         }
         Optional<String> commentText = request.attrs().getOptional(Attrs.COMMENT);
         if (commentText.isPresent()) {
-            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setModifierWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setComment(commentText.get());
         }
         comment.update();
@@ -542,7 +543,7 @@ public class ReviewController extends BaseController {
         }
         Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
         if (feedbackStatus.isPresent()) {
-            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setModifierWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setFeedbackStatus(feedbackStatus.get());
         }
         comment.update();
@@ -559,8 +560,8 @@ public class ReviewController extends BaseController {
         }
         InspectionComment ic = new InspectionComment();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setCreator(ic, user);
-        AppUtil.setModifier(ic, user);
+        ic.setCreatorWithDate(user);
+        ic.setModifierWithDate(user);
         ic.setComment(request.attrs().getOptional(Attrs.COMMENT).orElse(null));
         ic.setExam(exam);
         ic.save();
@@ -804,7 +805,7 @@ public class ReviewController extends BaseController {
     }
 
     private Double round(Double src) {
-        return src == null ? null : Math.round(src * 100) / 100d;
+        return src == null ? null : Math.round(src * 100) / HUNDRED;
     }
 
     private static Query<Exam> createQuery() {

@@ -7,6 +7,7 @@ import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.util.AppUtil;
+import backend.util.file.FileHandler;
 import backend.util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -37,7 +38,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import play.Environment;
 import play.Logger;
 import play.http.HttpErrorHandler;
 import play.libs.Json;
@@ -63,13 +63,13 @@ public class DataTransferController extends BaseController {
         QUESTION
     }
 
-    private final Environment environment;
     private final WSClient wsClient;
+    private final FileHandler fileHandler;
 
     @Inject
-    DataTransferController(Environment environment, WSClient wsClient) {
-        this.environment = environment;
+    DataTransferController(WSClient wsClient, FileHandler fileHandler) {
         this.wsClient = wsClient;
+        this.fileHandler = fileHandler;
     }
 
     @SubjectNotPresent
@@ -193,7 +193,7 @@ public class DataTransferController extends BaseController {
     }
 
     private Attachment importAttachment(JsonNode node, Long id) throws IOException {
-        String path = AppUtil.createFilePath(environment, "question", id.toString());
+        String path = fileHandler.createFilePath("question", id.toString());
         File file = new File(path);
         try (OutputStream os = new FileOutputStream(file)) {
             byte[] data = Base64.getDecoder().decode(node.get("data").asText());
@@ -225,8 +225,8 @@ public class DataTransferController extends BaseController {
                     Question question = JsonDeserializer.deserialize(Question.class, n);
                     Question copy = question.copy();
                     copy.setParent(null);
-                    AppUtil.setCreator(copy, user);
-                    AppUtil.setModifier(copy, user);
+                    copy.setCreatorWithDate(user);
+                    copy.setModifierWithDate(user);
                     copy.save();
                     copy.getTags().addAll(question.getTags());
                     copy.getTags().forEach(t -> t.setCreator(user));

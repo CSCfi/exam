@@ -7,4 +7,7 @@ public interface FileHandler {
     String read(String path);
     String encodeAndDelete(File file);
     String getContentDisposition(File file);
+    String createFilePath(String... pathParams);
+    String getAttachmentPath();
+    void removeAttachmentFile(String filePath);
 }

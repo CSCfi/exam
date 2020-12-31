@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import org.joda.time.DateTime;
 
 @MappedSuperclass
@@ -73,5 +74,17 @@ public class OwnedModel extends GeneratedIdentityModel {
 
     public void setModifier(User modifier) {
         this.modifier = modifier;
+    }
+
+    @Transient
+    public void setCreatorWithDate(User user) {
+        setCreator(user);
+        setCreated(DateTime.now());
+    }
+
+    @Transient
+    public void setModifierWithDate(User user) {
+        setModifier(user);
+        setModified(DateTime.now());
     }
 }

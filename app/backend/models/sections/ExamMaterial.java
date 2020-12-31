@@ -85,8 +85,8 @@ public final class ExamMaterial extends OwnedModel {
     public ExamMaterial copy(User user) {
         ExamMaterial material = new ExamMaterial();
         BeanUtils.copyProperties(this, material, "id", "examSections", "creator", "modifier");
-        AppUtil.setCreator(material, user);
-        AppUtil.setModifier(material, user);
+        material.setCreatorWithDate(user);
+        material.setModifierWithDate(user);
         return material;
     }
 }

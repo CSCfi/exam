@@ -53,6 +53,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -488,10 +489,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.answerLanguage = answerLanguage;
     }
 
-    public String generateHash() {
+    public void generateHash() {
         String attributes = name + state + new Random().nextDouble();
-        this.hash = AppUtil.encodeMD5(attributes);
-        return hash;
+        this.hash = DigestUtils.md5Hex(attributes);
     }
 
     public String getEnrollInstruction() {
@@ -637,8 +637,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         if (setParent) {
             clone.setParent(this);
         }
-        AppUtil.setCreator(clone, user);
-        AppUtil.setModifier(clone, user);
+        clone.setCreatorWithDate(user);
+        clone.setModifierWithDate(user);
         clone.generateHash();
         clone.save();
 
@@ -668,12 +668,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         }
         for (ExamSection es : sections) {
             ExamSection esCopy = es.copy(clone, produceStudentExam, setParent, user);
-            AppUtil.setCreator(esCopy, user);
-            AppUtil.setModifier(esCopy, user);
+            esCopy.setCreatorWithDate(user);
+            esCopy.setModifierWithDate(user);
             // Shuffle question options before saving
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
-                if (type == Question.Type.ClaimChoiceQuestion) {
+                Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
+                if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
                     continue;
                 }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
@@ -684,8 +684,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 if (produceStudentExam) {
                     Question questionCopy = esq.getQuestion();
-                    AppUtil.setCreator(questionCopy, user);
-                    AppUtil.setModifier(questionCopy, user);
+                    questionCopy.setCreatorWithDate(user);
+                    questionCopy.setModifierWithDate(user);
                     questionCopy.update();
                 }
                 esq.save();
@@ -870,8 +870,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 esq -> {
                     esq.setDerivedMaxScore();
                     // Also set min scores, if question is claim choice question
-                    Question.Type type = Optional.ofNullable(esq.getQuestion()).map(Question::getType).orElseGet(null);
-                    if (type == Question.Type.ClaimChoiceQuestion) {
+                    Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
+                    if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
                         esq.setDerivedMinScore();
                     }
                     esq.getOptions().forEach(o -> o.setScore(null));

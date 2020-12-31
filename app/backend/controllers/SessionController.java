@@ -27,7 +27,6 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.dto.Credentials;
 import backend.repository.EnrolmentRepository;
-import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
@@ -54,6 +53,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
@@ -161,7 +161,7 @@ public class SessionController extends BaseController {
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
-        String pwd = AppUtil.encodeMD5(credentials.getPassword());
+        String pwd = DigestUtils.md5Hex(credentials.getPassword());
         User user = Ebean
             .find(User.class)
             .where()

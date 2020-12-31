@@ -161,9 +161,9 @@ public class CsvBuilderImpl implements CsvBuilder {
                     Comment comment = exam.getExamFeedback();
                     if (comment == null) {
                         comment = new Comment();
-                        AppUtil.setCreator(comment, user);
+                        comment.setCreatorWithDate(user);
                     }
-                    AppUtil.setModifier(comment, user);
+                    comment.setModifierWithDate(user);
                     comment.setComment(Jsoup.clean(feedback, Whitelist.relaxed()));
                     comment.save();
                     exam.setExamFeedback(comment);

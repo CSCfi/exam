@@ -216,7 +216,7 @@ public class ExamController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
             if (examUpdater.isAllowedToRemove(exam)) {
-                AppUtil.setModifier(exam, user);
+                exam.setModifierWithDate(user);
                 exam.setState(Exam.State.DELETED);
                 exam.update();
                 return ok("Exam deleted");
@@ -462,7 +462,7 @@ public class ExamController extends BaseController {
         copy.setState(Exam.State.DRAFT);
         copy.setExecutionType(executionType);
         copy.setImplementation(Exam.Implementation.valueOf(examinationType));
-        AppUtil.setCreator(copy, user);
+        copy.setCreatorWithDate(user);
         copy.setParent(null);
         copy.setCourse(null);
         copy.setSubjectToLanguageInspection(null);
@@ -499,11 +499,11 @@ public class ExamController extends BaseController {
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());
         }
-        AppUtil.setCreator(exam, user);
+        exam.setCreatorWithDate(user);
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        AppUtil.setCreator(examSection, user);
+        examSection.setCreatorWithDate(user);
 
         examSection.setExam(exam);
         examSection.setExpanded(true);

@@ -31,7 +31,6 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
 import backend.sanitizers.SectionQuestionSanitizer;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -71,7 +70,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             .where()
             .idEq(id)
             .findOneOrEmpty();
-        if (!oe.isPresent()) {
+        if (oe.isEmpty()) {
             return notFound("sitnet_error_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -89,7 +88,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             section.setSequenceNumber(exam.getExamSections().size());
             section.setExpanded(true);
             section.setOptional(false);
-            AppUtil.setCreator(section, user);
+            section.setCreatorWithDate(user);
             section.save();
             return ok(section, PathProperties.parse("(*, examMaterials(*), sectionQuestions(*))"));
         } else {
@@ -108,7 +107,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             .idEq(eid)
             .findOneOrEmpty();
         ExamSection section = Ebean.find(ExamSection.class, sid);
-        if (!oe.isPresent() || section == null) {
+        if (oe.isEmpty() || section == null) {
             return notFound("sitnet_error_not_found");
         }
         Exam exam = oe.get();
@@ -154,7 +153,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             .idEq(eid)
             .findOneOrEmpty();
         ExamSection section = Ebean.find(ExamSection.class, sid);
-        if (!oe.isPresent() || section == null) {
+        if (oe.isEmpty() || section == null) {
             return notFound("sitnet_error_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -197,7 +196,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result reorderSections(Long eid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        Integer from = Integer.parseInt(df.get("from"));
+        int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to)
             .orElseGet(
@@ -231,7 +230,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result reorderSectionQuestions(Long eid, Long sid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        Integer from = Integer.parseInt(df.get("from"));
+        int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to)
             .orElseGet(
@@ -308,7 +307,7 @@ public class ExamSectionController extends BaseController implements SectionQues
 
         section.getSectionQuestions().add(sectionQuestion);
 
-        AppUtil.setModifier(section, user);
+        section.setModifierWithDate(user);
         section.save();
         section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
         return Optional.empty();
@@ -486,7 +485,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         // Additions
         StreamSupport
             .stream(node.spliterator(), false)
-            .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
+            .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())
             .forEach(o -> createOptionBasedOnExamQuestion(question, esq, user, o));
         // Finally update own option scores:
         for (JsonNode option : node) {
@@ -516,8 +515,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                     ClaimChoiceOptionType type = SanitizingHelper
                         .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
                         .orElse(null);
-                    Double score = n.get("score").asDouble();
-
+                    double score = n.get("score").asDouble();
                     return type != ClaimChoiceOptionType.SkipOption && score > 0;
                 }
             );
@@ -529,8 +527,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                     ClaimChoiceOptionType type = SanitizingHelper
                         .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
                         .orElse(null);
-                    Double score = n.get("score").asDouble();
-
+                    double score = n.get("score").asDouble();
                     return type != ClaimChoiceOptionType.SkipOption && score <= 0;
                 }
             );
@@ -542,8 +539,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                     ClaimChoiceOptionType type = SanitizingHelper
                         .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
                         .orElse(null);
-                    Double score = n.get("score").asDouble();
-
+                    double score = n.get("score").asDouble();
                     return type == ClaimChoiceOptionType.SkipOption && score == 0;
                 }
             );

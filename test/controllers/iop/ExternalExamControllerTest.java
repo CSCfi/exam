@@ -14,7 +14,7 @@ import backend.models.iop.ExternalReservation;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
-import backend.util.AppUtil;
+import backend.util.file.FileHandler;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,8 +52,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import play.Environment;
+import play.Application;
 import play.Logger;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -72,6 +73,8 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private Exam exam;
     private ExamEnrolment enrolment;
     private Reservation reservation = new Reservation();
+
+    private final Application app = new GuiceApplicationBuilder().build();
 
     @Rule
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
@@ -240,8 +243,9 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(attainment.getState()).isEqualTo(Exam.State.GRADED);
 
         attachmentServlet.getWaiter().await(10000, 3);
+        FileHandler fileHandler = app.injector().instanceOf(FileHandler.class);
 
-        String uploadPath = AppUtil.getAttachmentPath(Environment.simple()).toString();
+        String uploadPath = fileHandler.getAttachmentPath();
         final Path path = FileSystems.getDefault().getPath(uploadPath);
 
         long start = System.currentTimeMillis();
