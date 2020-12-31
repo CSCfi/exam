@@ -39,7 +39,6 @@ public class DataTransferControllerTest extends IntegrationTestCase {
 
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            JsonNode body = new ObjectMapper().readTree(request.getReader());
             response.setStatus(HttpServletResponse.SC_CREATED);
         }
     }

@@ -6,7 +6,7 @@ import backend.models.User;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
+import backend.util.config.ConfigReader;
 import backend.util.file.FileHandler;
 import backend.util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -51,11 +52,11 @@ public class DataTransferController extends BaseController {
     private static final Logger.ALogger logger = Logger.of(DataTransferController.class);
 
     static class DataTransferBodyParser extends BodyParser.Json {
-        private static final int FIVE_MB = 5000 * 1024;
+        private static final int SIXTY_MB = 60000 * 1024;
 
         @Inject
         DataTransferBodyParser(HttpErrorHandler errorHandler) {
-            super(FIVE_MB, errorHandler);
+            super(SIXTY_MB, errorHandler);
         }
     }
 
@@ -65,11 +66,13 @@ public class DataTransferController extends BaseController {
 
     private final WSClient wsClient;
     private final FileHandler fileHandler;
+    private final ConfigReader configReader;
 
     @Inject
-    DataTransferController(WSClient wsClient, FileHandler fileHandler) {
+    DataTransferController(WSClient wsClient, FileHandler fileHandler, ConfigReader configReader) {
         this.wsClient = wsClient;
         this.fileHandler = fileHandler;
+        this.configReader = configReader;
     }
 
     @SubjectNotPresent
@@ -110,6 +113,24 @@ public class DataTransferController extends BaseController {
                 .eq("creator", user)
                 .endOr()
                 .findSet();
+            long dataSize = questions
+                .stream()
+                .filter(q -> q.getAttachment() != null)
+                .map(q -> new File(q.getAttachment().getFilePath()))
+                .filter(File::exists)
+                .map(
+                    f -> {
+                        try {
+                            return Files.size(f.toPath());
+                        } catch (IOException e) {
+                            return 0L;
+                        }
+                    }
+                )
+                .reduce(0L, Long::sum);
+            if (dataSize > configReader.getMaxFileSize()) {
+                return wrapAsPromise(forbidden("sitnet_file_too_large"));
+            }
 
             // attachments to JSON node (fileName, mime, data in B64)
             Map<Question, Optional<Attachment>> attachments = questions
@@ -210,7 +231,7 @@ public class DataTransferController extends BaseController {
         String eppn = node.get("owner").asText();
         Optional<User> ou = Ebean.find(User.class).where().eq("eppn", eppn).findOneOrEmpty();
         if (ou.isEmpty()) {
-            return badRequest("user not found");
+            return badRequest("User not recognized");
         }
         User user = ou.get();
         ArrayNode questionNode = node.withArray("questions");
