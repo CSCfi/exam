@@ -52,11 +52,11 @@ public class DataTransferController extends BaseController {
     private static final Logger.ALogger logger = Logger.of(DataTransferController.class);
 
     static class DataTransferBodyParser extends BodyParser.Json {
-        private static final int SIXTY_MB = 60000 * 1024;
+        private static final int SEVENTY_MB = 70000 * 1024;
 
         @Inject
         DataTransferBodyParser(HttpErrorHandler errorHandler) {
-            super(SIXTY_MB, errorHandler);
+            super(SEVENTY_MB, errorHandler);
         }
     }
 
