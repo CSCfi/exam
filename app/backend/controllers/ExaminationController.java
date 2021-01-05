@@ -72,6 +72,7 @@ import scala.concurrent.duration.Duration;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
 public class ExaminationController extends BaseController {
+
     protected final EmailComposer emailComposer;
     protected final ExaminationRepository examinationRepository;
     protected final ActorSystem actor;
@@ -237,7 +238,7 @@ public class ExaminationController extends BaseController {
                                 return notFound("sitnet_error_exam_not_found");
                             }
                             Optional<ExamParticipation> oep = findParticipation(exam, user);
-
+                            Http.Session session = request.session().removing("ongoingExamHash");
                             if (oep.isPresent()) {
                                 ExamParticipation ep = oep.get();
                                 setDurations(ep);
@@ -257,9 +258,9 @@ public class ExaminationController extends BaseController {
                                     notifyTeachers(exam);
                                 }
                                 autoEvaluationHandler.autoEvaluate(exam);
-                                return ok("Exam sent for review");
+                                return ok("Exam sent for review").withSession(session);
                             } else {
-                                return ok("exam already returned");
+                                return ok("exam already returned").withSession(session);
                             }
                         }
                     )
@@ -281,7 +282,7 @@ public class ExaminationController extends BaseController {
                                 return notFound("sitnet_error_exam_not_found");
                             }
                             Optional<ExamParticipation> oep = findParticipation(exam, user);
-
+                            Http.Session session = request.session().removing("ongoingExamHash");
                             if (oep.isPresent()) {
                                 setDurations(oep.get());
                                 oep.get().save();
@@ -290,9 +291,9 @@ public class ExaminationController extends BaseController {
                                 if (exam.isPrivate()) {
                                     notifyTeachers(exam);
                                 }
-                                return ok("Exam aborted");
+                                return ok("Exam aborted").withSession(session);
                             } else {
-                                return forbidden("Exam already returned");
+                                return forbidden("Exam already returned").withSession(session);
                             }
                         }
                     )
@@ -400,9 +401,15 @@ public class ExaminationController extends BaseController {
     }
 
     private void setDurations(ExamParticipation ep) {
-        DateTime now = ep.getReservation() == null
-            ? DateTimeUtils.adjustDST(DateTime.now())
-            : DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        DateTime now;
+        if (ep.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
+            now = DateTime.now();
+        } else {
+            now =
+                ep.getReservation() == null
+                    ? DateTimeUtils.adjustDST(DateTime.now())
+                    : DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        }
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }
@@ -413,11 +420,15 @@ public class ExaminationController extends BaseController {
         if (enrolment == null) {
             return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         }
-        boolean isByod = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        Exam exam = enrolment.getExam();
+        boolean isByod = exam != null && exam.getImplementation() == Exam.Implementation.CLIENT_AUTH;
+        boolean isUnchecked = exam != null && exam.getImplementation() == Exam.Implementation.WHATEVER;
         if (isByod) {
             return CompletableFuture.completedFuture(
                 byodConfigHandler.checkUserAgent(request, enrolment.getExaminationEventConfiguration().getConfigKey())
             );
+        } else if (isUnchecked) {
+            return CompletableFuture.completedFuture(Optional.empty());
         } else if (enrolment.getReservation() == null) {
             return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
         } else if (enrolment.getReservation().getMachine() == null) {
@@ -451,7 +462,7 @@ public class ExaminationController extends BaseController {
 
     public static PathProperties getPath(boolean includeEnrolment) {
         String path =
-            "(id, name, state, instruction, hash, duration, cloned, external, requiresUserAgentAuth, " +
+            "(id, name, state, instruction, hash, duration, cloned, external, implementation, " +
             "course(id, code, name), executionType(id, type), " + // (
             "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
             "examInspections(*, user(id, firstName, lastName))" +

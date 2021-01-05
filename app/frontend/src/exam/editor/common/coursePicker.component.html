@@ -1,10 +1,16 @@
 <!-- old style for course search results, not very accessible 
     <ng-template #rt let-r="result">
-    <button class="dropdown-item">
-        <span style="font-size:0.70em;color:#777;text-transform: uppercase;cursor:pointer;">{{r.code}} {{r.name}}</span>
-    </button>
+        <style>
+                li:nth-child(even) {
+                    background-color: #f2f2f2;
+                }
+        </style>    
+        <a style="font-size:0.90em;color:#000;cursor:pointer;">
+            <span ng-if="r.code.indexOf('_') === -1" style="text-transform: uppercase;">{{r.code}} {{r.name}}</span>
+            <span ng-if="r.code.indexOf('_') > -1">{{r.code}} <br />{{r.name}}</span>
+        </a>	    
 </ng-template-->
-<form class="inline-form col-md-12">
+<form class="inline-form col-md-12" autocomplete="off">
     <div class="row">
         <div class="col-md-3">
             <div class="exam-basic-title">

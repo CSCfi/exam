@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
+ *
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+ * versions of the EUPL (the "Licence");
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
+ * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+import * as angular from 'angular';
+
+interface ExamInfo {
+    name: string;
+    participations: number;
+    state: string;
+    rank: number;
+}
+
+export const ExamStatisticsComponent: angular.IComponentOptions = {
+    template: `
+    <div class="detail-row">
+        <div class="col-md-12">
+            <button class="btn btn-primary" ng-click="$ctrl.listExams()">{{'sitnet_search' | translate}}</button>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <h3>{{'sitnet_most_popular_exams' | translate}}</h3>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12" ng-show="$ctrl.exams.length > 0">
+            <table class="table table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{{'sitnet_rank' | translate}}</th>
+                    <th>{{'sitnet_exam' | translate}}</th>
+                    <th>{{'sitnet_amount_exams' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="exam in $ctrl.exams | orderBy:['-participations', 'name'] as sorted">
+                    <td>{{$ctrl.getRank($index, sorted)}}.</td>
+                    <td>{{exam.name}}</td>
+                    <td>{{exam.participations}}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="2"><b>{{ 'sitnet_total' | translate }}</b></td>
+                    <td><b ng-if="$ctrl.exams">{{ $ctrl.totalExams() }}</b></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    `,
+    bindings: {
+        queryParams: '<',
+    },
+    controller: class ExamStatisticsComponentController implements angular.IComponentController {
+        exams: ExamInfo[];
+        queryParams: { start: string; end: string };
+
+        constructor(private $http: angular.IHttpService) {
+            'ngInject';
+        }
+
+        $onInit() {
+            this.listExams();
+        }
+
+        totalExams = () => this.exams.reduce((a, b) => a + b.participations, 0);
+
+        listExams = () =>
+            this.$http
+                .get('/app/reports/exams', { params: this.queryParams })
+                .then((resp: angular.IHttpResponse<ExamInfo[]>) => (this.exams = resp.data));
+
+        getRank = (index: number, items: ExamInfo[]) => {
+            const prev = Math.max(0, index - 1);
+            if (items[prev].participations === items[index].participations) {
+                items[index].rank = items[prev].rank || 0;
+                return (items[prev].rank || 0) + 1;
+            }
+            items[index].rank = index;
+            return index + 1;
+        };
+    },
+};
+
+angular.module('app.administrative.statistics').component('examStatistics', ExamStatisticsComponent);

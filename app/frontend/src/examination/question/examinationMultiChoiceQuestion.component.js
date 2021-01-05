@@ -46,15 +46,10 @@ angular.module('app.examination').component('examinationMultiChoiceQuestion', {
             const vm = this;
 
             vm.$onInit = function() {
-                if (vm.sq.question.type === 'ClaimChoiceQuestion' && !vm.isCollaborative && vm.orderOptions) {
+                if (vm.sq.question.type === 'ClaimChoiceQuestion' && vm.orderOptions) {
                     vm.sq.options.sort((a, b) => a.option.id - b.option.id);
                 } else if (vm.orderOptions) {
                     vm.sq.options.sort((a, b) => a.id - b.id);
-                }
-
-                if (vm.isCollaborative && vm.isPreview) {
-                    // Collaborative exam options have no id in preview, using id from nested option node
-                    vm.sq.options = vm.sq.options.map(opt => ({ ...opt, id: opt.option.id }));
                 }
 
                 const answered = vm.sq.options.filter(function(o) {

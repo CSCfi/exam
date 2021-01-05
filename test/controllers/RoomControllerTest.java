@@ -1,26 +1,24 @@
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
+import backend.models.ExamRoom;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
-import backend.models.ExamRoom;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
 
 public class RoomControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsAdmin
     public void testDisableRoom() throws Exception {
-
         // Setup
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         assertThat(room.getState()).isNotEqualTo(ExamRoom.State.INACTIVE.toString());
@@ -41,7 +39,6 @@ public class RoomControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testDisabledRoomNotVisibleToStudent() throws Exception {
-
         // Setup
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.INACTIVE.toString());
@@ -59,7 +56,6 @@ public class RoomControllerTest extends IntegrationTestCase {
     @Test
     @RunAsAdmin
     public void testEnableRoom() throws Exception {
-
         // Setup
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.INACTIVE.toString());
@@ -81,7 +77,6 @@ public class RoomControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testEnabledRoomVisibleToStudent() throws Exception {
-
         // Setup
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.ACTIVE.toString());
@@ -95,5 +90,4 @@ public class RoomControllerTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, String.format("$.[?(@.id == %s)]", room.getId()));
     }
-
 }

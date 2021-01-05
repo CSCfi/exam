@@ -1,18 +1,7 @@
 package controllers;
 
-import java.util.TimeZone;
-import java.util.stream.StreamSupport;
-
-import base.IntegrationTestCase;
-import base.RunAsStudent;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import play.libs.Json;
-import play.mvc.Result;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -21,9 +10,18 @@ import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
+import base.IntegrationTestCase;
+import base.RunAsStudent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
+import java.util.TimeZone;
+import java.util.stream.StreamSupport;
+import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import play.libs.Json;
+import play.mvc.Result;
 
 public class StudentActionControllerTest extends IntegrationTestCase {
 
@@ -53,10 +51,11 @@ public class StudentActionControllerTest extends IntegrationTestCase {
         assertThat(node instanceof ArrayNode).isTrue();
         ArrayNode nodes = (ArrayNode) node;
         assertThat(nodes.size()).isEqualTo(2);
-        JsonNode external = StreamSupport.stream(nodes.spliterator(), false)
-                .filter(n -> n.path("exam").path("id").asLong() == 2L)
-                .findFirst()
-                .orElseGet(null);
+        JsonNode external = StreamSupport
+            .stream(nodes.spliterator(), false)
+            .filter(n -> n.path("exam").path("id").asLong() == 2L)
+            .findFirst()
+            .orElseGet(null);
         final ExamEnrolment externalEnrolment = deserialize(ExamEnrolment.class, external);
         final ExternalReservation er = externalEnrolment.getReservation().getExternalReservation();
         assertThat(er).isNotNull();

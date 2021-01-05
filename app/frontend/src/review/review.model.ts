@@ -18,5 +18,6 @@ export interface ReviewQuestion extends ReverseExamSectionQuestion {
 export interface QuestionReview {
     question: Question;
     answers: ReviewQuestion[];
+    evaluationCriteria?: string;
     selected: boolean;
 }

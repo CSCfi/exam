@@ -17,10 +17,10 @@ import * as angular from 'angular';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
-import { Exam, ExamSection } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ExamRoom } from '../../reservation/reservation.model';
+import { ExaminationService, Examination, ExaminationSection } from '../examination.service';
 
 export const ExaminationToolbarComponent: angular.IComponentOptions = {
     template: require('./examinationToolbar.template.html'),
@@ -32,8 +32,8 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
         onPageSelect: '&',
     },
     controller: class ExaminationToolbarController implements angular.IComponentController, angular.IOnInit {
-        exam: Exam;
-        activeSection: ExamSection;
+        exam: Examination;
+        activeSection: ExaminationSection;
         isPreview: boolean;
         isCollaborative: boolean;
         onPageSelect: (_: { page: { id?: number; type: string } }) => unknown;
@@ -47,7 +47,7 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
             private $translate: angular.translate.ITranslateService,
             private dialogs: angular.dialogservice.IDialogService,
             private Session: SessionService,
-            private Examination: any,
+            private Examination: ExaminationService,
             private Attachment: AttachmentService,
             private Enrolment: EnrolmentService,
         ) {
@@ -55,7 +55,7 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            if (!this.isPreview) {
+            if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
                 this.$http
                     .get('/app/enrolments/room/' + this.exam.hash)
                     .then((resp: angular.IHttpResponse<ExamRoom>) => (this.room = resp.data));
@@ -78,8 +78,13 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
             );
             dialog.result.then(() =>
                 // Save all textual answers regardless of empty or not
-                this.Examination.saveAllTextualAnswersOfExam(this.exam).then(() =>
-                    this.Examination.logout('sitnet_exam_returned', this.exam.hash, this.exam.requiresUserAgentAuth),
+                this.Examination.saveAllTextualAnswersOfExam(this.exam, false).subscribe(() =>
+                    this.Examination.logout(
+                        'sitnet_exam_returned',
+                        this.exam.hash,
+                        this.exam.implementation === 'CLIENT_AUTH',
+                        false,
+                    ),
                 ),
             );
         };
@@ -90,16 +95,17 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
                 this.$translate.instant('sitnet_confirm_abort_exam'),
             );
             dialog.result.then(() =>
-                this.Examination.abort(this.exam.hash)
-                    .then(() => {
+                this.Examination.abort$(this.exam.hash).subscribe(
+                    () => {
                         toast.info(this.$translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                         this.$window.onbeforeunload = null;
                         this.$state.go('examinationLogout', {
                             reason: 'aborted',
-                            quitLinkEnabled: this.exam.requiresUserAgentAuth,
+                            quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
                         });
-                    })
-                    .catch((err: any) => toast.error(err.data)),
+                    },
+                    err => toast.error(err.data),
+                ),
             );
         };
 
@@ -107,9 +113,10 @@ export const ExaminationToolbarComponent: angular.IComponentOptions = {
 
         selectGuidePage = () => this.onPageSelect({ page: { type: 'guide' } });
 
-        selectSection = (section: ExamSection) => this.onPageSelect({ page: { id: section.id, type: 'section' } });
+        selectSection = (section: ExaminationSection) =>
+            this.onPageSelect({ page: { id: section.id, type: 'section' } });
 
-        getQuestionAmount = (section: ExamSection, type: string) => {
+        getQuestionAmount = (section: ExaminationSection, type: string) => {
             if (type === 'total') {
                 return section.sectionQuestions.length;
             } else if (type === 'answered') {

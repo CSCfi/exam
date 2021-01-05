@@ -12,9 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import * as angular from 'angular';
 
-angular.module('app.administrative.statistics').component('reservationStatistics', {
+interface Reservation {
+    noShow: boolean;
+}
+
+export const ReservationStatisticsComponent: angular.IComponentOptions = {
     template: `
         <div class="bottom-row">
             <div class="col-md-12">
@@ -35,25 +39,27 @@ angular.module('app.administrative.statistics').component('reservationStatistics
     bindings: {
         queryParams: '<',
     },
-    controller: [
-        'Statistics',
-        function(Statistics) {
-            const vm = this;
+    controller: class ReservationStatisticsComponentController implements angular.IComponentController {
+        reservations: Reservation[];
+        noShows: Reservation[];
+        queryParams: { start: string; end: string };
 
-            vm.$onInit = function() {
-                vm.listReservations();
-            };
+        constructor(private $http: angular.IHttpService) {
+            'ngInject';
+        }
 
-            vm.listReservations = function() {
-                Statistics.reservations.query(vm.queryParams, function(reservations) {
-                    vm.reservations = reservations.filter(function(r) {
-                        return !r.noShow;
-                    });
-                    vm.noShows = reservations.filter(function(r) {
-                        return r.noShow;
-                    });
+        $onInit() {
+            this.listReservations();
+        }
+
+        listReservations = () =>
+            this.$http
+                .get('/app/reports/reservations', { params: this.queryParams })
+                .then((resp: angular.IHttpResponse<Reservation[]>) => {
+                    this.reservations = resp.data.filter(r => !r.noShow);
+                    this.noShows = resp.data.filter(r => r.noShow);
                 });
-            };
-        },
-    ],
-});
+    },
+};
+
+angular.module('app.administrative.statistics').component('reservationStatistics', ReservationStatisticsComponent);

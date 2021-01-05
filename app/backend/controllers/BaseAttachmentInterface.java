@@ -29,6 +29,7 @@ import backend.util.config.ConfigReader;
 import backend.util.file.ChunkMaker;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -82,7 +83,7 @@ public interface BaseAttachmentInterface<T> {
 
     default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source)
         throws IOException {
-        String escapedName = URLEncoder.encode(fileName, "UTF-8");
+        String escapedName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
         return CompletableFuture.completedFuture(
             ok()
                 .chunked(
@@ -115,17 +116,17 @@ public interface BaseAttachmentInterface<T> {
         if (filePart == null) {
             throw new IllegalArgumentException("file not found");
         }
-        TemporaryFile file = filePart.getRef();
         Optional<String> contentLength = request.header("Content-Length");
-        if (!contentLength.isPresent() || Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
+        if (contentLength.isEmpty() || Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
             throw new IllegalArgumentException("sitnet_file_too_large");
         }
         return new MultipartForm(filePart, body.asFormUrlEncoded());
     }
 
     class MultipartForm {
-        private Http.MultipartFormData.FilePart<TemporaryFile> filePart;
-        private Map<String, String[]> form;
+
+        private final Http.MultipartFormData.FilePart<TemporaryFile> filePart;
+        private final Map<String, String[]> form;
 
         MultipartForm(Http.MultipartFormData.FilePart<TemporaryFile> filePart, Map<String, String[]> form) {
             this.filePart = filePart;

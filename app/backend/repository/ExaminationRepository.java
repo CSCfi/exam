@@ -29,6 +29,7 @@ import play.Logger;
 import play.db.ebean.EbeanConfig;
 
 public class ExaminationRepository {
+
     private final EbeanServer db;
     private final CollaborativeExamLoader cel;
     private final DatabaseExecutionContext ec;
@@ -77,9 +78,13 @@ public class ExaminationRepository {
                     enrolment.getExaminationEventConfiguration().getExaminationEvent()
                 );
             }
-            DateTime now = reservation == null
-                ? DateTimeUtils.adjustDST(DateTime.now())
-                : DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+            DateTime now = DateTime.now();
+            if (enrolment.getExaminationEventConfiguration() == null) {
+                now =
+                    reservation == null
+                        ? DateTimeUtils.adjustDST(DateTime.now())
+                        : DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+            }
             examParticipation.setStarted(now);
             examParticipation.save();
             txn.commit();
@@ -155,7 +160,9 @@ public class ExaminationRepository {
     }
 
     private boolean isInEffect(ExamEnrolment ee) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = ee.getExaminationEventConfiguration() == null
+            ? DateTimeUtils.adjustDST(DateTime.now())
+            : DateTime.now();
         if (ee.getReservation() != null) {
             return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));
         } else if (ee.getExaminationEventConfiguration() != null) {

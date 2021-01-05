@@ -70,7 +70,12 @@ export class CalendarService {
         return this.http.post<void>(url, slot);
     };
 
-    private reserveExternal$ = (slot: Slot) => this.http.post<void>('/integration/iop/reservations/external', slot);
+    private reserveExternal$ = (slot: Slot, collaborative = false) => {
+        const url = collaborative
+            ? '/integration/iop/calendar/external/reservation'
+            : '/integration/iop/reservations/external';
+        return this.http.post<void>(url, slot);
+    };
 
     reserve$(
         start: moment.Moment,
@@ -91,7 +96,7 @@ export class CalendarService {
             sectionIds: sectionIds,
         };
         if (org._id !== null) {
-            return this.reserveExternal$(slot);
+            return this.reserveExternal$(slot, collaborative);
         } else {
             return this.reserveInternal$(slot, accs, collaborative);
         }

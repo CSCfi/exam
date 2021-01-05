@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-
 import angular from 'angular';
 
 describe('ActiveEnrolmentController', function() {
@@ -36,7 +35,7 @@ describe('ActiveEnrolmentController', function() {
         mockEnrolment = getMockEnrolment();
         ctrl = $componentController(
             'activeEnrolment',
-            { dialogs: {}, Enrolment: {}, Reservation: {} },
+            { dialogs: {}, Enrolment: {}, Reservation: {}, Files: {} },
             {
                 enrolment: mockEnrolment,
                 onRemoval: function() {

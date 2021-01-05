@@ -28,7 +28,7 @@ export class TruncateFilter {
 
 export class DiffInMinutesFilter {
     static factory(): angular.FilterFactory {
-        return () => (from: VarDate, to: VarDate): number => {
+        return () => (from: string, to: string): number => {
             const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
             return Math.round(diff);
         };
@@ -37,7 +37,7 @@ export class DiffInMinutesFilter {
 
 export class DiffInDaysFilter {
     static factory(): angular.FilterFactory {
-        return () => (date: VarDate): string => {
+        return () => (date: string): string => {
             const msInDay = 1000 * 60 * 60 * 24;
             const diff = (new Date(date).getTime() - new Date().getTime()) / msInDay;
             if (diff < 0) {

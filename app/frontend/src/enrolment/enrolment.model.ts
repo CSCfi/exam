@@ -34,6 +34,7 @@ export interface AssessedParticipation extends Omit<ExamParticipation, 'exam'> {
     exam: ReviewedExam;
     collaborativeExam: CollaborativeExam;
     _id: string;
+    examId: string;
     _rev: string;
     scores: {
         maxScore: number;

@@ -26,8 +26,9 @@ import { LibraryComponent } from './library/library.component';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { LibraryOwnerSelection } from './library/owners/libraryOwners.component';
-import { LibraryExportComponent } from './library/export/libraryExport.component';
+import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
 import { QuestionService } from './question.service';
+import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 
 @NgModule({
     imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
@@ -38,7 +39,8 @@ import { QuestionService } from './question.service';
         QuestionComponent,
         QuestionBodyComponent,
         LibraryOwnerSelection,
-        LibraryExportComponent,
+        LibraryFileExportComponent,
+        LibraryTransferComponent,
     ],
     entryComponents: [LibraryComponent, LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],

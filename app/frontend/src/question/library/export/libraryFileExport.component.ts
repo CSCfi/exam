@@ -19,10 +19,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
-    selector: 'library-export',
-    template: require('./libraryExport.component.html'),
+    selector: 'library-file-export',
+    template: require('./libraryFileExport.component.html'),
 })
-export class LibraryExportComponent {
+export class LibraryFileExportComponent {
     @Input() selections: number[];
 
     constructor(private Files: FileService, private translate: TranslateService) {}

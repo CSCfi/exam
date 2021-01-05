@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
@@ -19,11 +20,11 @@ import { ExamExecutionType } from '../../exam/exam.model';
 import { SessionService, User } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
 import {
-    TeacherDashboardService,
-    FinalizedExam,
     ActiveExam,
     ArchivedExam,
     DraftExam,
+    FinalizedExam,
+    TeacherDashboardService,
 } from './teacherDashboard.service';
 
 interface ExtraColumn {
@@ -39,7 +40,7 @@ interface ExtraColumn {
 export class TeacherDashboardComponent implements OnInit {
     activeTab: string;
     userId: number;
-    executionTypes: ExamExecutionType[];
+    executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[];
     activeExtraColumns: ExtraColumn[];
     finishedExtraColumns: ExtraColumn[];
     archivedExtraColumns: ExtraColumn[];
@@ -54,6 +55,7 @@ export class TeacherDashboardComponent implements OnInit {
     filteredDrafts: DraftExam[];
 
     constructor(
+        private http: HttpClient,
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
         @Inject('$location') private $location: any,
@@ -113,7 +115,20 @@ export class TeacherDashboardComponent implements OnInit {
             this.filteredActive = this.activeExams = dashboard.activeExams;
             this.filteredArchived = this.archivedExams = dashboard.archivedExams;
             this.filteredDrafts = this.draftExams = dashboard.draftExams;
-            this.executionTypes = dashboard.executionTypes;
+            this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe(resp => {
+                const byodSupported = resp.isByodExaminationSupported;
+                this.executionTypes.forEach(t => {
+                    if (t.type !== 'PRINTOUT' && byodSupported) {
+                        t.examinationTypes = [
+                            { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
+                            { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
+                            { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
+                        ];
+                    } else {
+                        t.examinationTypes = [];
+                    }
+                });
+            });
         });
     }
 

@@ -5,6 +5,7 @@
     "courseUnitTitle" : "Lähisukukielet",
     "courseUnitLevel" : 2,
     "courseUnitType" : 1,
+    "courseImplementation": "abcdefghijklmnop",
     "credits" : 3,
     "creditsLanguage" : [
       {

@@ -33,6 +33,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
 public class CollaborationController extends BaseController {
+
     private static final long SAFE_NUMBER = (long) Math.pow(2, 53) - 1;
 
     @Inject
@@ -206,6 +207,16 @@ public class CollaborationController extends BaseController {
             .find(CollaborativeExam.class)
             .where()
             .idEq(id)
+            .findOneOrEmpty()
+            .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
+            .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+    }
+
+    Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(String ref) {
+        return Ebean
+            .find(CollaborativeExam.class)
+            .where()
+            .eq("externalRef", ref)
             .findOneOrEmpty()
             .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
             .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));

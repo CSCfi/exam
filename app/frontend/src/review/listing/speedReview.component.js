@@ -41,7 +41,7 @@ angular.module('app.review').component('speedReview', {
                 ExamRes.exams.get({ id: $stateParams.id }, exam => {
                     this.examInfo = {
                         examOwners: exam.examOwners,
-                        title: exam.course.code + ' ' + exam.name,
+                        title: `${exam.course.code.split('_')[0]} ${exam.name}`,
                         anonymous: exam.anonymous,
                     };
                     ExamRes.examReviews.query(
@@ -126,6 +126,7 @@ angular.module('app.review').component('speedReview', {
                         data,
                         () => {
                             this.examReviews.splice(this.examReviews.indexOf(review), 1);
+                            this.examReviews = angular.copy(this.examReviews);
                             exam.gradedTime = new Date().getTime();
                             exam.grade = grade;
                             deferred.resolve();

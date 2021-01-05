@@ -19,7 +19,7 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
-import { Exam } from './exam/exam.model';
+import { Exam, Course } from './exam/exam.model';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
@@ -287,6 +287,19 @@ export class Lowercase implements IDirective {
         return () => new Lowercase();
     }
 }
+interface CourseCodeScope extends IScope {
+    course: Course;
+}
+export class CourseCode implements IDirective<CourseCodeScope> {
+    restrict = 'E';
+    template = `<span>{{course.code.split('_')[0]}}</span>`;
+    scope = {
+        course: '=',
+    };
+    static factory(): IDirectiveFactory {
+        return () => new CourseCode();
+    }
+}
 
 // TOD: turn into a component
 interface SortScope extends IScope {
@@ -353,9 +366,12 @@ export class TeacherList implements IDirective<TeacherListScope> {
     link(scope: TeacherListScope) {
         scope.display = () => {
             const owners = scope.useParent && scope.exam.parent ? scope.exam.parent.examOwners : scope.exam.examOwners;
-            const inspectors = scope.exam.examInspections.map(ei => ei.user);
-            const inspectorHtml = inspectors.map(i => `${i.firstName} ${i.lastName}`).join(', ');
-            if (owners.length > 0) {
+            const inspectors = scope.exam.examInspections ? scope.exam.examInspections.map(ei => ei.user) : [];
+            const inspectorHtml = inspectors
+                .filter(i => i)
+                .map(i => `${i.firstName} ${i.lastName}`)
+                .join(', ');
+            if (owners.filter(o => o.lastName).length > 0) {
                 const ownerHtml = `<strong>${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}</strong>`;
                 return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
             } else if (inspectors.length > 0) {

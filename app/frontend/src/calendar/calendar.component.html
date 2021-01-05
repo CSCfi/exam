@@ -26,7 +26,7 @@
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    {{ examInfo.course?.code }} {{ examInfo.course?.name }}
+                    <course-code course="examInfo.course"></course-code> {{ examInfo.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -204,7 +204,7 @@
                     <button
                         class="btn btn-sm btn-link"
                         (click)="makeExternalReservation()"
-                        *ngIf="isInteroperable && !isCollaborative && !isExternal"
+                        *ngIf="isInteroperable && !isExternal"
                     >
                         {{ 'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>
@@ -407,7 +407,7 @@
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ examInfo.course?.code }} {{ examInfo.course?.name }}
+                    <course-code course="examInfo.course"></course-code> {{ examInfo.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>

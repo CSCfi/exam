@@ -16,31 +16,31 @@
 CKEDITOR.plugins.setLang('clozetest', 'sv',
     {
         toolbar: {
-            label: 'Embedded Answer'
+            label: 'Lucktest'
         },
         contextMenu: {
-            label: 'Edit embedded answer'
+            label: 'Editera lucktest'
         },
         dialog: {
-            title: 'Embedded Answer Properties',
-            answer: 'Correct Answer',
+            title: 'Lucktestets egenskaper',
+            answer: 'Rätt svar',
             errors: {
-                nonEmpty: 'Answer field cannot be empty.',
-                numeric: 'Answer must be a numeric value and it cannot contain any whitespace.',
-                nonNegative: 'Value must be a non negative number.'
+                nonEmpty: 'Svarsfältet kan inte lämnas tomt.',
+                numeric: 'Svaret måste ha ett numeriskt värde och får inte innehålla mellanslag.',
+                nonNegative: 'Värdet kan inte vara under 0.'
             },
-            caseSensitive: 'Case sensitive (textual answer only)',
+            caseSensitive: 'Är det skillnad mellan stor och liten bokstav (gäller endast svar i textform).',
             options: {
-                yes: 'Yes',
-                no: 'No'
+                yes: 'Ja',
+                no: 'Nej'
             },
-            numeric: 'Numeric Answer',
-            precision: 'Required answer precision (&plusmn; of correct numeric answer value)',
+            numeric: 'Numeriskt svar',
+            precision: 'Krav på svarets precision (&plusmn; av värdet på det korrekta svaret)',
             usage: {
-                title: 'Usage',
-                part1: 'Use vertical bar ( | ) to separate correct answer options from each other. Use asterisk ( * ) as a wildcard to match any series of characters. For example',
-                part2: 'would match answers "ship", "flagship", "boat" and "ferry". If you really do want to match an asterisk or a vertical pipe then use a backslash like this:',
-                example1: '*ship|boat|ferry'
+                title: 'Användning',
+                part1: 'Använd vertikalt steck ( | ) för att skilja korrekta svar från varandra. Använd asterisk ( * ) om vilken som helst serie av tecken duger. Till exempel ',
+                part2: 'betyder att  "skepp", "flaggskepp", "båt" och "färja" skulle duga som korrekta svar. Om du vill att svaret de facto innehåller antingen en asterisk eller ett vertikalt streck så bör ett sådant tecken föregås av enkel apostrof:',
+                example1: '*skepp|båt|färja'
             },
 
         }

@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import * as angular from 'angular';
 
-angular.module('app.administrative.statistics').component('responseStatistics', {
+import { Exam } from '../../../exam/exam.model';
+
+export const ResponseStatisticsComponent: angular.IComponentOptions = {
     template: `
             <div class="bottom-row">
                 <div class="col-md-12">
@@ -37,28 +39,33 @@ angular.module('app.administrative.statistics').component('responseStatistics', 
     bindings: {
         queryParams: '<',
     },
-    controller: [
-        'Statistics',
-        function(Statistics) {
-            const vm = this;
+    controller: class ResponseStatisticsComponentController implements angular.IComponentController {
+        queryParams: { start: string; end: string };
+        assessedExams: Exam[];
+        unassessedExams: Exam[];
+        abortedExams: Exam[];
 
-            vm.$onInit = function() {
-                vm.listResponses();
-            };
+        constructor(private $http: angular.IHttpService) {
+            'ngInject';
+        }
 
-            vm.listResponses = function() {
-                Statistics.responses.query(vm.queryParams, function(exams) {
-                    vm.assessedExams = exams.filter(function(e) {
-                        return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1;
-                    });
-                    vm.unassessedExams = exams.filter(function(e) {
-                        return ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1;
-                    });
-                    vm.abortedExams = exams.filter(function(e) {
-                        return e.state === 'ABORTED';
-                    });
+        $onInit() {
+            this.listResponses();
+        }
+
+        listResponses = () =>
+            this.$http
+                .get('/app/reports/responses', { params: this.queryParams })
+                .then((resp: angular.IHttpResponse<Exam[]>) => {
+                    this.assessedExams = resp.data.filter(
+                        e => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
+                    );
+                    this.unassessedExams = resp.data.filter(
+                        e => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
+                    );
+                    this.abortedExams = resp.data.filter(e => e.state === 'ABORTED');
                 });
-            };
-        },
-    ],
-});
+    },
+};
+
+angular.module('app.administrative.statistics').component('responseStatistics', ResponseStatisticsComponent);

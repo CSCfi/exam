@@ -43,6 +43,7 @@ import org.springframework.beans.BeanUtils;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
+
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSection")
@@ -162,12 +163,12 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
-    public ExamSection copyWithAnswers(Exam exam) {
+    public ExamSection copyWithAnswers(Exam exam, boolean hasParent) {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copyWithAnswers());
+            section.getSectionQuestions().add(esq.copyWithAnswers(hasParent));
         }
         return section;
     }
@@ -178,8 +179,8 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
             ExamSectionQuestion esqCopy = esq.copy(!produceStudentExamSection, setParents);
-            AppUtil.setCreator(esqCopy, user);
-            AppUtil.setModifier(esqCopy, user);
+            esqCopy.setCreatorWithDate(user);
+            esqCopy.setModifierWithDate(user);
             section.getSectionQuestions().add(esqCopy);
         }
         if (produceStudentExamSection) {

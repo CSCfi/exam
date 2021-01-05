@@ -69,8 +69,12 @@
 
         <div class="nav-body-mobile" [hidden]="!mobileMenuOpen">
             <ul class="links">
-                <li [ngClass]="{ selected: isActive(link) }" *ngFor="let link of links" [hidden]="!link.visible">
-                    <a uiSref="{{ link.state }}">
+                <li *ngFor="let link of links" *ngIf="link.visible">
+                    <a
+                        [ngClass]="{ selected: isActive(link) }"
+                        uiSref="{{ link.state }}"
+                        (click)="link.submenu.hidden = !link.submenu.hidden"
+                    >
                         <img
                             width="18"
                             src="/assets/assets/images/nav/{{ link.iconPng }}"
@@ -78,6 +82,24 @@
                         />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
+                    <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">
+                        <li
+                            *ngFor="let subitem of link.submenu.items"
+                            [ngClass]="{ selectedsub: isActive(subitem) }"
+                            *ngIf="subitem.visible"
+                        >
+                            <a uiSref="{{ subitem.state }}">
+                                <div>
+                                    <img
+                                        width="18"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
+                                        alt="{{ link.state | translate }}"
+                                    />
+                                    {{ subitem.name | translate }}
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>

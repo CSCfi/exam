@@ -21,22 +21,29 @@ import play.api.{Environment, Mode}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 
-class WebpackAssets @Inject()(ws: WSClient, assets: Assets, environment: Environment, cc: ControllerComponents)
-  extends AbstractController(cc) {
+class WebpackAssets @Inject()(ws: WSClient,
+                              assets: Assets,
+                              environment: Environment,
+                              cc: ControllerComponents)
+    extends AbstractController(cc) {
 
-  def bundle(file: String): Action[AnyContent] = if (environment.mode == Mode.Dev) Action.async {
-
-    import scala.concurrent.ExecutionContext.Implicits._
-
-    ws.url(s"http://localhost:8080/bundles/$file").get().map { response =>
-      val contentType = response.headers.get("Content-Type").flatMap(_.headOption).getOrElse("application/octet-stream")
-      val headers = response.headers
-        .toSeq.filter(p => List("Content-Type", "Content-Length").indexOf(p._1) < 0).map(p => (p._1, p._2.mkString))
-      Ok(response.body).withHeaders(headers: _*).as(contentType)
-    }
-  } else {
-    assets.at("/public/bundles", file)
+  def bundle(file: String): Action[AnyContent] = environment.mode match {
+    case Mode.Dev =>
+      import scala.concurrent.ExecutionContext.Implicits._
+      Action.async {
+        ws.url(s"http://localhost:8080/bundles/$file").get().map { response =>
+          val contentType = response.headers
+            .get("Content-Type")
+            .flatMap(_.headOption)
+            .getOrElse("application/octet-stream")
+          val headers = response.headers
+            .filter(h => List("Content-Type", "Content-Length").indexOf(h._1) < 0)
+            .map(h => (h._1, h._2.mkString))
+            .toSeq
+          Ok(response.body).withHeaders(headers: _*).as(contentType)
+        }
+      }
+    case _ => assets.at("/public/bundles", file)
   }
-
 
 }

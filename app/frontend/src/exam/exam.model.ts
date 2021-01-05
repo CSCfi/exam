@@ -22,7 +22,7 @@ export interface GradeEvaluation {
 
 export interface AutoEvaluationConfig {
     id?: number;
-    releaseDate?: Date;
+    releaseDate: Date;
     amountDays?: number;
     releaseType?: string;
     gradeEvaluations: GradeEvaluation[];
@@ -69,12 +69,6 @@ export interface Attachment {
     file?: File;
     objectVersion?: number;
 }
-
-export interface Tag {
-    id: number;
-    name: string;
-}
-
 export interface ReverseExamSection extends ExamSection {
     exam: Exam;
 }
@@ -88,7 +82,7 @@ export interface ReverseQuestion extends Question {
 }
 
 export interface Tag {
-    id: number;
+    id?: number;
     name: string;
 }
 
@@ -197,8 +191,8 @@ export interface CollaborativeExam {
     state: CollaborativeExamState;
     examOwners: User[];
     executionType: ExamExecutionType;
-    examActiveStartDate: VarDate;
-    examActiveEndDate: VarDate;
+    examActiveStartDate: string | number;
+    examActiveEndDate: string | number;
 }
 
 export interface Participation {
@@ -222,10 +216,12 @@ export interface ExaminationEvent {
 
 export interface ExaminationEventConfiguration {
     id?: number;
-    settingsPassword: string;
+    settingsPassword?: string;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
+
+export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamInspection {
     user: User;
@@ -239,6 +235,7 @@ export interface Software {
 
 export interface ExamImpl {
     id: number;
+    created: Date;
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
@@ -268,7 +265,7 @@ export interface ExamImpl {
     subjectToLanguageInspection: boolean | null;
     enrollInstruction: string;
     anonymous: boolean;
-    requiresUserAgentAuth: boolean;
+    implementation: Implementation;
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
@@ -300,6 +297,7 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    externalExam?: { started: Date };
     duration: number;
     displayName?: string;
 }

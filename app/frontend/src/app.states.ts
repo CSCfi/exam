@@ -83,12 +83,11 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
             },
         })
         .state('externalCalendar', {
-            url: 'iop/calendar/{id}?{selected}',
+            url: 'iop/calendar/{id}?{selected}&{isCollaborative}',
             component: 'calendar',
             parent: 'app',
             resolve: {
                 isExternal: () => true,
-                isCollaborative: () => false,
             },
         })
         .state('collaborativeCalendar', {
@@ -195,7 +194,7 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
         .state('machine', { url: 'machines/{id}', component: 'machine', parent: 'app' })
         .state('reports', { url: 'reports', component: 'reports', parent: 'app' })
         .state('statistics', { url: 'statistics', component: 'statistics', parent: 'app' })
-        .state('settings', { url: 'settins', component: 'settings', parent: 'app' })
+        .state('settings', { url: 'settings', component: 'settings', parent: 'app' })
         .state('users', { url: 'users', component: 'users', parent: 'app' })
         .state('languageInspections', { url: 'inspections', component: 'languageInspections', parent: 'app' })
         .state('languageInspectionReports', {

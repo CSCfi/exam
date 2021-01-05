@@ -20,6 +20,7 @@ import * as toast from 'toastr';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { ReservationService } from '../../reservation/reservation.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../../utility/file/file.service';
 import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
@@ -37,6 +38,7 @@ export class ActiveEnrolmentComponent {
         private ConfirmationDialog: ConfirmationDialogService,
         private Enrolment: EnrolmentService,
         private Reservation: ReservationService,
+        private Files: FileService,
     ) {}
 
     removeReservation = () => {
@@ -48,7 +50,7 @@ export class ActiveEnrolmentComponent {
     };
 
     makeReservation = () => {
-        if (this.enrolment.exam.requiresUserAgentAuth) {
+        if (this.enrolment.exam && this.enrolment.exam.implementation !== 'AQUARIUM') {
             this.Enrolment.selectExaminationEvent(this.enrolment.exam, this.enrolment);
         } else {
             this.goToCalendar();
@@ -56,9 +58,10 @@ export class ActiveEnrolmentComponent {
     };
 
     hasUpcomingAlternativeEvents = () =>
+        this.enrolment.exam &&
         this.enrolment.exam.examinationEventConfigurations.some(
             eec =>
-                eec.examinationEvent.start > new Date() &&
+                new Date(eec.examinationEvent.start) > new Date() &&
                 (!this.enrolment.examinationEventConfiguration ||
                     eec.id !== this.enrolment.examinationEventConfiguration.id),
         );
@@ -111,4 +114,10 @@ export class ActiveEnrolmentComponent {
     };
 
     goToCalendar = () => this.location.go(this.getLinkToCalendar());
+
+    downloadSebFile = () =>
+        this.Files.download(
+            `/app/student/enrolments/${this.enrolment.id}/configFile`,
+            (this.enrolment.exam.name || this.translate.instant('sitnet_no_name')).replace(' ', '-') + '.seb',
+        );
 }

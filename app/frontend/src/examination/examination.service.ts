@@ -18,7 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, Observable, throwError } from 'rxjs';
-import { catchError, concatMap, map, tap, toArray } from 'rxjs/operators';
+import { catchError, concatMap, map, tap, toArray, switchMap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import {
@@ -40,6 +40,7 @@ export interface Examination extends Exam {
 export interface ExaminationQuestion extends ExamSectionQuestion {
     questionStatus: string;
     autosaved: Date;
+    derivedMaxScore: number;
     selectedOption: MultipleChoiceOption | number;
     answered: boolean;
     selectedAnsweredState: string;
@@ -64,7 +65,10 @@ export class ExaminationService {
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
-        return this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url).pipe(
+        return this.http.get<void>('/app/checkSession').pipe(
+            switchMap(() =>
+                this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url),
+            ),
             tap(e => {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
@@ -72,7 +76,6 @@ export class ExaminationService {
                     this.state.go('examination', { hash: e.hash });
                 }
                 this.isExternal = e.external;
-                return e;
             }),
         );
     }
@@ -81,6 +84,7 @@ export class ExaminationService {
         esq: ExaminationQuestion,
         hash: string,
         autosave: boolean,
+        canFail: boolean,
     ): Observable<ExaminationQuestion> => {
         const type = esq.question.type;
         const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
@@ -104,6 +108,9 @@ export class ExaminationService {
                     esq.autosaved = new Date();
                 } else {
                     toast.info(this.translate.instant('sitnet_answer_saved'));
+                    if (!canFail) {
+                        toast.info(this.translate.instant('sitnet_answer_saved'));
+                    }
                     // this.setQuestionColors(esq);
                 }
                 answerObj.objectVersion = a.objectVersion;
@@ -134,16 +141,19 @@ export class ExaminationService {
         hash: string,
         autosave: boolean,
         allowEmpty: boolean,
+        canFail: boolean,
     ): Observable<ExaminationQuestion[]> => {
         const questions = section.sectionQuestions.filter(esq => this.isTextualAnswer(esq, allowEmpty));
         return from(questions).pipe(
-            concatMap(q => this.saveTextualAnswer(q, hash, autosave)),
+            concatMap(q => this.saveTextualAnswer(q, hash, autosave, canFail)),
             toArray(),
         );
     };
 
-    saveAllTextualAnswersOfExam = (exam: Examination): Observable<unknown> =>
-        from(exam.examSections).pipe(concatMap(es => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true)));
+    saveAllTextualAnswersOfExam = (exam: Examination, canFail: boolean): Observable<unknown> =>
+        from(exam.examSections).pipe(
+            concatMap(es => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true, canFail)),
+        );
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {
@@ -214,20 +224,34 @@ export class ExaminationService {
         }
     };
 
+    getSectionMaxScore = (section: ExaminationSection) => {
+        if (!section || !section.sectionQuestions) {
+            return 0;
+        }
+
+        const sum = section.sectionQuestions
+            .filter(esq => esq.question.type && esq.evaluationType !== 'Selection')
+            .map(esq => esq.derivedMaxScore)
+            .reduce((acc, current) => acc + current, 0);
+
+        return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+    };
+
     abort$ = (hash: string): Observable<void> => {
         const url = this.getResource('/app/student/exam/abort/' + hash);
         return this.http.put<void>(url, {});
     };
 
-    logout = (msg: string, hash: string, quitLinkEnabled: boolean) => {
+    logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
+        const ok = () => {
+            toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
+            this.Window.nativeWindow().onbeforeunload = null;
+            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+        };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put(url, {}).subscribe(
-            () => {
-                toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-                this.Window.nativeWindow().onbeforeunload = null;
-                this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
-            },
-            resp => toast.error(this.translate.instant(resp.data)),
-        );
+        this.http.put(url, {}).subscribe(ok, resp => {
+            if (!canFail) toast.error(this.translate.instant(resp.data));
+            else ok();
+        });
     };
 }

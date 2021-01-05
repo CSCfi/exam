@@ -19,6 +19,7 @@ import akka.actor.ActorSystem;
 import backend.controllers.ExaminationController;
 import backend.controllers.SettingsController;
 import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.impl.AutoEvaluationHandler;
@@ -54,6 +55,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,9 +81,11 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
+
     @Inject
     private WSClient wsClient;
 
@@ -99,6 +103,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private EmailComposer emailComposer;
+
+    @Inject
+    private CollaborativeExamLoader collaborativeExamLoader;
 
     private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
@@ -125,8 +132,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
             copy.save();
             clone.setAttachment(copy);
         }
-        AppUtil.setCreator(clone, user);
-        AppUtil.setModifier(clone, user);
+        clone.setCreatorWithDate(user);
+        clone.setModifierWithDate(user);
         clone.generateHash();
         clone.save();
 
@@ -144,14 +151,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copyWithAnswers(clone);
-            AppUtil.setCreator(esCopy, user);
-            AppUtil.setModifier(esCopy, user);
+            ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
+            esCopy.setCreatorWithDate(user);
+            esCopy.setModifierWithDate(user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 Question questionCopy = esq.getQuestion();
-                AppUtil.setCreator(questionCopy, user);
-                AppUtil.setModifier(questionCopy, user);
+                questionCopy.setCreatorWithDate(user);
+                questionCopy.setModifierWithDate(user);
                 questionCopy.update();
                 esq.save();
             }
@@ -175,7 +182,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return wrapAsPromise(badRequest());
         }
         Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findOne();
-        if (parent == null) {
+        if (parent == null && enrolment.getCollaborativeExam() == null) {
             return wrapAsPromise(notFound());
         }
         Exam clone = createCopy(ee.deserialize(), parent, enrolment.getUser());
@@ -184,6 +191,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
         ExamParticipation ep = new ExamParticipation();
         ep.setExam(clone);
+        ep.setCollaborativeExam(enrolment.getCollaborativeExam());
         ep.setUser(enrolment.getUser());
         ep.setStarted(ee.getStarted());
         ep.setEnded(ee.getFinished());
@@ -201,10 +209,17 @@ public class ExternalExamController extends BaseController implements ExternalEx
             autoEvaluationHandler.autoEvaluate(clone);
         }
         ep.save();
-
-        // Fetch external attachments to local exam.
-        externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
-        return wrapAsPromise(created());
+        if (enrolment.getCollaborativeExam() != null) {
+            return collaborativeExamLoader
+                .createAssessment(ep)
+                .thenComposeAsync(
+                    ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
+                );
+        } else {
+            // Fetch external attachments to local exam.
+            externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
+            return wrapAsPromise(created());
+        }
     }
 
     private void notifyTeachers(Exam exam) {
@@ -226,7 +241,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     private PathProperties getPath() {
         String path =
             "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
-            "requiresUserAgentAuth, trialCount, anonymous, " +
+            "implementation, trialCount, anonymous, " +
             "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " + // (
             "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
             "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
@@ -249,30 +264,45 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return CompletableFuture.completedFuture(notFound());
         }
         ExamEnrolment enrolment = option.get();
-        final Exam exam = enrolment.getExam();
-        final List<CompletableFuture<Void>> futures = new ArrayList<>();
-        if (exam.getAttachment() != null) {
-            futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
+        if (enrolment.getCollaborativeExam() != null) {
+            return collaborativeExamLoader
+                .downloadExam(enrolment.getCollaborativeExam())
+                .thenApplyAsync(
+                    oe -> {
+                        if (oe.isPresent()) {
+                            return ok(oe.get(), getPath());
+                        } else {
+                            return internalServerError("could not download collaborative exam");
+                        }
+                    }
+                );
+        } else {
+            final Exam exam = enrolment.getExam();
+
+            final List<CompletableFuture<Void>> futures = new ArrayList<>();
+            if (exam.getAttachment() != null) {
+                futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
+            }
+            exam
+                .getExamSections()
+                .stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .map(ExamSectionQuestion::getQuestion)
+                .filter(question -> question.getAttachment() != null)
+                .distinct()
+                .forEach(
+                    question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+                );
+            return CompletableFuture
+                .allOf(futures.toArray(new CompletableFuture[0]))
+                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+                .exceptionally(
+                    t -> {
+                        logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                        return internalServerError();
+                    }
+                );
         }
-        exam
-            .getExamSections()
-            .stream()
-            .flatMap(examSection -> examSection.getSectionQuestions().stream())
-            .map(ExamSectionQuestion::getQuestion)
-            .filter(question -> question.getAttachment() != null)
-            .distinct()
-            .forEach(
-                question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
-            );
-        return CompletableFuture
-            .allOf(futures.toArray(new CompletableFuture[0]))
-            .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
-            .exceptionally(
-                t -> {
-                    logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
-                    return internalServerError();
-                }
-            );
     }
 
     @SubjectNotPresent
@@ -331,16 +361,24 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(
                     esq -> {
-                        Question.Type questionType = Optional
+                        Optional<Question.Type> questionType = Optional
                             .ofNullable(esq.getQuestion())
-                            .map(Question::getType)
-                            .orElseGet(null);
-                        if (questionType == Question.Type.ClaimChoiceQuestion) {
-                            return;
+                            .map(Question::getType);
+                        if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
+                            Set<ExamSectionQuestionOption> sorted = esq
+                                .getOptions()
+                                .stream()
+                                .collect(
+                                    Collectors.toCollection(
+                                        () -> new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                                    )
+                                );
+                            esq.setOptions(sorted);
+                        } else {
+                            List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                            Collections.shuffle(shuffled);
+                            esq.setOptions(new HashSet<>(shuffled));
                         }
-                        List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
-                        Collections.shuffle(shuffled);
-                        esq.setOptions(new HashSet<>(shuffled));
                     }
                 );
 
@@ -384,7 +422,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return createQuery()
             .where()
             .eq("reservation.externalRef", ref)
+            .or()
             .isNull("exam.parent")
+            .isNotNull("collaborativeExam")
+            .endOr()
             .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
             .findOneOrEmpty();
     }

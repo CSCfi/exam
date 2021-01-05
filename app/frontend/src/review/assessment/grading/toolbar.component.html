@@ -11,18 +11,7 @@
     <span class="pull-right">
         <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
             <button
-                class="pointer preview"
-                *ngIf="!isMaturityRejection()"
-                [disabled]="!isOwnerOrAdmin() || !valid"
-                (click)="createExamRecord()"
-            >
-                {{ 'sitnet_send_result_to_registry' | translate }}
-            </button>
-        </div>
-
-        <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <button
-                class="pointer preview"
+                class="pointer warning-filled"
                 *ngIf="isMaturityRejection()"
                 [disabled]="!isOwnerOrAdmin() || !valid"
                 (click)="rejectMaturity()"
@@ -30,10 +19,35 @@
                 {{ 'sitnet_reject_maturity' | translate }}
             </button>
         </div>
-        <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <button class="pointer" [disabled]="isReadOnly()" (click)="saveAssessment()">
+
+        <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <button
+                class="pointer"
+                [disabled]="isReadOnly()"
+                (click)="saveAssessment()"
+                ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
+                trigger="mouseenter"
+                placement="top"
+            >
                 {{ 'sitnet_save_changes' | translate }}
             </button>
+        </div>
+        <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <span
+                class="disabled-button-popover-wrapper"
+                ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"
+                placement="top"
+                trigger="mouseenter"
+            >
+                <button
+                    class="pointer"
+                    *ngIf="!isMaturityRejection()"
+                    [disabled]="!isOwnerOrAdmin() || !valid"
+                    (click)="createExamRecord()"
+                >
+                    {{ 'sitnet_send_result_to_registry' | translate }}
+                </button>
+            </span>
         </div>
     </span>
 </div>

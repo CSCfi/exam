@@ -31,7 +31,6 @@ export class SectionsListComponent implements OnInit, OnChanges {
     @Input() collaborative: boolean;
     @Output() onNextTabSelected = new EventEmitter<void>();
     @Output() onPreviousTabSelected = new EventEmitter<void>();
-    @Output() onNewLibraryQuestion = new EventEmitter<void>();
     materials: ExamMaterial[];
 
     constructor(
@@ -126,6 +125,4 @@ export class SectionsListComponent implements OnInit, OnChanges {
         }
         return this.exam.executionType.type === 'PUBLIC';
     };
-
-    onReloadRequired = () => this.onNewLibraryQuestion.emit();
 }

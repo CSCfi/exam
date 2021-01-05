@@ -26,6 +26,7 @@ import io.ebean.Ebean;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,7 @@ import scala.concurrent.duration.FiniteDuration;
 
 @Singleton
 class SystemInitializer {
+
     private static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 15;
     private static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
     private static final int RESERVATION_POLLER_START_AFTER_SECONDS = 30;
@@ -196,8 +198,9 @@ class SystemInitializer {
 
         lifecycle.addStopHook(
             () -> {
+                logger.info("running shutdown hooks");
                 cancelTasks();
-                return CompletableFuture.completedFuture(null);
+                return CompletableFuture.completedFuture(Optional.empty());
             }
         );
     }

@@ -195,7 +195,13 @@ export class LibrarySearchComponent implements OnInit {
         ).subscribe(response => {
             tags = this.union(
                 tags,
-                response.map(r => ({ id: r.id, name: r.name, object: r, filtered: false, isSectionTag: false })),
+                response.map(r => ({
+                    id: r.id as number,
+                    name: r.name,
+                    object: r,
+                    filtered: false,
+                    isSectionTag: false,
+                })),
             );
             let examSections: Filterable<ExamSection>[] = [];
             this.exams

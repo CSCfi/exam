@@ -85,10 +85,8 @@ export const InProgressReviewsComponent: angular.IComponentOptions = {
                 )
                 .catch(angular.noop);
 
-        private handleOngoingReviews = (review: ExamParticipation) => {
-            review.displayName = this.ReviewList.getDisplayName(review, this.parentCtrl.collaborative);
-            this.ReviewList.gradeExam(review.exam);
-        };
+        private handleOngoingReviews = (review: ExamParticipation) =>
+            (review.displayName = this.ReviewList.getDisplayName(review, this.parentCtrl.collaborative));
     },
 };
 

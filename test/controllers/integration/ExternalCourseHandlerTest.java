@@ -1,49 +1,54 @@
-package controllers;
+package controllers.integration;
 
-import base.IntegrationTestCase;
-import base.RunAsAdmin;
-import base.RunAsStudent;
-import base.RunAsTeacher;
-import io.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import backend.models.Course;
 import backend.models.Grade;
 import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import play.libs.Json;
-import play.mvc.Result;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import base.IntegrationTestCase;
+import base.RunAsAdmin;
+import base.RunAsStudent;
+import base.RunAsTeacher;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import play.libs.Json;
+import play.mvc.Result;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
-public class CourseInfoImportTest extends IntegrationTestCase {
+public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
 
         private static File jsonFile;
 
+        static void setFile(File file) {
+            jsonFile = file;
+        }
+
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            try (FileInputStream fis = new FileInputStream(jsonFile); ServletOutputStream sos = response.getOutputStream()) {
+            try (
+                FileInputStream fis = new FileInputStream(jsonFile);
+                ServletOutputStream sos = response.getOutputStream()
+            ) {
                 IOUtils.copy(fis, sos);
                 sos.flush();
             } catch (IOException e) {
@@ -77,74 +82,79 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetCourseDefaultOrganisation() {
         setUserOrg(null);
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
-        assertThat(course.getCode()).isEqualTo("2121219");
+        assertThat(course.getCode()).isEqualTo("2121219_abcdefghijklmnop");
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
-        List<Grade> grades = Ebean.find(Grade.class).where()
-                .eq("gradeScale.id", course.getGradeScale().getId()).findList();
+        List<Grade> grades = Ebean
+            .find(Grade.class)
+            .where()
+            .eq("gradeScale.id", course.getGradeScale().getId())
+            .findList();
         assertThat(grades).hasSize(7);
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
         // Check that the imported course got into db
-        assertThat(Ebean.find(Course.class).where().eq("code", "2121219")).isNotNull();
+        assertThat(Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop")).isNotNull();
     }
 
     @Test
     @RunAsAdmin
-    @Ignore("currently not a valid test")
-    public void testUpdateCourse() throws Exception {
+    public void testUpdateCourse() {
         setUserOrg(null);
 
         // Import a new course
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         get("/app/courses?filter=code&q=2121219");
 
         // Have it updated with new data
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoUpdated.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoUpdated.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
 
-        Course course = Ebean.find(Course.class).where().eq("code", "2121219").findOne();
+        Course course = Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop").findOne();
         assertThat(course).isNotNull();
-        assertThat(course.getName()).endsWith("2"); // Could assert some more things maybe?
+        assertThat(course.getName()).endsWith("2");
+        assertThat(course.getGradeScale().getDisplayName()).isEqualTo("1-2");
     }
 
     @Test
     @RunAsTeacher
-    @Ignore("currently not a valid test")
-    public void testGetSeveralCourses() throws Exception {
+    public void testAlwaysSearchForRemoteCourse() {
         // This is to make sure that we can import a course that shares the same prefix and has shorter code than a
         // course already found in db
+        // remote code = 2121219_abcdefghijklmnop
+        // local code = 21212190_abcdefghijklmnopq
         setUserOrg(null);
 
         Course course = new Course();
-        course.setCode("21212190");
+        course.setCode("2121219_abcdefghijklmnopq");
         course.save();
 
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
-        Result result = get("/app/courses?filter=code&q=2121219");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
+        Result result = get("/app/courses?filter=code&q=2121219_abcdefghijklmnop");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(2);
         Course c1 = deserialize(Course.class, node.get(0));
-        assertThat(c1.getCode()).isEqualTo("21212190");
+        assertThat(c1.getCode()).isEqualTo("2121219_abcdefghijklmnop");
         Course c2 = deserialize(Course.class, node.get(1));
-        assertThat(c2.getCode()).isEqualTo("2121219");
-        assertThat(Ebean.find(Course.class).where().eq("code", "2121219")).isNotNull();
+        assertThat(c2.getCode()).isEqualTo("2121219_abcdefghijklmnopq");
+        // check that remote course was added to database
+        assertThat(Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop")).isNotNull();
     }
 
     @Test
     @RunAsTeacher
-    public void testGetCourseOfAnotherOrganisation() throws Exception {
+    public void testGetCourseOfAnotherOrganisation() {
         setUserOrg("oulu.fi");
 
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo2.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo2.json"));
         Result result = get("/app/courses?filter=code&q=t7");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
@@ -154,17 +164,20 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
-        List<Grade> grades = Ebean.find(Grade.class).where()
-                .eq("gradeScale.id", course.getGradeScale().getId()).findList();
+        List<Grade> grades = Ebean
+            .find(Grade.class)
+            .where()
+            .eq("gradeScale.id", course.getGradeScale().getId())
+            .findList();
         assertThat(grades).hasSize(7);
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
     }
 
     @Test
     @RunAsTeacher
-    public void testGetCourseMultiple() throws Exception {
+    public void testGetCourseMultiple() {
         setUserOrg(null);
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoMultiple.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoMultiple.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
@@ -179,30 +192,29 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testGetCourseUnauthorized() throws Exception {
+    public void testGetCourseUnauthorized() {
         setUserOrg(null);
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
 
     @Test
-    public void testGetCourseUnauthenticated() throws Exception {
+    public void testGetCourseUnauthenticated() {
         setUserOrg(null);
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
 
     @Test
     @RunAsTeacher
-    public void testGetExpiredCourse() throws Exception {
+    public void testGetExpiredCourse() {
         setUserOrg(null);
-        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoExpired.json");
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoExpired.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
     }
-
 }

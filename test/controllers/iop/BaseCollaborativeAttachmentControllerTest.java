@@ -16,20 +16,27 @@
 
 package controllers.iop;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+import akka.actor.ActorSystem;
+import akka.stream.Materializer;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import base.IntegrationTestCase;
+import helpers.AttachmentServlet;
+import helpers.ExamServlet;
+import helpers.RemoteServerHelper;
+import io.ebean.Ebean;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import javax.servlet.MultipartConfigElement;
-
-import akka.actor.ActorSystem;
-import akka.stream.Materializer;
-import base.IntegrationTestCase;
-import helpers.AttachmentServlet;
-import helpers.ExamServlet;
-import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
@@ -42,15 +49,6 @@ import org.junit.BeforeClass;
 import play.Logger;
 import play.mvc.Result;
 import play.test.Helpers;
-
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class BaseCollaborativeAttachmentControllerTest<T> extends IntegrationTestCase {
 
@@ -76,8 +74,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
         testUpload = Files.createTempDirectory("test_upload");
         attachmentServlet = new AttachmentServlet(testImage);
         examServlet = new ExamServlet();
-        ServletHolder fileUploadServletHolder = new ServletHolder(
-                attachmentServlet);
+        ServletHolder fileUploadServletHolder = new ServletHolder(attachmentServlet);
         fileUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement(testUpload.toString()));
         context.addServlet(fileUploadServletHolder, "/attachments/*");
         context.addServlet(new ServletHolder(examServlet), "/exams/*");
@@ -98,8 +95,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
         assert exam != null;
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 1L));
         exam.setExternal(true);
-        final Attachment examAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
+        final Attachment examAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         examAttachment.setExternalId("ab123fcdgkk");
         exam.setAttachment(examAttachment);
         exam.save();
@@ -111,8 +107,11 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
         examSectionQuestion.setEssayAnswer(answer);
 
         Question question = examSectionQuestion.getQuestion();
-        final Attachment questionAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
+        final Attachment questionAttachment = createAttachment(
+            "test_image.png",
+            testImage.getAbsolutePath(),
+            "image/png"
+        );
         questionAttachment.setExternalId("9284774jdfjdfk");
         question.setAttachment(questionAttachment);
         question.save();
@@ -126,7 +125,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
 
     void assertDownloadResult(Result result) throws IOException {
         assertThat(result.header("Content-Disposition").orElse(null))
-                .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
+            .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
         ActorSystem actorSystem = ActorSystem.create("TestSystem");
         Materializer mat = Materializer.createMaterializer(actorSystem);
         final String content = Helpers.contentAsString(result, mat);

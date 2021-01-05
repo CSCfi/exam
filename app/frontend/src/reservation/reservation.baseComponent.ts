@@ -16,13 +16,14 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, OnInit } from '@angular/core';
 import { StateParams } from '@uirouter/core';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import { OrderPipe } from 'ngx-order-pipe';
-import { of } from 'rxjs';
+import { of, forkJoin } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ExamEnrolment } from '../enrolment/enrolment.model';
-import { CollaborativeExam, Exam } from '../exam/exam.model';
+import { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
 import { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -54,7 +55,7 @@ type LocalTransferExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
     exam: { id: number; external: true; examOwners: User[]; state: string; parent: null };
 };
 type CollaborativeExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
-    exam: CollaborativeExam & { examOwners: User[]; parent: null };
+    exam: CollaborativeExam & { examOwners: User[]; parent: null; implementation: Implementation };
 };
 type LocalTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
     enrolment: LocalTransferExamEnrolment;
@@ -167,9 +168,25 @@ export class ReservationComponentBase implements OnInit {
     query() {
         if (this.somethingSelected(this.selection as Params)) {
             const params = this.createParams(this.selection);
-            this.http
-                .get<Reservation[]>('/app/reservations', { params: params })
+            forkJoin(
+                this.http.get<Reservation[]>('/app/reservations', { params: params }),
+                this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
+            )
                 .pipe(
+                    map(([reservations, enrolments]) => {
+                        const events: Partial<Reservation>[] = enrolments.map(ee => {
+                            return {
+                                user: ee.user,
+                                enrolment: ee,
+                                startAt: ee.examinationEventConfiguration?.examinationEvent.start,
+                                endAt: moment(ee.examinationEventConfiguration?.examinationEvent.start)
+                                    .add(ee.exam.duration, 'm')
+                                    .toISOString(),
+                            };
+                        });
+                        const allEvents: Partial<Reservation>[] = reservations;
+                        return allEvents.concat(events);
+                    }),
                     map((reservations: Reservation[]) =>
                         reservations.map(r => ({
                             ...r,
@@ -212,7 +229,12 @@ export class ReservationComponentBase implements OnInit {
                         // Collaborative exams
                         reservations.filter(this.isCollaborative).forEach(r => {
                             if (!r.enrolment.exam) {
-                                r.enrolment.exam = { ...r.enrolment.collaborativeExam, examOwners: [], parent: null };
+                                r.enrolment.exam = {
+                                    ...r.enrolment.collaborativeExam,
+                                    examOwners: [],
+                                    parent: null,
+                                    implementation: 'AQUARIUM',
+                                };
                             } else {
                                 r.enrolment.exam.examOwners = [];
                             }

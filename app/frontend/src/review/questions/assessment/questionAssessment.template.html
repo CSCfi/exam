@@ -75,6 +75,18 @@
                         </span>
                     </div>
                 </div>
+                <div class="main-row padb0" ng-if="$ctrl.selectedReview.evaluationCriteria">
+                    <div class="col-md-11 col-md-offset-1">
+                        {{ 'sitnet_exam_evaluation_criteria' | translate }}
+                    </div>
+                </div>
+                <div class="detail-row" ng-if="$ctrl.selectedReview.evaluationCriteria">
+                    <div class="col-md-11 col-md-offset-1">
+                        <div class="review-question-title">
+                            {{ $ctrl.selectedReview.evaluationCriteria }}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="detail-row">
                 <div class="triangle-line"></div>

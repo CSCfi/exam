@@ -19,7 +19,10 @@ import { Injectable } from '@angular/core';
 export class AuthInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         const uncachedReq = req.clone({
-            headers: req.headers.set('Cache-Control', 'no-cache').set('Pragma', 'no-cache'),
+            headers: req.headers
+                .set('Cache-Control', 'no-cache;no-store')
+                .set('Pragma', 'no-cache')
+                .set('Expires', '0'),
         });
 
         // send cloned request with headers to the next handler.

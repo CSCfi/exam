@@ -36,10 +36,15 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         Optional<Integer> duration = SanitizingHelper.parse("duration", body, Integer.class);
         Optional<Exam.State> state = SanitizingHelper.parseEnum("state", body, Exam.State.class);
         Optional<String> examName = SanitizingHelper.parse("name", body, String.class);
+        Optional<Exam.Implementation> impl = SanitizingHelper.parseEnum(
+            "implementation",
+            body,
+            Exam.Implementation.class
+        );
 
         if (state.isPresent() && state.get().equals(Exam.State.PUBLISHED)) {
             // (ABOUT TO BE) PUBLISHED EXAM, NEED TO VALIDATE SOME MORE
-            if (!examName.isPresent() || examName.get().isEmpty()) {
+            if (examName.isEmpty() || examName.get().isEmpty()) {
                 throw new SanitizingException("bad name");
             }
         }
@@ -58,6 +63,9 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         }
         if (examName.isPresent()) {
             request = request.addAttr(Attrs.NAME, examName.get());
+        }
+        if (impl.isPresent()) {
+            request = request.addAttr(Attrs.EXAM_IMPL, impl.get());
         }
 
         request = SanitizingHelper.sanitizeOptional("shared", body, Boolean.class, Attrs.SHARED, request);
@@ -78,14 +86,6 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
             );
         request = SanitizingHelper.sanitizeOptional("internalRef", body, String.class, Attrs.REFERENCE, request);
         request = SanitizingHelper.sanitizeOptional("anonymous", body, Boolean.class, Attrs.ANONYMOUS, request);
-        request =
-            SanitizingHelper.sanitizeOptional(
-                "requiresUserAgentAuth",
-                body,
-                Boolean.class,
-                Attrs.REQUIRES_USER_AGENT_AUTH,
-                request
-            );
         request =
             SanitizingHelper.sanitizeOptional("settingsPassword", body, String.class, Attrs.SETTINGS_PASSWORD, request);
         if (body.has("examType")) {

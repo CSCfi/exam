@@ -1,0 +1,53 @@
+<div *ngIf="selections.length > 0" class="padl30 questions-selections-box" id="library">
+    <div class="make-inline">
+        <div class="question-add-owners-box">
+            <span class="padl10">
+                <i class="fa fa-share fa-fw" style="color:#266B99;"></i>&nbsp;
+                <a class="bold-button" ng-click="showOrganisationSelection = !showOrganisationSelection">
+                    {{ 'sitnet_transfer_questions' | translate }}
+                </a>
+            </span>
+            <div *ngIf="showOrganisationSelection" class="question-pick-organisation-box">
+                <!-- org pick TODO: make a component out of this-->
+                <div ngbDropdown>
+                    <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownToggle">
+                        {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                        <span class="caret"></span>
+                    </button>
+                    <ul ngbDropdownMenu aria-labelledby="dropDownMenu">
+                        <li role="presentation" class="input-group">
+                            <input
+                                aria-label="search for faculty"
+                                [(ngModel)]="filter"
+                                class="form-control"
+                                (click)="$event.stopPropagation()"
+                                placeholder="{{ 'sitnet_search' | translate }}"
+                            />
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li
+                            *ngFor="let org of organisations | filter: filter"
+                            (hidden)="(org.filtered)"
+                            role="presentation"
+                            (click)="organisation = org"
+                        >
+                            <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                        </li>
+                    </ul>
+                </div>
+                <span>
+                    <input
+                        type="button"
+                        class="btn green border-green whitetext mart10"
+                        [disabled]="!organisation"
+                        (click)="transfer()"
+                        value="{{ 'sitnet_add' | translate }}"
+                    />
+                    <span *ngIf="organisation" class="padl10 vertm">({{ organisation.code }})</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

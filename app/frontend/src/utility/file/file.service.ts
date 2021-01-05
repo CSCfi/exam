@@ -19,22 +19,11 @@ import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
 
 import { Attachment } from '../../exam/exam.model';
-import { WindowRef } from '../window/window.service';
 
 @Injectable()
 export class FileService {
-    private _supportsBlobUrls: boolean;
-    private _maxFileSize: number;
-
-    constructor(private http: HttpClient, private translate: TranslateService, private windowRef: WindowRef) {
-        const svg = new Blob(["<svg xmlns='http://www.w3.org/2000/svg'></svg>"], {
-            type: 'image/svg+xml;charset=utf-8',
-        });
-        const img = new Image();
-        img.onload = () => (this._supportsBlobUrls = true);
-        img.onerror = () => (this._supportsBlobUrls = false);
-        img.src = URL.createObjectURL(svg);
-    }
+    maxFileSize: number;
+    constructor(private http: HttpClient, private translate: TranslateService) {}
 
     download(url: string, filename: string, params?: any, post?: boolean) {
         const method = post ? 'POST' : 'GET';
@@ -43,7 +32,7 @@ export class FileService {
                 if (resp.body) {
                     const contentType = resp.headers.get('Content-Type');
                     if (contentType) {
-                        this._saveFile(resp.body, filename, contentType.split(';')[0]);
+                        this.saveFile(resp.body, filename, contentType.split(';')[0]);
                     }
                 }
             },
@@ -54,23 +43,14 @@ export class FileService {
         );
     }
 
-    open(file: Blob) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const f = reader.result;
-            this.windowRef.nativeWindow.open(f);
-        };
-        reader.readAsDataURL(file);
-    }
-
     getMaxFilesize(): Promise<{ filesize: number }> {
         return new Promise((resolve, reject) => {
-            if (this._maxFileSize) {
-                resolve({ filesize: this._maxFileSize });
+            if (this.maxFileSize) {
+                resolve({ filesize: this.maxFileSize });
             } else {
                 this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe(
                     resp => {
-                        this._maxFileSize = resp.filesize;
+                        this.maxFileSize = resp.filesize;
                         resolve(resp);
                     },
                     e => reject(e),
@@ -80,7 +60,7 @@ export class FileService {
     }
 
     upload(url: string, file: File, params: any, parent: any, callback?: () => void): void {
-        this._doUpload(url, file, params)
+        this.doUpload(url, file, params)
             .then(resp => {
                 if (parent) {
                     parent.attachment = resp;
@@ -93,7 +73,7 @@ export class FileService {
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
-        this._doUpload(url, file, params)
+        this.doUpload(url, file, params)
             .then(resp => {
                 parent.objectVersion = resp.objectVersion; // FIXME: CSCEXAM-266 fixed in master, won't work here (ts)
                 parent.attachment = resp;
@@ -101,44 +81,40 @@ export class FileService {
             .catch(resp => toast.error(this.translate.instant(resp.data)));
     }
 
-    private _saveFile(data: string, fileName: string, contentType: string) {
-        if (!this._supportsBlobUrls) {
-            this.windowRef.nativeWindow.open('data:' + contentType + ';base64,' + data);
-        } else {
-            let blob: Blob;
-            try {
-                const byteString = atob(data);
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                blob = new Blob([ia], { type: contentType });
-            } catch (e) {
-                // Maybe this isn't base64, try plaintext approaches
-                let text;
-                if (contentType === 'application/json') {
-                    text = JSON.stringify(data, null, 2);
-                } else {
-                    text = data;
-                }
-                blob = new Blob([text], { type: contentType });
+    private saveFile(data: string, fileName: string, contentType: string) {
+        let blob: Blob;
+        try {
+            const byteString = atob(data);
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
             }
-            FileSaver.saveAs(blob, fileName);
+            blob = new Blob([ia], { type: contentType });
+        } catch (e) {
+            // Maybe this isn't base64, try plaintext approaches
+            let text;
+            if (contentType === 'application/json') {
+                text = JSON.stringify(data, null, 2);
+            } else {
+                text = data;
+            }
+            blob = new Blob([text], { type: contentType });
         }
+        FileSaver.saveAs(blob, fileName);
     }
 
-    private _isFileTooBig(file: File): boolean {
-        if (file.size > this._maxFileSize) {
+    private isFileTooBig(file: File): boolean {
+        if (file.size > this.maxFileSize) {
             toast.error(this.translate.instant('sitnet_file_too_large'));
             return true;
         }
         return false;
     }
 
-    private _doUpload(url: string, file: File, params: any): Promise<Attachment> {
+    private doUpload(url: string, file: File, params: any): Promise<Attachment> {
         return new Promise<Attachment>((resolve, reject) => {
-            if (this._isFileTooBig(file)) {
+            if (this.isFileTooBig(file)) {
                 reject({ data: 'sitnet_file_too_large' });
             } else {
                 const fd = new FormData();

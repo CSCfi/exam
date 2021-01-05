@@ -26,6 +26,7 @@ import {
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
+    ExamSection,
 } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
@@ -106,6 +107,13 @@ export class QuestionService {
         return data;
     };
 
+    getQuestionAmountsBySection = (section: ExamSection) => {
+        const scores = section.sectionQuestions
+            .filter(sq => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
+            .map(sq => sq.essayAnswer?.evaluatedScore);
+        return { accepted: scores.filter(s => s === 1).length, rejected: scores.filter(s => s === 0).length };
+    };
+
     calculateDefaultMaxPoints = (question: Question) =>
         question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
@@ -115,13 +123,15 @@ export class QuestionService {
         return parseFloat(points.toFixed(2));
     };
 
-    getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion) => {
+    getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         const optionScores = sectionQuestion.options.map(o => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
-        return Math.min(...scores);
+        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
+            ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
+            : Math.min(...scores);
     };
 
-    getCorrectClaimChoiceOptionDefaultScore = (question: Question) => {
+    getCorrectClaimChoiceOptionDefaultScore = (question: Question): number => {
         if (!question.options) {
             return 0;
         }
@@ -129,7 +139,7 @@ export class QuestionService {
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
     };
 
-    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion) => {
+    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         if (!sectionQuestion.options) {
             return 0;
         }
@@ -150,7 +160,7 @@ export class QuestionService {
         return parseFloat(proportion.toFixed(2));
     };
 
-    scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+    scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
@@ -159,7 +169,7 @@ export class QuestionService {
     };
 
     // For non-weighted mcq
-    scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+    scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
@@ -175,7 +185,7 @@ export class QuestionService {
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
     };
 
-    scoreClaimChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean) => {
+    scoreClaimChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }

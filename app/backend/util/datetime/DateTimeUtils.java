@@ -194,7 +194,7 @@ public class DateTimeUtils {
             dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
-        }
+        } // jos ollaan kesäajassa, lisätään tunti?
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
             result = dateTime.plusHours(1);
         }

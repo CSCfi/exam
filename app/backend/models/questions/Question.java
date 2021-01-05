@@ -30,10 +30,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.annotation.EnumValue;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -309,7 +309,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         ClaimChoiceOptionType type = SanitizingHelper
                             .parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class)
                             .orElse(null);
-                        Double defaultScore = n.get("defaultScore").asDouble();
+                        double defaultScore = n.get("defaultScore").asDouble();
                         String option = n.get("option").asText();
 
                         if (type == null) {
@@ -324,7 +324,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     }
                 )
                 .map(n -> SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null))
-                .filter(n -> n != null)
+                .filter(Objects::nonNull)
                 .distinct()
                 .limit(3)
                 .count() ==
@@ -428,7 +428,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     .filter(score -> score != null && score > 0)
                     .reduce(0.0, (sum, x) -> sum += x);
             case ClaimChoiceQuestion:
-                return options.stream().mapToDouble(option -> option.getDefaultScore()).max().orElse(0.0);
+                return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).max().orElse(0.0);
         }
         return 0.0;
     }
@@ -442,7 +442,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 .filter(score -> score != null && score < 0)
                 .reduce(0.0, (sum, x) -> sum += x);
         } else if (getType() == Type.ClaimChoiceQuestion) {
-            return options.stream().mapToDouble(option -> option.getDefaultScore()).min().orElse(0.0);
+            return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).min().orElse(0.0);
         }
         return 0.0;
     }
@@ -469,6 +469,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 this,
                 question,
                 "id",
+                "parent",
                 "options",
                 "tags",
                 "children",

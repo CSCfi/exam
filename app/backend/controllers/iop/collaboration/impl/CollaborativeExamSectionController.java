@@ -24,7 +24,6 @@ import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import backend.util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -96,13 +95,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         if (err.isPresent()) {
                                             return wrapAsPromise(err.get());
                                         }
-                                        return uploadExam(
-                                            ce,
-                                            exam,
-                                            user,
-                                            resultProvider.apply(exam).orElse(null),
-                                            null
+                                        PathProperties pp = PathProperties.parse(
+                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                                         );
+                                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                                     }
                                     return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
                                 }
@@ -183,8 +179,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
     public CompletionStage<Result> reorderSections(Long examId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
-            Integer from = Integer.parseInt(df.get("from"));
-            Integer to = Integer.parseInt(df.get("to"));
+            int from = Integer.parseInt(df.get("from"));
+            int to = Integer.parseInt(df.get("to"));
             Optional<Result> err = checkBounds(from, to);
             if (err.isPresent()) {
                 return err;
@@ -210,8 +206,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
     public CompletionStage<Result> reorderSectionQuestions(Long examId, Long sectionId, Http.Request request) {
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
-            Integer from = Integer.parseInt(df.get("from"));
-            Integer to = Integer.parseInt(df.get("to"));
+            int from = Integer.parseInt(df.get("from"));
+            int to = Integer.parseInt(df.get("to"));
             Optional<Result> err = checkBounds(from, to);
             if (err.isPresent()) {
                 return err;
@@ -269,10 +265,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     // Option ids will be used to retain option order on collaborative exams
                     List<MultipleChoiceOption> options = question.getOptions();
                     List<Long> generatedIds = Stream
-                        .generate(() -> newId())
+                        .generate(this::newId)
                         .limit(options.size())
+                        .sorted(Comparator.naturalOrder())
                         .collect(Collectors.toList());
-                    generatedIds.sort(Comparator.naturalOrder());
                     for (int i = 0; i < options.size(); i++) {
                         options.get(i).setId(generatedIds.get(i));
                     }
@@ -299,8 +295,9 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 esq.setCreated(DateTime.now());
 
                 updateExamQuestion(esq, question);
+                esq.getOptions().forEach(o -> o.setId(newId()));
                 cleanUser(user);
-                AppUtil.setModifier(es, user);
+                es.setModifierWithDate(user);
                 es.getSectionQuestions().add(esq);
                 return Optional.empty();
             } else {
@@ -436,6 +433,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                                     .filter(o -> o.getId() == null)
                                                     .forEach(o -> o.setId(newId()));
                                                 updateExamQuestion(esq, questionBody);
+                                                esq.getOptions().forEach(o -> o.setId(newId()));
                                                 PathProperties pp = PathProperties.parse(
                                                     "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                                                 );
@@ -465,7 +463,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
         section.setExpanded(true);
         section.setId(newId());
         cleanUser(user);
-        AppUtil.setCreator(section, user);
+        section.setCreatorWithDate(user);
         return section;
     }
 }

@@ -24,9 +24,8 @@ import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, ExaminationEventConfiguration, GradeScale } from '../../exam.model';
+import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
-import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 
 export type UpdateProps = {
     props: {
@@ -127,6 +126,17 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
 
+    getExaminationTypeName = () => {
+        switch (this.exam.implementation) {
+            case 'AQUARIUM':
+                return 'sitnet_examination_type_aquarium';
+            case 'CLIENT_AUTH':
+                return 'sitnet_examination_type_seb';
+            case 'WHATEVER':
+                return 'sitnet_examination_type_home_exam';
+        }
+    };
+
     checkExamType = (type: string) => (this.exam.examType.type === type ? 'btn-primary' : '');
 
     setExamType = (type: string) => {
@@ -187,59 +197,6 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
-
-    addExaminationEvent = () => {
-        this.modal
-            .open(ExaminationEventDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            })
-            .result.then((data: ExaminationEventConfiguration) => {
-                this.Exam.addExaminationEvent(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
-                    this.exam.examinationEventConfigurations.push(config);
-                });
-            });
-    };
-
-    modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-        const modalRef = this.modal.open(ExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-        });
-        modalRef.componentInstance.config = configuration;
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
-                (config: ExaminationEventConfiguration) => {
-                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                    console.log(index);
-                    this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                },
-            );
-        });
-    };
-
-    removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-        if (configuration.examEnrolments.length > 0) {
-            return;
-        }
-        this.Confirmation.open(
-            this.translate.instant('sitnet_remove_examination_event'),
-            this.translate.instant('sitnet_are_you_sure'),
-        )
-            .result.then(() =>
-                this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
-                    () => {
-                        this.exam.examinationEventConfigurations.splice(
-                            this.exam.examinationEventConfigurations.indexOf(configuration),
-                            1,
-                        );
-                    },
-                    resp => toast.error(resp.error),
-                ),
-            )
-            .catch(err => toast.error(err.data));
-    };
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
 

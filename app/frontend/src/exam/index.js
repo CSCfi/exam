@@ -16,5 +16,5 @@
 require('./exam.module.ajs.ts');
 require('./student/studentExamResource');
 require('./exam.service.ts');
-require('./listing/examList.component');
+require('./listing/examList.component.ts');
 require('./examResource');

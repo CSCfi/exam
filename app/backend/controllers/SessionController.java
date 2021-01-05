@@ -27,7 +27,6 @@ import backend.models.Role;
 import backend.models.User;
 import backend.models.dto.Credentials;
 import backend.repository.EnrolmentRepository;
-import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
 import backend.util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
@@ -54,19 +53,19 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 
 public class SessionController extends BaseController {
+
     private final Environment environment;
-    private final HttpExecutionContext ec;
     private final ExternalExamAPI externalExamAPI;
     private final ConfigReader configReader;
     private final EnrolmentRepository enrolmentRepository;
@@ -82,19 +81,30 @@ public class SessionController extends BaseController {
         .load()
         .getString("sitnet.user.studentIds.multiple.organisations");
     private static final int SESSION_TIMEOUT_MINUTES = 30;
-
     private static final String URN_PREFIX = "urn:";
+    private static final Map<String, String> SESSION_HEADER_MAP = Map.of(
+        "x-exam-start-exam",
+        "ongoingExamHash",
+        "x-exam-upcoming-exam",
+        "upcomingExamHash",
+        "x-exam-wrong-machine",
+        "wrongMachineData",
+        "x-exam-unknown-machine",
+        "unknownMachineData",
+        "x-exam-wrong-room",
+        "wrongRoomData",
+        "x-exam-wrong-agent-config",
+        "wrongAgent"
+    );
 
     @Inject
     public SessionController(
         Environment environment,
-        HttpExecutionContext ec,
         ExternalExamAPI externalExamAPI,
         ConfigReader configReader,
         EnrolmentRepository enrolmentRepository
     ) {
         this.environment = environment;
-        this.ec = ec;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
         this.enrolmentRepository = enrolmentRepository;
@@ -152,7 +162,7 @@ public class SessionController extends BaseController {
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
-        String pwd = AppUtil.encodeMD5(credentials.getPassword());
+        String pwd = DigestUtils.md5Hex(credentials.getPassword());
         User user = Ebean
             .find(User.class)
             .where()
@@ -424,7 +434,6 @@ public class SessionController extends BaseController {
 
     @ActionMethod
     public Result logout(Http.Request request) {
-        Result result = ok().withNewSession();
         Map<String, String> session = request.session().data();
         if (!session.isEmpty()) {
             Long userId = Long.parseLong(session.get("id"));
@@ -432,9 +441,10 @@ public class SessionController extends BaseController {
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                result = ok(Json.toJson(node));
+                return ok(Json.toJson(node)).withNewSession();
             }
         }
+        Result result = ok().withNewSession();
         return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
     }
 
@@ -460,11 +470,7 @@ public class SessionController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result extendSession(Http.Request request) {
-        Http.Session session = request.session();
-        if (session.get("id").isPresent()) {
-            return unauthorized();
-        }
-        return ok().withSession(session.adding("since", ISODateTimeFormat.dateTimeParser().print(DateTime.now())));
+        return ok().withSession(request.session().adding("since", ISODateTimeFormat.dateTime().print(DateTime.now())));
     }
 
     @ActionMethod
@@ -495,13 +501,8 @@ public class SessionController extends BaseController {
                 .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
                 .thenApplyAsync(
                     headers -> {
-                        String[] args = headers
-                            .entrySet()
-                            .stream()
-                            .flatMap(e -> List.of(e.getKey(), e.getValue()).stream())
-                            .toArray(String[]::new);
-                        Http.Session newSession = updateStudentHeaders(session, headers);
-                        return result.withHeaders(args).withSession(newSession);
+                        Http.Session newSession = updateSession(session, headers);
+                        return result.withSession(newSession);
                     },
                     ec.current()
                 );
@@ -510,28 +511,18 @@ public class SessionController extends BaseController {
         }
     }
 
-    private Http.Session updateStudentHeaders(Http.Session session, Map<String, String> headers) {
+    private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
         Map<String, String> payload = new HashMap<>(session.data());
-        if (headers.containsKey("x-exam-start-exam")) {
-            payload.put("ongoingExamHash", headers.get("x-exam-start-exam"));
-        } else {
-            payload.remove("ongoingExamHash");
-        }
-        if (headers.containsKey("x-exam-upcoming-exam")) {
-            payload.put("upcomingExamHash", headers.get("x-exam-upcoming-exam"));
-        } else {
-            payload.remove("upcomingExamHash");
-        }
-        if (headers.containsKey("x-exam-wrong-machine")) {
-            payload.put("wrongMachineData", headers.get("x-exam-wrong-machine"));
-        } else {
-            payload.remove("wrongMachineData");
-        }
-        if (headers.containsKey("x-exam-wrong-room")) {
-            payload.put("wrongRoomData", headers.get("x-exam-wrong-room"));
-        } else {
-            payload.remove("wrongRoomData");
-        }
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> headers.containsKey(e.getKey()))
+            .forEach(e -> payload.put(e.getValue(), headers.get(e.getKey())));
+        SESSION_HEADER_MAP
+            .entrySet()
+            .stream()
+            .filter(e -> !headers.containsKey(e.getKey()))
+            .forEach(e -> payload.remove(e.getValue()));
         return new Http.Session(payload);
     }
 

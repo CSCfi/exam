@@ -43,7 +43,7 @@ export class ExamSearchResultComponent {
     };
 
     makeReservation = () => {
-        if (this.exam.requiresUserAgentAuth) {
+        if (this.exam.implementation !== 'AQUARIUM') {
             this.State.go('dashboard');
         } else {
             this.State.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });

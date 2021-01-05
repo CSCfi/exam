@@ -27,6 +27,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
+
     private static final Logger.ALogger logger = Logger.of(CollaborativeEnrolmentController.class);
 
     private boolean isEnrollable(Exam exam) {
@@ -71,7 +72,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                             PathProperties.parse(
                                 "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
                                 "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction)"
+                                "enrollInstruction, implementation, examinationEventConfigurations)"
                             )
                         );
                     }
@@ -108,7 +109,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                             PathProperties.parse(
                                 "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
                                 "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction)"
+                                "enrollInstruction, implementation, examinationEventConfigurations)"
                             )
                         );
                     }
@@ -148,7 +149,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                                     .findList();
 
                                 if (enrolments.isEmpty()) {
-                                    return notFound("error not found");
+                                    return notFound("not found");
                                 }
                                 return ok(enrolments);
                             }

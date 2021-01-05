@@ -30,14 +30,24 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -45,9 +55,22 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
+
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+    private static final boolean API_KEY_USED = ConfigFactory
+        .load()
+        .getBoolean("sitnet.integration.enrolmentPermissionCheck.apiKey.enabled");
+    private static final String API_KEY_NAME = ConfigFactory
+        .load()
+        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.name");
+    private static final String API_KEY_VALUE = ConfigFactory
+        .load()
+        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.value");
+    private static final String USER_IDENTIFIER = ConfigFactory
+        .load()
+        .getString("sitnet.integration.enrolmentPermissionCheck.id");
 
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
 
@@ -74,8 +97,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         R exec(T t) throws RemoteException, ParseException;
     }
 
-    private WSClient wsClient;
-    private ConfigReader configReader;
+    private final WSClient wsClient;
+    private final ConfigReader configReader;
 
     @Inject
     public ExternalCourseHandlerImpl(WSClient wsClient, ConfigReader configReader) {
@@ -105,16 +128,16 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (!configReader.isCourseSearchActive()) {
             return CompletableFuture.completedFuture(getLocalCourses(code));
         }
-        // Hit the remote end for a possible match. Update local records with matching remote records.
-        // Finally return all matches (old & new)
+        // Hit the remote end for possible matches. Update local records with matching remote records.
+        // Finally return all matches (local & remote)
         URL url = parseUrl(user.getOrganisation(), code);
         return downloadCourses(url)
             .thenApplyAsync(
-                courses -> {
-                    courses.forEach(this::saveOrUpdate);
+                remotes -> {
+                    remotes.forEach(this::saveOrUpdate);
                     Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
                     return Stream
-                        .concat(getLocalCourses(code).stream(), courses.stream())
+                        .concat(getLocalCourses(code).stream(), remotes.stream())
                         .collect(Collectors.toCollection(supplier));
                 }
             );
@@ -127,20 +150,19 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
+        if (API_KEY_USED) {
+            request = request.addHeader(API_KEY_NAME, API_KEY_VALUE);
+        }
         RemoteFunction<WSResponse, Collection<String>> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (root.has("exception")) {
                 throw new RemoteException(root.get("exception").asText());
             } else if (root.has("data")) {
-                Set<String> results = new HashSet<>();
-                for (JsonNode course : root.get("data")) {
-                    if (course.has("course_code")) {
-                        results.add(course.get("course_code").asText());
-                    } else {
-                        logger.warn("Unexpected content {}", course.asText());
-                    }
-                }
-                return results;
+                return StreamSupport
+                    .stream(root.get("data").spliterator(), false)
+                    .filter(c -> c.has("course_code"))
+                    .map(c -> c.get("course_code").asText())
+                    .collect(Collectors.toSet());
             } else {
                 logger.warn("Unexpected content {}", root.asText());
                 throw new RemoteException("sitnet_request_timed_out");
@@ -150,18 +172,23 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private void saveOrUpdate(Course external) {
-        Course local = Ebean.find(Course.class).where().eq("code", external.getCode()).findOne();
-        if (local == null) {
-            // New course, add it
-            external.save();
-        } else {
-            // Existing course, update information
-
-            // disabled for now.
-            // BeanUtils.copyProperties(external, local, "id", "objectVersion");
-            //local.update();
-            external.setId(local.getId());
-        }
+        Ebean
+            .find(Course.class)
+            .where()
+            .eq("code", external.getCode())
+            .findOneOrEmpty()
+            .ifPresentOrElse(
+                local -> {
+                    // Existing course
+                    if (external.getCourseImplementation() != null) {
+                        // update only those courses that specify an implementation
+                        BeanUtils.copyProperties(external, local, "id", "objectVersion");
+                        local.update();
+                    }
+                    external.setId(local.getId());
+                },
+                external::save
+            );
     }
 
     private CompletionStage<List<Course>> downloadCourses(URL url) {
@@ -215,75 +242,84 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private static URL parseUrl(User user) throws MalformedURLException {
-        if (user.getUserIdentifier() == null) {
+        if (USER_IDENTIFIER.equals("userIdentifier") && user.getUserIdentifier() == null) {
             throw new MalformedURLException("User has no identier number!");
         }
         String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
-        if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
+        if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
             throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url =
-            url
-                .replace(USER_ID_PLACEHOLDER, user.getUserIdentifier())
-                .replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
+        String identifier = USER_IDENTIFIER.equals("userIdentifier") ? user.getUserIdentifier() : user.getEppn();
+        url = url.replace(USER_ID_PLACEHOLDER, identifier).replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
         return new URL(url);
     }
 
-    private List<GradeScale> getGradeScales(JsonNode src) {
-        JsonNode node = src;
-        List<GradeScale> scales = new ArrayList<>();
-        if (node.has("gradeScale")) {
-            node = node.get("gradeScale");
-            for (JsonNode scale : node) {
-                String type = scale.get("type").asText();
-                Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
-                if (!scaleType.isPresent()) {
-                    // not understood
-                    logger.warn("Skipping over unknown grade scale type {}", type);
-                } else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
-                    // This needs custom handling
-                    if (!scale.has("code") || !scale.has("name")) {
-                        logger.warn(
-                            "Skipping over grade scale of type OTHER, required nodes are missing: {}",
-                            scale.asText()
-                        );
-                        continue;
-                    }
-                    Long externalRef = scale.get("code").asLong();
-                    GradeScale gs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOne();
-                    if (gs != null) {
-                        scales.add(gs);
-                        continue;
-                    }
-                    gs = new GradeScale();
-                    gs.setDescription(GradeScale.Type.OTHER.toString());
-                    gs.setExternalRef(externalRef);
-                    gs.setDisplayName(scale.get("name").asText());
-                    logger.info("saving scale " + externalRef);
-                    gs.save();
-                    for (JsonNode grade : scale.get("grades")) {
-                        if (!grade.has("description")) {
-                            logger.warn("Skipping over grade, required nodes are missing: {}", grade.asText());
-                            continue;
-                        }
-                        Grade g = new Grade();
-                        g.setName(grade.get("description").asText());
-                        g.setGradeScale(gs);
-                        // Dumb JSON API gives us boolean values as strings
-                        boolean marksRejection = grade.get("isFailed") != null
-                            ? Boolean.valueOf(grade.get("isFailed").asText("false"))
-                            : false;
-                        g.setMarksRejection(marksRejection);
-                        g.save();
-                        gs.getGrades().add(g);
-                    }
-                    scales.add(gs);
-                } else {
-                    scales.add(Ebean.find(GradeScale.class, scaleType.get().getValue()));
-                }
-            }
+    private Optional<GradeScale> importScale(JsonNode node) {
+        Long externalRef = node.get("code").asLong();
+        Optional<GradeScale> ogs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOneOrEmpty();
+        if (ogs.isPresent()) {
+            return ogs;
         }
-        return scales;
+        GradeScale gs = new GradeScale();
+        gs.setDescription(GradeScale.Type.OTHER.toString());
+        gs.setExternalRef(externalRef);
+        gs.setDisplayName(node.get("name").asText());
+        logger.info("saving scale " + externalRef);
+        gs.save();
+        Stream<JsonNode> gradesNode = StreamSupport
+            .stream(node.get("grades").spliterator(), false)
+            .filter(n -> n.has("description"));
+        Set<Grade> grades = gradesNode
+            .map(
+                n -> {
+                    Grade grade = new Grade();
+                    grade.setName(n.get("description").asText());
+                    grade.setGradeScale(gs);
+                    // Dumb JSON API gives us boolean values as strings
+                    boolean marksRejection =
+                        n.get("isFailed") != null && Boolean.parseBoolean(n.get("isFailed").asText("false"));
+                    grade.setMarksRejection(marksRejection);
+                    grade.save();
+                    return grade;
+                }
+            )
+            .collect(Collectors.toSet());
+        gs.setGrades(grades);
+        return Optional.of(gs);
+    }
+
+    private List<GradeScale> getGradeScales(JsonNode src) {
+        JsonNode scaleNode = src.path("gradeScale");
+        if (!scaleNode.isMissingNode()) {
+            Set<JsonNode> scales = StreamSupport
+                .stream(scaleNode.spliterator(), false)
+                .filter(s -> s.has("type"))
+                .collect(Collectors.toSet());
+            Stream<GradeScale> externals = scales
+                .stream()
+                .filter(
+                    s -> {
+                        String type = s.get("type").asText();
+                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                        return gst.isPresent() && gst.get() == GradeScale.Type.OTHER;
+                    }
+                )
+                .filter(n -> n.has("code") && n.has("name"))
+                .map(this::importScale)
+                .flatMap(Optional::stream);
+            Stream<GradeScale> locals = scales
+                .stream()
+                .filter(
+                    s -> {
+                        String type = s.get("type").asText();
+                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                        return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
+                    }
+                )
+                .map(n -> Ebean.find(GradeScale.class, n.get("type").asText()));
+            return Stream.concat(externals, locals).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     private Optional<Course> parseCourse(JsonNode node) throws ParseException {
@@ -311,15 +347,19 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());
-            course.setCode(node.get("courseUnitCode").asText());
+            String code = node.get("courseUnitCode").asText();
+            if (node.has("courseImplementation")) {
+                String impl = node.get("courseImplementation").asText();
+                course.setCourseImplementation(impl);
+                course.setCode(String.format("%s_%s", code, impl));
+            } else {
+                course.setCode(code);
+            }
             if (node.has("courseUnitLevel")) {
                 course.setLevel(node.get("courseUnitLevel").asText());
             }
             if (node.has("courseUnitType")) {
                 course.setCourseUnitType(node.get("courseUnitType").asText());
-            }
-            if (node.has("courseImplementation")) {
-                course.setCourseImplementation(node.get("courseImplementation").asText());
             }
             if (node.has("credits")) {
                 course.setCredits(node.get("credits").asDouble());
@@ -340,12 +380,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 course.setGradeScale(scales.get(0));
             }
             // in array form
-            course.setCampus(getFirstChildNameValue(node, "campus").orElse(null));
-            course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme").orElse(null));
-            course.setDepartment(getFirstChildNameValue(node, "department").orElse(null));
-            course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible").orElse(null));
-            course.setLecturer(getFirstChildNameValue(node, "lecturer").orElse(null));
-            course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage").orElse(null));
+            course.setCampus(getFirstName(node, "campus"));
+            course.setDegreeProgramme(getFirstName(node, "degreeProgramme"));
+            course.setDepartment(getFirstName(node, "department"));
+            course.setLecturerResponsible(getFirstName(node, "lecturerResponsible"));
+            course.setLecturer(getFirstName(node, "lecturer"));
+            course.setCreditsLanguage(getFirstName(node, "creditsLanguage"));
             return Optional.of(course);
         }
         return Optional.empty();
@@ -366,16 +406,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return results;
     }
 
-    private static Optional<String> getFirstChildNameValue(JsonNode json, String columnName) {
-        if (json.has(columnName)) {
-            JsonNode array = json.get(columnName);
-            if (array.has(0)) {
-                JsonNode child = array.get(0);
-                if (child.has("name")) {
-                    return Optional.of(child.get("name").asText());
-                }
-            }
-        }
-        return Optional.empty();
+    private String getFirstName(JsonNode json, String columnName) {
+        JsonNode node = json.path(columnName).path(0).path("name");
+        return node.isMissingNode() ? null : node.asText();
     }
 }

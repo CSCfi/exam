@@ -27,7 +27,10 @@ import backend.repository.EnrolmentRepository;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
 import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
+import backend.util.excel.ExcelBuilder;
+import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -35,7 +38,11 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +53,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
+import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -54,22 +62,33 @@ import play.mvc.Result;
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption" })
 @Restrict({ @Group("STUDENT") })
 public class StudentActionsController extends CollaborationController {
+
     private final boolean permCheckActive;
     private final HttpExecutionContext ec;
     private final ExternalCourseHandler externalCourseHandler;
     private final EnrolmentRepository enrolmentRepository;
+    private final ByodConfigHandler byodConfigHandler;
+    private final FileHandler fileHandler;
+    private final MessagesApi messagesApi;
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     @Inject
     public StudentActionsController(
         HttpExecutionContext ec,
         ExternalCourseHandler courseHandler,
         EnrolmentRepository enrolmentRepository,
-        ConfigReader configReader
+        ConfigReader configReader,
+        ByodConfigHandler byodConfigHandler,
+        FileHandler fileHandler,
+        MessagesApi messagesApi
     ) {
         this.ec = ec;
         this.externalCourseHandler = courseHandler;
         this.enrolmentRepository = enrolmentRepository;
+        this.byodConfigHandler = byodConfigHandler;
+        this.fileHandler = fileHandler;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
+        this.messagesApi = messagesApi;
     }
 
     @Authenticated
@@ -137,6 +156,43 @@ public class StudentActionsController extends CollaborationController {
         exam.setTotalScore();
         PathProperties pp = PathProperties.parse("(*)");
         return ok(exam, pp);
+    }
+
+    @Authenticated
+    public Result getExamScoreReport(Long eid, Http.Request request) {
+        Exam exam = Ebean
+            .find(Exam.class)
+            .fetch("examParticipation.user")
+            .fetch("examSections.sectionQuestions.question")
+            .fetch("examSections.sectionQuestions.clozeTestAnswer")
+            .where()
+            .eq("id", eid)
+            .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
+            .disjunction()
+            .eq("state", Exam.State.GRADED_LOGGED)
+            .eq("state", Exam.State.ARCHIVED)
+            .conjunction()
+            .eq("state", Exam.State.GRADED)
+            .isNotNull("autoEvaluationConfig")
+            .isNotNull("autoEvaluationNotified")
+            .endJunction()
+            .endJunction()
+            .findOne();
+
+        if (exam == null || exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+
+        User student = exam.getExamParticipation().getUser();
+        ByteArrayOutputStream bos;
+        try {
+            bos = ExcelBuilder.buildStudentReport(exam, student, messagesApi);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_excel_file");
+        }
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
+            .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
+            .as(XLSX_MIME);
     }
 
     private Set<ExamEnrolment> getNoShows(User user, String filter) {
@@ -255,22 +311,59 @@ public class StudentActionsController extends CollaborationController {
                     }
                 );
         }
-        if (enrolment.getExternalExam() == null) {
-            return wrapAsPromise(ok(enrolment, pp));
-        } else {
+        if (enrolment.getExternalExam() != null) {
             // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
             enrolment.setExam(exam);
-            return wrapAsPromise(ok(enrolment, pp));
         }
+        return wrapAsPromise(ok(enrolment, pp));
     }
 
     @Authenticated
     public CompletionStage<Result> getEnrolmentsForUser(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return enrolmentRepository.getStudentEnrolments(user).thenApplyAsync(this::ok, ec.current());
+    }
+
+    @Authenticated
+    public Result getExamConfigFile(Long enrolmentId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Optional<ExamEnrolment> oee = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .idEq(enrolmentId)
+            .eq("user", user)
+            .eq("exam.implementation", Exam.Implementation.CLIENT_AUTH)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .isNotNull("examinationEventConfiguration")
+            .findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return forbidden();
+        } else {
+            String examName = oee.get().getExam().getName();
+            ExaminationEventConfiguration eec = oee.get().getExaminationEventConfiguration();
+            String fileName = examName.replace(" ", "-");
+            File file;
+            try {
+                file = File.createTempFile(fileName, ".seb");
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] data = byodConfigHandler.getExamConfig(
+                    eec.getHash(),
+                    eec.getEncryptedSettingsPassword(),
+                    eec.getSettingsPasswordSalt()
+                );
+                fos.write(data);
+                fos.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            String contentDisposition = fileHandler.getContentDisposition(file);
+            byte[] data = fileHandler.read(file);
+            String body = Base64.getEncoder().encodeToString(data);
+            return ok(body).withHeader("Content-Disposition", contentDisposition);
+        }
     }
 
     @Authenticated
@@ -315,9 +408,7 @@ public class StudentActionsController extends CollaborationController {
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean
             .find(Exam.class)
-            .select(
-                "id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, requiresUserAgentAuth"
-            )
+            .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")
             .fetch("examInspections.user", "firstName, lastName")
@@ -349,7 +440,7 @@ public class StudentActionsController extends CollaborationController {
             .stream()
             .filter(
                 e ->
-                    !e.getRequiresUserAgentAuth() ||
+                    e.getImplementation() == Exam.Implementation.AQUARIUM ||
                     e
                         .getExaminationEventConfigurations()
                         .stream()

@@ -25,7 +25,7 @@ angular.module('app.administrative.users').component('users', {
             const vm = this;
 
             vm.$onInit = function() {
-                vm.users = [];
+                vm.users = vm.filteredUsers = [];
                 vm.pageSize = 30;
                 vm.filter = {};
                 vm.roles = [

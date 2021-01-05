@@ -33,9 +33,15 @@
     <div class="main-row">
         <div class="col-md-12">
             <span class="exams-list-title-text pull-left"
+<<<<<<< HEAD:app/frontend/src/enrolment/wrong-location/wrongLocation.component.html
                 >{{ 'sitnet_reserved_exam' | translate }}:&nbsp {{ enrolment.exam.name }} -
                 {{ enrolment.exam.course.code }}</span
             >
+=======
+                >{{ 'sitnet_reserved_exam' | translate}}:&nbsp {{$ctrl.enrolment.exam.name}} -
+            </span>
+            <course-code course="$ctrl.enrolment.exam.course"></course-code>
+>>>>>>> dev:app/frontend/src/enrolment/wrong-location/wrongLocation.template.html
         </div>
     </div>
 
@@ -67,9 +73,13 @@
     </div>
     <div class="bottom-row">
         <div class="col-md-3 header text">{{ 'sitnet_teachers' | translate }}:</div>
+<<<<<<< HEAD:app/frontend/src/enrolment/wrong-location/wrongLocation.component.html
         <div class="col-md-9 light-text">
             <teacher-list [exam]="enrolment.exam"></teacher-list>
         </div>
+=======
+        <div class="col-md-9 light-text"><teacher-list ng-if="$ctrl.enrolment.exam" exam="$ctrl.enrolment.exam" /></div>
+>>>>>>> dev:app/frontend/src/enrolment/wrong-location/wrongLocation.template.html
     </div>
 
     <div class="main-row">

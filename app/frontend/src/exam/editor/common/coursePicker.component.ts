@@ -43,7 +43,7 @@ export class CoursePickerComponent implements OnInit {
     ngOnInit() {
         this.filter = {
             name: this.course ? this.course.name : '',
-            code: this.course ? this.course.code : '',
+            code: this.course ? this.course.code.split('_')[0] : '',
         };
         this.loader = {
             name: { isOn: false },
@@ -75,10 +75,10 @@ export class CoursePickerComponent implements OnInit {
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
     codeFormat = (c: CourseFilter) => c.code;
     nameFormat = (c: CourseFilter) => c.name;
-    courseFormat = (c: Course) => `${c.code} ${c.name}`;
+    courseFormat = (c: Course) => (c.code.indexOf('_') === -1 ? `${c.code} ${c.name}` : `${c.code} <br /> ${c.name}`);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
-        this.filter = { name: event.item.name, code: event.item.code };
+        this.filter = { name: event.item.name, code: event.item.code.split('_')[0] };
         this.onUpdate.emit(event.item);
     };
 

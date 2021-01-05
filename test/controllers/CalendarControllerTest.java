@@ -1,26 +1,7 @@
 package controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-import javax.mail.internet.MimeMessage;
-
-import base.IntegrationTestCase;
-import base.RunAsStudent;
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
-import net.jodah.concurrentunit.Waiter;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import play.libs.Json;
-import play.mvc.Result;
-import play.test.Helpers;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -30,9 +11,26 @@ import backend.models.Language;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.calendar.DefaultWorkingHours;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
+import base.IntegrationTestCase;
+import base.RunAsStudent;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+import javax.mail.internet.MimeMessage;
+import net.jodah.concurrentunit.Waiter;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import play.libs.Json;
+import play.mvc.Result;
+import play.test.Helpers;
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -47,7 +45,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
     private void setWorkingHours() {
-        String[] dates = {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"};
+        String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
         int d = DateTime.now().getDayOfWeek() - 1;
         String weekday = dates[d];
         DefaultWorkingHours dwh = new DefaultWorkingHours();
@@ -92,15 +90,29 @@ public class CalendarControllerTest extends IntegrationTestCase {
         final int callCount = 10;
         final Waiter waiter = new Waiter();
         List<Integer> status = new ArrayList<>();
-        IntStream.range(0, callCount).parallel().forEach(i -> new Thread(() -> {
-            final Result result = request(Helpers.POST, "/app/calendar/reservation",
-                    Json.newObject().put("roomId", room.getId())
-                            .put("examId", exam.getId())
-                            .put("start", ISODateTimeFormat.dateTime().print(start))
-                            .put("end", ISODateTimeFormat.dateTime().print(end)));
-            status.add(result.status());
-            waiter.resume();
-        }).start());
+        IntStream
+            .range(0, callCount)
+            .parallel()
+            .forEach(
+                i ->
+                    new Thread(
+                        () -> {
+                            final Result result = request(
+                                Helpers.POST,
+                                "/app/calendar/reservation",
+                                Json
+                                    .newObject()
+                                    .put("roomId", room.getId())
+                                    .put("examId", exam.getId())
+                                    .put("start", ISODateTimeFormat.dateTime().print(start))
+                                    .put("end", ISODateTimeFormat.dateTime().print(end))
+                            );
+                            status.add(result.status());
+                            waiter.resume();
+                        }
+                    )
+                        .start()
+            );
         waiter.await(MAIL_TIMEOUT + 1000, callCount);
         assertThat(status).containsOnly(200);
         greenMail.purgeEmailFromAllMailboxes();
@@ -121,11 +133,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -141,7 +158,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString())
+            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
@@ -164,11 +182,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -183,7 +206,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString())
+            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
@@ -214,11 +238,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         newEnrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -233,7 +262,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString())
+            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
@@ -249,11 +279,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -269,11 +304,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -296,12 +336,17 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/calendar/reservation",
-                Json.newObject().put("roomId", room.getId())
-                        .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start))
-                        .put("end", ISODateTimeFormat.dateTime().print(end)));
-        assertThat(result.status()).isEqualTo(404);
+        Result result = request(
+            Helpers.POST,
+            "/app/calendar/reservation",
+            Json
+                .newObject()
+                .put("roomId", room.getId())
+                .put("examId", exam.getId())
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
+        );
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
         // Verify
@@ -312,7 +357,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testRemoveReservation() throws Exception {
-
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().plusHours(2));
@@ -335,7 +379,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testRemoveReservationInPast() throws Exception {
-
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(2));
@@ -356,7 +399,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testRemoveReservationInProgress() throws Exception {
-
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(1));
@@ -373,5 +415,4 @@ public class CalendarControllerTest extends IntegrationTestCase {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation().getId()).isEqualTo(reservation.getId());
     }
-
 }

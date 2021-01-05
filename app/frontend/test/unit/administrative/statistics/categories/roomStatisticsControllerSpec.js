@@ -37,11 +37,11 @@ describe('RoomStatisticsComponent', function() {
     it('should have load participation statistics', function() {
         ctrl = componentController('roomStatistics', null, {
             queryParams: {
-                endDate: 'Tue Mar 01 2016 12:00:00 GMT',
+                end: 'Tue Mar 01 2016 12:00:00 GMT',
             },
         });
         $httpBackend
-            .expectGET(/\/app\/reports\/participations\?endDate=[\w:+^&]/)
+            .expectGET(/\/app\/reports\/participations\?end=[\w:+^&]/)
             .respond(readFixtures('participations.json'));
         ctrl.listParticipations();
         $httpBackend.flush();
@@ -55,7 +55,7 @@ describe('RoomStatisticsComponent', function() {
         expect(ctrl.months.length).toEqual(4);
         const months = ctrl.months.map(function(month) {
             const date = new Date(month);
-            console.info(date + ', ' + date.getTime());
+            // console.info(date + ', ' + date.getTime());
             return { year: date.getYear(), month: date.getMonth() };
         });
         expect(months[0]).toEqual({ year: 115, month: 11 });

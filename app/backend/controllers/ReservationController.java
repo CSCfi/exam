@@ -43,6 +43,7 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +61,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class ReservationController extends BaseController {
+
     @Inject
     protected EmailComposer emailComposer;
 
@@ -261,6 +263,104 @@ public class ReservationController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Anonymous(filteredProperties = { "user" })
+    public Result getExaminationEvents(
+        Optional<String> state,
+        Optional<Long> ownerId,
+        Optional<Long> studentId,
+        Optional<Long> examId,
+        Optional<String> start,
+        Optional<String> end,
+        Http.Request request
+    ) {
+        ExpressionList<ExamEnrolment> query = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("user", "id, firstName, lastName, email, userIdentifier")
+            .fetch("exam", "id, name, state, trialCount, implementation")
+            .fetch("exam.course", "code")
+            .fetch("exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
+            .fetch("exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
+            .fetch("exam.examInspections.user", "id, firstName, lastName")
+            .fetch("examinationEventConfiguration.examinationEvent")
+            .where()
+            .isNotNull("examinationEventConfiguration")
+            .isNotNull("exam");
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (user.hasRole(Role.Name.TEACHER)) {
+            query = query.disjunction().eq("exam.parent.examOwners", user).eq("exam.examOwners", user).endJunction();
+        }
+
+        if (start.isPresent()) {
+            DateTime startDate = DateTimeUtils.withTimeAtStartOfDayConsideringTz(
+                DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser())
+            );
+            query = query.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate());
+        }
+
+        if (state.isPresent() && Arrays.stream(Exam.State.values()).anyMatch(v -> state.get().equals(v.name()))) {
+            query = query.eq("exam.state", Exam.State.valueOf(state.get()));
+        }
+
+        if (studentId.isPresent()) {
+            query = query.eq("user.id", studentId.get());
+            // Hide reservations for anonymous exams.
+            if (user.hasRole(Role.Name.TEACHER)) {
+                query.eq("exam.anonymous", false);
+            }
+        }
+        if (examId.isPresent()) {
+            query =
+                query
+                    .ne("exam.state", Exam.State.DELETED) // Local student reservation
+                    .disjunction()
+                    .eq("exam.parent.id", examId.get())
+                    .eq("exam.id", examId.get())
+                    .endJunction();
+        }
+
+        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
+            Long userId = ownerId.get();
+            query =
+                query
+                    .disjunction()
+                    .eq("exam.examOwners.id", userId)
+                    .eq("exam.parent.examOwners.id", userId)
+                    .endJunction();
+        }
+        List<ExamEnrolment> enrolments = query
+            .orderBy("examinationEventConfiguration.examinationEvent.start")
+            .findList()
+            .stream()
+            .filter(
+                ee -> {
+                    if (end.isEmpty()) {
+                        return true;
+                    }
+                    DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
+                        DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser())
+                    );
+                    DateTime eventEnd = ee
+                        .getExaminationEventConfiguration()
+                        .getExaminationEvent()
+                        .getStart()
+                        .plusMinutes(ee.getExam().getDuration());
+                    return eventEnd.isBefore(endDate);
+                }
+            )
+            .collect(Collectors.toList());
+
+        final Result result = ok(enrolments);
+
+        final Set<Long> anonIds = enrolments
+            .stream()
+            .filter(ee -> ee.getExam().isAnonymous())
+            .map(GeneratedIdentityModel::getId)
+            .collect(Collectors.toSet());
+        return writeAnonymousResult(request, result, anonIds);
+    }
+
+    @Authenticated
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "externalUserRef" })
     public Result getReservations(
         Optional<String> state,
@@ -277,7 +377,7 @@ public class ReservationController extends BaseController {
         ExpressionList<Reservation> query = Ebean
             .find(Reservation.class)
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
-            .fetch("enrolment.exam", "id, name, state, trialCount")
+            .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
             .fetch("enrolment.externalExam", "id, externalRef, finished")
             .fetch("enrolment.exam.course", "code")
             .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
@@ -295,6 +395,7 @@ public class ReservationController extends BaseController {
                 query
                     .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
                     .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
+                    .ne("enrolment.exam.state", Exam.State.DELETED) // Hide deleted exams from teachers
                     .disjunction()
                     .eq("enrolment.exam.parent.examOwners", user)
                     .eq("enrolment.exam.examOwners", user)
@@ -356,18 +457,11 @@ public class ReservationController extends BaseController {
             query =
                 query
                     .disjunction()
-                    .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
-                    .isNotNull("externalUserRef") // External student reservation
-                    .endJunction()
-                    .disjunction()
                     .eq("enrolment.exam.parent.id", examId.get())
                     .eq("enrolment.exam.id", examId.get())
                     .endJunction();
         } else if (externalRef.isPresent()) {
-            query =
-                query
-                    .eq("enrolment.collaborativeExam.externalRef", externalRef.get())
-                    .ne("enrolment.collaborativeExam.state", Exam.State.DELETED);
+            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {

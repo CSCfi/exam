@@ -84,7 +84,7 @@ export class CollaborativeAssesmentService {
         );
     }
 
-    setCommentRead(examId: number, examRef: string, revision: string) {
+    setCommentRead(examId: string, examRef: string, revision: string) {
         const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.post(url, { rev: revision });
     }

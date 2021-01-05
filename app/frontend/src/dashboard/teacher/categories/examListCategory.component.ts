@@ -32,7 +32,6 @@ export interface ExtraColumn {
     link: string;
     checkOwnership: boolean;
 }
-
 @Component({
     selector: 'exam-list-category',
     template: require('./examListCategory.component.html'),
@@ -96,7 +95,11 @@ export class ExamListCategoryComponent implements OnInit {
 
     getUsername = () => this.Session.getUserName();
 
-    getExecutionTypeTranslation = (exam: Exam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
+    getExecutionTypeTranslation = (exam: Exam) => {
+        const type = this.Exam.getExecutionTypeTranslation(exam.executionType);
+        const impl = this.Exam.getExamImplementationTranslation(exam.implementation);
+        return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
+    };
 
     copyExam = (exam: Exam, type: string) => {
         this.http

@@ -37,7 +37,9 @@
     <div>
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ exam.course.code }} {{ exam.course.name }}</div>
+            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                <course-code course="exam.course"></course-code> {{ exam.course.name }}
+            </div>
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_teachers' | translate }}:</div>
@@ -111,6 +113,8 @@
         *ngIf="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft"
         class="student-message-dialog-button-save"
     >
-        <a class="link-button" href="/calendar/{{ exam.id }}">{{ 'sitnet_student_new_reservation' | translate }}</a>
+        <button class="link-button" (click)="makeReservation()">
+            {{ 'sitnet_student_new_reservation' | translate }}
+        </button>
     </div>
 </div>

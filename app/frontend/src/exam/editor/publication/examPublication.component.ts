@@ -24,9 +24,11 @@ import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
+import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
-import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
+import { AutoEvaluationConfig, Exam, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 import { PublicationDialogComponent } from './publicationDialog.component';
 import { PublicationErrorDialogComponent } from './publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './publicationRevocationDialog.component';
@@ -54,6 +56,7 @@ export class ExamPublicationComponent implements OnInit {
         private windowRef: WindowRef,
         private Session: SessionService,
         private Exam: ExamService,
+        private Confirmation: ConfirmationDialogService,
     ) {}
 
     ngOnInit() {
@@ -225,6 +228,60 @@ export class ExamPublicationComponent implements OnInit {
     autoEvaluationDisabled = () => (this.autoEvaluation.enabled = false);
     autoEvaluationEnabled = () => (this.autoEvaluation.enabled = true);
 
+    addExaminationEvent = () => {
+        const modalRef = this.modal.open(ExaminationEventDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+        });
+        modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.result.then((data: ExaminationEventConfiguration) => {
+            this.Exam.addExaminationEvent(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
+                this.exam.examinationEventConfigurations.push(config);
+            });
+        });
+    };
+
+    modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+        const modalRef = this.modal.open(ExaminationEventDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+        });
+        modalRef.componentInstance.config = configuration;
+        modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.result.then((data: ExaminationEventConfiguration) => {
+            this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
+                (config: ExaminationEventConfiguration) => {
+                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                    console.log(index);
+                    this.exam.examinationEventConfigurations.splice(index, 1, config);
+                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
+                },
+            );
+        });
+    };
+
+    removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+        if (configuration.examEnrolments.length > 0) {
+            return;
+        }
+        this.Confirmation.open(
+            this.translate.instant('sitnet_remove_examination_event'),
+            this.translate.instant('sitnet_are_you_sure'),
+        )
+            .result.then(() =>
+                this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
+                    () => {
+                        this.exam.examinationEventConfigurations.splice(
+                            this.exam.examinationEventConfigurations.indexOf(configuration),
+                            1,
+                        );
+                    },
+                    resp => toast.error(resp.error),
+                ),
+            )
+            .catch(err => toast.error(err.data));
+    };
+
     private isAllowedToUnpublishOrRemove = () =>
         // allowed if no upcoming reservations and if no one has taken this yet
         !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0;
@@ -309,7 +366,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_autoevaluation_percentages_not_unique');
         }
 
-        if (this.exam.requiresUserAgentAuth && this.exam.examinationEventConfigurations.length === 0) {
+        if (this.exam.implementation !== 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
             errors.push('sitnet_missing_examination_event_configurations');
         }
         return errors.map(e => this.translate.instant(e));

@@ -53,6 +53,7 @@ import play.mvc.Result;
 
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
+
     private static final Logger.ALogger logger = Logger.of(ExamSectionQuestion.class);
 
     @ManyToOne
@@ -220,14 +221,24 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.expectedWordCount = expectedWordCount;
     }
 
-    ExamSectionQuestion copyWithAnswers() {
+    ExamSectionQuestion copyWithAnswers(Boolean hasParent) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
         // This is a little bit tricky. Need to map the original question options with copied ones so they can be
         // associated with both question and exam section question options :)
-        Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
-        Question blueprint = question.copy(optionMap, true);
-        blueprint.setParent(question);
+
+        Map<Long, MultipleChoiceOption> optionMap;
+
+        if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+            optionMap = new TreeMap<>();
+        } else {
+            optionMap = new HashMap<>();
+        }
+
+        Question blueprint = question.copy(optionMap, hasParent);
+        if (hasParent) {
+            blueprint.setParent(question);
+        }
         blueprint.save();
         options.forEach(
             option -> {

@@ -74,6 +74,7 @@ export class AutoEvaluationComponent implements OnInit {
                     return { grade: angular.copy(g), percentage: 0 };
                 }),
                 amountDays: 0,
+                releaseDate: new Date(),
             };
         }
         if (this.exam.autoEvaluationConfig) {

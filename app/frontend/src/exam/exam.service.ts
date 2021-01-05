@@ -24,7 +24,14 @@ import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { Exam, ExamExecutionType, ExaminationEventConfiguration, ExamSection, GradeScale } from './exam.model';
+import {
+    Exam,
+    ExamExecutionType,
+    ExaminationEventConfiguration,
+    ExamSection,
+    GradeScale,
+    Implementation,
+} from './exam.model';
 
 type SectionContainer = { examSections: ExamSection[] };
 
@@ -47,9 +54,9 @@ export class ExamService {
     getProcessedCount = (exam: Exam) =>
         exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
-    createExam = (executionType: string) => {
+    createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType })
+            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
             .subscribe(
                 response => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
@@ -81,7 +88,7 @@ export class ExamService {
             objectVersion: exam.objectVersion,
             attachment: exam.attachment,
             anonymous: exam.anonymous,
-            requiresUserAgentAuth: exam.requiresUserAgentAuth,
+            implementation: exam.implementation,
         };
         Object.assign(data, overrides);
         const url = collaborative ? '/integration/iop/exams' : '/app/exams';
@@ -233,8 +240,21 @@ export class ExamService {
             ),
         );
 
-    getSectionTotalScore = (section: ExamSection) =>
-        section.sectionQuestions.reduce((n, sq) => {
+    getExamImplementationTranslation = (impl: Implementation) => {
+        switch (impl) {
+            case 'AQUARIUM':
+                return 'sitnet_examination_type_aquarium';
+            case 'CLIENT_AUTH':
+                return 'sitnet_examination_type_seb';
+            case 'WHATEVER':
+                return 'sitnet_examination_type_home_exam';
+        }
+    };
+
+    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
+
+    getSectionTotalScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
             let score = 0;
             switch (sq.question.type) {
                 case 'MultipleChoiceQuestion':
@@ -258,7 +278,10 @@ export class ExamService {
             return n + score;
         }, 0);
 
-    getSectionMaxScore = (section: ExamSection) => {
+        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
+    getSectionMaxScore = (section: ExamSection): number => {
         let maxScore = section.sectionQuestions.reduce((n, sq) => {
             let score = 0;
             if (!sq || !sq.question) {
@@ -287,9 +310,7 @@ export class ExamService {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
 
-        const isInteger = (n: number) => typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
-
-        return isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
+        return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;

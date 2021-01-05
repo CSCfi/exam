@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
+import { StateService } from '@uirouter/core';
 
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
@@ -26,7 +27,12 @@ import { EnrolmentService } from '../enrolment.service';
 export class EnrolmentDetailsComponent {
     @Input() exam: Exam;
 
-    constructor(private Exam: ExamService, private Enrolment: EnrolmentService, private DateTime: DateTimeService) {}
+    constructor(
+        private state: StateService,
+        private Exam: ExamService,
+        private Enrolment: EnrolmentService,
+        private DateTime: DateTimeService,
+    ) {}
 
     enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam);
 
@@ -36,4 +42,12 @@ export class EnrolmentDetailsComponent {
         this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null));
 
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
+
+    makeReservation = () => {
+        if (this.exam.implementation !== 'AQUARIUM') {
+            this.state.go('dashboard');
+        } else {
+            this.state.go('calendar', { id: this.exam.id });
+        }
+    };
 }

@@ -58,6 +58,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class EnrolmentController extends BaseController {
+
     private final boolean permCheckActive;
     private static final Logger.ALogger logger = Logger.of(EnrolmentController.class);
 
@@ -133,6 +134,8 @@ public class EnrolmentController extends BaseController {
             .fetch("examInspections.user")
             .fetch("examType")
             .fetch("executionType")
+            .fetch("examinationEventConfigurations")
+            .fetch("examinationEventConfigurations.examinationEvent")
             .where()
             .eq("state", Exam.State.PUBLISHED)
             .eq("course.code", code)
@@ -278,7 +281,13 @@ public class EnrolmentController extends BaseController {
 
             // already enrolled (regular examination)
             if (
-                enrolments.stream().anyMatch(e -> !e.getExam().getRequiresUserAgentAuth() && e.getReservation() == null)
+                enrolments
+                    .stream()
+                    .anyMatch(
+                        e ->
+                            e.getExam().getImplementation() == Exam.Implementation.AQUARIUM &&
+                            e.getReservation() == null
+                    )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
             }
@@ -287,7 +296,9 @@ public class EnrolmentController extends BaseController {
                 enrolments
                     .stream()
                     .anyMatch(
-                        e -> e.getExam().getRequiresUserAgentAuth() && e.getExaminationEventConfiguration() == null
+                        e ->
+                            e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
+                            e.getExaminationEventConfiguration() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));

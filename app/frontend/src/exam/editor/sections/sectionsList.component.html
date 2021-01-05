@@ -24,9 +24,8 @@
                 <section
                     [section]="section"
                     [examId]="exam.id"
-                    [canBeOptional]="exam.executionType.type !== 'MATURITY'"
+                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
                     (on-delete)="removeSection(section)"
-                    (on-reload-required)="onReloadRequired()"
                     (on-materials-changed)="loadMaterials()"
                 ></section>
             </div>

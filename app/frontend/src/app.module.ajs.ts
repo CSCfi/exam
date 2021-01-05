@@ -90,4 +90,6 @@ export const ajsApp = angularJS
     .directive('focusOn', directives.FocusOn.factory())
     .directive('lowercase', directives.Lowercase.factory())
     .directive('sort', directives.Sort.factory())
-    .directive('teacherList', directives.TeacherList.factory());
+    .directive('teacherList', directives.TeacherList.factory())
+    .directive('ngEnter', directives.NgEnter.factory())
+    .directive('courseCode', directives.CourseCode.factory());

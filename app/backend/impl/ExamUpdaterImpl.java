@@ -39,6 +39,7 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
 public class ExamUpdaterImpl implements ExamUpdater {
+
     @Inject
     private EmailComposer emailComposer;
 
@@ -122,7 +123,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     }
                 }
                 if (
-                    exam.getRequiresUserAgentAuth() &&
+                    exam.getImplementation() == Exam.Implementation.CLIENT_AUTH &&
                     exam
                         .getExaminationEventConfigurations()
                         .stream()
@@ -160,7 +161,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
-        Boolean requiresUserAgentAuth = request.attrs().getOptional(Attrs.REQUIRES_USER_AGENT_AUTH).orElse(false);
+        Exam.Implementation impl = request.attrs().getOptional(Attrs.EXAM_IMPL).orElse(Exam.Implementation.AQUARIUM);
 
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
@@ -183,7 +184,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
-        exam.setRequiresUserAgentAuth(configReader.isByodExaminationSupported() ? requiresUserAgentAuth : false);
+        exam.setImplementation(configReader.isByodExaminationSupported() ? impl : Exam.Implementation.AQUARIUM);
         if (
             loginRole == Role.Name.ADMIN &&
             ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&

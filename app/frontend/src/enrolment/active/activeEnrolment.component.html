@@ -20,19 +20,30 @@
                 </div>
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
-                    <a uiSref="enrolments({id: {{ enrolment.exam.id }}, code: '{{ enrolment.exam.course.code }}' })">
-                        {{ enrolment.exam.name || enrolment.collaborativeExam.name }}</a
-                    >
+                    <div *ngIf="enrolment.exam">
+                        <a
+                            uiSref="enrolments({id: {{ enrolment.exam.id }}, code: '{{
+                                enrolment.exam.course.code
+                            }}' })"
+                        >
+                            {{ enrolment.exam.name }}
+                        </a>
+                    </div>
+                    <div *ngIf="enrolment.collaborativeExam">
+                        {{ enrolment.collaborativeExam.name }}
+                    </div>
+
                     <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small
                     >
-                    <small *ngIf="enrolment.exam?.requiresUserAgentAuth"
+                    <small *ngIf="enrolment.exam?.implementation !== 'AQUARIUM'"
                         >({{ 'sitnet_examination_type_seb' | translate }})</small
                     >
                     <br />
                     <span
                         *ngIf="
-                            enrolment.exam.state === 'PUBLISHED' &&
+                            (enrolment.exam.state === 'PUBLISHED' ||
+                                enrolment.collaborativeExam.state === 'PUBLISHED') &&
                             (enrolment.reservation || enrolment.examinationEventConfiguration)
                         "
                         class="exam-ready"
@@ -53,25 +64,24 @@
                 </div>
 
                 <!-- settings menu -->
-                <div
-                    *ngIf="
-                        enrolment.reservation ||
-                        enrolment.exam.executionType.type === 'PUBLIC' ||
-                        enrolment.collaborativeExam
-                    "
-                    class="student-exam-settings"
-                >
+                <div class="student-exam-settings">
                     <span ngbDropdown>
-                        <a href id="simple-dropdown" ngbDropdownToggle>
+                        <button
+                            id="simple-dropdown"
+                            class="enrolment-menu-button"
+                            ngbPopover="{{ 'sitnet_change_enrolment_info' | translate }}"
+                            placement="top-right"
+                            triggers="mouseenter,mouseleave,focus"
+                        >
                             <img
                                 class="arrow_icon"
                                 alt="{{ 'sitnet_change_enrolment_info' | translate }}"
                                 src="/assets/assets/images/settings_dots.png"
                                 ngbPopover="{{ 'sitnet_change_enrolment_info' | translate }}"
-                                placement="left"
-                                triggers="mouseenter,mouseleave"
+                                placement="top-right"
+                                triggers="mouseenter,mouseleave,focus"
                             />
-                        </a>
+                        </button>
                         <ul class="dropdown-menu settings" ngbDropdownMenu aria-labelledby="simple-dropdown">
                             <!-- enrolment with reservation, allow changing -->
                             <li *ngIf="enrolment.reservation">
@@ -84,9 +94,17 @@
                                         >{{ 'sitnet_student_change_reservation' | translate }}
                                     </a>
                                     <a
-                                        *ngIf="enrolment.reservation.externalReservation"
+                                        *ngIf="enrolment.reservation.externalReservation && enrolment.exam"
                                         class="text-info"
                                         href="/iop/calendar/{{ enrolment.exam.id }}"
+                                        >{{ 'sitnet_student_change_reservation' | translate }}
+                                    </a>
+                                    <a
+                                        *ngIf="enrolment.reservation.externalReservation && enrolment.collaborativeExam"
+                                        class="text-info"
+                                        uiSref="externalCalendar({ id: {{
+                                            enrolment.collaborativeExam.id
+                                        }}, isCollaborative: true })"
                                         >{{ 'sitnet_student_change_reservation' | translate }}
                                     </a>
                                 </span>
@@ -112,6 +130,8 @@
                                     <a
                                         *ngIf="enrolment.reservation"
                                         class="text-danger pointer"
+                                        tabindex="0"
+                                        (ngEnter)="removeReservation()"
                                         (click)="removeReservation()"
                                         >{{ 'sitnet_student_remove_reservation' | translate }}
                                     </a>
@@ -121,7 +141,11 @@
                             <li *ngIf="enrolment.examinationEventConfiguration">
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a class="text-danger pointer" (click)="removeReservation()"
+                                    <a
+                                        class="text-danger pointer"
+                                        tabindex="0"
+                                        (ngEnter)="removeReservation()"
+                                        (click)="removeReservation()"
                                         >{{ 'sitnet_student_remove_reservation' | translate }}
                                     </a>
                                 </span>
@@ -136,19 +160,19 @@
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a
-                                        ngbPopover="{{ 'sitnet_remove' | translate }}"
-                                        placement="top"
-                                        trigger="mouseenter, mouseleave"
-                                        (click)="removeEnrolment()"
-                                    >
+                                    <a tabindex="0" (ngEnter)="removeEnrolment()" (click)="removeEnrolment()">
                                         {{ 'sitnet_student_remove_enrolment' | translate }}
                                     </a>
                                 </span>
                             </li>
                             <!-- enrolment without reservation, allow making reservation -->
-                            <li *ngIf="!enrolment.reservation && !enrolment.exam.requiresUserAgentAuth">
-                                <span class="pointer" [hidden]="enrolment.exam.executionType.type !== 'PUBLIC'"
+                            <li
+                                *ngIf="
+                                    (!enrolment.reservation && enrolment.exam.implementation === 'AQUARIUM') ||
+                                    enrolment.collaborativeExam
+                                "
+                            >
+                                <span class="pointer">
                                     >&nbsp;&nbsp;
                                     <a
                                         class="text-info"
@@ -164,8 +188,8 @@
                             <li
                                 *ngIf="
                                     !enrolment.examinationEventConfiguration &&
-                                    enrolment.exam.requiresUserAgentAuth &&
-                                    hasUpcomingAlternativeEvents()
+                                    enrolment.exam.implementation !== 'AQUARIUM' &&
+                                    $ctrl.hasUpcomingAlternativeEvents()
                                 "
                             >
                                 <span class="pointer" (hidden)="(enrolment.exam.executionType.type !== 'PUBLIC')"
@@ -192,7 +216,7 @@
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         <span class="exam-code">
-                            <b>{{ enrolment.exam.course.code }}</b>
+                            <b><course-code course="enrolment.exam.course"></course-code></b>
                         </span>
                         {{ enrolment.exam.course.name }}
                     </div>
@@ -200,7 +224,7 @@
                     <div class="clearfix visible-sm"></div>
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
                     <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                        <div>
+                        <div *ngIf="enrolment.exam">
                             <teacher-list [exam]="enrolment.exam"></teacher-list>
                         </div>
                         <div>
@@ -296,29 +320,54 @@
             </div>
         </div>
 
-        <div class="row mart20" *ngIf="enrolment.exam.requiresUserAgentAuth">
+        <div *ngIf="enrolment.examinationEventConfiguration">
+            <div class="row mart20" *ngIf="enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM'">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                            {{ 'sitnet_examination_event' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            <span class="marr20">
+                                <strong>
+                                    {{
+                                        enrolment.examinationEventConfiguration.examinationEvent.start
+                                            | date: 'dd.MM.yyyy HH:mm'
+                                    }}
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mart20" *ngIf="enrolment.exam.implementation !== 'AQUARIUM'">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ 'sitnet_examination_events' | translate }}:
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_instructions' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                        <span class="marr20">
+                            <strong>{{ enrolment.examinationEventConfiguration.examinationEvent.description }}</strong>
+                        </span>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        <span
-                            class="marr20"
-                            *ngFor="
-                                let config of enrolment.exam.examinationEventConfigurations
-                                    | orderBy: 'examinationEvent.start'
-                            "
-                        >
-                            <span
-                                *ngIf="config.id === enrolment.examinationEventConfiguration.id"
+                </div>
+            </div>
+        </div>
+
+        <div class="row mart20" *ngIf="enrolment.exam.implementation === 'CLIENT_AUTH'">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_seb_file' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-10 col-lg-10">
+                        <span class="marr20">
+                            <a
+                                tabindex="0"
+                                [ngEnter]="downloadSebFile()"
+                                (click)="downloadSebFile()"
                                 class="text text-success"
+                                ><strong>{{ 'sitnet_download' | translate }}</strong></a
                             >
-                                <strong>{{ config.examinationEvent.start | date }}</strong>
-                            </span>
-                            <span *ngIf="config.id !== enrolment.examinationEventConfiguration.id" class="text-muted">
-                                <strong>{{ config.examinationEvent.start | date }}</strong>
-                            </span>
                         </span>
                     </div>
                 </div>
@@ -327,7 +376,12 @@
 
         <div class="student-exam-row" *ngIf="enrolment.reservation">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer" (click)="showGuide = !showGuide">
+                <a
+                    class="infolink pointer"
+                    (click)="showGuide = !showGuide"
+                    tabindex="0"
+                    (ngEnter)="showGuide = !showGuide"
+                >
                     {{ 'sitnet_room_guidance' | translate }}
                     <img
                         class="arrow_icon"
@@ -354,6 +408,8 @@
                     class="infolink pointer"
                     [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                     (click)="showInstructions = !showInstructions"
+                    tabindex="0"
+                    (ngEnter)="showInstructions = !showInstructions"
                 >
                     {{ 'sitnet_view_instructions' | translate }}
                     <img
@@ -371,7 +427,10 @@
                 </a>
 
                 <div
-                    *ngIf="!enrolment.reservation && !enrolment.exam.requiresUserAgentAuth"
+                    *ngIf="
+                        !enrolment.reservation &&
+                        (enrolment.exam.implementation === 'AQUARIUM' || enrolment.collaborativeExam)
+                    "
                     class="student-message-dialog-button-save"
                 >
                     <a
@@ -385,7 +444,7 @@
                 <div
                     *ngIf="
                         !enrolment.examinationEventConfiguration &&
-                        enrolment.exam.requiresUserAgentAuth &&
+                        enrolment.exam.implementation !== 'AQUARIUM' &&
                         hasUpcomingAlternativeEvents()
                     "
                     class="student-message-dialog-button-save"
@@ -408,7 +467,12 @@
         </div>
         <div class="student-exam-row" *ngIf="enrolment.reservation?.optionalSections.length > 0">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer" (click)="showMaterials = !showMaterials">
+                <a
+                    class="infolink pointer"
+                    (click)="showMaterials = !showMaterials"
+                    tabindex="0"
+                    (ngEnter)="showMaterials = !showMaterials"
+                >
                     {{ 'sitnet_exam_materials' | translate }}
                     <img
                         class="arrow_icon"
@@ -429,7 +493,7 @@
                     (hidden)="(!showMaterials)"
                 >
                     <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
-                        <div *ngIf="!section.optional">
+                        <div *ngIf="section.optional == false">
                             <div class="row">
                                 <div class="col-md-12">
                                     <strong

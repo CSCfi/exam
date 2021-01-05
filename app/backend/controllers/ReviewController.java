@@ -43,7 +43,6 @@ import backend.sanitizers.CommaJoinedListSanitizer;
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
-import backend.util.AppUtil;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
@@ -95,6 +94,9 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class ReviewController extends BaseController {
+
+    private static final double HUNDRED = 100d;
+
     @Inject
     protected EmailComposer emailComposer;
 
@@ -214,8 +216,9 @@ public class ReviewController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(" +
             "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
-            "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
-            "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
+            "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
+            "course(code, name, gradeScale(grades(*))), " +
+            "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
             "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
             "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
             "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
@@ -504,9 +507,9 @@ public class ReviewController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (commentText.isPresent()) {
             comment.setComment(commentText.get());
-            AppUtil.setModifier(comment, user);
+            comment.setModifierWithDate(user);
             if (comment.getId() == null) { // new comment
-                AppUtil.setCreator(comment, user);
+                comment.setCreatorWithDate(user);
                 comment.save();
                 exam.setExamFeedback(comment);
                 exam.save();
@@ -535,7 +538,7 @@ public class ReviewController extends BaseController {
         }
         Optional<Boolean> feedbackStatus = request.attrs().getOptional(Attrs.FEEDBACK_STATUS);
         if (feedbackStatus.isPresent()) {
-            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setModifierWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setFeedbackStatus(feedbackStatus.get());
         }
         comment.update();
@@ -552,8 +555,8 @@ public class ReviewController extends BaseController {
         }
         InspectionComment ic = new InspectionComment();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setCreator(ic, user);
-        AppUtil.setModifier(ic, user);
+        ic.setCreatorWithDate(user);
+        ic.setModifierWithDate(user);
         ic.setComment(request.attrs().getOptional(Attrs.COMMENT).orElse(null));
         ic.setExam(exam);
         ic.save();
@@ -797,7 +800,7 @@ public class ReviewController extends BaseController {
     }
 
     private Double round(Double src) {
-        return src == null ? null : Math.round(src * 100) / 100d;
+        return src == null ? null : Math.round(src * 100) / HUNDRED;
     }
 
     private static Query<Exam> createQuery() {

@@ -51,6 +51,21 @@
     padding-left: 1.2em;
     margin-top: 30px;
     font-size: 1.2em;
+
+    .section-score-details {
+      font-size: 18px;
+      margin-top: 30px;
+
+      .section-score-label {
+        margin-bottom: 5px;
+      }
+    }
+  }
+
+  .studentexam-section {
+    padding-left: 1.2em;
+    margin-top: 30px;
+    font-size: 1.2em;
   }
   .question-unanswered-header,
   .question-answered-header {

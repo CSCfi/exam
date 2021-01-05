@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
+import * as moment from 'moment';
 
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { Exam } from '../exam/exam.model';
@@ -67,7 +68,10 @@ export class ReservationService {
 
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
-            enrolment => enrolment.reservation && enrolment.reservation.endAt > new Date().getTime(),
+            enrolment =>
+                (enrolment.reservation && moment(enrolment.reservation.endAt) > moment()) ||
+                (enrolment.examinationEventConfiguration &&
+                    new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
 
     changeMachine = (reservation: Reservation): void => {

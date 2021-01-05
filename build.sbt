@@ -5,7 +5,7 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "5.2.0"
+version := "5.3.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
@@ -28,7 +28,7 @@ libraryDependencies += "javax.xml.bind"   % "jaxb-api"   % "2.3.0"
 libraryDependencies += "javax.activation" % "activation" % "1.1.1"
 
 libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.8.1"
-libraryDependencies += "com.github.fge"           % "json-schema-validator" % "2.2.6" exclude ("javax.mail", "mailapi")
+libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.0.45"
 libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.8.2"
 libraryDependencies += "com.opencsv"              % "opencsv"               % "4.0"
 libraryDependencies += "io.vavr"                  % "vavr"                  % "0.9.3"

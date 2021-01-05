@@ -14,9 +14,8 @@
  */
 
 require('./statistics.module');
-require('./statistics.service');
-require('./statistics.component');
-require('./categories/examStatistics.component');
-require('./categories/reservationStatistics.component');
-require('./categories/responseStatistics.component');
-require('./categories/roomStatistics.component');
+require('./statistics.component.ts');
+require('./categories/examStatistics.component.ts');
+require('./categories/reservationStatistics.component.ts');
+require('./categories/responseStatistics.component.ts');
+require('./categories/roomStatistics.component.ts');

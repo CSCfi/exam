@@ -59,6 +59,7 @@ import play.mvc.Result;
 import play.mvc.With;
 
 public class ExamController extends BaseController {
+
     protected final EmailComposer emailComposer;
 
     protected final ActorSystem actor;
@@ -188,7 +189,7 @@ public class ExamController extends BaseController {
             "examinationDates(*), " +
             "examOwners(id, firstName, lastName), executionType(type), " +
             "examInspections(id, user(id, firstName, lastName)), " +
-            "examEnrolments(id, user(id), reservation(id, endAt)))"
+            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
         Query<Exam> query = Ebean.createQuery(Exam.class);
         props.apply(query);
@@ -216,7 +217,7 @@ public class ExamController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
             if (examUpdater.isAllowedToRemove(exam)) {
-                AppUtil.setModifier(exam, user);
+                exam.setModifierWithDate(user);
                 exam.setState(Exam.State.DELETED);
                 exam.update();
                 return ok("Exam deleted");
@@ -247,7 +248,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         // decipher the settings passwords if any
-        if (exam.getRequiresUserAgentAuth()) {
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             exam
                 .getExaminationEventConfigurations()
                 .forEach(
@@ -448,6 +449,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
+        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
         ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
@@ -460,7 +462,8 @@ public class ExamController extends BaseController {
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
         copy.setExecutionType(executionType);
-        AppUtil.setCreator(copy, user);
+        copy.setImplementation(Exam.Implementation.valueOf(examinationType));
+        copy.setCreatorWithDate(user);
         copy.setParent(null);
         copy.setCourse(null);
         copy.setSubjectToLanguageInspection(null);
@@ -478,7 +481,8 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result createExamDraft(Http.Request request) {
-        String executionType = formFactory.form().bindFromRequest(request).get("executionType");
+        String executionType = request.body().asJson().get("executionType").asText();
+        String implementation = request.body().asJson().get("implementation").asText();
         ExamExecutionType examExecutionType = Ebean
             .find(ExamExecutionType.class)
             .where()
@@ -491,16 +495,16 @@ public class ExamController extends BaseController {
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
-        exam.setRequiresUserAgentAuth(false);
+        exam.setImplementation(Exam.Implementation.valueOf(implementation));
         exam.setExecutionType(examExecutionType);
         if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());
         }
-        AppUtil.setCreator(exam, user);
+        exam.setCreatorWithDate(user);
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        AppUtil.setCreator(examSection, user);
+        examSection.setCreatorWithDate(user);
 
         examSection.setExam(exam);
         examSection.setExpanded(true);

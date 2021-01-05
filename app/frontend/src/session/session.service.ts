@@ -57,7 +57,7 @@ interface Env {
 
 @Injectable()
 export class SessionService {
-    private PING_INTERVAL: number = 60 * 1000;
+    private PING_INTERVAL: number = 30 * 1000;
     private user: User;
     private env: { isProd: boolean };
     private sessionCheckSubscription: Unsubscribable;
@@ -197,7 +197,7 @@ export class SessionService {
         this.sessionCheckSubscription = scheduler.subscribe(this.checkSession);
     }
 
-    private checkSession = () => {
+    checkSession = () => {
         this.http.get('/app/checkSession', { responseType: 'text' }).subscribe(
             resp => {
                 if (resp === 'alarm') {
@@ -248,7 +248,7 @@ export class SessionService {
         });
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
-            tap(role => this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe()),
+            tap(role => this.http.put(`/app/users/roles/${role.name}`, {}).subscribe()),
             map((role: Role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';

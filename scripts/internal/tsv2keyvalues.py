@@ -47,7 +47,7 @@ def main():
         tsv_content = read_file(input_dir, lang)
         msg_content = tsv_to_keyvals(tsv_content)
         write(msg_content, output_dir,lang)
-        print msg_content
+
 
 if __name__ == "__main__":
     main()

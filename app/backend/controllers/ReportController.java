@@ -50,6 +50,7 @@ import play.mvc.Result;
 import play.mvc.With;
 
 public class ReportController extends BaseController {
+
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     @Restrict({ @Group("ADMIN") })
@@ -106,7 +107,7 @@ public class ReportController extends BaseController {
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : enrolments) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
-            String key = String.format("%d:%s", room.getId(), room.getName());
+            String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
                 roomMap.put(key, new ArrayList<>());
             }
@@ -115,7 +116,7 @@ public class ReportController extends BaseController {
         // Fill in the rooms that have no associated participations
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().eq("outOfService", false).findList();
         for (ExamRoom room : rooms) {
-            String key = String.format("%d:%s", room.getId(), room.getName());
+            String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
                 // empty list indicates no participations
                 roomMap.put(key, new ArrayList<>());
@@ -126,6 +127,7 @@ public class ReportController extends BaseController {
 
     // DTO for minimizing output from this API
     private class ExamInfo {
+
         String name;
         Integer participations;
         String state;
@@ -203,13 +205,7 @@ public class ReportController extends BaseController {
         for (Exam exam : exams) {
             ExamInfo info = new ExamInfo();
             info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
-            info.participations =
-                exam
-                    .getChildren()
-                    .stream()
-                    .filter(e -> applyExamFilter(e, start, end))
-                    .collect(Collectors.toList())
-                    .size();
+            info.participations = (int) exam.getChildren().stream().filter(e -> applyExamFilter(e, start, end)).count();
             infos.add(info);
         }
         return ok(Json.toJson(infos));

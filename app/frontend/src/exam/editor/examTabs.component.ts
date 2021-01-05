@@ -15,6 +15,7 @@
 import { StateParams, StateService } from '@uirouter/core';
 import * as angular from 'angular';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as toastr from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
@@ -61,15 +62,13 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         updateTitle = (code: string | null, name: string | null) => {
             if (code && name) {
-                this.examInfo.title = code + ' ' + name;
+                this.examInfo.title = `${code.split('_')[0]} ${name}`;
             } else if (code) {
-                this.examInfo.title = code + ' ' + this.$translate.instant('sitnet_no_name');
+                this.examInfo.title = `${code.split('_')[0]} ${this.$translate.instant('sitnet_no_name')}`;
             } else {
                 this.examInfo.title = name;
             }
         };
-
-        reload = () => (this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam());
 
         isOwner = () => {
             return this.exam.examOwners.some(
@@ -151,7 +150,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
         };
 
         private hasEffectiveEnrolments = (exam: Exam) =>
-            exam.examEnrolments.some(ee => !_.isNil(ee.reservation) && ee.reservation.endAt > new Date().getTime());
+            exam.examEnrolments.some(ee => !_.isNil(ee.reservation) && moment(ee.reservation.endAt) > moment());
     },
 };
 

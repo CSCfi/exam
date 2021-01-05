@@ -33,6 +33,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class AuthenticatedAction extends Action<Authenticated> {
+
     private final HttpExecutionContext ec;
     private final UserRepository userRepository;
 
@@ -46,7 +47,7 @@ public class AuthenticatedAction extends Action<Authenticated> {
 
     private CompletionStage<Optional<User>> getLoggedInUser(Http.Request request) {
         Map<String, String> session = request.session().data();
-        if (!session.isEmpty()) {
+        if (session.containsKey("id")) {
             return userRepository
                 .getLoggedInUser(Long.parseLong(session.get("id")))
                 .thenApplyAsync(

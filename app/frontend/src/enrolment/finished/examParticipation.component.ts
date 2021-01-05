@@ -21,9 +21,9 @@ import { takeUntil } from 'rxjs/operators';
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
+import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
 import { SessionService } from '../../session/session.service';
 import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
-import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
 
 @Component({
     selector: 'exam-participation',
@@ -75,7 +75,7 @@ export class ExamParticipationComponent implements OnInit {
             !this.participation.exam.examFeedback.feedbackStatus
         ) {
             this.CollaborativeAssessment.setCommentRead(
-                this.participation.collaborativeExam.id,
+                this.participation.examId,
                 this.participation._id,
                 this.participation._rev,
             ).subscribe(() => {

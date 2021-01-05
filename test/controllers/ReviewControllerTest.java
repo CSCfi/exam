@@ -16,21 +16,21 @@
 
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.User;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.User;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
 
 public class ReviewControllerTest extends IntegrationTestCase {
 
@@ -50,14 +50,12 @@ public class ReviewControllerTest extends IntegrationTestCase {
         assertThat(participationArray.size()).isEqualTo(1);
 
         final JsonNode participation = participationArray.get(0);
-        final JsonNode examGradeScale = participation
-                .path("exam").path("gradeScale");
+        final JsonNode examGradeScale = participation.path("exam").path("gradeScale");
         assertThat(examGradeScale).isNotEmpty();
         final JsonNode examGrades = examGradeScale.path("grades");
         assertThat(examGrades.size()).isEqualTo(2);
 
-        final JsonNode courseGradeScale = participation
-                .path("exam").path("course").path("gradeScale");
+        final JsonNode courseGradeScale = participation.path("exam").path("course").path("gradeScale");
         assertThat(courseGradeScale).isNotEmpty();
         final JsonNode courseGrades = courseGradeScale.path("grades");
         assertThat(courseGrades.size()).isEqualTo(6);
@@ -80,12 +78,14 @@ public class ReviewControllerTest extends IntegrationTestCase {
     }
 
     private Exam setUpReviews(User user) {
-        final Exam parent = Ebean.find(Exam.class).where()
-                .and()
-                .eq("name", "Algoritmit, 2013")
-                .eq("parent", null)
-                .endAnd()
-                .findOne();
+        final Exam parent = Ebean
+            .find(Exam.class)
+            .where()
+            .and()
+            .eq("name", "Algoritmit, 2013")
+            .eq("parent", null)
+            .endAnd()
+            .findOne();
         assert parent != null;
         final ExamInspection examInspection = new ExamInspection();
         examInspection.setUser(user);

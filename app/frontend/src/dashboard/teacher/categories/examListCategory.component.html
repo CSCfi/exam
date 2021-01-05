@@ -89,10 +89,10 @@
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>
-                            <span class="exam-code">{{ exam.course?.code }}</span>
+                            <course-code class="exam-code" course="exam.course"></course-code>
                         </td>
                         <td>
-                            <span class="exam-type">{{ getExecutionTypeTranslation(exam) | translate }}</span>
+                            <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
                         </td>
                         <td class="table-column-open-until">
                             <span *ngIf="exam.examActiveStartDate && exam.examActiveEndDate">
@@ -140,26 +140,36 @@
                             </a>
                         </td>
                         <td class="text-center">
-                            <span *ngIf="isOwner(exam)" ngbDropdown>
-                                <a href class="pointer" ngbDropdownToggle id="ddMenu">
-                                    <img
-                                        src="/assets/assets/images/icon_copy.svg"
-                                        alt="exam"
-                                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_copy.png'"
-                                        ngbPopover="{{ 'sitnet_copy' | translate }}"
-                                        placement="left"
-                                        triggers="mouseenter,mouseleave"
-                                    />
-                                </a>
-                                <ul ngbDropdownMenu aria-labelledby="ddMenu">
-                                    <li>{{ 'sitnet_choose_execution_type' | translate }}</li>
-                                    <li *ngFor="let type of examTypes">
-                                        <a role="menuitem" class="pointer" ng-click="copyExam(exam, type.type)">
-                                            {{ type.name | translate }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </span>
+                            <ngb-accordion #acc="ngbAccordion" *ngIf="isOwner(exam)">
+                                <ngb-panel id="toggle-1" title="{{ 'sitnet_choose_execution_type' | translate }}">
+                                    <ng-template ngbPanelContent>
+                                        <li *ngFor="let type of evxamTypes">
+                                            <a *ngIf="type.examinationTypes.length > 0" (click)="selectedType = type">
+                                                {{ type.name | translate }}
+                                            </a>
+                                            <a
+                                                *ngIf="type.examinationTypes.length === 0"
+                                                (click)="copyExam(exam, type.type)"
+                                            >
+                                                {{ type.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ng-template>
+                                </ngb-panel>
+                                <ngb-panel
+                                    [disabled]="!selectedType || selected.examinationTypes.length == 0"
+                                    id="toggle-2"
+                                    title="{{ 'sitnet_examination_type' | translate }}"
+                                >
+                                    <ng-template ngbPanelContent>
+                                        <li *ngFor="let et of selectedType.examinationTypes">
+                                            <a (click)="$ctrl.copyExam(exam, type.type, et.type)">
+                                                {{ et.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ng-template>
+                                </ngb-panel>
+                            </ngb-accordion>
                         </td>
                     </tr>
                     <tr *ngIf="!items || items.length === 0">

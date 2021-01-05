@@ -6,7 +6,7 @@ import java.util.Base64
 
 import backend.models.Tag
 import backend.models.questions.{MultipleChoiceOption, Question}
-import org.apache.commons.text.StringEscapeUtils
+import org.jsoup.Jsoup
 
 import scala.io.Source
 import scala.jdk.CollectionConverters._
@@ -21,7 +21,7 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
     case _                   => "multichoice"
   }
 
-  private def convertEssay(question: Question): Node = <answer fraction="0"><text></text></answer>
+  private def Essay: Node = <answer fraction="0"><text></text></answer>
 
   private def convertMultiChoiceOption(option: MultipleChoiceOption): Node = {
     val fraction = if (option.isCorrectOption) 100 else 0
@@ -66,11 +66,10 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
           </text>
         </graderinfo>
         <attachments>1</attachments>
-      config ++= convertEssay(question)
+      config ++= Essay
   }
 
-  private def stripHtml(html: String): String =
-    XML.loadString(StringEscapeUtils.unescapeHtml4(html)).text
+  private def stripHtml(html: String): String = Jsoup.parse(html).text
 
   private def isEmpty(x: String) = x == null || x.isEmpty
 
@@ -106,7 +105,7 @@ class MoodleXmlConverterImpl extends MoodleXmlConverter {
     val att          = attachment(question)
     val ref          = att.map(_._1).getOrElse("")
     val questionText = s"$text $instructions $wc $ref"
-    val name         = stripHtml(s"<p>$text</p>")
+    val name         = stripHtml(text)
     <question type={moodleType(question)}>
         <name>
             <text>{name.take(30)}...</text>

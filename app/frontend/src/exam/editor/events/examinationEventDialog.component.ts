@@ -26,9 +26,10 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
+    @Input() requiresPassword: boolean;
     start: Date;
     description: string;
-    password: string;
+    password?: string;
     hasEnrolments: boolean;
     pwdInputType = 'password';
 

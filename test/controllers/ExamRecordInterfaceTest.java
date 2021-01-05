@@ -1,5 +1,8 @@
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -7,9 +10,6 @@ import org.joda.time.DateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 import play.libs.Json;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
 
 public class ExamRecordInterfaceTest extends IntegrationTestCase {
 
@@ -24,5 +24,4 @@ public class ExamRecordInterfaceTest extends IntegrationTestCase {
         ArrayNode records = (ArrayNode) node;
         assertThat(records).hasSize(0);
     }
-
 }

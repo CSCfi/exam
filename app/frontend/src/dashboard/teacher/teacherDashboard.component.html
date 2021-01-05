@@ -34,6 +34,7 @@
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
+                        *ngIf="filteredActive"
                         [items]="filteredActive"
                         default-predicate="examActiveEndDate"
                         [examTypes]="executionTypes"
@@ -52,6 +53,7 @@
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
+                        *ngIf="filteredFinished"
                         [items]="filteredFinished"
                         default-predicate="unassessedCount"
                         default-reverse="true"
@@ -71,6 +73,7 @@
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
+                        *ngIf="filteredArchived"
                         [items]="filteredArchived"
                         default-predicate="examActiveEndDate"
                         default-reverse="true"
@@ -90,6 +93,7 @@
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
+                        *ngIf="filteredDrafts"
                         [items]="filteredDrafts"
                         default-predicate="examActiveEndDate"
                         default-reverse="true"

@@ -18,8 +18,12 @@
     margin-top:1em;
   }
 
+  .section-handle {
+    border: dashed 1px transparent;
+  }
+
   .section-handle:hover {
-    border: dashed 1px $sitnet-teacher-turquoise-dark-inactive;
+    border-color: $sitnet-teacher-turquoise-dark-inactive;
     cursor: move;
   }
 
@@ -303,7 +307,7 @@
   }
 
   .exam-answered-wrong {
-    border: 1px solid #ED4459;
+    border: 1px solid $sitnet-red;
     background-color: #FFF6F7;
     padding: 10px;
     border-radius:4px;

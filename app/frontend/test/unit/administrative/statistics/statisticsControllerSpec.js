@@ -50,6 +50,10 @@ describe('StatisticsComponent', function() {
     });
 
     it('should have right departments', function() {
-        expect(ctrl.departments).toEqual([{ name: 'a' }, { name: 'b' }, { name: 'c' }]);
+        expect(ctrl.departments).toEqual([
+            { name: 'a', filtered: false },
+            { name: 'b', filtered: false },
+            { name: 'c', filtered: false },
+        ]);
     });
 });

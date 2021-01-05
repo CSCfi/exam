@@ -60,7 +60,15 @@
                     <td class="table-column-25">
                         <a class="pointer" href="mailto:{{review.user.email}}"> {{review.user.email}}</a>
                     </td>
-                    <td class="table-column-25">
+                    <td
+                        class="table-column-25"
+                        ng-if="review.exam.implementation === 'CLIENT_AUTH' || review.exam.implementation === 'WHATEVER'"
+                    >
+                        {{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}} {{review.started |
+                        date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}} ({{review.started |
+                        diffInMinutesTo:review.ended }}&nbsp;min)
+                    </td>
+                    <td class="table-column-25" ng-if="review.exam.implementation === 'AQUARIUM'">
                         {{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}}
                         {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
                         ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)

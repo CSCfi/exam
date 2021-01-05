@@ -13,8 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
+import * as moment from 'moment';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { FileService } from '../../utility/file/file.service';
 import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
@@ -26,7 +28,7 @@ export class ExamFeedbackComponent {
     @Input() scores: Scores;
     @Input() collaborative: boolean;
 
-    constructor(private Attachment: AttachmentService) {}
+    constructor(private Attachment: AttachmentService, private Files: FileService) {}
 
     downloadFeedbackAttachment = () => {
         const attachment = this.assessment.examFeedback.attachment;
@@ -37,4 +39,9 @@ export class ExamFeedbackComponent {
         }
     };
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
+
+    downloadScoreReport = () => {
+        const url = `/app/feedback/exams/${this.assessment.id}/report`;
+        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, null, false);
+    };
 }

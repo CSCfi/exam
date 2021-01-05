@@ -49,6 +49,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class CalendarController extends BaseController {
+
     @Inject
     protected CalendarHandler calendarHandler;
 
@@ -113,10 +114,7 @@ public class CalendarController extends BaseController {
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
-        if (enrolment == null) {
-            return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
-        }
-        if (enrolment.getExam().getRequiresUserAgentAuth()) {
+        if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return Optional.of(forbidden("SEB exam does not take reservations"));
         }
         // Removal not permitted if old reservation is in the past or if exam is already started
@@ -196,7 +194,7 @@ public class CalendarController extends BaseController {
                 .endJunction()
                 .findOneOrEmpty();
             if (optionalEnrolment.isEmpty()) {
-                return wrapAsPromise(notFound());
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
             Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
@@ -288,7 +286,7 @@ public class CalendarController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
-        if (ee == null || ee.getExam().getRequiresUserAgentAuth()) {
+        if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, aids);

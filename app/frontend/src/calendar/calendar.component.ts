@@ -97,8 +97,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     ) {}
 
     private fetchOrganisations = () => {
-        // TODO: allow making external reservations to collaborative exams in the future
-        if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
+        if (this.isInteroperable && this.isExternal) {
             this.http
                 .get<any[]>('/integration/iop/organisations')
                 .subscribe(
@@ -118,6 +117,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
     };
 
     ngOnInit() {
+        if (this.stateParams.isCollaborative === 'true') {
+            this.isCollaborative = true;
+        }
         this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             const optionalRoom = this.selectedRoom;
             if (optionalRoom !== undefined) {
@@ -145,7 +147,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 switchMap(() => this.http.get<Accessibility[]>('/app/accessibility')),
                 tap(resp => (this.accessibilities = resp.map(a => ({ ...a, filtered: false })))),
                 switchMap(() => this.http.get<ExamRoom[]>('/app/rooms')),
-                tap(resp => (this.rooms = resp.map(r => ({ ...r, filtered: false })))),
+                tap(resp => {
+                    const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false }));
+                    this.rooms = rooms.sort((a, b) => (a.name > b.name ? 1 : -1));
+                }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
                 tap(resp => (this.isInteroperable = resp.isExamVisitSupported)),
                 tap(() => this.fetchOrganisations()),
@@ -201,7 +206,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         const text = this.translate
             .instant('sitnet_description_reservation_window')
             .replace('{}', this.reservationWindowSize.toString());
-        return `${text} ( ${this.reservationWindowEndDate.format('DD.MM.YYYY')} )`;
+        return `${text} (${this.reservationWindowEndDate.format('DD.MM.YYYY')})`;
     }
 
     selectedAccessibilities() {
@@ -244,12 +249,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.state.go('externalCalendar', {
                 id: this.stateParams.id,
                 selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+                isCollaborative: this.isCollaborative,
             }),
         );
     }
 
     makeInternalReservation() {
-        this.state.go('calendar', {
+        const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
+        this.state.go(nextState, {
             id: this.stateParams.id,
             selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
         });
@@ -273,7 +280,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
         if (this.isExternal) {
-            return this.http.get<AvailableSlot[]>(`/integration/iop/calendar/${this.stateParams.id}/${room._id}`, {
+            const url = this.isCollaborative
+                ? `/integration/iop/exams/${this.stateParams.id}/external/calendar/${room._id}`
+                : `/integration/iop/calendar/${this.stateParams.id}/${room._id}`;
+            return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.selectedOrganisation._id,
                     date: date,

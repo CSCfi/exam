@@ -51,6 +51,7 @@ angular.module('app.question').component('questionSelector', {
                     toast.warning($translate.instant('sitnet_choose_atleast_one'));
                     return;
                 }
+
                 const insertQuestion = function(sectionId, to, examId) {
                     ExamRes.sectionquestionsmultiple.insert(
                         {
@@ -59,13 +60,16 @@ angular.module('app.question').component('questionSelector', {
                             sequenceNumber: to,
                             questions: vm.selections.join(),
                         },
-                        function() {
+                        function(section) {
+                            const insertedSectionQuestions = section.sectionQuestions.filter(esq =>
+                                vm.selections.includes(esq.question.id),
+                            );
                             toast.info($translate.instant('sitnet_question_added'));
-                            vm.close();
+                            vm.close({ $value: insertedSectionQuestions });
                         },
                         function(error) {
                             toast.error(error.data);
-                            vm.close({ error: error });
+                            vm.cancel();
                         },
                     );
                 };

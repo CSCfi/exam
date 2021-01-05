@@ -56,6 +56,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class CollaborativeExamController extends CollaborationController {
+
     @Inject
     private ConfigReader configReader;
 
@@ -76,10 +77,10 @@ public class CollaborativeExamController extends CollaborationController {
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
         cleanUser(user);
-        AppUtil.setCreator(exam, user);
+        exam.setCreatorWithDate(user);
 
         ExamSection examSection = new ExamSection();
-        AppUtil.setCreator(examSection, user);
+        examSection.setCreatorWithDate(user);
 
         examSection.setId(newId());
         examSection.setExam(exam);
@@ -292,7 +293,7 @@ public class CollaborativeExamController extends CollaborationController {
                                         return uploadExam(ce, exam, user)
                                             .thenApplyAsync(
                                                 result2 -> {
-                                                    if (result2.status() == 200 && isPrePublication) {
+                                                    if (result2.status() == Http.Status.OK && isPrePublication) {
                                                         Set<String> receivers = exam
                                                             .getExamOwners()
                                                             .stream()

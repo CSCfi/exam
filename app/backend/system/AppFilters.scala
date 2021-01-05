@@ -27,7 +27,10 @@ class AppFilters @Inject()(securityHeadersFilter: SecurityHeadersFilter,
                            csrfFilter: CSRFFilter,
                            gzipFilter: GzipFilter,
                            corsFilter: CORSFilter,
-                           cspFilter: CSPFilter) extends HttpFilters {
+                           cspFilter: CSPFilter,
+                           systemFilter: SystemFilter)
+    extends HttpFilters {
 
-  override def filters = Seq(securityHeadersFilter, csrfFilter, gzipFilter, corsFilter, cspFilter)
+  override def filters =
+    Seq(securityHeadersFilter, csrfFilter, gzipFilter, corsFilter, cspFilter, systemFilter)
 }

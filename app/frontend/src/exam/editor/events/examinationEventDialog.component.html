@@ -34,7 +34,7 @@
                     <textarea id="description" class="form-control" required [(ngModel)]="$ctrl.description"></textarea>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" *ngIf="requiresPassword">
                 <div class="col-md-12">
                     <label for="password">{{ 'sitnet_settings_password' | translate }}:</label>
                     <div id="password" class="input-group wdth-30">

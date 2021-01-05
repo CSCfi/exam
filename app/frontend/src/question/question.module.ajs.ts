@@ -20,8 +20,9 @@ import { LibraryService } from './library/library.service';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { LibraryComponent } from './library/library.component';
-import { LibraryExportComponent } from './library/export/libraryExport.component';
+import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
 import { QuestionService } from './question.service';
+import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 
 angular
     .module('app.question', [])
@@ -29,6 +30,7 @@ angular
     .directive('libraryResults', downgradeComponent({ component: LibraryResultsComponent }))
     .directive('question', downgradeComponent({ component: QuestionComponent }))
     .directive('library', downgradeComponent({ component: LibraryComponent }))
-    .directive('libraryExport', downgradeComponent({ component: LibraryExportComponent }))
+    .directive('libraryExport', downgradeComponent({ component: LibraryFileExportComponent }))
+    .directive('libraryTransfer', downgradeComponent({ component: LibraryTransferComponent }))
     .service('Question', downgradeInjectable(QuestionService))
     .service('Library', downgradeInjectable(LibraryService));

@@ -16,11 +16,11 @@
 
 package helpers;
 
+import javax.servlet.http.HttpServlet;
 import net.jodah.concurrentunit.Waiter;
 
-import javax.servlet.http.HttpServlet;
-
 public class BaseServlet extends HttpServlet {
+
     protected static String calledMethod;
     protected Waiter waiter;
 

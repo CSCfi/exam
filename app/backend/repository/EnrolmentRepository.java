@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -36,22 +37,23 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class EnrolmentRepository {
+
     private final Environment environment;
-    private final EbeanServer db;
+    private final Provider<EbeanConfig> config;
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
 
-    private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
+    private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
 
     @Inject
     public EnrolmentRepository(
         Environment environment,
-        EbeanConfig ebeanConfig,
+        Provider<EbeanConfig> ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler
     ) {
         this.environment = environment;
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+        this.config = ebeanConfig;
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
     }
@@ -74,7 +76,7 @@ public class EnrolmentRepository {
             .fetch("exam")
             .fetch("exam.examinationEventConfigurations.examinationEvent")
             .fetch("exam.executionType")
-            .fetch("exam.examSections", "name, description")
+            .fetch("exam.examSections", "name, description, optional")
             .fetch("exam.course", "name, code")
             .fetch("exam.examLanguages")
             .fetch("exam.examOwners", "firstName, lastName")
@@ -100,7 +102,7 @@ public class EnrolmentRepository {
             .filter(
                 ee ->
                     ee.getExaminationEventConfiguration() == null ||
-                    ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((now))
+                    ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
             )
             .collect(Collectors.toList());
         enrolments.forEach(
@@ -131,6 +133,7 @@ public class EnrolmentRepository {
     }
 
     private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         User user = db.find(User.class, userId);
         if (user == null) return Collections.emptyMap();
         Map<String, String> headers = new HashMap<>();
@@ -152,17 +155,24 @@ public class EnrolmentRepository {
     }
 
     private boolean isOnExamMachine(Http.RequestHeader request) {
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
-        boolean requiresUserAgentAuth = enrolment.getExam() != null && enrolment.getExam().getRequiresUserAgentAuth();
+        boolean requiresReservation =
+            enrolment.getExternalExam() != null ||
+            enrolment.getCollaborativeExam() != null ||
+            (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM);
         // Loose the checks for dev usage to facilitate for easier testing
-        if (environment.isDev() && !requiresUserAgentAuth) {
+        if (environment.isDev() && requiresReservation) {
             return true;
         }
+        boolean requiresClientAuth =
+            enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
 
-        if (requiresUserAgentAuth && enrolment.getExam() != null) {
+        if (requiresClientAuth) {
+            // SEB examination
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
             Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
             if (error.isPresent()) {
@@ -170,7 +180,8 @@ public class EnrolmentRepository {
                 headers.put("x-exam-wrong-agent-config", msg);
                 return false;
             }
-        } else {
+        } else if (requiresReservation) {
+            // Aquarium examination
             ExamMachine examMachine = enrolment.getReservation().getMachine();
             ExamRoom room = examMachine.getRoom();
             String machineIp = examMachine.getIpAddress();
@@ -181,6 +192,7 @@ public class EnrolmentRepository {
                 String header;
 
                 // Is this a known machine?
+                EbeanServer db = Ebean.getServer(config.get().defaultServer());
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
                     // IP not known
@@ -209,7 +221,6 @@ public class EnrolmentRepository {
                 return false;
             }
         }
-        logger.debug("room and machine ok");
         return true;
     }
 
@@ -239,14 +250,23 @@ public class EnrolmentRepository {
         Http.RequestHeader request,
         Map<String, String> headers
     ) {
-        if (isMachineOk(enrolment, request, headers)) {
-            String hash = getExamHash(enrolment);
-            headers.put("x-exam-start-exam", hash);
+        if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
+            // Home exam, don't set headers unless it starts in 5 minutes
+            DateTime threshold = DateTime.now().plusMinutes(5);
+            DateTime start = enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            if (start.isBefore(threshold)) {
+                headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
+            }
+        } else if (isMachineOk(enrolment, request, headers)) {
             headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         }
     }
 
-    private boolean isInsideBounds(ExamEnrolment ee, DateTime earliest, DateTime latest) {
+    private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
+        DateTime earliest = ee.getExaminationEventConfiguration() == null
+            ? DateTimeUtils.adjustDST(new DateTime())
+            : DateTime.now();
+        DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
         ExaminationEvent event = ee.getExaminationEventConfiguration() != null
             ? ee.getExaminationEventConfiguration().getExaminationEvent()
@@ -272,8 +292,7 @@ public class EnrolmentRepository {
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        DateTime future = now.plusMinutes(minutesToFuture);
+        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         Set<ExamEnrolment> results = db
             .find(ExamEnrolment.class)
             .fetch("reservation")
@@ -304,7 +323,7 @@ public class EnrolmentRepository {
         // filter out enrolments that are over or not starting until tomorrow and pick the earliest (if any)
         return results
             .stream()
-            .filter(ee -> isInsideBounds(ee, now, future))
+            .filter(ee -> isInsideBounds(ee, minutesToFuture))
             .min(Comparator.comparing(this::getStartTime));
     }
 }
