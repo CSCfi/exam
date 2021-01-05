@@ -117,7 +117,7 @@
                                         class="text-info"
                                         (click)="makeReservation()"
                                         tabindex="0"
-                                        (ngEnter)="makeReservation()"
+                                        (keyup.enter)="makeReservation()"
                                     >
                                         {{ 'sitnet_student_change_reservation' | translate }}
                                     </a>
@@ -131,7 +131,7 @@
                                         *ngIf="enrolment.reservation"
                                         class="text-danger pointer"
                                         tabindex="0"
-                                        (ngEnter)="removeReservation()"
+                                        (keyup.enter)="removeReservation()"
                                         (click)="removeReservation()"
                                         >{{ 'sitnet_student_remove_reservation' | translate }}
                                     </a>
@@ -144,7 +144,7 @@
                                     <a
                                         class="text-danger pointer"
                                         tabindex="0"
-                                        (ngEnter)="removeReservation()"
+                                        (keyup.enter)="removeReservation()"
                                         (click)="removeReservation()"
                                         >{{ 'sitnet_student_remove_reservation' | translate }}
                                     </a>
@@ -160,7 +160,7 @@
                             >
                                 <span class="pointer"
                                     >&nbsp;&nbsp;
-                                    <a tabindex="0" (ngEnter)="removeEnrolment()" (click)="removeEnrolment()">
+                                    <a tabindex="0" (keyup.enter)="removeEnrolment()" (click)="removeEnrolment()">
                                         {{ 'sitnet_student_remove_enrolment' | translate }}
                                     </a>
                                 </span>
@@ -178,7 +178,7 @@
                                         class="text-info"
                                         (click)="makeReservation()"
                                         tabindex="0"
-                                        (ngEnter)="makeReservation()"
+                                        (keyup.enter)="makeReservation()"
                                     >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
@@ -198,7 +198,7 @@
                                         class="text-info"
                                         (click)="makeReservation()"
                                         tabindex="0"
-                                        (ngEnter)="makeReservation()"
+                                        (keyup.enter)="makeReservation()"
                                     >
                                         {{ 'sitnet_student_new_reservation' | translate }}</a
                                     >
@@ -232,7 +232,7 @@
                                 class="message-to-teacher pointer"
                                 (click)="addEnrolmentInformation()"
                                 tabindex="0"
-                                (ngEnter)="addEnrolmentInformation()"
+                                (keyup.enter)="addEnrolmentInformation()"
                             >
                                 <span *ngIf="enrolment.information">
                                     <img
@@ -363,7 +363,7 @@
                         <span class="marr20">
                             <a
                                 tabindex="0"
-                                [ngEnter]="downloadSebFile()"
+                                (keyup.enter)="downloadSebFile()"
                                 (click)="downloadSebFile()"
                                 class="text text-success"
                                 ><strong>{{ 'sitnet_download' | translate }}</strong></a
@@ -380,7 +380,7 @@
                     class="infolink pointer"
                     (click)="showGuide = !showGuide"
                     tabindex="0"
-                    (ngEnter)="showGuide = !showGuide"
+                    (keyup.enter)="showGuide = !showGuide"
                 >
                     {{ 'sitnet_room_guidance' | translate }}
                     <img
@@ -409,7 +409,7 @@
                     [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                     (click)="showInstructions = !showInstructions"
                     tabindex="0"
-                    (ngEnter)="showInstructions = !showInstructions"
+                    (keyup.enter)="showInstructions = !showInstructions"
                 >
                     {{ 'sitnet_view_instructions' | translate }}
                     <img
@@ -437,7 +437,7 @@
                         class="link-button pointer"
                         (click)="makeReservation()"
                         tabindex="0"
-                        (ngEnter)="makeReservation()"
+                        (keyup.enter)="makeReservation()"
                         >{{ 'sitnet_student_new_reservation' | translate }}</a
                     >
                 </div>
@@ -453,7 +453,7 @@
                         class="link-button pointer"
                         (click)="makeReservation()"
                         tabindex="0"
-                        (ngEnter)="makeReservation()"
+                        (keyup.enter)="makeReservation()"
                         >{{ 'sitnet_student_new_reservation' | translate }}</a
                     >
                 </div>
@@ -471,7 +471,7 @@
                     class="infolink pointer"
                     (click)="showMaterials = !showMaterials"
                     tabindex="0"
-                    (ngEnter)="showMaterials = !showMaterials"
+                    (keyup.enter)="showMaterials = !showMaterials"
                 >
                     {{ 'sitnet_exam_materials' | translate }}
                     <img

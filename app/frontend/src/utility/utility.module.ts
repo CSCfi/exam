@@ -34,6 +34,7 @@ import { FileService } from './file/file.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { LanguageService } from './language/language.service';
 import { MathJaxDirective } from './math/mathJax.directive';
+import { CourseCodeComponent } from './miscellaneous/courseCode.component';
 import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
@@ -63,11 +64,13 @@ import { WindowRef } from './window/window.service';
         PaginatorComponent,
         MathJaxDirective,
         UniqueValuesValidatorDirective,
+        CourseCodeComponent,
     ],
     declarations: [
         AttachmentSelectorComponent,
         CKEditorComponent,
         ConfirmationDialogComponent,
+        CourseCodeComponent,
         DatePickerComponent,
         DateTimePickerComponent,
         HistoryBackComponent,

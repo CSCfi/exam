@@ -24,6 +24,7 @@ import { DroppableDirective } from './dragndrop/dragndrop.directive';
 import { FileService } from './file/file.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { LanguageService } from './language/language.service';
+import { CourseCodeComponent } from './miscellaneous/courseCode.component';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import runBlock from './utility.run';
@@ -41,4 +42,5 @@ export default angular
     .directive('dateTimePicker', downgradeComponent({ component: DateTimePickerComponent }))
     .directive('dropDownSelect', downgradeComponent({ component: DropdownSelectComponent }))
     .directive('paginator', downgradeComponent({ component: PaginatorComponent }))
+    .directive('courseCode', downgradeComponent({ component: CourseCodeComponent }))
     .directive('droppable', DroppableDirective.factory()).name;

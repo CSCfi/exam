@@ -16,9 +16,6 @@ import 'jquery-ui/ui/widgets/sortable';
 
 import { Directive, ElementRef, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
 
-// add jquery reference
-declare let $: any;
-
 @Directive({
     selector: '[appSortable]',
 })
