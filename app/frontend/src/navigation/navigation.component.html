@@ -69,7 +69,7 @@
 
         <div class="nav-body-mobile" [hidden]="!mobileMenuOpen">
             <ul class="links">
-                <li *ngFor="let link of links" *ngIf="link.visible">
+                <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a
                         [ngClass]="{ selected: isActive(link) }"
                         uiSref="{{ link.state }}"
@@ -86,7 +86,7 @@
                         <li
                             *ngFor="let subitem of link.submenu.items"
                             [ngClass]="{ selectedsub: isActive(subitem) }"
-                            *ngIf="subitem.visible"
+                            [hidden]="!subitem.visible"
                         >
                             <a uiSref="{{ subitem.state }}">
                                 <div>
