@@ -23,7 +23,7 @@ require('angular-sanitize');
 require('angular-dialog-service');
 
 export default angular
-    .module('app.maturity', ['ngSanitize', 'dialogs.main', 'app.common'])
+    .module('app.maturity', ['ngSanitize', 'dialogs.main'])
     .service('LanguageInspection', downgradeInjectable(LanguageInspectionService))
     .directive('maturityReporting', downgradeComponent({ component: MaturityReportingComponent }))
     .directive('languageInspections', downgradeComponent({ component: LanguageInspectionsComponent })).name;

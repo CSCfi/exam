@@ -14,7 +14,7 @@
  */
 import angular from 'angular';
 
-angular.module('app.common').factory('UserRes', [
+angular.module('app.administrative.reports').factory('UserRes', [
     '$resource',
     function($resource) {
         return {

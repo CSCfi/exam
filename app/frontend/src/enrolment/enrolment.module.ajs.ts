@@ -29,12 +29,10 @@ import { WaitingRoomComponent } from './waiting-room/waitingRoom.component';
 import { WrongLocationComponent } from './wrong-location/wrongLocation.component';
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
-require('../common');
 require('../exam'); // TODO: refactor
-require('../calendar/calendar.module.ajs.ts');
 
 export default angular
-    .module('app.enrolment', ['app.common', 'app.exam', 'app.calendar'])
+    .module('app.enrolment', ['app.exam'])
     .service('Enrolment', downgradeInjectable(EnrolmentService))
     .service('WrongLocation', downgradeInjectable(WrongLocationService))
     .directive('activeEnrolment', downgradeComponent({ component: ActiveEnrolmentComponent }))
