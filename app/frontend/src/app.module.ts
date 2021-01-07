@@ -21,11 +21,11 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
-import { StorageServiceModule } from 'ngx-webstorage-service';
 
 import { CalendarModule } from './calendar/calendar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -43,13 +43,13 @@ import { UtilityModule } from './utility/utility.module';
 @NgModule({
     imports: [
         BrowserModule,
+        BrowserAnimationsModule,
         CommonModule,
         HttpClientModule,
         FormsModule,
         TranslateModule.forRoot(),
         UIRouterUpgradeModule.forRoot(),
         NgbModule,
-        StorageServiceModule,
         UpgradeModule,
         SessionModule,
         NavigationModule,

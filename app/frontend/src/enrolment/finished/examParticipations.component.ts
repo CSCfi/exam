@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -23,11 +24,18 @@ import { ExamParticipation } from '../enrolment.model';
 @Component({
     selector: 'exam-participations',
     template: require('./examParticipations.component.html'),
+    animations: [
+        trigger('openClose', [
+            state('open', style({ opacity: 1 })),
+            transition('void => *', [style({ opacity: 0 }), animate(700)]),
+            transition('* => void', [animate(700, style({ opacity: 1 }))]),
+        ]),
+    ],
 })
 export class ExamParticipationsComponent implements OnInit {
     filter = { ordering: '-ended', text: '' };
     pageSize = 10;
-    currentPage: number;
+    currentPage = 0;
     participations: ExamParticipation[];
     filterChanged: Subject<string> = new Subject<string>();
 
@@ -54,5 +62,5 @@ export class ExamParticipationsComponent implements OnInit {
             );
     };
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 }

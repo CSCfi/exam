@@ -59,7 +59,7 @@
                         role="presentation"
                         (click)="filter.ordering = 'exam.name'"
                         tabindex="0"
-                        (ngEnter)="filter.ordering = 'exam.name'"
+                        (keyup.enter)="filter.ordering = 'exam.name'"
                     >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_name_ascending' | translate }}
@@ -69,7 +69,7 @@
                         role="presentation"
                         (click)="filter.ordering = '-exam.name'"
                         tabindex="0"
-                        (ngEnter)="filter.ordering = '-exam.name'"
+                        (keyup.enter)="filter.ordering = '-exam.name'"
                     >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_name_descending' | translate }}
@@ -79,7 +79,7 @@
                         role="presentation"
                         (click)="filter.ordering = 'ended'"
                         tabindex="0"
-                        (ngEnter)="filter.ordering = 'ended'"
+                        (keyup.enter)="filter.ordering = 'ended'"
                     >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_participation_descending' | translate }}
@@ -89,7 +89,7 @@
                         role="presentation"
                         (click)="filter.ordering = '-ended'"
                         tabindex="0"
-                        (ngEnter)="filter.ordering = '-ended'"
+                        (keyup.enter)="filter.ordering = '-ended'"
                     >
                         <a role="menuitem" class="pointer">
                             {{ 'sitnet_exam_participation_ascending' | translate }}
@@ -103,29 +103,28 @@
     <!-- List of finished exams -->
     <div class="pad-15">
         <div
-            class="col-md-12 list-item"
+            class="col-md-12"
             *ngFor="
                 let participation of participations
                     | orderBy: filter.ordering
                     | slice: currentPage * pageSize:currentPage * pageSize + pageSize
             "
+            [@openClose]="'open'"
         >
             <exam-participation [participation]="participation" [collaborative]="collaborative"></exam-participation>
         </div>
     </div>
 
     <!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
-    <div class="main-row">
-        <div class="bottom-row">
-            <div class="col-md-12" *ngIf="participations.length > pageSize">
-                <paginator
-                    [items]="participations"
-                    (onSelectPage)="pageSelected($event)"
-                    [pageSize]="pageSize"
-                    [currentPage]="currentPage"
-                >
-                </paginator>
-            </div>
+    <div class="main-row" *ngIf="participations">
+        <div class="col-md-12" *ngIf="participations.length > pageSize">
+            <paginator
+                [items]="participations"
+                (onSelectPage)="pageSelected($event)"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage"
+            >
+            </paginator>
         </div>
     </div>
 </div>

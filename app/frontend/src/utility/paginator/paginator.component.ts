@@ -19,11 +19,11 @@ import * as _ from 'lodash';
     selector: 'paginator',
     template: `
         <ul class="pagination pagination-sm">
-            <li [ngClass]="previousPageDisabled()"><a href="" (click)="previousPage()">&#60;</a></li>
+            <li [ngClass]="previousPageDisabled()"><a (click)="previousPage()">&#60;</a></li>
             <li *ngFor="let n of range()" [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)">
-                <a href="">{{ printRange(n) }}</a>
+                <a>{{ printRange(n) }}</a>
             </li>
-            <li [ngClass]="nextPageDisabled()"><a target="_blank" (click)="nextPage()">&#62;</a></li>
+            <li [ngClass]="nextPageDisabled()"><a (click)="nextPage()">&#62;</a></li>
         </ul>
     `,
 })
@@ -36,7 +36,7 @@ export class PaginatorComponent implements OnChanges {
     pageCount = 0;
 
     ngOnChanges(props: SimpleChanges) {
-        if (props.items && _.isArray(props.items)) {
+        if (props.items) {
             this.pageCount = Math.ceil(this.items.length / this.pageSize) - 1;
             // Go to first page always when the underlying collection gets modified
             this.currentPage = 0;
