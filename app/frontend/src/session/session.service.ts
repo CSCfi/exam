@@ -236,7 +236,7 @@ export class SessionService {
             keyboard: true,
         });
         return from(modalRef.result).pipe(
-            tap(() => this.http.put('/app/users/agreement', {}).subscribe()),
+            switchMap(() => this.http.put('/app/users/agreement', {})),
             map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
@@ -248,7 +248,7 @@ export class SessionService {
         });
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
-            tap(role => this.http.put(`/app/users/roles/${role.name}`, {}).subscribe()),
+            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
             map((role: Role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
@@ -300,7 +300,7 @@ export class SessionService {
             .pipe(
                 map(u => this.prepareUser(u)),
                 switchMap(u => this.processLogin$(u)),
-                tap((u: User) => {
+                tap(u => {
                     this.user = u;
                     this.webStorageService.set('EXAM_USER', this.user);
                     this.translate(this.user.lang);

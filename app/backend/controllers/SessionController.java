@@ -465,7 +465,7 @@ public class SessionController extends BaseController {
         if (!user.getRoles().contains(role)) {
             return wrapAsPromise(forbidden());
         }
-        return checkStudentSession(request, session.adding("role", roleName), ok());
+        return checkStudentSession(request, session.adding("role", roleName), ok(role));
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
