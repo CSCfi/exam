@@ -87,6 +87,7 @@ export class AutoEvaluationComponent implements OnInit {
     private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find(rt => rt.name === name);
 
     private applyFilter = (type?: ReleaseType) => {
+        if (!this.exam.autoEvaluationConfig) return;
         this.autoevaluation.releaseTypes.forEach(rt => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
@@ -112,9 +113,12 @@ export class AutoEvaluationComponent implements OnInit {
     };
 
     releaseDateChanged = (date: Date) => {
+        if (!this.exam.autoEvaluationConfig) return;
         this.exam.autoEvaluationConfig.releaseDate = date;
         this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
     };
 
-    propertyChanged = () => this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+    propertyChanged = () => {
+        if (this.exam.autoEvaluationConfig) this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+    };
 }

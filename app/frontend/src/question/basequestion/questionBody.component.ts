@@ -40,8 +40,8 @@ export const QuestionBodyComponent: angular.IComponentOptions = {
         isInPublishedExam: boolean;
         examNames: string[];
         sectionNames: string[];
-        newOwner: { name: string };
-        newOwnerTemplate: User;
+        newOwner: { name?: string };
+        newOwnerTemplate?: User;
         newType: { type: string };
         questionTypes: { type: string; name: string }[];
 

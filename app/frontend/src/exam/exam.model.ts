@@ -236,7 +236,7 @@ export interface Software {
 export interface ExamImpl {
     id: number;
     created: Date;
-    attachment: Attachment | null;
+    attachment?: Attachment;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
     examActiveStartDate: string | number;
@@ -248,11 +248,11 @@ export interface ExamImpl {
     hash: string;
     examOwners: User[];
     creator: User;
-    examType: { type: string; name?: string };
+    examType: { id: number; type: string; name?: string };
     executionType: ExamExecutionType;
     examEnrolments: ExamEnrolment[];
     gradeScale: GradeScale | null;
-    autoEvaluationConfig: AutoEvaluationConfig;
+    autoEvaluationConfig?: AutoEvaluationConfig;
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;
@@ -270,12 +270,12 @@ export interface ExamImpl {
     internalRef: string;
     objectVersion: number;
     examFeedback: Feedback;
-    grade: SelectableGrade;
+    grade?: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
     gradeless: boolean;
     credit: number;
-    creditType: { type: string; id: number };
+    creditType?: { type: string; id: number };
     customCredit: number;
     softwares: Software[];
     maxScore: number;

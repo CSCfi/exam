@@ -32,7 +32,7 @@ export const AppComponent: angular.IComponentOptions = {
         </div>
         `,
     controller: class AppController implements angular.IComponentController {
-        user: User;
+        user?: User;
         hideNavBar = false;
         devLoginRequired: boolean;
         private ngUnsubscribe = new Subject();

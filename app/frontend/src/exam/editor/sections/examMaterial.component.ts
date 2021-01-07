@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as ng from 'angular';
 import * as toast from 'toastr';
+
 import { ExamMaterial } from '../../exam.model';
 
 export const ExamMaterialComponent: ng.IComponentOptions = {
@@ -25,7 +25,7 @@ export const ExamMaterialComponent: ng.IComponentOptions = {
     controller: class ExamMaterialController implements ng.IComponentController {
         close: () => any;
         materials: ExamMaterial[] = [];
-        newMaterial: ExamMaterial;
+        newMaterial?: ExamMaterial;
         filter: string;
         materialsChanged: boolean;
 

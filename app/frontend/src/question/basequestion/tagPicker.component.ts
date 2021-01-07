@@ -56,7 +56,7 @@ export const TagPickerComponent: angular.IComponentOptions = {
         question: '<',
     },
     controller: class TagPickerController implements angular.IComponentController, angular.IOnInit {
-        question: Question & { newTag: Tag };
+        question: Question & { newTag?: Tag };
         tooltipIcon: unknown;
         removalIcon: unknown;
         tagName: string;
@@ -94,9 +94,9 @@ export const TagPickerComponent: angular.IComponentOptions = {
         onTagSelect = (tag: Tag) => (this.question.newTag = tag);
 
         addTag = () => {
-            this.question.tags.push(this.question.newTag);
+            if (this.question.newTag) this.question.tags.push(this.question.newTag);
             delete this.question.newTag;
-            delete this.tagName;
+            this.tagName = '';
         };
 
         removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);

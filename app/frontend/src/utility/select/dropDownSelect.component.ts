@@ -38,7 +38,7 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
     @Output() onSelect = new EventEmitter<Selection>();
     filteredOptions: Option[]; // filtered
     searchFilter = '';
-    selected: Option;
+    selected?: Option;
     labelFilter: (_: Option) => boolean;
 
     ngOnInit() {

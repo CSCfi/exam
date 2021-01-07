@@ -43,7 +43,7 @@ export class QuestionComponent implements OnInit {
 
     currentOwners: User[];
     question: Question | QuestionDraft;
-    transitionWatcher: Function;
+    transitionWatcher?: Function;
 
     constructor(
         private stateParams: StateParams,

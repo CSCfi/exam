@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 
 import { Observable } from '../../../node_modules/rxjs';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
-import { Exam, ExamSectionQuestion, Question, Participation } from '../../exam/exam.model';
+import { Exam, ExamSectionQuestion, Participation, Question } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
 import { ReviewQuestion } from '../../review/review.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -39,7 +39,7 @@ interface ExamWithStatement {
 
 interface AnsweredQuestion {
     id: number;
-    essayAnswer: { objectVersion: number; attachment: { fileName: string } };
+    essayAnswer: { objectVersion: number; attachment?: { fileName: string } };
 }
 @Injectable()
 export class AttachmentService {
@@ -77,7 +77,7 @@ export class AttachmentService {
     }
 
     private toPromise = (observable: Observable<any>) =>
-        new Promise((resolve, reject) => {
+        new Promise<void>((resolve, reject) => {
             observable.subscribe(
                 () => resolve(),
                 err => reject(err),
@@ -88,7 +88,7 @@ export class AttachmentService {
         this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)));
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
                 () => resolve(),
                 err => reject(err),
@@ -212,7 +212,12 @@ export class AttachmentService {
     }
 
     downloadQuestionAnswerAttachment(question: AnsweredQuestion | ReviewQuestion) {
-        this.Files.download(`/app/attachment/question/${question.id}/answer`, question.essayAnswer.attachment.fileName);
+        if (question.essayAnswer.attachment) {
+            this.Files.download(
+                `/app/attachment/question/${question.id}/answer`,
+                question.essayAnswer.attachment.fileName,
+            );
+        }
     }
 
     downloadCollaborativeAttachment(id: string, fileName: string) {

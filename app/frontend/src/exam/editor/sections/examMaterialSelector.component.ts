@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
-import * as toast from 'toastr';
-import { ExamSection, ExamMaterial } from '../../exam.model';
 import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+
+import { ExamMaterial, ExamSection } from '../../exam.model';
 
 export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
     template: require('./examMaterialSelector.template.html'),
@@ -29,7 +29,7 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
         section: ExamSection;
         materials: ExamMaterial[];
         allMaterials: ExamMaterial[];
-        selectedMaterial: ExamMaterial;
+        selectedMaterial?: ExamMaterial;
         filter: string;
         onChanges: () => any;
 
@@ -63,13 +63,14 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
         };
 
         addMaterial = () => {
+            if (!this.selectedMaterial) return;
             this.$http
                 .post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {})
                 .then(() => {
-                    this.section.examMaterials.push(angular.copy(this.selectedMaterial));
+                    this.section.examMaterials.push(angular.copy(this.selectedMaterial as ExamMaterial));
                     delete this.selectedMaterial;
                     this.filterOutExisting();
-                    delete this.filter;
+                    this.filter = '';
                 })
                 .catch(err => toast.error(err));
         };

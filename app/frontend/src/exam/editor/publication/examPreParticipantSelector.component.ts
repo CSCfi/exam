@@ -28,7 +28,7 @@ import { Exam } from '../../exam.model';
 export class ExamPreParticipantSelectorComponent implements OnInit {
     @Input() exam: Exam;
 
-    newPreParticipant: { email: string } = { email: '' };
+    newPreParticipant: { email?: string } = { email: '' };
     enrolments: ExamEnrolment[];
 
     constructor(private translate: TranslateService, private http: HttpClient, private Enrolment: EnrolmentService) {}

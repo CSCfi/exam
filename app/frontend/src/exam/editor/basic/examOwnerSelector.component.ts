@@ -33,9 +33,9 @@ export class ExamOwnerSelectorComponent implements OnInit {
     examOwners: User[];
 
     newOwner: {
-        id: number;
-        name: string;
-        email: string;
+        id?: number;
+        name?: string;
+        email?: string;
     };
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
@@ -66,7 +66,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
     setExamOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newOwner.id = event.item.id);
 
     addExamOwner = () => {
-        if (this.newOwner.id > 0) {
+        if (this.newOwner.id) {
             this.http.post(`/app/exam/${this.exam.id}/owner/${this.newOwner.id}`, {}).subscribe(
                 () => {
                     this.getExamOwners();

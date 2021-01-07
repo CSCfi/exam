@@ -31,7 +31,7 @@ interface Payload {
     grade?: SelectableGrade;
     gradeless: boolean;
     customCredit: number;
-    creditType: { type: string };
+    creditType?: { type: string };
     answerLanguage?: string;
     additionalInfo: string;
     rev: string;

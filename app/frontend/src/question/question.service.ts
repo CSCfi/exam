@@ -21,12 +21,12 @@ import * as toast from 'toastr';
 
 import {
     Exam,
+    ExamSection,
     ExamSectionQuestion,
     ExamSectionQuestionOption,
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
-    ExamSection,
 } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
@@ -272,7 +272,7 @@ export class QuestionService {
                         question.attachment.file,
                         { questionId: question.id },
                         question,
-                        resolve,
+                        () => resolve,
                     );
                 } else if (question.attachment && question.attachment.removed) {
                     this.Attachment.eraseQuestionAttachment(question).then(function() {

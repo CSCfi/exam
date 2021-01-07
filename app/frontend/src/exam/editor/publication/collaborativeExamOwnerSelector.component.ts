@@ -27,7 +27,7 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     @Input() exam: Exam;
 
     user: User;
-    newOwner: { email: string | null };
+    newOwner: { email: string | undefined };
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 

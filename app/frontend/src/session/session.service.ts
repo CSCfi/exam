@@ -148,7 +148,7 @@ export class SessionService {
     }
 
     private redirect(): void {
-        const path = this.user.isLanguageInspector ? '/inspections' : '/';
+        const path = this.user?.isLanguageInspector ? '/inspections' : '/';
         this.location.go(path);
     }
 
@@ -159,7 +159,7 @@ export class SessionService {
         this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe(
             resp => {
                 this.webStorageService.remove('EXAM_USER');
-                delete this.user;
+                // delete this.user;
                 this.onLogoutSuccess(resp);
             },
             error => toastr.error(error.data),

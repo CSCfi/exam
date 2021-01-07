@@ -65,7 +65,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     limitations = {};
     openingHours: OpeningHours[];
     organisations: Organisation[];
-    reservation: { room: string; start: moment.Moment; end: moment.Moment; time: string };
+    reservation?: { room: string; start: moment.Moment; end: moment.Moment; time: string };
     rooms: FilteredRoom[] = [];
     exceptionHours: ExceptionWorkingHours[] = [];
     loader = {
@@ -77,8 +77,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     maxHours: number;
     reservationWindowEndDate: moment.Moment;
     reservationWindowSize: number;
-    selectedRoom: FilteredRoom;
-    selectedOrganisation: Organisation;
+    selectedRoom?: FilteredRoom;
+    selectedOrganisation?: Organisation;
     calendarVisible: boolean;
 
     events: CalendarEvent<SlotMeta>[];
@@ -279,7 +279,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
-        if (this.isExternal) {
+        if (this.isExternal && this.selectedOrganisation) {
             const url = this.isCollaborative
                 ? `/integration/iop/exams/${this.stateParams.id}/external/calendar/${room._id}`
                 : `/integration/iop/calendar/${this.stateParams.id}/${room._id}`;
@@ -310,11 +310,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.calendarVisible = true;
     }
 
-    renderExceptionHours = ($event: { start: Date; end: Date }) =>
-        (this.exceptionHours =
+    renderExceptionHours = ($event: { start: Date; end: Date }) => {
+        if (!this.selectedRoom) return;
+        this.exceptionHours =
             !$event.start || !$event.end
                 ? []
-                : this.Calendar.getExceptionHours(this.selectedRoom, moment($event.start), moment($event.end)));
+                : this.Calendar.getExceptionHours(this.selectedRoom, moment($event.start), moment($event.end));
+    };
 
     refresh($event: { date: Date }) {
         const room = this.selectedRoom;

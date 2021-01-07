@@ -320,7 +320,7 @@ export class AssessmentService {
         if (!_.get(exam.grade, 'id') && !exam.gradeless) {
             messages.push('sitnet_participation_unreviewed');
         }
-        if (!exam.creditType.type) {
+        if (!exam.creditType?.type) {
             messages.push('sitnet_exam_choose_credit_type');
         }
         if (!exam.answerLanguage) {
