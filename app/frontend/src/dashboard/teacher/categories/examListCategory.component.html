@@ -89,7 +89,7 @@
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>
-                            <course-code class="exam-code" course="exam.course"></course-code>
+                            <course-code class="exam-code" [course]="exam.course"></course-code>
                         </td>
                         <td>
                             <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>

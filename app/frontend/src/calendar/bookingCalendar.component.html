@@ -3,32 +3,27 @@
         <div class="col-md-4">
             <div class="btn-group">
                 <!-- TODO: Check how these behave regarding max/mid dates etc -->
-                <div
+                <button
                     class="btn btn-primary"
                     mwlCalendarPreviousView
+                    [disabled]="prevWeekDisabled"
                     [view]="view"
-                    [(viewDate)]="viewDate"
-                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
+                    (click)="prevWeek(); refetch(viewDate)"
                 >
                     Previous
-                </div>
-                <div
-                    class="btn btn-outline-secondary"
-                    mwlCalendarToday
-                    [(viewDate)]="viewDate"
-                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
-                >
+                </button>
+                <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch(viewDate)">
                     Today
-                </div>
-                <div
+                </button>
+                <button
                     class="btn btn-primary"
                     mwlCalendarNextView
                     [view]="view"
-                    [(viewDate)]="viewDate"
-                    (viewDateChange)="viewDateChange.next(viewDate); refetch(viewDate)"
+                    [disabled]="nextWeekDisabled"
+                    (click)="nextWeek(); refetch(viewDate)"
                 >
                     Next
-                </div>
+                </button>
             </div>
         </div>
     </div>
@@ -43,8 +38,8 @@
         <mwl-calendar-week-view
             [viewDate]="viewDate"
             [events]="events"
-            [dayStartHour]="06"
-            [dayEndHour]="22"
+            [dayStartHour]="minHour"
+            [dayEndHour]="maxHour"
             [locale]="locale"
             [weekStartsOn]="weekStartsOn"
             [excludeDays]="hiddenDays"

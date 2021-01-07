@@ -107,7 +107,7 @@
             </td>
 
             <td class="reservation-search" *ngIf="!r.enrolment.exam.external">
-                <course-code course="r.enrolment.exam.course"></course-code>
+                <course-code [course]="r.enrolment.exam.course"></course-code>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
                 {{ 'sitnet_exam_status_external' | translate }}

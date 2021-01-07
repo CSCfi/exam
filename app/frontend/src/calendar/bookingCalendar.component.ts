@@ -12,11 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { CalendarDateFormatter, CalendarEvent, DAYS_OF_WEEK } from 'angular-calendar';
+import { CalendarDateFormatter, CalendarEvent, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
+import { SimpleChanges } from 'angular-ts-decorators';
+import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
+import { ExamRoom } from '../reservation/reservation.model';
 import { DateFormatter } from './bookingCalendarDateFormatter';
+import { CalendarService } from './calendar.service';
 
 export type SlotMeta = { availableMachines: number };
 
@@ -26,19 +30,19 @@ export type SlotMeta = { availableMachines: number };
     template: require('./bookingCalendar.component.html'),
     providers: [{ provide: CalendarDateFormatter, useClass: DateFormatter }],
 })
-export class BookingCalendarComponent {
+export class BookingCalendarComponent implements OnChanges {
     @Output() onEventSelected = new EventEmitter<CalendarEvent>();
-    @Output() viewDateChange = new EventEmitter<Date>();
     @Output() onNeedMoreEvents = new EventEmitter<{ date: Date }>();
 
     @Input() events: CalendarEvent<SlotMeta>[];
     @Input() visible: boolean;
     @Input() minDate: Date;
     @Input() maxDate: Date;
-    @Input() minHour: number;
-    @Input() maxHour: number;
+    @Input() room: ExamRoom;
+    view: CalendarView = CalendarView.Week;
+    minHour: number;
+    maxHour: number;
 
-    view = 'week';
     locale: string;
     weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
     hiddenDays: number[] = [];
@@ -46,13 +50,49 @@ export class BookingCalendarComponent {
     viewDate: Date = new Date();
     clickedEvent: CalendarEvent<SlotMeta>;
 
-    constructor(private translate: TranslateService) {
+    nextWeekDisabled = false;
+    prevWeekDisabled = true;
+
+    constructor(private translate: TranslateService, private Calendar: CalendarService) {
         this.locale = this.translate.currentLang;
     }
 
-    refetch() {
-        this.onNeedMoreEvents.emit({ date: this.viewDate });
+    private nextWeekValid = (date: Date): boolean =>
+        this.maxDate > startOfWeek(addWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+    private prevWeekValid = (date: Date): boolean =>
+        this.minDate < endOfWeek(subWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+
+    today = () => this.changeDate(new Date());
+    nextWeek = () => this.changeDate(addWeeks(this.viewDate, 1));
+    prevWeek = () => this.changeDate(subWeeks(this.viewDate, 1));
+
+    private changeDate(date: Date): void {
+        this.viewDate = date;
+        this.dateChanged();
     }
+
+    private dateChanged() {
+        this.prevWeekDisabled = !this.prevWeekValid(this.viewDate);
+        this.nextWeekDisabled = !this.nextWeekValid(this.viewDate);
+        if (this.viewDate < this.minDate) {
+            this.changeDate(this.minDate);
+        } else if (this.viewDate > this.maxDate) {
+            this.changeDate(this.maxDate);
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.room && this.room) {
+            const earliestOpening = this.Calendar.getEarliestOpening(this.room);
+            const minTime = earliestOpening.hours() > 1 ? earliestOpening.add(-1, 'hours') : earliestOpening;
+            const latestClosing = this.Calendar.getLatestClosing(this.room);
+            const maxTime = latestClosing.hours() < 23 ? latestClosing.add(1, 'hours') : latestClosing;
+            this.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
+            [this.minHour, this.maxHour] = [minTime.hour(), maxTime.hour()];
+        }
+    }
+
+    refetch = () => this.onNeedMoreEvents.emit({ date: this.viewDate });
 
     eventClicked(event: CalendarEvent<SlotMeta>): void {
         // todo check the colors

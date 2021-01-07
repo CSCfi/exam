@@ -26,7 +26,7 @@
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    <course-code course="examInfo.course"></course-code> {{ examInfo.course.name }}
+                    <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code> {{ examInfo.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -380,6 +380,7 @@
                 (onNeedMoreEvents)="refresh($event)"
                 [minDate]="minDate"
                 [maxDate]="maxDate"
+                [room]="selectedRoom"
                 [visible]="calendarVisible"
                 [events]="events"
             >
@@ -407,7 +408,7 @@
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    <course-code course="examInfo.course"></course-code> {{ examInfo.course.name }}
+                    <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code> {{ examInfo.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>

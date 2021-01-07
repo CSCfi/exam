@@ -185,12 +185,9 @@ public class EnrolmentController extends BaseController {
                 .stream()
                 .filter(ExamEnrolment::isActive)
                 .collect(Collectors.toList());
-            if (enrolments.isEmpty()) {
-                return notFound("error not found");
-            }
             return ok(enrolments);
         }
-        return forbidden("sitnet_no_trials_left");
+        return unauthorized("sitnet_no_trials_left");
     }
 
     @Authenticated

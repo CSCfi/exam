@@ -14,7 +14,6 @@
  */
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import * as toast from 'toastr';
 
 import { Exam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
@@ -36,10 +35,7 @@ export class ExamSearchResultComponent {
             return;
         }
         this.enrolling = true;
-        this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(
-            () => (this.enrolling = false),
-            err => toast.error(err.data),
-        );
+        this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(() => (this.enrolling = false));
     };
 
     makeReservation = () => {

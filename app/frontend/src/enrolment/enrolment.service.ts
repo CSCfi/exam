@@ -116,16 +116,17 @@ export class EnrolmentService {
     getEnrolments = (examId: number, collaborative = false): Observable<ExamEnrolment[]> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative));
 
-    checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
-        this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
-            switchMap(enrolments => {
-                if (enrolments.length > 0) {
-                    toast.error(this.translate.instant('sitnet_already_enrolled'));
-                    return throwError('already enrolled');
-                }
-                return this.enroll(exam, collaborative);
+    checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> => {
+        return this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
+            switchMap(resp =>
+                resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
+            ),
+            catchError(err => {
+                toast.error(err);
+                return throwError(err);
             }),
         );
+    };
 
     enrollStudent = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };

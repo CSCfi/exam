@@ -23,7 +23,7 @@ import { Observable, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamSection } from '../exam/exam.model';
+import { Course, Exam, ExamSection } from '../exam/exam.model';
 import { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
@@ -36,6 +36,7 @@ type ExamInfo = {
     examActiveStartDate: number;
     examActiveEndDate: number;
     examSections: SelectableSection[];
+    course: Pick<Course, 'code'>;
 };
 type AvailableSlot = Slot & { availableMachines: number };
 type FilteredAccessibility = Accessibility & { filtered: boolean };
@@ -61,7 +62,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     accessibilities: FilteredAccessibility[] = [];
     isInteroperable: boolean;
     confirming = false;
-    examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0, examSections: [] };
+    examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0, examSections: [], course: { code: '' } };
     limitations = {};
     openingHours: OpeningHours[];
     organisations: Organisation[];
@@ -71,8 +72,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     loader = {
         loading: false,
     };
-    minDate: moment.Moment;
-    maxDate: moment.Moment;
+    minDate: Date;
+    maxDate: Date;
     minHours: number;
     maxHours: number;
     reservationWindowEndDate: moment.Moment;
@@ -141,8 +142,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 tap(resp => {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = moment().add(resp.value, 'days');
-                    this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate));
-                    this.maxDate = moment.min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate));
+                    this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate)).toDate();
+                    this.maxDate = moment
+                        .min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate))
+                        .toDate();
                 }),
                 switchMap(() => this.http.get<Accessibility[]>('/app/accessibility')),
                 tap(resp => (this.accessibilities = resp.map(a => ({ ...a, filtered: false })))),

@@ -35,7 +35,7 @@
             <span class="exams-list-title-text pull-left"
                 >{{ 'sitnet_reserved_exam' | translate }}:&nbsp {{ enrolment.exam.name }} -
             </span>
-            <course-code course="enrolment.exam.course"></course-code>
+            <course-code [course]="enrolment.exam.course"></course-code>
         </div>
     </div>
 
