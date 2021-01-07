@@ -21,6 +21,7 @@ import * as moment from 'moment';
 import * as toast from 'toastr';
 
 import { ExamRoom, Reservation } from '../../reservation/reservation.model';
+import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { ExamEnrolment } from '../enrolment.model';
 
@@ -44,6 +45,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         @Inject('$stateParams') private stateParams: StateParams,
         private translate: TranslateService,
         private location: Location,
+        private Session: SessionService,
         private Window: WindowRef,
     ) {}
 
@@ -69,11 +71,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
-                    this.timeoutId = this.Window.nativeWindow(
-                        () => this.location.go(`/student/exam/${this.enrolment.exam.hash}`),
-                        offset,
-                    );
-
+                    this.timeoutId = this.Window.nativeWindow(this.Session.checkSession, offset);
                     if (this.enrolment.reservation) {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();

@@ -64,9 +64,6 @@ export class WrongLocationService {
         };
         const startsAt = moment(startsAtTxt);
         const now = moment();
-        if (now.isDST()) {
-            startsAt.add(-1, 'hour');
-        }
         if (startsAt.isAfter(now)) {
             toast.warning(
                 `${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,

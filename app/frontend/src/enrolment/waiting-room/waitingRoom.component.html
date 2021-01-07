@@ -50,7 +50,7 @@
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            <span class="exam-code">{{ enrolment.exam.course.code }}</span>
+                            <course-code *ngIf="enrolment.exam?.course" [course]="enrolment.exam.course"></course-code>
                             {{ enrolment.exam.course.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>
@@ -58,7 +58,7 @@
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
                         <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                             <div>
-                                <teacher-list [exam]="enrolment.exam"></teacher-list>
+                                <teacher-list *ngIf="enrolment" [exam]="enrolment.exam"></teacher-list>
                             </div>
                         </div>
                     </div>
