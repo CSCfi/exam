@@ -19,6 +19,7 @@
                             <input
                                 aria-label="search for faculty"
                                 [(ngModel)]="filter"
+                                (change)="filterOrganisations()"
                                 class="form-control"
                                 (click)="$event.stopPropagation()"
                                 placeholder="{{ 'sitnet_search' | translate }}"
@@ -28,7 +29,7 @@
                             </div>
                         </li>
                         <li
-                            *ngFor="let org of organisations | filter: filter"
+                            *ngFor="let org of filteredOganisations"
                             (hidden)="(org.filtered)"
                             role="presentation"
                             (click)="organisation = org"

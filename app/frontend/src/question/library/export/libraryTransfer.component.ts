@@ -12,14 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { Component, Input, OnInit } from '@angular/core';
-import * as toast from 'toastr';
 import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
 
 type Organisation = {
     _id: string;
+    name: string;
     homeOrg: boolean;
 };
 
@@ -30,15 +30,21 @@ type Organisation = {
 export class LibraryTransferComponent implements OnInit {
     @Input() selections: number[];
     organisations: Organisation[];
+    filteredOrganisations: Organisation[];
     organisation: Organisation;
+    filter: string;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http
-            .get<Organisation[]>('/integration/iop/organisations')
-            .subscribe(resp => (this.organisations = resp.filter(org => !org.homeOrg)));
+        this.http.get<Organisation[]>('/integration/iop/organisations').subscribe(resp => {
+            this.organisations = resp.filter(org => !org.homeOrg);
+            this.filterOrganisations();
+        });
     }
+
+    filterOrganisations = () =>
+        (this.filteredOrganisations = this.organisations.filter(o => o.name.startsWith(this.filter)));
 
     transfer = () => {
         if (this.selections.length == 0) {
