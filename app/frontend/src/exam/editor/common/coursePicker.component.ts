@@ -73,8 +73,8 @@ export class CoursePickerComponent implements OnInit {
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: CourseFilter) => c.code;
-    nameFormat = (c: CourseFilter) => c.name;
+    codeFormat = (c: Course) => c.code;
+    nameFormat = (c: Course) => c.name;
     courseFormat = (c: Course) => (c.code.indexOf('_') === -1 ? `${c.code} ${c.name}` : `${c.code} <br /> ${c.name}`);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {

@@ -36,6 +36,8 @@ import { ExamPublicationComponent } from './editor/publication/examPublication.c
 import { PublicationDialogComponent } from './editor/publication/publicationDialog.component';
 import { PublicationErrorDialogComponent } from './editor/publication/publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './editor/publication/publicationRevocationDialog.component';
+import { ExamMaterialComponent } from './editor/sections/examMaterial.component';
+import { ExamMaterialSelectorComponent } from './editor/sections/examMaterialSelector.component';
 import { SectionComponent } from './editor/sections/section.component.upgrade';
 import { SectionsListComponent } from './editor/sections/sectionsList.component';
 import { ExamService } from './exam.service';
@@ -62,6 +64,8 @@ import { ExamService } from './exam.service';
         PublicationRevocationDialogComponent,
         SoftwareSelectorComponent,
         ExamPreParticipantSelectorComponent,
+        ExamMaterialComponent,
+        ExamMaterialSelectorComponent,
     ],
     entryComponents: [BasicExamInfoComponent, ExamPublicationComponent, NewExamComponent, SectionsListComponent],
     providers: [ExamService, CoursePickerService, CollaborativeExamService],

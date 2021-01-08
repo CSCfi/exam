@@ -1,17 +1,17 @@
 <div class="row marr10">
     <div class="col-md-12 studentexam-header">
         <h1>
-            <span class="exam-title">{{ $ctrl.section.index }}. {{ $ctrl.section.name }}</span>
-            <span ng-show="$ctrl.isPreview && $ctrl.section.lotteryOn" class="sitnet-text-medium">
+            <span class="exam-title">{{ section.index }}. {{ section.name }}</span>
+            <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
                 <small>({{ 'sitnet_lottery_questions' | translate }})</small>
             </span>
         </h1>
         <div class="section-score-details">
-            <div class="section-score-label" ng-if="$ctrl.getSectionMaxScore() > 0">
-                {{ 'sitnet_section_max_score' | translate }}: &nbsp; {{ $ctrl.getSectionMaxScore() }}
+            <div class="section-score-label" *ngIf="getSectionMaxScore() > 0">
+                {{ 'sitnet_section_max_score' | translate }}: &nbsp; {{ getSectionMaxScore() }}
             </div>
-            <div class="section-score-label" ng-if="$ctrl.getAmountOfSelectionEvaluatedQuestions() > 0">
-                {{ 'sitnet_word_passed_max' | translate }}: &nbsp; {{ $ctrl.getAmountOfSelectionEvaluatedQuestions() }}
+            <div class="section-score-label" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
+                {{ 'sitnet_word_passed_max' | translate }}: &nbsp; {{ getAmountOfSelectionEvaluatedQuestions() }}
             </div>
         </div>
     </div>
@@ -20,30 +20,29 @@
             <form class="form-inline pad-15" role="form">
                 <div class="row studentexam-section">
                     <!-- DESCRIPTION FOR SECTION -->
-                    <div ng-if="$ctrl.section.description.length > 0" class="col-md-12 info-row mart30">
+                    <div *ngIf="section.description.length > 0" class="col-md-12 info-row mart30">
                         <img
                             src="Images/icon_info.svg"
                             alt="info-icon"
                             onerror="this.onerror=null;this.src='Images/icon_info.png';"
                         />
-                        <span class="padl10">{{ $ctrl.section.description }}</span>
+                        <span class="padl10">{{ section.description }}</span>
                     </div>
-                    <div ng-repeat="material in $ctrl.section.examMaterials" class="col-md-12 info-row mart10">
+                    <div *ngFor="let material of section.examMaterials" class="col-md-12 info-row mart10">
                         <i class="text-muted fa fa-book" alt="exam materials"></i>
                         <span style="padding-left: 15px">{{ material.name }}</span>
-                        <span ng-if="material.author"> ({{ material.author }}) </span>
-                        <span ng-if="material.isbn">
+                        <span *ngIf="material.author"> ({{ material.author }}) </span>
+                        <span *ngIf="material.isbn">
                             <small>[ISBN: {{ material.isbn }}]</small>
                         </span>
                     </div>
 
-                    <div ng-repeat="sq in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
+                    <div *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'">
                         <examination-question
-                            sq="sq"
-                            exam="$ctrl.exam"
-                            section="$ctrl.section"
-                            is-preview="$ctrl.isPreview"
-                            is-collaborative="$ctrl.isCollaborative"
+                            [sq]="sq"
+                            [exam]="exam"
+                            [isPreview]="isPreview"
+                            [isCollaborative]="isCollaborative"
                         ></examination-question>
                     </div>
                 </div>

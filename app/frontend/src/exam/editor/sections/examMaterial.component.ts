@@ -12,57 +12,59 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as ng from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as toast from 'toastr';
 
 import { ExamMaterial } from '../../exam.model';
 
-export const ExamMaterialComponent: ng.IComponentOptions = {
-    template: require('./examMaterial.template.html'),
-    bindings: {
-        close: '&',
-    },
-    controller: class ExamMaterialController implements ng.IComponentController {
-        close: () => any;
-        materials: ExamMaterial[] = [];
-        newMaterial?: ExamMaterial;
-        filter: string;
-        materialsChanged: boolean;
+@Component({
+    selector: 'exam-material',
+    template: require('./examMaterial.component.html'),
+})
+export class ExamMaterialComponent {
+    constructor(private activeModal: NgbActiveModal, private http: HttpClient) {}
 
-        constructor(private $http: ng.IHttpService) {
-            'ngInject';
-        }
+    materials: ExamMaterial[] = [];
+    filteredMaterials: ExamMaterial[] = [];
+    newMaterial?: ExamMaterial;
+    filter: string;
+    materialsChanged: boolean;
 
-        $onInit() {
-            this.$http
-                .get('/app/materials')
-                .then((resp: ng.IHttpResponse<ExamMaterial[]>) => (this.materials = resp.data))
-                .catch(angular.noop);
-        }
+    ngOnInit() {
+        this.http
+            .get<ExamMaterial[]>('/app/materials')
+            .subscribe(resp => (this.materials = this.filteredMaterials = resp));
+    }
 
-        createMaterial = () => {
-            this.$http
-                .post('/app/materials', this.newMaterial)
-                .then((resp: ng.IHttpResponse<ExamMaterial>) => {
-                    this.materials.push(resp.data);
-                    delete this.newMaterial;
-                    this.materialsChanged = true;
-                })
-                .catch(err => toast.error(err));
-        };
+    filterMaterials = () =>
+        (this.filteredMaterials = this.materials.filter(
+            m => m.name.startsWith(this.filter) || m.author?.startsWith(this.filter) || m.isbn?.startsWith(this.filter),
+        ));
 
-        removeMaterial = (material: ExamMaterial) => {
-            this.$http
-                .delete(`/app/materials/${material.id}`)
-                .then(() => {
-                    this.materials.splice(this.materials.indexOf(material), 1);
-                    this.materialsChanged = true;
-                })
-                .catch(err => toast.error(err));
-        };
+    createMaterial = () => {
+        this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe(
+            resp => {
+                this.materials.push(resp);
+                this.filterMaterials();
+                delete this.newMaterial;
+                this.materialsChanged = true;
+            },
+            err => toast.error(err),
+        );
+    };
 
-        ok = () => this.close();
-    },
-};
+    removeMaterial = (material: ExamMaterial) => {
+        this.http.delete(`/app/materials/${material.id}`).subscribe(
+            () => {
+                this.materials.splice(this.materials.indexOf(material), 1);
+                this.filterMaterials();
+                this.materialsChanged = true;
+            },
+            err => toast.error(err),
+        );
+    };
 
-ng.module('app.exam.editor').component('examMaterial', ExamMaterialComponent);
+    ok = () => this.activeModal.close();
+}
