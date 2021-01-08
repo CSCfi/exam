@@ -379,7 +379,7 @@ export class ExamService {
         } else if (exam.executionType.type === 'PRINTOUT') {
             this.State.go('printout', params);
         } else {
-            this.State.go('collaborativeExamEditor', params);
+            this.State.go('examPreview', params);
         }
     };
 

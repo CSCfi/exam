@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
-import { ExamService } from './exam.service';
 import { downgradeInjectable } from '@angular/upgrade/static';
+import * as angular from 'angular';
+
+import { ExamService } from './exam.service';
 
 require('./editor/editor.module.ts');
 require('../facility/facility.module');
 require('../review/review.module.ajs.ts');
-require('../examination/examination.module.ts');
 require('../question');
 
 angular
-    .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question'])
+    .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.question'])
     .service('Exam', downgradeInjectable(ExamService));

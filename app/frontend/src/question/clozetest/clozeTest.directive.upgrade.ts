@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Injectable } from '@angular/core';
+import { Directive, ElementRef, Injector, Input } from '@angular/core';
+import { UpgradeComponent } from '@angular/upgrade/static';
 
-type GlobalWindow = Window;
+type ClozeTestResult = { [key: string]: string };
 
-function _window(): GlobalWindow {
-    // return the global native browser window object
-    return window;
-}
-@Injectable()
-export class WindowRef {
-    get nativeWindow() {
-        return _window();
+@Directive({ selector: 'cloze-test' })
+export class ClozeTestComponent extends UpgradeComponent {
+    @Input() results: ClozeTestResult;
+    @Input() content: string;
+    @Input() editable: boolean;
+
+    constructor(elementRef: ElementRef, injector: Injector) {
+        super('clozeTest', elementRef, injector);
     }
 }

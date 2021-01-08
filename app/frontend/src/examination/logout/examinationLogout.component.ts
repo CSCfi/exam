@@ -12,63 +12,61 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
 import { StateParams, StateService } from '@uirouter/core';
-import * as angular from 'angular';
 
-export const ExaminationLogoutComponent: angular.IComponentOptions = {
+import { WindowRef } from '../../utility/window/window.service';
+import { ExaminationStatusService } from '../examinationStatus.service';
+
+@Component({
+    selector: 'examination-logout',
     template: `
         <div class="jumbotron">
-            <h1>{{'sitnet_end_of_exam' | translate}}</h2>
+            <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>
             <h2>
-                {{$ctrl.reasonPhrase | translate}}
+                {{ reasonPhrase | translate }}
             </h2>
             <h3>
                 <u>
-                    <a ng-if="$ctrl.quitLink" ng-href="{{$ctrl.quitLink}}">{{'sitnet_quit_seb' | translate}}</a>
+                    <a *ngIf="quitLink" [href]="quitLink">{{ 'sitnet_quit_seb' | translate }}</a>
                 </u>
             </h3>
         </div>
     `,
-    controller: class ExaminationLogoutController implements angular.IComponentController {
-        quitLinkEnabled: boolean;
-        reasonPhrase: string;
-        quitLink: string;
+})
+export class ExaminationLogoutComponent {
+    quitLinkEnabled: boolean;
+    reasonPhrase: string;
+    quitLink?: string;
 
-        constructor(
-            private $rootScope: angular.IRootScopeService,
-            private $http: angular.IHttpService,
-            private $stateParams: StateParams,
-            private $state: StateService,
-            private $timeout: angular.ITimeoutService,
-        ) {
-            'ngInject';
+    constructor(
+        private http: HttpClient,
+        private stateParams: StateParams,
+        private state: StateService,
+        private Window: WindowRef,
+        private ExaminationStatus: ExaminationStatusService,
+    ) {}
+
+    private logout = () =>
+        this.Window.nativeWindow.setTimeout(() => {
+            this.ExaminationStatus.notifyEndOfExamination();
+            this.state.go('logout');
+        }, 8000);
+
+    ngOnInit() {
+        this.reasonPhrase = this.stateParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
+        this.quitLinkEnabled = this.stateParams.quitLinkEnabled === 'true';
+
+        if (this.quitLinkEnabled) {
+            this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(
+                resp => (this.quitLink = resp.quitLink),
+                () =>
+                    // Fetching quit link failed for some reason, just log out
+                    () => this.logout(),
+            );
+        } else {
+            this.logout();
         }
-
-        private logout = () =>
-            this.$timeout(() => {
-                this.$rootScope.$broadcast('examEnded');
-                this.$state.go('logout');
-            }, 8000);
-
-        $onInit = () => {
-            this.reasonPhrase = this.$stateParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-            this.quitLinkEnabled = this.$stateParams.quitLinkEnabled === 'true';
-
-            if (this.quitLinkEnabled) {
-                this.$http
-                    .get('/app/settings/examinationQuitLink')
-                    .then((resp: angular.IHttpResponse<{ quitLink: string }>) => {
-                        this.quitLink = resp.data.quitLink;
-                    })
-                    .catch(
-                        // Fetching quit link failed for some reason, just log out
-                        () => this.logout(),
-                    );
-            } else {
-                this.logout();
-            }
-        };
-    },
-};
-
-angular.module('app.examination').component('examinationLogout', ExaminationLogoutComponent);
+    }
+}

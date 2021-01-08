@@ -7,25 +7,25 @@
                 src="Images/icon_user.svg"
                 alt="user info"
                 onerror="this.onerror=null;this.src='Images/icon_user.png';"
-            /><span class="user-span">{{ $ctrl.displayUser() }}</span>
+            /><span class="user-span">{{ displayUser() }}</span>
         </div>
 
         <!-- RETURN -->
-        <div class="" ng-hide="$ctrl.isPreview">
-            <div class="pointer" tabindex="0" ng-click="$ctrl.turnExam()" ng-enter="$ctrl.turnExam()">
-                <a class="green_button save-and-exit">{{'sitnet_save_and_return_exam' | translate}}</a>
+        <div class="" [hidden]="isPreview">
+            <div class="pointer" tabindex="0" (click)="turnExam()" (keyup.enter)="turnExam()">
+                <a class="green_button save-and-exit">{{ 'sitnet_save_and_return_exam' | translate }}</a>
             </div>
         </div>
 
         <!-- ABORT -->
-        <div class="button-separator" ng-hide="$ctrl.isPreview">
-            <div class="pointer" tabindex="0" ng-click="$ctrl.abortExam()" ng-enter="$ctrl.abortExam()">
+        <div class="button-separator" [hidden]="isPreview">
+            <div class="pointer" tabindex="0" (click)="abortExam()" (keyup.enter)="abortExam()">
                 <a class="grey-button abort-and-exit">
                     <img
                         src="Images/icon_exit.svg"
                         alt="abort exam"
                         onerror="this.onerror=null;this.src='Images/icon_exit.png';"
-                    /><span class="abort-and-exit">{{'sitnet_abort_exam' | translate}}</span>
+                    /><span class="abort-and-exit">{{ 'sitnet_abort_exam' | translate }}</span>
                 </a>
             </div>
         </div>
@@ -35,18 +35,18 @@
     <div class="padl15">
         <div class="more-separators"></div>
     </div>
-    <div class="right-title">{{ $ctrl.exam.course.name }}</div>
+    <div class="right-title">{{ exam.course.name }}</div>
 
     <!-- ATTACHMENT -->
-    <div class="padl20" ng-show="$ctrl.exam.attachment">
+    <div class="padl20" [hidden]="!exam.attachment">
         <div
             class="row pointer attachment-button"
             tabindex="0"
-            ng-click="$ctrl.downloadExamAttachment()"
-            ng-enter="$ctrl.downloadExamAttachment()"
+            (click)="downloadExamAttachment()"
+            (keyup.enter)="downloadExamAttachment()"
         >
             <a class="green_button left-floater">
-                {{'sitnet_exam_attachment' | translate}}
+                {{ 'sitnet_exam_attachment' | translate }}
                 <img
                     src="Images/icon_attachment.svg"
                     alt="attachment"
@@ -54,7 +54,7 @@
                 />
             </a>
         </div>
-        <div class="attachment-name">{{$ctrl.exam.attachment.fileName | uppercase}}</div>
+        <div class="attachment-name">{{ exam.attachment.fileName | uppercase }}</div>
     </div>
 
     <div class="top-padding-2 bottom-padding-2 padl15">
@@ -62,30 +62,30 @@
             <li
                 tabindex="0"
                 class="row pointer phase-box"
-                ng-class="!$ctrl.activeSection ? '' : 'notactive'"
-                ng-click="$ctrl.selectGuidePage()"
-                ng-enter="$ctrl.selectGuidePage()"
+                [ngClass]="!activeSection ? '' : 'notactive'"
+                (click)="selectGuidePage()"
+                (keyup.enter)="selectGuidePage()"
             >
-                <div class="col-md-11 vcenter">{{'sitnet_exam_guide' | translate}}</div>
+                <div class="col-md-11 vcenter">{{ 'sitnet_exam_guide' | translate }}</div>
             </li>
 
             <li
                 tabindex="0"
                 class="row pointer phase-box"
-                ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
-                ng-class="$ctrl.activeSection.index === section.index ? '' : 'notactive'"
-                ng-click="$ctrl.selectSection(section)"
-                ng-enter="$ctrl.selectSection(section)"
-                popover-placement="left"
-                popover-trigger="'mouseenter focus'"
-                uib-popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
-                 {{ $ctrl.getQuestionAmount(section, 'answered')}}, {{'sitnet_questions_total' | translate}}
-                 {{ $ctrl.getQuestionAmount(section, 'total') }}"
+                *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'"
+                [ngClass]="activeSection.index === section.index ? '' : 'notactive'"
+                (click)="selectSection(section)"
+                (keyup.enter)="selectSection(section)"
+                ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
+                 {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
+                 {{ getQuestionAmount(section, 'total') }}"
+                placement="left"
+                trigger="mouseenter:focus"
             >
                 <div class="pull-left marr10">
                     <div
                         class="question-type-img-wrap"
-                        ng-if="$ctrl.getQuestionAmount(section, 'answered') === $ctrl.getQuestionAmount(section, 'total')"
+                        *ngIf="getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')"
                     >
                         <img
                             src="Images/icon_question_type_ready_grey.png"
@@ -95,7 +95,7 @@
                     </div>
                     <div
                         class="question-type-img-wrap"
-                        ng-if="$ctrl.getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')"
+                        *ngIf="getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')"
                     >
                         <img
                             src="Images/icon_question_type_waiting.svg"
@@ -107,26 +107,26 @@
 
                 <div
                     class="vcenter"
-                    ng-class="$ctrl.activeSection.index === section.index ? 'sitnet-text' : 'sitnet-text-dark'"
+                    [ngClass]="activeSection.index === section.index ? 'sitnet-text' : 'sitnet-text-dark'"
                 >
-                    {{section.index}}. {{section.name}}
+                    {{ section.index }}. {{ section.name }}
                 </div>
                 <div class="pull-right vcenter section-answered">
-                    <span class="pull-left">{{ $ctrl.getQuestionAmount(section, 'answered') }}</span>
+                    <span class="pull-left">{{ getQuestionAmount(section, 'answered') }}</span>
                     <span class="pull-left horizontal-padding-05"> / </span>
-                    <span class="pull-left">{{ $ctrl.getQuestionAmount(section, 'total') }}</span>
+                    <span class="pull-left">{{ getQuestionAmount(section, 'total') }}</span>
                 </div>
             </li>
         </ul>
 
         <!-- INSTRUCTIONS -->
-        <div class="col-md-12" ng-hide="!$ctrl.room || $ctrl.exam.executionType.type === 'MATURITY'">
+        <div class="col-md-12" [hidden]="!room || exam.executionType.type === 'MATURITY'">
             <div
                 tabindex="0"
                 class="row pointer"
-                popover-placement="left"
-                popover-trigger="'mouseenter focus'"
-                uib-popover="{{ $ctrl.displayRoomInstructions() }}"
+                ngbPopover="{{ displayRoomInstructions() }}"
+                placement="left"
+                trigger="mouseenter:focus"
             >
                 <a class="col-md-1" style="margin-top: 7px;">
                     <img
@@ -136,7 +136,7 @@
                     />
                 </a>
                 <div class="col-md-10 question-text question-type-text info">
-                    {{'sitnet_room_guidance' | translate}}
+                    {{ 'sitnet_room_guidance' | translate }}
                 </div>
             </div>
         </div>
@@ -145,9 +145,9 @@
         <div
             class="col-md-12"
             tabindex="0"
-            ng-click="$ctrl.showMaturityInstructions()"
-            ng-enter="$ctrl.showMaturityInstructions()"
-            ng-show="$ctrl.exam.executionType.type==='MATURITY'"
+            (click)="showMaturityInstructions()"
+            (keyup.enter)="showMaturityInstructions()"
+            [hidden]="exam.executionType.type !== 'MATURITY'"
         >
             <div class="row pointer">
                 <a class="col-md-1" style="margin-top: 7px;">
@@ -158,13 +158,13 @@
                     />
                 </a>
                 <div class="col-md-10 question-text question-type-text info">
-                    {{'sitnet_maturity_instructions' | translate}}
+                    {{ 'sitnet_maturity_instructions' | translate }}
                 </div>
             </div>
         </div>
 
-        <div class="col-md-12" ng-show="$ctrl.isPreview">
-            <div tabindex="0" class="row pointer" ng-click="$ctrl.exitPreview()" ng-enter="$ctrl.exitPreview()">
+        <div class="col-md-12" [hidden]="!isPreview">
+            <div tabindex="0" class="row pointer" (click)="exitPreview()" (keyup.enter)="exitPreview()">
                 <a class="col-md-1" style="margin-top: 7px;">
                     <img
                         src="Images/icon_info.svg"
@@ -173,7 +173,7 @@
                     />
                 </a>
                 <div class="col-md-10 question-text question-type-text info">
-                    {{'sitnet_exit_preview' | translate}}
+                    {{ 'sitnet_exit_preview' | translate }}
                 </div>
             </div>
         </div>

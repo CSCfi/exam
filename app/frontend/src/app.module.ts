@@ -31,6 +31,7 @@ import { CalendarModule } from './calendar/calendar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
+import { ExaminationModule } from './examination/examination.module';
 import { AuthInterceptor } from './httpInterceptor';
 import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
@@ -55,6 +56,7 @@ import { UtilityModule } from './utility/utility.module';
         NavigationModule,
         DashboardModule,
         ExamModule,
+        ExaminationModule,
         EnrolmentModule,
         QuestionModule,
         UtilityModule,

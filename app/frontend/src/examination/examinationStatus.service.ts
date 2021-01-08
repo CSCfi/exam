@@ -12,23 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
-import angular from 'angular';
+@Injectable()
+export class ExaminationStatusService {
+    public examinationEnding$: Observable<void>;
+    private examinationEndingSubscription = new Subject<void>();
 
-angular.module('app.examination').component('examinationClozeTest', {
-    template: require('./examinationClozeTest.template.html'),
-    bindings: {
-        sq: '<',
-        examHash: '<',
-    },
-    controller: [
-        'Examination',
-        function(Examination) {
-            const vm = this;
+    constructor() {
+        this.examinationEnding$ = this.examinationEndingSubscription.asObservable();
+    }
 
-            vm.saveAnswer = function() {
-                Examination.saveTextualAnswer(vm.sq, vm.examHash, false);
-            };
-        },
-    ],
-});
+    notifyEndOfExamination = () => this.examinationEndingSubscription.next();
+}

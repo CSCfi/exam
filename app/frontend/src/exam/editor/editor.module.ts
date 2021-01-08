@@ -31,11 +31,10 @@ import { SectionsListComponent } from './sections/sectionsList.component';
 require('../../facility');
 require('../../software');
 require('../../review');
-require('../../examination');
 require('../../question');
 
 angular
-    .module('app.exam.editor', ['app.facility', 'app.software', 'app.review', 'app.examination', 'app.question'])
+    .module('app.exam.editor', ['app.facility', 'app.software', 'app.review', 'app.question'])
     .service('Course', downgradeInjectable(CoursePickerService))
     .service('CollaborativeExam', downgradeInjectable(CollaborativeExamService))
     .directive('basicExamInfo', downgradeComponent({ component: BasicExamInfoComponent }))

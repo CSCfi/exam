@@ -37,7 +37,7 @@ interface ExamWithStatement {
     languageInspection: { statement: { attachment: any } };
 }
 
-interface AnsweredQuestion {
+export interface AnsweredQuestion {
     id: number;
     essayAnswer: { objectVersion: number; attachment?: { fileName: string } };
 }

@@ -12,28 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import angular from 'angular';
+import { SessionService } from '../../session/session.service';
+import { Examination } from '../examination.service';
 
-angular.module('app.examination').component('examinationHeader', {
-    template: require('./examinationHeader.template.html'),
-    bindings: {
-        exam: '<',
-        onTimeout: '&',
-        isPreview: '<',
-    },
-    controller: [
-        'Session',
-        function(Session) {
-            const vm = this;
+@Component({
+    selector: 'examination-header',
+    template: require('./examinationHeader.component.html'),
+})
+export class ExaminationHeaderComponent {
+    @Input() exam: Examination;
+    @Input() isPreview: boolean;
+    @Output() onTimeout = new EventEmitter<void>();
 
-            vm.informTimeout = function() {
-                vm.onTimeout();
-            };
+    constructor(private Session: SessionService) {}
 
-            vm.switchLanguage = function(key) {
-                Session.switchLanguage(key);
-            };
-        },
-    ],
-});
+    notifyTimeout = () => this.onTimeout.emit();
+    switchLanguage = (key: string) => this.Session.switchLanguage(key);
+}

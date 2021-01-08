@@ -20,17 +20,18 @@ import { OrderModule } from 'ngx-order-pipe';
 import { UtilityModule } from '../utility/utility.module';
 import { QuestionComponent } from './basequestion/question.component';
 import { QuestionBodyComponent } from './basequestion/questionBody.component.upgrade';
-import { LibraryService } from './library/library.service';
+import { ClozeTestComponent } from './clozetest/clozeTest.directive.upgrade';
+import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
+import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 import { LibraryComponent } from './library/library.component';
-
+import { LibraryService } from './library/library.service';
+import { LibraryOwnerSelection } from './library/owners/libraryOwners.component';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
-import { LibraryOwnerSelection } from './library/owners/libraryOwners.component';
-import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
 import { QuestionService } from './question.service';
-import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 
 @NgModule({
+    exports: [ClozeTestComponent],
     imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
     declarations: [
         LibraryComponent,
@@ -38,6 +39,7 @@ import { LibraryTransferComponent } from './library/export/libraryTransfer.compo
         LibraryResultsComponent,
         QuestionComponent,
         QuestionBodyComponent,
+        ClozeTestComponent,
         LibraryOwnerSelection,
         LibraryFileExportComponent,
         LibraryTransferComponent,

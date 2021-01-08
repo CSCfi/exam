@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,17 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Injectable } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-type GlobalWindow = Window;
+import { ExaminationQuestion, ExaminationService } from '../examination.service';
 
-function _window(): GlobalWindow {
-    // return the global native browser window object
-    return window;
-}
-@Injectable()
-export class WindowRef {
-    get nativeWindow() {
-        return _window();
-    }
+@Component({
+    selector: 'examination-cloze-test',
+    template: require('./examinationClozeTest.component.html'),
+})
+export class ExaminationClozeTestComponent {
+    @Input() sq: ExaminationQuestion;
+    @Input() examHash: string;
+
+    constructor(private Examination: ExaminationService) {}
+
+    saveAnswer = () => this.Examination.saveTextualAnswer(this.sq, this.examHash, false, false);
 }

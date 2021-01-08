@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -44,7 +43,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         @Inject('$stateParams') private stateParams: StateParams,
         private translate: TranslateService,
-        private location: Location,
         private Session: SessionService,
         private Window: WindowRef,
     ) {}
@@ -71,7 +69,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
-                    this.timeoutId = this.Window.nativeWindow(this.Session.checkSession, offset);
+                    this.timeoutId = this.Window.nativeWindow.setTimeout(this.Session.checkSession, offset);
                     if (this.enrolment.reservation) {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();

@@ -18,7 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, Observable, throwError } from 'rxjs';
-import { catchError, concatMap, map, tap, toArray, switchMap } from 'rxjs/operators';
+import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import {
@@ -44,6 +44,7 @@ export interface ExaminationQuestion extends ExamSectionQuestion {
     selectedOption: MultipleChoiceOption | number;
     answered: boolean;
     selectedAnsweredState: string;
+    expanded: boolean;
 }
 
 export interface ExaminationSection extends ExamSection {
@@ -245,7 +246,7 @@ export class ExaminationService {
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
             toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-            this.Window.nativeWindow().onbeforeunload = null;
+            this.Window.nativeWindow.onbeforeunload = null;
             this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
