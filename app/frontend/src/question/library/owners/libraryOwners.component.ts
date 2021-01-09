@@ -27,7 +27,7 @@ import { QuestionService } from '../../question.service';
     selector: 'library-owner-selection',
     template: require('./libraryOwners.component.html'),
 })
-export class LibraryOwnerSelection implements OnInit {
+export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[];
     showOwnerSelection = false;
 

@@ -116,7 +116,7 @@ export interface MultipleChoiceOption {
     option: string;
     correctOption: boolean;
     defaultScore: number;
-    claimChoiceType: string;
+    claimChoiceType?: string;
 }
 
 export interface ExamSectionQuestionOption {

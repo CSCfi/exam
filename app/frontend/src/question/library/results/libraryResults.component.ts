@@ -15,14 +15,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
 import * as _ from 'lodash';
+import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { QuestionService } from '../../question.service';
-import { LibraryService, LibraryQuestion } from '../library.service';
+import { LibraryQuestion, LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
@@ -34,7 +34,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: SelectableQuestion[];
     @Input() disableLinks: boolean;
     @Input() tableClass: string;
-    @Output('on-selection') onSelection = new EventEmitter<number[]>();
+    @Output() onSelection = new EventEmitter<number[]>();
     @Output() onCopy = new EventEmitter<LibraryQuestion>();
 
     user: User;
@@ -89,7 +89,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('sitnet_remove_question_from_library_only'),
         );
         dialog.result.then(() =>
-            this.http.delete(this.Question.questionsApi(question.id)).subscribe(() => {
+            this.http.delete(`/app/questions/${question.id}`).subscribe(() => {
                 this.questions.splice(this.questions.indexOf(question), 1);
                 toast.info(this.translate.instant('sitnet_question_removed'));
             }),
@@ -102,7 +102,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('sitnet_copy_question'),
         );
         dialog.result.then(() =>
-            this.http.post<SelectableQuestion>(this.Question.questionCopyApi(question.id), {}).subscribe(copy => {
+            this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe(copy => {
                 this.questions.splice(this.questions.indexOf(question), 0, copy);
                 this.onCopy.emit(copy);
             }),

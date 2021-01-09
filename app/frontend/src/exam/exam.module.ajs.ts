@@ -17,10 +17,10 @@ import * as angular from 'angular';
 
 import { ExamService } from './exam.service';
 
-require('./editor/editor.module.ts');
+require('./editor/editor.module.ajs.ts');
 require('../facility/facility.module');
-require('../review/review.module.ajs.ts');
-require('../question');
+require('../review/review.module.ajs');
+require('../question/question.module.ajs');
 
 angular
     .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.question'])

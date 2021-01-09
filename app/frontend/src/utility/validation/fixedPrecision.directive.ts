@@ -12,25 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Directive, Input } from '@angular/core';
+import { Directive } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
-export function uniqueValuesValidator(property: string, values: { [key: string]: unknown }[]): ValidatorFn {
+export function fixedPrecisionValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-        const matches = values.filter(v => v[property] === control.value);
-        return matches.length > 1 ? { nonUniqueValue: { value: control.value } } : null;
+        const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
+        const match = !control.value.toString().match(re);
+
+        return match ? null : { notFixedPrecisionValue: { value: control.value } };
     };
 }
 @Directive({
-    selector: '[appUniqueValues]',
+    selector: '[fixedPrecision]',
     /* eslint-disable-next-line */
-    providers: [{ provide: NG_VALIDATORS, useExisting: UniqueValuesValidatorDirective, multi: true }],
+    providers: [{ provide: NG_VALIDATORS, useExisting: FixedPrecisionValidatorDirective, multi: true }],
 })
-export class UniqueValuesValidatorDirective implements Validator {
-    @Input('appUniqueValues') items: { [key: string]: unknown }[];
-    @Input() property: string;
-
+export class FixedPrecisionValidatorDirective implements Validator {
     validate(control: AbstractControl): ValidationErrors | null {
-        return this.items && this.property ? uniqueValuesValidator(this.property, this.items)(control) : null;
+        return fixedPrecisionValidator()(control);
     }
 }

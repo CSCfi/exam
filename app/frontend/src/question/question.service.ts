@@ -44,10 +44,8 @@ export class QuestionService {
         private Attachment: AttachmentService,
     ) {}
 
-    questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
-    questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
-    essayScoreApi = (id: number) => `'/app/review/examquestion/${id}/score`;
-    questionCopyApi = (id?: number) => (!id ? '/app/question' : `/app/question/${id}`);
+    private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
+    private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -385,10 +383,12 @@ export class QuestionService {
                 return 'sitnet_question_claim_incorrect';
             case 'SkipOption':
                 return 'sitnet_question_claim_skip';
+            default:
+                return '';
         }
     };
 
-    returnClaimChoiceOptionClass = (optionType: string) => {
+    returnClaimChoiceOptionClass = (optionType: string): string => {
         switch (optionType) {
             case 'CorrectOption':
                 return 'claim-choice-correct-answer';

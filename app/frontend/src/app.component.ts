@@ -16,6 +16,7 @@ import * as angular from 'angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { ExaminationStatusService } from './examination/examinationStatus.service';
 import { SessionService, User } from './session/session.service';
 
 export const AppComponent: angular.IComponentOptions = {
@@ -41,11 +42,14 @@ export const AppComponent: angular.IComponentOptions = {
             private $rootScope: angular.IRootScopeService,
             private $window: angular.IWindowService,
             private Session: SessionService,
+            private ExaminationStatus: ExaminationStatusService,
         ) {
             'ngInject';
 
             this.$rootScope.$on('examStarted', () => (this.hideNavBar = true));
-            this.$rootScope.$on('examEnded', () => (this.hideNavBar = false));
+            this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+                this.hideNavBar = false;
+            });
             this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
                 delete this.user;
             });
@@ -67,16 +71,16 @@ export const AppComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
+                this.Session.getEnv$().subscribe(
+                    (value: 'DEV' | 'PROD') => {
+                        if (value === 'PROD') {
+                            this.Session.login$('', '').subscribe(user => (this.user = user));
+                        }
+                        this.devLoginRequired = value === 'DEV';
+                    },
+                    () => console.log('no env found'),
+                );
             }
-            this.Session.getEnv$().subscribe(
-                (value: 'DEV' | 'PROD') => {
-                    if (value === 'PROD') {
-                        this.Session.login$('', '').subscribe(user => (this.user = user));
-                    }
-                    this.devLoginRequired = value === 'DEV';
-                },
-                () => console.log('no env found'),
-            );
         }
 
         $onDestroy() {

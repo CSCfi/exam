@@ -18,17 +18,27 @@ import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
+import { ClaimChoiceEditorComponent } from './basequestion/claimChoice.component';
+import { EssayEditorComponent } from './basequestion/essay.component';
+import { MultipleChoiceEditorComponent } from './basequestion/multipleChoice.component';
+import { MultipleChoiceOptionEditorComponent } from './basequestion/multipleChoiceOption.component';
 import { QuestionComponent } from './basequestion/question.component';
-import { QuestionBodyComponent } from './basequestion/questionBody.component.upgrade';
+import { QuestionBodyComponent } from './basequestion/questionBody.component';
+import { TagPickerComponent } from './basequestion/tagPicker.component';
+import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weightedMultipleChoiceOption.component';
 import { ClozeTestComponent } from './clozetest/clozeTest.directive.upgrade';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+import { ExamQuestionComponent } from './examquestion/examQuestion.component';
+import { ExamQuestionEditorComponent } from './examquestion/examQuestionEditor.component';
 import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
 import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 import { LibraryComponent } from './library/library.component';
 import { LibraryService } from './library/library.service';
-import { LibraryOwnerSelection } from './library/owners/libraryOwners.component';
+import { LibraryOwnersComponent } from './library/owners/libraryOwners.component';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
+import { QuestionSelectorComponent } from './selector/questionSelector.component';
 
 @NgModule({
     exports: [ClozeTestComponent],
@@ -37,12 +47,22 @@ import { QuestionService } from './question.service';
         LibraryComponent,
         LibrarySearchComponent,
         LibraryResultsComponent,
-        QuestionComponent,
-        QuestionBodyComponent,
-        ClozeTestComponent,
-        LibraryOwnerSelection,
         LibraryFileExportComponent,
         LibraryTransferComponent,
+        QuestionComponent,
+        QuestionBodyComponent,
+        QuestionSelectorComponent,
+        BaseQuestionEditorComponent,
+        ExamQuestionComponent,
+        ExamQuestionEditorComponent,
+        ClozeTestComponent,
+        LibraryOwnersComponent,
+        ClaimChoiceEditorComponent,
+        EssayEditorComponent,
+        MultipleChoiceEditorComponent,
+        MultipleChoiceOptionEditorComponent,
+        WeightedMultipleChoiceOptionEditorComponent,
+        TagPickerComponent,
     ],
     entryComponents: [LibraryComponent, LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
     providers: [LibraryService, QuestionService],

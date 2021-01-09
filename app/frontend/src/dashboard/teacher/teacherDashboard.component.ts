@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { StateParams, StateService } from '@uirouter/core';
 
 import { ExamExecutionType } from '../../exam/exam.model';
 import { SessionService, User } from '../../session/session.service';
@@ -58,7 +59,8 @@ export class TeacherDashboardComponent implements OnInit {
         private http: HttpClient,
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
-        @Inject('$location') private $location: any,
+        private stateParams: StateParams,
+        private state: StateService,
         private searchFilter: ExamSearchPipe,
     ) {
         this.activeExtraColumns = [
@@ -107,7 +109,7 @@ export class TeacherDashboardComponent implements OnInit {
     }
 
     ngOnInit() {
-        const activeTab = this.$location.search().tab;
+        const activeTab = this.stateParams.tab;
         this.activeTab = activeTab || '1';
         this.userId = this.Session.getUser().id;
         this.TeacherDashboard.populate().subscribe(dashboard => {
@@ -134,7 +136,7 @@ export class TeacherDashboardComponent implements OnInit {
 
     changeTab = (event: NgbTabChangeEvent) => {
         this.activeTab = event.nextId;
-        this.$location.search('tab', event.nextId);
+        this.state.go('dashboard', { tab: event.nextId });
     };
 
     search = (text: string) => {

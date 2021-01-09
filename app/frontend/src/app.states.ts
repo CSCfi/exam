@@ -21,7 +21,12 @@ export default function states($urlRouterProvider: UrlRouterProvider, $stateProv
     // modules.
     $stateProvider
         .state('app', { url: '/', component: 'examApp', redirectTo: 'dashboard' })
-        .state('dashboard', { url: 'dashboard', component: 'dashboard', reloadOnSearch: false, parent: 'app' })
+        .state('dashboard', {
+            url: 'dashboard?{tab}&{filter}',
+            component: 'dashboard',
+            reloadOnSearch: false,
+            parent: 'app',
+        })
         .state('library', { url: 'questions', component: 'library', parent: 'app' })
         .state('question', {
             url: 'questions/{id}',

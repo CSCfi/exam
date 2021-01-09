@@ -40,6 +40,7 @@ import states from './app.states';
 import DashboardModule from './dashboard/dashboard.module.ajs';
 import EnrolmentModule from './enrolment/enrolment.module.ajs';
 import CollaborativeExamModule from './exam/collaborative';
+import ExaminationModuleAjs from './examination/examination.module.ajs';
 import MaturityModuleAjs from './maturity/maturity.module.ajs';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
@@ -64,6 +65,7 @@ export const ajsApp = angularJS
         EnrolmentModule,
         DashboardModule,
         CollaborativeExamModule,
+        ExaminationModuleAjs,
         'app.exam.editor',
         'app.enrolment',
         'app.maturity',

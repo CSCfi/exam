@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./editor.module.ts');
+require('./editor.module.ajs.ts');
 require('./examTabs.component.ts');
 
 require('./basic/basicExamInfo.component.ts');

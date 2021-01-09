@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateParams, StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -56,8 +56,8 @@ export class ExamListCategoryComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private location: Location,
-        @Inject('$location') private $location: any,
+        private stateParams: StateParams,
+        private state: StateService,
         private dialog: ConfirmationDialogService,
         private Exam: ExamService,
         private DateTime: DateTimeService,
@@ -65,7 +65,7 @@ export class ExamListCategoryComponent implements OnInit {
     ) {
         this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
             this.filterText = text;
-            this.$location.search('filter', this.filterText);
+            this.state.go('dashboard', { tab: stateParams.tab, filter: this.filterText });
             this.onFilterChange.emit(this.filterText);
         });
     }
@@ -76,7 +76,7 @@ export class ExamListCategoryComponent implements OnInit {
             predicate: this.defaultPredicate,
             reverse: this.defaultReverse,
         };
-        this.filterText = this.$location.search().filter;
+        this.filterText = this.stateParams.filter;
         if (this.filterText) {
             this.search(this.filterText);
         }
@@ -107,7 +107,7 @@ export class ExamListCategoryComponent implements OnInit {
             .subscribe(
                 resp => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.location.go(`/exams/${resp.id}/1`);
+                    this.state.go('examEditor', { id: resp.id });
                 },
                 resp => toast.error(resp.data),
             );

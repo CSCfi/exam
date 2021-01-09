@@ -18,7 +18,6 @@ import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
 import { CKEditorComponent } from './ckeditor/ckeditor.component';
@@ -39,8 +38,10 @@ import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import { TableSortComponent } from './sorting/tableSort.component';
+import { TruncatingPipe } from './truncate/truncate.pipe';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
+import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
 import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
 import { WindowRef } from './window/window.service';
 
@@ -64,6 +65,7 @@ import { WindowRef } from './window/window.service';
         PaginatorComponent,
         MathJaxDirective,
         UniqueValuesValidatorDirective,
+        FixedPrecisionValidatorDirective,
         CourseCodeComponent,
     ],
     declarations: [
@@ -85,6 +87,7 @@ import { WindowRef } from './window/window.service';
         PageFillPipe,
         ApplyDstPipe,
         UniqueValuesValidatorDirective,
+        FixedPrecisionValidatorDirective,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

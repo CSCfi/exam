@@ -11,17 +11,15 @@
                 onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
         /></sup>
     </div>
-    <!--show name, typeahead-editable="false"
-            typeahead-min-length="1"
-            -->
     <div class="col-md-6">
         <input
             type="text"
             class="form-control wdth-30 make-inline"
             ([ngModel])="(filter)"
-            ngbTypeahead="filterMaterials$()"
+            ngbTypeahead="filterMaterials$"
             (selectItem)="selectMaterial($event)"
             [resultFormatter]="nameFormat"
+            [editable]="false"
         />
         <span
             ><button (click)="addMaterial()" class="btn btn-primary green border-green">

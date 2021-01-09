@@ -31,7 +31,7 @@ import { SectionsListComponent } from './sections/sectionsList.component';
 require('../../facility');
 require('../../software');
 require('../../review');
-require('../../question');
+require('../../question/question.module.ajs');
 
 angular
     .module('app.exam.editor', ['app.facility', 'app.software', 'app.review', 'app.question'])

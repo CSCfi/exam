@@ -16,13 +16,13 @@ import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static
 import * as angular from 'angular';
 
 import { QuestionComponent } from './basequestion/question.component';
+import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
+import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
+import { LibraryComponent } from './library/library.component';
 import { LibraryService } from './library/library.service';
 import { LibraryResultsComponent } from './library/results/libraryResults.component';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
-import { LibraryComponent } from './library/library.component';
-import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
 import { QuestionService } from './question.service';
-import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
 
 angular
     .module('app.question', [])
