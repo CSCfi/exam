@@ -17,7 +17,7 @@
     </div>
 
     <div class="tab-wrapper-exams">
-        <ngb-tabset [activeId]="activeTab" (tabChange)="tabChanged($event)">
+        <ngb-tabset #tabs="ngbTabset" [activeId]="activeTab" (tabChange)="tabChanged($event)">
             <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="1">
                 <ng-template ngbTabTitle>{{ 'sitnet_exam_basic_information_tab' | translate }}</ng-template>
                 <ng-template ngbTabContent>
@@ -74,7 +74,7 @@
             </ngb-tab>
             <ngb-tab
                 *ngIf="exam && !collaborative && (isOwner() || user.isAdmin) && exam.executionType.type !== 'PRINTOUT'"
-                id="user.isAdmin ? 5 : 6"
+                id="user.isAdmin ? '5' : '6'"
             >
                 <ng-template ngbTabTitle>{{ 'sitnet_exam_summary_tab' | translate }}</ng-template>
                 <ng-template ngbTabContent>

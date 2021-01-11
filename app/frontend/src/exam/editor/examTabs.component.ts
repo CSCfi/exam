@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { NgbTabChangeEvent, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
@@ -37,7 +37,9 @@ export class ExamTabsComponent implements OnInit {
     examInfo: { title: string | null };
     exam: Exam;
     reviews: any[];
-    activeTab: string;
+
+    @ViewChild('tabs') tabs: NgbTabset;
+    activeTab = '1';
 
     constructor(
         private http: HttpClient,
@@ -58,7 +60,10 @@ export class ExamTabsComponent implements OnInit {
             this.downloadExam();
         }
         this.getReviews(this.state.params.id);
-        this.activeTab = this.state.params.tab;
+    }
+
+    ngAfterViewInit() {
+        // this.tabs.select(this.state.params.tab);
     }
 
     updateTitle = (code: string | null, name: string | null) => {
@@ -80,15 +85,15 @@ export class ExamTabsComponent implements OnInit {
     onReviewsLoaded = (data: { reviews: unknown[] }) => (this.reviews = data.reviews);
 
     tabChanged = (event: NgbTabChangeEvent) => {
-        const params = { id: this.exam.id, tab: parseInt(event.nextId) + 1 };
-        this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params);
+        const params = { id: this.exam.id, tab: event.nextId };
+        this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params, { notify: false });
     };
 
-    switchToBasicInfo = () => (this.activeTab = '1');
+    switchToBasicInfo = () => this.tabs.select('1');
 
-    switchToQuestions = () => (this.activeTab = '2');
+    switchToQuestions = () => this.tabs.select('2');
 
-    switchToPublishSettings = () => (this.activeTab = '3');
+    switchToPublishSettings = () => this.tabs.select('3');
 
     examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
         this.updateTitle(props.code, props.name);
@@ -114,6 +119,7 @@ export class ExamTabsComponent implements OnInit {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
+                this.activeTab = '2';
             },
             err => toastr.error(err.data),
         );
@@ -125,6 +131,7 @@ export class ExamTabsComponent implements OnInit {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
+                this.activeTab = '2';
             },
             err => toastr.error(err.data),
         );
@@ -145,6 +152,7 @@ export class ExamTabsComponent implements OnInit {
                 }
             });
             this.reviews = reviews;
+            this.activeTab = this.state.params.tab; // seems that this can not be set until all async init operations are done
         });
     };
 
