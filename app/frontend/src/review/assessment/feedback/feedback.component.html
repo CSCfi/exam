@@ -6,7 +6,7 @@
                 ngbPopover="{{ hideEditor ? 'sitnet_show' : ('sitnet_hide' | translate) }}"
                 placement="right"
                 delay="500"
-                triggers="mouseenter"
+                triggers="mouseenter:mouseleave"
             >
                 <i
                     (click)="toggleFeedbackVisibility()"

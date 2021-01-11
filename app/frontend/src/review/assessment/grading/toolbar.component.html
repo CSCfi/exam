@@ -26,7 +26,7 @@
                 [disabled]="isReadOnly()"
                 (click)="saveAssessment()"
                 ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
-                trigger="mouseenter"
+                triggers="mouseenter:mouseleave"
                 placement="top"
             >
                 {{ 'sitnet_save_changes' | translate }}
@@ -37,7 +37,7 @@
                 class="disabled-button-popover-wrapper"
                 ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"
                 placement="top"
-                trigger="mouseenter"
+                triggers="mouseenter:mouseleave"
             >
                 <button
                     class="pointer"

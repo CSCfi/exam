@@ -16,17 +16,18 @@
     </div>
 
     <div class="col-md-12 padl0 padt40" id="exam">
-        <div cdkDropList (cdkDropListDropped)="moveSection($event)">
-            <section
-                cdkDrag
-                cdkDragLockAxis="y"
-                *ngFor="let section of exam.examSections"
-                [section]="section"
-                [examId]="exam.id"
-                [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                (on-delete)="removeSection(section)"
-                (on-materials-changed)="loadMaterials()"
-            ></section>
+        <div cdkDropList (cdkDropListDropped)="moveSection($event)" style="cursor: move">
+            <div *ngFor="let section of exam.examSections" cdkDrag cdkDragLockAxis="y">
+                <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                <div class="drag-preview" *cdkDragPreview>#{{ section.index }} {{ section.name }}</div>
+                <section
+                    [section]="section"
+                    [examId]="exam.id"
+                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
+                    (on-delete)="removeSection(section)"
+                    (on-materials-changed)="loadMaterials()"
+                ></section>
+            </div>
         </div>
         <div class="col-md-12 padl0 mart20">
             <div class="col-md-3 exam-basic-title">{{ 'sitnet_total_score' | translate }}:</div>

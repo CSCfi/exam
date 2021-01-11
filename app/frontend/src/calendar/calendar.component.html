@@ -304,7 +304,7 @@
                                     ngbDropdownItem
                                     role="menuitem"
                                     ngbPopover="{{ getDescription(room) }}"
-                                    trigger="mouseenter"
+                                    triggers="mouseenter:mouseleave"
                                 >
                                     {{ room.name | truncate: 30 }}</a
                                 >
@@ -348,7 +348,7 @@
                     <span
                         *ngFor="let eh of exceptionHours"
                         [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
-                        trigger="mouseenter"
+                        triggers="mouseenter:mouseleave"
                         ngbPopover="{{ eh.description | translate }}"
                     >
                         {{ eh.start }} - {{ eh.end }}

@@ -19,7 +19,7 @@
                     <img
                         ngbPopover="{{ 'sitnet_select_exam_course_description' | translate }}"
                         placement="right"
-                        trigger="mouseenter"
+                        triggers="mouseenter:mouseleave"
                         src="/assets/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
@@ -48,7 +48,7 @@
                             class="fa fa-question-circle fa-fw"
                             ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
                             placement="left"
-                            trigger="mouseenter"
+                            triggers="mouseenter:mouseleave"
                         ></i>
                         <i *ngIf="loader.code.isOn" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                     </span>
@@ -76,7 +76,7 @@
                             class="fa fa-question-circle fa-fw"
                             ngbPopover="{{ 'sitnet_course_name' | translate }}"
                             placement="left"
-                            trigger="mouseenter"
+                            triggers="mouseenter:mouseleave"
                         ></i>
                         <i *ngIf="loader.name.isOn" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                     </span>

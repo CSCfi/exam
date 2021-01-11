@@ -6,7 +6,7 @@
             class="pointer attachment-link pull-right"
             ngbPopover="{{ sectionQuestion.question.attachment.fileName }}"
             placement="left"
-            trigger="mouseenter"
+            triggers="mouseenter:mouseleave"
             (click)="downloadQuestionAttachment()"
         >
             <i class="fa fa-paperclip fa-fw"></i>
