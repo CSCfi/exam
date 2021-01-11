@@ -140,10 +140,11 @@
                             </a>
                         </td>
                         <td class="text-center">
+                            <!-- todo: make a modal component out of this -->
                             <ngb-accordion #acc="ngbAccordion" *ngIf="isOwner(exam)">
                                 <ngb-panel id="toggle-1" title="{{ 'sitnet_choose_execution_type' | translate }}">
                                     <ng-template ngbPanelContent>
-                                        <li *ngFor="let type of evxamTypes">
+                                        <li *ngFor="let type of examTypes">
                                             <a *ngIf="type.examinationTypes.length > 0" (click)="selectedType = type">
                                                 {{ type.name | translate }}
                                             </a>
@@ -157,13 +158,13 @@
                                     </ng-template>
                                 </ngb-panel>
                                 <ngb-panel
-                                    [disabled]="!selectedType || selected.examinationTypes.length == 0"
+                                    [disabled]="!selectedType || selectedType.examinationTypes.length == 0"
                                     id="toggle-2"
                                     title="{{ 'sitnet_examination_type' | translate }}"
                                 >
                                     <ng-template ngbPanelContent>
                                         <li *ngFor="let et of selectedType.examinationTypes">
-                                            <a (click)="$ctrl.copyExam(exam, type.type, et.type)">
+                                            <a (click)="copyExam(exam, selectedType.type, et.type)">
                                                 {{ et.name | translate }}
                                             </a>
                                         </li>

@@ -33,10 +33,19 @@ export class TeacherListComponent implements OnInit {
     inspectors: string;
 
     ngOnInit() {
-        const exam = this.useParent ? this.exam.parent : this.exam;
-        if (exam) {
-            this.owners = exam.examOwners.map(eo => `${eo.firstName} ${eo.lastName}`).join(', ');
+        const owners = this.useParent && this.exam.parent ? this.exam.parent.examOwners : this.exam.examOwners;
+        const inspectors = this.exam.examInspections ? this.exam.examInspections.map(ei => ei.user) : [];
+        const inspectorHtml = inspectors
+            .filter(i => i)
+            .map(i => `${i.firstName} ${i.lastName}`)
+            .join(', ');
+        if (owners.filter(o => o.lastName).length > 0) {
+            const ownerHtml = `${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}`;
+            return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
+        } else if (inspectors.length > 0) {
+            return inspectorHtml;
+        } else {
+            return '';
         }
-        this.inspectors = this.exam.examInspections.map(ei => `${ei.user.firstName} ${ei.user.lastName}`).join(', ');
     }
 }

@@ -12,10 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeInjectable } from '@angular/upgrade/static';
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
 
 import { ExamService } from './exam.service';
+import { ExamListingComponent } from './listing/examList.component';
 
 require('./editor/editor.module.ajs.ts');
 require('../facility/facility.module');
@@ -24,4 +25,5 @@ require('../question/question.module.ajs');
 
 angular
     .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.question'])
+    .directive('examList', downgradeComponent({ component: ExamListingComponent }))
     .service('Exam', downgradeInjectable(ExamService));

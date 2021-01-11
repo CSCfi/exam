@@ -48,6 +48,7 @@ import { SectionComponent } from './editor/sections/section.component';
 import { SectionQuestionComponent } from './editor/sections/sectionQuestion.component';
 import { SectionsListComponent } from './editor/sections/sectionsList.component';
 import { ExamService } from './exam.service';
+import { ExamListingComponent } from './listing/examList.component';
 
 @NgModule({
     imports: [NgbModule, OrderModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
@@ -77,8 +78,9 @@ import { ExamService } from './exam.service';
         SectionQuestionComponent,
         ExamTabsComponent,
         ExaminationEventDialogComponent,
+        ExamListingComponent,
     ],
-    entryComponents: [ExamTabsComponent, NewExamComponent],
+    entryComponents: [ExamTabsComponent, NewExamComponent, ExamListingComponent],
     providers: [ExamService, CoursePickerService, CollaborativeExamService],
 })
 export class ExamModule {}
