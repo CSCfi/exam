@@ -72,7 +72,7 @@
             [(ngModel)]="newType"
             (change)="setQuestionType()"
         >
-            <option *ngFor="let type of questionTypes" value="type.name">{{ type.name | translate }}</option>
+            <option *ngFor="let type of questionTypes" value="{{ type.type }}">{{ type.name | translate }}</option>
             <option value="">{{ 'sitnet_choose' | translate }}</option>
         </select>
         <span *ngIf="question.type == 'EssayQuestion'">
@@ -202,7 +202,6 @@
                 [(ngModel)]="question.defaultMaxScore"
                 min="0"
                 max="1000"
-                fixedPrecision
                 required
                 [disabled]="lotteryOn"
             />
@@ -234,7 +233,7 @@
                 type="text"
                 class="form-control wdth-30 make-inline"
                 [(ngModel)]="newOwner.name"
-                ngbTypeahead="listQuestionOwners$"
+                [ngbTypeahead]="listQuestionOwners$"
                 [editable]="false"
                 [inputFormatter]="nameFormat"
                 [resultFormatter]="nameFormat"
@@ -383,7 +382,7 @@
     </div>
 
     <!-- Tags -->
-    <tag-picker *ngIf="!collaborative" question="question"></tag-picker>
+    <tag-picker *ngIf="!collaborative" [question]="question"></tag-picker>
 
     <!-- Categories -->
     <div class="col-md-12 margin-20 padl0 padr0">

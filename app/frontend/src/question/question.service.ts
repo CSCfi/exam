@@ -14,9 +14,10 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import * as toast from 'toastr';
 
 import {
@@ -31,6 +32,7 @@ import {
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'>;
 
@@ -39,6 +41,7 @@ export class QuestionService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private modal: NgbModal,
         private Session: SessionService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -469,5 +472,16 @@ export class QuestionService {
             questionIds: qids.join(),
         };
         return this.http.post(this.questionOwnerApi(uid), data);
+    };
+
+    openBaseQuestionEditor = (newQuestion: boolean, collaborative: boolean): Observable<Question> => {
+        const modal = this.modal.open(BaseQuestionEditorComponent, {
+            backdrop: 'static',
+            keyboard: false,
+            windowClass: 'question-editor-modal',
+        });
+        modal.componentInstance.newQuestion = newQuestion;
+        modal.componentInstance.collaborative = collaborative;
+        return from(modal.result);
     };
 }

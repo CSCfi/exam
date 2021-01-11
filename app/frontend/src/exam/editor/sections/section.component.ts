@@ -19,7 +19,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { BaseQuestionEditorComponent } from '../../../question/examquestion/baseQuestionEditor.component';
 import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
@@ -158,21 +157,10 @@ export class SectionComponent {
         }
     };
 
-    private openBaseQuestionEditor = () => {
-        const modal = this.modal.open({
-            component: BaseQuestionEditorComponent,
-            backdrop: 'static',
-            keyboard: true,
-            windowClass: 'question-editor-modal',
-            resolve: { newQuestion: true, collaborative: this.collaborative },
-        });
-        modal.componentInstance.newQuestion = true;
-        modal.componentInstance.collaborative = this.collaborative;
-        modal.result.then((question: Question) => {
-            // Now that new base question was created we make an exam section question out of it
-            this.insertExamQuestion(question, this.section.sectionQuestions.length);
-        });
-    };
+    private openBaseQuestionEditor = () =>
+        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe(resp =>
+            this.insertExamQuestion(resp, this.section.sectionQuestions.length),
+        );
 
     clearAllQuestions = () => {
         const dialog = this.dialogs.open(
@@ -291,16 +279,10 @@ export class SectionComponent {
             toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
             return;
         }
-        const modal = this.modal.open({
-            component: QuestionSelectorComponent,
+        const modal = this.modal.open(QuestionSelectorComponent, {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
-            resolve: {
-                examId: this.examId,
-                sectionId: this.section.id,
-                questionCount: this.section.sectionQuestions.length,
-            },
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;

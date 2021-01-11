@@ -52,7 +52,7 @@ export class BaseQuestionEditorComponent {
 
     transitionWatcher: Function;
 
-    constructor(private modal: NgbActiveModal, private transition: TransitionService, private Window: WindowRef) {
+    constructor(public modal: NgbActiveModal, private transition: TransitionService, private Window: WindowRef) {
         this.transitionWatcher = this.transition.onStart({ to: '*' }, () => {
             if (!this.Window.nativeWindow.onbeforeunload) {
                 this.cancel();

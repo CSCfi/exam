@@ -128,12 +128,10 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
 
     ngOnDestroy() {
         if (this.instance) {
-            this.Window.nativeWindow.setTimeout(() => {
-                this.instance.removeAllListeners();
-                CKEDITOR.instances[this.instance.name].destroy();
-                this.instance.destroy();
-                this.instance = null;
-            });
+            this.instance.removeAllListeners();
+            CKEDITOR.instances[this.instance.name].destroy();
+            this.instance.destroy();
+            this.instance = null;
         }
     }
 

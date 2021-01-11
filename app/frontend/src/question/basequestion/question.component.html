@@ -16,7 +16,7 @@
     <div class="marl50 marr50">
         <!-- Question body //-->
         <div class="col-md-12 question-border padl40 padr40">
-            <form role="form" class="form-horizontal" name="questionForm" novalidate>
+            <form role="form" #questionForm class="form-horizontal" name="questionForm" novalidate>
                 <question-body
                     *ngIf="question"
                     [question]="question"

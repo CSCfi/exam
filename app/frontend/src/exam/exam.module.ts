@@ -18,6 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
+import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
 import { UtilityModule } from '../utility/utility.module';
 import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
@@ -49,7 +50,7 @@ import { SectionsListComponent } from './editor/sections/sectionsList.component'
 import { ExamService } from './exam.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule],
+    imports: [NgbModule, OrderModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
         ExamPublicationComponent,

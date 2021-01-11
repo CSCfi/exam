@@ -3,12 +3,12 @@
         <div class="review-list-title">
             {{ 'sitnet_section_title' | translate }}
             <!-- settings -->
-            <div class="dropdown pull-right exam-section-settings" uib-dropdown>
-                <a class="dropdown-toggle fa-stack fa-lg pull-right" uib-dropdown-toggle>
+            <div class="dropdown pull-right exam-section-settings" ngbDropdown>
+                <a class="dropdown-toggle fa-stack fa-lg pull-right" ngbDropdownToggle>
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-wrench fa-stack-1x"></i>
                 </a>
-                <ul class="dropdown-menu">
+                <ul ngbDropdownMenu>
                     <li>
                         <a (click)="clearAllQuestions()" class="pointer-hand">{{ 'sitnet_exam_clear' | translate }} </a>
                     </li>
@@ -223,17 +223,17 @@
     <div class="row">
         <div class="col-md-12 mart10" *ngIf="section.expanded">
             <div id="exam" cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="sortable no-padding">
-                <section-question
-                    *ngFor="let sectionQuestion of section.sectionQuestions"
-                    class="section-question"
-                    cdkDrag
-                    cdkDragLockAxis="y"
-                    [sectionQuestion]="sectionQuestion"
-                    [lotteryOn]="section.lotteryOn"
-                    (onDelete)="removeQuestion($event)"
-                >
+                <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-                </section-question>
+                    <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
+                    <section-question
+                        class="section-question"
+                        [sectionQuestion]="sectionQuestion"
+                        [lotteryOn]="section.lotteryOn"
+                        (onDelete)="removeQuestion($event)"
+                    >
+                    </section-question>
+                </div>
             </div>
 
             <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons marl30 mart20">

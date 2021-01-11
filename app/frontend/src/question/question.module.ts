@@ -24,7 +24,6 @@ import { MultipleChoiceEditorComponent } from './basequestion/multipleChoice.com
 import { MultipleChoiceOptionEditorComponent } from './basequestion/multipleChoiceOption.component';
 import { QuestionComponent } from './basequestion/question.component';
 import { QuestionBodyComponent } from './basequestion/questionBody.component';
-import { TagPickerComponent } from './basequestion/tagPicker.component';
 import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weightedMultipleChoiceOption.component';
 import { ClozeTestComponent } from './clozetest/clozeTest.directive.upgrade';
 import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
@@ -39,6 +38,7 @@ import { LibraryResultsComponent } from './library/results/libraryResults.compon
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
 import { QuestionSelectorComponent } from './selector/questionSelector.component';
+import { TagPickerComponent } from './tags/tagPicker.component';
 
 @NgModule({
     exports: [ClozeTestComponent],
@@ -64,7 +64,14 @@ import { QuestionSelectorComponent } from './selector/questionSelector.component
         WeightedMultipleChoiceOptionEditorComponent,
         TagPickerComponent,
     ],
-    entryComponents: [LibraryComponent, LibrarySearchComponent, LibraryResultsComponent, QuestionComponent],
+    entryComponents: [
+        LibraryComponent,
+        LibrarySearchComponent,
+        LibraryResultsComponent,
+        QuestionComponent,
+        BaseQuestionEditorComponent,
+        QuestionSelectorComponent,
+    ],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}

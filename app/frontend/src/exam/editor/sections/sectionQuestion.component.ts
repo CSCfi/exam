@@ -21,6 +21,8 @@ import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { BaseQuestionEditorComponent } from '../../../question/examquestion/baseQuestionEditor.component';
+import { ExamQuestionEditorComponent } from '../../../question/examquestion/examQuestionEditor.component';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
@@ -94,8 +96,7 @@ export class SectionQuestionComponent {
         this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
 
     private openBaseQuestionEditor = () => {
-        const modal = this.modal.open({
-            component: 'baseQuestionEditor',
+        const modal = this.modal.open(BaseQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
         });
@@ -146,8 +147,7 @@ export class SectionQuestionComponent {
     };
 
     private openDistributedQuestionEditor = () => {
-        const modal = this.modal.open({
-            component: 'examQuestionEditor',
+        const modal = this.modal.open(ExamQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',

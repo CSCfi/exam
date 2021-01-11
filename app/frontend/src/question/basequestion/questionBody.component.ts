@@ -38,9 +38,9 @@ export class QuestionBodyComponent {
     isInPublishedExam: boolean;
     examNames: string[];
     sectionNames: string[];
-    newOwner: { name?: string };
+    newOwner: { name?: string } = {};
     newOwnerTemplate?: User;
-    newType: { type: string };
+    newType: string;
     questionTypes: { type: string; name: string }[];
 
     constructor(
@@ -77,7 +77,7 @@ export class QuestionBodyComponent {
     }
 
     setQuestionType = () => {
-        this.question.type = this.Question.getQuestionType(this.newType.type);
+        this.question.type = this.Question.getQuestionType(this.newType);
         this.init();
     };
 

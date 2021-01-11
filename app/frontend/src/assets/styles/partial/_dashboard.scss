@@ -17,6 +17,7 @@
 
   .student-enrolment-wrapper {
     border-radius: 4px;
+    background: white;
     border: 2px solid #EDEDED;
     border-left: $sitnet-medium-green-new 4px solid;
     margin-left: 1.4em;
@@ -33,9 +34,9 @@
     }
 
     &.review-view {
-      margin-left: 2em;
-      //margin-top: 30px;
-      margin-right: 2em;
+      margin-left: 0;
+      margin-top: 0;
+      margin-right: 0;
       padding: 20px;
     }
 

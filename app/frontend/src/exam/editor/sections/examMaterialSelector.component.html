@@ -16,7 +16,7 @@
             type="text"
             class="form-control wdth-30 make-inline"
             ([ngModel])="(filter)"
-            ngbTypeahead="filterMaterials$"
+            [ngbTypeahead]="filterMaterials$"
             (selectItem)="selectMaterial($event)"
             [resultFormatter]="nameFormat"
             [editable]="false"
