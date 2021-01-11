@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService, TransitionService } from '@uirouter/core';
+import { StateService, TransitionService } from '@uirouter/core';
 import * as angular from 'angular';
 import * as toast from 'toastr';
 
@@ -46,8 +46,7 @@ export class QuestionComponent implements OnInit {
     transitionWatcher?: Function;
 
     constructor(
-        private stateParams: StateParams,
-        private State: StateService,
+        private state: StateService,
         private transition: TransitionService,
         private translate: TranslateService,
         private window: WindowRef,
@@ -58,28 +57,27 @@ export class QuestionComponent implements OnInit {
             if (this.window.nativeWindow.onbeforeunload) {
                 t.abort();
                 // we got changes in the model, ask confirmation
-                const dialog = this.dialogs.open(
-                    this.translate.instant('sitnet_confirm_exit'),
-                    this.translate.instant('sitnet_unsaved_question_data'),
-                );
-                dialog.result.then(data => {
-                    if (data.toString() === 'yes') {
+                this.dialogs
+                    .open(
+                        this.translate.instant('sitnet_confirm_exit'),
+                        this.translate.instant('sitnet_unsaved_question_data'),
+                    )
+                    .result.then(() => {
                         // ok to reroute
                         this.window.nativeWindow.onbeforeunload = null;
                         delete this.transitionWatcher;
-                        this.State.go(t.to());
-                    }
-                });
+                        this.state.go(t.to());
+                    });
             } else {
                 this.window.nativeWindow.onbeforeunload = null;
                 delete this.transitionWatcher;
-                this.State.go(t.to());
+                this.state.go(t.to());
             }
         });
     }
 
     ngOnInit() {
-        this.nextState = this.nextState || this.stateParams.next;
+        this.nextState = this.nextState || this.state.params.next;
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
@@ -89,7 +87,7 @@ export class QuestionComponent implements OnInit {
             this.currentOwners = angular.copy(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
-            this.Question.getQuestion(this.questionId || this.stateParams.id).subscribe(
+            this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
                 (question: Question) => {
                     this.question = question;
                     this.currentOwners = angular.copy(this.question.questionOwners);
@@ -118,7 +116,7 @@ export class QuestionComponent implements OnInit {
         const fn = (q: Question | QuestionDraft) => {
             this.clearListeners();
             if (this.nextState) {
-                this.State.go(this.nextState);
+                this.state.go(this.nextState);
             } else if (this.onSave) {
                 this.onSave.emit(q);
             }
@@ -141,7 +139,7 @@ export class QuestionComponent implements OnInit {
         // Call off the event listener so it won't ask confirmation now that we are going away
         this.clearListeners();
         if (this.nextState) {
-            this.State.go(this.nextState);
+            this.state.go(this.nextState);
         } else if (this.onSave) {
             this.onCancel.emit();
         }

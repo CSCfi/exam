@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
@@ -42,7 +42,6 @@ export class ExaminationToolbarComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
-        private stateParams: StateParams,
         private translate: TranslateService,
         private Window: WindowRef,
         private Confirmation: ConfirmationDialogService,
@@ -143,6 +142,6 @@ export class ExaminationToolbarComponent {
 
     exitPreview = () => {
         const state = this.isCollaborative ? 'collaborativeExamEditor' : 'examEditor';
-        this.state.go(state, { id: this.exam.id, tab: this.stateParams.tab });
+        this.state.go(state, { id: this.exam.id, tab: this.state.params.tab });
     };
 }

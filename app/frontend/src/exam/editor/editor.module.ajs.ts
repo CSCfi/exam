@@ -24,6 +24,7 @@ import { LanguageSelectorComponent } from './common/languageSelector.component';
 import { CourseSelectionComponent } from './creation/courseSelection.component';
 import { NewExamComponent } from './creation/newExam.component';
 import { ExaminationEventDialogComponent } from './events/examinationEventDialog.component';
+import { ExamTabsComponent } from './examTabs.component';
 import { CollaborativeExamOwnerSelectorComponent } from './publication/collaborativeExamOwnerSelector.component';
 import { ExamPublicationComponent } from './publication/examPublication.component';
 import { SectionsListComponent } from './sections/sectionsList.component';
@@ -44,6 +45,7 @@ angular
     .directive('courseSelection', downgradeComponent({ component: CourseSelectionComponent }))
     .directive('newExam', downgradeComponent({ component: NewExamComponent }))
     .directive('examPublication', downgradeComponent({ component: ExamPublicationComponent }))
+    .directive('examTabs', downgradeComponent({ component: ExamTabsComponent }))
     .directive('sections', downgradeComponent({ component: SectionsListComponent }))
     .directive(
         'collaborativeExamOwnerSelector',

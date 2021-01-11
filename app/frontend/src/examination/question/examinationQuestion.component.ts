@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { Safe } from '../../utility/html/safeHtml.pipe';
+import { SanitizedHtmlPipe } from '../../utility/html/sanitizedHtml.pipe';
 import { TruncatingPipe } from '../../utility/truncate/truncate.pipe';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
@@ -31,7 +31,7 @@ export class ExaminationQuestionComponent {
 
     constructor(
         private Truncate: TruncatingPipe,
-        private safeHtml: Safe,
+        private safeHtml: SanitizedHtmlPipe,
         private Examination: ExaminationService,
         private Attachment: AttachmentService,
     ) {}

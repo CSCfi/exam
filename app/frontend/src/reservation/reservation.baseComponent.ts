@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Inject, OnInit } from '@angular/core';
-import { StateParams } from '@uirouter/core';
+import { Injectable } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { OrderPipe } from 'ngx-order-pipe';
-import { of, forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -73,8 +73,9 @@ type AnyReservation =
     | RemoteTransferExamReservation
     | CollaborativeExamReservation;
 
-export class ReservationComponentBase implements OnInit {
-    examId: string | undefined;
+@Injectable()
+export class ReservationComponentBase {
+    examId: string;
     user: User;
     startDate: Date = new Date();
     endDate: Date = new Date();
@@ -105,12 +106,12 @@ export class ReservationComponentBase implements OnInit {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private stateParams: StateParams,
+        private state: StateService,
         private orderPipe: OrderPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = this.stateParams.eid;
+        this.examId = this.state.params.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {

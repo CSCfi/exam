@@ -13,10 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import 'jquery-ui/ui/widgets/draggable';
-import { Directive, ElementRef, NgZone, OnInit } from '@angular/core';
 
-// add jquery reference
-declare let $: any;
+import { Directive, ElementRef, NgZone, OnInit } from '@angular/core';
 
 @Directive({
     selector: '[appDraggableModal]',

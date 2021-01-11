@@ -4,9 +4,9 @@
         <div class="col-md-12">
             <div class="col-md-1">
                 <img
-                    src="Images/icon_warning.png"
+                    src="/assets/assets/images/icon_warning.png"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"
                 />
             </div>
             <div class="col-md-11 warning-text">
@@ -15,20 +15,18 @@
         </div>
     </div>
 
-    <div class="col-md-12 padl0 padt40">
-        <div [appSortable]="exam.examSections" [selection]="'.section-handle'" (onMove)="moveSection($event)">
-            <div
-                [ngClass]="exam.examSections.length > 1 ? 'section-handle' : ''"
+    <div class="col-md-12 padl0 padt40" id="exam">
+        <div cdkDropList (cdkDropListDropped)="moveSection($event)">
+            <section
+                cdkDrag
+                cdkDragLockAxis="y"
                 *ngFor="let section of exam.examSections"
-            >
-                <section
-                    [section]="section"
-                    [examId]="exam.id"
-                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                    (on-delete)="removeSection(section)"
-                    (on-materials-changed)="loadMaterials()"
-                ></section>
-            </div>
+                [section]="section"
+                [examId]="exam.id"
+                [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
+                (on-delete)="removeSection(section)"
+                (on-materials-changed)="loadMaterials()"
+            ></section>
         </div>
         <div class="col-md-12 padl0 mart20">
             <div class="col-md-3 exam-basic-title">{{ 'sitnet_total_score' | translate }}:</div>

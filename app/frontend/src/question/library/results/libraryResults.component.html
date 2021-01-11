@@ -109,7 +109,13 @@
                     </span>
                     <div>
                         <span>
-                            <a *ngIf="!disableLinks" uiSref="question({id: {{ question.id }} })">{{ question.id }}</a>
+                            <a
+                                *ngIf="!disableLinks"
+                                class="pointer"
+                                uiSref="question"
+                                [uiParams]="{ id: question.id }"
+                                >{{ question.id }}</a
+                            >
                             <span *ngIf="disableLinks">#{{ question.id }}</span>
                             <i
                                 *ngIf="question.questionOwners.length > 1"

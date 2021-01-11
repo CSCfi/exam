@@ -21,7 +21,6 @@ import * as toast from 'toastr';
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { QuestionService } from '../../question.service';
 import { LibraryQuestion, LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
@@ -48,7 +47,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         private http: HttpClient,
         private translate: TranslateService,
         private Confirmation: ConfirmationDialogService,
-        private Question: QuestionService,
         private Library: LibraryService,
         private Attachment: AttachmentService,
         private Session: SessionService,
@@ -135,7 +133,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     printTags = (question: LibraryQuestion) => question.tags.map(t => t.name.toUpperCase()).join(', ');
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
     getQuestionTypeIcon = (question: LibraryQuestion) => {
         switch (question.type) {

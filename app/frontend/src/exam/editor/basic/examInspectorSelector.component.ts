@@ -32,14 +32,16 @@ export class ExamInspectorSelectorComponent implements OnInit {
     examInspections: ExamInspection[];
 
     newInspector: {
-        id: number;
-        sendMessage: boolean;
-        comment: string;
-        name: string;
-        email: string;
+        id?: number;
+        sendMessage?: boolean;
+        comment?: string;
+        name?: string;
+        email?: string;
     };
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+        this.newInspector = {};
+    }
 
     ngOnInit() {
         this.getInspectors();

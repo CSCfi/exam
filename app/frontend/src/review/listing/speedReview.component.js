@@ -32,7 +32,32 @@ angular.module('app.review').component('speedReview', {
         'Files',
         '$uibModal',
         function(dialogs, $q, $state, $stateParams, $translate, ExamRes, Exam, ReviewList, Files, $modal) {
-            const handleOngoingReviews = review => ReviewList.gradeExam(review.exam);
+            const prepareGrades = exam => {
+                if (!exam.grade || !exam.grade.id) {
+                    exam.grade = {};
+                }
+                if (!exam.selectedGrade) {
+                    exam.selectedGrade = {};
+                }
+                const scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
+                scale.grades = scale.grades || [];
+                exam.selectableGrades = scale.grades.map(grade => {
+                    grade.type = grade.name;
+                    grade.name = Exam.getExamGradeDisplayName(grade.name);
+                    if (exam.grade && exam.grade.id === grade.id) {
+                        exam.grade.type = grade.type;
+                        exam.selectedGrade = grade;
+                    }
+                    return grade;
+                });
+                const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
+                if (exam.gradeless && !exam.selectedGrade) {
+                    exam.selectedGrade = noGrade;
+                }
+                exam.selectableGrades.push(noGrade);
+            };
+
+            const handleOngoingReviews = review => prepareGrades(review.exam);
 
             this.$onInit = () => {
                 this.pageSize = 10;

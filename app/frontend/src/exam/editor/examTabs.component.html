@@ -1,0 +1,91 @@
+<div id="dashboard">
+    <div *ngIf="collaborative" class="sitnet-header-alt">
+        <div class="col-md-12 header-wrapper">
+            <span class="header-text">{{ 'sitnet_collaborative_exams' | translate }}</span>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <a ng-click="goToDashboard($event)">
+                    <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
+                </a>
+                <div class="student-exam-details-title">{{ examInfo.title }}</div>
+            </div>
+            <span *ngIf="exam?.state" class="exam-status">{{ 'sitnet_' + exam.state | lowercase | translate }} </span>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams">
+        <ngb-tabset activeId="activeTab" tabChange="tabChange($event)">
+            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="1">
+                <ng-template ngbTabTitle>{{ 'sitnet_exam_basic_information_tab' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <basic-exam-info
+                        [exam]="exam"
+                        (onNextTabSelected)="switchToQuestions($event)"
+                        (onUpdate)="examUpdated($event)"
+                        [collaborative]="collaborative"
+                    >
+                    </basic-exam-info>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="2">
+                <ng-template ngbTabTitle>{{ 'sitnet_exam_question_tab' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <sections
+                        [exam]="exam"
+                        (onPreviousTabSelected)="switchToBasicInfo()"
+                        (onNextTabSelected)="switchToPublishSettings()"
+                        [collaborative]="collaborative"
+                        (onNewLibraryQuestion)="reload()"
+                    >
+                    </sections>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="3">
+                <ng-template ngbTabTitle>{{ 'sitnet_exam_publish_tab' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <exam-publication
+                        [exam]="exam"
+                        (onPreviousTabSelected)="switchToQuestions($event)"
+                        [collaborative]="collaborative"
+                    >
+                    </exam-publication>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab *ngIf="exam && exam.executionType.type !== 'PRINTOUT'" id="4">
+                <ng-template ngbTabTitle>{{ 'sitnet_exam_responses' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <review-list
+                        *ngIf="reviews"
+                        [exam]="exam"
+                        [collaborative]="collaborative"
+                        [reviews]="reviews"
+                        (onLoaded)="reviewsLoaded($event)"
+                    ></review-list>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab *ngIf="exam && !user.isAdmin && exam.executionType.type !== 'PRINTOUT' && !collaborative" id="5">
+                <ng-template ngbTabTitle>{{ 'sitnet_question_review' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <question-reviews [examId]="exam.id"></question-reviews>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab
+                *ngIf="exam && !collaborative && (isOwner() || user.isAdmin) && exam.executionType.type !== 'PRINTOUT'"
+                id="user.isAdmin ? 5 : 6"
+            >
+                <ng-template ngbTabTitle>{{ 'sitnet_exam_summary_tab' | translate }}</ng-template>
+                <ng-template ngbTabContent>
+                    <exam-summary
+                        *ngIf="reviews"
+                        [exam]="exam"
+                        [reviews]="reviews"
+                        [collaborative]="collaborative"
+                    ></exam-summary>
+                </ng-template>
+            </ngb-tab>
+        </ngb-tabset>
+    </div>
+</div>

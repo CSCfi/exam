@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -64,10 +65,12 @@ export class SectionsListComponent implements OnInit, OnChanges {
         }
     }
 
-    moveSection = (event: any) => {
-        if (event.from >= 0 && event.to >= 0 && event.from !== event.to) {
-            this.Exam.reorderSections(event.from, event.to, this.exam, this.collaborative).subscribe(
+    moveSection = (event: CdkDragDrop<ExamSection[]>) => {
+        const [from, to] = [event.previousIndex, event.currentIndex];
+        if (from >= 0 && to >= 0 && from !== to) {
+            this.Exam.reorderSections(from, to, this.exam, this.collaborative).subscribe(
                 () => {
+                    moveItemInArray(this.exam.examSections, from, to);
                     this.updateSectionIndices();
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },

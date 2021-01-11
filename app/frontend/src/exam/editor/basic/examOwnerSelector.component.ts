@@ -38,13 +38,15 @@ export class ExamOwnerSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService) {
+        this.newOwner = {};
+    }
 
     ngOnInit() {
         this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(users => (this.examOwners = users));
     }
 
-    listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
+    listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
             tap(text => (this.newOwner.name = text)),
             debounceTime(500),

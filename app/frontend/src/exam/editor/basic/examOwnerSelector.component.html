@@ -15,7 +15,7 @@
         <input
             type="text"
             class="form-control wdth-30 make-inline"
-            [(ngModel)]="newOwner.user.name"
+            [(ngModel)]="newOwner.name"
             [ngbTypeahead]="listOwners$"
             [inputFormatter]="nameFormatter"
             [resultFormatter]="nameFormatter"

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateParams } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 
 import { Participation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -32,7 +32,7 @@ export class ToolbarComponent {
     @Input() exam: Examination;
 
     constructor(
-        private stateParams: StateParams,
+        private state: StateService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Exam: ExamService,
@@ -52,8 +52,8 @@ export class ToolbarComponent {
             this.CollaborativeAssessment.saveAssessment(
                 this.participation,
                 this.isOwnerOrAdmin(),
-                this.stateParams.id,
-                this.stateParams.ref,
+                this.state.params.id,
+                this.state.params.ref,
             );
         } else {
             this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
@@ -64,8 +64,8 @@ export class ToolbarComponent {
         if (this.collaborative) {
             this.CollaborativeAssessment.createExamRecord(
                 this.participation,
-                this.stateParams.id,
-                this.stateParams.ref,
+                this.state.params.id,
+                this.state.params.ref,
             );
         } else {
             this.Assessment.createExamRecord$(this.exam, true).subscribe();

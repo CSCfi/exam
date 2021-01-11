@@ -55,7 +55,7 @@ export class ExaminationMultiChoiceQuestionComponent {
 
     constructor(private Examination: ExaminationService) {}
 
-    ngOnInit = () => {
+    ngOnInit() {
         if (this.sq.question.type === 'ClaimChoiceQuestion' && this.orderOptions) {
             this.sq.options.sort((a, b) => a.option.id - b.option.id);
         } else if (this.orderOptions) {
@@ -69,7 +69,7 @@ export class ExaminationMultiChoiceQuestionComponent {
         if (answered.length === 1) {
             this.sq.selectedOption = answered[0].id;
         }
-    };
+    }
 
     saveOption = () => this.Examination.saveOption(this.examHash, this.sq, this.isPreview);
 }

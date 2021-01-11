@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -56,7 +56,6 @@ export class ExamListCategoryComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private stateParams: StateParams,
         private state: StateService,
         private dialog: ConfirmationDialogService,
         private Exam: ExamService,
@@ -65,7 +64,7 @@ export class ExamListCategoryComponent implements OnInit {
     ) {
         this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
             this.filterText = text;
-            this.state.go('dashboard', { tab: stateParams.tab, filter: this.filterText });
+            this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
             this.onFilterChange.emit(this.filterText);
         });
     }
@@ -76,7 +75,7 @@ export class ExamListCategoryComponent implements OnInit {
             predicate: this.defaultPredicate,
             reverse: this.defaultReverse,
         };
-        this.filterText = this.stateParams.filter;
+        this.filterText = this.state.params.filter;
         if (this.filterText) {
             this.search(this.filterText);
         }

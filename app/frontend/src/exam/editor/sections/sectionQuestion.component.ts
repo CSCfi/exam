@@ -12,188 +12,163 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
-
-import * as ng from 'angular';
-import { IDeferred } from 'angular';
-import { IModalService } from 'angular-ui-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import * as _ from 'lodash';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
+
+import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
 import { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
 
-export const SectionQuestionComponent: ng.IComponentOptions = {
-    template: require('./sectionQuestion.template.html'),
-    bindings: {
-        sectionQuestion: '<',
-        lotteryOn: '<',
-        onDelete: '&',
-    },
-    require: {
-        parentCtrl: '^^section',
-    },
-    controller: class SectionQuestionComponentController implements ng.IComponentController {
-        sectionQuestion: ExamSectionQuestion;
-        lotteryOn: boolean;
-        onDelete: (_: { sectionQuestion: ExamSectionQuestion }) => any;
-        parentCtrl: { collaborative: boolean; section: ExamSection; examId: number };
+@Component({
+    selector: 'section-question',
+    template: require('./sectionQuestion.component.html'),
+})
+export class SectionQuestionComponent {
+    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() lotteryOn: boolean;
+    @Input() collaborative: boolean;
+    @Input() section: ExamSection;
+    @Input() examId: number;
+    @Output() onDelete = new EventEmitter<ExamSectionQuestion>();
 
-        constructor(
-            private $http: ng.IHttpService,
-            private $sce: ng.ISCEService,
-            private $q: ng.IQService,
-            private $uibModal: IModalService,
-            private $translate: ng.translate.ITranslateService,
-            private dialogs: angular.dialogservice.IDialogService,
-            private Question: any,
-            private Attachment: AttachmentService,
-            private Files: FileService,
-        ) {
-            'ngInject';
+    constructor(
+        private http: HttpClient,
+        private modal: NgbModal,
+        private translate: TranslateService,
+        private Confirmation: ConfirmationDialogService,
+        private Question: QuestionService,
+        private Attachment: AttachmentService,
+        private Files: FileService,
+    ) {}
+
+    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+
+    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+
+    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+
+    editQuestion = () => this.openExamQuestionEditor();
+
+    downloadQuestionAttachment = () => {
+        if (this.collaborative) {
+            this.Attachment.downloadCollaborativeQuestionAttachment(this.examId, this.sectionQuestion);
         }
+        this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
+    };
 
-        calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+    removeQuestion = () =>
+        this.Confirmation.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_question'),
+        ).result.then(() => this.onDelete.emit(this.sectionQuestion));
 
-        getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    private getQuestionDistribution(): Observable<boolean> {
+        if (this.collaborative) {
+            return of(false);
+        }
+        return this.http
+            .get<{ distributed: boolean }>(`/app/exams/question/${this.sectionQuestion.id}/distribution`)
+            .pipe(map(resp => resp.distributed));
+    }
 
-        getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
-
-        sanitizeQuestion = () => this.$sce.trustAsHtml(this.sectionQuestion.question.question);
-
-        editQuestion = () => this.openExamQuestionEditor();
-
-        downloadQuestionAttachment = () => {
-            if (this.parentCtrl.collaborative) {
-                this.Attachment.downloadCollaborativeQuestionAttachment(this.parentCtrl.examId, this.sectionQuestion);
+    private openExamQuestionEditor = () =>
+        this.getQuestionDistribution().subscribe(distributed => {
+            if (!distributed) {
+                // If this is not distributed, treat it as a plain question (or at least trick the user to
+                // believe so)
+                this.openBaseQuestionEditor();
+            } else {
+                this.openDistributedQuestionEditor();
             }
-            this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
-        };
+        });
 
-        removeQuestion = () =>
-            this.dialogs
-                .confirm(this.$translate.instant('sitnet_confirm'), this.$translate.instant('sitnet_remove_question'))
-                .result.then(() => this.onDelete({ sectionQuestion: this.sectionQuestion }));
+    private getResource = (url: string) =>
+        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
 
-        getQuestionDistribution(): ng.IPromise<{ distributed: boolean }> {
-            if (this.parentCtrl.collaborative) {
-                return this.$q.when({ distributed: false });
-            }
-            const deferred: IDeferred<{
-                distributed: boolean;
-            }> = this.$q.defer();
-            this.$http
-                .get(`/app/exams/question/${this.sectionQuestion.id}/distribution`)
-                .then((resp: ng.IHttpResponse<{ distributed: boolean }>) => {
-                    deferred.resolve({ distributed: resp.data.distributed });
+    private openBaseQuestionEditor = () => {
+        const modal = this.modal.open({
+            component: 'baseQuestionEditor',
+            backdrop: 'static',
+            keyboard: true,
+        });
+        modal.componentInstance.lotteryOn = this.lotteryOn;
+        modal.componentInstance.questionDraft = { ...this.sectionQuestion.question, examSectionQuestions: [] };
+        modal.componentInstance.collaborative = this.collaborative;
+        modal.componentInstance.examId = this.examId;
+        modal.componentInstance.sectionQuestion = this.sectionQuestion;
+        modal.componentInstance.questionId = this.sectionQuestion.question.id || 0;
+        modal.result.then((question: Question) => {
+            const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
+            this.http
+                .put<ExamSectionQuestion>(this.getResource(resource), {
+                    question: question,
                 })
-                .catch(resp => {
-                    toast.error(resp.data);
-                    deferred.reject();
-                });
-            return deferred.promise;
-        }
+                .subscribe(
+                    resp => {
+                        this.sectionQuestion = _.merge(this.sectionQuestion, resp);
+                        // Collaborative exam question handling.
+                        if (!this.collaborative) {
+                            return;
+                        }
+                        const attachment = question.attachment;
+                        if (!attachment) {
+                            return;
+                        }
+                        if (attachment.modified && attachment.file) {
+                            this.Files.upload(
+                                '/integration/iop/attachment/question',
+                                attachment.file,
+                                { examId: this.examId, questionId: this.sectionQuestion.id },
+                                this.sectionQuestion.question,
+                            );
+                        } else if (attachment.removed) {
+                            this.Attachment.eraseCollaborativeQuestionAttachment(
+                                this.examId,
+                                this.sectionQuestion.id,
+                            ).then(() => {
+                                delete this.sectionQuestion.question.attachment;
+                            });
+                        }
+                    },
+                    resp => {
+                        toast.error(resp.data);
+                    },
+                );
+        });
+    };
 
-        private openExamQuestionEditor = () => {
-            this.getQuestionDistribution().then((data: { distributed: boolean }) => {
-                if (!data.distributed) {
-                    // If this is not distributed, treat it as a plain question (or at least trick the user to
-                    // believe so)
-                    this.openBaseQuestionEditor();
-                } else {
-                    this.openDistributedQuestionEditor();
-                }
+    private openDistributedQuestionEditor = () => {
+        const modal = this.modal.open({
+            component: 'examQuestionEditor',
+            backdrop: 'static',
+            keyboard: true,
+            windowClass: 'question-editor-modal',
+        });
+        modal.componentInstance.examQuestion = { ...this.sectionQuestion };
+        modal.componentInstance.lotteryOn = this.lotteryOn;
+        modal.result.then((data: { question: Question; examQuestion: ExamSectionQuestion }) => {
+            this.Question.updateDistributedExamQuestion(
+                data.question,
+                data.examQuestion,
+                this.examId,
+                this.section.id,
+            ).then((esq: ExamSectionQuestion) => {
+                toast.info(this.translate.instant('sitnet_question_saved'));
+                // apply changes back to scope
+                this.sectionQuestion = _.merge(this.sectionQuestion, esq);
             });
-        };
+        });
+    };
 
-        private getResource = (url: string) =>
-            this.parentCtrl.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
-
-        private openBaseQuestionEditor = () => {
-            this.$uibModal
-                .open({
-                    component: 'baseQuestionEditor',
-                    backdrop: 'static',
-                    keyboard: true,
-                    windowClass: 'question-editor-modal',
-                    resolve: {
-                        lotteryOn: this.lotteryOn,
-                        questionDraft: ng.extend(this.sectionQuestion.question, { examSectionQuestions: [] }),
-                        collaborative: this.parentCtrl.collaborative,
-                        examId: this.parentCtrl.examId,
-                        sectionQuestion: this.sectionQuestion,
-                        questionId: this.sectionQuestion.question.id || 0,
-                    },
-                })
-                .result.then((data: { question: Question }) => {
-                    const resource =
-                        `/app/exams/${this.parentCtrl.examId}/sections/` +
-                        `${this.parentCtrl.section.id}/questions/${this.sectionQuestion.id}`;
-                    this.$http
-                        .put(this.getResource(resource), {
-                            question: data.question,
-                        })
-                        .then((resp: ng.IHttpResponse<ExamSectionQuestion>) => {
-                            ng.extend(this.sectionQuestion, resp.data);
-                            // Collaborative exam question handling.
-                            if (!this.parentCtrl.collaborative) {
-                                return;
-                            }
-                            const attachment = data.question.attachment;
-                            if (!attachment) {
-                                return;
-                            }
-                            if (attachment.modified && attachment.file) {
-                                this.Files.upload(
-                                    '/integration/iop/attachment/question',
-                                    attachment.file,
-                                    { examId: this.parentCtrl.examId, questionId: this.sectionQuestion.id },
-                                    this.sectionQuestion.question,
-                                );
-                            } else if (attachment.removed) {
-                                this.Attachment.eraseCollaborativeQuestionAttachment(
-                                    this.parentCtrl.examId,
-                                    this.sectionQuestion.id,
-                                ).then(() => {
-                                    delete this.sectionQuestion.question.attachment;
-                                });
-                            }
-                        })
-                        .catch(resp => {
-                            toast.error(resp.data);
-                        });
-                });
-        };
-
-        private openDistributedQuestionEditor = () => {
-            this.$uibModal
-                .open({
-                    component: 'examQuestionEditor',
-                    backdrop: 'static',
-                    keyboard: true,
-                    windowClass: 'question-editor-modal',
-                    resolve: {
-                        examQuestion: ng.copy(this.sectionQuestion),
-                        lotteryOn: this.lotteryOn,
-                    },
-                })
-                .result.then(data => {
-                    this.Question.updateDistributedExamQuestion(
-                        data.question,
-                        data.examQuestion,
-                        this.parentCtrl.examId,
-                        this.parentCtrl.section.id,
-                    ).then((esq: ExamSectionQuestion) => {
-                        toast.info(this.$translate.instant('sitnet_question_saved'));
-                        // apply changes back to scope
-                        ng.extend(this.sectionQuestion, esq);
-                    });
-                });
-        };
-
-        determineClaimOptionType(examOption: ExamSectionQuestionOption) {
-            return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
-        }
-    },
-};
-
-ng.module('app.exam.editor').component('sectionQuestion', SectionQuestionComponent);
+    determineClaimOptionType(examOption: ExamSectionQuestionOption) {
+        return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
+    }
+}

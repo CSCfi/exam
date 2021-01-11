@@ -2,7 +2,7 @@
     <div class="review-list-title">{{ 'sitnet_exam_requirements' | translate }}</div>
 </div>
 
-<div [hidden]="$ctrl.exam.executionType.type === 'MATURITY'" class="row col-md-12 margin-20">
+<div [hidden]="exam.executionType.type === 'MATURITY'" class="row col-md-12 margin-20">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_machine_softwares' | translate }}
         <sup

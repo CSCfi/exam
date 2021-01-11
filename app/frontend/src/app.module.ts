@@ -79,24 +79,6 @@ import { UtilityModule } from './utility/utility.module';
             useFactory: ($injector: any) => $injector.get('$translate'),
             deps: ['$injector'],
         },
-        // Provider for AJS StateParams, needed until having switched to new router
-        {
-            provide: '$stateParams',
-            useFactory: ($injector: any) => $injector.get('$stateParams'),
-            deps: ['$injector'],
-        },
-        // Provider for AJS State Service, needed until having switched to new router
-        {
-            provide: '$state',
-            useFactory: ($injector: any) => $injector.get('$state'),
-            deps: ['$injector'],
-        },
-        // Provider for AJS Location service, needed until having switched to new router
-        {
-            provide: '$location',
-            useFactory: ($injector: any) => $injector.get('$location'),
-            deps: ['$injector'],
-        },
     ],
 })
 export class AppModule {

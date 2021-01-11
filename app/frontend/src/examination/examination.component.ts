@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { WindowRef } from '../utility/window/window.service';
@@ -32,7 +32,6 @@ export class ExaminationComponent {
 
     constructor(
         private state: StateService,
-        private stateParams: StateParams,
         private translate: TranslateService,
         private Examination: ExaminationService,
         private Enrolment: EnrolmentService,
@@ -44,10 +43,10 @@ export class ExaminationComponent {
             this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
         this.Examination.startExam$(
-            this.stateParams.hash,
+            this.state.params.hash,
             this.isPreview,
             this.isCollaborative,
-            this.stateParams.id,
+            this.state.params.id,
         ).subscribe(
             exam => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);

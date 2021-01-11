@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import isRealGrade, {
@@ -54,7 +54,7 @@ export class GradingComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
-        private stateParams: StateParams,
+        private state: StateService,
         private http: HttpClient,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
@@ -178,8 +178,8 @@ export class GradingComponent implements OnInit {
         }
         if (this.collaborative) {
             this.CollaborativeAssessment.sendEmailMessage(
-                this.stateParams.id,
-                this.stateParams.ref,
+                this.state.params.id,
+                this.state.params.ref,
                 this.message.text,
             ).subscribe(
                 () => {
@@ -199,8 +199,8 @@ export class GradingComponent implements OnInit {
     saveAssessmentInfo = () => {
         if (this.collaborative) {
             this.CollaborativeAssessment.saveAssessmentInfo(
-                this.stateParams.id,
-                this.stateParams.ref,
+                this.state.params.id,
+                this.state.params.ref,
                 this.participation,
             );
         } else {

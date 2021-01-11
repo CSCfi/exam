@@ -154,6 +154,7 @@ export interface ExamSectionQuestion {
     answerInstructions: string;
     evaluationCriteria: string;
     expectedWordCount?: number;
+    sequenceNumber: number;
 }
 
 export interface ExamMaterial {
@@ -251,7 +252,7 @@ export interface ExamImpl {
     examType: { id: number; type: string; name?: string };
     executionType: ExamExecutionType;
     examEnrolments: ExamEnrolment[];
-    gradeScale: GradeScale | null;
+    gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
     children: Exam[];
     examinationDates: ExaminationDate[];

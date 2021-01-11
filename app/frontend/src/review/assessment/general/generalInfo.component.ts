@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { StateParams } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as angular from 'angular';
 import * as moment from 'moment';
 
@@ -54,7 +54,7 @@ export const GeneralInfoComponent: angular.IComponentOptions = {
 
         constructor(
             private $http: angular.IHttpService,
-            private stateParams: StateParams,
+            private state: StateService,
             private Attachment: AttachmentService,
         ) {
             'ngInject';
@@ -103,11 +103,11 @@ export const GeneralInfoComponent: angular.IComponentOptions = {
             this.reservation = this.enrolment.reservation as Reservation;
             if (this.collaborative) {
                 this.$http
-                    .get(`/integration/iop/reviews/${this.stateParams.eid}/participations/${this.stateParams.ref}`)
+                    .get(`/integration/iop/reviews/${this.state.params.eid}/participations/${this.state.params.ref}`)
                     .then((resp: angular.IHttpResponse<Participation[]>) => this.handleParticipations(resp.data));
             } else {
                 this.$http
-                    .get(`app/examparticipations/${this.stateParams.eid}`)
+                    .get(`app/examparticipations/${this.state.params.eid}`)
                     .then((resp: angular.IHttpResponse<Participation[]>) => this.handleParticipations(resp.data));
             }
         }

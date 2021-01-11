@@ -12,307 +12,308 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
-
-import * as ng from 'angular';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { HttpClient } from '@angular/common/http';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { IModalService } from 'angular-ui-bootstrap';
-import { IHttpResponse } from 'angular';
-import { ExamSection, ExamSectionQuestion, Question, ExamMaterial } from '../../exam.model';
+
+import { BaseQuestionEditorComponent } from '../../../question/examquestion/baseQuestionEditor.component';
+import { QuestionService } from '../../../question/question.service';
+import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
+import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
+import { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
-export const SectionComponent: ng.IComponentOptions = {
-    template: require('./section.template.html'),
-    bindings: {
-        section: '<',
-        examId: '<',
-        canBeOptional: '<',
-        materials: '<',
-        onDelete: '&',
-        onMaterialsChanged: '&',
-    },
-    controller: class SectionComponentController implements ng.IComponentController {
-        section: ExamSection;
-        examId: number;
-        canBeOptional: boolean;
-        onDelete: (_: { section: ExamSection }) => any;
-        onMaterialsChanged: () => any;
-        parentCtrl: { collaborative: boolean };
-        collaborative: boolean;
-        materials: ExamMaterial[];
+@Component({
+    selector: 'section',
+    template: require('./section.component.html'),
+})
+export class SectionComponent {
+    @Input() section: ExamSection;
+    @Input() examId: number;
+    @Input() canBeOptional: boolean;
+    @Input() collaborative: boolean;
+    @Input() materials: ExamMaterial[];
 
-        constructor(
-            private $http: ng.IHttpService,
-            private $translate: ng.translate.ITranslateService,
-            private $uibModal: IModalService,
-            private dialogs: angular.dialogservice.IDialogService,
-            private Question: any,
-            private Files: FileService,
-            private Exam: any,
-        ) {
-            'ngInject';
+    @Output() onDelete = new EventEmitter<ExamSection>();
+    @Output() onMaterialsChanged = new EventEmitter<void>();
+
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private modal: NgbModal,
+        private dialogs: ConfirmationDialogService,
+        private Question: QuestionService,
+        private Files: FileService,
+        private Exam: ExamService,
+    ) {}
+
+    ngOnInit() {
+        this.section.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+    }
+
+    private getResource = (url: string) =>
+        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+
+    private getSectionPayload = () => ({
+        id: this.section.id,
+        name: this.section.name,
+        lotteryOn: this.section.lotteryOn,
+        lotteryItemCount: this.section.lotteryItemCount,
+        description: this.section.description,
+        expanded: this.section.expanded,
+        optional: this.section.optional,
+    });
+
+    private getQuestionScore = (question: ExamSectionQuestion) => {
+        const evaluationType = question.evaluationType;
+        const type = question.question.type;
+        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
+            return question.maxScore;
+        }
+        if (type === 'WeightedMultipleChoiceQuestion') {
+            return this.Question.calculateMaxPoints(question);
+        }
+        if (type === 'ClaimChoiceQuestion') {
+            return this.Question.getCorrectClaimChoiceOptionScore(question);
+        }
+        return null;
+    };
+
+    private questionPointsMatch = () => {
+        const sectionQuestions = this.section.sectionQuestions;
+        if (!sectionQuestions || sectionQuestions.length < 2) {
+            return true;
+        }
+        const score = this.getQuestionScore(sectionQuestions[0]);
+        return sectionQuestions.every(sq => score === this.getQuestionScore(sq));
+    };
+
+    private updateSection = (silent: boolean) => {
+        this.http
+            .put<ExamSection>(
+                this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
+                this.getSectionPayload(),
+            )
+            .subscribe(
+                () => {
+                    if (!silent) {
+                        toast.info(this.translate.instant('sitnet_section_updated'));
+                    }
+                },
+                () => (this.section.optional = !this.section.optional),
+            );
+    };
+
+    private insertExamQuestion = (question: Question, seq: number) => {
+        const resource = this.collaborative
+            ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
+            : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
+        const data: any = { sequenceNumber: seq };
+        if (this.collaborative) {
+            data.question = question;
+        }
+        this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
+            resp => {
+                // Add new section question to existing section
+                if (!this.collaborative) {
+                    const section = resp as ExamSection;
+                    const examSectionQuestion = section.sectionQuestions.find(esq => esq.question.id === question.id);
+                    if (examSectionQuestion) {
+                        this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
+                    }
+                    return;
+                }
+                // Collaborative exam question handling.
+                const newSectionQuestion = resp as ExamSectionQuestion;
+                this.addAttachment(newSectionQuestion, question, () => {
+                    const uploadedAttachment = question.attachment;
+                    if (uploadedAttachment) {
+                        newSectionQuestion.question.attachment = uploadedAttachment;
+                    }
+                });
+                this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
+            },
+            err => toast.error(err.data),
+        );
+    };
+
+    private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+        const attachment = question.attachment;
+        if (!attachment) {
+            return;
         }
 
-        private getResource = (url: string) =>
-            this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
-
-        private getSectionPayload = () => ({
-            id: this.section.id,
-            name: this.section.name,
-            lotteryOn: this.section.lotteryOn,
-            lotteryItemCount: this.section.lotteryItemCount,
-            description: this.section.description,
-            expanded: this.section.expanded,
-            optional: this.section.optional,
-        });
-
-        private getQuestionScore = (question: ExamSectionQuestion) => {
-            const evaluationType = question.evaluationType;
-            const type = question.question.type;
-            if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
-                return question.maxScore;
-            }
-            if (type === 'WeightedMultipleChoiceQuestion') {
-                return this.Question.calculateMaxPoints(question);
-            }
-            if (type === 'ClaimChoiceQuestion') {
-                return this.Question.getCorrectClaimChoiceOptionScore(question);
-            }
-            return null;
-        };
-
-        private questionPointsMatch = () => {
-            const sectionQuestions = this.section.sectionQuestions;
-            if (!sectionQuestions || sectionQuestions.length < 2) {
-                return true;
-            }
-            const score = this.getQuestionScore(sectionQuestions[0]);
-            return sectionQuestions.every(sq => score === this.getQuestionScore(sq));
-        };
-
-        private updateSection = (silent: boolean) => {
-            this.$http
-                .put(
-                    this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
-                    this.getSectionPayload(),
-                )
-                .then(() => {
-                    if (!silent) {
-                        toast.info(this.$translate.instant('sitnet_section_updated'));
-                    }
-                })
-                .catch((resp: IHttpResponse<string>) => {
-                    if (resp.status == 400) {
-                        // This is a bit of a hack to revert optionality in case rejected by server
-                        this.section.optional = !this.section.optional;
-                    }
-                    toast.error(resp.data);
-                });
-        };
-
-        private insertExamQuestion = (question: Question, seq: number) => {
-            // TODO: see if we could live without reloading the whole exam from back?
-            const resource = this.parentCtrl.collaborative
-                ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
-                : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-            const data: any = { sequenceNumber: seq };
-            if (this.parentCtrl.collaborative) {
-                data.question = question;
-            }
-            this.$http
-                .post(resource, data)
-                .then((resp: IHttpResponse<ExamSection | ExamSectionQuestion>) => {
-                    // Add new section question to existing section
-                    if (!this.parentCtrl.collaborative) {
-                        const section = resp.data as ExamSection;
-                        const examSectionQuestion = section.sectionQuestions.find(
-                            esq => esq.question.id === question.id,
-                        );
-                        if (examSectionQuestion) {
-                            this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
-                        }
-                        return;
-                    }
-                    // Collaborative exam question handling.
-                    const newSectionQuestion = resp.data as ExamSectionQuestion;
-                    this.addAttachment(newSectionQuestion, question, () => {
-                        const uploadedAttachment = question.attachment;
-                        if (uploadedAttachment) {
-                            newSectionQuestion.question.attachment = uploadedAttachment;
-                        }
-                    });
-                    this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
-                })
-                .catch(resp => toast.error(resp.data));
-        };
-
-        private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
-            const attachment = question.attachment;
-            if (!attachment) {
-                return;
-            }
-
-            if (attachment.modified && attachment.file) {
-                this.Files.upload(
-                    '/integration/iop/attachment/question',
-                    attachment.file,
-                    { examId: this.examId, questionId: data.id },
-                    question,
-                    callback,
-                );
-            }
-        };
-
-        private openBaseQuestionEditor = () =>
-            this.$uibModal
-                .open({
-                    component: 'baseQuestionEditor',
-                    backdrop: 'static',
-                    keyboard: true,
-                    windowClass: 'question-editor-modal',
-                    resolve: { newQuestion: true, collaborative: this.collaborative },
-                })
-                .result.then((data: { question: Question }) => {
-                    // Now that new base question was created we make an exam section question out of it
-                    this.insertExamQuestion(data.question, this.section.sectionQuestions.length);
-                });
-
-        clearAllQuestions = () => {
-            const dialog = this.dialogs.confirm(
-                this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_remove_all_questions'),
+        if (attachment.modified && attachment.file) {
+            this.Files.upload(
+                '/integration/iop/attachment/question',
+                attachment.file,
+                { examId: this.examId, questionId: data.id },
+                question,
+                callback,
             );
-            dialog.result.then(() => {
-                this.$http
-                    .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
-                    .then(() => {
+        }
+    };
+
+    private openBaseQuestionEditor = () => {
+        const modal = this.modal.open({
+            component: BaseQuestionEditorComponent,
+            backdrop: 'static',
+            keyboard: true,
+            windowClass: 'question-editor-modal',
+            resolve: { newQuestion: true, collaborative: this.collaborative },
+        });
+        modal.componentInstance.newQuestion = true;
+        modal.componentInstance.collaborative = this.collaborative;
+        modal.result.then((question: Question) => {
+            // Now that new base question was created we make an exam section question out of it
+            this.insertExamQuestion(question, this.section.sectionQuestions.length);
+        });
+    };
+
+    clearAllQuestions = () => {
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_all_questions'),
+        );
+        dialog.result.then(() => {
+            this.http
+                .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
+                .subscribe(
+                    () => {
                         this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
                         this.section.lotteryOn = false;
-                        toast.info(this.$translate.instant('sitnet_all_questions_removed'));
-                    })
-                    .catch(resp => toast.error(resp.data));
-            });
-        };
+                        toast.info(this.translate.instant('sitnet_all_questions_removed'));
+                    },
+                    resp => toast.error(resp.data),
+                );
+        });
+    };
 
-        removeSection = () => {
-            const dialog = this.dialogs.confirm(
-                this.$translate.instant('sitnet_confirm'),
-                this.$translate.instant('sitnet_remove_section'),
-            );
-            dialog.result.then(() => this.onDelete({ section: this.section }));
-        };
+    removeSection = () => {
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_section'),
+        );
+        dialog.result.then(() => this.onDelete.emit(this.section));
+    };
 
-        renameSection = () => this.updateSection(false);
-        expandSection = () => this.updateSection(true);
+    renameSection = () => this.updateSection(false);
+    expandSection = () => this.updateSection(true);
 
-        toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
+    toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
 
-        materialsChanged = () => this.onMaterialsChanged();
+    materialsChanged = () => this.onMaterialsChanged.emit();
 
-        toggleLottery = () => {
-            if (this.toggleDisabled()) {
-                this.section.lotteryOn = false;
-                return;
-            }
+    toggleLottery = () => {
+        if (this.toggleDisabled()) {
+            this.section.lotteryOn = false;
+            return;
+        }
 
-            if (!this.questionPointsMatch()) {
-                toast.error(this.$translate.instant('sitnet_error_lottery_points_not_match'));
-                this.section.lotteryOn = false;
-                return;
-            }
-            this.$http
-                .put(
-                    this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
-                    this.getSectionPayload(),
-                )
-                .then(() => {
-                    if (ng.isUndefined(this.section.lotteryItemCount)) {
+        if (!this.questionPointsMatch()) {
+            toast.error(this.translate.instant('sitnet_error_lottery_points_not_match'));
+            this.section.lotteryOn = false;
+            return;
+        }
+        this.http
+            .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`), this.getSectionPayload())
+            .subscribe(
+                () => {
+                    if (this.section.lotteryItemCount === undefined) {
                         this.section.lotteryItemCount = 1;
                     }
-                    toast.info(this.$translate.instant('sitnet_section_updated'));
+                    toast.info(this.translate.instant('sitnet_section_updated'));
+                },
+                resp => toast.error(resp.data),
+            );
+    };
+
+    updateLotteryCount = () => {
+        if (!this.section.lotteryItemCount) {
+            toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.section.lotteryItemCount = 1;
+        } else {
+            this.updateSection(false);
+        }
+    };
+
+    moveQuestion(event: CdkDragDrop<string[]>) {
+        const [from, to] = [event.previousIndex, event.currentIndex];
+        if (from >= 0 && to >= 0 && from !== to) {
+            this.http
+                .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
+                    from: from,
+                    to: to,
                 })
-                .catch(resp => toast.error(resp.data));
-        };
+                .subscribe(() => {
+                    toast.info(this.translate.instant('sitnet_questions_reordered'));
+                    moveItemInArray(this.section.sectionQuestions, from, to);
+                });
+        }
+    }
 
-        updateLotteryCount = () => {
-            if (!this.section.lotteryItemCount) {
-                toast.warning(this.$translate.instant('sitnet_warn_lottery_count'));
-                this.section.lotteryItemCount = 1;
-            } else {
-                this.updateSection(false);
-            }
-        };
+    addNewQuestion = () => {
+        if (this.section.lotteryOn) {
+            toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            return;
+        }
+        this.openBaseQuestionEditor();
+    };
 
-        moveQuestion = (from: number, to: number) => {
-            if (from >= 0 && to >= 0 && from !== to) {
-                this.$http
-                    .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
-                        from: from,
-                        to: to,
-                    })
-                    .then(() => toast.info(this.$translate.instant('sitnet_questions_reordered')));
-            }
-        };
-
-        addNewQuestion = () => {
-            if (this.section.lotteryOn) {
-                toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
-                return;
-            }
-            this.openBaseQuestionEditor();
-        };
-
-        removeQuestion = (sq: ExamSectionQuestion) => {
-            this.$http
-                .delete(
-                    this.getResource(
-                        `/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`,
-                    ),
-                )
-                .then((resp: ng.IHttpResponse<ExamSection>) => {
+    removeQuestion = (sq: ExamSectionQuestion) => {
+        this.http
+            .delete<ExamSection>(
+                this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`),
+            )
+            .subscribe(
+                resp => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
-                    toast.info(this.$translate.instant('sitnet_question_removed'));
+                    toast.info(this.translate.instant('sitnet_question_removed'));
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
                         // turn off lottery
                         this.section.lotteryOn = false;
                         this.section.lotteryItemCount = 1;
                         this.updateSection(true);
                     } else if (this.section.lotteryOn) {
-                        this.section.lotteryItemCount = resp.data.lotteryItemCount;
+                        this.section.lotteryItemCount = resp.lotteryItemCount;
                     }
-                })
-                .catch(resp => toast.error(resp.data));
-        };
+                },
+                resp => toast.error(resp.data),
+            );
+    };
 
-        openLibrary = () => {
-            if (this.section.lotteryOn) {
-                toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
-                return;
+    openLibrary = () => {
+        if (this.section.lotteryOn) {
+            toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            return;
+        }
+        const modal = this.modal.open({
+            component: QuestionSelectorComponent,
+            backdrop: 'static',
+            keyboard: true,
+            windowClass: 'question-editor-modal',
+            resolve: {
+                examId: this.examId,
+                sectionId: this.section.id,
+                questionCount: this.section.sectionQuestions.length,
+            },
+        });
+        modal.componentInstance.examId = this.examId;
+        modal.componentInstance.sectionId = this.section.id;
+        modal.componentInstance.questionCount = this.section.sectionQuestions.length;
+        modal.result.then((modalValue: ExamSectionQuestion[] | undefined) => {
+            if (modalValue && Array.isArray(modalValue)) {
+                this.section.sectionQuestions = [...this.section.sectionQuestions, ...modalValue];
             }
-            this.$uibModal
-                .open({
-                    component: 'questionSelector',
-                    backdrop: 'static',
-                    keyboard: true,
-                    windowClass: 'question-editor-modal',
-                    resolve: {
-                        examId: this.examId,
-                        sectionId: this.section.id,
-                        questionCount: this.section.sectionQuestions.length,
-                    },
-                })
-                .result.then((modalValue: ExamSectionQuestion[] | undefined) => {
-                    if (modalValue && Array.isArray(modalValue)) {
-                        this.section.sectionQuestions = [...this.section.sectionQuestions, ...modalValue];
-                    }
-                });
-        };
+        });
+    };
 
-        getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
+    getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
 
-        getAmountOfSelectionEvaluatedQuestions = () =>
-            this.section.sectionQuestions.filter(q => q.evaluationType === 'Selection').length;
-    },
-};
-
-angular.module('app.exam.editor').component('section', SectionComponent);
+    getAmountOfSelectionEvaluatedQuestions = () =>
+        this.section.sectionQuestions.filter(q => q.evaluationType === 'Selection').length;
+}

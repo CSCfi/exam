@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 
 import { ExamExecutionType } from '../../exam/exam.model';
 import { SessionService, User } from '../../session/session.service';
@@ -59,7 +59,6 @@ export class TeacherDashboardComponent implements OnInit {
         private http: HttpClient,
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
-        private stateParams: StateParams,
         private state: StateService,
         private searchFilter: ExamSearchPipe,
     ) {
@@ -109,7 +108,7 @@ export class TeacherDashboardComponent implements OnInit {
     }
 
     ngOnInit() {
-        const activeTab = this.stateParams.tab;
+        const activeTab = this.state.params.tab;
         this.activeTab = activeTab || '1';
         this.userId = this.Session.getUser().id;
         this.TeacherDashboard.populate().subscribe(dashboard => {
@@ -119,16 +118,16 @@ export class TeacherDashboardComponent implements OnInit {
             this.filteredDrafts = this.draftExams = dashboard.draftExams;
             this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe(resp => {
                 const byodSupported = resp.isByodExaminationSupported;
-                this.executionTypes.forEach(t => {
-                    if (t.type !== 'PRINTOUT' && byodSupported) {
-                        t.examinationTypes = [
-                            { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
-                            { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
-                            { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
-                        ];
-                    } else {
-                        t.examinationTypes = [];
-                    }
+                this.executionTypes = dashboard.executionTypes.map(t => {
+                    const examinationTypes =
+                        t.type !== 'PRINTOUT' && byodSupported
+                            ? [
+                                  { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
+                                  { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
+                                  { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
+                              ]
+                            : [];
+                    return { ...t, examinationTypes: examinationTypes };
                 });
             });
         });

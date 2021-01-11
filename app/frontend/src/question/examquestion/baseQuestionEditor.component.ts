@@ -42,7 +42,7 @@ import { QuestionDraft } from '../question.service';
     `,
 })
 export class BaseQuestionEditorComponent {
-    @Input() newQuestion: Question;
+    @Input() newQuestion: boolean;
     @Input() questionDraft: Question;
     @Input() questionId: number;
     @Input() collaborative: boolean;

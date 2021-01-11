@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { Course, Exam } from '../../exam.model';
@@ -31,13 +31,12 @@ export class CourseSelectionComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private state: StateService,
-        @Inject('$stateParams') private stateParams: StateParams,
         private http: HttpClient,
         private Exam: ExamService,
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.stateParams.id}`).subscribe(exam => (this.exam = exam));
+        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe(exam => (this.exam = exam));
     }
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);

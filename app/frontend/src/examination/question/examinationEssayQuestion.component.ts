@@ -32,7 +32,9 @@ export class ExaminationEssayQuestionComponent {
         private Files: FileService,
     ) {}
 
-    ngOnInit = () => this.Examination.setQuestionColors(this.sq);
+    ngOnInit() {
+        this.Examination.setQuestionColors(this.sq);
+    }
     saveAnswer = () => this.Examination.saveTextualAnswer(this.sq, this.exam.hash, false, false);
     removeQuestionAnswerAttachment = () => {
         if (!this.sq.essayAnswer) return;

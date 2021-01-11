@@ -20,7 +20,7 @@ import { Directive, ElementRef, EventEmitter, Input, NgZone, OnInit, Output } fr
     selector: '[appSortable]',
 })
 export class SortableDirective implements OnInit {
-    @Input('appSortable') objects: any[];
+    @Input('appSortable') objects: unknown[];
     @Input() selection: string;
     @Output() onMove = new EventEmitter<any>();
 

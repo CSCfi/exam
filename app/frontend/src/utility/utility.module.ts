@@ -31,6 +31,7 @@ import { DraggableModalDirective } from './dragndrop/draggableModal.directive';
 import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
 import { HistoryBackComponent } from './history/historyBack.component';
+import { SanitizedHtmlPipe } from './html/sanitizedHtml.pipe';
 import { LanguageService } from './language/language.service';
 import { MathJaxDirective } from './math/mathJax.directive';
 import { CourseCodeComponent } from './miscellaneous/courseCode.component';
@@ -53,6 +54,7 @@ import { WindowRef } from './window/window.service';
         FormsModule,
         CKEditorComponent,
         DatePickerComponent,
+        DateTimePickerComponent,
         TruncatingPipe,
         ApplyDstPipe,
         DraggableModalDirective,
@@ -67,6 +69,7 @@ import { WindowRef } from './window/window.service';
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
         CourseCodeComponent,
+        SanitizedHtmlPipe,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -88,6 +91,7 @@ import { WindowRef } from './window/window.service';
         ApplyDstPipe,
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
+        SanitizedHtmlPipe,
     ],
     entryComponents: [
         AttachmentSelectorComponent,
@@ -98,6 +102,7 @@ import { WindowRef } from './window/window.service';
         PaginatorComponent,
         TeacherListComponent,
         TableSortComponent,
+        CourseCodeComponent,
     ],
     providers: [
         AttachmentService,

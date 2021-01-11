@@ -105,6 +105,11 @@
             <!-- Grading -->
             <div ng-hide="$ctrl.hideGradeInfo" class="padl15 padr15">
                 <r-grading
+                    [exam]="$ctrl.exam"
+                    [questionSummary]="$ctrl.questionSummary"
+                    [participation]="$ctrl.participation"
+                    [collaborative]="$ctrl.collaborative"
+                    [user]="$ctrl.user"
                     ng-if="$ctrl.exam && !$ctrl.exam.subjectToLanguageInspection"
                     on-update="$ctrl.gradingUpdated()"
                 >

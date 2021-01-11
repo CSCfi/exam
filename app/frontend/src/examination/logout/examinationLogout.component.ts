@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationStatusService } from '../examinationStatus.service';
@@ -42,7 +42,6 @@ export class ExaminationLogoutComponent {
 
     constructor(
         private http: HttpClient,
-        private stateParams: StateParams,
         private state: StateService,
         private Window: WindowRef,
         private ExaminationStatus: ExaminationStatusService,
@@ -55,8 +54,8 @@ export class ExaminationLogoutComponent {
         }, 8000);
 
     ngOnInit() {
-        this.reasonPhrase = this.stateParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-        this.quitLinkEnabled = this.stateParams.quitLinkEnabled === 'true';
+        this.reasonPhrase = this.state.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
+        this.quitLinkEnabled = this.state.params.quitLinkEnabled === 'true';
 
         if (this.quitLinkEnabled) {
             this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(

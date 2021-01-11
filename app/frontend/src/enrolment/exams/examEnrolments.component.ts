@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
@@ -42,11 +43,7 @@ export class ExamEnrolmentsComponent implements OnInit {
     exam: EnrolmentInfo;
     exams: EnrolmentInfo[];
 
-    constructor(
-        @Inject('$stateParams') private StateParams: any,
-        private Enrolment: EnrolmentService,
-        private Session: SessionService,
-    ) {}
+    constructor(private state: StateService, private Enrolment: EnrolmentService, private Session: SessionService) {}
 
     ngOnInit() {
         const user = this.Session.getUser();
@@ -54,11 +51,11 @@ export class ExamEnrolmentsComponent implements OnInit {
             // We can not load resources before role is known.
             return;
         }
-        this.Enrolment.getEnrolmentInfo(this.StateParams.code, parseInt(this.StateParams.id)).subscribe(
+        this.Enrolment.getEnrolmentInfo(this.state.params.code, parseInt(this.state.params.id)).subscribe(
             exam => (this.exam = exam),
             err => toast.error(err.data),
         );
-        this.Enrolment.listEnrolments(this.StateParams.code, parseInt(this.StateParams.id)).subscribe(
+        this.Enrolment.listEnrolments(this.state.params.code, parseInt(this.state.params.id)).subscribe(
             exams => (this.exams = exams),
             err => toast.error(err.data),
         );

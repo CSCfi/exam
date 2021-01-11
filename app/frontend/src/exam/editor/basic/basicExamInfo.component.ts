@@ -48,8 +48,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
     gradeScaleSetting: { overridable: boolean };
-    examTypes: ExamExecutionType[];
-    gradeScales: GradeScale[];
+    examTypes: ExamExecutionType[] = [];
+    gradeScales: GradeScale[] = [];
     pwdInputType = 'password';
 
     unsubscribe = new Subject<unknown>();
@@ -70,7 +70,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
-    ngOnInit = () => {
+    ngOnInit() {
         this.refreshExamTypes();
         this.refreshGradeScales();
         this.http
@@ -83,7 +83,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe(setting => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
         this.initGradeScale();
-    };
+    }
 
     ngOnChanges = (changes: SimpleChanges) => {
         if (changes.exam) {

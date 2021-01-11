@@ -14,9 +14,9 @@
  */
 /// <reference types="angular-dialog-service" />
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams, StateService } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
 import { Observable, Subject } from 'rxjs';
@@ -90,7 +90,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private state: StateService,
         private translate: TranslateService,
-        @Inject('$stateParams') private stateParams: StateParams,
         private DateTime: DateTimeService,
         private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
@@ -113,12 +112,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
             .forEach(es => {
                 es.selected =
                     (data?.optionalSections && data.optionalSections.map(os => os.id).indexOf(es.id) > -1) ||
-                    (this.stateParams.selected && this.stateParams.selected.indexOf(es.id) > -1);
+                    (this.state.params.selected && this.state.params.selected.indexOf(es.id) > -1);
             });
     };
 
     ngOnInit() {
-        if (this.stateParams.isCollaborative === 'true') {
+        if (this.state.params.isCollaborative === 'true') {
             this.isCollaborative = true;
         }
         this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
@@ -129,8 +128,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         });
 
         const url = this.isCollaborative
-            ? `/integration/iop/exams/${this.stateParams.id}/info`
-            : `/app/student/exam/${this.stateParams.id}/info`;
+            ? `/integration/iop/exams/${this.state.params.id}/info`
+            : `/app/student/exam/${this.state.params.id}/info`;
         this.http
             .get<ExamInfo>(url)
             .pipe(
@@ -158,7 +157,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 tap(resp => (this.isInteroperable = resp.isExamVisitSupported)),
                 tap(() => this.fetchOrganisations()),
                 switchMap(() =>
-                    this.http.get<ReservationInfo | null>(`/app/calendar/enrolment/${this.stateParams.id}/reservation`),
+                    this.http.get<ReservationInfo | null>(
+                        `/app/calendar/enrolment/${this.state.params.id}/reservation`,
+                    ),
                 ),
                 tap((resp: ReservationInfo | null) => this.prepareOptionalSections(resp)),
             )
@@ -250,7 +251,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).result.then(() =>
             this.state.go('externalCalendar', {
-                id: this.stateParams.id,
+                id: this.state.params.id,
                 selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
                 isCollaborative: this.isCollaborative,
             }),
@@ -260,7 +261,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     makeInternalReservation() {
         const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
         this.state.go(nextState, {
-            id: this.stateParams.id,
+            id: this.state.params.id,
             selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
         });
     }
@@ -284,8 +285,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
         if (this.isExternal && this.selectedOrganisation) {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.stateParams.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.stateParams.id}/${room._id}`;
+                ? `/integration/iop/exams/${this.state.params.id}/external/calendar/${room._id}`
+                : `/integration/iop/calendar/${this.state.params.id}/${room._id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.selectedOrganisation._id,
@@ -294,8 +295,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
             });
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.stateParams.id}/calendar/${room.id}`
-                : `/app/calendar/${this.stateParams.id}/${room.id}`;
+                ? `/integration/iop/exams/${this.state.params.id}/calendar/${room.id}`
+                : `/app/calendar/${this.state.params.id}/${room.id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     day: date,

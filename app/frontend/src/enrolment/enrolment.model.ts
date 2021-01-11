@@ -14,6 +14,7 @@ export interface ExamParticipation {
     duration: number | string;
     user: User;
     _id?: string;
+    _rev?: string;
 }
 
 export interface Scores {

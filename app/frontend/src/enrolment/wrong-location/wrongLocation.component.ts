@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
@@ -38,7 +38,7 @@ export class WrongLocationComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private stateParams: StateParams,
+        private state: StateService,
         private translate: TranslateService,
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
@@ -56,9 +56,9 @@ export class WrongLocationComponent implements OnInit {
     };
 
     ngOnInit() {
-        if (this.stateParams.eid) {
+        if (this.state.params.eid) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -69,7 +69,7 @@ export class WrongLocationComponent implements OnInit {
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http
-                        .get<ExamMachine>(`/app/machines/${this.stateParams.mid}`)
+                        .get<ExamMachine>(`/app/machines/${this.state.params.mid}`)
                         .subscribe(machine => (this.currentMachine = machine));
                 },
                 err => toast.error(err.data),

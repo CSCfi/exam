@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateParams } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
@@ -41,7 +41,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private stateParams: StateParams,
+        private state: StateService,
         private translate: TranslateService,
         private Session: SessionService,
         private Window: WindowRef,
@@ -59,9 +59,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     };
 
     ngOnInit() {
-        if (this.stateParams.id) {
+        if (this.state.params.id) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.stateParams.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');

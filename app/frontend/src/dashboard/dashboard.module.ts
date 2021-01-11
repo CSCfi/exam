@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { UIRouterModule } from '@uirouter/angular';
 
 import { UtilityModule } from '../utility/utility.module';
 import { AdminDashboardModule } from './admin/adminDashboard.module';
@@ -23,7 +24,7 @@ import { TeacherDashboardModule } from './teacher/teacherDashboard.module';
 // TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
 // We need a router setup that supports this first
 @NgModule({
-    imports: [UtilityModule, StudentDashboardModule, TeacherDashboardModule, AdminDashboardModule],
+    imports: [UtilityModule, StudentDashboardModule, TeacherDashboardModule, AdminDashboardModule, UIRouterModule],
     declarations: [DashboardComponent],
     entryComponents: [DashboardComponent],
 })

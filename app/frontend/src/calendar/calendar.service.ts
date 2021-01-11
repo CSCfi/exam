@@ -15,8 +15,8 @@
 import 'moment-timezone';
 
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
-import { StateParams } from '@uirouter/core';
+import { Injectable } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
 
@@ -49,7 +49,7 @@ export interface OpeningHours {
 export class CalendarService {
     constructor(
         private http: HttpClient,
-        @Inject('$stateParams') private stateParams: StateParams,
+        private state: StateService,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {}
@@ -90,7 +90,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.stateParams.id),
+            examId: parseInt(this.state.params.id),
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,

@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, Inject } from '@angular/core';
-import { StateParams } from '@uirouter/core';
+import { Component, Input } from '@angular/core';
+import { StateService } from '@uirouter/core';
 
 import { Participation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
@@ -38,7 +38,7 @@ export class FeedbackComponent {
     hideEditor = false;
 
     constructor(
-        @Inject('$stateParams') private stateParams: StateParams,
+        private state: StateService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
@@ -89,8 +89,8 @@ export class FeedbackComponent {
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
             this.Attachment.removeExternalFeedbackAttachment(
-                this.stateParams.id,
-                this.stateParams.ref,
+                this.state.params.id,
+                this.state.params.ref,
                 this.participation,
             );
         } else {
