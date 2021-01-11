@@ -17,7 +17,7 @@
     </div>
 
     <div class="tab-wrapper-exams">
-        <ngb-tabset activeId="activeTab" tabChange="tabChange($event)">
+        <ngb-tabset [activeId]="activeTab" (tabChange)="tabChanged($event)">
             <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="1">
                 <ng-template ngbTabTitle>{{ 'sitnet_exam_basic_information_tab' | translate }}</ng-template>
                 <ng-template ngbTabContent>
