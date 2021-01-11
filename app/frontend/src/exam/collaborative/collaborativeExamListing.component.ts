@@ -41,7 +41,7 @@ interface ListedCollaborativeExam extends CollaborativeExam {
     template: require('./collaborativeExamListing.component.html'),
 })
 export class CollaborativeExamListingComponent implements OnInit {
-    exams: ListedCollaborativeExam[];
+    exams: ListedCollaborativeExam[] = [];
     user: User;
     view: ListingView;
     examsPredicate: string;
@@ -106,6 +106,8 @@ export class CollaborativeExamListingComponent implements OnInit {
         }
         return ListingView.OTHER;
     }
+
+    filterByView = (view: string) => this.exams.filter(e => this.determineListingView(e) === view);
 
     setView(view: ListingView) {
         this.view = view;

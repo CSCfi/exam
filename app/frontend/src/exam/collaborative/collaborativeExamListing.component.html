@@ -18,19 +18,19 @@
             <li role="tab" [ngClass]="{ active: view === 'PUBLISHED' }">
                 <a class="pointer" (click)="setView('PUBLISHED')">
                     Julkaistut ja esijulkaistut yhteistentit
-                    <span class="badge">{{ (exams | filter: { listingView: 'PUBLISHED' }).length }}</span>
+                    <span class="badge">{{ filterByView('PUBLISHED').length }}</span>
                 </a>
             </li>
             <li role="tab" [ngClass]="{ active: view === 'EXPIRED' }">
                 <a class="pointer" (click)="setView('EXPIRED')">
                     Yhteistentit, joiden voimassaoloaika on päättynyt
-                    <span class="badge">{{ (exams | filter: { listingView: 'EXPIRED' }).length }}</span>
+                    <span class="badge">{{ filterByView('EXPIRED').length }}</span>
                 </a>
             </li>
             <li role="tab" [ngClass]="{ active: view === 'DRAFTS' }">
                 <a class="pointer" (click)="setView('DRAFTS')">
                     Yhteistenttiluonnokset
-                    <span class="badge">{{ (exams | filter: { listingView: 'DRAFTS' }).length }}</span>
+                    <span class="badge">{{ filterByView('DRAFTS').length }}</span>
                 </a>
             </li>
         </ul>
@@ -124,7 +124,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let exam of exams | filter: { listingView: view } | orderBy: examsPredicate:reverse">
+                    <tr *ngFor="let exam of filterByView(view) | orderBy: examsPredicate:reverse">
                         <td>
                             <a
                                 class="exams-info-title bold-button"

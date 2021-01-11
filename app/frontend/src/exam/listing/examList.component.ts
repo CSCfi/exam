@@ -16,8 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import { from, Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, finalize, map, tap } from 'rxjs/operators';
+import { from, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -40,7 +40,6 @@ export class ExamListingComponent {
     executionTypes: { type: string; examinationTypes: { type: string; name: string }[] }[];
     byodExaminationSupported: boolean;
     exams: ExamListExam[] = [];
-    results$: Observable<ExamListExam[]>;
     subject = new Subject<string>();
 
     constructor(
@@ -74,38 +73,37 @@ export class ExamListingComponent {
                     return { ...t, examinationTypes: implementations };
                 });
             });
-            this.results$ = this.subject.pipe(
-                tap(() => (this.loader.loading = true)),
-                debounceTime(500),
-                distinctUntilChanged(),
-                exhaustMap(term =>
-                    term.length < 2
-                        ? from([])
-                        : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
-                ),
-                map((exams: ExamListExam[]) => {
-                    exams.forEach(e => {
-                        e.ownerAggregate = e.examOwners.map(o => `${o.firstName} ${o.lastName}`).join();
-                        if (e.state === 'PUBLISHED') {
-                            e.expired = new Date() > new Date(e.examActiveEndDate);
-                        } else {
-                            e.expired = false;
-                        }
-                    });
-                    return exams;
-                }),
-                tap(exams => {
-                    this.exams = exams;
-                    this.loader.loading = false;
-                }),
-                finalize(() => (this.loader.loading = false)),
-            );
+            this.subject
+                .pipe(
+                    tap(() => (this.loader.loading = true)),
+                    debounceTime(500),
+                    distinctUntilChanged(),
+                    exhaustMap(term =>
+                        term.length < 2
+                            ? from([])
+                            : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
+                    ),
+                    map((exams: ExamListExam[]) => {
+                        exams.forEach(e => {
+                            e.ownerAggregate = e.examOwners.map(o => `${o.firstName} ${o.lastName}`).join();
+                            if (e.state === 'PUBLISHED') {
+                                e.expired = new Date() > new Date(e.examActiveEndDate);
+                            } else {
+                                e.expired = false;
+                            }
+                        });
+                        return exams;
+                    }),
+                    tap(exams => {
+                        this.exams = exams;
+                        this.loader.loading = false;
+                    }),
+                )
+                .subscribe();
         });
     }
 
-    search = (event: { target: { value: string } }) => {
-        this.subject.next(event.target.value);
-    };
+    search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
 
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 

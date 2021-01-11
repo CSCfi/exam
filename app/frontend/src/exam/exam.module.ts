@@ -22,6 +22,7 @@ import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
 import { UtilityModule } from '../utility/utility.module';
 import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
+import { CollaborativeExamListingComponent } from './collaborative/collaborativeExamListing.component';
 import { BasicExamInfoComponent } from './editor/basic/basicExamInfo.component';
 import { ExamCourseComponent } from './editor/basic/examCourse.component';
 import { ExamInspectorSelectorComponent } from './editor/basic/examInspectorSelector.component';
@@ -67,6 +68,7 @@ import { ExamListingComponent } from './listing/examList.component';
         ExamOwnerSelectorComponent,
         ExamInspectorSelectorComponent,
         CollaborativeExamOwnerSelectorComponent,
+        CollaborativeExamListingComponent,
         PublicationDialogComponent,
         PublicationErrorDialogComponent,
         PublicationRevocationDialogComponent,
@@ -80,7 +82,7 @@ import { ExamListingComponent } from './listing/examList.component';
         ExaminationEventDialogComponent,
         ExamListingComponent,
     ],
-    entryComponents: [ExamTabsComponent, NewExamComponent, ExamListingComponent],
+    entryComponents: [ExamTabsComponent, NewExamComponent, ExamListingComponent, CollaborativeExamListingComponent],
     providers: [ExamService, CoursePickerService, CollaborativeExamService],
 })
 export class ExamModule {}

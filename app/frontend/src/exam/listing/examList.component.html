@@ -142,8 +142,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- filter: {state: view, expired: showExpired} orderBy:examsPredicate:reverse"-->
-                        <tr *ngFor="let exam of results$ | async">
+                        <tr
+                            *ngFor="
+                                let exam of filterByStateAndExpiration(view, showExpired)
+                                    | orderBy: examsPredicate:reverse
+                            "
+                        >
                             <td><course-code *ngIf="exam.course" [course]="exam.course"></course-code></td>
                             <td>
                                 <a
