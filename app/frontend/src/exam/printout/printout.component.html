@@ -1,13 +1,13 @@
 <div id="printout">
-    <div ng-if="$ctrl.exam.attachment" class="toolbar text text-danger">
+    <div *ngIf="exam.attachment" class="toolbar text text-danger">
         <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_print_attachment_reminder' | translate }}
     </div>
 
     <span class="toolbar">
-        <button class="btn btn-cancel" ng-click="$ctrl.exitPreview()">{{'sitnet_exit_preview' | translate}}</button
-        >&nbsp; <button class="btn btn-primary" ng-click="$ctrl.print()">{{'sitnet_print' | translate}}</button>&nbsp;
-        <button class="btn btn-primary" ng-if="$ctrl.exam.attachment" ng-click="$ctrl.printAttachment()">
-            {{'sitnet_print_attachment' | translate}}
+        <button class="btn btn-cancel" (click)="exitPreview()">{{ 'sitnet_exit_preview' | translate }}</button>&nbsp;
+        <button class="btn btn-primary" (click)="print()">{{ 'sitnet_print' | translate }}</button>&nbsp;
+        <button class="btn btn-primary" *ngIf="exam.attachment" (click)="printAttachment()">
+            {{ 'sitnet_print_attachment' | translate }}
         </button>
     </span>
 
@@ -25,14 +25,14 @@
                             >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
                             course:</strong
                         ><br />
-                        <h4><course-code course="$ctrl.exam.course"></course-code></h4>
-                        <h4>{{$ctrl.exam.course.name}}</h4>
+                        <h4><course-code [course]="exam.course"></course-code></h4>
+                        <h4>{{ exam.course.name }}</h4>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
-                        <h4>{{$ctrl.exam.name}}</h4>
+                        <h4>{{ exam.name }}</h4>
                     </td>
                 </tr>
                 <tr>
@@ -41,44 +41,44 @@
                             >Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong
                         >
                         &nbsp;
-                        <span ng-repeat="ed in $ctrl.exam.examinationDates | orderBy: 'date'">
-                            {{ed.date |date:'dd.MM.yyyy'}}&nbsp;
+                        <span *ngFor="let ed of exam.examinationDates | orderBy: 'date'">
+                            {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp;
                         </span>
                     </td>
                     <td>
-                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong
-                        >&nbsp;{{$ctrl.exam.duration}}&nbsp;min.
+                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{
+                            exam.duration
+                        }}&nbsp;min.
                     </td>
                 </tr>
                 <tr>
                     <td rowspan="2" class="multirow">
                         <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
-                        <teacher-list exam="$ctrl.exam" />
+                        <teacher-list [exam]="exam"></teacher-list>
                     </td>
                     <td>
                         <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
-                        &nbsp;{{ $ctrl.exam.course.credits }}
+                        &nbsp;{{ exam.course.credits }}
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <strong>Sis&auml;inen postiosoite / Intern postaddress / Internal address:</strong>
-                        &nbsp;{{ $ctrl.exam.internalRef }}
+                        &nbsp;{{ exam.internalRef }}
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
                         <br />
-                        <div ng-bind-html="$ctrl.exam.enrollInstruction"></div>
+                        <div [innerHtml]="exam.enrollInstruction"></div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
-                        <label ng-repeat="l in $ctrl.exam.examLanguages | orderBy:'ord'" class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="true" />{{
-                            $ctrl.getLanguageName(l) }}
+                        <label *ngFor="let l of exam.examLanguages | orderBy: 'ord'" class="checkbox-inline">
+                            <input type="checkbox" onclick="return false;" value="true" />{{ getLanguageName(l) }}
                         </label>
                         <div>
                             <p>
@@ -109,62 +109,62 @@
             <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
         </div>
     </div>
-    <div class="prow answer-instructions" ng-if="$ctrl.exam.instruction">
+    <div class="prow answer-instructions" *ngIf="exam.instruction">
         <div class="col-md-12">
             <strong>Ohjeet / Anvisning / Instructions:</strong>
             <br />
-            <div ng-bind-html="$ctrl.exam.instruction"></div>
+            <div [innerHtml]="exam.instruction"></div>
         </div>
     </div>
-    <div ng-repeat="es in $ctrl.exam.examSections | orderBy:'index'">
+    <div *ngFor="let es of exam.examSections | orderBy: 'index'">
         <div class="prow">
             <div class="col-md-12">
-                <h4>{{es.name}}</h4>
+                <h4>{{ es.name }}</h4>
             </div>
         </div>
-        <div ng-if="es.description" class="prow">
+        <div *ngIf="es.description" class="prow">
             <div class="col-md-12">
-                {{es.description}}
+                {{ es.description }}
             </div>
         </div>
-        <div ng-repeat="esq in es.sectionQuestions | orderBy:'sequenceNumber'" class="prow question">
+        <div *ngFor="let esq of es.sectionQuestions | orderBy: 'sequenceNumber'" class="prow question">
             <span class="col-md-8"
-                ><strong>{{ esq.sequenceNumber + 1}}.&nbsp;{{ $ctrl.getQuestionTypeName(esq) }}</strong></span
+                ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
             >
             <span class="col-md-4"
                 ><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
             >
-            <span class="col-md-12 question" ng-if="esq.answerInstructions.length > 0"
+            <span class="col-md-12 question" *ngIf="esq.answerInstructions.length > 0"
                 ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
-                {{esq.answerInstructions}}
+                {{ esq.answerInstructions }}
             </span>
             <span
                 class="col-md-12 question"
-                ng-if="esq.question.type !== 'ClozeTestQuestion'"
-                mathjax
-                ng-bind-html="$ctrl.trustAsHtml(esq.question.question)"
+                *ngIf="esq.question.type !== 'ClozeTestQuestion'"
+                [MathJax]="esq.question.question"
             ></span>
             <span
                 class="col-md-12 question"
-                ng-if="esq.question.type === 'ClozeTestQuestion'"
-                mathjax
-                ng-bind-html="$ctrl.trustAsHtml(esq.clozeTestAnswer.question)"
+                *ngIf="esq.question.type === 'ClozeTestQuestion'"
+                [MathJax]="esq.clozeTestAnswer.question"
             ></span>
             <span
-                ng-if="esq.question.type === 'MultipleChoiceQuestion' || 
-                        esq.question.type === 'WeightedMultipleChoiceQuestion' ||
-                        esq.question.type === 'ClaimChoiceQuestion'"
+                *ngIf="
+                    esq.question.type === 'MultipleChoiceQuestion' ||
+                    esq.question.type === 'WeightedMultipleChoiceQuestion' ||
+                    esq.question.type === 'ClaimChoiceQuestion'
+                "
                 class="col-md-12"
             >
-                <div ng-repeat="o in esq.options">
-                    <div ng-if="esq.question.type === 'WeightedMultipleChoiceQuestion'" class="checkbox">
-                        <label><input type="checkbox" onclick="return false;" value="" />{{o.option.option}}</label>
+                <div *ngFor="let o of esq.options">
+                    <div *ngIf="esq.question.type === 'WeightedMultipleChoiceQuestion'" class="checkbox">
+                        <label><input type="checkbox" onclick="return false;" value="" />{{ o.option.option }}</label>
                     </div>
-                    <div ng-if="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
-                        <label><input type="radio" onclick="return false;" name="" />{{o.option.option}}</label>
+                    <div *ngIf="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
+                        <label><input type="radio" onclick="return false;" name="" />{{ o.option.option }}</label>
                     </div>
-                    <div ng-if="esq.question.type === 'ClaimChoiceQuestion'" class="radio">
-                        <label><input type="radio" onclick="return false;" name="" />{{o.option.option}}</label>
+                    <div *ngIf="esq.question.type === 'ClaimChoiceQuestion'" class="radio">
+                        <label><input type="radio" onclick="return false;" name="" />{{ o.option.option }}</label>
                     </div>
                 </div>
             </span>

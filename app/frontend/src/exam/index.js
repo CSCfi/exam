@@ -14,6 +14,4 @@
  */
 
 require('./exam.module.ajs.ts');
-require('./exam.service.ts');
-require('./listing/examList.component.ts');
 require('./examResource');

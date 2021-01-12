@@ -15,15 +15,19 @@
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
 
+import { ExamTabsComponent } from './editor/examTabs.component';
 import { ExamService } from './exam.service';
 import { ExamListingComponent } from './listing/examList.component';
+import { PrintoutComponent } from './printout/printout.component';
+import { PrintoutListingComponent } from './printout/printoutListing.component';
 
-require('./editor/editor.module.ajs.ts');
-require('../facility/facility.module');
 require('../review/review.module.ajs');
 require('../question/question.module.ajs');
 
-angular
-    .module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.question'])
+export default angular
+    .module('app.exam', ['app.review', 'app.question'])
+    .directive('examTabs', downgradeComponent({ component: ExamTabsComponent }))
     .directive('examList', downgradeComponent({ component: ExamListingComponent }))
+    .directive('printout', downgradeComponent({ component: PrintoutComponent }))
+    .directive('printoutListing', downgradeComponent({ component: PrintoutListingComponent }))
     .service('Exam', downgradeInjectable(ExamService));
