@@ -177,7 +177,7 @@
             </div>
             <div class="col-md-9">
                 <span *ngFor="let teacher of exam.parent.examOwners; let isLast = last">
-                    {{ teacher.firstName }} {{ teacher.lastName }}<span *ngIf="isLast">,&nbsp;</span>
+                    {{ teacher.firstName }} {{ teacher.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
                 </span>
             </div>
         </div>
@@ -192,7 +192,7 @@
                     <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }}</span>
                     <span *ngIf="inspection.ready">({{ 'sitnet_ready' | translate }})</span>
                     <span *ngIf="!inspection.ready">({{ 'sitnet_in_progress' | translate }})</span>
-                    <span *ngIf="isLast">,&nbsp;</span>
+                    <span *ngIf="!isLast">,&nbsp;</span>
                 </span>
             </div>
         </div>

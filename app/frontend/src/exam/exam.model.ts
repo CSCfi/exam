@@ -12,7 +12,7 @@ export interface Grade {
 }
 
 export type TypedGrade = Grade & { type: string };
-export type NoGrade = Omit<TypedGrade, 'id'> & { type: 'NONE' };
+export type NoGrade = Omit<TypedGrade, 'id'> & { id?: number; type: 'NONE' };
 export type SelectableGrade = TypedGrade | NoGrade;
 const isRealGrade = (grade: SelectableGrade): grade is TypedGrade => grade.type !== 'NONE';
 export default isRealGrade;
@@ -304,7 +304,7 @@ export interface ExamParticipation {
     collaborativeExam?: CollaborativeExam;
     externalExam?: { started: Date };
     user: User;
-    duration: number;
+    duration: string;
     displayName?: string;
     _id?: string;
     _rev?: string;

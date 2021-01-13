@@ -46,8 +46,10 @@ import { MultiChoiceAnswerComponent } from './assessment/questions/multiChoiceAn
 import { MultiChoiceQuestionComponent } from './assessment/questions/multiChoiceQuestion.component';
 import { WeightedMultiChoiceAnswerComponent } from './assessment/questions/weightedMultiChoiceAnswer.component';
 import { ExamSectionComponent } from './assessment/sections/examSection.component';
+import { SpeedReviewFeedbackComponent } from './listing/dialogs/feedback.component';
 import { ReviewListComponent } from './listing/reviewList.component.upgrade';
 import { ReviewListService } from './listing/reviewList.service';
+import { SpeedReviewComponent } from './listing/speedReview.component';
 import { ExamSummaryComponent } from './listing/summary/examSummary.component.upgrade';
 import { QuestionReviewsComponent } from './questions/listing/questionReviews.component.upgrade';
 
@@ -82,6 +84,8 @@ import { QuestionReviewsComponent } from './questions/listing/questionReviews.co
         InspectionCommentsComponent,
         MaturityGradingComponent,
         MaturityToolbarComponent,
+        SpeedReviewFeedbackComponent,
+        SpeedReviewComponent,
     ],
     entryComponents: [AssessmentComponent],
     providers: [AssessmentService, CollaborativeAssesmentService, ReviewListService, MaturityService],

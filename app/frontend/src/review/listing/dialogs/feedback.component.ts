@@ -12,44 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
-
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Exam } from '../../../exam/exam.model';
+import { WindowRef } from '../../../utility/window/window.service';
+import { AssessmentService } from '../../assessment/assessment.service';
 
-export const SpeedReviewFeedbackComponent: angular.IComponentOptions = {
-    template: require('./feedback.template.html'),
-    bindings: {
-        close: '&',
-        dismiss: '&',
-        resolve: '<',
-    },
-    controller: class SpeedReviewFeedbackController implements angular.IComponentController {
-        resolve: { exam: Exam };
-        exam: Exam;
-        close: () => unknown;
-        dismiss: (_: { $value: string }) => unknown;
+@Component({
+    selector: 'speed-review-feedback',
+    template: require('./feedback.component.html'),
+})
+export class SpeedReviewFeedbackComponent {
+    @Input() exam: Exam;
 
-        constructor(private $scope: angular.IScope, private $window: angular.IWindowService, private Assessment: any) {
-            'ngInject';
-            // Close modal if user clicked the back button and no changes made
-            this.$scope.$on('$stateChangeStart', () => {
-                if (!this.$window.onbeforeunload) {
-                    this.cancel();
-                }
-            });
+    constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
+    ok = () => {
+        if (!this.exam.examFeedback) {
+            this.exam.examFeedback = { comment: '', feedbackStatus: false };
         }
-        $onInit = () => (this.exam = this.resolve.exam);
+        this.Assessment.saveFeedback$(this.exam).subscribe(this.modal.close);
+    };
 
-        ok = () => {
-            if (!this.exam.examFeedback) {
-                this.exam.examFeedback = { comment: '', feedbackStatus: false };
-            }
-            this.Assessment.saveFeedback(this.exam);
-            this.close();
-        };
-
-        cancel = () => this.dismiss({ $value: 'cancel' });
-    },
-};
-
-angular.module('app.review').component('speedReviewFeedback', SpeedReviewFeedbackComponent);
+    cancel = () => this.modal.dismiss();
+}

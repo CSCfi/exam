@@ -25,6 +25,8 @@ import { ApplyDstPipe } from './date/applyDst.pipe';
 import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
+import { DiffInDaysPipe } from './date/dayDiff.pipe';
+import { DiffInMinutesPipe } from './date/minuteDiff.pipe';
 import { ConfirmationDialogComponent } from './dialogs/confirmationDialog.component';
 import { ConfirmationDialogService } from './dialogs/confirmationDialog.service';
 import { DraggableModalDirective } from './dragndrop/draggableModal.directive';
@@ -70,6 +72,8 @@ import { WindowRef } from './window/window.service';
         FixedPrecisionValidatorDirective,
         CourseCodeComponent,
         SanitizedHtmlPipe,
+        DiffInMinutesPipe,
+        DiffInDaysPipe,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -92,6 +96,8 @@ import { WindowRef } from './window/window.service';
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
         SanitizedHtmlPipe,
+        DiffInMinutesPipe,
+        DiffInDaysPipe,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

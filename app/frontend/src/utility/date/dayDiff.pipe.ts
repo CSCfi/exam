@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,13 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import { Pipe, PipeTransform } from '@angular/core';
 
-angular.module('app.review').factory('ExamRes', [
-    '$resource',
-    function($resource) {
-        return {
-            archive: $resource('/app/reviews/archive', {}, { update: { method: 'PUT' } }),
-        };
-    },
-]);
+@Pipe({ name: 'dayDiff' })
+export class DiffInDaysPipe implements PipeTransform {
+    transform = (from: string, to?: string): string => {
+        const msInDay = 1000 * 60 * 60 * 24;
+        const end = to ? new Date(to) : new Date();
+        const diff = (new Date(from).getTime() - end.getTime()) / msInDay;
+        if (diff < 0) {
+            return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
+        }
+        return '<span>' + Math.floor(diff) + '</span>';
+    };
+}
