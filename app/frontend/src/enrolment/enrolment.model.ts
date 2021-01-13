@@ -1,21 +1,6 @@
-import { MomentInput } from 'moment';
-
-import { CollaborativeExam, Exam, ExaminationEvent, ExaminationEventConfiguration } from '../exam/exam.model';
+import { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
 import { Reservation } from '../reservation/reservation.model';
 import { User } from '../session/session.service';
-
-export interface ExamParticipation {
-    id: number;
-    exam: Exam;
-    ended: MomentInput;
-    started: MomentInput;
-    reservation: Reservation;
-    examinationEvent: ExaminationEvent;
-    duration: number | string;
-    user: User;
-    _id?: string;
-    _rev?: string;
-}
 
 export interface Scores {
     maxScore: number;

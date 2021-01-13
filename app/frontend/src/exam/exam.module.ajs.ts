@@ -15,6 +15,7 @@
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 import * as angular from 'angular';
 
+import { CollaborativeExamListingComponent } from './collaborative/collaborativeExamListing.component';
 import { ExamTabsComponent } from './editor/examTabs.component';
 import { ExamService } from './exam.service';
 import { ExamListingComponent } from './listing/examList.component';
@@ -30,4 +31,5 @@ export default angular
     .directive('examList', downgradeComponent({ component: ExamListingComponent }))
     .directive('printout', downgradeComponent({ component: PrintoutComponent }))
     .directive('printoutListing', downgradeComponent({ component: PrintoutListingComponent }))
-    .service('Exam', downgradeInjectable(ExamService));
+    .directive('collaborativeExamListing', downgradeComponent({ component: CollaborativeExamListingComponent }))
+    .service('Exam', downgradeInjectable(ExamService)).name;

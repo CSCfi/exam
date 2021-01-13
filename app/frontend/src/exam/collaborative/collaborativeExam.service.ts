@@ -12,12 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, Participation, CollaborativeExamState } from '../exam.model';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { CollaborativeExam, CollaborativeExamState, ExamParticipation } from '../exam.model';
 
 @Injectable()
 export class CollaborativeExamService {
@@ -25,8 +25,8 @@ export class CollaborativeExamService {
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
-    listStudentParticipations = (): Observable<Participation[]> =>
-        this.http.get<Participation[]>('/integration/iop/student/finishedExams');
+    listStudentParticipations = (): Observable<ExamParticipation[]> =>
+        this.http.get<ExamParticipation[]>('/integration/iop/student/finishedExams');
 
     listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';

@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { Participation } from '../../../exam/exam.model';
+import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
@@ -33,7 +33,7 @@ declare let $: any;
 export class FeedbackComponent {
     @Input() exam: Examination;
     @Input() collaborative: boolean;
-    @Input() participation: Participation;
+    @Input() participation: ExamParticipation;
 
     hideEditor = false;
 

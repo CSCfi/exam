@@ -15,32 +15,75 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UIRouterModule } from '@uirouter/angular';
+import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
+import { AssessmentComponent } from './assessment/assessment.component';
 import { AssessmentService } from './assessment/assessment.service';
 import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
+import { StatementComponent } from './assessment/feedback/statement.component';
+import { GeneralInfoComponent } from './assessment/general/generalInfo.component';
+import { ParticipationComponent } from './assessment/general/participation.component';
 import { GradingComponent } from './assessment/grading/grading.component';
 import { InspectionComponent } from './assessment/grading/inspection.component';
 import { ToolbarComponent } from './assessment/grading/toolbar.component';
+import { InspectionCommentDialogComponent } from './assessment/maturity/dialogs/inspectionCommentDialog.component';
+import { MaturityGradingComponent } from './assessment/maturity/grading.component';
+import { InspectionCommentsComponent } from './assessment/maturity/inspectionComments.component';
+import { MaturityService } from './assessment/maturity/maturity.service';
+import { MaturityToolbarComponent } from './assessment/maturity/toolbar.component';
+import { PrintedAssessmentComponent } from './assessment/print/printedAssessment.component';
+import { PrintedClozeTestComponent } from './assessment/print/printedClozeTest.component';
+import { PrintedEssayComponent } from './assessment/print/printedEssay.component';
+import { PrintedMultiChoiceComponent } from './assessment/print/printedMultiChoice.component';
+import { PrintedSectionComponent } from './assessment/print/printedSection.component';
+import { ClaimChoiceAnswerComponent } from './assessment/questions/claimChoiceAnswer.component';
+import { ClozeTestComponent } from './assessment/questions/clozeTest.component';
+import { EssayQuestionComponent } from './assessment/questions/essayQuestion.component';
+import { MultiChoiceAnswerComponent } from './assessment/questions/multiChoiceAnswer.component';
+import { MultiChoiceQuestionComponent } from './assessment/questions/multiChoiceQuestion.component';
+import { WeightedMultiChoiceAnswerComponent } from './assessment/questions/weightedMultiChoiceAnswer.component';
+import { ExamSectionComponent } from './assessment/sections/examSection.component';
 import { ReviewListComponent } from './listing/reviewList.component.upgrade';
 import { ReviewListService } from './listing/reviewList.service';
 import { ExamSummaryComponent } from './listing/summary/examSummary.component.upgrade';
 import { QuestionReviewsComponent } from './questions/listing/questionReviews.component.upgrade';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule, DragDropModule],
+    imports: [NgbModule, UIRouterModule, UtilityModule, DragDropModule, OrderModule],
     exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
     declarations: [
+        AssessmentComponent,
         FeedbackComponent,
+        StatementComponent,
         GradingComponent,
         InspectionComponent,
         ToolbarComponent,
         ReviewListComponent,
         QuestionReviewsComponent,
         ExamSummaryComponent,
+        ClaimChoiceAnswerComponent,
+        ClozeTestComponent,
+        EssayQuestionComponent,
+        MultiChoiceQuestionComponent,
+        MultiChoiceAnswerComponent,
+        WeightedMultiChoiceAnswerComponent,
+        PrintedAssessmentComponent,
+        PrintedClozeTestComponent,
+        PrintedEssayComponent,
+        PrintedMultiChoiceComponent,
+        PrintedSectionComponent,
+        ExamSectionComponent,
+        GeneralInfoComponent,
+        ParticipationComponent,
+        InspectionCommentDialogComponent,
+        InspectionCommentsComponent,
+        MaturityGradingComponent,
+        MaturityToolbarComponent,
     ],
-    entryComponents: [FeedbackComponent, GradingComponent],
-    providers: [AssessmentService, CollaborativeAssesmentService, ReviewListService],
+    entryComponents: [AssessmentComponent],
+    providers: [AssessmentService, CollaborativeAssesmentService, ReviewListService, MaturityService],
 })
 export class ReviewModule {}

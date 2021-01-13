@@ -8,7 +8,7 @@
                 [inspection]="inspection"
                 [user]="user"
                 [disabled]="isGraded() || isReadOnly()"
-                (on-inspection)="inspectionDone()"
+                (onInspection)="inspectionDone()"
             >
             </r-inspection>
         </div>
@@ -99,7 +99,7 @@
 </div>
 
 <div class="review-grade-row" [hidden]="getTeacherCount() === 0">
-    <div ng-hide="$ctrl.isReadOnly()">
+    <div [hidden]="isReadOnly()">
         <div class="col-md-2 general-info-title">
             {{ 'sitnet_send_to_other_reviewers' | translate }}:
             <sup
@@ -130,8 +130,7 @@
     <div
         class="col-md-10"
         [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        mathjax
-        [innerHtml]="exam.examFeedback.comment"
+        [MathJax]="exam.examFeedback.comment"
     ></div>
     <div *ngIf="exam.examFeedback.attachment" class="col-md-offset-2 col-md-10 general-info-content">
         <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
@@ -205,4 +204,4 @@
 </div>
 
 <!-- Bottom toolbar -->
-<r-toolbar valid="f.gradingForm.valid"></r-toolbar>
+<r-toolbar [valid]="f.gradingForm.valid"></r-toolbar>

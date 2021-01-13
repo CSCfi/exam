@@ -25,7 +25,6 @@ import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
@@ -192,7 +191,7 @@ public class LanguageInspectionController extends BaseController {
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setStatement(Long id, Http.Request request) {
         Optional<String> text = request.attrs().getOptional(Attrs.COMMENT);
-        if (!text.isPresent()) {
+        if (text.isEmpty()) {
             return badRequest();
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);

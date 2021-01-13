@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 
 import { Observable } from '../../../node_modules/rxjs';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
-import { Exam, ExamSectionQuestion, Participation, Question } from '../../exam/exam.model';
+import { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
 import { ReviewQuestion } from '../../review/review.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -154,7 +154,7 @@ export class AttachmentService {
         });
     }
 
-    removeExternalFeedbackAttachment = (id: string, ref: string, participation: Participation) => {
+    removeExternalFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) => {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
@@ -171,7 +171,7 @@ export class AttachmentService {
         });
     };
 
-    removeStatementAttachment(exam: ExamWithStatement) {
+    removeStatementAttachment(exam: Exam) {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
@@ -180,7 +180,7 @@ export class AttachmentService {
             this.http.delete(this.statementAttachmentApi(exam.id)).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    delete exam.languageInspection.statement.attachment;
+                    delete exam.languageInspection?.statement.attachment;
                 },
                 err => toast.error(err),
             );
@@ -245,7 +245,7 @@ export class AttachmentService {
     }
 
     downloadStatementAttachment(exam: Exam | ReviewedExam) {
-        if (!exam.languageInspection) {
+        if (!exam.languageInspection?.statement.attachment) {
             return;
         }
         this.Files.download(

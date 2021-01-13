@@ -164,26 +164,27 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail", "creator", "modifier", "reservation" })
     public Result getExamReview(Long eid, Http.Request request) {
-        ExpressionList<Exam> query = createQuery()
+        ExpressionList<ExamParticipation> query = createQuery()
             .where()
-            .eq("id", eid)
+            .eq("exam.id", eid)
             .disjunction()
-            .eq("state", Exam.State.REVIEW)
-            .eq("state", Exam.State.REVIEW_STARTED)
-            .eq("state", Exam.State.GRADED)
-            .eq("state", Exam.State.GRADED_LOGGED)
-            .eq("state", Exam.State.REJECTED)
-            .eq("state", Exam.State.ARCHIVED);
+            .eq("exam.state", Exam.State.REVIEW)
+            .eq("exam.state", Exam.State.REVIEW_STARTED)
+            .eq("exam.state", Exam.State.GRADED)
+            .eq("exam.state", Exam.State.GRADED_LOGGED)
+            .eq("exam.state", Exam.State.REJECTED)
+            .eq("exam.state", Exam.State.ARCHIVED);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (isAdmin) {
-            query = query.eq("state", Exam.State.ABORTED);
+            query = query.eq("exam.state", Exam.State.ABORTED);
         }
         query = query.endJunction();
-        Exam exam = query.findOne();
-        if (exam == null) {
+        ExamParticipation examParticipation = query.findOne();
+        if (examParticipation == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        Exam exam = examParticipation.getExam();
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -205,7 +206,7 @@ public class ReviewController extends BaseController {
                     esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
                 }
             );
-        return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
+        return writeAnonymousResult(request, ok(examParticipation), exam.isAnonymous());
     }
 
     @Authenticated
@@ -803,57 +804,56 @@ public class ReviewController extends BaseController {
         return src == null ? null : Math.round(src * 100) / HUNDRED;
     }
 
-    private static Query<Exam> createQuery() {
+    private static Query<ExamParticipation> createQuery() {
         return Ebean
-            .find(Exam.class)
-            .fetch("course")
-            .fetch("course.organisation")
-            .fetch("course.gradeScale")
-            .fetch("course.gradeScale.grades", new FetchConfig().query())
-            .fetch("parent")
-            .fetch("parent.creator")
-            .fetch("parent.gradeScale")
-            .fetch("parent.gradeScale.grades", new FetchConfig().query())
-            .fetch("parent.examOwners", new FetchConfig().query())
-            .fetch("examEnrolments")
-            .fetch("examEnrolments.reservation")
-            .fetch("examEnrolments.reservation.machine")
-            .fetch("examEnrolments.reservation.machine.room")
-            .fetch("examEnrolments.examinationEventConfiguration")
-            .fetch("examEnrolments.examinationEventConfiguration.examinationEvent")
-            .fetch("examInspections")
-            .fetch("examInspections.user")
-            .fetch("examParticipation")
-            .fetch("examParticipation.user")
-            .fetch("examType")
-            .fetch("executionType")
-            .fetch("examSections")
+            .find(ExamParticipation.class)
+            .fetch("exam.course")
+            .fetch("exam.course.organisation")
+            .fetch("exam.course.gradeScale")
+            .fetch("exam.course.gradeScale.grades", new FetchConfig().query())
+            .fetch("exam.parent")
+            .fetch("exam.parent.creator")
+            .fetch("exam.parent.gradeScale")
+            .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
+            .fetch("exam.parent.examOwners", new FetchConfig().query())
+            .fetch("exam.examEnrolments")
+            .fetch("exam.examEnrolments.reservation")
+            .fetch("exam.examEnrolments.reservation.machine")
+            .fetch("exam.examEnrolments.reservation.machine.room")
+            .fetch("exam.examEnrolments.examinationEventConfiguration")
+            .fetch("exam.examEnrolments.examinationEventConfiguration.examinationEvent")
+            .fetch("exam.examInspections")
+            .fetch("exam.examInspections.user")
+            .fetch("user")
+            .fetch("exam.examType")
+            .fetch("exam.executionType")
+            .fetch("exam.examSections")
             .fetch(
-                "examSections.sectionQuestions",
+                "exam.examSections.sectionQuestions",
                 "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType",
                 new FetchConfig().query()
             )
-            .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
-            .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-            .fetch("examSections.sectionQuestions.options")
-            .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, claimChoiceType")
-            .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
-            .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
-            .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")
-            .fetch("gradeScale")
-            .fetch("gradeScale.grades")
-            .fetch("grade")
-            .fetch("inspectionComments")
-            .fetch("inspectionComments.creator", "firstName, lastName, email")
-            .fetch("languageInspection")
-            .fetch("languageInspection.assignee", "firstName, lastName, email")
-            .fetch("languageInspection.statement")
-            .fetch("languageInspection.statement.attachment")
-            .fetch("examFeedback")
-            .fetch("examFeedback.attachment")
-            .fetch("creditType")
-            .fetch("attachment")
-            .fetch("examLanguages")
-            .fetch("examOwners");
+            .fetch("exam.examSections.sectionQuestions.question", "id, type, question, shared")
+            .fetch("exam.examSections.sectionQuestions.question.attachment", "fileName")
+            .fetch("exam.examSections.sectionQuestions.options")
+            .fetch("exam.examSections.sectionQuestions.options.option", "id, option, correctOption, claimChoiceType")
+            .fetch("exam.examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
+            .fetch("exam.examSections.sectionQuestions.essayAnswer.attachment", "fileName")
+            .fetch("exam.examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")
+            .fetch("exam.gradeScale")
+            .fetch("exam.gradeScale.grades")
+            .fetch("exam.grade")
+            .fetch("exam.inspectionComments")
+            .fetch("exam.inspectionComments.creator", "firstName, lastName, email")
+            .fetch("exam.languageInspection")
+            .fetch("exam.languageInspection.assignee", "firstName, lastName, email")
+            .fetch("exam.languageInspection.statement")
+            .fetch("exam.languageInspection.statement.attachment")
+            .fetch("exam.examFeedback")
+            .fetch("exam.examFeedback.attachment")
+            .fetch("exam.creditType")
+            .fetch("exam.attachment")
+            .fetch("exam.examLanguages")
+            .fetch("exam.examOwners");
     }
 }

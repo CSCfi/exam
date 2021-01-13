@@ -1,0 +1,89 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [MathJax]="sectionQuestion.question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [hidden]="sectionQuestion.question.attachment">N/A</span>
+            <span *ngIf="sectionQuestion.question.attachment">
+                {{ sectionQuestion.question.attachment.fileName }}&nbsp;
+            </span>
+        </div>
+    </div>
+
+    <!-- question evaluation criteria -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow" *ngIf="sectionQuestion.evaluationCriteria">
+            {{ 'sitnet_exam_evaluation_criteria' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9" *ngIf="sectionQuestion.evaluationCriteria">
+            <div [innerHtml]="sectionQuestion.evaluationCriteria"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- question instructions -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow" *ngIf="sectionQuestion.answerInstructions">
+            {{ 'sitnet_instructions' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9" *ngIf="sectionQuestion.answerInstructions">
+            <div [innerHtml]="sectionQuestion.answerInstructions"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-content-row col-md-9"><span [MathJax]="sectionQuestion.essayAnswer.answer"></span>&nbsp;</div>
+    </div>
+    <!-- answer attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_attachment' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <div [hidden]="sectionQuestion.essayAnswer.attachment">N/A</div>
+            <div *ngIf="sectionQuestion.essayAnswer.attachment">
+                {{ sectionQuestion.essayAnswer.attachment.fileName }}
+            </div>
+        </div>
+    </div>
+    <!-- answer length & recommended length-->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_length' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
+            {{ getCharacterCount() }} {{ 'sitnet_characters' | translate }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            {{ sectionQuestion.expectedWordCount }}&nbsp; ({{ 'sitnet_approximately' | translate }}
+            {{ sectionQuestion.expectedWordCount * 8 }} {{ 'sitnet_characters' | translate }})
+        </div>
+    </div>
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">
+            <span *ngIf="sectionQuestion.evaluationType === 'Points'">{{ 'sitnet_word_points' | translate }}:</span>
+            <span [hidden]="sectionQuestion.evaluationType === 'Points'">{{ 'sitnet_comments' | translate }}:</span>
+        </div>
+        <div class="sub-content-row col-md-9">
+            <span *ngIf="sectionQuestion.evaluationType === 'Points'">
+                {{ getScore() }} / {{ sectionQuestion.maxScore }}
+            </span>
+            <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
+                <div *ngIf="sectionQuestion.essayAnswer.evaluatedScore == 1">
+                    {{ 'sitnet_approved' | translate }}
+                </div>
+                <div *ngIf="sectionQuestion.essayAnswer.evaluatedScore == 0">
+                    {{ 'sitnet_rejected' | translate }}
+                </div>
+            </span>
+        </div>
+    </div>
+</div>

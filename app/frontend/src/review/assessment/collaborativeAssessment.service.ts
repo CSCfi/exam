@@ -20,7 +20,7 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, Participation, SelectableGrade } from '../../exam/exam.model';
+import { Exam, ExamParticipation, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
@@ -48,7 +48,11 @@ export class CollaborativeAssesmentService {
         private Assessment: AssessmentService,
     ) {}
 
-    saveAssessmentInfo = (examId: number, examRef: string, participation: Participation): Observable<Participation> => {
+    saveAssessmentInfo = (
+        examId: number,
+        examRef: string,
+        participation: ExamParticipation,
+    ): Observable<ExamParticipation> => {
         if (participation.exam.state === 'GRADED_LOGGED') {
             const url = `/integration/iop/reviews/${examId}/${examRef}/info`;
             return this.http
@@ -69,7 +73,7 @@ export class CollaborativeAssesmentService {
         return this.http.post<void>(url, { msg: message });
     };
 
-    saveFeedback(examId: number, examRef: string, participation: Participation): Observable<Participation> {
+    saveFeedback(examId: number, examRef: string, participation: ExamParticipation): Observable<ExamParticipation> {
         const payload = {
             rev: participation._rev,
             comment: participation.exam.examFeedback.comment,
@@ -89,7 +93,7 @@ export class CollaborativeAssesmentService {
         return this.http.post(url, { rev: revision });
     }
 
-    private getPayload(exam: Exam, state: string, rev: string): Payload {
+    getPayload(exam: Exam, state: string, rev: string): Payload {
         return {
             id: exam.id,
             state: state || exam.state,
@@ -107,7 +111,7 @@ export class CollaborativeAssesmentService {
         newState: string,
         payload: Payload,
         messages: string[],
-        participation: Participation,
+        participation: ExamParticipation,
         examId: number,
         examRef: string,
     ) => {
@@ -135,7 +139,7 @@ export class CollaborativeAssesmentService {
         );
     };
 
-    saveAssessment = (participation: Participation, modifiable: boolean, id: number, ref: string) => {
+    saveAssessment = (participation: ExamParticipation, modifiable: boolean, id: number, ref: string) => {
         if (!modifiable) {
             if (participation.exam.state !== 'GRADED') {
                 // Just save feedback and leave
@@ -151,7 +155,7 @@ export class CollaborativeAssesmentService {
             const messages = this.Assessment.getErrors(participation.exam);
             const oldState = participation.exam.state;
             const newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-            const payload = this.getPayload(participation.exam, newState, participation._rev);
+            const payload = this.getPayload(participation.exam, newState, participation._rev as string);
             if (newState !== 'GRADED' || oldState === 'GRADED') {
                 this.sendAssessment(newState, payload, messages, participation, id, ref);
             } else {
@@ -164,7 +168,7 @@ export class CollaborativeAssesmentService {
         }
     };
 
-    private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: Participation) => {
+    private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: ExamParticipation) => {
         payload.state = 'GRADED_LOGGED';
         const url = `/integration/iop/reviews/${examId}/${ref}/record`;
         this.http.put<{ rev: string }>(url, payload).subscribe(
@@ -177,10 +181,10 @@ export class CollaborativeAssesmentService {
         );
     };
 
-    private register = (participation: Participation, examId: number, ref: string, payload: Payload) => {
+    private register = (participation: ExamParticipation, examId: number, ref: string, payload: Payload) => {
         this.saveFeedback(examId, ref, participation).subscribe(
             () => {
-                payload.rev = participation._rev;
+                payload.rev = participation._rev as string;
                 const url = `/integration/iop/reviews/${examId}/${ref}`;
                 this.http.put<{ rev: string }>(url, payload).subscribe(
                     data => {
@@ -197,7 +201,7 @@ export class CollaborativeAssesmentService {
         );
     };
 
-    createExamRecord = (participation: Participation, examId: number, ref: string) => {
+    createExamRecord = (participation: ExamParticipation, examId: number, ref: string) => {
         if (!this.Assessment.checkCredit(participation.exam)) {
             return;
         }
@@ -208,7 +212,7 @@ export class CollaborativeAssesmentService {
             const dialogNote = participation.exam.gradeless
                 ? this.translate.instant('sitnet_confirm_archiving_without_grade')
                 : this.Assessment.getRecordReviewConfirmationDialogContent(participation.exam.examFeedback.comment);
-            const payload = this.getPayload(participation.exam, 'GRADED', participation._rev);
+            const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs
                 .open(this.translate.instant('sitnet_confirm'), dialogNote)
                 .result.then(() => this.register(participation, examId, ref, payload));

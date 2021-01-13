@@ -35,6 +35,11 @@ import { FileService } from '../utility/file/file.service';
 import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'>;
+export type QuestionAmounts = {
+    accepted: number;
+    rejected: number;
+    hasEssays: boolean;
+};
 
 @Injectable()
 export class QuestionService {
@@ -88,7 +93,7 @@ export class QuestionService {
 
     getQuestion = (id: number): Observable<Question> => this.http.get<Question>(this.questionsApi(id));
 
-    getQuestionAmounts = (exam: Exam) => {
+    getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };
         exam.examSections.forEach(section => {
             section.sectionQuestions.forEach(sectionQuestion => {

@@ -121,5 +121,3 @@ export const ReviewListComponent: angular.IComponentOptions = {
             });
     },
 };
-
-angular.module('app.review').component('reviewList', ReviewListComponent);

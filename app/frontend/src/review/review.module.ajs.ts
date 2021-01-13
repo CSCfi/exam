@@ -19,10 +19,14 @@ import { AssessmentService } from './assessment/assessment.service';
 import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
 import { GradingComponent } from './assessment/grading/grading.component';
+import { ReviewListComponent } from './listing/reviewList.component';
 import { ReviewListService } from './listing/reviewList.service';
+import { QuestionReviewListComponent } from './questions/listing/questionReviews.component';
 
 angular
     .module('app.review', [])
+    .component('reviewList', ReviewListComponent)
+    .component('questionReviews', QuestionReviewListComponent)
     .service('ReviewList', downgradeInjectable(ReviewListService))
     .service('Assessment', downgradeInjectable(AssessmentService))
     .service('CollaborativeAssessment', downgradeInjectable(CollaborativeAssesmentService))

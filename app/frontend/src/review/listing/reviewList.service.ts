@@ -20,7 +20,7 @@ import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../enrolment/enrolment.model';
+import { ExamParticipation } from '../../exam/exam.model';
 
 type Selection = { [k: string]: boolean };
 type SelectableParticipation = ExamParticipation & { selected: boolean };

@@ -1,5 +1,8 @@
+import { MomentInput } from 'moment';
+
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { LanguageInspection } from '../maturity/maturity.model';
+import { Reservation } from '../reservation/reservation.model';
 import { User } from '../session/session.service';
 
 export interface Grade {
@@ -109,6 +112,7 @@ export interface EssayAnswer {
     evaluatedScore: number;
     answer: string;
     objectVersion: number;
+    attachment?: Attachment;
 }
 
 export interface MultipleChoiceOption {
@@ -196,12 +200,6 @@ export interface CollaborativeExam {
     examActiveEndDate: string | number;
 }
 
-export interface Participation {
-    id: number;
-    exam: Exam;
-    _rev: string;
-}
-
 export interface Feedback {
     comment: string;
     id?: number;
@@ -286,6 +284,7 @@ export interface ExamImpl {
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection?: LanguageInspection;
+    inspectionComments: { comment: string }[];
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
@@ -298,9 +297,17 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
+    ended: MomentInput;
+    started: MomentInput;
+    reservation?: Reservation;
+    examinationEvent?: ExaminationEvent;
+    collaborativeExam?: CollaborativeExam;
     externalExam?: { started: Date };
+    user: User;
     duration: number;
     displayName?: string;
+    _id?: string;
+    _rev?: string;
 }
 
 export enum ClaimChoiceOptionType {

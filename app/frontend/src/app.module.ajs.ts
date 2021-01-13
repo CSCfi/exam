@@ -14,7 +14,6 @@
  */
 import './administrative';
 import './assets/styles/main.scss';
-import './exam';
 import 'angular-animate';
 import 'angular-dialog-service';
 import 'angular-dynamic-locale';
@@ -38,7 +37,7 @@ import runBlock from './app.run';
 import states from './app.states';
 import DashboardModule from './dashboard/dashboard.module.ajs';
 import EnrolmentModule from './enrolment/enrolment.module.ajs';
-import CollaborativeExamModule from './exam/collaborative';
+import ExamModuleAjs from './exam/exam.module.ajs';
 import ExaminationModuleAjs from './examination/examination.module.ajs';
 import MaturityModuleAjs from './maturity/maturity.module.ajs';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
@@ -63,9 +62,8 @@ export const ajsApp = angularJS
         UtilityModule,
         EnrolmentModule,
         DashboardModule,
-        CollaborativeExamModule,
         ExaminationModuleAjs,
-        'app.exam',
+        ExamModuleAjs,
         'app.enrolment',
         'app.maturity',
         'app.administrative',

@@ -14,39 +14,14 @@
  */
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 
-import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
 import { EnrolmentService } from './enrolment.service';
-import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
-import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
-import { CollaborativeExamParticipationsComponent } from './finished/collaborativeExamParticipations.component';
-import { ExamFeedbackComponent } from './finished/examFeedback.component';
-import { ExamParticipationComponent } from './finished/examParticipation.component';
-import { ExamParticipationsComponent } from './finished/examParticipations.component';
-import { CollaborativeExamSearchComponent } from './search/collaborativeExamSearch.component';
-import { ExamSearchComponent } from './search/examSearch.component';
-import { ExamSearchResultComponent } from './search/examSearchResult.component';
 import { WaitingRoomComponent } from './waiting-room/waitingRoom.component';
 import { WrongLocationComponent } from './wrong-location/wrongLocation.component';
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
-require('../exam'); // TODO: refactor
-
 export default angular
-    .module('app.enrolment', ['app.exam'])
+    .module('app.enrolment', [])
     .service('Enrolment', downgradeInjectable(EnrolmentService))
     .service('WrongLocation', downgradeInjectable(WrongLocationService))
-    .directive('activeEnrolment', downgradeComponent({ component: ActiveEnrolmentComponent }))
-    .directive('enrolmentDetails', downgradeComponent({ component: EnrolmentDetailsComponent }))
-    .directive('examEnrolments', downgradeComponent({ component: ExamEnrolmentsComponent }))
-    .directive(
-        'collaborativeExamParticipations',
-        downgradeComponent({ component: CollaborativeExamParticipationsComponent }),
-    )
-    .directive('examFeedback', downgradeComponent({ component: ExamFeedbackComponent }))
-    .directive('examParticipation', downgradeComponent({ component: ExamParticipationComponent }))
-    .directive('examParticipations', downgradeComponent({ component: ExamParticipationsComponent }))
-    .directive('collaborativeExamSearch', downgradeComponent({ component: CollaborativeExamSearchComponent }))
-    .directive('examSearch', downgradeComponent({ component: ExamSearchComponent }))
-    .directive('examSearchResult', downgradeComponent({ component: ExamSearchResultComponent }))
     .directive('waitingRoom', downgradeComponent({ component: WaitingRoomComponent }))
     .directive('wrongLocation', downgradeComponent({ component: WrongLocationComponent })).name;

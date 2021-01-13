@@ -12,10 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Location } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import * as toast from 'toastr';
 
-import { Participation } from '../../../exam/exam.model';
+import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { Examination } from '../../../examination/examination.service';
 import { AssessmentService } from '../assessment.service';
@@ -27,12 +30,14 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 })
 export class ToolbarComponent {
     @Input() valid: boolean;
-    @Input() participation: Participation;
+    @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
     @Input() exam: Examination;
 
     constructor(
         private state: StateService,
+        private location: Location,
+        private translate: TranslateService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Exam: ExamService,
@@ -68,11 +73,18 @@ export class ToolbarComponent {
                 this.state.params.ref,
             );
         } else {
-            this.Assessment.createExamRecord$(this.exam, true).subscribe();
+            this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {
+                toast.info(this.translate.instant('sitnet_review_recorded'));
+                this.location.go(this.getExitUrl());
+            });
         }
     };
 
-    rejectMaturity = () => this.Assessment.rejectMaturity(this.exam);
+    rejectMaturity = () =>
+        this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
+            toast.info(this.translate.instant('sitnet_maturity_rejected'));
+            this.location.go(this.getExitUrl());
+        });
 
     getExitUrl = () => this.Assessment.getExitUrl(this.exam, this.collaborative);
 }
