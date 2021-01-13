@@ -81,7 +81,7 @@ export class PrintedAssessmentComponent {
             if (duration.second() > 29) {
                 duration.add(1, 'minutes');
             }
-            this.participation.duration = duration.milliseconds();
+            this.participation.duration = duration.format();
 
             this.student = this.participation.user;
             this.enrolment = this.exam.examEnrolments[0];

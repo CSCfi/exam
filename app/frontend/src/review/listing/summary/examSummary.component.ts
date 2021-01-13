@@ -32,7 +32,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         reviews: ExamParticipation[];
         gradeDistribution: _.Dictionary<number>;
         gradedCount: number;
-        gradeTimeData: Array<{ x: number; y: number }>;
+        gradeTimeData: Array<{ x: string; y: number }>;
         gradeDistributionData: number[];
         gradeDistributionLabels: string[];
         abortedExams: ExamParticipation[];
@@ -134,7 +134,7 @@ export const ExamSummaryComponent: ng.IComponentOptions = {
         calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
 
         getAverageTime = () => {
-            const durations = this.reviews.map(r => r.duration);
+            const durations = this.reviews.map(r => parseInt(r.duration));
             return this.calcAverage(durations);
         };
 

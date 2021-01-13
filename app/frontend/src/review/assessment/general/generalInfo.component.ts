@@ -69,11 +69,11 @@ export class GeneralInfoComponent {
     };
 
     ngOnInit() {
-        const duration = moment.utc(new Date(this.participation.duration as number));
+        const duration = moment.utc(new Date(this.participation.duration as string));
         if (duration.second() > 29) {
             duration.add(1, 'minutes');
         }
-        this.participation.duration = duration.milliseconds();
+        this.participation.duration = duration.format();
 
         this.student = this.participation.user as User;
         this.studentName = this.student

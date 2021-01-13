@@ -25,7 +25,7 @@ import { QuestionReviewListComponent } from './questions/listing/questionReviews
 
 angular
     .module('app.review', [])
-    .component('reviewList', ReviewListComponent)
+    .component('reviewList', downgradeComponent({ component: ReviewListComponent }))
     .component('questionReviews', QuestionReviewListComponent)
     .service('ReviewList', downgradeInjectable(ReviewListService))
     .service('Assessment', downgradeInjectable(AssessmentService))

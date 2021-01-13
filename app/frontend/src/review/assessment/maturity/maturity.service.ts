@@ -16,7 +16,7 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -166,11 +166,11 @@ export class MaturityService {
     };
 
     private sendForLanguageInspection = (exam: Exam) =>
-        of(
+        from(
             this.Confirmation.open(
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_confirm_maturity_approval'),
-            ),
+            ).result,
         )
             .pipe(
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
@@ -187,11 +187,11 @@ export class MaturityService {
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
-        of(
+        from(
             this.Confirmation.open(
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_confirm_language_inspection_approval'),
-            ),
+            ).result,
         )
             .pipe(
                 switchMap(() => this.saveInspectionStatement$(exam)),

@@ -258,7 +258,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, title = 'sitnet_attachment_selection', params?: any): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params?: any, title = 'sitnet_attachment_selection'): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false,

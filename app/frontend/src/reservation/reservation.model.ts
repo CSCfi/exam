@@ -12,8 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import moment = require('moment');
-
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { User } from '../session/session.service';
 
@@ -75,8 +73,8 @@ export interface Reservation {
     externalReservation?: ExternalReservation;
     externalUserRef?: string;
     machine: ExamMachine;
-    startAt: moment.MomentInput;
-    endAt: moment.MomentInput;
+    startAt: string;
+    endAt: string;
     user: User;
     retrialPermitted: boolean;
 }

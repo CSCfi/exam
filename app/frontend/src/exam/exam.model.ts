@@ -1,5 +1,3 @@
-import { MomentInput } from 'moment';
-
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { LanguageInspection } from '../maturity/maturity.model';
 import { Reservation } from '../reservation/reservation.model';
@@ -209,7 +207,7 @@ export interface Feedback {
 
 export interface ExaminationEvent {
     id?: number;
-    start: Date;
+    start: string;
     description: string;
 }
 
@@ -297,8 +295,8 @@ export interface Exam extends ExamImpl {
 export interface ExamParticipation {
     id: number;
     exam: Exam;
-    ended: MomentInput;
-    started: MomentInput;
+    ended: string;
+    started: string;
     reservation?: Reservation;
     examinationEvent?: ExaminationEvent;
     collaborativeExam?: CollaborativeExam;

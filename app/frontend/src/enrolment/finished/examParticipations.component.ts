@@ -60,7 +60,9 @@ export class ExamParticipationsComponent implements OnInit {
                         p =>
                             (p.ended = p.reservation
                                 ? p.reservation.endAt
-                                : moment(p.examinationEvent?.start).add(p.duration, 'minutes')),
+                                : moment(p.examinationEvent?.start)
+                                      .add(p.duration, 'minutes')
+                                      .format()),
                     );
                     this.participations = data;
                 },
