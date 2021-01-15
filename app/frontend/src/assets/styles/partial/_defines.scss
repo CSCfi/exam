@@ -548,6 +548,10 @@ $sitnet-icon-size: 32px;
   margin-top: 60px !important;
 }
 
+.pad0 {
+  padding: 0;
+}
+
 .pad5 {
   padding: 5px;
 }
@@ -673,6 +677,10 @@ $sitnet-icon-size: 32px;
   margin-left: 0px !important;
 }
 
+.marl5 {
+  margin-left: 5px !important;
+}
+
 .marl10 {
   margin-left: 10px !important;
 }
@@ -787,4 +795,12 @@ $sitnet-icon-size: 32px;
 
 .vbottom {
   vertical-align: bottom !important;
+}
+
+.border-none {
+  border: none
+}
+
+.background-none {
+  background: none;
 }

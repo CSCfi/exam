@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 export interface AppConfig {
@@ -33,50 +21,51 @@ export interface AppConfig {
     supportsPrintouts: boolean;
 }
 
-export const SettingsComponent: angular.IComponentOptions = {
-    template: require('./settings.template.html'),
-    controller: class SettingsController implements angular.IComponentController {
-        config: AppConfig;
-        attributes: string[];
+@Component({
+    template: require('./settings.component.html'),
+    selector: 'settings',
+})
+export class SettingsComponent implements OnInit {
+    config: AppConfig;
+    attributes: string[];
 
-        constructor(private $translate: angular.translate.ITranslateService, private $http: angular.IHttpService) {
-            'ngInject';
-        }
+    constructor(private translate: TranslateService, private http: HttpClient) {}
 
-        private onSuccess = () =>
-            toast.info(this.$translate.instant('sitnet_settings') + ' ' + this.$translate.instant('sitnet_updated'));
+    private onSuccess = () =>
+        toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
 
-        private onError = (error: { data: string }) => toast.error(error.data);
+    private onError = (error: { data: string }) => toast.error(error.data);
 
-        $onInit = () => {
-            this.$http.get('/app/config').then((resp: angular.IHttpResponse<AppConfig>) => {
-                this.config = resp.data;
-            });
-        };
+    ngOnInit() {
+        this.http.get<AppConfig>('/app/config').subscribe(resp => {
+            this.config = resp;
+        });
+    }
 
-        updateAgreement = () =>
-            this.$http
-                .put('/app/settings/agreement', { value: this.config.eula })
-                .then(this.onSuccess)
-                .catch(this.onError);
+    updateAgreement = () =>
+        this.http
+            .put('/app/settings/agreement', { value: this.config.eula })
+            .toPromise()
+            .then(this.onSuccess)
+            .catch(this.onError);
 
-        updateDeadline = () =>
-            this.$http
-                .put('/app/settings/deadline', { value: this.config.reviewDeadline })
-                .then(this.onSuccess)
-                .catch(this.onError);
+    updateDeadline = () =>
+        this.http
+            .put('/app/settings/deadline', { value: this.config.reviewDeadline })
+            .toPromise()
+            .then(this.onSuccess)
+            .catch(this.onError);
 
-        updateReservationWindow = () =>
-            this.$http
-                .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
-                .then(this.onSuccess)
-                .catch(this.onError);
+    updateReservationWindow = () =>
+        this.http
+            .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
+            .toPromise()
+            .then(this.onSuccess)
+            .catch(this.onError);
 
-        showAttributes = () =>
-            this.$http
-                .get('/attributes')
-                .then((resp: angular.IHttpResponse<string[]>) => (this.attributes = resp.data));
-    },
-};
-
-angular.module('app.administrative.settings').component('settings', SettingsComponent);
+    showAttributes = () =>
+        this.http
+            .get('/attributes')
+            .toPromise()
+            .then((resp: string[]) => (this.attributes = resp));
+}

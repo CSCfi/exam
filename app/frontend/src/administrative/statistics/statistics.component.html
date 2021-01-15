@@ -1,0 +1,116 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_statistics' | translate }}</span>
+    </div>
+</div>
+
+<div id="dashboard">
+    <!-- TAB NAVIGATION -->
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'RESPONSES' }">
+                <a class="nav-link pointer" (click)="view = 'RESPONSES'">{{ 'sitnet_exam_responses' | translate }}</a>
+            </li>
+            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'ROOMS' }">
+                <a class="nav-link pointer" (click)="view = 'ROOMS'">{{ 'sitnet_statistics_rooms' | translate }}</a>
+            </li>
+            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'EXAMS' }">
+                <a class="nav-link pointer" (click)="view = 'EXAMS'">{{ 'sitnet_exams' | translate }}</a>
+            </li>
+            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'RESERVATIONS' }">
+                <a class="nav-link pointer" (click)="view = 'RESERVATIONS'">{{ 'sitnet_reservations' | translate }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="main-row">
+        <!-- Start & End time datepickers, department selection -->
+        <div class="col-md">
+            <h4>{{ 'sitnet_begin' | translate }}</h4>
+            <date-picker
+                (onUpdate)="startDateChanged($event)"
+                [initialDate]="null"
+                [modelOptions]="{ timezone: '+0000' }"
+            ></date-picker>
+        </div>
+
+        <div class="col-md">
+            <h4>{{ 'sitnet_end' | translate }}</h4>
+            <date-picker
+                (onUpdate)="endDateChanged($event)"
+                [initialDate]="null"
+                [modelOptions]="{ timezone: '+0000' }"
+            ></date-picker>
+        </div>
+
+        <div class="col-md">
+            <h4>{{ 'sitnet_department' | translate }}</h4>
+            <span class="dropdown" ngbDropdown>
+                <button
+                    ngbDropdownToggle
+                    class="btn btn-default dropdown-toggle"
+                    type="button"
+                    id="dropDownMenu1"
+                    data-toggle="dropdown"
+                    aria-expanded="true"
+                >
+                    {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
+                </button>
+                <ul
+                    class="dropdown-menu"
+                    style="padding-left: 0; min-width: 17em"
+                    role="menu"
+                    aria-labelledby="dropDownMenu1"
+                >
+                    <li role="presentation" class="dropdown-header input-group">
+                        <input
+                            [ngModel]="limitations.department"
+                            (input)="handleDepartmentInputChange($event)"
+                            type="text"
+                            class="form-control"
+                            placeholder="{{ 'sitnet_search' | translate }}"
+                        />
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fa fa-search fa-fw"></i>
+                            </span>
+                        </div>
+                    </li>
+                    <li
+                        *ngFor="let department of filteredDepartments"
+                        class="dropdown-item"
+                        role="presentation"
+                        [ngClass]="department.filtered ? 'active' : ''"
+                        (click)="setDepartmentFilter(department)"
+                    >
+                        <a role="menuitem" title="{{ department.name }}">{{ department.name }}</a>
+                    </li>
+                </ul>
+            </span>
+        </div>
+        <div class="col-md">
+            <ul class="inline-list">
+                <li>
+                    <ng-container *ngFor="let department of departments">
+                        <button
+                            *ngIf="department.filtered"
+                            type="button"
+                            (click)="setDepartmentFilter(department)"
+                            class="btn btn-primary btn-xs"
+                            style="margin: 0.2em"
+                        >
+                            {{ department.name }}
+                        </button>
+                    </ng-container>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></room-statistics>
+    <reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </reservation-statistics>
+    <response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></response-statistics>
+    <exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></exam-statistics>
+</div>

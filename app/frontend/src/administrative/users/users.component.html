@@ -1,0 +1,288 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_user_administration' | translate }}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <div class="main-row">
+        <label class="col-md-12" for="userSearch">{{ 'sitnet_search_for_users' | translate }}</label>
+        <div id="userSearch">
+            <div class="col-md-4">
+                <div class="form-group input-group">
+                    <input
+                        [ngModel]="filter.text"
+                        type="text"
+                        class="form-control"
+                        (ngModelChange)="loader.loading = true; textChanged.next($event)"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placement="top"
+                        openDelay="500"
+                        closeDelay="500"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'sitnet_user_search_description' | translate }}"
+                    />
+                    <div class="input-group-addon">
+                        <i class="fa fa-search fa-fw"></i>
+                    </div>
+                </div>
+            </div>
+            <span class="col-md-8">
+                <span class="dropdown" ngbDropdown>
+                    <button
+                        ngbDropdownToggle
+                        class="btn btn-default dropdown-toggle"
+                        type="button"
+                        id="dropDownMenu1"
+                        data-toggle="dropdown"
+                        aria-expanded="true"
+                    >
+                        {{ 'sitnet_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
+                        <li
+                            *ngFor="let role of roles"
+                            role="presentation"
+                            [ngClass]="role.filtered ? 'active' : ''"
+                            (click)="applyRoleFilter(role)"
+                        >
+                            <a class="dropdown-item" role="menuitem" title="{{ role.name }}">
+                                <i class="fa pull-right" [ngClass]="role.icon"></i>
+                                {{ role.name | translate }}
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+                <!-- ng-show="permissions.length > 0" -->
+                <span class="dropdown" ngbDropdown>
+                    <button
+                        ngbDropdownToggle
+                        class="btn btn-default dropdown-toggle"
+                        type="button"
+                        id="dropDownMenu2"
+                        data-toggle="dropdown"
+                        aria-expanded="true"
+                    >
+                        {{ 'sitnet_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu2">
+                        <li
+                            *ngFor="let permission of permissions"
+                            role="presentation"
+                            [ngClass]="permission.filtered ? 'active' : ''"
+                            (click)="applyPermissionFilter(permission)"
+                        >
+                            <a class="dropdown-item" role="menuitem" title="{{ permission.name }}">
+                                <i class="fa pull-right" [ngClass]="permission.icon"></i>
+                                {{ permission.name | translate }}&nbsp;
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+            </span>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <button [hidden]="!loader.loading" class="btn btn-success">
+                {{ 'sitnet_searching' | translate }}&hellip;
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </div>
+    <div class="main-row" style="padding-bottom: 150px">
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>{{ 'sitnet_lastname' | translate }}</th>
+                        <th>{{ 'sitnet_firstname' | translate }}</th>
+                        <th>{{ 'sitnet_email' | translate }}</th>
+                        <th>{{ 'sitnet_userid' | translate }}</th>
+                        <th>{{ 'sitnet_employeeno' | translate }}</th>
+                        <th>{{ 'sitnet_last_login' | translate }}</th>
+                        <th>{{ 'sitnet_user_roles' | translate }}</th>
+                        <th>{{ 'sitnet_user_permissions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of filteredUsers">
+                        <td>{{ user.lastName }}</td>
+                        <td>{{ user.firstName }}</td>
+                        <td>
+                            <a class="pointer" href="mailto:{{ user.email }}">{{ user.email }}</a>
+                        </td>
+                        <td>{{ user.userIdentifier }}</td>
+                        <td>{{ user.employeeNumber }}</td>
+                        <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+                        <td>
+                            <i *ngIf="hasRole(user, 'ADMIN')" class="fa fa-cog"></i>
+                            <i *ngIf="hasRole(user, 'TEACHER')" class="fa fa-university"></i>
+                            <i *ngIf="hasRole(user, 'STUDENT')" class="fa fa-graduation-cap"></i>
+
+                            <div class="pull-right">
+                                <span class="dropdown pointer" ngbDropdown>
+                                    <button
+                                        type="button"
+                                        class="dropdown-toggle border-none background-none pad0"
+                                        id="addRoleDropdown"
+                                        ngbDropdownToggle
+                                        data-toggle="dropdown"
+                                        aria-expanded="true"
+                                        [disabled]="user.availableRoles.length === 0"
+                                    >
+                                        <i *ngIf="user.availableRoles.length > 0" class="text-success fa fa-plus"></i>
+                                        <i *ngIf="user.availableRoles.length === 0" class="text-muted fa fa-plus"></i>
+                                    </button>
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        role="menu"
+                                        style="min-width: 17em"
+                                        *ngIf="user.availableRoles.length > 0"
+                                        aria-labelledby="addRoleDropdown"
+                                    >
+                                        <li class="dropdown-header">{{ 'sitnet_add' | translate }}</li>
+                                        <li *ngFor="let role of user.availableRoles">
+                                            <a class="dropdown-item" role="menuitem" (click)="addRole(user, role)">
+                                                <i class="fa pull-right" [ngClass]="role.icon"></i>
+                                                {{ role.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </span>
+                                <span class="dropdown pointer" ngbDropdown>
+                                    <button
+                                        id="removeRoleDropdown"
+                                        class="dropdown-toggle border-none background-none pad0 marl5"
+                                        type="button"
+                                        ngbDropdownToggle
+                                        data-toggle="dropdown"
+                                        aria-expanded="true"
+                                        [disabled]="user.removableRoles.length <= 1"
+                                    >
+                                        <i *ngIf="user.removableRoles.length > 1" class="text-danger fa fa-minus"></i>
+                                        <i
+                                            *ngIf="user.removableRoles.length <= 1"
+                                            class="text-muted fa fa-minus"
+                                            placement="left"
+                                            openDelay="500"
+                                            closeDelay="500"
+                                            triggers="mouseenter:mouseleave"
+                                            ngbPopover="{{ 'sitnet_at_least_one_role_required' | translate }}"
+                                        ></i>
+                                    </button>
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        role="menu"
+                                        style="min-width: 17em"
+                                        *ngIf="user.removableRoles.length > 1"
+                                        aria-labelledby="removeRoleDropdown"
+                                    >
+                                        <li class="dropdown-header">{{ 'sitnet_remove' | translate }}</li>
+                                        <li *ngFor="let role of user.removableRoles">
+                                            <a class="dropdown-item" role="menuitem" (click)="removeRole(user, role)">
+                                                <i class="fa pull-right" [ngClass]="role.icon"></i
+                                                >{{ role.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <i *ngIf="hasPermission(user, 'CAN_INSPECT_LANGUAGE')" class="fa fa-pencil"></i>
+
+                            <div class="pull-right">
+                                <span class="dropdown pointer" ngbDropdown>
+                                    <button
+                                        class="dropdown-toggle border-none background-none pad0"
+                                        type="button"
+                                        ngbDropdownToggle
+                                        id="addPermissionDropdown"
+                                        data-toggle="dropdown"
+                                        aria-expanded="true"
+                                        [disabled]="user.availablePermissions.length === 0"
+                                    >
+                                        <i
+                                            *ngIf="user.availablePermissions.length > 0"
+                                            class="text-success fa fa-plus"
+                                        ></i>
+                                        <i
+                                            *ngIf="user.availablePermissions.length === 0"
+                                            class="text-muted fa fa-plus"
+                                        ></i>
+                                    </button>
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        *ngIf="user.availablePermissions.length > 0"
+                                        aria-labelledby="addPermissionDropdown"
+                                        role="menu"
+                                    >
+                                        <li class="dropdown-header">{{ 'sitnet_add' | translate }}</li>
+                                        <li *ngFor="let permission of user.availablePermissions">
+                                            <a
+                                                class="dropdown-item"
+                                                role="menuitem"
+                                                (click)="addPermission(user, permission)"
+                                            >
+                                                <i class="fa pull-right" [ngClass]="permission.icon"></i>
+                                                {{ permission.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </span>
+                                <span class="dropdown pointer" ngbDropdown>
+                                    <button
+                                        class="dropdown-toggle border-none background-none pad0 marl5"
+                                        type="button"
+                                        ngbDropdownToggle
+                                        id="removePermissionDropdown"
+                                        data-toggle="dropdown"
+                                        aria-expanded="true"
+                                        [disabled]="user.removablePermissions.length === 0"
+                                    >
+                                        <i
+                                            *ngIf="user.removablePermissions.length > 0"
+                                            class="text-danger fa fa-minus"
+                                        ></i>
+                                        <i
+                                            *ngIf="user.removablePermissions.length == 0"
+                                            class="text-muted fa fa-minus"
+                                        ></i>
+                                    </button>
+                                    <ul
+                                        class="dropdown-menu pull-right"
+                                        style="min-width: 17em"
+                                        *ngIf="user.removablePermissions.length > 0"
+                                        aria-labelledby="removePermissionDropdown"
+                                        role="menu"
+                                    >
+                                        <li class="dropdown-header">{{ 'sitnet_remove' | translate }}</li>
+                                        <li *ngFor="let permission of user.removablePermissions">
+                                            <a
+                                                class="dropdown-item"
+                                                role="menuitem"
+                                                (click)="removePermission(user, permission)"
+                                            >
+                                                <i class="fa pull-right" [ngClass]="permission.icon"></i
+                                                >{{ permission.name | translate }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="filteredUsers && filteredUsers.length > pageSize">
+                <paginator
+                    [items]="filteredUsers"
+                    (onSelectPage)="pageSelected(page)"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                ></paginator>
+            </div>
+        </div>
+    </div>
+</div>

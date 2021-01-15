@@ -12,60 +12,62 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 
-export const ResponseStatisticsComponent: angular.IComponentOptions = {
+@Component({
     template: `
-            <div class="bottom-row">
-                <div class="col-md-12">
-                    <button class="btn btn-primary" ng-click="$ctrl.listResponses()">{{'sitnet_search' | translate}}</button>
-                </div>
+        <div class="bottom-row">
+            <div class="col-md-12">
+                <button class="btn btn-primary" (click)="listResponses()">{{ 'sitnet_search' | translate }}</button>
             </div>
-            <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_assessed_exams' | translate}}:</strong></div>
-                <div class="col-md-10">{{$ctrl.assessedExams.length}}</div>
+        </div>
+        <div class="top-row">
+            <div class="col-md-2">
+                <strong>{{ 'sitnet_assessed_exams' | translate }}:</strong>
             </div>
-            <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_unassessed_exams' | translate}}:</strong></div>
-                <div class="col-md-10">{{$ctrl.unassessedExams.length}}</div>
+            <div class="col-md-10">{{ assessedExams.length }}</div>
+        </div>
+        <div class="top-row">
+            <div class="col-md-2">
+                <strong>{{ 'sitnet_unassessed_exams' | translate }}:</strong>
             </div>
-            <div class="top-row">
-                <div class="col-md-2"><strong>{{'sitnet_aborted_exams' | translate}}:</strong></div>
-                <div class="col-md-10">{{$ctrl.abortedExams.length}}</div>
+            <div class="col-md-10">{{ unassessedExams.length }}</div>
+        </div>
+        <div class="top-row">
+            <div class="col-md-2">
+                <strong>{{ 'sitnet_aborted_exams' | translate }}:</strong>
             </div>
-        `,
-    bindings: {
-        queryParams: '<',
-    },
-    controller: class ResponseStatisticsComponentController implements angular.IComponentController {
-        queryParams: { start: string; end: string };
-        assessedExams: Exam[];
-        unassessedExams: Exam[];
-        abortedExams: Exam[];
+            <div class="col-md-10">{{ abortedExams.length }}</div>
+        </div>
+    `,
+    selector: 'response-statistics',
+})
+export class ResponseStatisticsComponent implements OnInit {
+    @Input() queryParams: { start: string; end: string };
+    assessedExams: Exam[] = [];
+    unassessedExams: Exam[] = [];
+    abortedExams: Exam[] = [];
 
-        constructor(private $http: angular.IHttpService) {
-            'ngInject';
-        }
+    constructor(private http: HttpClient) {}
 
-        $onInit() {
-            this.listResponses();
-        }
+    ngOnInit() {
+        this.listResponses();
+    }
 
-        listResponses = () =>
-            this.$http
-                .get('/app/reports/responses', { params: this.queryParams })
-                .then((resp: angular.IHttpResponse<Exam[]>) => {
-                    this.assessedExams = resp.data.filter(
-                        e => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
-                    );
-                    this.unassessedExams = resp.data.filter(
-                        e => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
-                    );
-                    this.abortedExams = resp.data.filter(e => e.state === 'ABORTED');
-                });
-    },
-};
-
-angular.module('app.administrative.statistics').component('responseStatistics', ResponseStatisticsComponent);
+    listResponses = () =>
+        this.http
+            .get<Exam[]>('/app/reports/responses', { params: this.queryParams })
+            .toPromise()
+            .then(resp => {
+                this.assessedExams = resp.filter(
+                    e => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
+                );
+                this.unassessedExams = resp.filter(
+                    e => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
+                );
+                this.abortedExams = resp.filter(e => e.state === 'ABORTED');
+            });
+}
