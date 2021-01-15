@@ -12,6 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import { downgradeComponent } from '@angular/upgrade/static';
+import * as angular from 'angular';
 
-angular.module('app.administrative.statistics', []);
+import { UsersComponent } from './users/users.component';
+import { SettingsComponent } from './settings/settings.component';
+import { StatisticsComponent } from './statistics/statistics.component';
+
+require('./reports');
+
+angular
+    .module('app.administrative', ['app.administrative.reports'])
+    .directive('statistics', downgradeComponent({ component: StatisticsComponent }))
+    .directive('users', downgradeComponent({ component: UsersComponent }))
+    .directive('settings', downgradeComponent({ component: SettingsComponent }));

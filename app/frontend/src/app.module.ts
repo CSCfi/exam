@@ -40,6 +40,7 @@ import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
+import { AdministrativeModule } from './administrative/administrative.module';
 
 @NgModule({
     imports: [
@@ -63,6 +64,7 @@ import { UtilityModule } from './utility/utility.module';
         ReviewModule,
         CalendarModule,
         MaturityModule,
+        AdministrativeModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

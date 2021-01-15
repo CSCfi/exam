@@ -12,64 +12,90 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-export const StatisticsComponent: angular.IComponentOptions = {
-    template: require('./statistics.template.html'),
-    controller: class StatisticsComponentController implements angular.IComponentController {
-        departments: { name: string; filtered: boolean }[];
-        limitations: unknown;
-        queryParams: { start?: Date; end?: Date; dept?: string };
-        startDate: Date;
-        endDate: Date;
+interface Departments {
+    name: string;
+    filtered: boolean;
+}
 
-        constructor(private $http: angular.IHttpService) {
-            'ngInject';
+enum Tab {
+    RESPONSES = 'RESPONSES',
+    ROOMS = 'ROOMS',
+    EXAMS = 'EXAMS',
+    RESERVATIONS = 'RESERVATIONS',
+}
+
+@Component({
+    template: require('./statistics.component.html'),
+    selector: 'statistics',
+})
+export class StatisticsComponent implements OnInit {
+    view: Tab = Tab.RESPONSES;
+    departments: Departments[];
+    filteredDepartments: Departments[];
+    limitations: { department: string };
+    queryParams: { start?: string; end?: string; dept?: string };
+    startDate: Date;
+    endDate: Date;
+
+    constructor(private http: HttpClient) {}
+
+    ngOnInit() {
+        this.departments = [];
+        this.limitations = { department: '' };
+        this.queryParams = {};
+
+        this.http
+            .get<{ departments: string[] }>('/app/reports/departments')
+            .toPromise()
+            .then(resp => {
+                this.departments = resp.departments.map(d => ({ name: d, filtered: false }));
+                this.filteredDepartments = this.departments;
+            });
+    }
+
+    private setQueryParams = () => {
+        const params: { start?: string; end?: string; dept?: string } = {};
+        if (this.startDate) {
+            params.start = this.startDate.toISOString();
         }
-
-        $onInit() {
-            this.departments = [];
-            this.limitations = {};
-            this.queryParams = {};
-
-            this.$http
-                .get('/app/reports/departments')
-                .then(
-                    (resp: angular.IHttpResponse<{ departments: string[] }>) =>
-                        (this.departments = resp.data.departments.map(d => ({ name: d, filtered: false }))),
-                );
+        if (this.endDate) {
+            params.end = this.endDate.toISOString();
         }
+        const departments = this.departments.filter(d => d.filtered);
+        if (departments.length > 0) {
+            params.dept = departments.map(d => d.name).join();
+        }
+        this.queryParams = params;
+    };
 
-        private setQueryParams = () => {
-            const params: { start?: Date; end?: Date; dept?: string } = {};
-            if (this.startDate) {
-                params.start = this.startDate;
-            }
-            if (this.endDate) {
-                params.end = this.endDate;
-            }
-            const departments = this.departments.filter(d => d.filtered);
-            if (departments.length > 0) {
-                params.dept = departments.map(d => d.name).join();
-            }
-            this.queryParams = params;
-        };
+    setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
+        dept.filtered = !dept.filtered;
+        this.setQueryParams();
+    };
 
-        setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
-            dept.filtered = !dept.filtered;
-            this.setQueryParams();
-        };
+    startDateChanged = (event: { date: Date }) => {
+        this.startDate = event.date;
+        this.setQueryParams();
+    };
 
-        startDateChanged = (date: Date) => {
-            this.startDate = date;
-            this.setQueryParams();
-        };
+    endDateChanged = (event: { date: Date }) => {
+        this.endDate = event.date;
+        this.setQueryParams();
+    };
 
-        endDateChanged = (date: Date) => {
-            this.endDate = date;
-            this.setQueryParams();
-        };
-    },
-};
+    handleDepartmentInputChange = (event: any) => {
+        const { value } = event.target;
+        console.log(value);
+        this.limitations.department = value;
 
-angular.module('app.administrative.statistics').component('statistics', StatisticsComponent);
+        if (value === '') {
+            this.filteredDepartments = this.departments;
+        }
+        this.filteredDepartments = this.departments.filter(d =>
+            d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
+        );
+    };
+}

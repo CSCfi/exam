@@ -12,54 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
 
 interface Reservation {
     noShow: boolean;
 }
 
-export const ReservationStatisticsComponent: angular.IComponentOptions = {
+@Component({
     template: `
         <div class="bottom-row">
             <div class="col-md-12">
-                <button class="btn btn-primary" ng-click="$ctrl.listReservations()">
-                    {{'sitnet_search' | translate}}
+                <button class="btn btn-primary" (click)="listReservations()">
+                    {{ 'sitnet_search' | translate }}
                 </button>
             </div>
         </div>
         <div class="top-row">
-            <div class="col-md-2"><strong>{{'sitnet_total_reservations' | translate}}:</strong></div>
-            <div class="col-md-10">{{$ctrl.reservations.length}}</div>
+            <div class="col-md-2">
+                <strong>{{ 'sitnet_total_reservations' | translate }}:</strong>
+            </div>
+            <div class="col-md-10">{{ reservations.length }}</div>
         </div>
         <div class="main-row">
-            <div class="col-md-2"><strong>{{'sitnet_total_no_shows' | translate}}:</strong></div>
-            <div class="col-md-10">{{$ctrl.noShows.length}}</div>
+            <div class="col-md-2">
+                <strong>{{ 'sitnet_total_no_shows' | translate }}:</strong>
+            </div>
+            <div class="col-md-10">{{ noShows.length }}</div>
         </div>
-        `,
-    bindings: {
-        queryParams: '<',
-    },
-    controller: class ReservationStatisticsComponentController implements angular.IComponentController {
-        reservations: Reservation[];
-        noShows: Reservation[];
-        queryParams: { start: string; end: string };
+    `,
+    selector: 'reservation-statistics',
+})
+export class ReservationStatisticsComponent implements OnInit {
+    reservations: Reservation[] = [];
+    noShows: Reservation[] = [];
+    @Input() queryParams: { start: string; end: string };
 
-        constructor(private $http: angular.IHttpService) {
-            'ngInject';
-        }
+    constructor(private http: HttpClient) {}
 
-        $onInit() {
-            this.listReservations();
-        }
+    ngOnInit() {
+        this.listReservations();
+    }
 
-        listReservations = () =>
-            this.$http
-                .get('/app/reports/reservations', { params: this.queryParams })
-                .then((resp: angular.IHttpResponse<Reservation[]>) => {
-                    this.reservations = resp.data.filter(r => !r.noShow);
-                    this.noShows = resp.data.filter(r => r.noShow);
-                });
-    },
-};
-
-angular.module('app.administrative.statistics').component('reservationStatistics', ReservationStatisticsComponent);
+    listReservations = () =>
+        this.http
+            .get<Reservation[]>('/app/reports/reservations', { params: this.queryParams })
+            .toPromise()
+            .then(resp => {
+                this.reservations = resp.filter(r => !r.noShow);
+                this.noShows = resp.filter(r => r.noShow);
+            });
+}

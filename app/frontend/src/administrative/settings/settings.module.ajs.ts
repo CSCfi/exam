@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -11,8 +11,13 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
  */
+import * as angular from 'angular';
+import { downgradeComponent } from '@angular/upgrade/static';
+import { SettingsComponent } from './settings.component';
 
-require('./settings.module');
-require('./settings.component.ts');
+export default angular
+    .module('app.administrative.settings', [])
+    .directive('settings', downgradeComponent({ component: SettingsComponent }));
+
+//require('./settings.component.ts');
