@@ -94,7 +94,7 @@ export class QuestionComponent implements OnInit {
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },
-                error => toast.error(error.data),
+                error => toast.error(error),
             );
         }
     }
@@ -125,11 +125,11 @@ export class QuestionComponent implements OnInit {
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, error => toast.error(error.data));
+            this.Question.createQuestion(this.question as QuestionDraft).then(fn, error => toast.error(error));
         } else {
             this.Question.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
-                error => toast.error(error.data),
+                error => toast.error(error),
             );
         }
     };

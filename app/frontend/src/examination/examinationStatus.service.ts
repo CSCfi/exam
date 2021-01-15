@@ -19,10 +19,22 @@ import { Observable, Subject } from 'rxjs';
 export class ExaminationStatusService {
     public examinationEnding$: Observable<void>;
     private examinationEndingSubscription = new Subject<void>();
+    public wrongLocation$: Observable<void>;
+    private wrongLocationSubscription = new Subject<void>();
+    public upcomingExam$: Observable<void>;
+    private upcomingExamSubscription = new Subject<void>();
+    public examinationStarting$: Observable<void>;
+    private examinationStartingSubscription = new Subject<void>();
 
     constructor() {
         this.examinationEnding$ = this.examinationEndingSubscription.asObservable();
+        this.wrongLocation$ = this.wrongLocationSubscription.asObservable();
+        this.upcomingExam$ = this.upcomingExamSubscription.asObservable();
+        this.examinationStarting$ = this.examinationStartingSubscription.asObservable();
     }
 
     notifyEndOfExamination = () => this.examinationEndingSubscription.next();
+    notifyWrongLocation = () => this.wrongLocationSubscription.next();
+    notifyUpcomingExamination = () => this.upcomingExamSubscription.next();
+    notfityStartOfExamination = () => this.examinationStartingSubscription.next();
 }

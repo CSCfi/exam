@@ -132,10 +132,10 @@ export class CollaborativeAssesmentService {
                             this.location.go(this.Assessment.getExitUrlById(examId, true));
                         }
                     },
-                    resp => toast.error(resp.error),
+                    resp => toast.error(resp),
                 );
             },
-            resp => toast.error(resp.error),
+            resp => toast.error(resp),
         );
     };
 
@@ -177,7 +177,7 @@ export class CollaborativeAssesmentService {
                 toast.info(this.translate.instant('sitnet_review_recorded'));
                 this.location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
             },
-            resp => toast.error(resp.error),
+            resp => toast.error(resp),
         );
     };
 
@@ -194,10 +194,10 @@ export class CollaborativeAssesmentService {
                         }
                         this.sendToRegistry(payload, examId, ref, participation);
                     },
-                    resp => toast.error(resp.error),
+                    resp => toast.error(resp),
                 );
             },
-            resp => toast.error(resp.error),
+            resp => toast.error(resp),
         );
     };
 

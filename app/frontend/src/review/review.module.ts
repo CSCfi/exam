@@ -59,7 +59,7 @@ import { NoShowsComponent } from './listing/dialogs/noShows.component';
 import { ReviewListComponent } from './listing/reviewList.component';
 import { ReviewListService } from './listing/reviewList.service';
 import { SpeedReviewComponent } from './listing/speedReview.component';
-import { ExamSummaryComponent } from './listing/summary/examSummary.component.upgrade';
+import { ExamSummaryComponent } from './listing/summary/examSummary.component';
 import { QuestionReviewsComponent } from './questions/listing/questionReviews.component.upgrade';
 
 @NgModule({

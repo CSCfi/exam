@@ -16,13 +16,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
-import { SessionService } from '../../session/session.service';
 import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
 
 @Component({
@@ -39,7 +37,6 @@ export class ExamParticipationComponent implements OnInit {
         private translate: TranslateService,
         private http: HttpClient,
         private Exam: ExamService,
-        private Session: SessionService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
     ) {}
@@ -59,7 +56,7 @@ export class ExamParticipationComponent implements OnInit {
             }
             this.loadReview(this.participation.exam);
         }
-        this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.translate.onLangChange.subscribe(() => {
             if (this.participation.exam) {
                 this.participation.exam.grade.displayName = this.Exam.getExamGradeDisplayName(
                     this.participation.exam.grade.name,
@@ -67,6 +64,11 @@ export class ExamParticipationComponent implements OnInit {
             }
         });
     }
+
+    ngOnDestroy = () => {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    };
 
     setCommentRead = (exam: Exam) => {
         if (

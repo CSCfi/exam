@@ -12,20 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
-import { Observable, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { Course, Exam, ExamSection } from '../exam/exam.model';
 import { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
-import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { SlotMeta } from './bookingCalendar.component';
@@ -49,13 +47,15 @@ type Organisation = {
     _id: string;
     name: string;
     filtered: boolean;
+    homeOrg: string;
+    facilities: FilteredRoom[];
 };
 
 @Component({
     selector: 'calendar',
     template: require('./calendar.component.html'),
 })
-export class CalendarComponent implements OnInit, OnDestroy {
+export class CalendarComponent implements OnInit {
     @Input() isExternal: boolean;
     @Input() isCollaborative: boolean;
 
@@ -84,8 +84,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     events: CalendarEvent<SlotMeta>[];
 
-    private ngUnsubscribe = new Subject();
-
     constructor(
         private http: HttpClient,
         private state: StateService,
@@ -93,13 +91,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
         private DateTime: DateTimeService,
         private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
-        private Session: SessionService,
     ) {}
 
     private fetchOrganisations = () => {
         if (this.isInteroperable && this.isExternal) {
             this.http
-                .get<any[]>('/integration/iop/organisations')
+                .get<Organisation[]>('/integration/iop/organisations')
                 .subscribe(
                     resp => (this.organisations = resp.filter(org => !org.homeOrg && org.facilities.length > 0)),
                 );
@@ -120,7 +117,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         if (this.state.params.isCollaborative === 'true') {
             this.isCollaborative = true;
         }
-        this.Session.languageChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.translate.onLangChange.subscribe(() => {
             const optionalRoom = this.selectedRoom;
             if (optionalRoom !== undefined) {
                 this.openingHours = this.Calendar.processOpeningHours(optionalRoom);
@@ -195,11 +192,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 }
         }
         return 0;
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 
     showReservationWindowInfo(): boolean {
@@ -344,15 +336,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.events = events;
             this.render();
         };
-        const errorFn = (resp: HttpErrorResponse) => {
+        const errorFn = (resp: string) => {
             this.loader.loading = false;
-            if (resp.status === 404) {
-                toast.error(this.translate.instant('sitnet_exam_not_active_now'));
-            } else if (resp.error) {
-                toast.error(resp.error);
-            } else {
-                toast.error(this.translate.instant('sitnet_no_suitable_enrolment_found'));
-            }
+            toast.error(resp);
         };
         this.query(moment(date).format('YYYY-MM-DD'), room, accessibilities).subscribe(successFn, errorFn);
     }
@@ -414,13 +400,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
             .subscribe(
                 () => this.state.go('dashboard'),
                 resp => {
-                    toast.error(resp.error);
+                    toast.error(resp);
                 },
             )
             .add(() => (this.confirming = false));
     }
 
-    setOrganisation(org: { _id: string; name: string; facilities: FilteredRoom[]; filtered: boolean }) {
+    setOrganisation(org: Organisation) {
         this.organisations.forEach(o => (o.filtered = false));
         org.filtered = true;
         this.selectedOrganisation = org;

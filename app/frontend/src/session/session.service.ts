@@ -63,11 +63,9 @@ export class SessionService {
     private sessionCheckSubscription: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
     private devLogoutSubscription = new Subject<void>();
-    private languageChangeSubscription = new Subject<void>();
 
     public userChange$: Observable<User>;
     public devLogoutChange$: Observable<void>;
-    public languageChange$: Observable<void>;
 
     constructor(
         private http: HttpClient,
@@ -90,7 +88,6 @@ export class SessionService {
 
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
-        this.languageChange$ = this.languageChangeSubscription.asObservable();
     }
 
     getUser = () => this.user;
@@ -156,14 +153,11 @@ export class SessionService {
         if (!this.user) {
             return;
         }
-        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe(
-            resp => {
-                this.webStorageService.remove('EXAM_USER');
-                // delete this.user;
-                this.onLogoutSuccess(resp);
-            },
-            error => toastr.error(error.data),
-        );
+        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe(resp => {
+            this.webStorageService.remove('EXAM_USER');
+            // delete this.user;
+            this.onLogoutSuccess(resp);
+        }, toastr.error);
     }
 
     getLocale = () => (this.user ? this.user.lang : 'en');
@@ -171,7 +165,6 @@ export class SessionService {
     translate(lang: string) {
         this.i18n.use(lang);
         this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
-        this.languageChangeSubscription.next(undefined);
     }
 
     switchLanguage(lang: string) {
@@ -317,9 +310,7 @@ export class SessionService {
                     this.redirect();
                 }),
                 catchError(resp => {
-                    if (resp.error) {
-                        toastr.error(this.i18n.instant(resp.error));
-                    }
+                    toastr.error(resp);
                     this.logout();
                     return throwError(resp);
                 }),

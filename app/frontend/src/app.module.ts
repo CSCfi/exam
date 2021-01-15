@@ -32,7 +32,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
 import { ExaminationModule } from './examination/examination.module';
-import { AuthInterceptor } from './httpInterceptor';
+import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
 import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
 import { QuestionModule } from './question/question.module';
@@ -40,7 +40,12 @@ import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
+<<<<<<< HEAD
 import { AdministrativeModule } from './administrative/administrative.module';
+=======
+import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
+import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
+>>>>>>> Http interceptor & exan summary migration
 
 @NgModule({
     imports: [
@@ -68,6 +73,8 @@ import { AdministrativeModule } from './administrative/administrative.module';
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ExaminationInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
         {
             provide: LOCALE_ID,
             deps: [SessionService],

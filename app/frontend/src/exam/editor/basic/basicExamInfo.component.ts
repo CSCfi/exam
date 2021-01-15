@@ -112,7 +112,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                     },
                 });
             },
-            resp => toast.error(this.translate.instant(resp.error)),
+            resp => toast.error(resp),
         );
     };
 
