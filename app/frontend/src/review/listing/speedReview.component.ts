@@ -37,17 +37,9 @@ import { User } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../utility/file/file.service';
+import { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 import { ReviewListService } from './reviewList.service';
-
-type SpeedReview = {
-    examParticipation: ExamParticipation;
-    grades: SelectableGrade[];
-    selectedGrade?: SelectableGrade;
-    duration: string;
-    displayName: string;
-    isUnderLanguageInspection: boolean;
-};
 
 @Component({
     selector: 'speed-review',
@@ -60,7 +52,7 @@ export class SpeedReviewComponent {
     examId: number;
     examInfo: { examOwners: User[]; title: string; anonymous: boolean };
     toggleReviews = false;
-    examReviews: SpeedReview[];
+    examReviews: Review[];
 
     constructor(
         private http: HttpClient,
@@ -133,6 +125,7 @@ export class SpeedReviewComponent {
                             duration: moment.utc(Date.parse(r.duration)).format('HH:mm'),
                             isUnderLanguageInspection: (r.exam.languageInspection &&
                                 !r.exam.languageInspection.finishedAt) as boolean,
+                            selected: false,
                         }));
                     this.toggleReviews = this.examReviews.length > 0;
                 },
@@ -140,7 +133,7 @@ export class SpeedReviewComponent {
             );
     }
 
-    showFeedbackEditor = (review: SpeedReview) => {
+    showFeedbackEditor = (review: Review) => {
         const modalRef = this.modal.open(SpeedReviewFeedbackComponent, {
             backdrop: 'static',
             keyboard: true,
@@ -148,9 +141,9 @@ export class SpeedReviewComponent {
         modalRef.componentInstance.exam = review.examParticipation.exam;
     };
 
-    isAllowedToGrade = (review: SpeedReview) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
+    isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
 
-    private getErrors = (review: SpeedReview) => {
+    private getErrors = (review: Review) => {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
             messages.push('sitnet_error_unauthorized');
@@ -165,10 +158,10 @@ export class SpeedReviewComponent {
         return messages;
     };
 
-    private getAnswerLanguage = (review: SpeedReview) =>
+    private getAnswerLanguage = (review: Review) =>
         review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
 
-    private isGradeable = (review: SpeedReview) => this.getErrors(review).length === 0;
+    private isGradeable = (review: Review) => this.getErrors(review).length === 0;
 
     private hasModifications = () => {
         if (this.examReviews) {
@@ -207,7 +200,7 @@ export class SpeedReviewComponent {
         });
     };
 
-    private gradeExam$ = (review: SpeedReview): Observable<void> => {
+    private gradeExam$ = (review: Review): Observable<void> => {
         const messages = this.getErrors(review);
         const exam = review.examParticipation.exam;
         const gradeId = exam.grade && (exam.grade as Grade).id;

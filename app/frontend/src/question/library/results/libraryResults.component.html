@@ -20,7 +20,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('id')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>
@@ -31,7 +30,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('modified')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>
@@ -42,7 +40,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('displayedMaxScore')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>
@@ -53,7 +50,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('typeOrd')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>
@@ -64,7 +60,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('attachment.fileName')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>
@@ -77,7 +72,6 @@
                         [predicate]="questionsPredicate"
                         [reverse]="reverse"
                         (click)="setPredicate('ownerAggregate')"
-                        (onSort)="onSort($event)"
                     >
                     </table-sort>
                 </th>

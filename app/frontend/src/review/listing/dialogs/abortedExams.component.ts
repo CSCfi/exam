@@ -12,54 +12,50 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Exam } from '../../../exam/exam.model';
 import { Reservation } from '../../../reservation/reservation.model';
 import { SessionService } from '../../../session/session.service';
+import { Review } from '../../review.model';
 
-export const AbortedExamsComponent: angular.IComponentOptions = {
-    template: require('./abortedExams.template.html'),
-    bindings: {
-        dismiss: '&',
-        resolve: '<',
-    },
-    controller: class AbortedExamsController implements angular.IComponentController {
-        resolve: { exam: Exam; abortedExams: Exam[] };
-        exam: Exam;
-        abortedExams: Exam[];
-        dismiss: (_: { $value: string }) => unknown;
+@Component({
+    selector: 'aborted-exams',
+    template: require('./abortedExams.component.html'),
+})
+export class AbortedExamsComponent {
+    @Input() exam: Exam;
+    @Input() abortedExams: Review[];
 
-        constructor(
-            private $translate: angular.translate.ITranslateService,
-            private $scope: angular.IScope,
-            private $window: angular.IWindowService,
-            private $http: angular.IHttpService,
-            private Session: SessionService,
-        ) {
-            'ngInject';
+    abortedPredicate = 'started';
+    reverse = false;
 
-            // Close modal if user clicked the back button and no changes made
-            this.$scope.$on('$stateChangeStart', () => {
-                if (!this.$window.onbeforeunload) {
-                    this.cancel();
-                }
-            });
+    constructor(
+        private modal: NgbActiveModal,
+        private translate: TranslateService,
+        private http: HttpClient,
+        private Session: SessionService,
+    ) {}
+
+    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+
+    permitRetrial = (reservation: Reservation) => {
+        this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(() => {
+            reservation.retrialPermitted = true;
+            toast.info(this.translate.instant('sitnet_retrial_permitted'));
+        });
+    };
+
+    cancel = () => this.modal.dismiss();
+
+    setPredicate = (predicate: string) => {
+        if (this.abortedPredicate === predicate) {
+            this.reverse = !this.reverse;
         }
-        $onInit = () => {
-            this.abortedExams = this.resolve.abortedExams;
-            this.exam = this.resolve.exam;
-        };
-        showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
-        permitRetrial = (reservation: Reservation) => {
-            this.$http.put(`/app/reservations/${reservation.id}`, {}).then(() => {
-                reservation.retrialPermitted = true;
-                toast.info(this.$translate.instant('sitnet_retrial_permitted'));
-            });
-        };
-        cancel = () => this.dismiss({ $value: 'cancel' });
-    },
-};
-
-angular.module('app.review').component('abortedExams', AbortedExamsComponent);
+        this.abortedPredicate = predicate;
+    };
+}

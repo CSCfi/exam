@@ -64,4 +64,11 @@ export class ReservationDetailsComponent {
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
+
+    setPredicate = (predicate: string) => {
+        if (this.predicate === predicate) {
+            this.reverse = !this.reverse;
+        }
+        this.predicate = predicate;
+    };
 }

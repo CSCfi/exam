@@ -1,0 +1,81 @@
+<div class="col-md-12 exam-border">
+    <div class="review-list-title-row">
+        <span class="review-list-subtitle">{{ 'sitnet_teachers' | translate }}:</span>
+        <span class="review-list-subtitle" *ngFor="let owner of exam.examOwners; let isLast = last">
+            {{ owner.firstName }} {{ owner.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
+        </span>
+        <span class="review-list-subtitle marl20">{{ 'sitnet_exam_validity' | translate }}:</span>
+        <span class="review-list-subtitle">
+            {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} - {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+        </span>
+    </div>
+
+    <div class="review-list-title-row">
+        <span class="review-list-bluetitle">
+            <!-- aborted-->
+            <a class="pointer" (click)="openAborted()">
+                {{ 'sitnet_aborted_exams' | translate }} ({{ abortedExams.length }})</a
+            >
+            <sup class="padl05">
+                <img
+                    ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
+                    placement="right"
+                    triggers="mouseenter:mouseleave"
+                    src="/assets/assets/images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                />
+            </sup>
+            <!-- no-shows -->
+            <a style="margin-left:100px;" class="pointer" (click)="openNoShows()">
+                {{ 'sitnet_no_shows' | translate }} ({{ noShows.length }})</a
+            >
+            <sup class="padl05">
+                <img
+                    ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
+                    placement="right"
+                    triggers="mouseenter:mouseleave"
+                    src="/assets/assets/images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                />
+            </sup>
+        </span>
+    </div>
+
+    <div *ngIf="reviews">
+        <div class="review-border">
+            <!-- Ready for review-->
+            <rl-in-progress [exam]="exam" [reviews]="inProgressReviews"></rl-in-progress>
+        </div>
+
+        <div class="review-border" *ngIf="languageInspectedReviews.length > 0">
+            <!-- Under language inspection -->
+            <rl-in-language-inspection [reviews]="languageInspectedReviews"></rl-in-language-inspection>
+        </div>
+
+        <div class="review-border">
+            <!-- Graded -->
+            <rl-graded exam="exam" [reviews]="gradedReviews" (onRegistered)="onRegistration($event)"> </rl-graded>
+        </div>
+
+        <div class="review-border">
+            <!-- Graded and Logged -->
+            <rl-graded-logged
+                [exam]="exam"
+                [reviews]="gradedLoggedReviews"
+                (onArchive)="onArchive($event)"
+            ></rl-graded-logged>
+        </div>
+
+        <div class="review-border" *ngIf="rejectedReviews.length > 0">
+            <!-- Rejected -->
+            <rl-rejected [reviews]="rejectedReviews"></rl-rejected>
+        </div>
+
+        <div class="review-border" *ngIf="archivedReviews.length > 0">
+            <!-- Archived -->
+            <rl-archived [reviews]="archivedReviews"></rl-archived>
+        </div>
+    </div>
+</div>

@@ -139,4 +139,11 @@ export class ExamListingComponent {
     filterByState = (state: string) => this.exams.filter(e => e.state === state);
 
     getExecutionTypeTranslation = (exam: ExamListExam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
+
+    setPredicate = (predicate: string) => {
+        if (this.examsPredicate === predicate) {
+            this.reverse = !this.reverse;
+        }
+        this.examsPredicate = predicate;
+    };
 }

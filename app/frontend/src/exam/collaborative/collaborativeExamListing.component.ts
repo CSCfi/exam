@@ -113,6 +113,13 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.view = view;
     }
 
+    setPredicate = (predicate: string) => {
+        if (this.examsPredicate === predicate) {
+            this.reverse = !this.reverse;
+        }
+        this.examsPredicate = predicate;
+    };
+
     createExam() {
         this.CollaborativeExam.createExam().subscribe(
             (exam: CollaborativeExam) => {
