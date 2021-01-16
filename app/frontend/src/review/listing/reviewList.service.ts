@@ -109,7 +109,6 @@ export class ReviewListService {
     };
     selectPage = (scope: Selection, items: Review[], selector: string) => {
         const override = this.resetSelections(scope, 'page');
-        // eslint-disable-next-line angular/document-service
         const boxes: NodeList = document.querySelectorAll('.' + selector);
         const ids: string[] = [];
         boxes.forEach(node => ids.push(node.nodeValue as string));

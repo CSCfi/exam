@@ -10,13 +10,13 @@ module.exports = merge(common, {
     mode: 'production',
     output: {
         filename: '[name].[contenthash].js',
+        //chunkFilename: '[id].[contenthash].chunk.js'
     },
     optimization: {
+        noEmitOnErrors: true,
         runtimeChunk: 'single',
         splitChunks: {
             chunks: 'all',
-            maxInitialRequests: Infinity,
-            minSize: 0,
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,

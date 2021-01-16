@@ -13,21 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 // NOTE! AngularJS needs to be imported before Angular. Do not change this order of imports.
-import 'angular';
-import 'angular-translate';
+import './assets/styles/main.scss';
 
 import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { UpgradeModule } from '@angular/upgrade/static';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
-import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AdministrativeModule } from './administrative/administrative.module';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 import { CalendarModule } from './calendar/calendar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
@@ -46,6 +46,11 @@ import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
 import { FacilityModule } from './facility/facility.module';
 
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, '/assets/assets/i18n/');
+}
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -53,10 +58,16 @@ import { FacilityModule } from './facility/facility.module';
         CommonModule,
         HttpClientModule,
         FormsModule,
-        TranslateModule.forRoot(),
-        UIRouterUpgradeModule.forRoot(),
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
+        AppRoutingModule,
         NgbModule,
-        UpgradeModule,
         SessionModule,
         NavigationModule,
         DashboardModule,
@@ -72,6 +83,7 @@ import { FacilityModule } from './facility/facility.module';
         SoftwareModule,
         FacilityModule,
     ],
+    declarations: [AppComponent],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ExaminationInterceptor, multi: true },
@@ -83,21 +95,7 @@ import { FacilityModule } from './facility/facility.module';
         },
         Location,
         { provide: LocationStrategy, useClass: PathLocationStrategy },
-        // Provider for AJS translator, needed for switching language so that the change is visible also to AJS modules
-        {
-            provide: '$translate',
-            useFactory: ($injector: any) => $injector.get('$translate'),
-            deps: ['$injector'],
-        },
     ],
+    bootstrap: [AppComponent],
 })
-export class AppModule {
-    /*
-        Bootstrap the AngularJS app
-    */
-    constructor(private upgrade: UpgradeModule) {}
-    ngDoBootstrap() {
-        // eslint-disable-next-line
-        this.upgrade.bootstrap(document.body, ['app'], { strictDi: true });
-    }
-}
+export class AppModule {}

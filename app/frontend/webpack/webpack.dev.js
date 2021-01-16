@@ -4,12 +4,15 @@ const merge = require('webpack-merge');
 const common = require('./webpack.common');
 
 module.exports = merge(common, {
-    devtool: 'eval-source-map',
+    devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     output: {
         filename: 'app.bundle.js',
         sourceMapFilename: 'app.bundle.map',
     },
-    optimization: {},
-    plugins: [new webpack.HotModuleReplacementPlugin()],
+    devServer: {
+        historyApiFallback: true,
+        stats: 'minimal',
+    },
+    optimization: { noEmitOnErrors: true },
 });

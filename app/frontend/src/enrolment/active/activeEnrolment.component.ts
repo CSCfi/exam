@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/angular';
 import * as toast from 'toastr';
 
 import { ExamRoom } from '../../reservation/reservation.model';
@@ -34,7 +34,7 @@ export class ActiveEnrolmentComponent {
 
     constructor(
         private translate: TranslateService,
-        private location: Location,
+        private state: StateService,
         private ConfirmationDialog: ConfirmationDialogService,
         private Enrolment: EnrolmentService,
         private Reservation: ReservationService,
@@ -79,10 +79,12 @@ export class ActiveEnrolmentComponent {
         }
     };
 
-    getLinkToCalendar = () =>
-        this.enrolment.collaborativeExam
-            ? '/calendar/collaborative/' + this.enrolment.collaborativeExam.id
-            : '/calendar/' + this.enrolment.exam.id;
+    goToCalendar = () => {
+        const params = {
+            id: this.enrolment.collaborativeExam ? this.enrolment.collaborativeExam.id : this.enrolment.exam.id,
+        };
+        this.state.go(this.enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
+    };
 
     addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
 
@@ -112,8 +114,6 @@ export class ActiveEnrolmentComponent {
         }
         return this.getRoomInstructions(this.translate.currentLang.toUpperCase(), o);
     };
-
-    goToCalendar = () => this.location.go(this.getLinkToCalendar());
 
     downloadSebFile = () =>
         this.Files.download(

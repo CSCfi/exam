@@ -18,8 +18,6 @@ import { SessionService } from '../../../session/session.service';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-const truncate = require('truncate-html').default;
-
 @Component({
     selector: 'question-flow-category',
     template: require('./questionFlowCategory.component.html'),
@@ -31,8 +29,6 @@ export class QuestionFlowCategoryComponent {
     @Output() onSelection = new EventEmitter<QuestionReview>();
 
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
-
-    displayQuestionText = (review: QuestionReview) => truncate(review.question.question, 50);
 
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 

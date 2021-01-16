@@ -38,7 +38,7 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
         <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
     `,
 })
-export class ExaminationWeighteidMultiChoiceQuestionComponent {
+export class ExaminationWeightedMultiChoiceComponent {
     @Input() sq: ExaminationQuestion;
     @Input() examHash: string;
     @Input() isPreview: boolean;

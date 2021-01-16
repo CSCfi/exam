@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -34,6 +35,7 @@ import { UIRouterModule } from '@uirouter/angular';
             provide: DateAdapter,
             useFactory: adapterFactory,
         }),
+        FontAwesomeModule,
         UIRouterModule,
         UtilityModule,
     ],

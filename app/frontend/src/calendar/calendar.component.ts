@@ -28,6 +28,7 @@ import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { SlotMeta } from './bookingCalendar.component';
 import { CalendarService, OpeningHours, Slot } from './calendar.service';
+import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons/faAngleDoubleRight';
 
 type SelectableSection = ExamSection & { selected: boolean };
 type ExamInfo = {
@@ -83,6 +84,8 @@ export class CalendarComponent implements OnInit {
     calendarVisible: boolean;
 
     events: CalendarEvent<SlotMeta>[];
+
+    faAngleDoubleRight = faAngleDoubleRight;
 
     constructor(
         private http: HttpClient,

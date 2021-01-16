@@ -7,7 +7,7 @@
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a uiSref="newQuestion({next: 'library'})" class="pointer">
+                        <a uiSref="newQuestion" [uiParams]="{ next: 'library' }" class="pointer">
                             {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>

@@ -16,9 +16,9 @@ import { ExaminationNavigationComponent } from './navigation/examinationNavigati
 import { ExaminationToolbarComponent } from './navigation/examinationToolbar.component';
 import { ExaminationClozeTestComponent } from './question/examinationClozeTest.component';
 import { ExaminationEssayQuestionComponent } from './question/examinationEssayQuestion.component';
-import { ExaminationMultiChoiceQuestionComponent } from './question/examinationMultiChoiceQuestion.component';
+import { ExaminationMultiChoiceComponent } from './question/examinationMultiChoice.component';
 import { ExaminationQuestionComponent } from './question/examinationQuestion.component';
-import { ExaminationWeighteidMultiChoiceQuestionComponent } from './question/examinationWeightedMultiChoiceQuestion.component';
+import { ExaminationWeightedMultiChoiceComponent } from './question/examinationWeightedMultiChoice.component';
 import { ExaminationSectionComponent } from './section/examinationSection.component';
 
 @NgModule({
@@ -30,9 +30,9 @@ import { ExaminationSectionComponent } from './section/examinationSection.compon
         ExaminationEssayQuestionComponent,
         ExaminationHeaderComponent,
         ExaminationLogoutComponent,
-        ExaminationMultiChoiceQuestionComponent,
+        ExaminationMultiChoiceComponent,
         ExaminationQuestionComponent,
-        ExaminationWeighteidMultiChoiceQuestionComponent,
+        ExaminationWeightedMultiChoiceComponent,
         ExaminationNavigationComponent,
         ExaminationSectionComponent,
         ExaminationToolbarComponent,

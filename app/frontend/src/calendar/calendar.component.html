@@ -207,7 +207,8 @@
                         *ngIf="isInteroperable && !isExternal"
                     >
                         {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                        <i class="fa fa-angle-double-right"></i>
+                        <fa-icon [icon]="faAngleDoubleRight"></fa-icon>
+                        <i class="fas fa-angle-double-right"></i>
                     </button>
                 </small>
             </span>
@@ -258,9 +259,9 @@
                         type="checkbox"
                         role="presentation"
                         (click)="selectAccessibility(accessibility)"
-                        value="{{ accessibility.name | truncate: 30 }}"
+                        value="{{ accessibility.name | slice: 0:30 }}"
                     />
-                    {{ accessibility.name | truncate: 30 }}
+                    {{ accessibility.name | slice: 0:30 }}
                 </div>
                 <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
             <div class="calendar-accs-checkboxes">....</div-->
@@ -306,7 +307,7 @@
                                     ngbPopover="{{ getDescription(room) }}"
                                     triggers="mouseenter:mouseleave"
                                 >
-                                    {{ room.name | truncate: 30 }}</a
+                                    {{ room.name | slice: 0:30 }}</a
                                 >
                             </li>
                         </ul>

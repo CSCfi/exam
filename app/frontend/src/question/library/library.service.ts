@@ -190,8 +190,9 @@ export class LibraryService {
                 }),
             );
 
-    private htmlDecode = (text: string) =>
-        $('<div/>')
-            .html(text)
-            .text();
+    private htmlDecode = (text: string) => {
+        const el = document.createElement('html');
+        el.innerHTML = text;
+        return el.textContent ? el.textContent : '';
+    };
 }

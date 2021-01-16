@@ -31,13 +31,12 @@
 
         <div class="section-header-middle" *ngIf="sq.question.type !== 'ClozeTestQuestion'">
             <div class="section-box-title" *ngIf="expanded" [MathJax]="sq.question.question"></div>
-            <div class="section-box-title" *ngIf="!expanded" [MathJax]="sq.question.question | truncate: 240"></div>
+            <div class="section-box-title" *ngIf="!expanded" [MathJax]="sq.question.question | slice: 0:240"></div>
         </div>
         <div class="section-header-middle" *ngIf="sq.question.type === 'ClozeTestQuestion'">
             <div class="section-box-title" mathjax>
                 <dynamic-form [questions]="clozeTestFormQuestions" (onAnswer)="answered($event)"></dynamic-form>
                 <!--cloze-test [content]="clozeTestAnswer.question" [results]="clozeTestAnswer.answer"></cloze-test-->
-                <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
             </div>
         </div>
     </div>

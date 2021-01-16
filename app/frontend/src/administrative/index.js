@@ -1,1 +1,0 @@
-require('./administrative.module.ajs');

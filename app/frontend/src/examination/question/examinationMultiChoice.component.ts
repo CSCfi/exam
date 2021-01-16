@@ -46,7 +46,7 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
         </div>
     `,
 })
-export class ExaminationMultiChoiceQuestionComponent {
+export class ExaminationMultiChoiceComponent {
     @Input() sq: ExaminationQuestion;
     @Input() examHash: string;
     @Input() isPreview: boolean;

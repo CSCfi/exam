@@ -61,7 +61,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         return this._value;
     }
 
-    @ViewChild('host') host: any;
+    @ViewChild('host', { static: false }) host: any;
 
     instance: any;
     _value: any;

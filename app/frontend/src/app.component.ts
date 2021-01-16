@@ -12,85 +12,95 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { Component } from '@angular/core';
+import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ExaminationStatusService } from './examination/examinationStatus.service';
 import { SessionService, User } from './session/session.service';
+import { WindowRef } from './utility/window/window.service';
 
-export const AppComponent: angular.IComponentOptions = {
+@Component({
+    selector: 'app',
     template: `
-        <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
-            <dev-login (on-logged-in)="$ctrl.setUser($event)"></dev-login>
+        <div *ngIf="!user && devLoginRequired">
+            <dev-login (onLoggedIn)="setUser($event)"></dev-login>
         </div>
-        <div ng-if="$ctrl.user">
-            <navigation [hidden]="$ctrl.hideNavBar"></navigation>
-            <main id="mainView" class="container-fluid"
-                ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
-                <div class="ui-view"></div>
+        <div *ngIf="user">
+            <navigation [hidden]="hideNavBar"></navigation>
+            <main
+                id="mainView"
+                class="container-fluid"
+                [ngClass]="{
+                    'vmenu-on': !hideNavBar && !user.isAdmin,
+                    'vmenu-on-admin': user.isAdmin
+                }"
+            >
+                <ui-view></ui-view>
             </main>
         </div>
-        `,
-    controller: class AppController implements angular.IComponentController {
-        user?: User;
-        hideNavBar = false;
-        devLoginRequired: boolean;
-        private ngUnsubscribe = new Subject();
+    `,
+})
+export class AppComponent {
+    user?: User;
+    hideNavBar = false;
+    devLoginRequired: boolean;
+    private ngUnsubscribe = new Subject();
 
-        constructor(
-            private $window: angular.IWindowService,
-            private Session: SessionService,
-            private ExaminationStatus: ExaminationStatusService,
-        ) {
-            'ngInject';
+    constructor(
+        private Window: WindowRef,
+        private state: StateService,
+        private Session: SessionService,
+        private ExaminationStatus: ExaminationStatusService,
+    ) {
+        this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.hideNavBar = false;
+        });
+        this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.hideNavBar = false;
+        });
+        this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            delete this.user;
+            this.state.go('dashboard');
+        });
+    }
 
-            this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.hideNavBar = false;
-            });
-            this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.hideNavBar = false;
-            });
-            this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                delete this.user;
-            });
-        }
-
-        $onInit() {
-            const storedUser: string = this.$window.sessionStorage['EXAM_USER'];
-            if (storedUser) {
-                const user = JSON.parse(storedUser);
-                if (!user.loginRole) {
-                    // This happens if user refreshes the tab before having selected a login role,
-                    // lets just throw him out.
-                    this.Session.logout();
-                }
-                this.Session.setEnv();
-                this.Session.setUser(user);
-                this.Session.translate(user.lang);
-                this.Session.restartSessionCheck();
-                this.user = user;
-            } else {
-                this.Session.switchLanguage('en');
-                this.Session.getEnv$().subscribe(
-                    (value: 'DEV' | 'PROD') => {
-                        if (value === 'PROD') {
-                            this.Session.login$('', '').subscribe(user => (this.user = user));
-                        }
-                        this.devLoginRequired = value === 'DEV';
-                    },
-                    () => console.log('no env found'),
-                );
+    ngOnInit() {
+        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            if (!user.loginRole) {
+                // This happens if user refreshes the tab before having selected a login role,
+                // lets just throw him out.
+                this.Session.logout();
+                return;
             }
-        }
-
-        $onDestroy() {
-            this.ngUnsubscribe.next();
-            this.ngUnsubscribe.complete();
-        }
-
-        setUser(user: any) {
+            this.Session.setEnv();
+            this.Session.setUser(user);
+            this.Session.translate(user.lang);
+            this.Session.restartSessionCheck();
             this.user = user;
+        } else {
+            this.Session.switchLanguage('en');
+            this.Session.getEnv$().subscribe(
+                (value: 'DEV' | 'PROD') => {
+                    if (value === 'PROD') {
+                        this.Session.login$('', '').subscribe(user => (this.user = user));
+                    }
+                    this.devLoginRequired = value === 'DEV';
+                },
+                () => console.log('no env found'),
+            );
         }
-    },
-};
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    setUser(user: any) {
+        this.user = user;
+    }
+}

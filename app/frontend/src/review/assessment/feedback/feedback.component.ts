@@ -23,9 +23,6 @@ import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
-// add jquery reference
-declare let $: any;
-
 @Component({
     selector: 'r-feedback',
     template: require('./feedback.component.html'),
@@ -45,15 +42,7 @@ export class FeedbackComponent {
         private Files: FileService,
     ) {}
 
-    toggleFeedbackVisibility = () => {
-        const selector = $('.body');
-        if (this.hideEditor) {
-            selector.show();
-        } else {
-            selector.hide();
-        }
-        this.hideEditor = !this.hideEditor;
-    };
+    toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
     saveFeedback = (id?: number, ref?: string) => {
         if (this.collaborative && id && ref) {

@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import { defer, from, iif, interval, Observable, of, Subject, throwError, Unsubscribable } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
@@ -70,22 +70,11 @@ export class SessionService {
     constructor(
         private http: HttpClient,
         private i18n: TranslateService,
-        @Inject('$translate') private $ajsTranslate: any,
-        private location: Location,
+        private state: StateService,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
         private windowRef: WindowRef,
     ) {
-        // TODO: Move to app.component.ts
-        i18n.addLangs(['fi', 'sv', 'en']);
-        i18n.setDefaultLang('en');
-        //eslint-disable-next-line
-        i18n.setTranslation('fi', require('../assets/i18n/fi.json'));
-        //eslint-disable-next-line
-        i18n.setTranslation('sv', require('../assets/i18n/sv.json'));
-        //eslint-disable-next-line
-        i18n.setTranslation('en', require('../assets/i18n/en.json'));
-
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
     }
@@ -138,15 +127,14 @@ export class SessionService {
             location.href = localLogout;
         } else {
             // DEV logout
-            this.location.go('/');
             this.devLogoutSubscription.next();
         }
         this.windowRef.nativeWindow.setTimeout(toastr.clear, 300);
     }
 
     private redirect(): void {
-        const path = this.user?.isLanguageInspector ? '/inspections' : '/';
-        this.location.go(path);
+        const state = this.user?.isLanguageInspector ? 'languageInspections' : 'dashboard';
+        this.state.go(state);
     }
 
     logout(): void {
@@ -164,7 +152,7 @@ export class SessionService {
 
     translate(lang: string) {
         this.i18n.use(lang);
-        this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
+        // this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
     }
 
     switchLanguage(lang: string) {
@@ -273,6 +261,7 @@ export class SessionService {
 
         const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
         const isTeacher = loginRole != null && loginRole === 'TEACHER';
+        this.translate(user.lang);
 
         return {
             ...user,
@@ -296,7 +285,6 @@ export class SessionService {
                 tap(u => {
                     this.user = u;
                     this.webStorageService.set('EXAM_USER', this.user);
-                    this.translate(this.user.lang);
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     const welcome = () => {
