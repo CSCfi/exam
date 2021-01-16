@@ -26,7 +26,7 @@ export interface FileResult {
     template: require('./attachmentSelector.component.html'),
 })
 export class AttachmentSelectorComponent implements OnInit {
-    @ViewChild('file') file: ElementRef;
+    @ViewChild('file', { static: false }) file: ElementRef;
     fileObject: File;
 
     @Input() title: string;

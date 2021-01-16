@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-        <div class="body">
+        <div [hidden]="hideEditor" class="body">
             <div class="row editor">
                 <div class="col-md-12" *ngIf="exam.examFeedback">
                     <ckeditor

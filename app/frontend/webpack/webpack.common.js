@@ -13,8 +13,10 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const config = {
     entry: [
         './src/main.ts', // Angular entrypoint
-        './src/app.module.ajs.ts', // AJS entrypoint
     ],
+    optimization: {
+        usedExports: true,
+    },
     output: {
         path: buildPath,
         publicPath: '/bundles/',
@@ -55,7 +57,7 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                use: [{ loader: 'ng-annotate-loader' }, { loader: 'ts-loader', options: { transpileOnly: true } }],
+                use: [{ loader: 'ts-loader', options: { transpileOnly: true } }],
             },
             {
                 // Mark files inside `@angular/core` as using SystemJS style dynamic imports.
@@ -64,22 +66,12 @@ const config = {
                 parser: { system: true }, // enable SystemJS
             },
             {
-                test: /\.js$/,
-                use: ['babel-loader'],
-                exclude: /node_modules/,
-            },
-            {
                 test: /\.(jpg|png|svg)$/,
                 use: 'url-loader?limit=100000',
             },
             {
                 test: /\.component\.html$/,
                 use: 'raw-loader',
-            },
-            {
-                test: /\.template.html$/,
-                use: 'ng-cache-loader?prefix=[dir]/[dir]&-caseSensitive',
-                exclude: '/node_modules/',
             },
             {
                 test: /\.(woff|woff2|ttf|eof|eot)$/,
@@ -99,6 +91,7 @@ const config = {
         }),
         new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/, path.join(__dirname, './src')),
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     ],
     resolve: {

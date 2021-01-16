@@ -69,7 +69,7 @@
                         (click)="applyFilter(course)"
                         ngbDropdownItem
                     >
-                        <a role="menuitem">{{ course.name | truncate: 30 }}</a>
+                        <a role="menuitem">{{ course.name | slice: 0:30 }}</a>
                     </li>
                 </ul>
             </span>
@@ -107,7 +107,7 @@
                         (click)="applyFilter(exam)"
                         ngbDropdownItem
                     >
-                        <a role="menuitem">{{ exam.name | truncate: 30 }}</a>
+                        <a role="menuitem">{{ exam.name | slice: 0:30 }}</a>
                     </li>
                 </ul>
             </span>
@@ -151,7 +151,7 @@
                             [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'"
                             title="{{ tag.isSectionTag ? 'sitnet_exam_section' : ('sitnet_category' | translate) }}"
                         >
-                            {{ tag.name | truncate: 30 }}
+                            {{ tag.name | slice: 0:30 }}
                         </a>
                     </li>
                 </ul>

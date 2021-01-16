@@ -32,15 +32,7 @@ export class StatementComponent {
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 
-    toggleEditorVisibility = () => {
-        const selector = $('.body');
-        if (this.hideEditor) {
-            selector.show();
-        } else {
-            selector.hide();
-        }
-        this.hideEditor = !this.hideEditor;
-    };
+    toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
 
     saveInspectionStatement = () =>
         this.Maturity.saveInspectionStatement$(this.exam).subscribe(resp => (this.exam.languageInspection = resp));

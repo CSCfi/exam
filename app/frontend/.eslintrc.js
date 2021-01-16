@@ -11,7 +11,6 @@ module.exports = {
         'eslint:recommended',
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended',
-        'plugin:angular/johnpapa',
         'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
         'plugin:prettier/recommended',
     ],
@@ -22,10 +21,6 @@ module.exports = {
     rules: {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        'angular/file-name': 'off',
-        'angular/no-service-method': 'off',
-        'angular/module-getter': 'off',
-        'angular/service-name': 'off',
         'no-redeclare': 'error',
         'no-eval': 'error',
         'no-caller': 'error',

@@ -29,8 +29,6 @@ import { DiffInDaysPipe } from './date/dayDiff.pipe';
 import { DiffInMinutesPipe } from './date/minuteDiff.pipe';
 import { ConfirmationDialogComponent } from './dialogs/confirmationDialog.component';
 import { ConfirmationDialogService } from './dialogs/confirmationDialog.service';
-import { DraggableModalDirective } from './dragndrop/draggableModal.directive';
-import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
 import { FilterByPipe } from './filter/filterBy.pipe';
 import { DynamicFormComponent } from './forms/dynamicForm.component';
@@ -45,7 +43,6 @@ import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import { TableSortComponent } from './sorting/tableSort.component';
-import { TruncatingPipe } from './truncate/truncate.pipe';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
@@ -61,12 +58,9 @@ import { WindowRef } from './window/window.service';
         CKEditorComponent,
         DatePickerComponent,
         DateTimePickerComponent,
-        TruncatingPipe,
         ApplyDstPipe,
-        DraggableModalDirective,
         DropdownSelectComponent,
         PageFillPipe,
-        SortableDirective,
         HistoryBackComponent,
         TeacherListComponent,
         TableSortComponent,
@@ -90,13 +84,10 @@ import { WindowRef } from './window/window.service';
         DateTimePickerComponent,
         HistoryBackComponent,
         PaginatorComponent,
-        DraggableModalDirective,
         DropdownSelectComponent,
         MathJaxDirective,
-        SortableDirective,
         TableSortComponent,
         TeacherListComponent,
-        TruncatingPipe,
         PageFillPipe,
         ApplyDstPipe,
         UniqueValuesValidatorDirective,

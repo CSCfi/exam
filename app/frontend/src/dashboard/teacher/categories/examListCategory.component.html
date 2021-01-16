@@ -79,13 +79,19 @@
                 <tbody>
                     <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'">
                         <td *ngIf="exam.name" class="table-column-examname">
-                            <a *ngIf="isOwner(exam)" href="/exams/{{ exam.id }}/1">{{ exam.name }}</a>
+                            <a *ngIf="isOwner(exam)" uiSref="examEditor" [uiParams]="{ id: exam.id, tab: 1 }">{{
+                                exam.name
+                            }}</a>
                             <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
                         </td>
                         <td *ngIf="!exam.name" class="table-column-examname">
-                            <a class="text-danger" *ngIf="isOwner(exam)" href="/exams/{{ exam.id }}/1">{{
-                                'sitnet_no_name' | translate
-                            }}</a>
+                            <a
+                                class="text-danger"
+                                *ngIf="isOwner(exam)"
+                                uiSref="examEditor"
+                                [uiParams]="{ id: exam.id, tab: 1 }"
+                                >{{ 'sitnet_no_name' | translate }}</a
+                            >
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>

@@ -16,14 +16,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgbTabChangeEvent, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toastr from 'toastr';
 
-import { ReviewListService } from '../../review/listing/reviewList.service';
 import { SessionService, User } from '../../session/session.service';
-import { WindowRef } from '../../utility/window/window.service';
 import { Exam, ExamParticipation } from '../exam.model';
 
 @Component({
@@ -37,16 +35,15 @@ export class ExamTabsComponent implements OnInit {
     exam: Exam;
     reviews: ExamParticipation[];
 
-    @ViewChild('tabs') tabs: NgbTabset;
+    @ViewChild('tabs', { static: false }) tabs: NgbTabset;
     activeTab = '1';
 
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
-        private Window: WindowRef,
         private Session: SessionService,
-        private ReviewList: ReviewListService,
     ) {
         this.examInfo = { title: null };
     }
@@ -58,7 +55,7 @@ export class ExamTabsComponent implements OnInit {
         } else {
             this.downloadExam();
         }
-        this.getReviews(this.state.params.id);
+        this.getReviews(this.routing.params.id);
     }
 
     ngAfterViewInit() {
@@ -102,18 +99,8 @@ export class ExamTabsComponent implements OnInit {
         }
     };
 
-    goBack = (event: Event) => {
-        event.preventDefault();
-        this.Window.nativeWindow.history.back();
-    };
-
-    goToDashboard = (event: Event) => {
-        event.preventDefault();
-        this.state.go('dashboard');
-    };
-
     private downloadExam = () => {
-        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe(
+        this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe(
             exam => {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
@@ -125,7 +112,7 @@ export class ExamTabsComponent implements OnInit {
     };
 
     private downloadCollaborativeExam = () => {
-        this.http.get<Exam>(`/integration/iop/exams/${this.state.params.id}`).subscribe(
+        this.http.get<Exam>(`/integration/iop/exams/${this.routing.params.id}`).subscribe(
             exam => {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
@@ -139,7 +126,7 @@ export class ExamTabsComponent implements OnInit {
     private getReviews = (examId: number) => {
         this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe(reviews => {
             this.reviews = reviews;
-            this.activeTab = this.state.params.tab; // seems that this can not be set until all async init operations are done
+            this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
         });
     };
 
