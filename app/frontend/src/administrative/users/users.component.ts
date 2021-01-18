@@ -5,7 +5,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService, User } from '../../session/session.service';
 import { UserManagementService, PermissionType, Permission } from './users.service';
 
 interface PermissionOption extends Permission {
@@ -138,55 +138,43 @@ export class UsersComponent implements OnInit {
     };
 
     addRole = (user: UserWithOptions, role: RoleOption) => {
-        this.userManagement
-            .addRole(user.id, role.type as RoleType)
-            .toPromise()
-            .then(() => {
-                user.roles.push({ name: role.type });
-                this.updateEditOptions(user);
-            });
+        this.userManagement.addRole(user.id, role.type).subscribe(() => {
+            user.roles.push({ name: role.type });
+            this.updateEditOptions(user);
+        });
     };
 
     addPermission = (user: UserWithOptions, permission: Permission) => {
-        this.userManagement
-            .addPermission(user.id, permission.type)
-            .toPromise()
-            .then(() => {
-                user.permissions.push({ type: permission.type });
-                this.updateEditOptions(user);
-            });
+        this.userManagement.addPermission(user.id, permission.type).subscribe(() => {
+            user.permissions.push({ type: permission.type });
+            this.updateEditOptions(user);
+        });
     };
 
     removeRole = (user: UserWithOptions, role: RoleOption) => {
-        this.userManagement
-            .removeRole(user.id, role.type as RoleType)
-            .toPromise()
-            .then(() => {
-                const i = user.roles
-                    .map(function(r) {
-                        return r.name;
-                    })
-                    .indexOf(role.type);
-                user.roles.splice(i, 1);
-                this.updateEditOptions(user);
-                this.filterUsers();
-            });
+        this.userManagement.removeRole(user.id, role.type).subscribe(() => {
+            const i = user.roles
+                .map(function(r) {
+                    return r.name;
+                })
+                .indexOf(role.type);
+            user.roles.splice(i, 1);
+            this.updateEditOptions(user);
+            this.filterUsers();
+        });
     };
 
     removePermission = (user: UserWithOptions, permission: PermissionOption) => {
-        this.userManagement
-            .removePermission(user.id, permission.type)
-            .toPromise()
-            .then(() => {
-                const i = user.permissions
-                    .map(function(p) {
-                        return p.type;
-                    })
-                    .indexOf(permission.type);
-                user.permissions.splice(i, 1);
-                this.updateEditOptions(user);
-                this.filterUsers();
-            });
+        this.userManagement.removePermission(user.id, permission.type).subscribe(() => {
+            const i = user.permissions
+                .map(function(p) {
+                    return p.type;
+                })
+                .indexOf(permission.type);
+            user.permissions.splice(i, 1);
+            this.updateEditOptions(user);
+            this.filterUsers();
+        });
     };
 
     filterUsers = () => (this.filteredUsers = this.users.filter(this.isUnfiltered));
@@ -213,20 +201,19 @@ export class UsersComponent implements OnInit {
     };
 
     initSearch = () => {
-        this.userManagement
-            .getUsers(this.filter.text)
-            .toPromise()
-            .then(users => {
+        this.userManagement.getUsers(this.filter.text).subscribe(
+            users => {
                 this.users = users;
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
                 });
                 this.filterUsers();
                 this.loader.loading = false;
-            })
-            .catch(err => {
+            },
+            err => {
                 this.loader.loading = false;
                 toast.error(this.translate.instant(err.data));
-            });
+            },
+        );
     };
 }

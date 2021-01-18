@@ -68,8 +68,7 @@ export class ExamStatisticsComponent implements OnInit {
     listExams = () =>
         this.http
             .get<ExamInfo[]>('/app/reports/exams', { params: this.queryParams })
-            .toPromise()
-            .then(resp => {
+            .subscribe(resp => {
                 if (!resp) {
                     return;
                 }

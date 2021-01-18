@@ -60,8 +60,7 @@ export class ResponseStatisticsComponent implements OnInit {
     listResponses = () =>
         this.http
             .get<Exam[]>('/app/reports/responses', { params: this.queryParams })
-            .toPromise()
-            .then(resp => {
+            .subscribe(resp => {
                 this.assessedExams = resp.filter(
                     e => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
                 );

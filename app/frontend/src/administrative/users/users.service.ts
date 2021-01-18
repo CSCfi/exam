@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Role, User } from '../../session/session.service';
 
 export enum PermissionType {
     CAN_INSPECT_LANGUAGE = 'CAN_INSPECT_LANGUAGE',
@@ -16,7 +17,7 @@ export class UserManagementService {
 
     usersApi = () => '/app/users';
     permissionsApi = () => '/app/permissions';
-    rolesApi = (id: number, role: RoleType) => `/app/users/${id}/roles/${role}`;
+    rolesApi = (id: number, role: string) => `/app/users/${id}/roles/${role}`;
 
     getPermissions = () => this.http.get<Permission[]>(this.permissionsApi());
     addPermission = (id: number, permission: PermissionType) =>
@@ -24,7 +25,7 @@ export class UserManagementService {
     removePermission = (id: number, permission: PermissionType) =>
         this.http.request<void>('delete', this.permissionsApi(), { body: { id, permission } });
     getUsers = (filter: string) => this.http.get<User[]>(this.usersApi(), { params: { filter } });
-    addRole = (id: number, role: RoleType) => this.http.post<Role>(this.rolesApi(id, role), null);
-    updateRole = (id: number, role: RoleType) => this.http.put<Role>(this.rolesApi(id, role), null);
-    removeRole = (id: number, role: RoleType) => this.http.delete<void>(this.rolesApi(id, role));
+    addRole = (id: number, role: string) => this.http.post<Role>(this.rolesApi(id, role), null);
+    updateRole = (id: number, role: string) => this.http.put<Role>(this.rolesApi(id, role), null);
+    removeRole = (id: number, role: string) => this.http.delete<void>(this.rolesApi(id, role));
 }

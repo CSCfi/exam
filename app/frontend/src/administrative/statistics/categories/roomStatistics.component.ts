@@ -75,8 +75,7 @@ export class RoomStatisticsComponent {
     listParticipations = () => {
         this.http
             .get<Participations>('/app/reports/participations', { params: this.queryParams })
-            .toPromise()
-            .then(resp => {
+            .subscribe(resp => {
                 this.participations = resp;
                 if (Object.values(this.participations).flat().length > 0) {
                     this.rooms = Object.keys(this.participations);

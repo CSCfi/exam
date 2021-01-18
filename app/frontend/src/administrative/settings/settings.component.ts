@@ -43,29 +43,17 @@ export class SettingsComponent implements OnInit {
     }
 
     updateAgreement = () =>
-        this.http
-            .put('/app/settings/agreement', { value: this.config.eula })
-            .toPromise()
-            .then(this.onSuccess)
-            .catch(this.onError);
+        this.http.put('/app/settings/agreement', { value: this.config.eula }).subscribe(this.onSuccess, this.onError);
 
     updateDeadline = () =>
         this.http
             .put('/app/settings/deadline', { value: this.config.reviewDeadline })
-            .toPromise()
-            .then(this.onSuccess)
-            .catch(this.onError);
+            .subscribe(this.onSuccess, this.onError);
 
     updateReservationWindow = () =>
         this.http
             .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
-            .toPromise()
-            .then(this.onSuccess)
-            .catch(this.onError);
+            .subscribe(this.onSuccess, this.onError);
 
-    showAttributes = () =>
-        this.http
-            .get('/attributes')
-            .toPromise()
-            .then((resp: string[]) => (this.attributes = resp));
+    showAttributes = () => this.http.get('/attributes').subscribe((resp: string[]) => (this.attributes = resp));
 }

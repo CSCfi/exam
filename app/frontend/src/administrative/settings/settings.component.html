@@ -8,7 +8,15 @@
     <div class="top-row" *ngIf="config">
         <div class="col-md-12 form-group">
             <label for="editor">{{ 'sitnet_user_agreement' | translate }}</label>
-            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" [(ngModel)]="config.eula"> </textarea>
+            <ckeditor
+                id="editor"
+                #ck="ngModel"
+                name="editor"
+                ck-editor
+                rows="10"
+                cols="80"
+                [(ngModel)]="config.eula"
+            ></ckeditor>
         </div>
     </div>
     <div class="bottom-row">
