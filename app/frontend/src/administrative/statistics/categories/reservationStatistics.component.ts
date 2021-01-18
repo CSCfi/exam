@@ -57,8 +57,7 @@ export class ReservationStatisticsComponent implements OnInit {
     listReservations = () =>
         this.http
             .get<Reservation[]>('/app/reports/reservations', { params: this.queryParams })
-            .toPromise()
-            .then(resp => {
+            .subscribe(resp => {
                 this.reservations = resp.filter(r => !r.noShow);
                 this.noShows = resp.filter(r => r.noShow);
             });

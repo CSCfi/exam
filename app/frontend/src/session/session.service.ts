@@ -28,8 +28,8 @@ import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
 export interface Role {
     name: string;
-    displayName: string;
-    icon: string;
+    displayName?: string;
+    icon?: string;
 }
 
 export interface User {
