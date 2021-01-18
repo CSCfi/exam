@@ -12,16 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
+import { Observable } from 'rxjs';
 
 import { User } from '../../session/session.service';
 import { QuestionReview, ReviewQuestion } from '../review.model';
 
+@Injectable()
 export class QuestionReviewService {
-    constructor(private $q: angular.IQService, private $http: angular.IHttpService) {
-        'ngInject';
-    }
+    constructor(private http: HttpClient) {}
 
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 
@@ -37,12 +38,7 @@ export class QuestionReviewService {
     isLocked = (answer: ReviewQuestion, user: User) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
         const exam = answer.examSection.exam;
-        const isInspector =
-            exam.examInspections
-                .map(ei => {
-                    return ei.user.id;
-                })
-                .indexOf(user.id) > -1;
+        const isInspector = exam.examInspections.map(ei => ei.user.id).indexOf(user.id) > -1;
         if (!isInspector) {
             states.push('GRADED');
         }
@@ -52,16 +48,8 @@ export class QuestionReviewService {
     getAssessedAnswerCount = (review: QuestionReview) =>
         !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
 
-    getReviews(examId: number, ids = []): angular.IPromise<QuestionReview[]> {
-        const deferred: angular.IDeferred<QuestionReview[]> = this.$q.defer();
-        this.$http
-            .get(`/app/exam/${examId}/questions`, { params: { ids: ids } })
-            .then((resp: angular.IHttpResponse<QuestionReview[]>) => {
-                deferred.resolve(resp.data);
-            })
-            .catch(resp => deferred.reject(resp));
-        return deferred.promise;
-    }
+    getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
+        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
 
     getProcessedAnswerCount = (review: QuestionReview, user: User) => {
         if (!review) {
@@ -72,5 +60,3 @@ export class QuestionReviewService {
         ).length;
     };
 }
-
-angular.module('app.review').service('QuestionReview', QuestionReviewService);

@@ -12,36 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../../session/session.service';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-export const QuestionReviewComponent: angular.IComponentOptions = {
-    template: require('./questionReview.template.html'),
-    bindings: {
-        review: '<',
-        onSelection: '&',
-    },
-    controller: class QuestionReviewControllers implements angular.IComponentController {
-        review: QuestionReview;
-        onSelection: (_: { id: number; selected: boolean }) => any;
+@Component({
+    selector: 'question-review',
+    template: require('./questionReview.component.html'),
+})
+export class QuestionReviewComponent {
+    @Input() review: QuestionReview;
+    @Output() onSelection = new EventEmitter<{ id: number; selected: boolean }>();
 
-        constructor(
-            private $sce: angular.ISCEService,
-            private QuestionReview: QuestionReviewService,
-            private Session: SessionService,
-        ) {
-            'ngInject';
-        }
+    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
-        getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
+    getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
 
-        sanitizeQuestion = () => this.$sce.trustAsHtml(this.review.question.question);
-
-        reviewSelected = () => this.onSelection({ id: this.review.question.id, selected: this.review.selected });
-    },
-};
-
-angular.module('app.review').component('questionReview', QuestionReviewComponent);
+    reviewSelected = () => this.onSelection.emit({ id: this.review.question.id, selected: this.review.selected });
+}

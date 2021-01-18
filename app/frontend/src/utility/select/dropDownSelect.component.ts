@@ -39,7 +39,7 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
     filteredOptions: Option[]; // filtered
     searchFilter = '';
     selected?: Option;
-    labelFilter: (_: Option) => boolean;
+    labelFilter: (o: Option) => Option = o => o;
 
     ngOnInit() {
         this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;

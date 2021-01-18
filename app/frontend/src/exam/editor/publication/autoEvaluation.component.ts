@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import * as _ from 'lodash';
 
 import { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -71,7 +72,7 @@ export class AutoEvaluationComponent implements OnInit {
             this.exam.autoEvaluationConfig = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
                 gradeEvaluations: this.exam.gradeScale.grades.map(function(g) {
-                    return { grade: angular.copy(g), percentage: 0 };
+                    return { grade: _.cloneDeep(g), percentage: 0 };
                 }),
                 amountDays: 0,
                 releaseDate: new Date(),

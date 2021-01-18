@@ -17,7 +17,6 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgbTabChangeEvent, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toastr from 'toastr';
@@ -99,7 +98,7 @@ export class ExamTabsComponent implements OnInit {
         this.updateTitle(props.code, props.name);
         if (props.scaleChange) {
             // Propagate a change so that children (namely auto eval component) can act based on scale change
-            this.exam = angular.copy(this.exam);
+            this.exam = _.cloneDeep(this.exam);
         }
     };
 

@@ -12,138 +12,129 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { StateParams } from '@uirouter/core';
-import * as angular from 'angular';
+import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
+import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { AssessmentService } from '../../assessment/assessment.service';
 import { QuestionReview, ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-export const QuestionAssessmentComponent: angular.IComponentOptions = {
-    template: require('./questionAssessment.template.html'),
-    controller: class QuestionAssessmentComponentController implements angular.IComponentController {
-        user: User;
-        examId: number;
-        ids: number[];
-        reviews: QuestionReview[];
-        selectedReview: QuestionReview;
-        assessedAnswers: ReviewQuestion[] = [];
-        unassessedAnswers: ReviewQuestion[] = [];
-        lockedAnswers: ReviewQuestion[] = [];
+@Component({
+    selector: 'question-assessment',
+    template: require('./questionAssessment.component.html'),
+})
+export class QuestionAssessmentComponent {
+    user: User;
+    examId: number;
+    ids: number[];
+    reviews: QuestionReview[] = [];
+    selectedReview: QuestionReview;
+    assessedAnswers: ReviewQuestion[] = [];
+    unassessedAnswers: ReviewQuestion[] = [];
+    lockedAnswers: ReviewQuestion[] = [];
 
-        constructor(
-            private $stateParams: StateParams,
-            private $sce: angular.ISCEService,
-            private $q: angular.IQService,
-            private $translate: angular.translate.ITranslateService,
-            private QuestionReview: QuestionReviewService,
-            private Assessment: any, // TODO
-            private Session: SessionService,
-            private Attachment: AttachmentService,
-        ) {
-            'ngInject';
-        }
+    constructor(
+        private state: StateService,
+        private $translate: TranslateService,
+        private QuestionReview: QuestionReviewService,
+        private Assessment: AssessmentService,
+        private Session: SessionService,
+        private Attachment: AttachmentService,
+    ) {}
 
-        $onInit() {
-            this.user = this.Session.getUser();
-            this.examId = this.$stateParams.id;
-            const ids = this.$stateParams.q || [];
-            this.QuestionReview.getReviews(this.examId, ids).then(reviews => {
+    ngOnInit() {
+        this.user = this.Session.getUser();
+        this.examId = this.state.params.id;
+        const ids = this.state.params.q || [];
+        this.QuestionReview.getReviews$(this.examId, ids).subscribe(
+            reviews => {
                 reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
                 this.reviews = reviews;
                 if (this.reviews.length > 0) {
                     this.setSelectedReview(this.reviews[0]);
                 }
-            });
+            },
+            err => toast.error(err),
+        );
+    }
+
+    getAssessedAnswerCount = (includeLocked: boolean) => {
+        if (includeLocked) {
+            return this.assessedAnswers.length + this.lockedAnswers.length;
         }
+        return this.assessedAnswers.length;
+    };
 
-        sanitizeQuestion = () => {
-            if (!this.selectedReview) {
-                return;
-            }
-            return this.$sce.trustAsHtml(this.selectedReview.question.question);
-        };
+    getUnassessedAnswerCount = () => this.unassessedAnswers.length;
 
-        getAssessedAnswerCount = (includeLocked: boolean) => {
-            if (includeLocked) {
-                return this.assessedAnswers.length + this.lockedAnswers.length;
-            }
-            return this.assessedAnswers.length;
-        };
+    getLockedAnswerCount = () => this.lockedAnswers.length;
 
-        getUnassessedAnswerCount = () => this.unassessedAnswers.length;
+    questionSelected = (index: number) => this.setSelectedReview(this.reviews[index]);
 
-        getLockedAnswerCount = () => this.lockedAnswers.length;
+    isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
-        questionSelected = (index: number) => this.setSelectedReview(this.reviews[index]);
+    private saveEvaluation = (answer: ReviewQuestion) => {
+        return new Promise<void>(resolve => {
+            answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+            this.Assessment.saveEssayScore(answer).subscribe(() => {
+                toast.info(this.$translate.instant('sitnet_graded'));
+                if (this.assessedAnswers.indexOf(answer) === -1) {
+                    this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
+                    this.assessedAnswers.push(answer);
 
-        isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
+                    // Make sure that this.reviews gets also updated
+                    const currentQuestionId = this.selectedReview.question.id;
+                    const currentReviewIndex = this.reviews.findIndex(r => r.question.id === currentQuestionId);
 
-        private saveEvaluation = (answer: ReviewQuestion) => {
-            return new Promise<void>(resolve => {
-                answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                this.Assessment.saveEssayScore(answer)
-                    .then(() => {
-                        toast.info(this.$translate.instant('sitnet_graded'));
-                        if (this.assessedAnswers.indexOf(answer) === -1) {
-                            this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
-                            this.assessedAnswers.push(answer);
-
-                            // Make sure that this.reviews gets also updated
-                            const currentQuestionId = this.selectedReview.question.id;
-                            const currentReviewIndex = this.reviews.findIndex(r => r.question.id === currentQuestionId);
-
-                            if (this.reviews[currentReviewIndex]) {
-                                const currentAnswerIndex = this.reviews[currentReviewIndex].answers.findIndex(
-                                    a => a.id === answer.id,
-                                );
-                                if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
-                                    this.reviews[currentReviewIndex].answers[currentAnswerIndex] = angular.copy(answer);
-                                }
-                            }
+                    if (this.reviews[currentReviewIndex]) {
+                        const currentAnswerIndex = this.reviews[currentReviewIndex].answers.findIndex(
+                            a => a.id === answer.id,
+                        );
+                        if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
+                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = _.cloneDeep(answer);
                         }
-                        resolve();
-                    })
-                    .catch((err: { data: string }) => {
-                        // Roll back
-                        answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                        toast.error(err.data);
-                        resolve();
-                    });
-            });
-        };
+                    }
+                }
+                resolve();
+            }),
+                (err: string) => {
+                    // Roll back
+                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+                    toast.error(err);
+                    resolve();
+                };
+        });
+    };
 
-        saveAssessments = (answers: ReviewQuestion[]) => {
-            const promises: Promise<void>[] = answers.map(this.saveEvaluation);
-            this.$q.when(Promise.all(promises)).then(() => (this.reviews = angular.copy(this.reviews)));
-        };
+    saveAssessments = (answers: ReviewQuestion[]) =>
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = _.cloneDeep(this.reviews)));
 
-        downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
+    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
-        setSelectedReview = (review: QuestionReview) => {
-            this.selectedReview = review;
-            this.assessedAnswers = this.selectedReview.answers.filter(
-                a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
-            );
-            this.unassessedAnswers = this.selectedReview.answers.filter(
-                a => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
-            );
-            this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
-        };
+    setSelectedReview = (review: QuestionReview) => {
+        this.selectedReview = review;
+        this.assessedAnswers = this.selectedReview.answers.filter(
+            a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+        );
+        this.unassessedAnswers = this.selectedReview.answers.filter(
+            a => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+        );
+        this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
+    };
 
-        private isLocked = (answer: ReviewQuestion) => {
-            const states = ['REVIEW', 'REVIEW_STARTED'];
-            const exam = answer.examSection.exam;
-            const isInspector = exam.examInspections.some(ei => ei.user.id === this.user.id);
-            if (!isInspector) {
-                states.push('GRADED');
-            }
-            return states.indexOf(exam.state) === -1;
-        };
-    },
-};
-
-angular.module('app.review').component('questionAssessment', QuestionAssessmentComponent);
+    private isLocked = (answer: ReviewQuestion) => {
+        const states = ['REVIEW', 'REVIEW_STARTED'];
+        const exam = answer.examSection.exam;
+        const isInspector = exam.examInspections.some(ei => ei.user.id === this.user.id);
+        if (!isInspector) {
+            states.push('GRADED');
+        }
+        return states.indexOf(exam.state) === -1;
+    };
+}
