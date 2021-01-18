@@ -12,82 +12,64 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
-import { IModalService } from 'angular-ui-bootstrap';
+import { Component, Input } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { SessionService, User } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
+import { Review } from '../../review.model';
+import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
+import { ReviewListService, ReviewListView } from '../reviewList.service';
 
-export const InProgressReviewsComponent: angular.IComponentOptions = {
-    template: require('./inProgress.template.html'),
-    bindings: {
-        exam: '<',
-        reviews: '<',
-    },
-    require: {
-        parentCtrl: '^^reviewList',
-    },
-    controller: class InProgressReviewsController implements angular.IComponentController, angular.IOnInit {
-        exam: Exam;
-        reviews: ExamParticipation[];
-        data: {
-            items: any[];
-            filtered: any[];
-            toggle: boolean;
-            pageSize: number;
-            predicate: string;
-            page: number;
-            filter: string;
-        };
-        parentCtrl: {
-            collaborative: boolean;
-        };
+@Component({
+    selector: 'rl-in-progress',
+    template: require('./inProgress.component.html'),
+})
+export class InProgressReviewsComponent {
+    @Input() exam: Exam;
+    @Input() reviews: Review[];
+    @Input() collaborative: boolean;
+    view: ReviewListView;
 
-        constructor(
-            private $uibModal: IModalService,
-            private ReviewList: any,
-            private Session: SessionService,
-            private Files: FileService,
-        ) {
-            'ngInject';
+    constructor(
+        private modal: NgbModal,
+        private ReviewList: ReviewListService,
+        private Session: SessionService,
+        private Files: FileService,
+    ) {}
+
+    ngOnInit() {
+        this.view = this.ReviewList.prepareView(this.reviews, r => r, 'deadline');
+    }
+
+    isOwner = (user: User) => this.exam && this.exam.examOwners.some(o => o.id === user.id);
+
+    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+
+    getLinkToAssessment = (review: ExamParticipation) =>
+        this.collaborative
+            ? `/assessments/collaborative/${this.exam.id}/${review._id}`
+            : `/assessments/${review.exam.id}`;
+
+    pageSelected = (page: number) => (this.view.page = page);
+
+    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+
+    setPredicate = (predicate: string) => {
+        if (this.view.predicate === predicate) {
+            this.view.reverse = !this.view.reverse;
         }
+        this.view.predicate = predicate;
+    };
 
-        $onInit() {
-            this.data = this.ReviewList.prepareView(this.reviews, this.handleOngoingReviews);
-            this.data.predicate = 'deadline';
-        }
-
-        isOwner = (user: User) => this.exam && this.exam.examOwners.some(o => o.id === user.id);
-
-        showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
-
-        getLinkToAssessment = (review: ExamParticipation & { _id: string }) =>
-            this.parentCtrl.collaborative
-                ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-                : `/assessments/${review.exam.id}`;
-
-        pageSelected = (page: number) => (this.data.page = page);
-
-        applyFreeSearchFilter = () =>
-            (this.data.filtered = this.ReviewList.applyFilter(this.data.filter, this.data.items));
-
-        getAnswerAttachments = () =>
-            this.$uibModal
-                .open({
-                    backdrop: 'static',
-                    keyboard: true,
-                    animation: true,
-                    component: 'archiveDownload',
-                })
-                .result.then(params =>
-                    this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
-                )
-                .catch(angular.noop);
-
-        private handleOngoingReviews = (review: ExamParticipation) =>
-            (review.displayName = this.ReviewList.getDisplayName(review, this.parentCtrl.collaborative));
-    },
-};
-
-angular.module('app.review').component('rlInProgress', InProgressReviewsComponent);
+    getAnswerAttachments = () =>
+        this.modal
+            .open(ArchiveDownloadComponent, {
+                backdrop: 'static',
+                keyboard: true,
+            })
+            .result.then(params =>
+                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
+            );
+}

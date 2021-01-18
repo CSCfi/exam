@@ -67,7 +67,7 @@ export class ExamPublicationComponent implements OnInit {
         };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             data => (this.examDurations = data.examDurations),
-            error => toast.error(error.data),
+            error => toast.error(error),
         );
     }
 
@@ -277,7 +277,7 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    resp => toast.error(resp.error),
+                    resp => toast.error(resp),
                 ),
             )
             .catch(err => toast.error(err.data));

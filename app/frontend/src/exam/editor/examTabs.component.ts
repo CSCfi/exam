@@ -17,7 +17,6 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgbTabChangeEvent, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toastr from 'toastr';
@@ -25,7 +24,7 @@ import * as toastr from 'toastr';
 import { ReviewListService } from '../../review/listing/reviewList.service';
 import { SessionService, User } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { Exam } from '../exam.model';
+import { Exam, ExamParticipation } from '../exam.model';
 
 @Component({
     selector: 'exam-tabs',
@@ -36,7 +35,7 @@ export class ExamTabsComponent implements OnInit {
     user: User;
     examInfo: { title: string | null };
     exam: Exam;
-    reviews: any[];
+    reviews: ExamParticipation[];
 
     @ViewChild('tabs') tabs: NgbTabset;
     activeTab = '1';
@@ -82,7 +81,7 @@ export class ExamTabsComponent implements OnInit {
         );
     };
 
-    onReviewsLoaded = (data: { reviews: unknown[] }) => (this.reviews = data.reviews);
+    onReviewsLoaded = (data: { reviews: ExamParticipation[] }) => (this.reviews = data.reviews);
 
     tabChanged = (event: NgbTabChangeEvent) => {
         const params = { id: this.exam.id, tab: event.nextId };
@@ -99,7 +98,7 @@ export class ExamTabsComponent implements OnInit {
         this.updateTitle(props.code, props.name);
         if (props.scaleChange) {
             // Propagate a change so that children (namely auto eval component) can act based on scale change
-            this.exam = angular.copy(this.exam);
+            this.exam = _.cloneDeep(this.exam);
         }
     };
 
@@ -137,20 +136,8 @@ export class ExamTabsComponent implements OnInit {
         );
     };
 
-    private diffInMinutes = (from: string, to: string) => {
-        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
-        return Math.round(diff);
-    };
-
     private getReviews = (examId: number) => {
-        this.http.get<any[]>(this.getResource(examId)).subscribe(reviews => {
-            reviews.forEach(r => {
-                r.displayName = this.ReviewList.getDisplayName(r, this.collaborative);
-                r.duration = this.diffInMinutes(r.started, r.ended);
-                if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
-                    r.isUnderLanguageInspection = true;
-                }
-            });
+        this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe(reviews => {
             this.reviews = reviews;
             this.activeTab = this.state.params.tab; // seems that this can not be set until all async init operations are done
         });

@@ -12,58 +12,57 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import * as angular from 'angular';
 import { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-export const EssayAnswerListComponent: angular.IComponentOptions = {
-    template: `<div class="top-row">
-            <div class="col-md-12" ng-repeat="answer in $ctrl.answers">
-                <essay-answer answer="answer" editable="$ctrl.editable" action="{{$ctrl.actionText}}"
-                    on-selection="$ctrl.assessEssay(answer)"></essay-answer>
+@Component({
+    selector: 'essay-answers',
+    template: `
+        <div class="top-row">
+            <div class="col-md-12" ng-repeat="answer in answers">
+                <essay-answer
+                    [answer]="answer"
+                    [editable]="editable"
+                    [action]="actionText"
+                    (onSelection)="assessEssay(answer)"
+                ></essay-answer>
             </div>
-            <div ng-if="$ctrl.answers.length === 0" class="col-md-12">
-                <div class="jumbotron padl20"><p class="lead">{{'sitnet_no_answers_to_assess' | translate }}</p></div>
+            <div *ngIf="answers.length === 0" class="col-md-12">
+                <div class="jumbotron padl20">
+                    <p class="lead">{{ 'sitnet_no_answers_to_assess' | translate }}</p>
+                </div>
             </div>
-            <div ng-if="$ctrl.answers.length > 0" class="col-md-12 mart20 marb30">
-                <button class="btn btn-success" ng-click="$ctrl.assessSelected()">
-                    {{ $ctrl.actionText | translate }} ({{$ctrl.countSelected()}})</button>
+            <div *ngIf="answers.length > 0" class="col-md-12 mart20 marb30">
+                <button class="btn btn-success" (click)="assessSelected()">
+                    {{ actionText | translate }} ({{ countSelected() }})
+                </button>
             </div>
-        </div>`,
-    bindings: {
-        editable: '<',
-        answers: '<',
-        isPremature: '<',
-        actionText: '@',
-        onAssessed: '&',
-    },
-    controller: class EssayAnswerListComponentController implements angular.IComponentController {
-        answers: ReviewQuestion[];
-        editable: boolean;
-        isPremature: boolean;
-        actionText: string;
-        onAssessed: (_: { answers: ReviewQuestion[] }) => any;
+        </div>
+    `,
+})
+export class EssayAnswerListComponent {
+    @Input() answers: ReviewQuestion[] = [];
+    @Input() editable: boolean;
+    @Input() isPremature: boolean;
+    @Input() actionText: string;
+    @Output() onAssessed = new EventEmitter<ReviewQuestion[]>();
 
-        constructor(private QuestionReview: QuestionReviewService) {
-            'ngInject';
+    constructor(private QuestionReview: QuestionReviewService) {}
+
+    countSelected = () => {
+        if (!this.answers) {
+            return 0;
         }
+        return this.answers.filter(this.QuestionReview.isAssessed).length;
+    };
 
-        countSelected = () => {
-            if (!this.answers) {
-                return 0;
-            }
-            return this.answers.filter(this.QuestionReview.isAssessed).length;
-        };
+    assessSelected = () => this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
 
-        assessSelected = () => this.onAssessed({ answers: this.answers.filter(this.QuestionReview.isAssessed) });
-
-        assessEssay = (answer: ReviewQuestion) => {
-            if (this.QuestionReview.isAssessed(answer)) {
-                this.onAssessed({ answers: [answer] });
-            }
-        };
-    },
-};
-
-angular.module('app.review').component('essayAnswers', EssayAnswerListComponent);
+    assessEssay = (answer: ReviewQuestion) => {
+        if (this.QuestionReview.isAssessed(answer)) {
+            this.onAssessed.emit([answer]);
+        }
+    };
+}

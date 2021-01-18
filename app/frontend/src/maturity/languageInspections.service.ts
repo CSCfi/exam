@@ -49,7 +49,6 @@ export class LanguageInspectionService {
             keyboard: true,
         });
         modalRef.componentInstance.statement = statement.comment;
-        modalRef.result.catch(angular.noop);
     };
 
     assignInspection = (inspection: LanguageInspection) => {

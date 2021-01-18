@@ -309,7 +309,7 @@ export class AssessmentService {
                         this.location.go(this.getExitUrl(exam));
                     }
                 }),
-                catchError(resp => toast.error(resp.error)),
+                catchError(resp => toast.error(resp)),
             )
             .subscribe();
     };

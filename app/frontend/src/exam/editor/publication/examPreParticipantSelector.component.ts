@@ -46,7 +46,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
                     this.enrolments.push(enrolment);
                     delete this.newPreParticipant.email;
                 },
-                error => toast.error(error.data),
+                error => toast.error(error),
             );
         }
     };

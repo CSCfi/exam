@@ -12,48 +12,32 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import * as angular from 'angular';
+import { SessionService } from '../../../session/session.service';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
-import { SessionService } from '../../../session/session.service';
 
 const truncate = require('truncate-html').default;
 
-export const QuestionFlowCategoryComponent: angular.IComponentOptions = {
-    template: require('./questionFlowCategory.template.html'),
-    bindings: {
-        categoryTitle: '@',
-        reviews: '<',
-        allDone: '<',
-        onSelection: '&',
-    },
-    controller: class QuestionFlowCategoryComponentController implements angular.IComponentController {
-        categoryTitle: string;
-        reviews: QuestionReview[];
-        allDone: boolean;
-        onSelection: (_: { review: QuestionReview }) => any;
+@Component({
+    selector: 'question-flow-category',
+    template: require('./questionFlowCategory.component.html'),
+})
+export class QuestionFlowCategoryComponent {
+    @Input() categoryTitle: string;
+    @Input() reviews: QuestionReview[] = [];
+    @Input() allDone: boolean;
+    @Output() onSelection = new EventEmitter<QuestionReview>();
 
-        constructor(
-            private $sce: angular.ISCEService,
-            private QuestionReview: QuestionReviewService,
-            private Session: SessionService,
-        ) {
-            'ngInject';
-        }
+    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
-        displayQuestionText = (review: QuestionReview) => {
-            const text = truncate(review.question.question, 50);
-            return this.$sce.trustAsHtml(text);
-        };
+    displayQuestionText = (review: QuestionReview) => truncate(review.question.question, 50);
 
-        isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
+    isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
-        getAssessedAnswerCount = (review: QuestionReview) =>
-            this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+    getAssessedAnswerCount = (review: QuestionReview) =>
+        this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
 
-        selectQuestion = (review: QuestionReview) => this.onSelection({ review: review });
-    },
-};
-
-angular.module('app.review').component('questionFlowCategory', QuestionFlowCategoryComponent);
+    selectQuestion = (review: QuestionReview) => this.onSelection.emit(review);
+}

@@ -69,8 +69,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         }
     }
 
-    onSort = () => this.saveFilters();
-
     selectAll = () => {
         this.questions.forEach(q => (q.selected = this.allSelected));
         this.questionSelected();
@@ -134,6 +132,14 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     printTags = (question: LibraryQuestion) => question.tags.map(t => t.name.toUpperCase()).join(', ');
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
+
+    setPredicate = (predicate: string) => {
+        if (this.questionsPredicate === predicate) {
+            this.reverse = !this.reverse;
+        }
+        this.questionsPredicate = predicate;
+        this.saveFilters();
+    };
 
     getQuestionTypeIcon = (question: LibraryQuestion) => {
         switch (question.type) {

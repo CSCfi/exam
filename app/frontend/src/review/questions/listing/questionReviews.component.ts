@@ -12,60 +12,52 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { Component, Input } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-export const QuestionReviewListComponent: angular.IComponentOptions = {
-    template: require('./questionReviews.template.html'),
-    bindings: {
-        examId: '<',
-    },
-    controller: class QuestionReviewListComponentController implements angular.IComponentController {
-        examId: number;
-        reviews: QuestionReview[];
-        selectedReviews: number[] = [];
-        selectionToggle = false;
+@Component({
+    selector: 'question-reviews',
+    template: require('./questionReviews.component.html'),
+})
+export class QuestionReviewsComponent {
+    @Input() examId: number;
+    reviews: QuestionReview[] = [];
+    selectedReviews: number[] = [];
+    selectionToggle = false;
 
-        constructor(private $location: angular.ILocationService, private QuestionReview: QuestionReviewService) {
-            'ngInject';
+    constructor(private state: StateService, private QuestionReview: QuestionReviewService) {}
+
+    ngOnInit() {
+        this.QuestionReview.getReviews$(this.examId).subscribe(
+            resp => (this.reviews = resp),
+            err => toast.error(err),
+        );
+    }
+
+    onReviewSelection = (event: { id: number; selected: boolean }) => {
+        const index = this.selectedReviews.indexOf(event.id);
+        if (event.selected && index === -1) {
+            this.selectedReviews.push(event.id);
+        } else if (index > -1) {
+            this.selectedReviews.splice(index, 1);
         }
+    };
 
-        $onInit() {
-            this.QuestionReview.getReviews(this.examId)
-                .then(resp => {
-                    this.reviews = resp;
-                })
-                .catch(err => toast.error(err));
-        }
+    removeSelections = () => {
+        this.reviews.forEach(r => (r.selected = false));
+        this.selectedReviews = [];
+    };
 
-        onReviewSelection = (id: number, selected: boolean) => {
-            const index = this.selectedReviews.indexOf(id);
-            if (selected && index === -1) {
-                this.selectedReviews.push(id);
-            } else if (index > -1) {
-                this.selectedReviews.splice(index, 1);
-            }
-        };
+    addSelections = () => {
+        this.reviews.forEach(r => (r.selected = true));
+        this.selectedReviews = this.reviews.map(r => r.question.id);
+    };
 
-        removeSelections = () => {
-            this.reviews.forEach(r => (r.selected = false));
-            this.selectedReviews = [];
-        };
+    selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
-        addSelections = () => {
-            this.reviews.forEach(r => (r.selected = true));
-            this.selectedReviews = this.reviews.map(r => r.question.id);
-        };
-
-        selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
-
-        startReview = () =>
-            this.$location.path(`/assessments/${this.examId}/questions`).search(
-                'q',
-                this.selectedReviews.map(i => i.toString()),
-            );
-    },
-};
+    startReview = () => this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map(toString) });
+}

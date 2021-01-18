@@ -59,7 +59,7 @@
                                 text="{{ column.text }}"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
-                                (on-sort)="setPredicate($event)"
+                                (click)="setPredicate(column.property)"
                             ></table-sort>
                         </th>
                         <th class="with-top">

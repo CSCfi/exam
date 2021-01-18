@@ -119,7 +119,7 @@ export class ExaminationService {
             }),
             catchError(resp => {
                 if (resp.error) {
-                    toast.error(resp.error);
+                    toast.error(resp);
                 }
                 return throwError(resp);
             }),
@@ -218,7 +218,7 @@ export class ExaminationService {
                     sq.options.forEach(o => (o.answered = ids.indexOf(o.id) > -1));
                     this.setQuestionColors(sq);
                 },
-                resp => toast.error(resp.error),
+                resp => toast.error(resp),
             );
         } else {
             this.setQuestionColors(sq);

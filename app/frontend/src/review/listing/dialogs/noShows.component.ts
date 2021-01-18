@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { Exam } from '../../../exam/exam.model';
 import { User } from '../../../session/session.service';
@@ -23,34 +24,29 @@ interface NoShow {
     user: User;
 }
 
-export const NoShowsComponent: angular.IComponentOptions = {
-    template: require('./noShows.template.html'),
-    bindings: {
-        dismiss: '&',
-        resolve: '<',
-    },
-    controller: class NoShowsController implements angular.IComponentController {
-        dismiss: (_: { $value: string }) => unknown;
-        noShows: NoShow[];
-        resolve: { exam: Exam; noShows: NoShow[] };
+@Component({
+    selector: 'no-shows-component',
+    template: require('./noShows.component.html'),
+})
+export class NoShowsComponent {
+    @Input() noShows: NoShow[];
 
-        constructor(private $window: angular.IWindowService, private $scope: angular.IScope) {
-            'ngInject';
-            // Close modal if user clicked the back button and no changes made
-            this.$scope.$on('$stateChangeStart', () => {
-                if (!this.$window.onbeforeunload) {
-                    this.cancel();
-                }
-            });
+    noShowPredicate = 'reservation.startAt';
+    reverse = false;
+
+    constructor(private modal: NgbActiveModal) {}
+
+    //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
+    ngOnInit() {
+        this.noShows.forEach(r => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
+    }
+
+    cancel = () => this.modal.dismiss();
+
+    setPredicate = (predicate: string) => {
+        if (this.noShowPredicate === predicate) {
+            this.reverse = !this.reverse;
         }
-        //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
-        $onInit = () => {
-            this.noShows = this.resolve.noShows;
-            this.noShows.forEach(r => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
-        };
-
-        cancel = () => this.dismiss({ $value: 'cancel' });
-    },
-};
-
-angular.module('app.review').component('noShows', NoShowsComponent);
+        this.noShowPredicate = predicate;
+    };
+}

@@ -1,4 +1,11 @@
-import { Attachment, EssayAnswer, Question, ReverseExamSectionQuestion } from '../exam/exam.model';
+import {
+    Attachment,
+    EssayAnswer,
+    ExamParticipation,
+    Question,
+    ReverseExamSectionQuestion,
+    SelectableGrade,
+} from '../exam/exam.model';
 
 export interface ScorableEssayAnswer extends EssayAnswer {
     id: number;
@@ -21,3 +28,16 @@ export interface QuestionReview {
     evaluationCriteria?: string;
     selected: boolean;
 }
+
+export type Review = {
+    examParticipation: ExamParticipation;
+    grades: SelectableGrade[];
+    selectedGrade?: SelectableGrade;
+    duration: string;
+    displayName: string;
+    isUnderLanguageInspection: boolean;
+    selected: boolean;
+    displayedGradingTime?: Date;
+    displayedGrade?: string;
+    displayedCredit?: number;
+};

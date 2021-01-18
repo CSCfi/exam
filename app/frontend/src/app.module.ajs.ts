@@ -36,13 +36,9 @@ import * as filters from './app.filter';
 import runBlock from './app.run';
 import states from './app.states';
 import DashboardModule from './dashboard/dashboard.module.ajs';
-import EnrolmentModule from './enrolment/enrolment.module.ajs';
-import ExamModuleAjs from './exam/exam.module.ajs';
-import ExaminationModuleAjs from './examination/examination.module.ajs';
-import MaturityModuleAjs from './maturity/maturity.module.ajs';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
-import UtilityModule from './utility/utility.module.ajs';
+import examinationModuleAjs from './examination/examination.module.ajs';
 
 export const ajsApp = angularJS
     .module('app', [
@@ -58,15 +54,9 @@ export const ajsApp = angularJS
         'dialogs.controllers',
         SessionModuleAjs,
         NavigationModuleAjs,
-        MaturityModuleAjs,
-        UtilityModule,
-        EnrolmentModule,
         DashboardModule,
-        ExaminationModuleAjs,
-        ExamModuleAjs,
-        'app.enrolment',
-        'app.maturity',
         'app.administrative',
+        examinationModuleAjs,
     ])
     .config(configs)
     .config(states)

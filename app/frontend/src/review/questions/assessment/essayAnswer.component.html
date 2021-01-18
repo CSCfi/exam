@@ -1,0 +1,150 @@
+<div class="essay-answer-wrapper">
+    <div class="detail-row" *ngIf="answer.question.question !== answer.question.parent.question">
+        <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
+            <i class="fa fa-exclamation-triangle fa-lg"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
+        </span>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12 marl5">
+            <strong>{{ 'sitnet_assessee_information' | translate | uppercase }}</strong>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-10 essay-answer-item">
+            <a uiSref="assessment" [uiParams]="{ id: answer.examSection.exam.id }" target="_blank">
+                <strong>
+                    {{ name }}
+                    <span *ngIf="answer.examSection.exam.creator.userIdentifier">
+                        ({{ answer.examSection.exam.creator.userIdentifier }})
+                    </span>
+                </strong>
+            </a>
+        </div>
+        <div class="col-md-2 essay-answer-item">
+            <a class="pull-right" (click)="answer.expanded = !answer.expanded" class="pointer-hand">
+                <img
+                    *ngIf="!answer.expanded"
+                    src="Images/icon_list_show_right.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
+                />
+                <img
+                    *ngIf="answer.expanded"
+                    src="Images/icon_list_show_down.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
+                />
+            </a>
+        </div>
+    </div>
+    <div class="detail-row" *ngIf="!answer.expanded">
+        <div class="col-md-12">
+            <strong>&hellip;</strong>
+        </div>
+    </div>
+    <div *ngIf="answer.expanded">
+        <div class="detail-row">
+            <div class="col-md-12">
+                <strong>{{ 'sitnet_exam_answer' | translate | uppercase }}</strong>
+            </div>
+        </div>
+        <div class="main-row">
+            <div class="col-md-12 essay-answer-item" [MathJax]="answer.essayAnswer.answer"></div>
+        </div>
+
+        <div class="detail-row" *ngIf="answer.essayAnswer.attachment">
+            <div class="detail-row">
+                <div class="col-md-12">
+                    <strong>{{ 'sitnet_answer_attachment' | translate | uppercase }}</strong>
+                </div>
+            </div>
+            <div>
+                <div class="main-row">
+                    <div class="col-md-12 essay-answer-item">
+                        <a class="pointer" (click)="downloadAttachment()">
+                            {{ answer.essayAnswer.attachment.fileName | uppercase }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="col-md-10 essay-answer-item">
+                <div class="main-row">
+                    <strong>{{ 'sitnet_answer_length' | translate | uppercase }}</strong>
+                </div>
+                <div class="detail-row">
+                    {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
+                    {{ getCharacterCount() }} {{ 'sitnet_characters' | translate }}
+                </div>
+                <div class="detail-row">
+                    {{ 'sitnet_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
+                        'sitnet_approximately' | translate
+                    }}
+                    {{ answer.expectedWordCount * 8 }} {{ 'sitnet_characters' | translate }})
+                </div>
+            </div>
+            <div class="col-md-2 essay-answer-checkbox-item">
+                <div class="main-row">
+                    <strong
+                        >{{ 'sitnet_word_points' | translate | uppercase }} &nbsp;<small
+                            >[{{ 0 }}-{{ displayMaxScore() }}]</small
+                        >
+                    </strong>
+                </div>
+                <div class="detail-row">
+                    <div *ngIf="answer.evaluationType === 'Points'">
+                        <form name="essayPoints">
+                            <input
+                                name="score"
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                [(ngModel)]="answer.essayAnswer.temporaryScore"
+                                size="5"
+                                onclick="this.focus();"
+                                [disabled]="!editable"
+                                min="0"
+                                max="{{ answer.maxScore }}"
+                            />
+                            <small *ngIf="essayPoints.$invalid" class="alert-danger">
+                                <i class="fa fa-exclamation-circle"></i>&nbsp;{{
+                                    'sitnet_error_score_input' | translate
+                                }}
+                            </small>
+                        </form>
+                    </div>
+                    <div *ngIf="answer.evaluationType === 'Selection'">
+                        <select
+                            class="form-control"
+                            [(ngModel)]="answer.essayAnswer.textualScore"
+                            [disabled]="!editable"
+                        >
+                            <option value="1" [selected]="answer.essayAnswer.textualScore == 1">
+                                {{ 'sitnet_approved' | translate }}
+                            </option>
+                            <option value="0" [selected]="answer.essayAnswer.textualScore == 0">
+                                {{ 'sitnet_rejected' | translate }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-row">
+            <span class="col-md-12 checkbox">
+                <label>
+                    <input type="checkbox" [(ngModel)]="answer.selected" [disabled]="!editable || !isAssessed()" />
+                    {{ action | translate }}
+                </label>
+                <i
+                    *ngIf="editable && isAssessed() && answer.selected"
+                    class="marl10 pointer fa fa-lg fa-share text-success"
+                    (click)="saveScore()"
+                ></i>
+            </span>
+        </div>
+    </div>
+</div>

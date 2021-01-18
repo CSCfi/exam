@@ -46,12 +46,28 @@ import { MultiChoiceAnswerComponent } from './assessment/questions/multiChoiceAn
 import { MultiChoiceQuestionComponent } from './assessment/questions/multiChoiceQuestion.component';
 import { WeightedMultiChoiceAnswerComponent } from './assessment/questions/weightedMultiChoiceAnswer.component';
 import { ExamSectionComponent } from './assessment/sections/examSection.component';
+import { ArchivedReviewsComponent } from './listing/categories/archived.component';
+import { GradedReviewsComponent } from './listing/categories/graded.component';
+import { GradedLoggedReviewsComponent } from './listing/categories/gradedLogged.component';
+import { InLanguageInspectionReviewsComponent } from './listing/categories/inLanguageInspection.component';
+import { InProgressReviewsComponent } from './listing/categories/inProgress.component';
+import { RejectedReviewsComponent } from './listing/categories/rejected.component';
+import { AbortedExamsComponent } from './listing/dialogs/abortedExams.component';
+import { ArchiveDownloadComponent } from './listing/dialogs/archiveDownload.component';
 import { SpeedReviewFeedbackComponent } from './listing/dialogs/feedback.component';
-import { ReviewListComponent } from './listing/reviewList.component.upgrade';
+import { NoShowsComponent } from './listing/dialogs/noShows.component';
+import { ReviewListComponent } from './listing/reviewList.component';
 import { ReviewListService } from './listing/reviewList.service';
 import { SpeedReviewComponent } from './listing/speedReview.component';
-import { ExamSummaryComponent } from './listing/summary/examSummary.component.upgrade';
-import { QuestionReviewsComponent } from './questions/listing/questionReviews.component.upgrade';
+import { ExamSummaryComponent } from './listing/summary/examSummary.component';
+import { EssayAnswerComponent } from './questions/assessment/essayAnswer.component';
+import { EssayAnswerListComponent } from './questions/assessment/essayAnswers.component';
+import { QuestionAssessmentComponent } from './questions/assessment/questionAssessment.component';
+import { QuestionFlowComponent } from './questions/flow/questionFlow.component';
+import { QuestionFlowCategoryComponent } from './questions/flow/questionFlowCategory.component';
+import { QuestionReviewComponent } from './questions/listing/questionReview.component';
+import { QuestionReviewsComponent } from './questions/listing/questionReviews.component';
+import { QuestionReviewService } from './questions/questionReview.service';
 
 @NgModule({
     imports: [NgbModule, UIRouterModule, UtilityModule, DragDropModule, OrderModule],
@@ -64,7 +80,6 @@ import { QuestionReviewsComponent } from './questions/listing/questionReviews.co
         InspectionComponent,
         ToolbarComponent,
         ReviewListComponent,
-        QuestionReviewsComponent,
         ExamSummaryComponent,
         ClaimChoiceAnswerComponent,
         ClozeTestComponent,
@@ -86,8 +101,30 @@ import { QuestionReviewsComponent } from './questions/listing/questionReviews.co
         MaturityToolbarComponent,
         SpeedReviewFeedbackComponent,
         SpeedReviewComponent,
+        NoShowsComponent,
+        AbortedExamsComponent,
+        ArchiveDownloadComponent,
+        InProgressReviewsComponent,
+        GradedReviewsComponent,
+        GradedLoggedReviewsComponent,
+        InLanguageInspectionReviewsComponent,
+        RejectedReviewsComponent,
+        ArchivedReviewsComponent,
+        EssayAnswerComponent,
+        EssayAnswerListComponent,
+        QuestionAssessmentComponent,
+        QuestionFlowComponent,
+        QuestionFlowCategoryComponent,
+        QuestionReviewComponent,
+        QuestionReviewsComponent,
     ],
     entryComponents: [AssessmentComponent],
-    providers: [AssessmentService, CollaborativeAssesmentService, ReviewListService, MaturityService],
+    providers: [
+        AssessmentService,
+        CollaborativeAssesmentService,
+        ReviewListService,
+        MaturityService,
+        QuestionReviewService,
+    ],
 })
 export class ReviewModule {}

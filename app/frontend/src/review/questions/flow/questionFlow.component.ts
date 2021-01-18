@@ -12,51 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 
-import * as angular from 'angular';
+import { SessionService } from '../../../session/session.service';
 import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
-import { SessionService } from '../../../session/session.service';
 
-export const QuestionFlowComponent: angular.IComponentOptions = {
-    template: require('./questionFlow.template.html'),
-    bindings: {
-        reviews: '<',
-        onSelection: '&',
-    },
-    controller: class QuestionFlowComponentController implements angular.IComponentController {
-        reviews: QuestionReview[];
-        onSelection: (_: { index: number }) => any;
-        unfinished: QuestionReview[];
-        finished: QuestionReview[];
+@Component({
+    selector: 'question-flow',
+    template: require('./questionFlow.component.html'),
+})
+export class QuestionFlowComponent {
+    @Input() reviews: QuestionReview[];
+    @Output() onSelection = new EventEmitter<number>();
 
-        constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {
-            'ngInject';
-        }
+    unfinished: QuestionReview[] = [];
+    finished: QuestionReview[] = [];
 
-        private init = () => {
-            this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
-            this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
-        };
+    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
-        getAssessedAnswerCount = (review: QuestionReview) =>
-            this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+    private init = () => {
+        this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
+        this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
+    };
 
-        $onInit() {
+    getAssessedAnswerCount = (review: QuestionReview) =>
+        this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+
+    ngOnInit() {
+        this.init();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.reviews) {
             this.init();
         }
+    }
 
-        $onChanges(props: angular.IOnChangesObject) {
-            if (props.reviews) {
-                this.init();
-            }
-        }
-
-        questionSelected = (review: QuestionReview) => {
-            this.unfinished.concat(this.finished).forEach(r => (r.selected = r.question.id === review.question.id));
-            this.onSelection({ index: this.reviews.indexOf(review) });
-        };
-    },
-};
-
-angular.module('app.review').component('questionFlow', QuestionFlowComponent);
+    questionSelected = (review: QuestionReview) => {
+        this.unfinished.concat(this.finished).forEach(r => (r.selected = r.question.id === review.question.id));
+        this.onSelection.emit(this.reviews.indexOf(review));
+    };
+}

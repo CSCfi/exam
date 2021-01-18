@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService } from '@uirouter/core';
-import * as angular from 'angular';
+import * as _ from 'lodash';
 import * as toast from 'toastr';
 
 import { ExamSectionQuestion, Question } from '../../exam/exam.model';
@@ -81,20 +81,20 @@ export class QuestionComponent implements OnInit {
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
-            this.currentOwners = angular.copy(this.question.questionOwners);
+            this.currentOwners = _.clone(this.question.questionOwners);
         } else if (this.questionDraft && this.collaborative) {
             this.question = this.questionDraft;
-            this.currentOwners = angular.copy(this.question.questionOwners);
+            this.currentOwners = _.clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
             this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
                 (question: Question) => {
                     this.question = question;
-                    this.currentOwners = angular.copy(this.question.questionOwners);
+                    this.currentOwners = _.clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },
-                error => toast.error(error.data),
+                error => toast.error(error),
             );
         }
     }
@@ -125,11 +125,11 @@ export class QuestionComponent implements OnInit {
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, error => toast.error(error.data));
+            this.Question.createQuestion(this.question as QuestionDraft).then(fn, error => toast.error(error));
         } else {
             this.Question.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
-                error => toast.error(error.data),
+                error => toast.error(error),
             );
         }
     };

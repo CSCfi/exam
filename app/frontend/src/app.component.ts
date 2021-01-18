@@ -39,14 +39,15 @@ export const AppComponent: angular.IComponentOptions = {
         private ngUnsubscribe = new Subject();
 
         constructor(
-            private $rootScope: angular.IRootScopeService,
             private $window: angular.IWindowService,
             private Session: SessionService,
             private ExaminationStatus: ExaminationStatusService,
         ) {
             'ngInject';
 
-            this.$rootScope.$on('examStarted', () => (this.hideNavBar = true));
+            this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+                this.hideNavBar = false;
+            });
             this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
                 this.hideNavBar = false;
             });

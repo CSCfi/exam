@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 /*
  * Copyright (c) 2018 Exam Consortium
@@ -29,9 +29,6 @@ export class TableSortComponent {
     @Input() predicate: string;
     @Input() text: string;
     @Input() reverse: boolean;
-    @Output() onSort = new EventEmitter<string>();
-
-    sort = () => this.onSort.emit(this.by);
 
     getSortClass = () => (this.by === this.predicate ? (this.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort');
 }

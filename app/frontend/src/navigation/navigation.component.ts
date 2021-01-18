@@ -18,6 +18,7 @@ import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
+import { ExaminationStatusService } from '../examination/examinationStatus.service';
 
 import { SessionService, User } from '../session/session.service';
 import { Link, NavigationService } from './navigation.service';
@@ -34,12 +35,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
     isInteroperable: boolean;
     private ngUnsubscribe = new Subject();
 
-    constructor(private state: StateService, private Navigation: NavigationService, private Session: SessionService) {
-        // TODO: make these observables in other components
-        /*
-        this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
-        this.$rootScope.$on('wrongLocation', () => this.getLinks(false));
-        */
+    constructor(
+        private state: StateService,
+        private Navigation: NavigationService,
+        private Session: SessionService,
+        private ExaminationStatus: ExaminationStatusService,
+    ) {
+        this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.getLinks(false);
+        });
+        this.ExaminationStatus.wrongLocation$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+            this.getLinks(false);
+        });
     }
 
     ngOnInit() {

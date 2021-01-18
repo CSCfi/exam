@@ -21,23 +21,32 @@ import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ExamParticipation } from '../../exam/exam.model';
+import { Review } from '../review.model';
 
 type Selection = { [k: string]: boolean };
 type SelectableParticipation = ExamParticipation & { selected: boolean };
+export type ReviewListView = {
+    items: Review[];
+    filtered: Review[];
+    toggle: boolean;
+    pageSize: number;
+    predicate: string;
+    reverse: boolean;
+    page: number;
+    filter: string;
+};
 
 @Injectable()
 export class ReviewListService {
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
-    getDisplayName = (review: ExamParticipation, collaborative = false) => {
-        return review.user
-            ? `${review.user.lastName} ${review.user.firstName}`
-            : collaborative
-            ? review._id
-            : review.exam.id;
+    getDisplayName = (review: ExamParticipation, collaborative = false): string => {
+        if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
+        else if (collaborative && review._id) return review._id;
+        else return review.exam.id.toString();
     };
 
-    filterReview = (filter: string, review: ExamParticipation) => {
+    filterReview = (filter: string, review: Review): boolean => {
         if (!filter) {
             return true;
         }
@@ -55,16 +64,20 @@ export class ReviewListService {
             return states.indexOf(r.exam.state) > -1;
         });
     };
-    prepareView = (items: ExamParticipation[], setup: (p: ExamParticipation) => void) => {
+    prepareView = (items: Review[], setup: (p: Review) => void, predicate: string): ReviewListView => {
         items.forEach(setup);
         return {
             items: items,
             filtered: items,
             toggle: items.length > 0,
             pageSize: 30,
+            predicate: predicate,
+            reverse: false,
+            page: 0,
+            filter: '',
         };
     };
-    applyFilter = (filter: string, items: ExamParticipation[]) => {
+    applyFilter = (filter: string, items: Review[]) => {
         if (!filter) {
             return items;
         }
@@ -90,31 +103,37 @@ export class ReviewListService {
         }
         return prev && next;
     };
-    selectAll = (scope: Selection, items: SelectableParticipation[]) => {
+    selectAll = (scope: Selection, items: Review[]) => {
         const override = this.resetSelections(scope, 'all');
         items.forEach(i => (i.selected = !i.selected || override));
     };
-    selectPage = (scope: Selection, items: SelectableParticipation[], selector: string) => {
+    selectPage = (scope: Selection, items: Review[], selector: string) => {
         const override = this.resetSelections(scope, 'page');
         // eslint-disable-next-line angular/document-service
         const boxes: NodeList = document.querySelectorAll('.' + selector);
-        const ids: number[] = [];
-        boxes.forEach(node => ids.push(parseInt(node.nodeValue as string)));
+        const ids: string[] = [];
+        boxes.forEach(node => ids.push(node.nodeValue as string));
         // init all as not selected
         if (override) {
             items.forEach(i => (i.selected = false));
         }
-        items.filter(i => ids.indexOf(i.exam.id) > -1).forEach(pi => (pi.selected = !pi.selected || override));
+        items
+            .filter(
+                i =>
+                    ids.indexOf(i.examParticipation.id.toString()) > -1 ||
+                    (i.examParticipation._id && ids.indexOf(i.examParticipation._id) > -1),
+            )
+            .forEach(pi => (pi.selected = !pi.selected || override));
     };
-    getSelectedReviews = (items: SelectableParticipation[]) => {
+    getSelectedReviews = (items: Review[]) => {
         const objects = items.filter(i => i.selected);
         if (objects.length === 0) {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
-            return;
         }
         return objects;
     };
-    private send = (review: ExamParticipation, examId: number, state: string): Observable<ExamParticipation> => {
+
+    private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
         const exam = review.exam;
         if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
             const examToRecord = {
@@ -141,6 +160,7 @@ export class ReviewListService {
             return of();
         }
     };
-    sendToArchive = (review: ExamParticipation, examId: number) => this.send(review, examId, 'ARCHIVED');
-    sendToRegistry = (review: ExamParticipation, examId: number) => this.send(review, examId, 'GRADED_LOGGED');
+
+    sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
+    sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
 }
