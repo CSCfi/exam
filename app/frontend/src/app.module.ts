@@ -27,12 +27,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { UIRouterUpgradeModule } from '@uirouter/angular-hybrid';
 
+import { AdministrativeModule } from './administrative/administrative.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
 import { ExaminationModule } from './examination/examination.module';
 import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
+import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
+import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
 import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
 import { QuestionModule } from './question/question.module';
@@ -40,12 +43,6 @@ import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
-<<<<<<< HEAD
-import { AdministrativeModule } from './administrative/administrative.module';
-=======
-import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
-import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
->>>>>>> Http interceptor & exan summary migration
 
 @NgModule({
     imports: [
