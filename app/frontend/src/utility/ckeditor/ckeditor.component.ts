@@ -44,10 +44,11 @@ declare let CKEDITOR: any;
         },
     ],
     template: `
-        <textarea #host></textarea>
+        <textarea #host [required]="required"></textarea>
     `,
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
+    @Input() required = false;
     @Input() enableClozeTest: boolean;
     @Input()
     set value(v) {

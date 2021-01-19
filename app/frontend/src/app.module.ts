@@ -42,6 +42,7 @@ import { QuestionModule } from './question/question.module';
 import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
+import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
 
 @NgModule({
@@ -67,6 +68,7 @@ import { UtilityModule } from './utility/utility.module';
         CalendarModule,
         MaturityModule,
         AdministrativeModule,
+        SoftwareModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

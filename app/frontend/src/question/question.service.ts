@@ -484,6 +484,7 @@ export class QuestionService {
             backdrop: 'static',
             keyboard: false,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modal.componentInstance.newQuestion = newQuestion;
         modal.componentInstance.collaborative = collaborative;

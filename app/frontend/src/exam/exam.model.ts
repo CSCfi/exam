@@ -12,8 +12,9 @@ export interface Grade {
 export type TypedGrade = Grade & { type: string };
 export type NoGrade = Omit<TypedGrade, 'id'> & { id?: number; type: 'NONE' };
 export type SelectableGrade = TypedGrade | NoGrade;
-const isRealGrade = (grade: SelectableGrade): grade is TypedGrade => grade.type !== 'NONE';
-export default isRealGrade;
+export function isRealGrade(grade: SelectableGrade): grade is TypedGrade {
+    return grade.type !== 'NONE';
+}
 
 export interface GradeEvaluation {
     id?: number;
@@ -106,10 +107,10 @@ export interface Question {
 }
 
 export interface EssayAnswer {
-    id: number;
-    evaluatedScore: number;
-    answer: string;
-    objectVersion: number;
+    id?: number;
+    evaluatedScore?: number;
+    answer?: string;
+    objectVersion?: number;
     attachment?: Attachment;
 }
 
@@ -128,12 +129,30 @@ export interface ExamSectionQuestionOption {
     option: MultipleChoiceOption;
 }
 
+export interface ContentElement {
+    order: number;
+    type: string;
+}
+export interface TextElement extends ContentElement {
+    text: string;
+}
+export function isTextElement(element: ContentElement): element is TextElement {
+    return element.type === 'Text';
+}
+export function isBlankElement(element: ContentElement): element is BlankElement {
+    return element.type === 'Blank';
+}
+interface BlankElement extends ContentElement {
+    id: string;
+    numeric: boolean;
+}
 export interface ClozeTestAnswer {
     id: number;
     score: { correctAnswers: number; incorrectAnswers: number };
     maxScore: number;
     answer: string;
     objectVersion: number;
+    elements: ContentElement[];
 }
 
 export interface ReverseExamSection extends ExamSection {

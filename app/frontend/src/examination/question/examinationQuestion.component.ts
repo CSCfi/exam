@@ -15,8 +15,7 @@
 import { Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { SanitizedHtmlPipe } from '../../utility/html/sanitizedHtml.pipe';
-import { TruncatingPipe } from '../../utility/truncate/truncate.pipe';
+import { QuestionBase } from '../../utility/forms/questionTypes';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
 @Component({
@@ -29,24 +28,25 @@ export class ExaminationQuestionComponent {
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
 
-    constructor(
-        private Truncate: TruncatingPipe,
-        private safeHtml: SanitizedHtmlPipe,
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-    ) {}
+    clozeTestFormQuestions: QuestionBase<string>[] = [];
+    expanded = false;
+
+    constructor(private Examination: ExaminationService, private Attachment: AttachmentService) {}
 
     ngOnInit() {
         this.sq.expanded = true;
         const answerData = this.sq.clozeTestAnswer;
-        if (answerData && typeof answerData.answer === 'string') {
-            answerData.answer = JSON.parse(answerData.answer);
+        if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
+            this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
+            //answerData.answer = JSON.parse(answerData.answer);
         }
     }
 
-    displayQuestionText = (truncated: boolean) => {
-        const text = truncated ? this.Truncate.transform(this.sq.question.question, 240) : this.sq.question.question;
-        return this.safeHtml.transform(text);
+    answered = (event: { payload: { id: string; answer: string }[] }) => {
+        if (this.sq.clozeTestAnswer) {
+            const dictionary = Object.assign({}, ...event.payload.map(x => ({ [x.id]: x.answer })));
+            this.sq.clozeTestAnswer.answer = JSON.stringify(dictionary);
+        }
     };
 
     downloadQuestionAttachment = () => {

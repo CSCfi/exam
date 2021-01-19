@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { SessionService, User } from '../../session/session.service';
+import { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
 import { LanguageInspection } from '../maturity.model';
 
@@ -24,13 +25,13 @@ import { LanguageInspection } from '../maturity.model';
     template: require('./unfinishedInspections.component.html'),
 })
 export class UnfinishedInspectionsComponent implements OnInit {
-    @Input() inspections: LanguageInspection[];
+    @Input() inspections: LanguageInspectionData[];
 
-    filteredInspections: LanguageInspection[];
+    filteredInspections: LanguageInspectionData[];
     user: User;
     sorting: { predicate: string; reverse: boolean };
     pageSize = 10;
-    currentPage: number;
+    currentPage = 0;
     filterText: string;
     hideItems = false;
 
@@ -41,7 +42,6 @@ export class UnfinishedInspectionsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.currentPage = 0;
         this.user = this.Session.getUser();
         this.sorting = {
             predicate: 'created',
@@ -58,17 +58,25 @@ export class UnfinishedInspectionsComponent implements OnInit {
         this.sorting.predicate = predicate;
     };
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    private examToString = (li: LanguageInspectionData) => {
+        const code = li.exam.course ? li.exam.course.code : '';
+        const name = li.exam.name;
+        const student = li.studentNameAggregate;
+        const teacher = li.ownerAggregate;
+        return code + name + student + teacher;
+    };
 
     filterTextChanged = () =>
-        (this.filteredInspections = this.inspections.filter(i => JSON.stringify(i).match(this.filterText)));
+        (this.filteredInspections = this.inspections.filter(i =>
+            this.examToString(i)
+                .toLowerCase()
+                .match(this.filterText.toLowerCase()),
+        ));
 
-    getInspectionAmounts = () => {
-        const amount = this.inspections.length.toString();
-        return this.translate.instant('sitnet_ongoing_language_inspections_detail').replace('{0}', amount);
-    };
+    getInspectionAmounts = () =>
+        this.translate
+            .instant('sitnet_ongoing_language_inspections_detail')
+            .replace('{0}', this.inspections.length.toString());
 
-    assignInspection = (inspection: LanguageInspection) => {
-        this.LanguageInspection.assignInspection(inspection);
-    };
+    assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);
 }

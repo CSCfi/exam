@@ -1,13 +1,9 @@
-import { Attachment, ExamImpl } from '../exam/exam.model';
+import { Attachment, Exam } from '../exam/exam.model';
 import { User } from '../session/session.service';
-
-interface Maturity extends ExamImpl {
-    answerLanguage: string;
-}
 
 export interface LanguageInspection {
     id: number;
-    exam: Maturity;
+    exam: Exam;
     assignee?: User;
     startedAt?: Date;
     finishedAt?: Date;

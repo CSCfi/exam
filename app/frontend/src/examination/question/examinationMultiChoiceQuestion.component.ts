@@ -22,11 +22,11 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
         <div class="bottom-padding-2">
             <fieldset>
                 <legend style="visibility: hidden;">answer options for multiple choice question</legend>
-                <div *ngFor="let sqo of $ctrl.sq.options" class="exam-answer-options">
+                <div *ngFor="let sqo of sq.options" class="exam-answer-options">
                     <input
                         aria-label="option"
                         type="radio"
-                        [(ngModel)]="sq.selectedOption"
+                        [(ngModel)]="sqo.selectedOption"
                         value="{{ sqo.id }}"
                         (change)="saveOption()"
                     />
