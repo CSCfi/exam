@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 
-import isRealGrade, {
+import {
     Exam,
     ExamExecutionType,
     ExamLanguage,
     GradeScale,
+    isRealGrade,
     NoGrade,
     SelectableGrade,
 } from '../../../exam/exam.model';

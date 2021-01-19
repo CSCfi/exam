@@ -35,7 +35,7 @@ import { Examination } from '../examination.service';
             <div class="guide-column">
                 <span class="header col-md-4"
                     ><span>{{ 'sitnet_course_code' | translate }}:</span></span
-                ><span class="text col-md-8"><course-code [course]="exam.course"></course-code>&nbsp;</span>'
+                ><span class="text col-md-8"><course-code [course]="exam?.course"></course-code>&nbsp;</span>'
             </div>
             <div class="guide-column">
                 <span class="header col-md-4"

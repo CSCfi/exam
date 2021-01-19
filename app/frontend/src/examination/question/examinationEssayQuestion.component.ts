@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { AnsweredQuestion, AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
@@ -33,12 +33,15 @@ export class ExaminationEssayQuestionComponent {
     ) {}
 
     ngOnInit() {
+        if (!this.sq.essayAnswer) {
+            Object.assign(this.sq, { essayAnswer: {} });
+        }
         this.Examination.setQuestionColors(this.sq);
     }
     saveAnswer = () => this.Examination.saveTextualAnswer(this.sq, this.exam.hash, false, false);
     removeQuestionAnswerAttachment = () => {
-        if (!this.sq.essayAnswer) return;
-        const answeredQuestion = { id: this.sq.essayAnswer.id, essayAnswer: this.sq.essayAnswer };
+        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) return;
+        const answeredQuestion = this.sq.essayAnswer as AnsweredQuestion;
         if (this.exam.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);
             return;

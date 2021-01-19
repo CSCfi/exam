@@ -27,8 +27,11 @@ import {
     Exam,
     ExamSection,
     ExamSectionQuestion,
+    isBlankElement,
+    isTextElement,
     MultipleChoiceOption,
 } from '../exam/exam.model';
+import { BlankQuestion, QuestionBase, TextPart } from '../utility/forms/questionTypes';
 import { WindowRef } from '../utility/window/window.service';
 
 export interface Examination extends Exam {
@@ -129,7 +132,7 @@ export class ExaminationService {
     private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
         switch (esq.question.type) {
             case 'EssayQuestion':
-                return esq.essayAnswer && (allowEmpty || esq.essayAnswer.answer.length > 0);
+                return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
             case 'ClozeTestQuestion':
                 return esq.clozeTestAnswer && (allowEmpty || !_.isEmpty(esq.clozeTestAnswer.answer));
             default:
@@ -254,5 +257,26 @@ export class ExaminationService {
             if (!canFail) toast.error(this.translate.instant(resp.data));
             else ok();
         });
+    };
+
+    parseClozeTestQuestion = (data: ClozeTestAnswer): QuestionBase<string>[] => {
+        const questions: QuestionBase<string>[] = data.elements.map(ce => {
+            if (isTextElement(ce)) {
+                return new TextPart({
+                    value: ce.text,
+                    order: ce.order,
+                });
+            }
+            if (isBlankElement(ce)) {
+                return new BlankQuestion({
+                    key: ce.id,
+                    type: ce.numeric ? 'number' : 'text',
+                    order: ce.order,
+                });
+            }
+            throw Error('unknown type');
+        });
+
+        return questions.sort((a, b) => a.order - b.order);
     };
 }

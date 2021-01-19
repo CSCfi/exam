@@ -23,9 +23,13 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -52,6 +56,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     @Transient
     private Score score;
 
+    @Transient
+    private List<ContentElement> elements;
+
     public String getAnswer() {
         return answer;
     }
@@ -68,6 +75,10 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return score;
     }
 
+    public List<ContentElement> getElements() {
+        return elements;
+    }
+
     public ClozeTestAnswer copy() {
         ClozeTestAnswer clozeTestAnswer = new ClozeTestAnswer();
         clozeTestAnswer.setAnswer(answer);
@@ -75,8 +86,37 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return clozeTestAnswer;
     }
 
-    // This sets up the question so that it can be displayed to student
     public void setQuestion(ExamSectionQuestion esq) {
+        String question = esq.getQuestion().getQuestion();
+        Document doc = Jsoup.parse(question);
+        Elements blanks = doc.select(CLOZE_SELECTOR);
+        String[] textParts = question.split("<span case-sensitive=[^>]*>[^>]*>");
+        List<ContentElement> blankElements = IntStream
+            .range(0, blanks.size())
+            .mapToObj(
+                i -> {
+                    Element blank = blanks.get(i);
+                    String id = blank.attr("id");
+                    String type = blank.attr("type");
+                    return new BlankElement(i * 2 + 1, type.equals("number"), id);
+                }
+            )
+            .collect(Collectors.toList());
+        List<ContentElement> textElements = IntStream
+            .range(0, textParts.length)
+            .mapToObj(
+                i -> {
+                    String text = textParts[i];
+                    return new TextElement(i * 2, text);
+                }
+            )
+            .collect(Collectors.toList());
+        this.elements = Stream.concat(blankElements.stream(), textElements.stream()).collect(Collectors.toList());
+        this.question = "";
+    }
+
+    // This sets up the question so that it can be displayed to student
+    /*public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         blanks.forEach(
@@ -102,7 +142,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             }
         );
         this.question = doc.body().children().toString();
-    }
+    }*/
 
     private void setQuestionWithResults(Document doc, String blankAnswerText) {
         Map<String, String> answers = asMap(new Gson());
@@ -247,6 +287,63 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
         public int getIncorrectAnswers() {
             return incorrectAnswers;
+        }
+    }
+
+    public abstract static class ContentElement {
+
+        int order;
+
+        ContentElement(int order) {
+            this.order = order;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        public abstract String getType();
+    }
+
+    public static class BlankElement extends ContentElement {
+
+        boolean numeric;
+        String id;
+
+        BlankElement(int order, boolean numeric, String id) {
+            super(order);
+            this.numeric = numeric;
+            this.id = id;
+        }
+
+        public String getType() {
+            return "Blank";
+        }
+
+        public boolean isNumeric() {
+            return numeric;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
+    public static class TextElement extends ContentElement {
+
+        String text;
+
+        TextElement(int order, String text) {
+            super(order);
+            this.text = text;
+        }
+
+        public String getType() {
+            return "Text";
+        }
+
+        public String getText() {
+            return text;
         }
     }
 }

@@ -5,15 +5,15 @@
             <small class="smaller padl20">
                 <a uiSref="languageInspectionReports">{{ 'sitnet_language_inspection_report_link' | translate }}</a>
             </small>
-            <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer">
+            <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
                 <img
-                    (hidden)="(!hideItems)"
+                    [hidden]="!hideItems"
                     src="/assets/assets/images/icon_list_show_right.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
                 />
                 <img
-                    (hidden)="(!hideItems)"
+                    [hidden]="hideItems"
                     src="/assets/assets/images/icon_list_show_down.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
@@ -23,17 +23,17 @@
     </div>
 </div>
 
-<div (hidden)="(hideItems)">
+<div [hidden]="hideItems">
     <div class="top-row marb20 padt20">
         <div class="col-md-12">
             <!-- Start & End time datepickers -->
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <span class="exam-basic-selecttitle">&nbsp;</span>
                     <div class="input-group">
                         <input
                             [(ngModel)]="filterText"
-                            (ngModelChange)="filterTextChanged($event)"
+                            (ngModelChange)="filterTextChanged()"
                             class="form-control hgt40"
                             placeholder="{{ 'sitnet_search' | translate }}"
                             ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
@@ -47,16 +47,14 @@
                     </div>
                 </div>
 
-                <form>
-                    <div class="col-md-2">
-                        <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                        <date-picker [optional]="true" (onUpdate)="startDateChanged($event)"> </date-picker>
-                    </div>
-                    <div class="col-md-2">
-                        <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                        <date-picker [optional]="true" (onUpdate)="endDateChanged($event)"> </date-picker>
-                    </div>
-                </form>
+                <div class="col-md-2">
+                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
+                    <date-picker [optional]="true" (onUpdate)="startDateChanged($event)"> </date-picker>
+                </div>
+                <div class="col-md-2">
+                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
+                    <date-picker [optional]="true" (onUpdate)="endDateChanged($event)"> </date-picker>
+                </div>
             </div>
         </div>
     </div>
@@ -251,7 +249,7 @@
         </tbody>
     </table>
 
-    <div (hidden)="(filteredInspections.length <= pageSize)">
+    <div [hidden]="filteredInspections.length <= pageSize">
         <paginator
             [items]="filteredInspections"
             (onSelectPage)="pageSelected($event)"
