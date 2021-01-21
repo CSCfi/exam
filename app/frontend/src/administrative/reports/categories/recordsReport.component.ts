@@ -12,61 +12,68 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import angular from 'angular';
+import { Component } from '@angular/core';
+import { FileService } from '../../../utility/file/file.service';
 
-angular.module('app.administrative.reports').component('recordsReport', {
+@Component({
     template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{'sitnet_get_graded_logged_csv' | translate}}
+                {{ 'sitnet_get_graded_logged_csv' | translate }}
             </h4>
         </div>
         <div class="bottom-row">
             <!-- Start & End time datepickers -->
             <div class="col-md-5">
-                <label for="startAt">{{'sitnet_start_time' | translate}}</label>
+                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
+                    <date-picker (on-update)="startDateChanged(date)"></date-picker>
                 </div>
             </div>
             <div class="col-md-5">
-                <label for="endAt">{{'sitnet_end_time' | translate}}</label>
+                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
+                    <date-picker (on-update)="endDateChanged(date)"></date-picker>
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="link">&nbsp;</label>
                 <div id="link">
-                    <a ng-click="ctrl.getExamRecords()" class="fa-stack fa-lg pointer pull-right" download
-                       popover-trigger="'mouseenter'" uib-popover="{{'sitnet_download' | translate}}">
+                    <a
+                        (click)="getExamRecords()"
+                        class="fa-stack fa-lg pointer pull-right"
+                        download
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'sitnet_download' | translate }}"
+                    >
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                         <i class="fa fa-file-code-o sitnet-white fa-stack-1x"></i>
                     </a>
                 </div>
             </div>
         </div>
-        `,
-    controller: [
-        'Files',
-        function(Files) {
-            const vm = this;
+    `,
+    selector: 'records-report',
+})
+export class RecordsReportComponent {
+    startDate: Date;
+    endDate: Date;
 
-            vm.getExamRecords = function() {
-                const start = vm.startDate ? new Date(vm.startDate).getTime() : new Date().getTime();
-                const end = vm.endDate
-                    ? new Date(vm.endDate).getTime().setHours(23, 59, 59, 999)
-                    : new Date().getTime().setHours(23, 59, 59, 999);
-                Files.download('/app/exam/record', 'examrecords.csv', { startDate: start, endDate: end });
-            };
+    constructor(private files: FileService) {}
 
-            vm.startDateChanged = function(date) {
-                vm.startDate = date;
-            };
+    getExamRecords = () => {
+        const start = this.startDate ? new Date(this.startDate).getTime() : new Date().getTime();
+        const end = this.endDate
+            ? new Date(this.endDate).setHours(23, 59, 59, 999)
+            : new Date().setHours(23, 59, 59, 999);
+        this.files.download('/app/exam/record', 'examrecords.csv', { startDate: start, endDate: end });
+    };
 
-            vm.endDateChanged = function(date) {
-                vm.endDate = date;
-            };
-        },
-    ],
-});
+    startDateChanged = (date: Date) => {
+        this.startDate = date;
+    };
+
+    endDateChanged = (date: Date) => {
+        this.endDate = date;
+    };
+}
