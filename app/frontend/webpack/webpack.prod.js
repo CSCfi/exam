@@ -36,7 +36,8 @@ module.exports = merge(common, {
         new webpack.HashedModuleIdsPlugin(), // so that file hashes don't change unexpectedly
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../../backend/views/index.ejs'),
-            inject: 'head',
+            inject: true,
+            scriptLoading: 'defer',
             filename: path.resolve(__dirname, '../../backend/views/index.scala.html'),
         }),
     ],
