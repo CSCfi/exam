@@ -32,6 +32,7 @@ import { ConfirmationDialogService } from './dialogs/confirmationDialog.service'
 import { DraggableModalDirective } from './dragndrop/draggableModal.directive';
 import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
+import { FilterByPipe } from './filter/filterBy.pipe';
 import { DynamicFormComponent } from './forms/dynamicForm.component';
 import { DynamicFormQuestionComponent } from './forms/dynamicFormQuestion.component';
 import { QuestionControlService } from './forms/questionControl.service';
@@ -78,6 +79,7 @@ import { WindowRef } from './window/window.service';
         DiffInMinutesPipe,
         DiffInDaysPipe,
         DynamicFormComponent,
+        FilterByPipe,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -104,6 +106,7 @@ import { WindowRef } from './window/window.service';
         DiffInDaysPipe,
         DynamicFormComponent,
         DynamicFormQuestionComponent,
+        FilterByPipe,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

@@ -14,6 +14,4 @@
  *
  */
 
-require('./accessibility.module');
-require('./accessibility.component');
-require('./accessibilitySelector.component');
+require('./accessibility.module.ajs');

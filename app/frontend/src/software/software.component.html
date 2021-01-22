@@ -1,37 +1,48 @@
-<div class="container">
+<div class="container py-4">
     <div class="row">
         <div class="col-md-12">
-            <h3>{{ 'sitnet_softwares' | translate }}</h3>
+            <h3 class="header-text mb-4">{{ 'sitnet_softwares' | translate }}</h3>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
-            <form class="form-inline" role="form">
-                <div class="sitnet-info-text">{{ 'sitnet_software_name' | translate }}</div>
-                <div class="pull-left col-md-8 row">
-                    <input type="text" class="form-control col-md-12" [(ngModel)]="newSoftware.name" />
+        <div class="col-lg-4">
+            <form class="form-inline align-items-end" role="form">
+                <div class="form-group">
+                    <label for="new-software-name" class="sitnet-info-text">{{
+                        'sitnet_software_name' | translate
+                    }}</label>
+                    <input
+                        type="text"
+                        id="new-software-name"
+                        name="name"
+                        class="form-control col-md-12"
+                        [(ngModel)]="newSoftware.name"
+                    />
                 </div>
-                <div class="pull-right col-md-4">
-                    <button (click)="addSoftware()" [disabled]="!newSoftware.name" class="btn btn-primary pull-left">
-                        {{ 'sitnet_create_new' | translate }}
-                    </button>
-                </div>
+                <button
+                    (click)="addSoftware()"
+                    [disabled]="!newSoftware.name"
+                    class="btn btn-primary mt-2"
+                    type="button"
+                >
+                    {{ 'sitnet_create_new' | translate }}
+                </button>
             </form>
         </div>
-        <div class="col-md-6">
+        <div class="col-lg-8">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-bordered table-condensed room-machines-table">
+                    <table class="table table-bordered table-sm room-machines-table">
                         <thead>
                             <tr>
-                                <th>{{ 'sitnet_name' | translate }}</th>
-                                <th></th>
-                                <th></th>
+                                <th scope="col">{{ 'sitnet_name' | translate }}</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let sw of software | orderBy: 'name'">
-                                <td class="text-center">
+                            <tr *ngFor="let sw of software | orderBy: 'name'" scope="row">
+                                <td class="w-100 text-center">
                                     <div [hidden]="showName">
                                         <span class="editable" (click)="showName = !showName">
                                             {{ sw.name }}
@@ -45,11 +56,13 @@
                                                         type="text"
                                                         class="form-control input-sm"
                                                         [(ngModel)]="sw.name"
+                                                        name="software-name"
                                                         autofocus
                                                     />
                                                 </label>
                                             </div>
                                             <button
+                                                type="button"
                                                 class="btn btn-primary btn-sm"
                                                 (click)="showName = !showName; updateSoftware(sw)"
                                             >
@@ -58,13 +71,13 @@
                                         </form>
                                     </div>
                                 </td>
-                                <td class="col-md-1 text-center">
+                                <td>
                                     <a class="fa-stack fa-lg" (click)="showName = !showName">
                                         <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
                                         <i class="fa fa-pencil fa-stack-1x"></i>
                                     </a>
                                 </td>
-                                <td class="col-md-1 text-center">
+                                <td>
                                     <a
                                         class="fa-stack fa-lg"
                                         (click)="removeSoftware(sw)"

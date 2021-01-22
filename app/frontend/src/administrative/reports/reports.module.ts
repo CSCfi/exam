@@ -5,7 +5,6 @@ import { EnrolmentsReportComponent } from './categories/enrolmentsReport.compone
 import { UtilityModule } from '../../utility/utility.module';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { RoomsModule } from '../../facility/rooms/rooms.module';
 import { ReportsService } from './reports.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ExamsReportComponent } from './categories/examsReport.component';
@@ -16,10 +15,11 @@ import { StudentsReportComponent } from './categories/studentsReport.component';
 import { TeachersReportComponent } from './categories/teachersReport.component';
 import { UserResourceService } from './userResource.service';
 import { ReportsComponent } from './reports.component';
+import { FacilityModule } from '../../facility/facility.module';
 
 @NgModule({
     entryComponents: [ReportsComponent],
-    imports: [UtilityModule, CommonModule, TranslateModule, RoomsModule, NgbModule],
+    imports: [UtilityModule, CommonModule, TranslateModule, FacilityModule, NgbModule],
     declarations: [
         AnswersReportComponent,
         EnrolmentsReportComponent,

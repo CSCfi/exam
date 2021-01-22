@@ -1,0 +1,64 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'sitnet_exception_time' | translate }}</h4>
+    </div>
+
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="checkbox">
+                    <label>
+                        <input
+                            type="checkbox"
+                            [checked]="exception.outOfService"
+                            (change)="exception.outOfService = !exception.outOfService"
+                        />
+                        {{ 'sitnet_room_out_of_service' | translate }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="datetimepicker">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>{{ 'sitnet_begin' | translate }}:</p>
+                </div>
+                <div class="col-md-6">
+                    <p>{{ 'sitnet_end' | translate }}:</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <date-time-picker
+                        [initialTime]="exception.startDate"
+                        [hourStep]="1"
+                        [minuteStep]="15"
+                        (onUpdate)="onStartDateChange(date)"
+                    >
+                    </date-time-picker>
+                </div>
+                <div class="col-md-6">
+                    <date-time-picker
+                        [initialTime]="exception.endDate"
+                        [hourStep]="1"
+                        [minuteStep]="15"
+                        (onUpdate)="onEndDateChange(date)"
+                    >
+                    </date-time-picker>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
+                {{ 'sitnet_button_cancel' | translate }}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" (click)="ok()">
+                {{ 'sitnet_button_save' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

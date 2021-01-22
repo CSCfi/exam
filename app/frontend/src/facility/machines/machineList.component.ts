@@ -12,61 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import * as angular from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
+import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 
-interface Software {
-    id: number;
-    name: string;
+@Component({
+    template: require('./machineList.component.html'),
+    selector: 'machine-list',
+})
+export class MachineListComponent implements OnInit {
+    @Input() room: ExamRoom;
+    showMachines: boolean;
+
+    constructor(private http: HttpClient, private translate: TranslateService) {}
+
+    ngOnInit() {
+        this.showMachines = false;
+    }
+
+    toggleShow = () => (this.showMachines = !this.showMachines);
+
+    countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => m.outOfService).length : 0);
+
+    countMachineNotices = (): number =>
+        this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0;
+
+    addNewMachine = () =>
+        this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe(
+            resp => {
+                toast.info(this.translate.instant('sitnet_machine_added'));
+                this.room.examMachines.push(resp);
+            },
+            err => toast.error(err.data),
+        );
 }
-
-interface ExamMachine {
-    id: number;
-    name: string;
-    outOfService: boolean;
-    software: Software[];
-    statusComment: string;
-}
-
-interface ExamRoom {
-    id: number;
-    examMachines: ExamMachine[];
-}
-
-export const MachineListComponent: angular.IComponentOptions = {
-    template: require('./machineList.template.html'),
-    bindings: {
-        room: '<',
-    },
-    controller: class MachineListController implements angular.IComponentController, angular.IOnInit {
-        room: ExamRoom;
-        showMachines: boolean;
-
-        constructor(private $http: angular.IHttpService, private $translate: angular.translate.ITranslateService) {
-            'ngInject';
-        }
-
-        $onInit() {
-            this.showMachines = false;
-        }
-
-        toggleShow = () => (this.showMachines = !this.showMachines);
-
-        countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => m.outOfService).length : 0);
-
-        countMachineNotices = (): number =>
-            this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0;
-
-        addNewMachine = () =>
-            this.$http
-                .post(`/app/machines/${this.room.id}`, {})
-                .then((resp: angular.IHttpResponse<ExamMachine>) => {
-                    toast.info(this.$translate.instant('sitnet_machine_added'));
-                    this.room.examMachines.push(resp.data);
-                })
-                .catch(err => toast.error(err.data));
-    },
-};
-
-angular.module('app.facility.machines').component('machineList', MachineListComponent);

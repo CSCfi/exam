@@ -1,0 +1,27 @@
+<div class="top-row" *ngIf="!$ctrl.hideTitle">
+    <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
+</div>
+
+<div>
+    <div class="detail-row" *ngFor="let exception of room.calendarExceptionEvents | filterBy: filter">
+        <div class="col-md-3">
+            {{ $ctrl.formatDate(exception) }}
+        </div>
+        <div class="col-md-3 text-danger" *ngIf="exception.outOfService">
+            {{ 'sitnet_room_out_of_service' | translate }}
+        </div>
+        <div class="col-md-3 text-info" *ngIf="!exception.outOfService">
+            {{ 'sitnet_room_in_service' | translate }}
+        </div>
+        <div class="col-md-6">
+            <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
+        </div>
+    </div>
+</div>
+<div class="main-row" *ngIf="!hideButton">
+    <div class="col-md-12">
+        <button (click)="addException()" class="btn btn-primary">
+            {{ 'sitnet_add' | translate }}
+        </button>
+    </div>
+</div>

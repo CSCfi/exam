@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,18 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { OrderModule } from 'ngx-order-pipe';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { InteroperableRoom } from './room.service';
 
-import { UtilityModule } from '../utility/utility.module';
-import { SoftwareComponent } from './software.component';
+@Injectable()
+export class InteroperabilityResourceService {
+    constructor(private http: HttpClient) {}
 
-@NgModule({
-    imports: [NgbModule, OrderModule, UtilityModule],
-    exports: [SoftwareComponent],
-    declarations: [SoftwareComponent],
-    entryComponents: [SoftwareComponent],
-    providers: [],
-})
-export class SoftwareModule {}
+    facilityApi = (id: number) => `/integration/iop/facilities/${id}`;
+
+    updateFacility = (room: InteroperableRoom) => this.http.put<InteroperableRoom>(this.facilityApi(room.id), room);
+}

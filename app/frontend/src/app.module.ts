@@ -44,6 +44,7 @@ import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
+import { FacilityModule } from './facility/facility.module';
 
 @NgModule({
     imports: [
@@ -69,6 +70,7 @@ import { UtilityModule } from './utility/utility.module';
         MaturityModule,
         AdministrativeModule,
         SoftwareModule,
+        FacilityModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

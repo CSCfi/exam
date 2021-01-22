@@ -1,0 +1,75 @@
+<div>
+    <form role="form" name="addressForm" novalidate id="roomAddress">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_street' | translate }}</div>
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="street"
+                        class="form-control ng-pristine ng-valid"
+                        [(ngModel)]="address.street"
+                        required
+                        pattern="/^(?!\s*$).+/"
+                        (ngModelChange)="addressForm.street.$valid ? updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            placement="left"
+                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ 'sitnet_exam_room_address_street' | translate }}"
+                        ></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_zip' | translate }}</div>
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="zip"
+                        class="form-control ng-pristine ng-valid"
+                        [(ngModel)]="address.zip"
+                        required
+                        pattern="/^\d*(\.\d+)?$/"
+                        (ngModelChange)="addressForm.zip.$valid ? updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            placement="left"
+                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ 'sitnet_exam_room_address_zip' | translate }}"
+                        ></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_city' | translate }}</div>
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="city"
+                        class="form-control ng-pristine ng-valid"
+                        [(ngModel)]="address.city"
+                        required
+                        pattern="/^(?!\s*$).+/"
+                        (ngModelChange)="addressForm.city.$valid ? updateAddress() : false"
+                    />
+                    <span class="input-group-addon">
+                        <i
+                            class="fa fa-question-circle fa-fw"
+                            placement="left"
+                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ 'sitnet_exam_room_address_city' | translate }}"
+                        ></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
