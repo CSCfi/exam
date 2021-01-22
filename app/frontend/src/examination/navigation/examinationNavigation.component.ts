@@ -30,7 +30,7 @@ interface NavigationPage {
 export class ExaminationNavigationComponent {
     @Input() exam: Examination;
     @Input() activeSection: ExaminationSection;
-    @Output() onSelect = new EventEmitter<Partial<NavigationPage>>();
+    @Output() onSelect = new EventEmitter<{ page: Partial<NavigationPage> }>();
 
     pages: Partial<NavigationPage>[];
     next: Partial<NavigationPage>;
@@ -44,7 +44,7 @@ export class ExaminationNavigationComponent {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.activeSection) {
+        if (changes.activeSection && this.pages) {
             this.setupNavigation();
         }
     }
@@ -73,6 +73,6 @@ export class ExaminationNavigationComponent {
 
     private prevPageIndex = () => this.activePageIndex() - 1;
 
-    nextPage = () => this.onSelect.emit(this.next);
-    previousPage = () => this.onSelect.emit(this.prev);
+    nextPage = () => this.onSelect.emit({ page: this.next });
+    previousPage = () => this.onSelect.emit({ page: this.prev });
 }

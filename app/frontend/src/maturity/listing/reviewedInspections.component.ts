@@ -13,42 +13,34 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+import { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
-import { LanguageInspection } from '../maturity.model';
 
 @Component({
     selector: 'reviewed-inspections',
     template: require('./reviewedInspections.component.html'),
 })
 export class ReviewedInspectionsComponent implements OnInit {
-    @Input() inspections: LanguageInspection[];
+    @Input() inspections: LanguageInspectionData[];
     @Output() onStartDateChange = new EventEmitter<{ date: Date }>();
     @Output() onEndDateChange = new EventEmitter<{ date: Date }>();
 
-    filteredInspections: LanguageInspection[];
+    filteredInspections: LanguageInspectionData[];
     sorting: { predicate: string; reverse: boolean };
     pageSize = 10;
-    currentPage: number;
+    currentPage = 0;
     filterText: string;
-    filterChanged = new Subject<string>();
 
-    constructor(private LanguageInspections: LanguageInspectionService) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
-            this.filterText = text;
-            this.filteredInspections = this.inspections.filter(i => JSON.stringify(i).match(this.filterText));
-        });
-    }
+    constructor(private LanguageInspections: LanguageInspectionService) {}
 
     ngOnInit() {
-        this.currentPage = 0;
         this.sorting = {
             predicate: 'exam.created',
             reverse: true,
         };
-        this.filteredInspections = this.inspections;
+        this.filterText = '';
+        this.filterTextChanged();
     }
 
     setPredicate = (predicate: string) => {
@@ -58,9 +50,22 @@ export class ReviewedInspectionsComponent implements OnInit {
         this.sorting.predicate = predicate;
     };
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
-    filterTextChanged = (text: string) => this.filterChanged.next(text);
+    private examToString = (li: LanguageInspectionData) => {
+        const code = li.exam.course ? li.exam.course.code : '';
+        const name = li.exam.name;
+        const student = li.studentNameAggregate;
+        const teacher = li.ownerAggregate;
+        return code + name + student + teacher;
+    };
+
+    filterTextChanged = () =>
+        (this.filteredInspections = this.inspections.filter(i =>
+            this.examToString(i)
+                .toLowerCase()
+                .match(this.filterText.toLowerCase()),
+        ));
 
     startDateChanged = (event: { date: Date }) => this.onStartDateChange.emit({ date: event.date });
 

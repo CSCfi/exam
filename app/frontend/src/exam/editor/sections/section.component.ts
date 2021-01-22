@@ -14,7 +14,7 @@
  */
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
@@ -28,6 +28,7 @@ import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'section',
+    encapsulation: ViewEncapsulation.None,
     template: require('./section.component.html'),
 })
 export class SectionComponent {
@@ -283,6 +284,7 @@ export class SectionComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;

@@ -115,7 +115,7 @@
                 #ck="ngModel"
                 [enableClozeTest]="question.type === 'ClozeTestQuestion'"
                 [(ngModel)]="question.question"
-                required
+                [required]="true"
             >
             </ckeditor>
         </div>

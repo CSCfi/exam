@@ -20,7 +20,7 @@ import { LanguageService } from '../utility/language/language.service';
 import { LanguageInspectionService, QueryParams } from './languageInspections.service';
 import { LanguageInspection } from './maturity.model';
 
-interface LanguageInspectionData extends LanguageInspection {
+export interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
     studentName: string;
     studentNameAggregate: string;
@@ -36,8 +36,8 @@ interface LanguageInspectionData extends LanguageInspection {
 export class LanguageInspectionsComponent implements OnInit {
     private startDate: Date;
     private endDate: Date;
-    private ongoingInspections: LanguageInspectionData[];
-    private processedInspections: LanguageInspectionData[];
+    public ongoingInspections: LanguageInspectionData[];
+    public processedInspections: LanguageInspectionData[];
 
     constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
 

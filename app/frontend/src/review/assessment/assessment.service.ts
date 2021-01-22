@@ -21,7 +21,7 @@ import { from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import isRealGrade, { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import { Exam, ExamSectionQuestion, Feedback, isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -191,7 +191,7 @@ export class AssessmentService {
     };
 
     saveEssayScore = (question: ExamSectionQuestion): Observable<void> => {
-        if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
+        if (!question.essayAnswer?.evaluatedScore) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/app/review/examquestion/${question.id}/score`;
@@ -204,7 +204,7 @@ export class AssessmentService {
         examRef: string,
         rev: string,
     ): Observable<{ rev: string }> => {
-        if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
+        if (!question.essayAnswer?.evaluatedScore) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`;

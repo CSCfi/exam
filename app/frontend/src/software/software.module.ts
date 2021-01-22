@@ -12,7 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { OrderModule } from 'ngx-order-pipe';
 
-require('./software.module');
-require('./softwareResource');
-require('./software.component');
+import { UtilityModule } from '../utility/utility.module';
+import { SoftwareComponent } from './software.component';
+
+@NgModule({
+    imports: [NgbModule, OrderModule, UtilityModule],
+    exports: [],
+    declarations: [SoftwareComponent],
+    entryComponents: [SoftwareComponent],
+    providers: [],
+})
+export class SoftwareModule {}

@@ -23,12 +23,13 @@ import { forkJoin, Observable, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import isRealGrade, {
+import {
     Course,
     Exam,
     ExamParticipation,
     Grade,
     GradeScale,
+    isRealGrade,
     NoGrade,
     SelectableGrade,
 } from '../../exam/exam.model';

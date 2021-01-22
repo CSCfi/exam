@@ -31,12 +31,7 @@
             <div class="mart20">
                 <div class="question-cancel">
                     <button
-                        [disabled]="
-                            !questionForm.valid ||
-                            !question.type ||
-                            hasNoCorrectOption() ||
-                            hasInvalidClaimChoiceOptions()
-                        "
+                        [disabled]="!question.type || hasNoCorrectOption() || hasInvalidClaimChoiceOptions()"
                         (click)="saveQuestion()"
                         type="submit"
                         class="btn btn-success bigbutton"

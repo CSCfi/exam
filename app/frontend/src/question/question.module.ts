@@ -25,7 +25,6 @@ import { MultipleChoiceOptionEditorComponent } from './basequestion/multipleChoi
 import { QuestionComponent } from './basequestion/question.component';
 import { QuestionBodyComponent } from './basequestion/questionBody.component';
 import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weightedMultipleChoiceOption.component';
-import { ClozeTestComponent } from './clozetest/clozeTest.directive.upgrade';
 import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
 import { ExamQuestionComponent } from './examquestion/examQuestion.component';
 import { ExamQuestionEditorComponent } from './examquestion/examQuestionEditor.component';
@@ -41,7 +40,6 @@ import { QuestionSelectorComponent } from './selector/questionSelector.component
 import { TagPickerComponent } from './tags/tagPicker.component';
 
 @NgModule({
-    exports: [ClozeTestComponent],
     imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
     declarations: [
         LibraryComponent,
@@ -55,7 +53,6 @@ import { TagPickerComponent } from './tags/tagPicker.component';
         BaseQuestionEditorComponent,
         ExamQuestionComponent,
         ExamQuestionEditorComponent,
-        ClozeTestComponent,
         LibraryOwnersComponent,
         ClaimChoiceEditorComponent,
         EssayEditorComponent,

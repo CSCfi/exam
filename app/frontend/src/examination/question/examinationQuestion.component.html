@@ -1,4 +1,4 @@
-<div class="{{ sq.selectedAnsweredState }} col-md-12 info-row guide-wrapper" [ngClass]="sq.answered ? '' : 'notactive'">
+<div class="{{ sq.selectedAnsweredState }} guide-wrapper" [ngClass]="sq.answered ? '' : 'notactive'">
     <div class="wrap-title">
         <!-- question text -->
         <div class="section-header-left">
@@ -21,31 +21,29 @@
         </div>
 
         <!-- chevron -->
-        <div
-            class="section-header-right fa-stack fa-lg pointer section-box-title arrow"
-            (click)="sq.expanded = !sq.expanded"
-        >
+        <div class="section-header-right fa-stack fa-lg pointer section-box-title arrow" (click)="expanded = !expanded">
             <i
-                [ngClass]="sq.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                [ngClass]="expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
                 class="sitnet-text-medium fa fa-chevron-left fa-stack-1x"
             >
             </i>
         </div>
 
         <div class="section-header-middle" *ngIf="sq.question.type !== 'ClozeTestQuestion'">
-            <div class="section-box-title" *ngIf="sq.expanded" [MathJax]="displayQuestionText()"></div>
-            <div class="section-box-title" *ngIf="!sq.expanded" [MathJax]="displayQuestionText(true)"></div>
+            <div class="section-box-title" *ngIf="expanded" [MathJax]="sq.question.question"></div>
+            <div class="section-box-title" *ngIf="!expanded" [MathJax]="sq.question.question | truncate: 240"></div>
         </div>
         <div class="section-header-middle" *ngIf="sq.question.type === 'ClozeTestQuestion'">
             <div class="section-box-title" mathjax>
-                <cloze-test [content]="clozeTestAnswer.question" [results]="clozeTestAnswer.answer"></cloze-test>
+                <dynamic-form [questions]="clozeTestFormQuestions" (onAnswer)="answered($event)"></dynamic-form>
+                <!--cloze-test [content]="clozeTestAnswer.question" [results]="clozeTestAnswer.answer"></cloze-test-->
                 <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
             </div>
         </div>
     </div>
 
     <!-- instruction -->
-    <div class="row mart10" *ngIf="sq.answerInstructions && sq.expanded">
+    <div class="row mart10" *ngIf="sq.answerInstructions && expanded">
         <div class="col-md-12">
             <p class="question-text question-type-text info">
                 <img
@@ -60,7 +58,7 @@
     </div>
 
     <!-- attachment -->
-    <div class="row mart10" *ngIf="sq.question.attachment && sq.expanded">
+    <div class="row mart10" *ngIf="sq.question.attachment && expanded">
         <div class="col-md-12">
             <a class="pointer green_button left-floater-for-section" (click)="downloadQuestionAttachment()">
                 {{ 'sitnet_download_section_question_attachment' | translate }}
@@ -74,17 +72,17 @@
     </div>
 
     <!-- answer -->
-    <div class="exam-question-container" *ngIf="sq.expanded">
+    <div class="exam-question-container" [hidden]="!expanded">
         <hr class="info-question-separator" />
         <div class="question" [ngSwitch]="sq.question.type">
-            <examination-essay-question *ngSwitchCase="EssayQuestion" [sq]="sq" [exam]="exam" [isPreview]="isPreview">
+            <examination-essay-question *ngSwitchCase="'EssayQuestion'" [sq]="sq" [exam]="exam" [isPreview]="isPreview">
             </examination-essay-question>
 
-            <examination-cloze-test *ngSwitchCase="ClozeTestQuestion" [sq]="sq" [examHash]="exam.hash">
+            <examination-cloze-test *ngSwitchCase="'ClozeTestQuestion'" [sq]="sq" [examHash]="exam.hash">
             </examination-cloze-test>
 
             <examination-multi-choice-question
-                *ngSwitchCase="MultipleChoiceQuestion"
+                *ngSwitchCase="'MultipleChoiceQuestion'"
                 [sq]="sq"
                 [examHash]="exam.hash"
                 [isPreview]="isPreview"
@@ -94,7 +92,7 @@
             </examination-multi-choice-question>
 
             <examination-multi-choice-question
-                *ngSwitchCase="ClaimChoiceQuestion"
+                *ngSwitchCase="'ClaimChoiceQuestion'"
                 [sq]="sq"
                 [examHash]="exam.hash"
                 [isPreview]="isPreview"
@@ -104,7 +102,7 @@
             </examination-multi-choice-question>
 
             <examination-weighted-multi-choice-question
-                *ngSwitchCase="WeightedMultipleChoiceQuestion"
+                *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
                 [sq]="sq"
                 [examHash]="exam.hash"
                 [isPreview]="isPreview"

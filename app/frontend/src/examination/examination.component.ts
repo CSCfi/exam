@@ -25,10 +25,10 @@ import { Examination, ExaminationSection, ExaminationService } from './examinati
     template: require('./examination.component.html'),
 })
 export class ExaminationComponent {
-    @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
     exam: Examination;
     activeSection?: ExaminationSection;
+    isPreview: boolean;
 
     constructor(
         private state: StateService,
@@ -39,6 +39,7 @@ export class ExaminationComponent {
     ) {}
 
     ngOnInit() {
+        this.isPreview = this.Window.nativeWindow.location.pathname.includes('preview'); // FIXME! once UI-router issues are settled
         if (!this.isPreview) {
             this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }

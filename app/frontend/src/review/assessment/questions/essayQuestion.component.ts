@@ -83,14 +83,14 @@ export class EssayQuestionComponent {
     };
 
     getWordCount = () => {
-        if (!this.sectionQuestion.essayAnswer) {
+        if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countWords(this.sectionQuestion.essayAnswer.answer);
     };
 
     getCharacterCount = () => {
-        if (!this.sectionQuestion.essayAnswer) {
+        if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countCharacters(this.sectionQuestion.essayAnswer.answer);

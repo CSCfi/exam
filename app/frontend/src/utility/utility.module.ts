@@ -14,7 +14,7 @@
  */
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -32,6 +32,9 @@ import { ConfirmationDialogService } from './dialogs/confirmationDialog.service'
 import { DraggableModalDirective } from './dragndrop/draggableModal.directive';
 import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
+import { DynamicFormComponent } from './forms/dynamicForm.component';
+import { DynamicFormQuestionComponent } from './forms/dynamicFormQuestion.component';
+import { QuestionControlService } from './forms/questionControl.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { SanitizedHtmlPipe } from './html/sanitizedHtml.pipe';
 import { LanguageService } from './language/language.service';
@@ -49,7 +52,7 @@ import { UniqueValuesValidatorDirective } from './validation/uniqueValues.direct
 import { WindowRef } from './window/window.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule, FormsModule, NgbModule],
+    imports: [CommonModule, TranslateModule, FormsModule, ReactiveFormsModule, NgbModule],
     exports: [
         CommonModule,
         TranslateModule,
@@ -74,6 +77,7 @@ import { WindowRef } from './window/window.service';
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
+        DynamicFormComponent,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -98,6 +102,8 @@ import { WindowRef } from './window/window.service';
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
+        DynamicFormComponent,
+        DynamicFormQuestionComponent,
     ],
     entryComponents: [
         AttachmentSelectorComponent,
@@ -118,6 +124,7 @@ import { WindowRef } from './window/window.service';
         LanguageService,
         UserService,
         WindowRef,
+        QuestionControlService,
     ],
 })
 export class UtilityModule {}
