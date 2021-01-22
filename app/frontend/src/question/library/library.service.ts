@@ -120,15 +120,15 @@ export class LibraryService {
     private getIcon = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'MultipleChoiceQuestion':
-                return 'fa-list-ul';
+                return 'bi-ui-radios';
             case 'WeightedMultipleChoiceQuestion':
-                return 'fa-balance-scale';
+                return 'bi-check-2-square';
             case 'EssayQuestion':
-                return 'fa-edit';
+                return 'bi-pencil';
             case 'ClozeTestQuestion':
-                return 'fa-commenting-o';
+                return 'bi-pencil-check';
             case 'ClaimChoiceQuestion':
-                return 'fa-list-ol';
+                return 'bi-file-binary';
             default:
                 return '';
         }

@@ -20,7 +20,7 @@ import { Component, Input } from '@angular/core';
     template: `
         <span class="pointer"
             >{{ text | translate }}&nbsp;
-            <i class="fa" [ngClass]="getSortClass()"></i>
+            <i [ngClass]="getSortClass()"></i>
         </span>
     `,
 })
@@ -30,5 +30,6 @@ export class TableSortComponent {
     @Input() text: string;
     @Input() reverse: boolean;
 
-    getSortClass = () => (this.by === this.predicate ? (this.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort');
+    getSortClass = () =>
+        this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up';
 }

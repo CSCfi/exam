@@ -24,9 +24,8 @@
                 *ngFor="let o of sectionQuestion.options"
             >
                 <div class="col-md-12">
-                    <span class="fa fa-stack">
-                        <i class="fa fa-stop-o fa-stack-2x"></i>
-                        <i class="fa fa-stack-1x" [ngClass]="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                     </span>
                     <span [ngClass]="o.option.correctOption ? 'bold' : ''" class="review-question-option-name">
                         {{ o.option.option }}
@@ -39,9 +38,8 @@
                 *ngFor="let o of sectionQuestion.options"
             >
                 <div class="col-md-3">
-                    <span class="fa-stack">
-                        <i class="fa fa-stop-o fa-stack-2x"></i>
-                        <i class="fa fa-stack-1x" [ngClass]="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                     </span>
                     <span [ngClass]="o.score > 0 ? 'font-bold' : ''"
                         >&nbsp;&nbsp;{{ o.score }} {{ 'sitnet_unit_points' | translate }}</span
@@ -57,9 +55,8 @@
                 *ngFor="let o of sectionQuestion.options"
             >
                 <div class="col-md-12">
-                    <span class="fa fa-stack">
-                        <i class="fa fa-stop-o fa-stack-2x"></i>
-                        <i class="fa fa-stack-1x" [ngClass]="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                     </span>
                     <span
                         [ngClass]="o.option.claimChoiceType === 'CorrectOption' ? 'bold' : ''"

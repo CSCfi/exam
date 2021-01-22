@@ -10,10 +10,8 @@
             >
                 <i
                     (click)="toggleFeedbackVisibility()"
-                    class="pointer fa fa-2x vcenter"
-                    [ngClass]="
-                        hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'
-                    "
+                    class="pointer vcenter"
+                    [ngClass]="hideEditor ? 'bi-arrow-right-circle sitnet-green' : 'bi-arrow-down-circle sitnet-red'"
                 >
                 </i>
             </div>
@@ -45,7 +43,7 @@
                                 exam.examFeedback.attachment?.fileName
                             }}</a>
                             <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                                <i class="fa fa-times" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                                <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
                             </span>
                         </span>
                         <button type="button" class="btn btn-default" (click)="selectFile()">

@@ -246,15 +246,15 @@ export class SessionService {
             switch (role.name) {
                 case 'ADMIN':
                     role.displayName = 'sitnet_admin';
-                    role.icon = 'fa-cog';
+                    role.icon = 'bi-gear';
                     break;
                 case 'TEACHER':
                     role.displayName = 'sitnet_teacher';
-                    role.icon = 'fa-university';
+                    role.icon = 'bi-person-fill';
                     break;
                 case 'STUDENT':
                     role.displayName = 'sitnet_student';
-                    role.icon = 'fa-graduation-cap';
+                    role.icon = 'bi-person';
                     break;
             }
         });

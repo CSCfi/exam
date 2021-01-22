@@ -113,7 +113,7 @@
                             <span *ngIf="disableLinks">#{{ question.id }}</span>
                             <i
                                 *ngIf="question.questionOwners.length > 1"
-                                class="fa fa-group text-primary"
+                                class="bi-people text-primary"
                                 ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
                                 placement="right"
                                 triggers="mouseenter:mouseleave"
@@ -146,7 +146,7 @@
                 </td>
                 <td class="question-table-name">
                     <a *ngIf="question.attachment" class="pointer" (click)="downloadQuestionAttachment(question)">
-                        <i class="fa fa-paperclip fa-fw"></i>
+                        <i class="bi-paperclip"></i>
                         {{ question.attachment.fileName }}
                     </a>
                 </td>
@@ -161,7 +161,7 @@
                 <td class="padl20">
                     <a *ngIf="question.allowedToRemove" (click)="deleteQuestion(question)" class="pointer">
                         <i
-                            class="fa fa-trash-o fa-fw"
+                            class="bi-trash"
                             placement="left"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
@@ -171,7 +171,7 @@
                 <td class="padl20 padr10">
                     <a (click)="copyQuestion(question, false)">
                         <i
-                            class="fa fa-clone fa-fw"
+                            class="bi-files"
                             placement="left"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_copy' | translate }}"

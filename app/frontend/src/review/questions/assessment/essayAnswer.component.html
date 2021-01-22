@@ -1,7 +1,7 @@
 <div class="essay-answer-wrapper">
     <div class="detail-row" *ngIf="answer.question.question !== answer.question.parent.question">
         <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
-            <i class="fa fa-exclamation-triangle fa-lg"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
+            <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
         </span>
     </div>
     <div class="main-row">
@@ -109,9 +109,7 @@
                                 max="{{ answer.maxScore }}"
                             />
                             <small *ngIf="essayPoints.$invalid" class="alert-danger">
-                                <i class="fa fa-exclamation-circle"></i>&nbsp;{{
-                                    'sitnet_error_score_input' | translate
-                                }}
+                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
                             </small>
                         </form>
                     </div>
@@ -141,7 +139,7 @@
                 </label>
                 <i
                     *ngIf="editable && isAssessed() && answer.selected"
-                    class="marl10 pointer fa fa-lg fa-share text-success"
+                    class="marl10 pointer bi-share text-success"
                     (click)="saveScore()"
                 ></i>
             </span>

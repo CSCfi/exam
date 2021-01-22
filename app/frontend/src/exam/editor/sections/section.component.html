@@ -4,9 +4,9 @@
             {{ 'sitnet_section_title' | translate }}
             <!-- settings -->
             <div class="dropdown pull-right exam-section-settings" ngbDropdown>
-                <a class="dropdown-toggle fa-stack fa-lg pull-right" ngbDropdownToggle>
-                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-wrench fa-stack-1x"></i>
+                <a class="dropdown-toggle pull-right" ngbDropdownToggle>
+                    <i class="bi-stop-fill"></i>
+                    <i class="bi-gear"></i>
                 </a>
                 <ul ngbDropdownMenu>
                     <li>
@@ -238,13 +238,13 @@
 
             <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons marl30 mart20">
                 <a class="pointer" (click)="openLibrary()">
-                    <i class="fa sitnet-white fa-plus"></i>&nbsp;{{ 'sitnet_add_from_library' | translate }}
+                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_add_from_library' | translate }}
                 </a>
             </div>
 
             <div class="review-attachment-button exam-questions-buttons marl30 mart20">
                 <a class="pointer" (click)="addNewQuestion()">
-                    <i class="fa sitnet-white fa-plus"></i>&nbsp;{{ 'sitnet_exam_new_question' | translate }}
+                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_exam_new_question' | translate }}
                 </a>
             </div>
         </div>

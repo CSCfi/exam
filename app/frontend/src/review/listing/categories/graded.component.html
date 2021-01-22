@@ -32,7 +32,7 @@
 
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
-        <i class="fa fa-exclamation-circle padl20 grayish"></i>
+        <i class="bi-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_logged' | translate }}
     </div>
 </div>
@@ -65,10 +65,7 @@
         <thead>
             <tr>
                 <th class="dropdown" ngbDropdown>
-                    <button class="btn btn-xs btn-default" ngbDropdownToggle>
-                        <i class="fa fa-square-o"></i>&nbsp;
-                        <i class="fa fa-angle-down"></i>
-                    </button>
+                    <button class="btn btn-xs btn-default" ngbDropdownToggle></button>
                     <ul ngbDropdownMenu role="menu">
                         <li role="presentation" [ngClass]="selections.page ? 'active' : ''">
                             <a role="menuitem" class="pointer" (click)="selectPage('selectionBox')">

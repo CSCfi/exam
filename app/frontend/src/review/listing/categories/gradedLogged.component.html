@@ -32,7 +32,7 @@
 
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
-        <i class="fa fa-exclamation-circle padl20 grayish"></i>
+        <i class="bi-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_graded_logged' | translate }}
     </div>
 </div>
@@ -53,12 +53,9 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th class="dropdown" uib-dropdown>
-                    <button class="btn btn-xs btn-default" data-toggle="dropdown" uib-dropdown-toggle>
-                        <i class="fa fa-square-o"></i>&nbsp;
-                        <i class="fa fa-angle-down"></i>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
+                <th class="dropdown" ngbDropdown>
+                    <button class="btn btn-xs btn-default" ngbDropdownToggle></button>
+                    <ul ngbDropdownMenu role="menu">
                         <li role="presentation" [ngClass]="selections.page ? 'active' : ''">
                             <a role="menuitem" class="pointer" (click)="selectPage('selectionBox')">
                                 {{ 'sitnet_choose_visible' | translate }}

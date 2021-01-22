@@ -68,7 +68,7 @@
                 <div class="col-md-12 mart40 wide-column padl0">
                     <div class="review-list-title">
                         {{ 'sitnet_exam_basic_information_tab' | translate }}
-                        <i *ngIf="showWarning()" class="fa fa-exclamation-circle padl20 reddish"></i>
+                        <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
                         <span class="warning-text-small" *ngIf="showWarning()">{{
                             'sitnet_shared_question_property_info' | translate
                         }}</span>
@@ -173,7 +173,7 @@
                             </span>
                         </div>
                         <div (hidden)="(questionForm.expectedWordCount.$valid)" class="warning-text-small margin-10">
-                            <i class="fa fa-exclamation-circle reddish"></i>
+                            <i class="bi-exclamation-circle reddish"></i>
                             {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                         <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                         <br />
                         <span *ngIf="showWarning()">
-                            <i class="fa fa-exclamation-circle reddish"></i>
+                            <i class="bi-exclamation-circle reddish"></i>
                             <small>{{ 'sitnet_shared_question_property_info' | translate }}</small>
                         </span>
                     </div>
@@ -246,7 +246,7 @@
                             (hidden)="(lotteryOn)"
                             (click)="removeOption(option)"
                         >
-                            <i class="fa fa-trash-o fa-fw" title="{{ 'sitnet_remove' | translate }}"></i>
+                            <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
                         </div>
                         <div class="col-md-3"></div>
                     </div>
@@ -294,7 +294,7 @@
                             (click)="removeOption(option)"
                             class="col-md-1 question-option-trash"
                         >
-                            <i class="fa fa-trash-o fa-fw" title="{{ 'sitnet_remove' | translate }}"></i>
+                            <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
                         </div>
                         <div class="col-md-3"></div>
                     </div>
@@ -312,7 +312,7 @@
                         </ul>
                         <br />
                         <span>
-                            <i *ngIf="showWarning" class="fa fa-exclamation-circle reddish"></i>
+                            <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
                             <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
                         </span>
                     </div>
@@ -361,7 +361,7 @@
                     </div>
                     <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
                         <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
-                            <i class="fa fa-exclamation-triangle" style="color:#E8172F;"></i>
+                            <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
                             <span style="color:#E8172F;">
                                 {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
                                 <span *ngFor="let opt of missingOptions">
@@ -379,7 +379,7 @@
                     "
                 >
                     <a (click)="addNewOption()" class="attachment-link pointer">
-                        <i class="fa fa-plus"></i>
+                        <i class="bi-plus"></i>
                         {{ 'sitnet_question_add_new_option' | translate }}
                     </a>
                 </div>
@@ -488,11 +488,11 @@
                                 class="pointer attachment-link"
                                 (click)="downloadQuestionAttachment()"
                             >
-                                <i class="fa fa-paperclip fa-fw"></i> {{ question.attachment.fileName }}
+                                <i class="bi-paperclip"></i> {{ question.attachment.fileName }}
                             </a>
                             <!-- Not yet uploaded -->
                             <span *ngIf="!question.attachment.id" class="attachment-link">
-                                <i class="fa fa-paperclip fa-fw"></i> {{ question.attachment.name }}
+                                <i class="bi-paperclip"></i> {{ question.attachment.name }}
                                 <small> ({{ getFileSize() }})</small>
                             </span>
                             <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
@@ -504,7 +504,7 @@
                             </span>
                         </div>
                         <div class="mart10" *ngIf="showWarning()">
-                            <i class="fa fa-exclamation-circle reddish"></i>
+                            <i class="bi-exclamation-circle reddish"></i>
                             <span class="warning-text-small">{{
                                 'sitnet_shared_question_property_info' | translate
                             }}</span>

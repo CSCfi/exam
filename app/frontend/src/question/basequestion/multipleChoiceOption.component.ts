@@ -51,7 +51,7 @@ import { QuestionService } from '../question.service';
                 </div>
 
                 <div *ngIf="allowRemoval" (click)="removeOption()" class="col-md-1 question-option-trash">
-                    <i class="fa fa-trash-o fa-fw" title="{{ 'sitnet_remove' | translate }}"></i>
+                    <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
                 </div>
                 <div class="col-md-3"></div>
             </div>
