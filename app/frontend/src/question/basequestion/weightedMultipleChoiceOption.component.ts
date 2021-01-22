@@ -45,7 +45,7 @@ import { MultipleChoiceOption, Question } from '../../exam/exam.model';
                 />
             </div>
             <div class="col-md-1 question-option-trash pointer" [hidden]="lotteryOn" (click)="removeOption()">
-                <i class="fa fa-trash-o fa-fw" title="{{ 'sitnet_remove' | translate }}"></i>
+                <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
             </div>
             <div class="col-md-3"></div>
         </div>

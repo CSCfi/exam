@@ -8,9 +8,9 @@
     <!-- toolbar -->
     <div class="top-row">
         <div class="col-md-12">
-            <span class="pull-left fa-stack fa-lg header-top-icon">
-                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+            <span class="pull-left header-top-icon">
+                <i class="sitnet-text-theme bi-stop-fill"></i>
+                <i class="bi-files"></i>
             </span>
             <a class="header-top-link" uiSref="newExam">
                 {{ 'sitnet_toolbar_new_exam' | translate }}
@@ -62,7 +62,7 @@
                 />
 
                 <div class="input-group-addon">
-                    <i class="fa fa-search fa-fw"></i>
+                    <i class="bi-search"></i>
                 </div>
             </div>
         </div>
@@ -72,7 +72,9 @@
         <div class="col-md-12">
             <button class="btn btn-success">
                 {{ 'sitnet_searching' | translate }}...
-                <i class="fa fa-spinner fa-spin"></i>
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
             </button>
         </div>
     </div>
@@ -219,7 +221,7 @@
                             </td>
                             <td class="text-center">
                                 <a (click)="deleteExam(exam)" class="pointer">
-                                    <i class="fa fa-times fa-lg sitnet-red"></i>
+                                    <i class="bi-x sitnet-red"></i>
                                 </a>
                             </td>
                         </tr>

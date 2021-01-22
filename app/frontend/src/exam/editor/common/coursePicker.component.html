@@ -45,12 +45,14 @@
                     <span class="input-group-text">
                         <i
                             *ngIf="!loader.code.isOn"
-                            class="fa fa-question-circle fa-fw"
+                            class="bi-question-circle"
                             ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
                             placement="left"
                             triggers="mouseenter:mouseleave"
                         ></i>
-                        <i *ngIf="loader.code.isOn" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                        <span class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </span>
                     </span>
                 </div>
             </div>
@@ -73,12 +75,16 @@
                     <span class="input-group-text">
                         <i
                             *ngIf="!loader.name.isOn"
-                            class="fa fa-question-circle fa-fw"
+                            class="bi-question-circle"
                             ngbPopover="{{ 'sitnet_course_name' | translate }}"
                             placement="left"
                             triggers="mouseenter:mouseleave"
                         ></i>
-                        <i *ngIf="loader.name.isOn" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                        <span *ngIf="loader.name.isOn" class="horizontal-padding-05">
+                            <span class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </span>
+                        </span>
                     </span>
                 </div>
             </div>

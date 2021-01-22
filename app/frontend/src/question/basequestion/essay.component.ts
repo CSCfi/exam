@@ -44,7 +44,7 @@ import { Question } from '../../exam/exam.model';
                         </span>
                     </div>
                     <div *ngIf="wc.invalid" class="warning-text-small margin-10">
-                        <i class="fa fa-exclamation-circle reddish"></i>
+                        <i class="bi-exclamation-circle reddish"></i>
                         {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                     </div>
                 </div>

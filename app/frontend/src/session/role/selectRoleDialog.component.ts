@@ -24,13 +24,13 @@ import { User } from '../session.service';
         <div id="sitnet-dialog">
             <div class="modal-header">
                 <h1 class="sitnet-black">
-                    <i class="fa fa-user"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
+                    <i class="bi-person-circle"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
                 </h1>
             </div>
             <div class="modal-body">
                 <div ngbDropdown>
                     <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
-                        {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
+                        {{ 'sitnet_choose' | translate }}
                     </button>
                     <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
                         <li *ngFor="let role of user.roles">
@@ -40,7 +40,7 @@ import { User } from '../session.service';
                                 title="{{ role.displayName | translate }}"
                                 (click)="activeModal.close(role)"
                             >
-                                <i class="fa pull-right" [ngClass]="role.icon"></i>
+                                <i class="pull-right" [ngClass]="role.icon"></i>
                                 {{ role.displayName | translate }}
                             </a>
                         </li>

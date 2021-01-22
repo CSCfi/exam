@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { cloneDeep } from 'lodash';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
-import { UserManagementService, PermissionType, Permission } from './users.service';
+import { Permission, PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -40,9 +40,9 @@ export class UsersComponent implements OnInit {
     filter = { text: '' };
     textChanged: Subject<string> = new Subject<string>();
     roles: RoleOption[] = [
-        { type: 'ADMIN', name: 'sitnet_admin', icon: 'fa-cog' },
-        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'fa-university' },
-        { type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap' },
+        { type: 'ADMIN', name: 'sitnet_admin', icon: 'bi-gear' },
+        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
+        { type: 'STUDENT', name: 'sitnet_student', icon: 'bi-person' },
     ];
     permissions: PermissionOption[];
     loader = { loading: false };
@@ -65,7 +65,7 @@ export class UsersComponent implements OnInit {
                     return {
                         ...p,
                         name: 'sitnet_can_inspect_language',
-                        icon: 'fa-pencil',
+                        icon: 'bi-pencil',
                     };
                 }
 

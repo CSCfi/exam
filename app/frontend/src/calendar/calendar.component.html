@@ -133,7 +133,7 @@
                 <small>
                     <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
                         {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                        <i class="fa fa-angle-double-right"></i>
+                        <i class="bi-chevron-double-right"></i>
                     </button>
                 </small>
             </span>
@@ -164,13 +164,7 @@
                             role="menu"
                             aria-labelledby="dropDownMenu21"
                         >
-                            <!-- li class="input-group">
-                            <input aria-label="search for faculty" [(ngModel)]="limitations.organisations" class="form-control"
-                                (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}"
-                            <div class="input-group-addon">
-                                <i class="fa fa-search fa-fw"></i>
-                            </div>
-                        </li-->
+                            <li class="input-group"></li>
                             <li
                                 *ngFor="let org of organisations"
                                 [hidden]="org.filtered"
@@ -207,8 +201,7 @@
                         *ngIf="isInteroperable && !isExternal"
                     >
                         {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                        <fa-icon [icon]="faAngleDoubleRight"></fa-icon>
-                        <i class="fas fa-angle-double-right"></i>
+                        <i class="bi-chevron-double-right"></i>
                     </button>
                 </small>
             </span>
@@ -284,14 +277,6 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                            <!--li role="presentation" class="input-group">
-                            <input aria-label="search for room" [(ngModel)]="limitations.rooms" class="form-control"
-                                (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
-                            <div class="input-group-addon">
-                                <i class="fa fa-search fa-fw"></i>
-                            </div>
-                        </li-->
-
                             <li
                                 *ngFor="let room of rooms"
                                 [hidden]="room.filtered"

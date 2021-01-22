@@ -32,7 +32,7 @@ import { QuestionService } from '../question.service';
                 </ul>
                 <br />
                 <span>
-                    <i *ngIf="showWarning" class="fa fa-exclamation-circle reddish"></i>
+                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
                     <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
                 </span>
             </div>
@@ -82,7 +82,7 @@ import { QuestionService } from '../question.service';
             </div>
             <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
                 <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
-                    <i class="fa fa-exclamation-triangle" style="color:#E8172F;"></i>
+                    <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
                     <span style="color:#E8172F;">
                         {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
                         <span>{{ displayMissingOptions() }}</span>

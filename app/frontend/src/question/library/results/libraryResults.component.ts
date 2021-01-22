@@ -144,15 +144,15 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     getQuestionTypeIcon = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'EssayQuestion':
-                return 'fa-edit';
+                return 'bi-pencil';
             case 'MultipleChoiceQuestion':
-                return 'fa-list-ul';
+                return 'bi-ui-radios';
             case 'WeightedMultipleChoiceQuestion':
-                return 'fa-balance-scale';
+                return 'bi-check-2-square';
             case 'ClozeTestQuestion':
-                return 'fa-terminal';
+                return 'bi-pencil-check';
             case 'ClaimChoiceQuestion':
-                return 'fa-list-ol';
+                return 'bi-file-binary';
         }
         return '';
     };

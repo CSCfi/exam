@@ -113,11 +113,11 @@
                         (click)="removeExaminationEvent(config)"
                         class="text text-danger pointer"
                     >
-                        <i title="{{ 'sitnet_remove' | translate }}" class="fa fa-remove"></i
+                        <i title="{{ 'sitnet_remove' | translate }}" class="bi-calendar-x"></i
                     ></span>
 
                     <span *ngIf="config.examEnrolments.length > 0" class="text text-muted">
-                        <i title="{{ 'sitnet_event_enrolments_exist' | translate }}" class="fa fa-remove"></i>
+                        <i title="{{ 'sitnet_event_enrolments_exist' | translate }}" class="bi-calendar-x"></i>
                     </span>
                 </li>
             </ul>
