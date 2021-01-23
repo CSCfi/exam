@@ -32,7 +32,15 @@
     </appender>
 
     <logger name="play" level="INFO"/>
-    <logger name="application" level="DEBUG" />
+    <logger name="system" level="DEBUG"/>
+    <logger name="impl" level="DEBUG"/>
+    <logger name="repository" level="DEBUG"/>
+    <logger name="sanitizers" level="DEBUG"/>
+    <logger name="util" level="DEBUG"/>
+    <logger name="security" level="DEBUG"/>
+    <logger name="models" level="DEBUG"/>
+    <logger name="validators" level="DEBUG"/>
+    <logger name="controllers" level="DEBUG"/>
 
     <!-- SQL logging, disabled by default. Enable by setting level to TRACE -->
     <logger name="io.ebean.SQL" level="OFF"/>
