@@ -43,15 +43,15 @@
         >
             <img
                 (click)="(!sectionQuestion.expanded)"
-                src="/assets/assets/images/icon_list_show_right.svg"
+                src="assets/images/icon_list_show_right.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                onerror="this.onerror=null;this.src='assets/images/icon_list_show_right.png'"
             />
             <img
                 (click)="(sectionQuestion.expanded)"
-                src="/assets/assets/images/icon_list_show_down.svg"
+                src="assets/images/icon_list_show_down.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                onerror="this.onerror=null;this.src='assets/images/icon_list_show_down.png'"
             />
         </a>
     </div>
@@ -61,9 +61,9 @@
         <a href class="pull-right dropdown-toggle exam-settings-link" ngbDropdownToggle>
             <span class="exam-section-question-settings">{{ 'sitnet_settings' | translate }}</span>
             <img
-                src="/assets/assets/images/icon_settings.png"
+                src="assets/images/icon_settings.png"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_settings.png'"
+                onerror="this.onerror=null;this.src='assets/images/icon_settings.png'"
             />
         </a>
         <ul class="dropdown-menu" ngbDropdownMenu>
@@ -78,10 +78,10 @@
 
     <div class="col-md-12" *ngIf="sectionQuestion.expanded">
         <img
-            src="/assets/assets/images/icon_info.png"
+            src="assets/images/icon_info.png"
             *ngIf="sectionQuestion.answerInstructions?.length > 0"
             alt="exam"
-            onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+            onerror="this.onerror=null;this.src='assets/images/icon_info.png'"
         />
         <span *ngIf="sectionQuestion.answerInstructions?.length > 0" class="padl10">
             {{ sectionQuestion.answerInstructions }}</span
@@ -92,16 +92,16 @@
                 *ngFor="let option of sectionQuestion.options"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer.png"
+                    src="assets/images/icon_correct_answer.png"
                     *ngIf="option.option.correctOption"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_correct_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer.png"
+                    src="assets/images/icon_wrong_answer.png"
                     *ngIf="!option.option.correctOption"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text">{{ option.option.option }}</span>
             </li>
@@ -110,16 +110,16 @@
                 *ngFor="let option of sectionQuestion.options"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer_checkbox.png"
+                    src="assets/images/icon_correct_answer_checkbox.png"
                     *ngIf="option.score >= 0"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_correct_answer_checkbox.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer_checkbox.png"
+                    src="assets/images/icon_wrong_answer_checkbox.png"
                     *ngIf="option.score < 0"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_wrong_answer_checkbox.png'"
                 />
                 <span class="exam-question-option-text">{{ option.option.option }}</span>
                 <span class="exam-question-option-text pull-right"
@@ -131,22 +131,22 @@
                 *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer_radio.png"
+                    src="assets/images/icon_correct_answer_radio.png"
                     *ngIf="determineClaimOptionType(option) == 'CorrectOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_wrong_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer_radio.png"
+                    src="assets/images/icon_wrong_answer_radio.png"
                     *ngIf="determineClaimOptionType(option) == 'IncorrectOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_wrong_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer.png"
+                    src="assets/images/icon_wrong_answer.png"
                     *ngIf="determineClaimOptionType(option) == 'SkipOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='assets/images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text">{{ option.option.option }}</span>
                 <span class="exam-question-option-text pull-right"

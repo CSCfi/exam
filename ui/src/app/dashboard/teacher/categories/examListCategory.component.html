@@ -8,7 +8,7 @@
             (ngModelChange)="search($event)"
         />
         <div class="input-group-addon search">
-            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
+            <img class="nopad" src="assets/images/icon_search.png" width="49" height="40" />
         </div>
     </div>
     <div>
@@ -136,9 +136,9 @@
                         <td class="text-center">
                             <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
                                 <img
-                                    src="/assets/assets/images/icon_trashcan.svg"
+                                    src="assets/images/icon_trashcan.svg"
                                     alt="exam"
-                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_trashcan.png'"
+                                    onerror="this.onerror=null;this.src='assets/images/icon_trashcan.png'"
                                     ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
                                     placement="left"
                                     triggers="mouseenter:mouseleave"

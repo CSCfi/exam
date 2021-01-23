@@ -7,7 +7,7 @@
     <div>
         <div class="student-details-title-wrap padleft">
             <span class="form-group">
-                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="info-icon" /> &nbsp;
+                <img class="nopad" src="assets/images/icon_info.png" alt="info-icon" /> &nbsp;
                 <span *ngIf="permissionCheck.active === false">{{ 'sitnet_exam_search_description' | translate }}</span>
                 <span *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</span>
             </span>
@@ -26,13 +26,7 @@
                     placeholder="{{ 'sitnet_search' | translate }}"
                 />
                 <div class="input-group-addon search">
-                    <img
-                        class="nopad"
-                        src="/assets/assets/images/icon_search.png"
-                        alt="search-icon"
-                        width="49"
-                        height="40"
-                    />
+                    <img class="nopad" src="assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
                 </div>
             </div>
         </div>
