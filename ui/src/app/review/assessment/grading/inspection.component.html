@@ -1,0 +1,21 @@
+<span [hidden]="inspection.user.id === user.id">
+    <span class="sitnet-text-ready" [hidden]="!inspection.ready">
+        {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'sitnet_ready' | translate }}</span
+    >
+    <span class="sitnet-text-alarm" [hidden]="inspection.ready">
+        {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'sitnet_in_progress' | translate }}</span
+    >
+</span>
+<div class="input-group-sm make-inline" [hidden]="inspection.user.id !== user.id">
+    <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+    <div class="make-inline padl10">
+        <select
+            [(ngModel)]="inspection.ready"
+            class="form-control"
+            [disabled]="disabled"
+            (ngChange)="setInspectionStatus()"
+        >
+            <option *ngFor="let rs of reviewStatuses" [ngValue]="rs">{{ rs.value }}</option>
+        </select>
+    </div>
+</div>

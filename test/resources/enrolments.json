@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285",
+      "teaching_language": "sv",
+      "end_date": "13.04.2015",
+      "start_date": "13.04.2015",
+      "course_name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "course_code": "6000009",
+      "course_type_name": "Tentti",
+      "course_type_code": 19,
+      "course_id": 102414285
+    },
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285",
+      "teaching_language": "en",
+      "end_date": "13.04.2015",
+      "start_date": "13.04.2015",
+      "course_name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "course_code": "6000009",
+      "course_type_name": "Tentti",
+      "course_type_code": 19,
+      "course_id": 102414285
+    },
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285",
+      "teaching_language": "fi",
+      "end_date": "13.04.2015",
+      "start_date": "13.04.2015",
+      "course_name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "course_code": "810136P",
+      "course_type_name": "Tentti",
+      "course_type_code": 19,
+      "course_id": 102414285
+    },
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102221635",
+      "teaching_language": "fi",
+      "end_date": "10.02.2015",
+      "start_date": "13.01.2015",
+      "course_name": "Oppilaantuntemus, ryhm\u00e4 A",
+      "course_code": "61123",
+      "course_type_name": "Kes\u00e4tentti",
+      "course_type_code": 16,
+      "course_id": 102221635
+    },
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102221630",
+      "teaching_language": "fi",
+      "end_date": "12.02.2015",
+      "start_date": "27.10.2014",
+      "course_name": "Oppilaantuntemus",
+      "course_code": "61123",
+      "course_type_name": "Kurssi",
+      "course_type_code": 17,
+      "course_id": 102221630
+    },
+    {
+      "weboodiuri": "https:\/\/weboodi.helsinki.fi\/hy\/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102045093",
+      "teaching_language": "fi",
+      "end_date": "08.12.2014",
+      "start_date": "27.10.2014",
+      "course_name": "Johdatus kasvatuspsykologiaan",
+      "course_code": "61159",
+      "course_type_name": "Kurssi",
+      "course_type_code": 17,
+      "course_id": 102045093
+    }
+  ]
+}

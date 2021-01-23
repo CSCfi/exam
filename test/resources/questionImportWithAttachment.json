@@ -1,0 +1,39 @@
+{
+  "type": "QUESTION",
+  "orgRef": "thisissomeorgref",
+  "ids": [
+    1,
+    1
+  ],
+  "path": "/integration/iop/import",
+  "owner": "teacher@funet.fi",
+  "questions": [
+    {
+      "id": 1,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "EssayQuestion",
+      "question": "<u>Kerro toiseen maailmansotaan johtaneista syistä.</u> **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "attachment": {
+        "fileName": "test_image.png",
+        "mimeType": "image/png",
+        "data": "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"
+      },
+      "options": [],
+      "tags": [],
+      "objectVersion": 2
+    }
+  ]
+}

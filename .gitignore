@@ -1,0 +1,12 @@
+conf/local.conf
+logs
+target
+/.idea
+/.idea_modules
+default-drop-all.sql
+default-create-all.sql
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+/public

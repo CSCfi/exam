@@ -1,0 +1,140 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <a (click)="goToAssessment()">
+                    <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
+                </a>
+                <div class="student-exam-details-title">{{ 'sitnet_exam_review' | translate }}</div>
+            </div>
+
+            <div class="review-attachment-button print-button">
+                <a (click)="print()" class="pointer"> {{ 'sitnet_print' | translate }}&nbsp;&nbsp; </a>
+            </div>
+
+            <div class="status-floater">
+                <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}:</span>
+                <span *ngIf="exam.state === 'ABORTED'" class="status">{{ 'sitnet_aborted_exam' | translate }} </span>
+                <span
+                    *ngIf="
+                        exam.state === 'REVIEW' || exam.state === 'REVIEW_STARTED' || exam.state === 'STUDENT_STARTED'
+                    "
+                    class="status"
+                    >{{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                </span>
+                <span *ngIf="exam.state === 'GRADED'" class="status">
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                </span>
+                <span *ngIf="exam.state === 'GRADED_LOGGED'" class="status">
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                </span>
+                <span *ngIf="exam.state === 'REJECTED'" class="status">
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams review">
+        <div class="review-border">
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">
+                    <span *ngIf="exam.course"><course-code [course]="exam.course"></course-code> - </span
+                    >{{ exam.name }}
+                    <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
+                        <img
+                            *ngIf="hideGeneralInfo"
+                            src="/assets/assets/images/icon_list_show_right.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                        />
+                        <img
+                            *ngIf="!hideGeneralInfo"
+                            src="/assets/assets/images/icon_list_show_down.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                        />
+                    </a>
+                </div>
+            </div>
+            <!-- General Information -->
+            <r-general-info
+                *ngIf="exam && !hideGeneralInfo"
+                [participation]="participation"
+                [exam]="exam"
+                [collaborative]="collaborative"
+            ></r-general-info>
+        </div>
+    </div>
+
+    <!-- Sections -->
+    <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
+        <r-exam-section
+            [section]="section"
+            [participation]="participation"
+            [exam]="exam"
+            [collaborative]="collaborative"
+            (onScore)="scoreSet($event)"
+            [index]="index + 1"
+            [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
+        >
+        </r-exam-section>
+    </div>
+
+    <div class="tab-wrapper-exams review">
+        <div class="review-border">
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">
+                    <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
+                    <a (click)="hideGradeInfo = !hideGradeInfo">
+                        <img
+                            *ngIf="hideGradeInfo"
+                            src="/assets/assets/images/icon_list_show_right.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                        />
+                        <img
+                            [hidden]="hideGradeInfo"
+                            src="/assets/assets/images/icon_list_show_down.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                        />
+                    </a>
+                </div>
+            </div>
+
+            <!-- Grading -->
+            <div [hidden]="hideGradeInfo" class="padl15 padr15">
+                <r-grading
+                    [exam]="exam"
+                    [questionSummary]="questionSummary"
+                    [participation]="participation"
+                    [collaborative]="collaborative"
+                    [user]="user"
+                    *ngIf="exam && !exam.subjectToLanguageInspection"
+                    (onUpdate)="gradingUpdated()"
+                >
+                </r-grading>
+                <r-maturity-grading
+                    *ngIf="exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection"
+                    (onUpdate)="gradingUpdated()"
+                    [user]="user"
+                    [exam]="exam"
+                    [questionSummary]="questionSummary"
+                >
+                </r-maturity-grading>
+            </div>
+
+            <!-- Floating feedback window -->
+            <r-feedback
+                *ngIf="exam && !isUnderLanguageInspection()"
+                [exam]="exam"
+                [collaborative]="collaborative"
+                [participation]="participation"
+                [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
+            >
+            </r-feedback>
+            <r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></r-statement>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+<div *ngIf="visible">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="btn-group">
+                <!-- TODO: Check how these behave regarding max/mid dates etc -->
+                <button
+                    class="btn btn-primary"
+                    mwlCalendarPreviousView
+                    [disabled]="prevWeekDisabled"
+                    [view]="view"
+                    (click)="prevWeek(); refetch(viewDate)"
+                >
+                    Previous
+                </button>
+                <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch(viewDate)">
+                    Today
+                </button>
+                <button
+                    class="btn btn-primary"
+                    mwlCalendarNextView
+                    [view]="view"
+                    [disabled]="nextWeekDisabled"
+                    (click)="nextWeek(); refetch(viewDate)"
+                >
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+    <ng-template #loading *ngIf="visible">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </ng-template>
+
+    <div *ngIf="visible">
+        <mwl-calendar-week-view
+            [viewDate]="viewDate"
+            [events]="events"
+            [dayStartHour]="minHour"
+            [dayEndHour]="maxHour"
+            [locale]="locale"
+            [weekStartsOn]="weekStartsOn"
+            [excludeDays]="hiddenDays"
+            (eventClicked)="eventClicked($event.event)"
+        >
+        </mwl-calendar-week-view>
+    </div>
+
+    <!--full-calendar
+        #bookingCalendar
+        [plugins]="plugins"
+        [events]="fetchEvents"
+        [locale]="options.locale"
+        [defaultDate]="options.defaultDate"
+        [editable]="options.editable"
+        [selectable]="options.selectable"
+        [defaultView]="options.defaultView"
+        [allDaySlot]="options.allDaySlot"
+        [weekNumbers]="options.weekNumbers"
+        [firstDay]="options.firstDay"
+        [slotEventOverlap]="options.slotEventOverlap"
+        (eventClick)="options.eventClick($event)"
+        id="calendar"
+    >
+    </full-calendar-->
+</div>

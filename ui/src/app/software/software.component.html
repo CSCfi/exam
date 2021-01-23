@@ -1,0 +1,83 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>{{ 'sitnet_softwares' | translate }}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <form class="form-inline" role="form">
+                <div class="sitnet-info-text">{{ 'sitnet_software_name' | translate }}</div>
+                <div class="pull-left col-md-8 row">
+                    <input type="text" class="form-control col-md-12" [(ngModel)]="newSoftware.name" />
+                </div>
+                <div class="pull-right col-md-4">
+                    <button (click)="addSoftware()" [disabled]="!newSoftware.name" class="btn btn-primary pull-left">
+                        {{ 'sitnet_create_new' | translate }}
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered table-condensed room-machines-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'sitnet_name' | translate }}</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let sw of software | orderBy: 'name'">
+                                <td class="text-center">
+                                    <div [hidden]="showName">
+                                        <span class="editable" (click)="showName = !showName">
+                                            {{ sw.name }}
+                                        </span>
+                                    </div>
+                                    <div *ngIf="showName">
+                                        <form class="form-inline" role="form">
+                                            <div class="form-group">
+                                                <label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control input-sm"
+                                                        [(ngModel)]="sw.name"
+                                                        autofocus
+                                                    />
+                                                </label>
+                                            </div>
+                                            <button
+                                                class="btn btn-primary btn-sm"
+                                                (click)="showName = !showName; updateSoftware(sw)"
+                                            >
+                                                <i class="bi-check"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="col-md-1 text-center">
+                                    <a (click)="showName = !showName">
+                                        <i class="bi-check"></i>
+                                    </a>
+                                </td>
+                                <td class="col-md-1 text-center">
+                                    <a
+                                        (click)="removeSoftware(sw)"
+                                        ngbPopover="{{ 'sitnet_remove_software' | translate }}"
+                                        placement="top"
+                                        triggers="mouseenter:mouseleave"
+                                    >
+                                        <i class="sitnet-red bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
