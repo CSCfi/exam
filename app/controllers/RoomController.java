@@ -16,24 +16,11 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import controllers.base.BaseController;
-import controllers.iop.transfer.api.ExternalFacilityAPI;
-import models.Accessibility;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExamStartingHour;
-import models.MailAddress;
-import models.Role;
-import models.User;
-import models.calendar.DefaultWorkingHours;
-import models.calendar.ExceptionWorkingHours;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.BaseController;
+import controllers.iop.transfer.api.ExternalFacilityAPI;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
@@ -47,6 +34,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Accessibility;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExamStartingHour;
+import models.MailAddress;
+import models.Role;
+import models.User;
+import models.calendar.DefaultWorkingHours;
+import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -57,9 +53,14 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import util.config.ConfigReader;
+import util.datetime.DateTimeUtils;
 
 public class RoomController extends BaseController {
+
     private final boolean examVisitActivated;
     private final String defaultTimeZoneId;
     private ExternalFacilityAPI externalApi;

@@ -38,7 +38,7 @@ export class ExaminationQuestionComponent {
         const answerData = this.sq.clozeTestAnswer;
         if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
             this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
-            //answerData.answer = JSON.parse(answerData.answer);
+            // answerData.answer = JSON.parse(answerData.answer);
         }
     }
 

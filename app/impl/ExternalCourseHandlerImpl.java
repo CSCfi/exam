@@ -15,12 +15,6 @@
 
 package impl;
 
-import models.Course;
-import models.Grade;
-import models.GradeScale;
-import models.Organisation;
-import models.User;
-import util.config.ConfigReader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -47,12 +41,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Course;
+import models.Grade;
+import models.GradeScale;
+import models.Organisation;
+import models.User;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
+import util.config.ConfigReader;
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 

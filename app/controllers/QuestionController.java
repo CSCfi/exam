@@ -15,23 +15,12 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import controllers.base.SectionQuestionHandler;
-import models.Exam;
-import models.Role;
-import models.Tag;
-import models.User;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
-import sanitizers.Attrs;
-import sanitizers.QuestionTextSanitizer;
-import sanitizers.SanitizingHelper;
-import security.Authenticated;
-import util.xml.MoodleXmlConverter;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import controllers.base.BaseController;
+import controllers.base.SectionQuestionHandler;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Model;
@@ -46,13 +35,24 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
+import models.Exam;
+import models.Role;
+import models.Tag;
+import models.User;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.QuestionTextSanitizer;
+import sanitizers.SanitizingHelper;
 import scala.jdk.javaapi.CollectionConverters;
+import security.Authenticated;
+import util.xml.MoodleXmlConverter;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
 

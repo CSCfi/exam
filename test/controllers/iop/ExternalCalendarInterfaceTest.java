@@ -3,20 +3,6 @@ package controllers.iop;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.GeneralSettings;
-import models.GradeEvaluation;
-import models.Language;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.iop.ExternalReservation;
-import models.json.ExternalExam;
-import util.json.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
@@ -43,6 +29,19 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.AutoEvaluationConfig;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.GeneralSettings;
+import models.GradeEvaluation;
+import models.Language;
+import models.Reservation;
+import models.Role;
+import models.User;
+import models.iop.ExternalReservation;
+import models.json.ExternalExam;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -55,6 +54,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.json.JsonDeserializer;
 
 public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 

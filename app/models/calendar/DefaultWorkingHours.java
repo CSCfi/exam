@@ -15,19 +15,20 @@
 
 package models.calendar;
 
-import models.ExamRoom;
-import models.base.GeneratedIdentityModel;
-import util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import models.ExamRoom;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class DefaultWorkingHours extends GeneratedIdentityModel {
+
     @Temporal(TemporalType.TIME)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime startTime;

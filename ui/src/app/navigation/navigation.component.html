@@ -36,11 +36,7 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
-                        <img
-                            width="18"
-                            src="assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.state | translate }}"
-                        />
+                        <img width="18" src="assets/images/nav/{{ link.iconPng }}" alt="{{ link.state | translate }}" />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
@@ -75,11 +71,7 @@
                         uiSref="{{ link.state }}"
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
-                        <img
-                            width="18"
-                            src="assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.state | translate }}"
-                        />
+                        <img width="18" src="assets/images/nav/{{ link.iconPng }}" alt="{{ link.state | translate }}" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                     <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">

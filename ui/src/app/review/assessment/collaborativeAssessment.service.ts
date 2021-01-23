@@ -103,7 +103,7 @@ export class CollaborativeAssesmentService {
             creditType: exam.creditType,
             answerLanguage: exam.answerLanguage,
             additionalInfo: exam.additionalInfo,
-            rev: rev,
+            rev,
         };
     }
 

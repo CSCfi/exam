@@ -16,24 +16,13 @@
 package controllers;
 
 import akka.actor.ActorSystem;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import impl.EmailComposer;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.sections.ExamSection;
-import sanitizers.Attrs;
-import sanitizers.CalendarReservationSanitizer;
-import security.Authenticated;
-import util.datetime.DateTimeUtils;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,12 +30,23 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import util.datetime.DateTimeUtils;
 
 public class CalendarController extends BaseController {
 

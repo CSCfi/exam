@@ -102,7 +102,7 @@ export class ExamListCategoryComponent implements OnInit {
 
     copyExam = (exam: Exam, type: string) => {
         this.http
-            .post<{ id: number }>(`/app/exams/${exam.id}`, { type: type })
+            .post<{ id: number }>(`/app/exams/${exam.id}`, { type })
             .subscribe(
                 resp => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));

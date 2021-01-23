@@ -15,17 +15,18 @@
 
 package models;
 
-import models.base.OwnedModel;
-import models.questions.Question;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.List;
 import javax.persistence.*;
+import models.base.OwnedModel;
+import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "creator_id" }))
 public class Tag extends OwnedModel {
+
     @Column(nullable = false, length = 32)
     private String name;
 

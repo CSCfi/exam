@@ -15,9 +15,6 @@
 
 package security;
 
-import models.Permission;
-import models.Role;
-import models.User;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
@@ -27,6 +24,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.Permission;
+import models.Role;
+import models.User;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;

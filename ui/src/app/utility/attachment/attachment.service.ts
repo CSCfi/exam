@@ -49,7 +49,7 @@ export class AttachmentService {
         private modal: NgbModal,
         private translate: TranslateService,
         private Files: FileService,
-    ) { }
+    ) {}
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
@@ -66,8 +66,8 @@ export class AttachmentService {
         return external
             ? url.replace('/app/', '/app/iop/')
             : collaborative
-                ? url.replace('/app/', '/integration/iop/')
-                : url;
+            ? url.replace('/app/', '/integration/iop/')
+            : url;
     }
 
     removeQuestionAttachment(question: Partial<Question>) {

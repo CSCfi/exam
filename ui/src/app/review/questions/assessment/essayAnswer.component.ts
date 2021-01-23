@@ -31,7 +31,7 @@ export class EssayAnswerComponent {
 
     name: string;
 
-    constructor(private Assessment: AssessmentService, private Attachment: AttachmentService) { }
+    constructor(private Assessment: AssessmentService, private Attachment: AttachmentService) {}
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator

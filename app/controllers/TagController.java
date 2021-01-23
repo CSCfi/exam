@@ -15,22 +15,22 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Role;
-import models.Tag;
-import models.User;
-import sanitizers.Attrs;
-import security.Authenticated;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import models.Role;
+import models.Tag;
+import models.User;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
 
 public class TagController extends BaseController {
 

@@ -23,7 +23,6 @@ export class AuthInterceptor implements HttpInterceptor {
                 .set('Cache-Control', 'no-cache;no-store')
                 .set('Pragma', 'no-cache')
                 .set('Expires', '0'),
-
         });
 
         // send cloned request with headers to the next handler.

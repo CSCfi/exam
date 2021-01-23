@@ -15,18 +15,19 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExaminationDate extends GeneratedIdentityModel {
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 

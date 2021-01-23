@@ -46,7 +46,7 @@ export class ReviewListComponent {
     ngOnInit() {
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe(resp => (this.noShows = resp));

@@ -15,14 +15,6 @@
 
 package models;
 
-import models.api.AttachmentContainer;
-import models.base.OwnedModel;
-import models.questions.Question;
-import models.sections.ExamSection;
-import models.sections.ExamSectionQuestion;
-import models.sections.ExamSectionQuestionOption;
-import util.AppUtil;
-import util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -53,11 +45,19 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.api.AttachmentContainer;
+import models.base.OwnedModel;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import util.AppUtil;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {

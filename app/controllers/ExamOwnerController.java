@@ -15,20 +15,20 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.Role;
-import models.User;
-import sanitizers.Attrs;
-import security.Authenticated;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
+import models.Exam;
+import models.Role;
+import models.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
 
 public class ExamOwnerController extends BaseController {
 

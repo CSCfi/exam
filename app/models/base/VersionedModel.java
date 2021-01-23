@@ -21,6 +21,7 @@ import javax.persistence.Version;
 
 @MappedSuperclass
 public abstract class VersionedModel extends Model {
+
     @Version
     private long objectVersion;
 

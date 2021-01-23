@@ -15,11 +15,12 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import javax.persistence.Entity;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class GeneralSettings extends GeneratedIdentityModel {
+
     private String name;
 
     private String value;

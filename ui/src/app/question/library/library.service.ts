@@ -75,7 +75,7 @@ export class LibraryService {
     };
 
     storeFilters = (filters: any, category: string) => {
-        const data = { filters: filters };
+        const data = { filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('questionFilters', filter);

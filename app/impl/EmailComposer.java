@@ -15,6 +15,8 @@
 
 package impl;
 
+import com.google.inject.ImplementedBy;
+import java.util.Set;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -23,8 +25,6 @@ import models.LanguageInspection;
 import models.Reservation;
 import models.User;
 import models.json.CollaborativeExam;
-import com.google.inject.ImplementedBy;
-import java.util.Set;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {

@@ -303,7 +303,7 @@ export class QuestionService {
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
             options: sectionQuestion.options,
-            question: question,
+            question,
         };
 
         // update question specific attributes
@@ -473,7 +473,7 @@ export class QuestionService {
 
     addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
         const data = {
-            uid: uid,
+            uid,
             questionIds: qids.join(),
         };
         return this.http.post(this.questionOwnerApi(uid), data);

@@ -15,19 +15,11 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Course;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamRoom;
-import models.Reservation;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
-import util.excel.ExcelBuilder;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.ByteArrayOutputStream;
@@ -42,12 +34,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import models.Course;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamRoom;
+import models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExamRecordSanitizer;
+import util.excel.ExcelBuilder;
 
 public class ReportController extends BaseController {
 

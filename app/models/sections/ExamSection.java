@@ -15,12 +15,6 @@
 
 package models.sections;
 
-import models.Exam;
-import models.User;
-import models.api.Sortable;
-import models.base.OwnedModel;
-import models.questions.Question;
-import util.AppUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
@@ -39,7 +33,13 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import models.Exam;
+import models.User;
+import models.api.Sortable;
+import models.base.OwnedModel;
+import models.questions.Question;
 import org.springframework.beans.BeanUtils;
+import util.AppUtil;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {

@@ -1,8 +1,8 @@
 package system.modules;
 
+import com.google.inject.AbstractModule;
 import util.config.ConfigReader;
 import util.config.ConfigReaderImpl;
-import com.google.inject.AbstractModule;
 
 public class ConfigReaderModule extends AbstractModule {
 

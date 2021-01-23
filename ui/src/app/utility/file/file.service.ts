@@ -27,7 +27,7 @@ export class FileService {
 
     download(url: string, filename: string, params?: any, post?: boolean) {
         const method = post ? 'POST' : 'GET';
-        this.http.request(method, url, { responseType: 'text', observe: 'response', params: params }).subscribe(
+        this.http.request(method, url, { responseType: 'text', observe: 'response', params }).subscribe(
             (resp: HttpResponse<string>) => {
                 if (resp.body) {
                     const contentType = resp.headers.get('Content-Type');

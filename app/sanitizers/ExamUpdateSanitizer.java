@@ -15,14 +15,14 @@
 
 package sanitizers;
 
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.Grade;
-import models.GradeEvaluation;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
+import models.AutoEvaluationConfig;
+import models.Exam;
+import models.Grade;
+import models.GradeEvaluation;
 import org.joda.time.DateTime;
 import play.mvc.Http;
 

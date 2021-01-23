@@ -15,9 +15,9 @@
 
 package impl;
 
-import models.Reservation;
 import com.google.inject.ImplementedBy;
 import java.util.List;
+import models.Reservation;
 
 @ImplementedBy(NoShowHandlerImpl.class)
 public interface NoShowHandler {

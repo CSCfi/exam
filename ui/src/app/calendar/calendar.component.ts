@@ -282,7 +282,7 @@ export class CalendarComponent implements OnInit {
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.selectedOrganisation._id,
-                    date: date,
+                    date,
                 },
             });
         } else {
@@ -307,7 +307,9 @@ export class CalendarComponent implements OnInit {
     }
 
     renderExceptionHours = ($event: { start: Date; end: Date }) => {
-        if (!this.selectedRoom) return;
+        if (!this.selectedRoom) {
+            return;
+        }
         this.exceptionHours =
             !$event.start || !$event.end
                 ? []

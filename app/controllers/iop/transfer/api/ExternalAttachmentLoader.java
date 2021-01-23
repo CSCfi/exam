@@ -16,11 +16,11 @@
 
 package controllers.iop.transfer.api;
 
+import com.google.inject.ImplementedBy;
 import controllers.iop.transfer.impl.ExternalAttachmentLoaderImpl;
+import java.util.concurrent.CompletableFuture;
 import models.Attachment;
 import models.Exam;
-import com.google.inject.ImplementedBy;
-import java.util.concurrent.CompletableFuture;
 
 @ImplementedBy(ExternalAttachmentLoaderImpl.class)
 public interface ExternalAttachmentLoader {

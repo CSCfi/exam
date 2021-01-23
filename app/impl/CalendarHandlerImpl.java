@@ -1,24 +1,11 @@
 package impl;
 
 import akka.actor.ActorSystem;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
-import models.Accessibility;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExamStartingHour;
-import models.MailAddress;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
-import models.json.CollaborativeExam;
-import models.sections.ExamSection;
-import util.config.ConfigReader;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +24,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Accessibility;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExamStartingHour;
+import models.MailAddress;
+import models.Reservation;
+import models.User;
+import models.iop.ExternalReservation;
+import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -49,6 +48,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import util.config.ConfigReader;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 

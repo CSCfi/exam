@@ -290,7 +290,9 @@ export class ExamPublicationComponent implements OnInit {
     private countQuestions = () => this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
 
     private hasDuplicatePercentages = () => {
-        if (!this.exam.autoEvaluationConfig) return false;
+        if (!this.exam.autoEvaluationConfig) {
+            return false;
+        }
         const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map(e => e.percentage).sort();
         for (let i = 0; i < percentages.length - 1; ++i) {
             if (percentages[i + 1] === percentages[i]) {

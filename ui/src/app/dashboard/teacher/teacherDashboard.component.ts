@@ -127,7 +127,7 @@ export class TeacherDashboardComponent implements OnInit {
                                   { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
                               ]
                             : [];
-                    return { ...t, examinationTypes: examinationTypes };
+                    return { ...t, examinationTypes };
                 });
             });
         });

@@ -1,12 +1,12 @@
 package util.csv;
 
-import models.Role;
-import models.User;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import models.Role;
+import models.User;
 
 @ImplementedBy(CsvBuilderImpl.class)
 public interface CsvBuilder {

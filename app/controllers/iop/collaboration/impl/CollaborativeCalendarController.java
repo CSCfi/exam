@@ -1,21 +1,10 @@
 package controllers.iop.collaboration.impl;
 
 import akka.actor.ActorSystem;
-import impl.CalendarHandler;
-import impl.EmailComposer;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.json.CollaborativeExam;
-import sanitizers.Attrs;
-import sanitizers.CalendarReservationSanitizer;
-import security.Authenticated;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import impl.CalendarHandler;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.util.Collection;
@@ -23,12 +12,23 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
+import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import util.datetime.DateTimeUtils;
 
 public class CollaborativeCalendarController extends CollaborationController {
 

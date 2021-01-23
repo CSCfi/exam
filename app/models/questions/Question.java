@@ -15,14 +15,6 @@
 
 package models.questions;
 
-import models.Attachment;
-import models.Tag;
-import models.User;
-import models.api.AttachmentContainer;
-import models.base.OwnedModel;
-import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
-import models.sections.ExamSectionQuestion;
-import sanitizers.SanitizingHelper;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,6 +37,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import models.Attachment;
+import models.Tag;
+import models.User;
+import models.api.AttachmentContainer;
+import models.base.OwnedModel;
+import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
+import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -54,6 +53,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
+import sanitizers.SanitizingHelper;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {

@@ -16,16 +16,17 @@
 package system.actors;
 
 import akka.actor.AbstractActor;
-import models.Exam;
-import models.ExamRecord;
-import util.config.ConfigReader;
 import io.ebean.Ebean;
 import java.util.List;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamRecord;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.config.ConfigReader;
 
 public class ExamExpirationActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
 
     @Inject

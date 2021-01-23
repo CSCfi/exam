@@ -2,10 +2,6 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import models.Attachment;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import models.questions.Question;
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,6 +18,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.Attachment;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.Question;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

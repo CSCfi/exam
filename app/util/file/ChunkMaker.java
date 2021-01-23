@@ -28,6 +28,7 @@ import akka.util.ByteString;
 import scala.Tuple2;
 
 public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
+
     private final int chunkSize;
 
     public Inlet<ByteString> in = Inlet.create("ChunkMaker.in");
@@ -52,7 +53,6 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
                 setHandler(
                     out,
                     new AbstractOutHandler() {
-
                         @Override
                         public void onPull() {
                             emitChunk();
@@ -63,7 +63,6 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
                 setHandler(
                     in,
                     new AbstractInHandler() {
-
                         @Override
                         public void onPush() {
                             ByteString elem = grab(in);

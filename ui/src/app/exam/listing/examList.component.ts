@@ -109,7 +109,7 @@ export class ExamListingComponent {
 
     copyExam = (exam: Exam, type: string, examinationType = 'AQUARIUM') =>
         this.http
-            .post<Exam>(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
+            .post<Exam>(`/app/exams/${exam.id}`, { type, examinationType })
             .subscribe(
                 resp => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));

@@ -41,9 +41,13 @@ export class ReviewListService {
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
-        if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
-        else if (collaborative && review._id) return review._id;
-        else return review.exam.id.toString();
+        if (review.user) {
+            return `${review.user.lastName} ${review.user.firstName}`;
+        } else if (collaborative && review._id) {
+            return review._id;
+        } else {
+            return review.exam.id.toString();
+        }
     };
 
     filterReview = (filter: string, review: Review): boolean => {
@@ -67,11 +71,11 @@ export class ReviewListService {
     prepareView = (items: Review[], setup: (p: Review) => void, predicate: string): ReviewListView => {
         items.forEach(setup);
         return {
-            items: items,
+            items,
             filtered: items,
             toggle: items.length > 0,
             pageSize: 30,
-            predicate: predicate,
+            predicate,
             reverse: false,
             page: 0,
             filter: '',
@@ -137,7 +141,7 @@ export class ReviewListService {
         if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
             const examToRecord = {
                 id: exam.id,
-                state: state,
+                state,
                 grade: exam.grade,
                 customCredit: exam.customCredit,
                 totalScore: exam.totalScore,

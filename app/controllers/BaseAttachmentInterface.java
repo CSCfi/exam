@@ -20,13 +20,6 @@ import static play.mvc.Results.ok;
 
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import models.Attachment;
-import models.Exam;
-import models.User;
-import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import util.config.ConfigReader;
-import util.file.ChunkMaker;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +28,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import models.Attachment;
+import models.Exam;
+import models.User;
+import models.sections.ExamSectionQuestion;
 import play.Logger;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import util.config.ConfigReader;
+import util.file.ChunkMaker;
 
 public interface BaseAttachmentInterface<T> {
     CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);

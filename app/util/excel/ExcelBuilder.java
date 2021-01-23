@@ -15,15 +15,6 @@
 
 package util.excel;
 
-import models.Exam;
-import models.ExamRecord;
-import models.User;
-import models.dto.ExamScore;
-import models.questions.Question;
-import models.sections.ExamSection;
-import models.sections.ExamSectionQuestion;
-import util.config.ConfigReader;
-import util.config.ConfigReaderImpl;
 import io.ebean.Ebean;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -32,6 +23,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import models.Exam;
+import models.ExamRecord;
+import models.User;
+import models.dto.ExamScore;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.Cell;
@@ -45,6 +43,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
+import util.config.ConfigReader;
+import util.config.ConfigReaderImpl;
 
 public class ExcelBuilder {
 

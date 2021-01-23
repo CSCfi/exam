@@ -140,7 +140,7 @@ export class ExamSummaryComponent {
     getNoShows = () => {
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http

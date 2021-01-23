@@ -28,6 +28,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
+
     public static final String ANONYMOUS_HEADER = "Anonymous";
     public static final String CONTEXT_KEY = "ids";
 

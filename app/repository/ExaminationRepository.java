@@ -1,15 +1,6 @@
 package repository;
 
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.json.CollaborativeExam;
-import models.sections.ExamSection;
-import util.datetime.DateTimeUtils;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.ExpressionList;
@@ -24,9 +15,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamParticipation;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
+import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.db.ebean.EbeanConfig;
+import util.datetime.DateTimeUtils;
 
 public class ExaminationRepository {
 

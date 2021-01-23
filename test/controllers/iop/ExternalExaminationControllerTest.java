@@ -3,14 +3,6 @@ package controllers.iop;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import models.*;
-import models.json.ExternalExam;
-import models.questions.ClozeTestAnswer;
-import models.questions.EssayAnswer;
-import models.questions.Question;
-import models.sections.ExamSectionQuestion;
-import models.sections.ExamSectionQuestionOption;
-import util.json.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,12 +21,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import models.*;
+import models.json.ExternalExam;
+import models.questions.ClozeTestAnswer;
+import models.questions.EssayAnswer;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.json.JsonDeserializer;
 
 public class ExternalExaminationControllerTest extends IntegrationTestCase {
 

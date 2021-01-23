@@ -15,9 +15,9 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import java.util.Objects;
 import javax.persistence.Entity;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Role {

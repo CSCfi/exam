@@ -16,14 +16,15 @@
 package models.iop;
 
 import controllers.RoomLike;
-import models.MailAddress;
-import models.base.GeneratedIdentityModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
+import models.MailAddress;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {
+
     private String orgRef;
 
     private String orgName;

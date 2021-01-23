@@ -15,26 +15,27 @@
 
 package controllers;
 
-import controllers.base.ActionMethod;
-import controllers.base.BaseController;
-import models.GeneralSettings;
-import models.Language;
-import models.User;
-import util.config.ConfigReader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Update;
 import javax.inject.Inject;
+import models.GeneralSettings;
+import models.Language;
+import models.User;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.config.ConfigReader;
 
 public class SettingsController extends BaseController {
+
     private final Environment environment;
     private final ConfigReader configReader;
 

@@ -170,8 +170,8 @@ export class ReservationComponentBase {
         if (this.somethingSelected(this.selection as Params)) {
             const params = this.createParams(this.selection);
             forkJoin(
-                this.http.get<Reservation[]>('/app/reservations', { params: params }),
-                this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
+                this.http.get<Reservation[]>('/app/reservations', { params }),
+                this.http.get<ExamEnrolment[]>('/app/events', { params }),
             )
                 .pipe(
                     map(([reservations, enrolments]) => {
@@ -194,8 +194,8 @@ export class ReservationComponentBase {
                             userAggregate: r.user
                                 ? `${r.user.lastName}  ${r.user.firstName}`
                                 : r.externalUserRef
-                                    ? r.externalUserRef
-                                    : r.enrolment.exam.id.toString(),
+                                ? r.externalUserRef
+                                : r.enrolment.exam.id.toString(),
                             org: '',
                             stateOrd: 0,
                             enrolment: { ...r.enrolment, teacherAggregate: '' },
@@ -213,7 +213,7 @@ export class ReservationComponentBase {
                                 id: r.enrolment.externalExam.id,
                                 external: true,
                                 examOwners: [],
-                                state: state,
+                                state,
                                 parent: null,
                             };
                         });

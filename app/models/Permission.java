@@ -15,12 +15,12 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import io.ebean.annotation.EnumValue;
 import java.util.Objects;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Permission {

@@ -15,20 +15,20 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.Software;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.Software;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Http;

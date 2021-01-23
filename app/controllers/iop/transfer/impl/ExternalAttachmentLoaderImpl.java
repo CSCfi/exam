@@ -22,12 +22,9 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import controllers.iop.transfer.api.ExternalAttachmentLoader;
-import models.Attachment;
-import models.Exam;
-import util.file.FileHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,11 +35,14 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Attachment;
+import models.Exam;
 import org.springframework.util.StringUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
+import util.file.FileHandler;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 

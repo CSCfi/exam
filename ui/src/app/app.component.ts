@@ -67,7 +67,7 @@ export class AppComponent {
     }
 
     ngOnInit() {
-        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
+        const storedUser: string = this.Window.nativeWindow.sessionStorage.EXAM_USER;
         if (storedUser) {
             const user = JSON.parse(storedUser);
             if (!user.loginRole) {

@@ -17,13 +17,13 @@ package system.actors;
 
 import akka.actor.AbstractActor;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import models.Exam;
-import models.ExamParticipation;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamParticipation;
 import play.Logger;
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {

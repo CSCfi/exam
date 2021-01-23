@@ -36,7 +36,7 @@ export class NoShowsComponent {
 
     constructor(private modal: NgbActiveModal) {}
 
-    //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
+    // TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
         this.noShows.forEach(r => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
     }

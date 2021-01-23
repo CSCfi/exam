@@ -77,7 +77,9 @@ export class AssessmentComponent {
     }
 
     isUnderLanguageInspection = () => {
-        if (!this.user) return false;
+        if (!this.user) {
+            return false;
+        }
         return (
             this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
         );

@@ -15,12 +15,8 @@
 
 package models;
 
-import controllers.RoomLike;
-import models.base.GeneratedIdentityModel;
-import models.calendar.DefaultWorkingHours;
-import models.calendar.ExceptionWorkingHours;
-import util.datetime.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import controllers.RoomLike;
 import io.ebean.Finder;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +31,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.calendar.DefaultWorkingHours;
+import models.calendar.ExceptionWorkingHours;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import util.datetime.DateTimeUtils;
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
@@ -392,6 +392,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     }
 
     public final class OpeningHours {
+
         private final Interval hours;
         private final int timezoneOffset;
 

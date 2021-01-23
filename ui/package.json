@@ -10,6 +10,9 @@
   "scripts": {
     "ng": "ng",
     "lint": "ng lint",
+    "lint-fix": "ng lint --fix",
+    "prettier": "prettier --check \"src/**/*.{js,ts,html}\" --check \"{../app,../test}/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\" --write \"{../app,../test}/**/*.java\" --print-width=120 --tab-width=4; exit 0",
     "e2e": "ng e2e",
     "start": "ng serve --open --proxy-config src/proxy.conf.js --host 0.0.0.0",
     "test": "ng test --watch",

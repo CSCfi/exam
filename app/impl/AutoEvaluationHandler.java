@@ -15,8 +15,8 @@
 
 package impl;
 
-import models.Exam;
 import com.google.inject.ImplementedBy;
+import models.Exam;
 
 @FunctionalInterface
 @ImplementedBy(AutoEvaluationHandlerImpl.class)

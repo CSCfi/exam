@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class Grade extends Model {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;

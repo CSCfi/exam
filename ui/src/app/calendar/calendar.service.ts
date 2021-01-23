@@ -54,6 +54,20 @@ export class CalendarService {
         private Session: SessionService,
     ) {}
 
+    private static formatExceptionEvent(
+        event: ExceptionWorkingHours,
+        tz: string,
+    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
+        const startDate = moment.tz(event.startDate, tz);
+        const endDate = moment.tz(event.endDate, tz);
+        return {
+            ...event,
+            start: startDate.format('DD.MM.YYYY HH:mm'),
+            end: endDate.format('DD.MM.YYYY HH:mm'),
+            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
+        };
+    }
+
     private adjustBack(date: moment.Moment, tz: string): string {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? 1 : 0;
@@ -93,7 +107,7 @@ export class CalendarService {
             examId: parseInt(this.state.params.id),
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
-            sectionIds: sectionIds,
+            sectionIds,
         };
         if (org._id !== null) {
             return this.reserveExternal$(slot, collaborative);
@@ -173,20 +187,6 @@ export class CalendarService {
             oh.periodText = oh.periods.sort().join(', ');
         });
         return openingHours.sort((a, b) => a.ord - b.ord);
-    }
-
-    private static formatExceptionEvent(
-        event: ExceptionWorkingHours,
-        tz: string,
-    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
-        const startDate = moment.tz(event.startDate, tz);
-        const endDate = moment.tz(event.endDate, tz);
-        return {
-            ...event,
-            start: startDate.format('DD.MM.YYYY HH:mm'),
-            end: endDate.format('DD.MM.YYYY HH:mm'),
-            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
-        };
     }
 
     getExceptionHours(room: ExamRoom, start: moment.Moment, end: moment.Moment) {

@@ -235,8 +235,8 @@ export class SectionComponent {
         if (from >= 0 && to >= 0 && from !== to) {
             this.http
                 .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
-                    from: from,
-                    to: to,
+                    from,
+                    to,
                 })
                 .subscribe(() => {
                     toast.info(this.translate.instant('sitnet_questions_reordered'));

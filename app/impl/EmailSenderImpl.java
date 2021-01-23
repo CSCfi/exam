@@ -27,6 +27,7 @@ import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
 class EmailSenderImpl implements EmailSender {
+
     private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private String HOST = ConfigFactory.load().getString("play.mailer.host");
     private Integer PORT = ConfigFactory.load().getInt("play.mailer.port");

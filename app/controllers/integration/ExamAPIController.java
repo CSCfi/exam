@@ -15,16 +15,16 @@
 
 package controllers.integration;
 
-import controllers.base.BaseController;
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExamExecutionType;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import controllers.base.BaseController;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
+import models.Exam;
+import models.ExamExecutionType;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;

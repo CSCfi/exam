@@ -15,12 +15,12 @@
 
 package controllers.iop.transfer.api;
 
-import controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
-import models.Reservation;
-import models.User;
 import com.google.inject.ImplementedBy;
+import controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.Reservation;
+import models.User;
 import play.mvc.Result;
 
 @ImplementedBy(ExternalReservationHandlerImpl.class)

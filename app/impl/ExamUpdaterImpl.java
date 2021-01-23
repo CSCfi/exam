@@ -4,6 +4,18 @@ import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
 
 import akka.actor.ActorSystem;
+import io.ebean.Ebean;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
@@ -18,25 +30,13 @@ import models.User;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
-import sanitizers.Attrs;
-import util.config.ConfigReader;
-import io.ebean.Ebean;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.inject.Inject;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
+import util.config.ConfigReader;
 
 public class ExamUpdaterImpl implements ExamUpdater {
 

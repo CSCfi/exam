@@ -15,17 +15,18 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 @Entity
 public class GradeEvaluation extends GeneratedIdentityModel {
+
     @ManyToOne
     @JsonBackReference
     private AutoEvaluationConfig autoEvaluationConfig;

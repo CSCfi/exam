@@ -45,7 +45,6 @@ import { SessionService } from './session/session.service';
 import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
 
-
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http);
@@ -99,4 +98,4 @@ export function HttpLoaderFactory(http: HttpClient) {
     ],
     bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

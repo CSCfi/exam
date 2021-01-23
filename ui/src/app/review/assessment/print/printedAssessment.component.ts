@@ -60,7 +60,7 @@ export class PrintedAssessmentComponent {
         const url = this.getResource(path);
 
         this.http.get<ExamParticipation>(url).subscribe(participation => {
-            //TODO: Some duplicates here, refactor some more
+            // TODO: Some duplicates here, refactor some more
             const exam = participation.exam;
             exam.examSections.forEach(es =>
                 es.sectionQuestions
@@ -102,7 +102,7 @@ export class PrintedAssessmentComponent {
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
-            //TODO: Add collaborative support for noshows.
+            // TODO: Add collaborative support for noshows.
             this.previousParticipations = data;
             this.printPage();
             return;
@@ -141,7 +141,9 @@ export class PrintedAssessmentComponent {
     getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
-        if (!this.exam) return 'N/A';
+        if (!this.exam) {
+            return 'N/A';
+        }
         const lang = this.Assessment.pickExamLanguage(this.exam);
         return !lang ? 'N/A' : this.Language.getLanguageNativeName(lang.code);
     };

@@ -17,15 +17,16 @@ package system.actors;
 
 import akka.actor.AbstractActor;
 import impl.NoShowHandler;
-import models.Reservation;
-import util.datetime.DateTimeUtils;
 import io.ebean.Ebean;
 import java.util.List;
 import javax.inject.Inject;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.datetime.DateTimeUtils;
 
 public class ReservationPollerActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
 
     private NoShowHandler handler;

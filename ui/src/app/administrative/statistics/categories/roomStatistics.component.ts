@@ -70,7 +70,7 @@ export class RoomStatisticsComponent {
     rooms: string[] = [];
     months: Date[] = [];
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {}
 
     listParticipations = () => {
         this.http
@@ -88,7 +88,9 @@ export class RoomStatisticsComponent {
     };
 
     totalParticipations = (month: Date, room: string) => {
-        if (!this.participations) return 0;
+        if (!this.participations) {
+            return 0;
+        }
         const isWithinBounds = (p: ExamParticipation) => {
             const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
             const current = new Date(month);

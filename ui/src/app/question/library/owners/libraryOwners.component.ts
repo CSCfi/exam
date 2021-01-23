@@ -43,7 +43,9 @@ export class LibraryOwnersComponent implements OnInit {
     }
 
     private filterByName = (src: User[], q: string): User[] => {
-        if (!q) return src;
+        if (!q) {
+            return src;
+        }
         return src.filter(u => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
     };
 

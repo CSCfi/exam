@@ -40,7 +40,9 @@ export class ExaminationEssayQuestionComponent {
     }
     saveAnswer = () => this.Examination.saveTextualAnswer(this.sq, this.exam.hash, false, false);
     removeQuestionAnswerAttachment = () => {
-        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) return;
+        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) {
+            return;
+        }
         const answeredQuestion = this.sq.essayAnswer as AnsweredQuestion;
         if (this.exam.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);

@@ -5,6 +5,7 @@ import play.libs.Json;
 import play.mvc.*;
 
 class AppSummary {
+
     private String content;
 
     AppSummary(String content) {

@@ -15,7 +15,6 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
@@ -26,10 +25,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.Interval;
 
 @Entity
 public class ExamMachine extends GeneratedIdentityModel {
+
     private String name;
 
     private String otherIdentifier;

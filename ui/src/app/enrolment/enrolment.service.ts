@@ -216,7 +216,7 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information }).subscribe(
                 () => {
                     toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;

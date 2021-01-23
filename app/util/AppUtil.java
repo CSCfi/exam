@@ -16,9 +16,9 @@
 package util;
 
 import impl.EmailComposer;
+import java.util.Collection;
 import models.Exam;
 import models.User;
-import java.util.Collection;
 import play.Logger;
 
 public final class AppUtil {

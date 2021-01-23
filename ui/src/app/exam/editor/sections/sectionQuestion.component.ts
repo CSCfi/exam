@@ -110,7 +110,7 @@ export class SectionQuestionComponent {
             const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
             this.http
                 .put<ExamSectionQuestion>(this.getResource(resource), {
-                    question: question,
+                    question,
                 })
                 .subscribe(
                     resp => {

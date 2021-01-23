@@ -15,22 +15,23 @@
 
 package models.json;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.base.GeneratedIdentityModel;
-import util.datetime.DateTimeAdapter;
-import util.json.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.persistence.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamParticipation;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
+import util.json.JsonDeserializer;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {
+
     @Column
     private String externalRef; // REFERENCE TO EXAM ELSEWHERE
 

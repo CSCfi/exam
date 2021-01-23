@@ -107,7 +107,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                 this.onUpdate.emit({
                     props: {
                         name: this.exam.name,
-                        code: code,
+                        code,
                         scaleChange: resetAutoEvaluationConfig,
                     },
                 });
@@ -120,7 +120,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.initGradeScale(); //  Grade scale might need changing based on new course
         const code = this.exam.course ? this.exam.course.code : null;
         this.onUpdate.emit({
-            props: { name: this.exam.name, code: code, scaleChange: false },
+            props: { name: this.exam.name, code, scaleChange: false },
         });
     };
 

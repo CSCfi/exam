@@ -1,22 +1,13 @@
 package controllers.iop.collaboration.impl;
 
-import exceptions.NotFoundException;
-import impl.CalendarHandler;
-import models.Exam;
-import models.ExamEnrolment;
-import models.User;
-import models.json.CollaborativeExam;
-import sanitizers.Attrs;
-import sanitizers.ExternalCalendarReservationSanitizer;
-import security.Authenticated;
-import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import exceptions.NotFoundException;
+import impl.CalendarHandler;
 import io.ebean.Ebean;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,6 +18,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.User;
+import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
@@ -35,6 +30,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExternalCalendarReservationSanitizer;
+import security.Authenticated;
+import util.config.ConfigReader;
+import util.datetime.DateTimeUtils;
 
 public class CollaborativeExternalCalendarController extends CollaborativeCalendarController {
 

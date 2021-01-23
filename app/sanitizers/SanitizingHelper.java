@@ -23,6 +23,7 @@ import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 public final class SanitizingHelper {
+
     private static final Whitelist WHITELIST = Whitelist
         .relaxed()
         .addAttributes("a", "target")

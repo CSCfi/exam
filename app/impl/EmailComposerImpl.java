@@ -15,24 +15,6 @@
 
 package impl;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamInspection;
-import models.ExamMachine;
-import models.ExamParticipation;
-import models.ExaminationEvent;
-import models.ExaminationEventConfiguration;
-import models.Language;
-import models.LanguageInspection;
-import models.MailAddress;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
-import models.json.CollaborativeExam;
-import util.config.ByodConfigHandler;
-import util.config.ConfigReader;
-import util.file.FileHandler;
 import biweekly.Biweekly;
 import biweekly.ICalVersion;
 import biweekly.ICalendar;
@@ -59,6 +41,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamInspection;
+import models.ExamMachine;
+import models.ExamParticipation;
+import models.ExaminationEvent;
+import models.ExaminationEventConfiguration;
+import models.Language;
+import models.LanguageInspection;
+import models.MailAddress;
+import models.Reservation;
+import models.User;
+import models.iop.ExternalReservation;
+import models.json.CollaborativeExam;
 import org.apache.commons.mail.EmailAttachment;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -68,6 +65,9 @@ import play.Environment;
 import play.Logger;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
+import util.config.ByodConfigHandler;
+import util.config.ConfigReader;
+import util.file.FileHandler;
 
 class EmailComposerImpl implements EmailComposer {
 

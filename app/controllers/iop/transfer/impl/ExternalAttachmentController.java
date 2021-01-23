@@ -18,22 +18,23 @@ package controllers.iop.transfer.impl;
 
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentInterface;
-import models.Exam;
-import models.Role;
-import models.User;
-import models.json.ExternalExam;
-import util.config.ConfigReader;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Exam;
+import models.Role;
+import models.User;
+import models.json.ExternalExam;
 import play.libs.ws.WSClient;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.config.ConfigReader;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
+
     @Inject
     private WSClient wsClient;
 

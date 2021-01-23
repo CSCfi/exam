@@ -24,7 +24,7 @@ export class WrongLocationService {
         preventDuplicates: true,
     };
 
-    constructor(private translate: TranslateService) { }
+    constructor(private translate: TranslateService) {}
 
     display = (data: string[]) => {
         const startsAt = moment(data[4]);

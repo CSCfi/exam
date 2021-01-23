@@ -126,9 +126,9 @@ export class TeacherDashboardService {
                     if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                         dashboard.finishedExams.push({
                             ...ee,
-                            ownerAggregate: ownerAggregate,
-                            unassessedCount: unassessedCount,
-                            unfinishedCount: unfinishedCount,
+                            ownerAggregate,
+                            unassessedCount,
+                            unfinishedCount,
                         });
                     } else {
                         if (ee.executionType.type === 'PRINTOUT') {
@@ -136,7 +136,7 @@ export class TeacherDashboardService {
                         }
                         dashboard.archivedExams.push({
                             ...ee,
-                            ownerAggregate: ownerAggregate,
+                            ownerAggregate,
                             assessedCount: this.Exam.getProcessedCount(ee),
                         });
                     }

@@ -1,21 +1,21 @@
 package controllers.base;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.Ebean;
+import java.util.Collection;
+import java.util.Optional;
 import models.User;
 import models.api.Sortable;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
-import sanitizers.SanitizingHelper;
-import util.AppUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
-import java.util.Collection;
-import java.util.Optional;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import play.mvc.Result;
 import play.mvc.Results;
+import sanitizers.SanitizingHelper;
+import util.AppUtil;
 
 public interface SectionQuestionHandler {
     default Optional<Result> checkBounds(Integer from, Integer to) {

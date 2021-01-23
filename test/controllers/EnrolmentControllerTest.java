@@ -3,15 +3,6 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.json.ExternalExam;
-import util.json.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -31,6 +22,14 @@ import java.util.stream.IntStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
+import models.json.ExternalExam;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -42,6 +41,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.json.JsonDeserializer;
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
 

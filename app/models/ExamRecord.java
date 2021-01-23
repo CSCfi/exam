@@ -15,17 +15,18 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
-import models.dto.ExamScore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import models.base.GeneratedIdentityModel;
+import models.dto.ExamScore;
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
+
     @OneToOne
     private User teacher;
 

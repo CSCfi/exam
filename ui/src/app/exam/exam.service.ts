@@ -56,7 +56,7 @@ export class ExamService {
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType, implementation: examinationType })
             .subscribe(
                 response => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
@@ -384,7 +384,7 @@ export class ExamService {
     };
 
     reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<any> =>
-        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
+        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from, to });
 
     addSection = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});

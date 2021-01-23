@@ -15,18 +15,11 @@
 
 package controllers.base;
 
-import exceptions.MalformedDataException;
-import impl.NoShowHandler;
-import models.Exam;
-import models.ExamParticipation;
-import models.Reservation;
-import models.Role;
-import models.User;
-import sanitizers.Attrs;
-import system.interceptors.AnonymousJsonAction;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import exceptions.MalformedDataException;
+import impl.NoShowHandler;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
@@ -39,6 +32,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.ExamParticipation;
+import models.Reservation;
+import models.Role;
+import models.User;
 import play.Logger;
 import play.data.Form;
 import play.data.FormFactory;
@@ -47,6 +45,8 @@ import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 

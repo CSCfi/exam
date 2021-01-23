@@ -66,7 +66,9 @@ export class ExamMaterialSelectorComponent {
     nameFormat = (m: ExamMaterial) => m.name;
 
     addMaterial = () => {
-        if (!this.selectedMaterial) return;
+        if (!this.selectedMaterial) {
+            return;
+        }
         this.http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).subscribe(
             () => {
                 this.section.examMaterials.push(this.selectedMaterial as ExamMaterial);

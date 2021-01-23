@@ -15,15 +15,16 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class Accessibility extends GeneratedIdentityModel {
+
     private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)

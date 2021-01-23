@@ -27,7 +27,7 @@ export class SoftwareComponent {
     software: Software[] = [];
     newSoftware = { name: '' };
 
-    constructor(private http: HttpClient, private translate: TranslateService) { }
+    constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
         this.http.get<Software[]>('/app/softwares').subscribe(resp => (this.software = resp));

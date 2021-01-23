@@ -17,14 +17,13 @@ import { Injectable } from '@angular/core';
 
 import { ExamLanguage } from '../../exam/exam.model';
 
-
 export interface IsoLangMap {
     [code: string]: string;
 }
 
 @Injectable()
 export class LanguageService {
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {}
 
     private isoLangs: IsoLangMap = {
         fi: 'suomi',
@@ -36,13 +35,13 @@ export class LanguageService {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang;
-    }
+    };
 
     getLanguageNativeName = (code: string) => {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang;
-    }
+    };
 
     getExamLanguages(): Promise<ExamLanguage[]> {
         return new Promise((resolve, reject) => {

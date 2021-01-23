@@ -27,7 +27,7 @@ export class ExaminationInterceptor implements HttpInterceptor {
         private state: StateService,
         private WrongLocation: WrongLocationService,
         private ExaminationStatus: ExaminationStatusService,
-    ) { }
+    ) {}
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(req).pipe(
             tap((event: HttpEvent<any>) => {
@@ -66,12 +66,12 @@ export class ExaminationInterceptor implements HttpInterceptor {
                             // No upcoming exams
                             this.state.go('waitingRoomNoExam');
                         } else {
-                            this.state.go('waitingRoom', { id: id });
+                            this.state.go('waitingRoom', { id });
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.state.go('examination', { hash: hash });
+                        this.state.go('examination', { hash });
                     }
                     return response.clone();
                 }

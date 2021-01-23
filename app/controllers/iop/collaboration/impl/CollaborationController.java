@@ -1,16 +1,11 @@
 package controllers.iop.collaboration.impl;
 
-import controllers.base.BaseController;
-import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import impl.ExamUpdater;
-import models.Exam;
-import models.Role;
-import models.User;
-import models.json.CollaborativeExam;
-import util.json.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
+import controllers.iop.collaboration.api.CollaborativeExamLoader;
+import impl.ExamUpdater;
 import io.ebean.Ebean;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
@@ -26,11 +21,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Exam;
+import models.Role;
+import models.User;
+import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import util.json.JsonDeserializer;
 
 public class CollaborationController extends BaseController {
 

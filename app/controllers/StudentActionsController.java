@@ -15,24 +15,10 @@
 
 package controllers;
 
-import controllers.iop.collaboration.impl.CollaborationController;
-import impl.ExternalCourseHandler;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamParticipation;
-import models.ExaminationEventConfiguration;
-import models.User;
-import repository.EnrolmentRepository;
-import sanitizers.Attrs;
-import security.Authenticated;
-import system.interceptors.SensitiveDataPolicy;
-import util.config.ByodConfigHandler;
-import util.config.ConfigReader;
-import util.excel.ExcelBuilder;
-import util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.iop.collaboration.impl.CollaborationController;
+import impl.ExternalCourseHandler;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
@@ -52,12 +38,26 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamParticipation;
+import models.ExaminationEventConfiguration;
+import models.User;
 import org.joda.time.DateTime;
 import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.EnrolmentRepository;
+import sanitizers.Attrs;
+import security.Authenticated;
+import system.interceptors.SensitiveDataPolicy;
+import util.config.ByodConfigHandler;
+import util.config.ConfigReader;
+import util.excel.ExcelBuilder;
+import util.file.FileHandler;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption" })
 @Restrict({ @Group("STUDENT") })

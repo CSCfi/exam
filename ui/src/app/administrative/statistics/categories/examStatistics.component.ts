@@ -73,11 +73,17 @@ export class ExamStatisticsComponent implements OnInit {
                     return;
                 }
                 this.exams = resp.sort((a, b) => {
-                    if (a.participations > b.participations) return -1;
-                    else if (a.participations < b.participations) return 1;
+                    if (a.participations > b.participations) {
+                        return -1;
+                    } else if (a.participations < b.participations) {
+                        return 1;
+                    }
 
-                    if (a.name > b.name) return 1;
-                    else if (a.name < b.name) return -1;
+                    if (a.name > b.name) {
+                        return 1;
+                    } else if (a.name < b.name) {
+                        return -1;
+                    }
 
                     return 0;
                 });

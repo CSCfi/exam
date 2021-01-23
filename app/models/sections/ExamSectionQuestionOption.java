@@ -15,17 +15,18 @@
 
 package models.sections;
 
-import models.base.GeneratedIdentityModel;
-import models.questions.MultipleChoiceOption;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import models.base.GeneratedIdentityModel;
+import models.questions.MultipleChoiceOption;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExamSectionQuestionOption extends GeneratedIdentityModel {
+
     @ManyToOne
     @JsonBackReference
     private ExamSectionQuestion examSectionQuestion;

@@ -16,26 +16,10 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import controllers.base.BaseController;
-import impl.EmailComposer;
-import models.Exam;
-import models.ExamParticipation;
-import models.ExamRecord;
-import models.GradeScale;
-import models.LanguageInspection;
-import models.Organisation;
-import models.Permission;
-import models.Role;
-import models.User;
-import models.dto.ExamScore;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
-import security.Authenticated;
-import util.csv.CsvBuilder;
-import util.excel.ExcelBuilder;
-import util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,6 +30,16 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.GradeScale;
+import models.LanguageInspection;
+import models.Organisation;
+import models.Permission;
+import models.Role;
+import models.User;
+import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -55,9 +49,16 @@ import play.db.ebean.Transactional;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExamRecordSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import util.csv.CsvBuilder;
+import util.excel.ExcelBuilder;
+import util.file.FileHandler;
 
 public class ExamRecordController extends BaseController {
+
     private final EmailComposer emailComposer;
 
     private CsvBuilder csvBuilder;

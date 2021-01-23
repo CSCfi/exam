@@ -29,6 +29,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 
 public final class JsonDeserializer {
+
     private static final Logger.ALogger logger = Logger.of(JsonDeserializer.class);
 
     private JsonDeserializer() {}

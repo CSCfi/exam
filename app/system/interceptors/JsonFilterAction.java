@@ -17,7 +17,6 @@
 package system.interceptors;
 
 import akka.stream.Materializer;
-import util.json.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collections;
 import java.util.Set;
@@ -28,8 +27,10 @@ import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
+import util.json.JsonFilter;
 
 abstract class JsonFilterAction<T> extends Action<T> {
+
     private Materializer materializer;
 
     JsonFilterAction(Materializer materializer) {

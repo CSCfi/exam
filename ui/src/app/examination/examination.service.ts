@@ -250,12 +250,15 @@ export class ExaminationService {
         const ok = () => {
             toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put(url, {}).subscribe(ok, resp => {
-            if (!canFail) toast.error(this.translate.instant(resp.data));
-            else ok();
+            if (!canFail) {
+                toast.error(this.translate.instant(resp.data));
+            } else {
+                ok();
+            }
         });
     };
 

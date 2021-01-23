@@ -15,6 +15,9 @@
 
 package system;
 
+import com.google.inject.AbstractModule;
+import javax.inject.Singleton;
+import play.libs.akka.AkkaGuiceSupport;
 import system.actors.AssessmentTransferActor;
 import system.actors.AutoEvaluationNotifierActor;
 import system.actors.CollaborativeAssessmentSenderActor;
@@ -22,9 +25,6 @@ import system.actors.ExamAutoSaverActor;
 import system.actors.ExamExpirationActor;
 import system.actors.ReservationPollerActor;
 import system.actors.ReservationReminderActor;
-import com.google.inject.AbstractModule;
-import javax.inject.Singleton;
-import play.libs.akka.AkkaGuiceSupport;
 
 @Singleton
 public class App extends AbstractModule implements AkkaGuiceSupport {

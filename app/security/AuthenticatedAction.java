@@ -16,21 +16,21 @@
 
 package security;
 
-import models.Role;
-import models.User;
-import repository.UserRepository;
-import sanitizers.Attrs;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Role;
+import models.User;
 import play.Logger;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import repository.UserRepository;
+import sanitizers.Attrs;
 
 public class AuthenticatedAction extends Action<Authenticated> {
 
