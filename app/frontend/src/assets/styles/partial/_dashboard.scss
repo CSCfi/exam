@@ -342,6 +342,28 @@
     }
   }
 
+  .infolink {
+    color: #266B99;
+    font-family: $sitnet-family-helvetica;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .infolink-light {
+    color: #266B99;
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .infolink-light-alert {
+    color: $sitnet-aborted;
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
   .student-exam-row-infolink {
 
     padding-top: 1em;
@@ -359,14 +381,6 @@
       font-family: $sitnet-family-helvetica;
       font-weight: normal;
       font-size: 14px;
-    }
-
-    .infolink {
-      color: #266B99;
-      font-family: $sitnet-family-helvetica;
-      font-weight: bold;
-      font-size: 14px;
-      text-decoration: none;
     }
 
     .arrow_icon {
@@ -537,14 +551,14 @@
       }
 
       .sort-img-down {
-        background: url('../images/arrow_down_grey.png') no-repeat;
+        background: url('/assets/assets/images/arrow_down_grey.png') no-repeat;
         height: 9px;
         display: inline-block;
         width: 11px;
       }
 
       .sort-img-up {
-        background: url("../images/arrow_up_grey.png") no-repeat;
+        background: url("/assets/assets/images/arrow_up_grey.png") no-repeat;
         height: 9px;
         display: inline-block;
         width: 11px;
@@ -1285,14 +1299,14 @@
     //white-space: nowrap;
 
     .sort-img-down {
-      background: url("../images/arrow_down_grey.png") no-repeat;
+      background: url("/assets/assets/images/arrow_down_grey.png") no-repeat;
       height: 9px;
       display: inline-block;
       width: 11px;
     }
 
     .sort-img-up {
-      background: url("../images/arrow_up_grey.png") no-repeat;
+      background: url("/assets/assets/images/arrow_up_grey.png") no-repeat;
       height: 9px;
       display: inline-block;
       width: 11px;

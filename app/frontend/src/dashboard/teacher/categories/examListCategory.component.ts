@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { Exam, ExamExecutionType } from '../../../exam/exam.model';
@@ -51,7 +51,8 @@ export class ExamListCategoryComponent implements OnInit {
         reverse: boolean;
     };
     filterText: string;
-    filterChanged: Subject<string> = new Subject<string>();
+    filterChanged = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private http: HttpClient,
@@ -62,11 +63,18 @@ export class ExamListCategoryComponent implements OnInit {
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
-            this.filterText = text;
-            this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
-            this.onFilterChange.emit(this.filterText);
-        });
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(text => {
+                this.filterText = text;
+                this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
+                this.onFilterChange.emit(this.filterText);
+            });
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {

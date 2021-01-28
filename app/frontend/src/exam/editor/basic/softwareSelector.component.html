@@ -28,12 +28,13 @@
             </button>
             <ul ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
                 <li
+                    ngbDropdownItem
                     *ngFor="let sw of software"
                     role="presentation"
                     [ngClass]="isSelected(sw) ? 'active' : ''"
                     (click)="updateExamSoftware(sw)"
                 >
-                    <a ngbDropdownItem role="menuitem" class="pointer" title="{{ sw.name }}">{{ sw.name }}</a>
+                    <a role="menuitem" class="pointer" title="{{ sw.name }}">{{ sw.name }}</a>
                 </li>
             </ul>
         </span>

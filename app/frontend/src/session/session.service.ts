@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
@@ -56,7 +56,7 @@ interface Env {
 }
 
 @Injectable()
-export class SessionService {
+export class SessionService implements OnDestroy {
     private PING_INTERVAL: number = 30 * 1000;
     private user: User;
     private env: { isProd: boolean };
@@ -77,6 +77,10 @@ export class SessionService {
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
+    }
+
+    ngOnDestroy() {
+        this.sessionCheckSubscription.unsubscribe();
     }
 
     getUser = () => this.user;
@@ -215,6 +219,7 @@ export class SessionService {
         const modalRef = this.modal.open(EulaDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         return from(modalRef.result).pipe(
             switchMap(() => this.http.put('/app/users/agreement', {})),

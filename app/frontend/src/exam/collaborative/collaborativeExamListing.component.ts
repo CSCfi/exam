@@ -16,7 +16,7 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
@@ -49,6 +49,7 @@ export class CollaborativeExamListingComponent implements OnInit {
     filter: { text: string };
     loader: { loading: boolean };
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private state: StateService,
@@ -56,7 +57,14 @@ export class CollaborativeExamListingComponent implements OnInit {
         private Session: SessionService,
         private CollaborativeExam: CollaborativeExamService,
     ) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(this.doSearch);
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {

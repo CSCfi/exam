@@ -55,14 +55,14 @@ export class AppComponent {
         private ExaminationStatus: ExaminationStatusService,
     ) {
         this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.hideNavBar = false;
+            this.hideNavBar = true;
         });
         this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.hideNavBar = false;
         });
         this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             delete this.user;
-            this.state.go('dashboard');
+            this.state.go('/');
         });
     }
 

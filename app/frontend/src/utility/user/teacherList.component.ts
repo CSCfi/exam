@@ -19,33 +19,28 @@ import { Exam } from '../../exam/exam.model';
 @Component({
     selector: 'teacher-list',
     template: `
-        <div>
-            <strong>{{ owners }}</strong>
-        </div>
-        <div>{{ inspectors }}</div>
+        <span>
+            <strong>{{ owners }}</strong
+            >{{ inspectors }}
+        </span>
     `,
 })
 export class TeacherListComponent implements OnInit {
     @Input() exam: Exam;
     @Input() useParent = false;
 
-    owners: string;
-    inspectors: string;
+    owners = '';
+    inspectors = '';
 
     ngOnInit() {
         const owners = this.useParent && this.exam.parent ? this.exam.parent.examOwners : this.exam.examOwners;
         const inspectors = this.exam.examInspections ? this.exam.examInspections.map(ei => ei.user) : [];
-        const inspectorHtml = inspectors
+        this.inspectors = inspectors
             .filter(i => i)
             .map(i => `${i.firstName} ${i.lastName}`)
             .join(', ');
         if (owners.filter(o => o.lastName).length > 0) {
-            const ownerHtml = `${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}`;
-            return inspectors.length > 0 ? `${ownerHtml}, ${inspectorHtml}` : ownerHtml;
-        } else if (inspectors.length > 0) {
-            return inspectorHtml;
-        } else {
-            return '';
+            this.owners = `${owners.map(o => `${o.firstName} ${o.lastName}`).join(', ')}`;
         }
     }
 }

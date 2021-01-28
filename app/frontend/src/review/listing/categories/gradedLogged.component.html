@@ -56,12 +56,12 @@
                 <th class="dropdown" ngbDropdown>
                     <button class="btn btn-xs btn-default" ngbDropdownToggle></button>
                     <ul ngbDropdownMenu role="menu">
-                        <li role="presentation" [ngClass]="selections.page ? 'active' : ''">
+                        <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
                             <a role="menuitem" class="pointer" (click)="selectPage('selectionBox')">
                                 {{ 'sitnet_choose_visible' | translate }}
                             </a>
                         </li>
-                        <li role="presentation" [ngClass]="selections.all ? 'active' : ''">
+                        <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
                             <a role="menuitem" class="pointer" (click)="selectAll()">
                                 {{ 'sitnet_choose_all' | translate }}
                             </a>

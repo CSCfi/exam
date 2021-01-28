@@ -14,12 +14,8 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
-import * as toast from 'toastr';
 
 import { ExamRoom } from '../../reservation/reservation.model';
-import { ReservationService } from '../../reservation/reservation.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../utility/file/file.service';
 import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
@@ -32,61 +28,15 @@ export class ActiveEnrolmentComponent {
     @Input() enrolment: ExamEnrolment;
     @Output() onRemoval = new EventEmitter<ExamEnrolment>();
 
-    constructor(
-        private translate: TranslateService,
-        private state: StateService,
-        private ConfirmationDialog: ConfirmationDialogService,
-        private Enrolment: EnrolmentService,
-        private Reservation: ReservationService,
-        private Files: FileService,
-    ) {}
+    constructor(private translate: TranslateService, private Enrolment: EnrolmentService, private Files: FileService) {}
 
-    removeReservation = () => {
-        if (this.enrolment.reservation) {
-            this.Reservation.removeReservation(this.enrolment);
-        } else {
-            this.Enrolment.removeExaminationEvent(this.enrolment);
-        }
-    };
+    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
 
-    makeReservation = () => {
-        if (this.enrolment.exam && this.enrolment.exam.implementation !== 'AQUARIUM') {
-            this.Enrolment.selectExaminationEvent(this.enrolment.exam, this.enrolment);
-        } else {
-            this.goToCalendar();
-        }
-    };
-
-    hasUpcomingAlternativeEvents = () =>
-        this.enrolment.exam &&
-        this.enrolment.exam.examinationEventConfigurations.some(
-            eec =>
-                new Date(eec.examinationEvent.start) > new Date() &&
-                (!this.enrolment.examinationEventConfiguration ||
-                    eec.id !== this.enrolment.examinationEventConfiguration.id),
-        );
-
-    removeEnrolment = () => {
-        if (this.enrolment.reservation) {
-            toast.error(this.translate.instant('sitnet_cancel_reservation_first'));
-        } else {
-            this.ConfirmationDialog.open(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_are_you_sure'),
-            ).result.then(() =>
-                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment)),
-            );
-        }
-    };
-
-    goToCalendar = () => {
-        const params = {
-            id: this.enrolment.collaborativeExam ? this.enrolment.collaborativeExam.id : this.enrolment.exam.id,
-        };
-        this.state.go(this.enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
-    };
+    makeReservation = () => this.Enrolment.makeReservation(this.enrolment);
 
     addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
+
+    enrolmentRemoved = ($event: ExamEnrolment) => this.onRemoval.emit($event);
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {
         switch (lang) {
