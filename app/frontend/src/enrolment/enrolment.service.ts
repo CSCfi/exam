@@ -250,4 +250,23 @@ export class EnrolmentService {
             modalRef.result.catch(err => toast.error(err));
         });
     };
+
+    hasUpcomingAlternativeEvents = (enrolment: ExamEnrolment) =>
+        enrolment.exam &&
+        enrolment.exam.examinationEventConfigurations.some(
+            eec =>
+                new Date(eec.examinationEvent.start) > new Date() &&
+                (!enrolment.examinationEventConfiguration || eec.id !== enrolment.examinationEventConfiguration.id),
+        );
+
+    makeReservation = (enrolment: ExamEnrolment) => {
+        if (enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM') {
+            this.selectExaminationEvent(enrolment.exam, enrolment);
+        } else {
+            const params = {
+                id: enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id,
+            };
+            this.State.go(enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
+        }
+    };
 }

@@ -14,7 +14,6 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,7 +21,6 @@ import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -58,8 +56,6 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         private http: HttpClient,
         private translate: TranslateService,
         private Exam: ExamService,
-        private modal: NgbModal,
-        private Confirmation: ConfirmationDialogService,
         private Attachment: AttachmentService,
         private Files: FileService,
         private Session: SessionService,

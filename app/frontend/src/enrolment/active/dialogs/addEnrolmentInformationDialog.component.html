@@ -9,10 +9,11 @@
                     {{ 'sitnet_student_enrolment_info_description' | translate }}
                 </p>
                 <textarea
+                    name="info"
                     aria-label="write additional information for the examiner"
                     rows="10"
                     class="student-message-dialog-textarea"
-                    [(ng-model)]="information"
+                    [(ngModel)]="information"
                 >
                 </textarea>
             </form>

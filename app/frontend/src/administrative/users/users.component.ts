@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService, User } from '../../session/session.service';
@@ -38,7 +38,8 @@ export class UsersComponent implements OnInit {
     pageSize = 30;
     currentPage = 0;
     filter = { text: '' };
-    textChanged: Subject<string> = new Subject<string>();
+    textChanged = new Subject<string>();
+    ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
         { type: 'ADMIN', name: 'sitnet_admin', icon: 'bi-gear' },
         { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
@@ -52,10 +53,17 @@ export class UsersComponent implements OnInit {
         private session: SessionService,
         private userManagement: UserManagementService,
     ) {
-        this.textChanged.pipe(debounceTime(1000), distinctUntilChanged()).subscribe(text => {
-            this.filter.text = text;
-            this.search();
-        });
+        this.textChanged
+            .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(text => {
+                this.filter.text = text;
+                this.search();
+            });
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {

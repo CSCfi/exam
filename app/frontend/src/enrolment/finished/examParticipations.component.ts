@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ExamParticipation } from '../../exam/exam.model';
@@ -39,13 +39,21 @@ export class ExamParticipationsComponent implements OnInit {
     currentPage = 0;
     participations: ExamParticipation[];
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(private http: HttpClient) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(this.doSearch);
     }
 
     ngOnInit() {
         this.search('');
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     search = (text: string) => this.filterChanged.next(text);

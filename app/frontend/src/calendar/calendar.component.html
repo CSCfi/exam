@@ -10,48 +10,61 @@
 
     <!-- Phase 1: Exam Info -->
     <div class="row student-enrolment-wrapper details-view">
-        <span class="col-md-12">
-            <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
-            <span class="calendar-phase-icon pull-right">
-                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
-            </span>
-        </span>
-        <div class="col-md-12">
-            <div class="calendar-titles">
-                <span class="calendar-course-title">{{ examInfo.name }}</span>
-                <span *ngIf="examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
-            </div>
-        </div>
         <div class="col-md-12">
             <div class="row">
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code> {{ examInfo.course.name }}
+                <span class="col-md-12">
+                    <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
+                    <span class="calendar-phase-icon float-right">
+                        <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
+                    </span>
+                </span>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="calendar-titles">
+                        <span class="calendar-course-title">{{ examInfo.name }}</span>
+                        <span *ngIf="examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                    </div>
                 </div>
-                <div class="clearfix visible-xs"></div>
-                <div class="clearfix visible-sm"></div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                    {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    {{ printExamDuration(examInfo) }}
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code>
+                            {{ examInfo.course.name }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_validity' | translate }}:</div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
+                            {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ printExamDuration(examInfo) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-12">
-            <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
-                {{ 'sitnet_calendar_instructions' | translate }}:
-                <span [innerHtml]="examInfo.enrollInstruction"></span>
-            </span>
+        <div class="row">
+            <div class="col-md-12">
+                <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
+                    {{ 'sitnet_calendar_instructions' | translate }}:
+                    <span [innerHtml]="examInfo.enrollInstruction"></span>
+                </span>
+            </div>
         </div>
-        <div class="col-md-12 mart10">
-            <span *ngIf="showReservationWindowInfo()" class="text-info">
-                <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
-                {{ getReservationWindowDescription() }}
-            </span>
+        <div class="row">
+            <div class="col-md-12 mart10">
+                <span *ngIf="showReservationWindowInfo()" class="text-info">
+                    <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
+                    {{ getReservationWindowDescription() }}
+                </span>
+            </div>
         </div>
     </div>
 
@@ -164,14 +177,14 @@
                             role="menu"
                             aria-labelledby="dropDownMenu21"
                         >
-                            <li class="input-group"></li>
                             <li
+                                ngbDropdownItem
                                 *ngFor="let org of organisations"
                                 [hidden]="org.filtered"
                                 role="presentation"
                                 (click)="setOrganisation(org)"
                             >
-                                <a ngbDropdownItem role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
                             </li>
                         </ul>
                     </span>
@@ -278,6 +291,7 @@
                         </button>
                         <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
                             <li
+                                ngbDropdownItem
                                 *ngFor="let room of rooms"
                                 [hidden]="room.filtered"
                                 role="presentation"
@@ -287,7 +301,6 @@
                                 (ngEnter)="selectRoom(room)"
                             >
                                 <a
-                                    ngbDropdownItem
                                     role="menuitem"
                                     ngbPopover="{{ getDescription(room) }}"
                                     triggers="mouseenter:mouseleave"

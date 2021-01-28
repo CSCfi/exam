@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../utility/language/language.service';
@@ -29,21 +29,29 @@ import { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 export class ExamSearchComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
     filter: { text: string };
     loader: { loading: boolean };
     permissionCheck: { active: boolean };
 
     constructor(private http: HttpClient, private Language: LanguageService) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(txt => {
-            if (this.permissionCheck.active === false) {
-                if (txt) {
-                    this.loader.loading = true;
-                    this.doSearch();
-                } else {
-                    this.exams = [];
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(txt => {
+                if (this.permissionCheck.active === false) {
+                    if (txt) {
+                        this.loader.loading = true;
+                        this.doSearch();
+                    } else {
+                        this.exams = [];
+                    }
                 }
-            }
-        });
+            });
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {

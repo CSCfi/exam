@@ -22,36 +22,37 @@ import { User } from '../session.service';
     selector: 'role-selector-dialog',
     template: `
         <div id="sitnet-dialog">
-            <div class="modal-header">
-                <h1 class="sitnet-black">
-                    <i class="bi-person-circle"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
-                </h1>
+            <div class="student-message-dialog-wrapper-padding">
+                <div class="student-enroll-dialog-wrap">
+                    <h2 class="student-enroll-title">
+                        <i class="bi-person-circle"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
+                    </h2>
+                </div>
             </div>
             <div class="modal-body">
                 <div ngbDropdown>
                     <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
                         {{ 'sitnet_choose' | translate }}
                     </button>
-                    <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <li *ngFor="let role of user.roles">
-                            <a
-                                ngbDropdownItem
-                                class="pointer"
-                                title="{{ role.displayName | translate }}"
-                                (click)="activeModal.close(role)"
-                            >
-                                <i class="pull-right" [ngClass]="role.icon"></i>
-                                {{ role.displayName | translate }}
-                            </a>
-                        </li>
-                    </ul>
+                    <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
+                        <button
+                            ngbDropdownItem
+                            *ngFor="let role of user.roles"
+                            title="{{ role.displayName | translate }}"
+                            (click)="activeModal.close(role)"
+                        >
+                            {{ role.displayName | translate }} <i [ngClass]="role.icon"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="col-md-12">
-                    <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_decline' | translate }}
-                    </button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
+                            {{ 'sitnet_button_decline' | translate }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

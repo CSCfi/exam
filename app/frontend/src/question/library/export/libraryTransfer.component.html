@@ -15,7 +15,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul ngbDropdownMenu aria-labelledby="dropDownMenu">
-                        <li role="presentation" class="input-group">
+                        <li ngbDropdownItem role="presentation" class="input-group">
                             <input
                                 aria-label="search for faculty"
                                 [(ngModel)]="filter"
@@ -29,6 +29,7 @@
                             </div>
                         </li>
                         <li
+                            ngbDropdownItem
                             *ngFor="let org of filteredOganisations"
                             (hidden)="(org.filtered)"
                             role="presentation"

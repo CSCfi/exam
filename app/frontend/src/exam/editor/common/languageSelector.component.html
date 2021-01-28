@@ -21,6 +21,7 @@
             </button>
             <ul ngbDropdownMenu aria-labelledby="ddMenu">
                 <li
+                    ngbDropdownItem
                     *ngFor="let language of examLanguages"
                     [ngClass]="isSelected(language) ? 'active' : ''"
                     (click)="updateExamLanguage(language)"

@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { from, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, map, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, map, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -41,6 +41,7 @@ export class ExamListingComponent {
     byodExaminationSupported: boolean;
     exams: ExamListExam[] = [];
     subject = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private translate: TranslateService,
@@ -49,6 +50,11 @@ export class ExamListingComponent {
         private Confirmation: ConfirmationDialogService,
         private Exam: ExamService,
     ) {}
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
 
     ngOnInit() {
         this.view = 'PUBLISHED';
@@ -98,6 +104,7 @@ export class ExamListingComponent {
                         this.exams = exams;
                         this.loader.loading = false;
                     }),
+                    takeUntil(this.ngUnsubscribe),
                 )
                 .subscribe();
         });

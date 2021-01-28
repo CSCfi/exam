@@ -14,10 +14,10 @@
  */
 import { NgModule } from '@angular/core';
 import { RootModule, UIRouter, UIRouterModule } from '@uirouter/angular';
-import { visualizer } from '@uirouter/visualizer';
 
 import { SettingsComponent } from './administrative/settings/settings.component';
 import { UsersComponent } from './administrative/users/users.component';
+import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExamEnrolmentsComponent } from './enrolment/exams/examEnrolments.component';
@@ -52,10 +52,10 @@ function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
     // If the browser URL doesn't matches any state when the router starts,
     // go to the `dashboard` state by default
-    router.urlService.rules.initial({ state: 'dashboard' });
+    router.urlService.rules.initial({ state: 'app' });
 
     // Use @uirouter/visualizer to show the states and transitions
-    visualizer(router);
+    // visualizer(router);
 }
 
 const rootModule: RootModule = {
@@ -304,14 +304,14 @@ const rootModule: RootModule = {
             url: '/inspections/reports',
             component: MaturityReportingComponent,
         },
-        /*{
+        {
             name: 'app',
             url: '/',
-            component: AppComponent
-        }*/
+            component: AppComponent,
+        },
     ],
     useHash: false,
-    otherwise: 'dashboard',
+    //otherwise: 'dashboard',
     config: uiRouterConfigFn,
 };
 

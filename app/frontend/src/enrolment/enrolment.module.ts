@@ -19,6 +19,8 @@ import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
 import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
@@ -49,6 +51,8 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchResultComponent,
         WaitingRoomComponent,
         WrongLocationComponent,
+        AddEnrolmentInformationDialogComponent,
+        ActiveEnrolmentMenuComponent,
     ],
     entryComponents: [
         ActiveEnrolmentComponent,
@@ -63,6 +67,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchResultComponent,
         WaitingRoomComponent,
         WrongLocationComponent,
+        AddEnrolmentInformationDialogComponent,
     ],
     providers: [EnrolmentService, WrongLocationService],
 })

@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
@@ -56,7 +57,7 @@ export class ExamParticipationComponent implements OnInit {
             }
             this.loadReview(this.participation.exam);
         }
-        this.translate.onLangChange.subscribe(() => {
+        this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             if (this.participation.exam) {
                 this.participation.exam.grade.displayName = this.Exam.getExamGradeDisplayName(
                     this.participation.exam.grade.name,
