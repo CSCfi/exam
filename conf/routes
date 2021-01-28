@@ -1,4 +1,4 @@
-GET           /                                                        backend.controllers.base.Index.index
+GET           /                                                        backend.controllers.base.FrontendRouterController.index()
 
 ############### Session interface ############
 GET           /app/checkSession                                        backend.controllers.SessionController.checkSession(request: Request)
@@ -454,5 +454,5 @@ GET           /bundles/*file                                           backend.c
 #######################################################
 GET           /attributes                                              backend.controllers.SessionController.getAttributes(request: Request)
 
-# reroute to front
-GET           /*path                                                   backend.controllers.base.FrontendRouterController.routeToFront(path: String)
+# reroute to index
+GET           /*path                                                   backend.controllers.base.FrontendRouterController.otherwise(path)
