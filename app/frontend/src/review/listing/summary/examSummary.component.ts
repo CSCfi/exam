@@ -29,7 +29,7 @@ import { NoShowsComponent } from '../dialogs/noShows.component';
 
 @Component({
     selector: 'exam-summary',
-    template: require('./examSummary.component.html'),
+    templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
     @Input() exam: Exam;

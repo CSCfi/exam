@@ -22,7 +22,7 @@ import { WindowRef } from '../../../utility/window/window.service';
 
 @Component({
     selector: 'r-participation',
-    template: require('./participation.component.html'),
+    templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
     @Input() participation: ExamParticipation & { noShow: boolean };

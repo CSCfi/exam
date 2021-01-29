@@ -5,7 +5,7 @@ import { QuestionBase } from './questionTypes';
 
 @Component({
     selector: 'dynamic-form-question',
-    template: require('./dynamicFormQuestion.component.html'),
+    templateUrl: './dynamicFormQuestion.component.html',
 })
 export class DynamicFormQuestionComponent {
     @Input() question: QuestionBase<string>;

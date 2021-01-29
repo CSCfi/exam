@@ -21,7 +21,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-reviews',
-    template: require('./questionReviews.component.html'),
+    templateUrl: './questionReviews.component.html',
 })
 export class QuestionReviewsComponent {
     @Input() examId: number;

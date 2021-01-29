@@ -14,22 +14,22 @@
             </div>
             <div class="col-md-12">
                 <div class="col-md-6">
-                    <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
                 </div>
                 <div class="col-md-6">
-                    <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn btn-success pull-left" ng-click="$ctrl.ok()">
+            <button class="btn btn btn-success pull-left" (click)="ok()">
                 {{ 'sitnet_search' | translate }}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-primary pull-right" ng-click="$ctrl.cancel()">
+            <button class="btn btn-primary pull-right" (click)="cancel()">
                 {{ 'sitnet_button_cancel' | translate }}
             </button>
         </div>

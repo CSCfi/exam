@@ -27,7 +27,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
     selector: 'library-results',
-    template: require('./libraryResults.component.html'),
+    templateUrl: './libraryResults.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: SelectableQuestion[];
@@ -186,7 +186,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.questionSelected();
     };
 
-    private showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
+    showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
         if (_.isNumber(scoreColumnValue)) {
             return scoreColumnValue;
         } else {

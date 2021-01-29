@@ -27,6 +27,7 @@ import {
     Exam,
     ExamSection,
     ExamSectionQuestion,
+    ExamSectionQuestionOption,
     isBlankElement,
     isTextElement,
     MultipleChoiceOption,
@@ -39,15 +40,17 @@ export interface Examination extends Exam {
     external: boolean;
     examSections: ExaminationSection[];
 }
-
+type ExaminationQuestionOption = ExamSectionQuestionOption & { selectedOption: boolean };
 export interface ExaminationQuestion extends ExamSectionQuestion {
     questionStatus: string;
     autosaved: Date;
     derivedMaxScore: number;
+    derivedMinScore: number;
     selectedOption: MultipleChoiceOption | number;
     answered: boolean;
     selectedAnsweredState: string;
     expanded: boolean;
+    options: ExaminationQuestionOption[];
 }
 
 export interface ExaminationSection extends ExamSection {

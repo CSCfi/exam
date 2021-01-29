@@ -21,18 +21,20 @@ type Organisation = {
     _id: string;
     name: string;
     homeOrg: boolean;
+    code: string;
 };
 
 @Component({
     selector: 'library-transfer',
-    template: require('./libraryTransfer.component.html'),
+    templateUrl: './libraryTransfer.component.html',
 })
 export class LibraryTransferComponent implements OnInit {
     @Input() selections: number[];
     organisations: Organisation[];
-    filteredOrganisations: Organisation[];
+    filteredOrganisations: (Organisation & { filtered: boolean })[];
     organisation: Organisation;
     filter: string;
+    showOrganisationSelection = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
@@ -44,7 +46,9 @@ export class LibraryTransferComponent implements OnInit {
     }
 
     filterOrganisations = () =>
-        (this.filteredOrganisations = this.organisations.filter(o => o.name.startsWith(this.filter)));
+        (this.filteredOrganisations = this.organisations
+            .filter(o => o.name.startsWith(this.filter))
+            .map(o => ({ ...o, filtered: false })));
 
     transfer = () => {
         if (this.selections.length == 0) {

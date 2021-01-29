@@ -21,7 +21,7 @@ import { User } from '../../../session/session.service';
 
 @Component({
     selector: 'r-inspection',
-    template: require('./inspection.component.html'),
+    templateUrl: './inspection.component.html',
 })
 export class InspectionComponent implements OnInit {
     @Input() inspection: { id: number; user: User; ready: boolean };

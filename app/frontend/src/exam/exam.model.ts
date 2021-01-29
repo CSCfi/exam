@@ -97,6 +97,7 @@ export interface Question {
     options: MultipleChoiceOption[];
     tags: Tag[];
     questionOwners: User[];
+    parent?: Question;
     state: string;
     defaultMaxScore?: number;
     shared?: boolean;
@@ -259,6 +260,12 @@ export interface ExamType {
     name?: string;
 }
 
+export interface ExamType {
+    id: number;
+    type: string;
+    name?: string;
+}
+
 export interface ExamImpl {
     id: number;
     created: Date;
@@ -312,7 +319,7 @@ export interface ExamImpl {
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection?: LanguageInspection;
-    inspectionComments: { comment: string }[];
+    inspectionComments: { comment: string; creator: User; created: Date }[];
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;

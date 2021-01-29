@@ -24,7 +24,7 @@ import { ReservationService } from './reservation.service';
 
 @Component({
     selector: 'reservation-details',
-    template: require('./reservationDetails.component.html'),
+    templateUrl: './reservationDetails.component.html',
 })
 export class ReservationDetailsComponent {
     @Input() reservations: Reservation[];

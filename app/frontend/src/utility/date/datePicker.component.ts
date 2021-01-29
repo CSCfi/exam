@@ -18,7 +18,7 @@ import * as moment from 'moment';
 
 @Component({
     selector: 'date-picker',
-    template: require('./datePicker.component.html'),
+    templateUrl: './datePicker.component.html',
 })
 export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | null = null;

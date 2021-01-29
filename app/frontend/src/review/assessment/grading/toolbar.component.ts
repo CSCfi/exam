@@ -26,7 +26,7 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 
 @Component({
     selector: 'r-toolbar',
-    template: require('./toolbar.component.html'),
+    templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
     @Input() valid: boolean;

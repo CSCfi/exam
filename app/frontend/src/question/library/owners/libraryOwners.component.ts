@@ -25,7 +25,7 @@ import { QuestionService } from '../../question.service';
 
 @Component({
     selector: 'library-owner-selection',
-    template: require('./libraryOwners.component.html'),
+    templateUrl: './libraryOwners.component.html',
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[];

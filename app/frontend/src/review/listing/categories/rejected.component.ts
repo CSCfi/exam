@@ -22,7 +22,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-rejected',
-    template: require('./rejected.component.html'),
+    templateUrl: './rejected.component.html',
 })
 export class RejectedReviewsComponent {
     @Input() reviews: Review[];

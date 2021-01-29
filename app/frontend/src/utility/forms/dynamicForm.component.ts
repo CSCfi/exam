@@ -7,7 +7,7 @@ import { QuestionBase } from './questionTypes';
 
 @Component({
     selector: 'dynamic-form',
-    template: require('./dynamicForm.component.html'),
+    templateUrl: './dynamicForm.component.html',
 })
 export class DynamicFormComponent implements OnInit {
     @Input() questions: QuestionBase<string>[] = [];

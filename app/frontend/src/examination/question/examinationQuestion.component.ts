@@ -20,7 +20,7 @@ import { Examination, ExaminationQuestion, ExaminationService } from '../examina
 
 @Component({
     selector: 'examination-question',
-    template: require('./examinationQuestion.component.html'),
+    templateUrl: './examinationQuestion.component.html',
 })
 export class ExaminationQuestionComponent {
     @Input() exam: Examination;

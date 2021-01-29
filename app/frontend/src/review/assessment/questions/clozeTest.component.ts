@@ -24,7 +24,7 @@ import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'r-cloze-test',
-    template: require('./clozeTest.component.html'),
+    templateUrl: './clozeTest.component.html',
 })
 export class ClozeTestComponent {
     @Input() participation: ExamParticipation;

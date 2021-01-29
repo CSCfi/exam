@@ -19,7 +19,7 @@ import { LanguageInspectionService } from '../languageInspections.service';
 
 @Component({
     selector: 'reviewed-inspections',
-    template: require('./reviewedInspections.component.html'),
+    templateUrl: './reviewedInspections.component.html',
 })
 export class ReviewedInspectionsComponent implements OnInit {
     @Input() inspections: LanguageInspectionData[];
@@ -31,6 +31,7 @@ export class ReviewedInspectionsComponent implements OnInit {
     pageSize = 10;
     currentPage = 0;
     filterText: string;
+    hideItems = false;
 
     constructor(private LanguageInspections: LanguageInspectionService) {}
 

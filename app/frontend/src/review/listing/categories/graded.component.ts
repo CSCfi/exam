@@ -26,7 +26,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-graded',
-    template: require('./graded.component.html'),
+    templateUrl: './graded.component.html',
 })
 export class GradedReviewsComponent {
     @Input() exam: Exam;

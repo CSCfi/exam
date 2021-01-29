@@ -4,7 +4,7 @@
             >{{ 'sitnet_essay_length_recommendation' | translate }}:&nbsp; {{ sq.expectedWordCount }} ({{
                 'sitnet_approximately' | translate
             }}
-            {{ sq.expectedWordCount * 8 }} {{ 'sitnet_characters' | translate }})
+            {{ (sq.expectedWordCount || 0) * 8 }} {{ 'sitnet_characters' | translate }})
         </small>
     </div>
 </div>

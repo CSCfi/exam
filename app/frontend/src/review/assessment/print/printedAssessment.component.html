@@ -71,7 +71,7 @@
         <div class="col-md-2">{{ participation.started | applyDst | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-4">
             <strong>{{ 'sitnet_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
-            {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
+            {{ translateState(participation) | lowercase | translate }}
         </div>
         <div class="col-md-6">
             {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{ translateGrade(participation) }}
@@ -145,14 +145,14 @@
         <div class="col-md-3">
             <strong>{{ 'sitnet_approved' | translate }}:</strong>
         </div>
-        <div class="col-md-9">{{ ctrl.questionSummary.accepted }}</div>
+        <div class="col-md-9">{{ questionSummary.accepted }}</div>
     </div>
 
     <div class="row" *ngIf="questionSummary.rejected > 0">
         <div class="col-md-3">
             <strong>{{ 'sitnet_rejected' | translate }}:</strong>
         </div>
-        <div class="col-md-9">{{ ctrl.questionSummary.rejected }}</div>
+        <div class="col-md-9">{{ questionSummary.rejected }}</div>
     </div>
 
     <div class="row">

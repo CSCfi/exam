@@ -27,7 +27,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-graded-logged',
-    template: require('./gradedLogged.component.html'),
+    templateUrl: './gradedLogged.component.html',
 })
 export class GradedLoggedReviewsComponent {
     @Input() reviews: Review[];
@@ -115,6 +115,10 @@ export class GradedLoggedReviewsComponent {
             true,
         );
     };
+
+    selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
+
+    selectPage = (selector: string) => this.ReviewList.selectPage(this.selections, this.view.filtered, selector);
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';

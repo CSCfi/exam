@@ -146,7 +146,7 @@
     <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
 </div>
 <div class="review-grade-row marb20">
-    <form name="gradingForm" role="form" #f="ngForm" novalidate>
+    <form #gradingForm name="gradingForm" role="form" novalidate>
         <div class="col-md-3 general-info-content">
             <select
                 id="examGrade"
@@ -204,4 +204,4 @@
 </div>
 
 <!-- Bottom toolbar -->
-<r-toolbar [valid]="f.gradingForm.valid"></r-toolbar>
+<r-toolbar [valid]="gradingForm.valid"></r-toolbar>

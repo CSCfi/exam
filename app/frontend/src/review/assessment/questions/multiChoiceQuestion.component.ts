@@ -25,7 +25,7 @@ import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'r-multi-choice-question',
-    template: require('./multiChoiceQuestion.component.html'),
+    templateUrl: './multiChoiceQuestion.component.html',
 })
 export class MultiChoiceQuestionComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

@@ -10,7 +10,7 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [hidden]="sectionQuestion.question.attachment">N/A</span>
-            <span *ngIf="sectionQuestion.question.attachment">{{ sectionQuestion.question.attachment.fileName }}</span>
+            <span *ngIf="sectionQuestion.question.attachment">{{ sectionQuestion.question.attachment?.fileName }}</span>
         </div>
     </div>
     <!-- answer -->

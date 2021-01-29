@@ -10,7 +10,7 @@
             </div>
             <div class="exam-header-title divider"></div>
             <div class="exam-header-title">
-                {{ exam.course.name }}
+                {{ exam.course?.name }}
                 <course-code [course]="exam.course"></course-code>
             </div>
             <div class="language-selector">

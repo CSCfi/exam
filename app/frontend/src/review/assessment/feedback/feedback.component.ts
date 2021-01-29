@@ -25,7 +25,7 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 
 @Component({
     selector: 'r-feedback',
-    template: require('./feedback.component.html'),
+    templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent {
     @Input() exam: Examination;

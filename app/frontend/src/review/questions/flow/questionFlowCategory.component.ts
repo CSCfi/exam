@@ -20,13 +20,15 @@ import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-flow-category',
-    template: require('./questionFlowCategory.component.html'),
+    templateUrl: './questionFlowCategory.component.html',
 })
 export class QuestionFlowCategoryComponent {
     @Input() categoryTitle: string;
     @Input() reviews: QuestionReview[] = [];
     @Input() allDone: boolean;
     @Output() onSelection = new EventEmitter<QuestionReview>();
+
+    hideCategory = false;
 
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 

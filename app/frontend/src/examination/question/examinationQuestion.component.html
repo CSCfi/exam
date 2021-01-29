@@ -34,7 +34,7 @@
             <div class="section-box-title" *ngIf="!expanded" [MathJax]="sq.question.question | slice: 0:240"></div>
         </div>
         <div class="section-header-middle" *ngIf="sq.question.type === 'ClozeTestQuestion'">
-            <div class="section-box-title" mathjax>
+            <div class="section-box-title">
                 <dynamic-form [questions]="clozeTestFormQuestions" (onAnswer)="answered($event)"></dynamic-form>
                 <!--cloze-test [content]="clozeTestAnswer.question" [results]="clozeTestAnswer.answer"></cloze-test-->
             </div>
@@ -66,7 +66,7 @@
                     alt="attachment"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
             /></a>
-            <div class="attachment-name">{{ sq.question.attachment.fileName | uppercase }}</div>
+            <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
         </div>
     </div>
 

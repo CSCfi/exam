@@ -40,16 +40,16 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { FileService } from '../../utility/file/file.service';
 import { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
-import { ReviewListService } from './reviewList.service';
 
 @Component({
     selector: 'speed-review',
-    template: require('./speedReview.component.html'),
+    templateUrl: './speedReview.component.html',
 })
 export class SpeedReviewComponent {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
+    reverse: false;
     examId: number;
     examInfo: { examOwners: User[]; title: string; anonymous: boolean };
     toggleReviews = false;
@@ -61,7 +61,6 @@ export class SpeedReviewComponent {
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
-        private ReviewList: ReviewListService,
         private Confirmation: ConfirmationDialogService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -144,6 +143,8 @@ export class SpeedReviewComponent {
 
     isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
 
+    setPredicate = (predicate: string) => (this.reviewPredicate = predicate);
+
     private getErrors = (review: Review) => {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
@@ -162,9 +163,9 @@ export class SpeedReviewComponent {
     private getAnswerLanguage = (review: Review) =>
         review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
 
-    private isGradeable = (review: Review) => this.getErrors(review).length === 0;
+    isGradeable = (review: Review) => this.getErrors(review).length === 0;
 
-    private hasModifications = () => {
+    hasModifications = () => {
         if (this.examReviews) {
             return (
                 this.examReviews.filter(

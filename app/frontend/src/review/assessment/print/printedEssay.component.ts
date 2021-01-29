@@ -19,7 +19,7 @@ import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'printed-essay',
-    template: require('./templates/essay.component.html'),
+    templateUrl: './templates/essay.component.html',
 })
 export class PrintedEssayComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

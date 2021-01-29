@@ -22,7 +22,7 @@ import { Question, Tag } from '../../exam/exam.model';
 
 @Component({
     selector: 'tag-picker',
-    template: require('./tagPicker.component.html'),
+    templateUrl: './tagPicker.component.html',
 })
 export class TagPickerComponent {
     @Input() question: Question & { newTag?: Tag };

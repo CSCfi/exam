@@ -19,7 +19,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'printed-cloze-test',
-    template: require('./templates/clozeTest.component.html'),
+    templateUrl: './templates/clozeTest.component.html',
 })
 export class PrintedClozeTestComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

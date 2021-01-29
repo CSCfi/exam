@@ -27,6 +27,7 @@ export interface QuestionReview {
     answers: ReviewQuestion[];
     evaluationCriteria?: string;
     selected: boolean;
+    expanded: boolean;
 }
 
 export type Review = {

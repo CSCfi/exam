@@ -19,11 +19,12 @@ import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { Exam } from '../../../exam/exam.model';
+import { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
 
 @Component({
     selector: 'r-inspection-comments',
-    template: require('./inspectionComments.component.html'),
+    templateUrl: './inspectionComments.component.html',
 })
 export class InspectionCommentsComponent {
     @Input() exam: Exam;
@@ -41,9 +42,12 @@ export class InspectionCommentsComponent {
         )
             .pipe(
                 switchMap((event: { comment: string }) =>
-                    this.http.post<{ comment: string }>(`/app/review/${this.exam.id}/inspection`, {
-                        comment: event.comment,
-                    }),
+                    this.http.post<{ comment: string; creator: User; created: Date }>(
+                        `/app/review/${this.exam.id}/inspection`,
+                        {
+                            comment: event.comment,
+                        },
+                    ),
                 ),
             )
             .subscribe(comment => this.exam.inspectionComments.unshift(comment));

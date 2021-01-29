@@ -22,7 +22,7 @@ import { LanguageInspection } from '../maturity.model';
  */
 @Component({
     selector: 'unfinished-inspections',
-    template: require('./unfinishedInspections.component.html'),
+    templateUrl: './unfinishedInspections.component.html',
 })
 export class UnfinishedInspectionsComponent implements OnInit {
     @Input() inspections: LanguageInspectionData[];

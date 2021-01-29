@@ -36,7 +36,7 @@ type State = {
     hint?: string;
     alternateState?: StateName;
 };
-enum StateName {
+export enum StateName {
     NOT_REVIEWED,
     REJECT_STRAIGHTAWAY,
     LANGUAGE_INSPECT,
@@ -118,7 +118,7 @@ export class MaturityService {
         return this.http.put<LanguageInspection>(`/app/inspection/${exam.id}/statement`, statement);
     };
 
-    getNextState = (exam: Exam): StateName => {
+    private getNextStateName = (exam: Exam): StateName => {
         if (!this.isGraded(exam)) {
             return StateName.NOT_REVIEWED;
         }
@@ -137,8 +137,11 @@ export class MaturityService {
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
 
+    getNextState = (exam: Exam): State => this.MATURITY_STATES[this.getNextStateName(exam)];
+    getState = (state: StateName): State => this.MATURITY_STATES[state];
+
     proceed = (exam: Exam, alternate: boolean) => {
-        let state = this.getNextState(exam);
+        let state = this.getNextStateName(exam);
         if (this.MATURITY_STATES[state].alternateState && alternate) {
             state = this.MATURITY_STATES[state].alternateState as StateName;
         }

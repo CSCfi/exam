@@ -23,7 +23,7 @@ export interface FileResult {
 
 @Component({
     selector: 'attachment-selector',
-    template: require('./attachmentSelector.component.html'),
+    templateUrl: './attachmentSelector.component.html',
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file', { static: false }) file: ElementRef;

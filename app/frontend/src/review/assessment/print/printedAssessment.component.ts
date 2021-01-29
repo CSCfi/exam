@@ -31,7 +31,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 
 @Component({
     selector: 'printed-assessment',
-    template: require('./printedAssessment.component.html'),
+    templateUrl: './printedAssessment.component.html',
 })
 export class PrintedAssessmentComponent {
     @Input() collaborative: boolean;
@@ -158,4 +158,6 @@ export class PrintedAssessmentComponent {
         );
         return this.exam.examInspections.length + owners.length;
     };
+
+    translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

@@ -21,7 +21,7 @@ import { LibraryQuestion } from './library.service';
 
 @Component({
     selector: 'library',
-    template: require('./library.component.html'),
+    templateUrl: './library.component.html',
 })
 export class LibraryComponent implements OnInit {
     questions: LibraryQuestion[];

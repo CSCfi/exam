@@ -1,5 +1,5 @@
 <div class="essay-answer-wrapper">
-    <div class="detail-row" *ngIf="answer.question.question !== answer.question.parent.question">
+    <div class="detail-row" *ngIf="answer.question.question !== answer.question.parent?.question">
         <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
             <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
         </span>
@@ -82,7 +82,7 @@
                     {{ 'sitnet_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
                         'sitnet_approximately' | translate
                     }}
-                    {{ answer.expectedWordCount * 8 }} {{ 'sitnet_characters' | translate }})
+                    {{ answer.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
                 </div>
             </div>
             <div class="col-md-2 essay-answer-checkbox-item">
@@ -95,7 +95,7 @@
                 </div>
                 <div class="detail-row">
                     <div *ngIf="answer.evaluationType === 'Points'">
-                        <form name="essayPoints">
+                        <form #essayPoints name="essayPoints">
                             <input
                                 name="score"
                                 type="number"
@@ -108,7 +108,7 @@
                                 min="0"
                                 max="{{ answer.maxScore }}"
                             />
-                            <small *ngIf="essayPoints.$invalid" class="alert-danger">
+                            <small *ngIf="essayPoints.invalid" class="alert-danger">
                                 <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
                             </small>
                         </form>
@@ -119,10 +119,10 @@
                             [(ngModel)]="answer.essayAnswer.textualScore"
                             [disabled]="!editable"
                         >
-                            <option value="1" [selected]="answer.essayAnswer.textualScore == 1">
+                            <option value="1" [selected]="answer.essayAnswer.textualScore == '1'">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" [selected]="answer.essayAnswer.textualScore == 0">
+                            <option value="0" [selected]="answer.essayAnswer.textualScore == '0'">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>

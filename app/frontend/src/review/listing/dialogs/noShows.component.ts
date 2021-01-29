@@ -26,7 +26,7 @@ interface NoShow {
 
 @Component({
     selector: 'no-shows-component',
-    template: require('./noShows.component.html'),
+    templateUrl: './noShows.component.html',
 })
 export class NoShowsComponent {
     @Input() noShows: NoShow[];

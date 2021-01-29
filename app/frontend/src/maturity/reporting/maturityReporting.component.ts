@@ -21,7 +21,7 @@ import { LanguageInspection } from '../maturity.model';
 
 @Component({
     selector: 'maturity-reporting',
-    template: require('./maturityReporting.component.html'),
+    templateUrl: './maturityReporting.component.html',
 })
 export class MaturityReportingComponent implements OnInit {
     month: Date;

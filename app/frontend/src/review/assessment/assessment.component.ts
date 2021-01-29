@@ -27,7 +27,7 @@ import { CollaborativeAssesmentService } from './collaborativeAssessment.service
 
 @Component({
     selector: 'assessment',
-    template: require('./assessment.component.html'),
+    templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent {
     @Input() collaborative: boolean;
@@ -37,6 +37,8 @@ export class AssessmentComponent {
     participation: ExamParticipation;
     user: User;
     backUrl: string;
+    hideGeneralInfo = false;
+    hideGradeInfo = false;
 
     constructor(
         private state: StateService,

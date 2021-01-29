@@ -18,6 +18,6 @@ import { ReservationComponentBase } from '../reservation.baseComponent';
 
 @Component({
     selector: 'admin-reservations',
-    template: require('./adminReservations.component.html'),
+    templateUrl: './adminReservations.component.html',
 })
 export class AdminReservationComponent extends ReservationComponentBase {}

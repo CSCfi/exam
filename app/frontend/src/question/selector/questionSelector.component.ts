@@ -22,7 +22,7 @@ import { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
     selector: 'question-selector',
-    template: require('./questionSelector.component.html'),
+    templateUrl: './questionSelector.component.html',
 })
 export class QuestionSelectorComponent {
     @Input() questionCount: number;
