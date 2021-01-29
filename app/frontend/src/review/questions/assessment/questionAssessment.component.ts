@@ -27,14 +27,14 @@ import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-assessment',
-    template: require('./questionAssessment.component.html'),
+    templateUrl: './questionAssessment.component.html',
 })
 export class QuestionAssessmentComponent {
     user: User;
     examId: number;
     ids: number[];
     reviews: QuestionReview[] = [];
-    selectedReview: QuestionReview;
+    selectedReview: QuestionReview & { expanded: boolean };
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
@@ -118,7 +118,7 @@ export class QuestionAssessmentComponent {
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
     setSelectedReview = (review: QuestionReview) => {
-        this.selectedReview = review;
+        this.selectedReview = { ...review, expanded: true };
         this.assessedAnswers = this.selectedReview.answers.filter(
             a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
         );

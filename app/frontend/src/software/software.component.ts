@@ -21,11 +21,12 @@ import { Software } from '../exam/exam.model';
 
 @Component({
     selector: 'software',
-    template: require('./software.component.html'),
+    templateUrl: './software.component.html',
 })
 export class SoftwareComponent {
     software: Software[] = [];
     newSoftware = { name: '' };
+    showName = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

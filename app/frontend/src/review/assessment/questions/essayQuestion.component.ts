@@ -25,7 +25,7 @@ import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'r-essay-question',
-    template: require('./essayQuestion.component.html'),
+    templateUrl: './essayQuestion.component.html',
 })
 export class EssayQuestionComponent {
     @Input() participation: ExamParticipation;

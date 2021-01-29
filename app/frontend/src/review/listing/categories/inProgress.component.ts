@@ -24,7 +24,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-in-progress',
-    template: require('./inProgress.component.html'),
+    templateUrl: './inProgress.component.html',
 })
 export class InProgressReviewsComponent {
     @Input() exam: Exam;

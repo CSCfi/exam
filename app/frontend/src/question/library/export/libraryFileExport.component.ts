@@ -20,7 +20,7 @@ import { FileService } from '../../../utility/file/file.service';
 
 @Component({
     selector: 'library-file-export',
-    template: require('./libraryFileExport.component.html'),
+    templateUrl: './libraryFileExport.component.html',
 })
 export class LibraryFileExportComponent {
     @Input() selections: number[];

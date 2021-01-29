@@ -22,7 +22,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-in-language-inspection',
-    template: require('./inLanguageInspection.component.html'),
+    templateUrl: './inLanguageInspection.component.html',
 })
 export class InLanguageInspectionReviewsComponent {
     @Input() reviews: Review[];

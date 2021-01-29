@@ -31,7 +31,7 @@ export interface LanguageInspectionData extends LanguageInspection {
 
 @Component({
     selector: 'language-inspections',
-    template: require('./languageInspections.component.html'),
+    templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
     private startDate: Date;

@@ -122,13 +122,13 @@
         <div class="nav-footer">
             <div class="locale-bar">
                 <span class="locale-item">
-                    <a (click)="switchLanguage('fi')" tabindex="0" (ngEnter)="switchLanguage('fi')">FI</a>
+                    <a (click)="switchLanguage('fi')" tabindex="0" (keyup.enter)="switchLanguage('fi')">FI</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('sv')" tabindex="0" (ngEnter)="switchLanguage('sv')">SV</a>
+                    <a (click)="switchLanguage('sv')" tabindex="0" (keyup.enter)="switchLanguage('sv')">SV</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('en')" tabindex="0" (ngEnter)="switchLanguage('en')">EN</a>
+                    <a (click)="switchLanguage('en')" tabindex="0" (keyup.enter)="switchLanguage('en')">EN</a>
                 </span>
             </div>
         </div>

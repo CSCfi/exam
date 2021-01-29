@@ -227,7 +227,7 @@
                 <div class="col-md-3 exam-basic-title">
                     {{ kv.key }}
                 </div>
-                <div class="col-md-9" *ngIf="value.max > 0">
+                <div class="col-md-9" *ngIf="kv.value.max > 0">
                     {{ calcAverage(kv.value.totals) | number: 2 }} / {{ kv.value.max | number: 2 }}
                 </div>
             </div>

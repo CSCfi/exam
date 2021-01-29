@@ -20,7 +20,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-flow',
-    template: require('./questionFlow.component.html'),
+    templateUrl: './questionFlow.component.html',
 })
 export class QuestionFlowComponent {
     @Input() reviews: QuestionReview[];

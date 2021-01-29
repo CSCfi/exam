@@ -141,9 +141,9 @@
 
     <!-- Type specific content -->
     <div [ngSwitch]="question.type">
-        <essay-editor *ngSwitchCase="EssayQuestion" [question]="question"></essay-editor>
+        <essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></essay-editor>
         <multiple-choice-editor
-            *ngSwitchCase="MultipleChoiceQuestion"
+            *ngSwitchCase="'MultipleChoiceQuestion'"
             [question]="question"
             [showWarning]="showWarning()"
             [lotteryOn]="lotteryOn"
@@ -151,14 +151,15 @@
         >
         </multiple-choice-editor>
         <multiple-choice-editor
-            *ngSwitchCase="WeightedMultipleChoiceQuestion"
+            *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
             [question]="question"
             [showWarning]="showWarning()"
             [lotteryOn]="lotteryOn"
             [allowOptionRemoval]="!isInPublishedExam"
         >
         </multiple-choice-editor>
-        <claim-choice-editor *ngSwitchCase="ClaimChoiceQuestion" [question]="question"> </claim-choice-editor>
+        <claim-choice-editor *ngSwitchCase="'ClaimChoiceQuestion'" [question]="question" [showWarning]="showWarning()">
+        </claim-choice-editor>
     </div>
 
     <!-- Evaluation type - not allowed if question is in use in other published exam. -->
@@ -272,7 +273,7 @@
             </ul>
         </div>
         <div class="col-md-9" *ngIf="!isUserAllowedToModifyOwners()">
-            <span *ngFor="let user of questionOwners" class="label label-default" style="margin: 0.2em">
+            <span *ngFor="let user of currentOwners" class="label label-default" style="margin: 0.2em">
                 {{ user.firstName }} {{ user.lastName }}
             </span>
         </div>
@@ -298,18 +299,18 @@
             <div class="review-attachment-button wdt120 make-inline">
                 <a class="pointer" (click)="selectFile()">{{ 'sitnet_attach_file' | translate }}</a>
             </div>
-            <div *ngIf="question.attachment && !question.attachment.removed" class="make-inline padl10">
+            <div *ngIf="question.attachment && !question.attachment?.removed" class="make-inline padl10">
                 <!-- Uploaded -->
                 <a
                     *ngIf="hasUploadedAttachment()"
                     class="pointer attachment-link"
                     (click)="downloadQuestionAttachment()"
                 >
-                    <i class="bi-paperclip"></i> {{ question.attachment.fileName }}
+                    <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
                 </a>
                 <!-- Not yet uploaded -->
                 <span *ngIf="!hasUploadedAttachment()" class="attachment-link">
-                    <i class="bi-paperclip"></i> {{ question.attachment.fileName }}
+                    <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
                     <small *ngIf="question.attachment"> ({{ getFileSize() }})</small>
                 </span>
                 <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">

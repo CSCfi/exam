@@ -22,10 +22,10 @@
                     <!-- grade -->
                     <div>
                         <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
-                        {{ sectionQuestion.clozeTestAnswer.score.correctAnswers }} /
+                        {{ sectionQuestion.clozeTestAnswer?.score.correctAnswers }} /
                         {{
-                            sectionQuestion.clozeTestAnswer.score.correctAnswers +
-                                sectionQuestion.clozeTestAnswer.score.incorrectAnswers
+                            sectionQuestion.clozeTestAnswer?.score.correctAnswers +
+                                sectionQuestion.clozeTestAnswer?.score.incorrectAnswers
                         }}
                         &nbsp;<strong>{{ 'sitnet_word_points' | translate }}: </strong>
                         <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
@@ -45,7 +45,7 @@
             <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
                 {{ 'sitnet_question_attachment' | translate }}:
                 <a class="pointer" (click)="downloadQuestionAttachment()">
-                    {{ sectionQuestion.question.attachment.fileName }}</a
+                    {{ sectionQuestion.question.attachment?.fileName }}</a
                 >
             </div>
 
@@ -70,7 +70,7 @@
                     <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
                 <div [innerHtml]="sectionQuestion.clozeTestAnswer.question"></div>
-                <div *ngIf="exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
+                <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"
                             >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;

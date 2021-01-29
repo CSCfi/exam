@@ -12,7 +12,7 @@
     <div class="marl50 marr50">
         <!-- Question body //-->
         <div class="col-md-12 question-border padl40 padr40">
-            <form role="form" class="form-horizontal" name="questionForm" novalidate>
+            <form role="form" class="form-horizontal" #questionForm name="questionForm" novalidate>
                 <div
                     class="student-enrolment-wrapper review-view exam-view-warning mart40"
                     *ngIf="examNames.length > 0"
@@ -172,7 +172,7 @@
                                 {{ 'sitnet_characters' | translate }}
                             </span>
                         </div>
-                        <div (hidden)="(questionForm.expectedWordCount.$valid)" class="warning-text-small margin-10">
+                        <div [hidden]="questionForm.expectedWordCount.$valid" class="warning-text-small margin-10">
                             <i class="bi-exclamation-circle reddish"></i>
                             {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                         </div>
@@ -215,7 +215,7 @@
                     >
                         <div
                             class="col-md-6 question-option-empty"
-                            [ngClass]="option.score > 0 ? 'question-correct-option' : ''"
+                            [ngClass]="option.score || 0 > 0 ? 'question-correct-option' : ''"
                         >
                             <input
                                 id="weightedOptionText"
@@ -227,7 +227,7 @@
                         </div>
                         <div
                             class="col-md-2 question-option-empty-radio"
-                            [ngClass]="option.score > 0 ? 'question-correct-option-radio' : ''"
+                            [ngClass]="option.score || 0 > 0 ? 'question-correct-option-radio' : ''"
                         >
                             <input
                                 fixedPrecision
@@ -243,7 +243,7 @@
                         </div>
                         <div
                             class="col-md-1 question-option-trash pointer"
-                            (hidden)="(lotteryOn)"
+                            [hidden]="lotteryOn"
                             (click)="removeOption(option)"
                         >
                             <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
@@ -263,14 +263,13 @@
                     <div class="col-md-12">
                         <div
                             class="col-md-6 question-option-empty"
-                            [ngClass]="{ 'question-correct-option': option.option.correctOption }"
+                            [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
                         >
                             <input
                                 id="optionText"
                                 type="text"
                                 class="make-inline question-option-input radiobut"
                                 [(ngModel)]="option.option.option"
-                                (click)="selectIfDefault(option.option.option, $event)"
                                 required="true"
                             />
                         </div>
@@ -289,11 +288,7 @@
                             />
                         </div>
 
-                        <div
-                            (hidden)="(lotteryOn)"
-                            (click)="removeOption(option)"
-                            class="col-md-1 question-option-trash"
-                        >
+                        <div [hidden]="lotteryOn" (click)="removeOption(option)" class="col-md-1 question-option-trash">
                             <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
                         </div>
                         <div class="col-md-3"></div>
@@ -364,8 +359,8 @@
                             <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
                             <span style="color:#E8172F;">
                                 {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
-                                <span *ngFor="let opt of missingOptions">
-                                    {{ opt | translate }}{{ $last ? '' : ',' }}
+                                <span *ngFor="let opt of missingOptions; let l = last">
+                                    {{ opt | translate }}{{ l ? '' : ',' }}
                                 </span>
                             </span>
                         </div>

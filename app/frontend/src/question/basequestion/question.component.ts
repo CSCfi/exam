@@ -26,7 +26,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
     selector: 'question',
-    template: require('./question.component.html'),
+    templateUrl: './question.component.html',
 })
 export class QuestionComponent implements OnInit {
     @Input() newQuestion: boolean;

@@ -21,7 +21,7 @@ import { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'essay-answer',
-    template: require('./essayAnswer.component.html'),
+    templateUrl: './essayAnswer.component.html',
 })
 export class EssayAnswerComponent {
     @Input() answer: ReviewQuestion;

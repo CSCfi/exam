@@ -20,7 +20,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-review',
-    template: require('./questionReview.component.html'),
+    templateUrl: './questionReview.component.html',
 })
 export class QuestionReviewComponent {
     @Input() review: QuestionReview;

@@ -18,7 +18,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-multi-choice-answer',
-    template: require('./multiChoiceAnswer.component.html'),
+    templateUrl: './multiChoiceAnswer.component.html',
 })
 export class MultiChoiceAnswerComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

@@ -25,7 +25,7 @@ import { Review } from '../../review.model';
 
 @Component({
     selector: 'aborted-exams',
-    template: require('./abortedExams.component.html'),
+    templateUrl: './abortedExams.component.html',
 })
 export class AbortedExamsComponent {
     @Input() exam: Exam;

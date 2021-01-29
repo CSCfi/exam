@@ -18,7 +18,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-weighted-multi-choice-answer',
-    template: require('./weightedMultiChoiceAnswer.component.html'),
+    templateUrl: './weightedMultiChoiceAnswer.component.html',
 })
 export class WeightedMultiChoiceAnswerComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

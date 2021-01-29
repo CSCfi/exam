@@ -30,7 +30,7 @@ interface Filterable<T> {
 
 @Component({
     selector: 'library-search',
-    template: require('./librarySearch.component.html'),
+    templateUrl: './librarySearch.component.html',
 })
 export class LibrarySearchComponent implements OnInit {
     @Output() onUpdate: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();

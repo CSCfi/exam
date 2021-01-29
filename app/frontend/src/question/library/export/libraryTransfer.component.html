@@ -31,7 +31,7 @@
                         <li
                             ngbDropdownItem
                             *ngFor="let org of filteredOganisations"
-                            (hidden)="(org.filtered)"
+                            [hidden]="org.filtered"
                             role="presentation"
                             (click)="organisation = org"
                         >

@@ -16,7 +16,7 @@
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
-                <dropdown-select *ngIf="examOptions" [options]="examOptions" (onSelect)="examChanged(value)">
+                <dropdown-select *ngIf="examOptions" [options]="examOptions" (onSelect)="examChanged($event)">
                 </dropdown-select>
             </div>
             <div class="col-md-2 reservation-search-titles">
@@ -40,7 +40,7 @@
                     *ngIf="roomOptions"
                     [options]="roomOptions"
                     (onSelect)="roomChanged($event)"
-                    (limitTo)="(0)"
+                    [limitTo]="0"
                 >
                 </dropdown-select>
             </div>
@@ -50,7 +50,7 @@
                     *ngIf="machineOptions"
                     [options]="machineOptions"
                     (onSelect)="machineChanged($event)"
-                    (limitTo)="(0)"
+                    [limitTo]="0"
                 >
                 </dropdown-select>
             </div>
@@ -64,8 +64,8 @@
                         <input
                             type="checkbox"
                             value=""
-                            ng-model="$ctrl.externalReservationsOnly"
-                            ng-change="$ctrl.externalReservationFilterClicked()"
+                            [(ngModel)]="externalReservationsOnly"
+                            (change)="externalReservationFilterClicked()"
                         />
                         <strong class="reservation-search-titles">
                             {{ 'sitnet_external_reservations_only' | translate }}

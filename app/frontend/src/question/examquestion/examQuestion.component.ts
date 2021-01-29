@@ -38,12 +38,10 @@ type EditableExamSectionQuestion = Omit<ExamSectionQuestion, 'options'> & {
     options: Partial<EditableExamSectionQuestionOption>[];
 };
 
-type QuestionWithSectionQuestions = Question & { examSectionQuestions: ExamSectionQuestion[] };
-
 // This component depicts a distributed exam question
 @Component({
     selector: 'exam-question',
-    template: require('./examQuestion.component.html'),
+    templateUrl: './examQuestion.component.html',
 })
 export class ExamQuestionComponent {
     @Input() examQuestion: EditableExamSectionQuestion;

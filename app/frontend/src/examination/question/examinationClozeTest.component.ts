@@ -18,7 +18,7 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
 
 @Component({
     selector: 'examination-cloze-test',
-    template: require('./examinationClozeTest.component.html'),
+    templateUrl: './examinationClozeTest.component.html',
 })
 export class ExaminationClozeTestComponent {
     @Input() sq: ExaminationQuestion;

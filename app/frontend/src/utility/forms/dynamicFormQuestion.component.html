@@ -1,6 +1,4 @@
 <span [formGroup]="form">
-    <label [attr.for]="question.key">{{ question.label }}</label>
-
     <span [ngSwitch]="question.controlType">
         <span *ngSwitchCase="'text'" [innerHTML]="question.value"></span>
         <span *ngSwitchCase="'blank'">
@@ -14,6 +12,4 @@
             /> </span
         >&nbsp;
     </span>
-
-    <div class="errorMessage" *ngIf="!isValid">{{ question.label }} is required</div>
 </span>

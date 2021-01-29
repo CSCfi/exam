@@ -20,7 +20,7 @@ import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
     selector: 'speed-review-feedback',
-    template: require('./feedback.component.html'),
+    templateUrl: './feedback.component.html',
 })
 export class SpeedReviewFeedbackComponent {
     @Input() exam: Exam;

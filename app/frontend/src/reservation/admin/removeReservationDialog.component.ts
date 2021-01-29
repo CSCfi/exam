@@ -21,7 +21,7 @@ import { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'remove-reservation-dialog',
-    template: require('./removeReservationDialog.component.html'),
+    templateUrl: './removeReservationDialog.component.html',
 })
 export class RemoveReservationDialogComponent {
     @Input() reservation: Reservation;

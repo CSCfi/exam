@@ -18,9 +18,17 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { Exam, ExamExecutionType, ExamLanguage, ExamParticipation, SelectableGrade } from '../../../exam/exam.model';
+import {
+    Exam,
+    ExamExecutionType,
+    ExamLanguage,
+    ExamParticipation,
+    ExamType,
+    SelectableGrade,
+} from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { Examination } from '../../../examination/examination.service';
+import { QuestionAmounts } from '../../../question/question.service';
 import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
@@ -30,11 +38,11 @@ import { GradingBaseComponent } from '../common/gradingBase.component';
 
 @Component({
     selector: 'r-grading',
-    template: require('./grading.component.html'),
+    templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam: Examination;
-    @Input() questionSummary: unknown;
+    @Input() questionSummary: QuestionAmounts;
     @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
     @Input() user: User;
@@ -42,7 +50,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     message: { text?: string };
     selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
     grades: SelectableGrade[];
-    creditTypes: ExamExecutionType[];
+    creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];
 
     constructor(

@@ -18,9 +18,7 @@
             <button
                 class="btn inspection-button"
                 [ngClass]="getNextState().warn ? 'warning-filled' : ''"
-                [disabled]="
-                    !getNextState().canProceed || !valid || (getNextState().validate && !getNextState().validate(exam))
-                "
+                [disabled]="isDisabled()"
                 (click)="proceed()"
             >
                 {{ getNextState().text | translate }}
@@ -32,15 +30,11 @@
         >
             <button
                 class="btn inspection-button"
-                [ngClass]="getNextState().alternateState.warn ? 'warning-filled' : 'btn-primary'"
-                [disabled]="
-                    !getNextState().alternateState.canProceed ||
-                    !valid ||
-                    (getNextState().alternateState.validate && !getNextState().alternateState.validate(exam))
-                "
+                [ngClass]="getAlternateState(getNextState().alternateState).warn ? 'warning-filled' : 'btn-primary'"
+                [disabled]="isDisabled(getAlternateState(getNextState().alternateState))"
                 (click)="proceed(true)"
             >
-                {{ getNextState().alternateState.text | translate }}
+                {{ getAlternateState(getNextState().alternateState).text | translate }}
             </button>
         </div>
         <div

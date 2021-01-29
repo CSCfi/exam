@@ -30,7 +30,11 @@
     <!-- Question -->
     <div class="marl10 make-inline">
         <div class="review-question-title make-inline" [MathJax]="review.question.question"></div>
-        <a (click)="review.expanded = !review.expanded" class="pointer-hand" *ngIf="review.question.answerInstructions">
+        <a
+            (click)="review.expanded = !review.expanded"
+            class="pointer-hand"
+            *ngIf="review.question.defaultAnswerInstructions"
+        >
             <img
                 *ngIf="!review.expanded"
                 src="/assets/assets/images/icon_list_show_right.svg"
@@ -48,13 +52,13 @@
 
     <div class="col-md-12" *ngIf="review.expanded">
         <img
-            *ngIf="review.question.answerInstructions.length > 0"
+            *ngIf="review.question.defaultAnswerInstructions?.length > 0"
             src="/assets/assets/images/icon_info.png"
             alt="exam"
             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
         />
-        <span *ngIf="review.question.answerInstructions.length > 0" class="padl10">
-            {{ review.question.answerInstructions }}</span
+        <span *ngIf="review.question.defaultAnswerInstructions?.length > 0" class="padl10">
+            {{ review.question.defaultAnswerInstructions }}</span
         >
     </div>
 </div>

@@ -169,7 +169,7 @@
                         value="{{ review.examParticipation.exam.id }}"
                     />
                 </td>
-                <td *ngIf="showId()">{{ reviewexamParticipation._id || review.examParticipation.exam.id }}</td>
+                <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" href="{{ getLinkToAssessment(review) }}">
                         {{ review.displayName }}
@@ -247,7 +247,7 @@
             <a class="pointer" (click)="printSelected()">{{ 'sitnet_print_selected_to_file' | translate }}</a>
         </div>
 
-        <span *ngIf="!parentCtrl.collaborative" class="pull-right">
+        <span *ngIf="!collaborative" class="pull-right">
             <div class="review-attachment-button make-inline mart20 marr30 marl10">
                 <a class="pointer" (click)="archiveSelected()">
                     {{ 'sitnet_archive_selected' | translate }}
@@ -255,7 +255,7 @@
             </div>
         </span>
     </div>
-    <div class="padl0" *ngIf="!parentCtrl.collaborative">
+    <div class="padl0" *ngIf="!collaborative">
         <div class="speed-review-csv mart0">
             <a class="pointer" (click)="printSelected(true)">{{ 'sitnet_print_selected_to_excel' | translate }}</a>
         </div>

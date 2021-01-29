@@ -19,7 +19,7 @@ import { QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'r-claim-choice-answer',
-    template: require('./claimChoiceAnswer.component.html'),
+    templateUrl: './claimChoiceAnswer.component.html',
 })
 export class ClaimChoiceAnswerComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

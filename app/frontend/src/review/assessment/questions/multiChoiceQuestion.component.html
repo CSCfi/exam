@@ -4,15 +4,15 @@
             <!-- question text -->
             <div>
                 <div class="pull-right">
-                    <a class="pull-right" (click)="sectionQuestion.reviewExpanded = !sectionQuestion.reviewExpanded">
+                    <a class="pull-right" (click)="reviewExpanded = !reviewExpanded">
                         <img
-                            *ngIf="!sectionQuestion.reviewExpanded"
+                            *ngIf="!reviewExpanded"
                             src="/assets/assets/images/icon_list_show_right.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
                         />
                         <img
-                            *ngIf="sectionQuestion.reviewExpanded"
+                            *ngIf="reviewExpanded"
                             src="/assets/assets/images/icon_list_show_down.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
@@ -55,17 +55,14 @@
             </div>
 
             <!-- question attachment -->
-            <div
-                class="padl0 mart20 marb20 notice-text"
-                *ngIf="sectionQuestion.reviewExpanded && sectionQuestion.question.attachment"
-            >
+            <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
                 {{ 'sitnet_question_attachment' | translate }}:
                 <a class="pointer" (click)="downloadQuestionAttachment()">
                     {{ sectionQuestion.question.attachment.fileName }}</a
                 >
             </div>
             <!-- answer -->
-            <div class="mart20" *ngIf="sectionQuestion.reviewExpanded">
+            <div class="mart20" *ngIf="reviewExpanded">
                 <hr />
             </div>
             <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
@@ -77,7 +74,7 @@
             <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
                 <r-claim-choice-answer [sectionQuestion]="sectionQuestion"></r-claim-choice-answer>
             </div>
-            <div *ngIf="exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
+            <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                 <div class="points-title">
                     <span class="text text-danger"
                         >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;

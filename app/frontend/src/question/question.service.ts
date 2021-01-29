@@ -34,7 +34,7 @@ import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
 import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
 
-export type QuestionDraft = Omit<ReverseQuestion, 'id'>;
+export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
     rejected: number;
@@ -81,6 +81,7 @@ export class QuestionService {
 
     getQuestionDraft(): QuestionDraft {
         return {
+            id: undefined,
             question: '',
             type: '',
             examSectionQuestions: [],

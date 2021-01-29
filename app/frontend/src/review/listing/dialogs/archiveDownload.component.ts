@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 
 @Component({
     selector: 'archive-download',
-    template: require('./archiveDownload.component.html'),
+    templateUrl: './archiveDownload.component.html',
 })
 export class ArchiveDownloadComponent {
     params: { startDate: Date; endDate: Date };

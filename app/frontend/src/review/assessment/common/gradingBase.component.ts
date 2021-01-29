@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 
 import {
     Exam,
-    ExamExecutionType,
     ExamLanguage,
+    ExamType,
     GradeScale,
     isRealGrade,
     NoGrade,
@@ -14,9 +14,9 @@ import { LanguageService } from '../../../utility/language/language.service';
 import { AssessmentService } from '../assessment.service';
 
 export abstract class GradingBaseComponent {
-    selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
+    selections: { grade: SelectableGrade; type: ExamType; language: ExamLanguage };
     grades: SelectableGrade[];
-    creditTypes: ExamExecutionType[];
+    creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];
 
     constructor(

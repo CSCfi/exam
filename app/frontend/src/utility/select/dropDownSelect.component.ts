@@ -29,7 +29,7 @@ export interface Option {
 
 @Component({
     selector: 'dropdown-select',
-    template: require('./dropDownSelect.component.html'),
+    templateUrl: './dropDownSelect.component.html',
 })
 export class DropdownSelectComponent implements OnChanges, OnInit {
     @Input() options: Option[] = []; // everything

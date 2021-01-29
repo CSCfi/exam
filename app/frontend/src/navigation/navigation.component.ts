@@ -24,7 +24,7 @@ import { Link, NavigationService } from './navigation.service';
 
 @Component({
     selector: 'navigation',
-    template: require('./navigation.component.html'),
+    templateUrl: './navigation.component.html',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
     appVersion: string;

@@ -20,7 +20,7 @@ import { QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'printed-multi-choice',
-    template: require('./templates/multiChoice.component.html'),
+    templateUrl: './templates/multiChoice.component.html',
 })
 export class PrintedMultiChoiceComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

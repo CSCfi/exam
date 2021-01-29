@@ -22,7 +22,7 @@ import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
     selector: 'rl-archived',
-    template: require('./archived.component.html'),
+    templateUrl: './archived.component.html',
 })
 export class ArchivedReviewsComponent {
     @Input() reviews: Review[];

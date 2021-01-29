@@ -27,7 +27,7 @@ export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Pa
 
 @Component({
     selector: 'r-general-info',
-    template: require('./generalInfo.component.html'),
+    templateUrl: './generalInfo.component.html',
 })
 export class GeneralInfoComponent {
     @Input() exam: Exam;

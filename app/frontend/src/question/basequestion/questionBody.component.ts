@@ -25,7 +25,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
     selector: 'question-body',
-    template: require('./questionBody.component.html'),
+    templateUrl: './questionBody.component.html',
 })
 export class QuestionBodyComponent {
     @Input() question: ReverseQuestion | QuestionDraft;

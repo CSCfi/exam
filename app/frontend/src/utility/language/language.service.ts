@@ -30,7 +30,11 @@ export interface IsoLangMap {
 export class LanguageService {
     constructor(private http: HttpClient) {}
 
-    private isoLangs: IsoLangMap = require('./languages');
+    private isoLangs: IsoLangMap = {
+        en: { name: 'English', nativeName: 'English' },
+        fi: { name: 'Finnish', nativeName: 'suomi' },
+        sv: { name: 'Swedish', nativeName: 'svenska' },
+    };
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);

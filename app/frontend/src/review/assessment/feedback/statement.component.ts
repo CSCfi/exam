@@ -22,7 +22,7 @@ import { MaturityService } from '../maturity/maturity.service';
 
 @Component({
     selector: 'r-statement',
-    template: require('./statement.component.html'),
+    templateUrl: './statement.component.html',
 })
 export class StatementComponent {
     @Input() exam: Exam;

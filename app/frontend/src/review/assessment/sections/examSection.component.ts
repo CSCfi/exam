@@ -20,7 +20,7 @@ import { QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'r-exam-section',
-    template: require('./examSection.component.html'),
+    templateUrl: './examSection.component.html',
 })
 export class ExamSectionComponent {
     @Input() section: ExamSection;

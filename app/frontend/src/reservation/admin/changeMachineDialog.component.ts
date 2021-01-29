@@ -25,7 +25,7 @@ import { ExamMachine, Reservation } from '../reservation.model';
 
 @Component({
     selector: 'change-machine-dialog',
-    template: require('./changeMachineDialog.component.html'),
+    templateUrl: './changeMachineDialog.component.html',
 })
 export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation: Reservation;

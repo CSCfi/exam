@@ -22,7 +22,7 @@ import { Examination, ExaminationSection, ExaminationService } from './examinati
 
 @Component({
     selector: 'examination',
-    template: require('./examination.component.html'),
+    templateUrl: './examination.component.html',
 })
 export class ExaminationComponent {
     @Input() isCollaborative: boolean;
