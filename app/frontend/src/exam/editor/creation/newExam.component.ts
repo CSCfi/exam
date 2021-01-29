@@ -20,10 +20,10 @@ import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'new-exam',
-    template: require('./newExam.component.html'),
+    templateUrl: './newExam.component.html',
 })
 export class NewExamComponent implements OnInit {
-    executionTypes: ExamExecutionType[];
+    executionTypes: (ExamExecutionType & { name: string })[];
     type: ExamExecutionType; // the one selected (on UI)
     examinationType: Implementation;
     byodExaminationSupported: boolean;

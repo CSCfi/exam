@@ -22,7 +22,7 @@ import { Exam, ExamLanguage } from '../../exam.model';
 
 @Component({
     selector: 'language-selector',
-    template: require('./languageSelector.component.html'),
+    templateUrl: './languageSelector.component.html',
 })
 export class LanguageSelectorComponent implements OnInit {
     @Input() exam: Exam;

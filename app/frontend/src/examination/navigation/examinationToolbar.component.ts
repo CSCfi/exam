@@ -28,7 +28,7 @@ import { Examination, ExaminationSection, ExaminationService } from '../examinat
 
 @Component({
     selector: 'examination-toolbar',
-    template: require('./examinationToolbar.component.html'),
+    templateUrl: './examinationToolbar.component.html',
 })
 export class ExaminationToolbarComponent {
     @Input() exam: Examination;

@@ -20,7 +20,7 @@ import { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
     selector: 'add-enrolment-information-dialog',
-    template: require('./addEnrolmentInformationDialog.component.html'),
+    templateUrl: './addEnrolmentInformationDialog.component.html',
 })
 export class AddEnrolmentInformationDialogComponent {
     @Input() information: EnrolmentInfo;

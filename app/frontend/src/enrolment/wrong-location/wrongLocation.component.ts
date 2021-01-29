@@ -26,7 +26,7 @@ import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'wrong-location',
-    template: require('./wrongLocation.component.html'),
+    templateUrl: './wrongLocation.component.html',
 })
 export class WrongLocationComponent implements OnInit {
     @Input() cause: string;

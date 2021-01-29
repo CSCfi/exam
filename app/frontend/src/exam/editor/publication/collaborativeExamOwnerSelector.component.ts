@@ -21,7 +21,7 @@ import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'collaborative-exam-owner-selector',
-    template: require('./collaborativeExamOwnerSelector.component.html'),
+    templateUrl: './collaborativeExamOwnerSelector.component.html',
 })
 export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     @Input() exam: Exam;

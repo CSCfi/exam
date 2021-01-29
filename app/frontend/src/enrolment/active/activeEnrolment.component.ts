@@ -22,11 +22,15 @@ import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'active-enrolment',
-    template: require('./activeEnrolment.component.html'),
+    templateUrl: './activeEnrolment.component.html',
 })
 export class ActiveEnrolmentComponent {
-    @Input() enrolment: ExamEnrolment;
+    @Input() enrolment: ExamEnrolment & { occasion: { startAt: Date; endAt: Date } };
     @Output() onRemoval = new EventEmitter<ExamEnrolment>();
+
+    showGuide = false;
+    showInstructions = false;
+    showMaterials = false;
 
     constructor(private translate: TranslateService, private Enrolment: EnrolmentService, private Files: FileService) {}
 

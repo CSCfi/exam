@@ -21,7 +21,7 @@ import { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
     selector: 'select-examination-event-dialog',
-    template: require('./selectExaminationEventDialog.component.html'),
+    templateUrl: './selectExaminationEventDialog.component.html',
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
     @Input() exam: Exam;

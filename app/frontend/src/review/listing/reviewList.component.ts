@@ -25,21 +25,21 @@ import { ReviewListService } from './reviewList.service';
 
 @Component({
     selector: 'review-list',
-    template: require('./reviewList.component.html'),
+    templateUrl: './reviewList.component.html',
 })
 export class ReviewListComponent {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Input() reviews: ExamParticipation[];
 
-    private noShows: ExamEnrolment[];
-    private abortedExams: Review[];
-    public inProgressReviews: Review[];
-    private gradedReviews: Review[];
-    private gradedLoggedReviews: Review[];
-    private archivedReviews: Review[];
-    public languageInspectedReviews: Review[];
-    public rejectedReviews: Review[];
+    noShows: ExamEnrolment[];
+    abortedExams: Review[];
+    inProgressReviews: Review[];
+    gradedReviews: Review[];
+    gradedLoggedReviews: Review[];
+    archivedReviews: Review[];
+    languageInspectedReviews: Review[];
+    rejectedReviews: Review[];
 
     constructor(private modal: NgbModal, private http: HttpClient, private ReviewList: ReviewListService) {}
 

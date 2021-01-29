@@ -18,7 +18,7 @@ import { SessionService, User } from '../session/session.service';
 
 @Component({
     selector: 'dashboard',
-    template: require('./dashboard.component.html'),
+    templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
     user: User;

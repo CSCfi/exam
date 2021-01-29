@@ -26,7 +26,7 @@ import { Exam, ExamParticipation } from '../exam.model';
 
 @Component({
     selector: 'exam-tabs',
-    template: require('./examTabs.component.html'),
+    templateUrl: './examTabs.component.html',
 })
 export class ExamTabsComponent implements OnInit {
     @Input() collaborative: boolean;
@@ -77,8 +77,6 @@ export class ExamTabsComponent implements OnInit {
             x => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
     };
-
-    onReviewsLoaded = (data: { reviews: ExamParticipation[] }) => (this.reviews = data.reviews);
 
     tabChanged = (event: NgbTabChangeEvent) => {
         const params = { id: this.exam.id, tab: event.nextId };

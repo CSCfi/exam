@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'publication-error-dialog',
-    template: require('./publicationErrorDialog.component.html'),
+    templateUrl: './publicationErrorDialog.component.html',
 })
 export class PublicationErrorDialogComponent {
     @Input() errors: string[];

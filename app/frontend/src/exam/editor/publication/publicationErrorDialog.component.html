@@ -4,7 +4,7 @@
             <div class="student-enroll-title">{{ 'sitnet_please_check_following_infos' | translate }}</div>
         </div>
         <div class="modal-body">
-            <p *ngFor="let error of activeModal.errors">{{ error | translate }}</p>
+            <p *ngFor="let error of errors">{{ error | translate }}</p>
         </div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">

@@ -30,7 +30,7 @@ interface CollaborativeExamInfo extends CollaborativeExam {
 
 @Component({
     selector: 'collaborative-exam-search',
-    template: require('./collaborativeExamSearch.component.html'),
+    templateUrl: './collaborativeExamSearch.component.html',
 })
 export class CollaborativeExamSearchComponent implements OnInit {
     exams: CollaborativeExamInfo[];

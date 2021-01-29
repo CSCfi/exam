@@ -7,6 +7,7 @@ export interface Scores {
     totalScore: number;
     approvedAnswerCount: number;
     rejectedAnswerCount: number;
+    hasApprovedRejectedAnswers: boolean;
 }
 
 type GradedExam = Omit<Exam, 'grade' | 'creditType'> & {

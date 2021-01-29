@@ -29,7 +29,7 @@ interface CourseFilter {
 
 @Component({
     selector: 'course-picker',
-    template: require('./coursePicker.component.html'),
+    templateUrl: './coursePicker.component.html',
 })
 export class CoursePickerComponent implements OnInit {
     @Input() course: Course;

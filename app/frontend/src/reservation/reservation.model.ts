@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { ExamSection } from '../exam/exam.model';
 import { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
@@ -39,10 +40,12 @@ export interface ExamRoom {
     _id?: number;
     name: string;
     examMachines: ExamMachine[];
+    buildingName: string;
     localTimezone: string;
     roomInstruction: string;
     roomInstructionEN: string;
     roomInstructionSV: string;
+    roomCode: string;
     defaultWorkingHours: DefaultWorkingHours[];
     calendarExceptionEvents: ExceptionWorkingHours[];
     accessibilities: Accessibility[];
@@ -87,4 +90,5 @@ export interface Reservation {
     endAt: string;
     user: User;
     retrialPermitted: boolean;
+    optionalSections: ExamSection[];
 }

@@ -23,7 +23,7 @@ import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'course-selection',
-    template: require('./courseSelection.component.html'),
+    templateUrl: './courseSelection.component.html',
 })
 export class CourseSelectionComponent implements OnInit {
     exam: Exam;

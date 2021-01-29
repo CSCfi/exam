@@ -24,7 +24,7 @@ import { ExamMaterialComponent } from './examMaterial.component';
 
 @Component({
     selector: 'exam-material-selector',
-    template: require('./examMaterialSelector.component.html'),
+    templateUrl: './examMaterialSelector.component.html',
 })
 export class ExamMaterialSelectorComponent {
     @Input() section: ExamSection;

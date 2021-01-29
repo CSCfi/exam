@@ -12,7 +12,7 @@
                     <span *ngIf="collaborative">{{ exam.name }}</span>
                 </span>
                 <br />
-                <span *ngIf="exam.enrolled && !exam.reservationMade" class="student-exam-needs-reservation">
+                <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="student-exam-needs-reservation">
                     {{ 'sitnet_state_needs_reservation_title' | translate }}
                 </span>
             </div>
@@ -51,17 +51,17 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
-        <div class="student-message-dialog-button-save" *ngIf="!exam.enrolled">
+        <div class="student-message-dialog-button-save" *ngIf="!exam.alreadyEnrolled">
             <button class="btn btn-success nowdt" (click)="enrollForExam()" [disabled]="enrolling">
                 {{ 'sitnet_enroll_to_exam' | translate }}
             </button>
         </div>
-        <div class="student-message-dialog-button-save" *ngIf="exam.enrolled && !exam.reservationMade">
+        <div class="student-message-dialog-button-save" *ngIf="exam.alreadyEnrolled && !exam.reservationMade">
             <button class="btn btn-success nowdt" (click)="makeReservation()">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>
-        <div class="student-message-dialog-button-save" *ngIf="exam.enrolled && exam.reservationMade">
+        <div class="student-message-dialog-button-save" *ngIf="exam.alreadyEnrolled && exam.reservationMade">
             <span class="student-exam-all-required">{{ 'sitnet_enrolled_to_exam' | translate }}</span>
         </div>
     </div>

@@ -20,11 +20,11 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../exam/exam.model';
+import { AssessedParticipation } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participations',
-    template: require('./examParticipations.component.html'),
+    templateUrl: './examParticipations.component.html',
     animations: [
         trigger('openClose', [
             state('open', style({ opacity: 1 })),
@@ -37,7 +37,8 @@ export class ExamParticipationsComponent implements OnInit {
     filter = { ordering: '-ended', text: '' };
     pageSize = 10;
     currentPage = 0;
-    participations: ExamParticipation[];
+    participations: AssessedParticipation[];
+    collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
@@ -61,7 +62,7 @@ export class ExamParticipationsComponent implements OnInit {
     private doSearch = (text: string) => {
         this.filter.text = text;
         this.http
-            .get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
+            .get<AssessedParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
             .subscribe(
                 data => {
                     data.filter(p => !p.ended).forEach(

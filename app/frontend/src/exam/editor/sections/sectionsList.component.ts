@@ -25,7 +25,7 @@ import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'sections',
-    template: require('./sectionsList.component.html'),
+    templateUrl: './sectionsList.component.html',
 })
 export class SectionsListComponent implements OnInit, OnChanges {
     @Input() exam: Exam;

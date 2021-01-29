@@ -57,7 +57,10 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                use: [{ loader: 'ts-loader', options: { transpileOnly: true } }],
+                use: [
+                    { loader: 'ts-loader', options: { transpileOnly: true } },
+                    { loader: 'angular2-template-loader' },
+                ],
             },
             {
                 // Mark files inside `@angular/core` as using SystemJS style dynamic imports.
@@ -70,7 +73,7 @@ const config = {
                 use: 'url-loader?limit=100000',
             },
             {
-                test: /\.component\.html$/,
+                test: /\.html$/,
                 use: 'raw-loader',
             },
             {

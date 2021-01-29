@@ -29,7 +29,7 @@ import { ExamService } from '../../exam.service';
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,
-    template: require('./section.component.html'),
+    templateUrl: './section.component.html',
 })
 export class SectionComponent {
     @Input() section: ExamSection;

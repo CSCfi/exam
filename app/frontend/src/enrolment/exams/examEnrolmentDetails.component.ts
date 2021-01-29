@@ -15,17 +15,17 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { DateTimeService } from '../../utility/date/date.service';
+import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'enrolment-details',
-    template: require('./examEnrolmentDetails.component.html'),
+    templateUrl: './examEnrolmentDetails.component.html',
 })
 export class EnrolmentDetailsComponent {
-    @Input() exam: Exam;
+    @Input() exam: EnrolmentInfo;
 
     constructor(
         private state: StateService,

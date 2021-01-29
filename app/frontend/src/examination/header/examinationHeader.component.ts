@@ -19,7 +19,7 @@ import { Examination } from '../examination.service';
 
 @Component({
     selector: 'examination-header',
-    template: require('./examinationHeader.component.html'),
+    templateUrl: './examinationHeader.component.html',
 })
 export class ExaminationHeaderComponent {
     @Input() exam: Examination;

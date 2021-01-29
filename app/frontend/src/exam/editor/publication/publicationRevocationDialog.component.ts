@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'publication-revoke-dialog',
-    template: require('./publicationRevocationDialog.component.html'),
+    templateUrl: './publicationRevocationDialog.component.html',
 })
 export class PublicationRevocationDialogComponent {
     constructor(public activeModal: NgbActiveModal) {}

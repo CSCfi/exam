@@ -38,7 +38,7 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 
 @Component({
     selector: 'collaborative-exam-listing',
-    template: require('./collaborativeExamListing.component.html'),
+    templateUrl: './collaborativeExamListing.component.html',
 })
 export class CollaborativeExamListingComponent implements OnInit {
     exams: ListedCollaborativeExam[] = [];

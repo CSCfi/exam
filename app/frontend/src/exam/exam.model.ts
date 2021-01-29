@@ -176,6 +176,7 @@ export interface ExamSectionQuestion {
     evaluationCriteria: string;
     expectedWordCount?: number;
     sequenceNumber: number;
+    expanded: boolean;
 }
 
 export interface ExamMaterial {
@@ -213,6 +214,7 @@ export interface CollaborativeExam {
     state: CollaborativeExamState;
     examOwners: User[];
     executionType: ExamExecutionType;
+    enrollInstruction: string;
     examActiveStartDate: string | number;
     examActiveEndDate: string | number;
 }
@@ -240,6 +242,7 @@ export interface ExaminationEventConfiguration {
 export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamInspection {
+    id?: number;
     user: User;
     ready: boolean;
 }
@@ -248,6 +251,12 @@ export interface Software {
     id: number;
     name: string;
     turnedOn: boolean;
+}
+
+export interface ExamType {
+    id: number;
+    type: string;
+    name?: string;
 }
 
 export interface ExamImpl {
@@ -265,9 +274,10 @@ export interface ExamImpl {
     hash: string;
     examOwners: User[];
     creator: User;
-    examType: { id: number; type: string; name?: string };
+    examType: ExamType;
     executionType: ExamExecutionType;
     examEnrolments: ExamEnrolment[];
+    examParticipations: ExamParticipation[];
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
     children: Exam[];

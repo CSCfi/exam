@@ -24,7 +24,7 @@ import { Exam, ExamInspection } from '../../exam.model';
 
 @Component({
     selector: 'exam-inspector-selector',
-    template: require('./examInspectorSelector.component.html'),
+    templateUrl: './examInspectorSelector.component.html',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam: Exam;
@@ -73,6 +73,19 @@ export class ExamInspectorSelectorComponent implements OnInit {
     nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
 
     setInspector = (event: NgbTypeaheadSelectItemEvent) => (this.newInspector.id = event.item.id);
+
+    addInspector = () => {
+        if (this.newInspector.id) {
+            this.http
+                .post(`/app/exams/${this.exam.id}/inspector/${this.newInspector.id}`, {
+                    comment: this.newInspector.comment,
+                })
+                .subscribe(() => {
+                    this.getInspectors();
+                    this.newInspector = {};
+                });
+        }
+    };
 
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe(

@@ -22,12 +22,8 @@ import { User } from '../session.service';
     selector: 'role-selector-dialog',
     template: `
         <div id="sitnet-dialog">
-            <div class="student-message-dialog-wrapper-padding">
-                <div class="student-enroll-dialog-wrap">
-                    <h2 class="student-enroll-title">
-                        <i class="bi-person-circle"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}
-                    </h2>
-                </div>
+            <div class="modal-header">
+                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}</h4>
             </div>
             <div class="modal-body">
                 <div ngbDropdown>
@@ -47,13 +43,9 @@ import { User } from '../session.service';
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="row">
-                    <div class="col-md-12">
-                        <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
-                            {{ 'sitnet_button_decline' | translate }}
-                        </button>
-                    </div>
-                </div>
+                <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
+                    {{ 'sitnet_button_decline' | translate }}
+                </button>
             </div>
         </div>
     `,

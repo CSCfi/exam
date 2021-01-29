@@ -32,18 +32,20 @@ export interface ExtraColumn {
     link: string;
     checkOwnership: boolean;
 }
+type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: { type: string; name: string }[] };
 @Component({
     selector: 'exam-list-category',
-    template: require('./examListCategory.component.html'),
+    templateUrl: './examListCategory.component.html',
 })
 export class ExamListCategoryComponent implements OnInit {
     @Input() items: Exam[];
-    @Input() examTypes: ExamExecutionType[];
+    @Input() examTypes: ExecutionType[];
     @Input() extraColumns: ExtraColumn[];
     @Input() defaultPredicate: string;
     @Input() defaultReverse: boolean;
     @Output() onFilterChange = new EventEmitter<string>();
 
+    selectedType: ExecutionType;
     userId: number;
     pageSize = 10;
     sorting: {

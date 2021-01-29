@@ -36,7 +36,7 @@ interface ExtraColumn {
 }
 @Component({
     selector: 'teacher-dashboard',
-    template: require('./teacherDashboard.component.html'),
+    templateUrl: './teacherDashboard.component.html',
 })
 export class TeacherDashboardComponent implements OnInit {
     activeTab: string;

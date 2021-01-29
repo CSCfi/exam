@@ -21,7 +21,7 @@ import { ExamMaterial } from '../../exam.model';
 
 @Component({
     selector: 'exam-material',
-    template: require('./examMaterial.component.html'),
+    templateUrl: './examMaterial.component.html',
 })
 export class ExamMaterialComponent {
     constructor(private activeModal: NgbActiveModal, private http: HttpClient) {}

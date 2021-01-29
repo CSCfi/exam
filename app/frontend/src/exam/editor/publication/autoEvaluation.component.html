@@ -36,7 +36,7 @@
             class="pointer"
             *ngIf="!autoevaluation.enabled"
             [(ngModel)]="autoevaluation.enabled"
-            (click)="autoevaluation.enabled = true; onEnabled()"
+            (click)="autoevaluation.enabled = true; enable()"
         >
             {{ 'sitnet_use_autoevaluation' | translate }}</a
         >
@@ -45,7 +45,7 @@
             *ngIf="autoevaluation.enabled"
             class="notinuse"
             ng-model="autoevaluation.enabled"
-            (click)="autoevaluation.enabled = false; onDisabled()"
+            (click)="autoevaluation.enabled = false; disable()"
         >
             {{ 'sitnet_do_not_use_autoevaluation' | translate }}</a
         >
@@ -105,7 +105,7 @@
                     ngbDropdownToggle
                     aria-expanded="true"
                 >
-                    {{ selectedReleaseType().translation | translate }}&nbsp;<span class="caret"></span>
+                    {{ selectedReleaseType()?.translation | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <ul ngbDropdownToggle role="menu">
                     <li
@@ -123,7 +123,7 @@
         </div>
     </div>
     <form role="form">
-        <div class="bottom-row" *ngIf="selectedReleaseType().name === 'GIVEN_DATE'">
+        <div class="bottom-row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
             <div class="col-md-6">
                 <date-picker
                     (onUpdate)="releaseDateChanged($event)"
@@ -131,7 +131,7 @@
                 ></date-picker>
             </div>
         </div>
-        <div class="bottom-row" *ngIf="selectedReleaseType().name === 'GIVEN_AMOUNT_DAYS'">
+        <div class="bottom-row" *ngIf="selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS'">
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{ 'sitnet_autoevaluation_release_after_days' | translate }}:</div>
                 <input

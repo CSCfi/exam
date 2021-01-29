@@ -51,14 +51,14 @@
                 </div>
             </div>
 
-            <div class="student-exam-row" *ngIf="participation.reviewedExam">
+            <div class="student-exam-row" *ngIf="participation.exam">
                 <div class="student-exam-row-infolink">
                     <a
                         tabindex="0"
                         class="infolink pointer"
                         tabindex="0"
-                        (click)="showEvaluation = !showEvaluation; setCommentRead(participation.reviewedExam)"
-                        (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(participation.reviewedExam)"
+                        (click)="showEvaluation = !showEvaluation; setCommentRead(participation.exam)"
+                        (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(participation.exam)"
                     >
                         <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate }}</span>
                         <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
@@ -79,7 +79,7 @@
                 <exam-feedback
                     class="student-exam-row-infobox"
                     [hidden]="!showEvaluation"
-                    [assessment]="participation.reviewedExam"
+                    [assessment]="participation.exam"
                     [collaborative]="collaborative"
                     [scores]="participation.scores"
                 >
@@ -90,7 +90,7 @@
             </div>
             <div
                 class="student-exam-row"
-                *ngIf="!participation.reservation?.noShow && !participation.reviewedExam"
+                *ngIf="!participation.reservation?.noShow && !participation.exam"
                 class="text-muted"
             >
                 <div class="student-exam-row-infolink">{{ 'sitnet_no_comments' | translate }}</div>

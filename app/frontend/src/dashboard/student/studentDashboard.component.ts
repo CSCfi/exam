@@ -24,7 +24,7 @@ import { DashboardEnrolment, StudentDashboardService } from './studentDashboard.
 
 @Component({
     selector: 'student-dashboard',
-    template: require('./studentDashboard.component.html'),
+    templateUrl: './studentDashboard.component.html',
 })
 export class StudentDashboardComponent implements OnInit {
     userEnrolments: DashboardEnrolment[];

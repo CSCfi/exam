@@ -27,7 +27,7 @@ type AutoEvaluationConfigurationTemplate = {
 
 @Component({
     selector: 'auto-evaluation',
-    template: require('./autoEvaluation.component.html'),
+    templateUrl: './autoEvaluation.component.html',
 })
 export class AutoEvaluationComponent implements OnInit {
     @Input() exam: Exam;
@@ -64,6 +64,9 @@ export class AutoEvaluationComponent implements OnInit {
             this.prepareAutoEvaluationConfig();
         }
     };
+
+    disable = () => this.onDisabled.emit();
+    enable = () => this.onEnabled.emit();
 
     private prepareAutoEvaluationConfig = () => {
         this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;

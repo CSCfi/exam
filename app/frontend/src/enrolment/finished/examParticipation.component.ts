@@ -26,12 +26,13 @@ import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participation',
-    template: require('./examParticipation.component.html'),
+    templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit {
     @Input() participation: AssessedParticipation;
     @Input() collaborative: boolean;
 
+    showEvaluation = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
