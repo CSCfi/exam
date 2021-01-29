@@ -19,7 +19,7 @@ import { WindowRef } from '../../utility/window/window.service';
 
 @Component({
     selector: 'examination-clock',
-    template: require('./examinationClock.component.html'),
+    templateUrl: './examinationClock.component.html',
 })
 export class ExaminationClockComponent {
     @Input() examHash: string;
@@ -27,7 +27,7 @@ export class ExaminationClockComponent {
     syncInterval = 15;
     secondsSinceSync = this.syncInterval + 1;
     alarmThreshold = 300;
-    remainingTime?: number;
+    remainingTime = this.alarmThreshold + 1;
     showRemainingTime = true;
     pollerId: number;
 

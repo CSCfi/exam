@@ -9,7 +9,7 @@ import { EnrolmentService } from '../../enrolment.service';
 
 @Component({
     selector: 'active-enrolment-menu',
-    template: require('./activeEnrolmentMenu.component.html'),
+    templateUrl: './activeEnrolmentMenu.component.html',
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment: ExamEnrolment;

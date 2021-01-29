@@ -25,7 +25,7 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 
 @Component({
     selector: 'printout',
-    template: require('./printout.component.html'),
+    templateUrl: './printout.component.html',
 })
 export class PrintoutComponent {
     exam: Printout;

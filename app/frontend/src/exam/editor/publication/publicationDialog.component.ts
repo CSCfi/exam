@@ -21,7 +21,7 @@ import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'publication-dialog',
-    template: require('./publicationDialog.component.html'),
+    templateUrl: './publicationDialog.component.html',
 })
 export class PublicationDialogComponent {
     @Input() exam: Exam;

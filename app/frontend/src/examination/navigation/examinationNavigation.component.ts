@@ -25,7 +25,7 @@ interface NavigationPage {
 
 @Component({
     selector: 'examination-navigation',
-    template: require('./examinationNavigation.component.html'),
+    templateUrl: './examinationNavigation.component.html',
 })
 export class ExaminationNavigationComponent {
     @Input() exam: Examination;

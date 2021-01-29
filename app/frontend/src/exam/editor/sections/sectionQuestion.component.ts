@@ -31,7 +31,7 @@ import { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question }
 
 @Component({
     selector: 'section-question',
-    template: require('./sectionQuestion.component.html'),
+    templateUrl: './sectionQuestion.component.html',
 })
 export class SectionQuestionComponent {
     @Input() sectionQuestion: ExamSectionQuestion;

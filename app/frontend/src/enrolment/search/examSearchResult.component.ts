@@ -15,15 +15,15 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { Exam } from '../../exam/exam.model';
+import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'exam-search-result',
-    template: require('./examSearchResult.component.html'),
+    templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
-    @Input() exam: Exam;
+    @Input() exam: EnrolmentInfo;
     @Input() collaborative: boolean;
 
     enrolling: boolean;

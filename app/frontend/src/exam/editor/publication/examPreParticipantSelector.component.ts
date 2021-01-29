@@ -23,7 +23,7 @@ import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'exam-pre-participant-selector',
-    template: require('./examPreParticipantSelector.component.html'),
+    templateUrl: './examPreParticipantSelector.component.html',
 })
 export class ExamPreParticipantSelectorComponent implements OnInit {
     @Input() exam: Exam;

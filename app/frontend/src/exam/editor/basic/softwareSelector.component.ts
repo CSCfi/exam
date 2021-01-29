@@ -21,17 +21,17 @@ import { Exam, Software } from '../../exam.model';
 
 @Component({
     selector: 'software-selector',
-    template: require('./softwareSelector.component.html'),
+    templateUrl: './softwareSelector.component.html',
 })
 export class SoftwareSelectorComponent implements OnInit {
     @Input() exam: Exam;
 
-    software: unknown[];
+    software: Software[];
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<unknown[]>('/app/softwares').subscribe(data => (this.software = data));
+        this.http.get<Software[]>('/app/softwares').subscribe(data => (this.software = data));
     }
 
     selectedSoftware = () =>

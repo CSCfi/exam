@@ -25,7 +25,7 @@ interface Filter {
 
 @Component({
     selector: 'collaborative-exam-participations',
-    template: require('./examParticipations.component.html'),
+    templateUrl: './examParticipations.component.html',
 })
 export class CollaborativeExamParticipationsComponent implements OnInit {
     collaborative = true;

@@ -38,7 +38,6 @@
                         (onPreviousTabSelected)="switchToBasicInfo()"
                         (onNextTabSelected)="switchToPublishSettings()"
                         [collaborative]="collaborative"
-                        (onNewLibraryQuestion)="reload()"
                     >
                     </sections>
                 </ng-template>
@@ -62,7 +61,6 @@
                         [exam]="exam"
                         [collaborative]="collaborative"
                         [reviews]="reviews"
-                        (onLoaded)="reviewsLoaded($event)"
                     ></review-list>
                 </ng-template>
             </ngb-tab>

@@ -24,7 +24,7 @@ import { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
 @Component({
     selector: 'exam-search',
-    template: require('./examSearch.component.html'),
+    templateUrl: './examSearch.component.html',
 })
 export class ExamSearchComponent implements OnInit {
     exams: EnrolmentInfo[] = [];

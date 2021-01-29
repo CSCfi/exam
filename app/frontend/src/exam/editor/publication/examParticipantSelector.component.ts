@@ -28,7 +28,7 @@ import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'exam-participant-selector',
-    template: require('./examParticipantSelector.component.html'),
+    templateUrl: './examParticipantSelector.component.html',
 })
 export class ExamParticipantSelectorComponent implements OnInit {
     @Input() exam: Exam;

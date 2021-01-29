@@ -22,7 +22,7 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { Exam, ExamType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 export type UpdateProps = {
@@ -35,7 +35,7 @@ export type UpdateProps = {
 
 @Component({
     selector: 'basic-exam-info',
-    template: require('./basicExamInfo.component.html'),
+    templateUrl: './basicExamInfo.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Input() exam: Exam;
@@ -46,7 +46,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
     gradeScaleSetting: { overridable: boolean };
-    examTypes: ExamExecutionType[] = [];
+    examTypes: (ExamType & { name: string })[] = [];
     gradeScales: GradeScale[] = [];
     pwdInputType = 'password';
 
@@ -210,7 +210,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes().subscribe((types: ExamExecutionType[]) => {
+        this.Exam.refreshExamTypes().subscribe(types => {
             // Maturity can only have a FINAL type
             if (this.exam.executionType.type === 'MATURITY') {
                 types = types.filter(t => t.type === 'FINAL');

@@ -34,7 +34,7 @@ export type SlotMeta = { availableMachines: number };
 @Component({
     selector: 'booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: require('./bookingCalendar.component.html'),
+    templateUrl: './bookingCalendar.component.html',
     providers: [{ provide: CalendarDateFormatter, useClass: DateFormatter }],
 })
 export class BookingCalendarComponent implements OnChanges {

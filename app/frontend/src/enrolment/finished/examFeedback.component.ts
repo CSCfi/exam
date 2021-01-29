@@ -21,7 +21,7 @@ import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
     selector: 'exam-feedback',
-    template: require('./examFeedback.component.html'),
+    templateUrl: './examFeedback.component.html',
 })
 export class ExamFeedbackComponent {
     @Input() assessment: ReviewedExam;

@@ -28,7 +28,7 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
     selector: 'exam-list',
-    template: require('./examList.component.html'),
+    templateUrl: './examList.component.html',
 })
 export class ExamListingComponent {
     view: string;
@@ -37,7 +37,8 @@ export class ExamListingComponent {
     reverse: boolean;
     filter: { text: string };
     loader: { loading: boolean };
-    executionTypes: { type: string; examinationTypes: { type: string; name: string }[] }[];
+    executionTypes: { type: string; name: string; examinationTypes: { type: string; name: string }[] }[];
+    selectedType: { type: string; name: string; examinationTypes: { type: string; name: string }[] };
     byodExaminationSupported: boolean;
     exams: ExamListExam[] = [];
     subject = new Subject<string>();

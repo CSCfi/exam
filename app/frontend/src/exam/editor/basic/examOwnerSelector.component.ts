@@ -25,7 +25,7 @@ import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'exam-owner-selector',
-    template: require('./examOwnerSelector.component.html'),
+    templateUrl: './examOwnerSelector.component.html',
 })
 export class ExamOwnerSelectorComponent implements OnInit {
     @Input() exam: Exam;

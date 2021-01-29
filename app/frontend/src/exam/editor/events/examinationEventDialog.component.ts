@@ -22,7 +22,7 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 
 @Component({
     selector: 'examination-event-dialog',
-    template: require('./examinationEventDialog.component.html'),
+    templateUrl: './examinationEventDialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;

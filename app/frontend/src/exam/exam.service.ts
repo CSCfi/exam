@@ -29,6 +29,7 @@ import {
     ExamExecutionType,
     ExaminationEventConfiguration,
     ExamSection,
+    ExamType,
     GradeScale,
     Implementation,
 } from './exam.model';
@@ -95,7 +96,7 @@ export class ExamService {
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
     };
 
-    getExamTypeDisplayName = (type: string) => {
+    getExamTypeDisplayName = (type: string): string => {
         let name = '';
         switch (type) {
             case 'PARTIAL':
@@ -153,14 +154,13 @@ export class ExamService {
         return name;
     };
 
-    refreshExamTypes = (): Observable<ExamExecutionType[]> =>
-        this.http.get<ExamExecutionType[]>('/app/examtypes').pipe(
+    refreshExamTypes = (): Observable<(ExamType & { name: string })[]> =>
+        this.http.get<ExamType[]>('/app/examtypes').pipe(
             map(resp =>
-                resp.map(et =>
-                    Object.assign(et, {
-                        name: this.getExamTypeDisplayName(et.type),
-                    }),
-                ),
+                resp.map(et => ({
+                    ...et,
+                    name: this.getExamTypeDisplayName(et.type),
+                })),
             ),
         );
 
@@ -229,7 +229,7 @@ export class ExamService {
         }
     };
 
-    listExecutionTypes = (): Observable<ExamExecutionType[]> =>
+    listExecutionTypes = (): Observable<(ExamExecutionType & { name: string })[]> =>
         this.http.get<ExamExecutionType[]>('/app/executiontypes').pipe(
             map(resp =>
                 resp.map(et =>

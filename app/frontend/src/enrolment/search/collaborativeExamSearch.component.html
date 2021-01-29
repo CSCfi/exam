@@ -51,7 +51,7 @@
         </button>
     </div>
 
-    <div class="exams-list marr30 list-item" [hidden]="$ctrl.loader.loading" *ngFor="let exam of exams">
+    <div class="exams-list marr30 list-item" [hidden]="loader.loading" *ngFor="let exam of exams">
         <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
     </div>
 </div>

@@ -22,7 +22,7 @@ import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'exam-course',
-    template: require('./examCourse.component.html'),
+    templateUrl: './examCourse.component.html',
 })
 export class ExamCourseComponent {
     @Input() exam: Exam;

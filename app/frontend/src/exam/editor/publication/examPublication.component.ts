@@ -35,7 +35,7 @@ import { PublicationRevocationDialogComponent } from './publicationRevocationDia
 
 @Component({
     selector: 'exam-publication',
-    template: require('./examPublication.component.html'),
+    templateUrl: './examPublication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
     @Input() exam: Exam;
@@ -47,6 +47,7 @@ export class ExamPublicationComponent implements OnInit {
     hostName: string;
     autoEvaluation: { enabled: boolean };
     examDurations: number[];
+    visibleParticipantSelector = 'participant';
 
     constructor(
         private http: HttpClient,

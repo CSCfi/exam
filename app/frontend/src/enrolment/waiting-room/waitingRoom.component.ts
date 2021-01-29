@@ -31,7 +31,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 
 @Component({
     selector: 'waiting-room',
-    template: require('./waitingRoom.component.html'),
+    templateUrl: './waitingRoom.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
     enrolment: WaitingEnrolment;

@@ -21,7 +21,7 @@ import { Exam } from '../exam.model';
 
 @Component({
     selector: 'printout-listing',
-    template: require('./printoutListing.component.html'),
+    templateUrl: './printoutListing.component.html',
 })
 export class PrintoutListingComponent {
     printouts: (Exam & { examinationDatesAggregate: string })[];
