@@ -1,32 +1,5 @@
 #studentexam {
 
-  .exam-content-wrapper {
-    float: left;
-    width: 100%;
-  }
-
-  .exam-content-column {
-    margin: 0 400px 0 0;
-  }
-
-  .floating-section {
-    right: 0;
-    top: 0;
-    float: left;
-    position: fixed !important;
-    padding: 0;
-    width: 400px;
-    margin-left: -400px;
-    height: 100%;
-    overflow-y: auto;
-    margin-top: 168px;
-
-    .top-padding-2 {
-      padding-top:0;
-    }
-
-  }
-
   .top-padding-6 {
     padding-top: 6.3em;
   }
@@ -62,11 +35,6 @@
     }
   }
 
-  .studentexam-section {
-    padding-left: 1.2em;
-    margin-top: 30px;
-    font-size: 1.2em;
-  }
   .question-unanswered-header,
   .question-answered-header {
     padding: 1em 1em;
@@ -119,27 +87,11 @@
     clear: both;
   }
 
-  .exam-question-option {
-    background-color: $sitnet-green;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    margin: 5px;
-    padding: 5px;
-    min-height: 3em;
-  }
-
   .guide-instruction {
     font-weight: normal;
     font-size: 16px;
     line-height: 1.8em;
     white-space: normal;
-  }
-
-  .section-container {
-    padding-bottom: 2em;
-    padding-left: 0.5em;
-    background-color: $sitnet-white;
   }
 
   .green_button {
@@ -254,14 +206,6 @@
 
   .question-type-text {
     line-height: 35px;
-  }
-
-  .toolbar-item {
-    margin-left: 1em;
-  }
-
-  .separated-item {
-    margin-top: 2em;
   }
 
   .list-muted {
@@ -384,10 +328,6 @@
       font-weight: normal;
     }
 
-  }
-
-  .content-wrap {
-    margin-left: 30px;
   }
 
   .exam-title {
@@ -563,18 +503,9 @@
     color: #b1b1b1;
   }
 
-  .multiple-choice {
-    white-space: nowrap;
-  }
-
   .question-type-img-wrap {
     float: right;
     padding: 1px;
-  }
-
-  .cloze-input {
-    margin: 0.5em 0 0.5em 0;
-    border-radius: 4px;
   }
 
   .wrap-title {

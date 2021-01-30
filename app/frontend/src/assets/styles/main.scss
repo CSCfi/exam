@@ -3,13 +3,11 @@
 @import "fonts";
 @import "partial/defines";
 @import "partial/vmenu";
-@import "partial/vmenu_admin";
 @import "partial/header";
 @import "partial/exam";
 @import "partial/login";
 @import "partial/library";
 @import "partial/question-editor";
-@import "partial/question-listing";
 @import "partial/student_exam";
 @import "partial/dialog";
 @import "partial/room";
@@ -54,70 +52,18 @@ p {
   }
 }
 
-.vmenu-on-admin {
+.vmenu-on-admin { // TODO: is this still relevant?
   width: auto;
   margin-left: 275px;
 
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
   }
-
-
 }
 
 .vmenu-off {
   width: auto;
   margin-left: 50px;
-}
-
-.generic-header {
-  padding-left: 30px;
-  border-bottom: solid 1px $sitnet-common-light;
-}
-
-label {
-  .text-info {
-    margin-left: 3em;
-
-  }
-}
-
-.info-box {
-  padding: 1em;
-  margin-bottom: 10px !important;
-  background-color: #216a9b;
-  color: white;
-  display: inline-block;
-  div {
-    clear: none;
-    float: left;
-  }
-  ul {
-    margin: 0;
-    li {
-      padding: 0;
-    }
-  }
-  .text-info {
-    color: white;
-    font-size: 30px;
-    margin-top: 5px;
-  }
-  .content-wrapper {
-    width: 93%;
-    margin-left: 1.5em;
-  }
-  .label-primary {
-    float: left;
-    padding: 0.7em;
-    font-size: 12px;
-    background-color: white;
-    color: #216a9b;
-  }
-}
-
-.question-editor-modal .modal-dialog {
-  width: 80%;
 }
 
 .student-enroll-title {
@@ -155,11 +101,6 @@ label {
   max-width: 100%;
   margin-bottom: 0px;
   font-weight: normal;
-}
-
-.student-message-dialog-footer {
-  padding-top:17px;
-  padding-bottom:45px;
 }
 
 .student-message-dialog-button-save {
@@ -329,12 +270,6 @@ label {
   font-weight: bold;
 }
 
-.calendar-course-code {
-  color:#555555;
-  font-family: $sitnet-family-helvetica;
-  font-size:13px;
-}
-
 .calendar-accessibility-link {
 
   a {
@@ -361,77 +296,6 @@ label {
   padding-right:10px;
 }
 
-.calendar-button-save {
-  vertical-align: top;
-  width: 22%;
-  float: right;
-  margin-right: 30px;
-  cursor: not-allowed;
-
-  a {
-    font-size: 16px;
-    font-family: $sitnet-family-helvetica;
-    background-color: #D8D8D8;
-    border: 1px solid #979797;
-    width: 100%;
-    margin-left: 10px;
-    line-height: 1.5;
-    border-radius: 3px;
-    color: white;
-    text-align: center;
-    display: block;
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    &.cancel {
-      cursor: pointer;
-      background-color: #606060;
-      border: 1px solid #565656;
-
-    }
-  }
-
-  a:hover, button:active, button:focus, button:active:focus {
-    background-color: #D8D8D8;
-    border: 1px solid #979797;
-    &.cancel {
-      cursor: pointer;
-      background-color: #6B6B6B;
-      border: 1px solid #6B6B6B;
-    }
-    text-decoration: none;
-  }
-}
-
-.calendar-button-save-activated {
-
-    cursor: pointer;
-
-    a {
-      font-size: 16px;
-      font-family: $sitnet-family-helvetica;
-      background-color: $sitnet-green-new;
-      border: 1px solid $sitnet-dark-green-new;
-      width: 100%;
-      margin-left: 10px;
-      line-height: 1.5;
-      border-radius: 3px;
-      color: white;
-      text-align: center;
-      display: block;
-      padding-top: 10px;
-      padding-bottom: 10px;
-    }
-
-    a:hover, button:active, button:focus, button:active:focus {
-      background-color: $sitnet-dark-green-new;
-      border: 1px solid $sitnet-dark-green-new;
-      text-decoration: none;
-    }
-
-
-}
-
 .calendar-room-title {
   color: #2C2C2C;
   font-size: 16px;
@@ -455,131 +319,6 @@ label {
 .calendar-room-info-content {
   margin-left:200px;
 }
-
-.calendar-no-paddings {
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-/* Fullcalendar overrides */
-
-.fc-toolbar {
-  border-left: solid 1px #979797;
-  padding-bottom: 1em;
-  border-right: solid 1px #979797;
-  border-top: solid 1px #979797;
-  border-radius: 4px;
-  padding-top: 27px;
-  margin-bottom: 0px !important;
-}
-
-.fc-right {
-  float: right !important;
-  width: 163px !important;
-
-  .fc-today-button {
-    float: right;
-    margin-right:10px;
-  }
-}
-
-.fc-center {
-
-  h2 {
-    color: #2C2C2C;
-    font-family: $sitnet-family-helvetica;
-    font-size: 22px;
-    margin-left: 1em !important;
-    margin-right: 1em;
-    padding-top: 3px;
-    margin-bottom: 0px !important;
-    font-weight: 300;
-  }
-}
-
-.fc-prev-button {
-  background: url("/assets/assets/images/calendar-left.png") no-repeat;
-  border: 0px;
-  width: 30px;
-  height: 30px !important;
-}
-
-.fc-next-button {
-  background: url("/assets/assets/images/calendar-right.png") no-repeat;
-  border: 0px;
-  width: 30px;
-  height: 30px !important;
-  margin-left: 0px !important;
-}
-
-.fc-toolbar button:focus {
-   outline: none !important;
-}
-
-.fc-icon-left-single-arrow {
-  display: none;
-}
-
-.fc-icon-right-single-arrow {
-  display: none;
-}
-
-.fc-myCustomButton-button {
-  color: #2C2C2C;
-  font-family: $sitnet-family-helvetica;
-  font-size: 22px !important;
-  margin-left: 1em !important;
-  padding-left: 0px !important;
-  margin-right: 1em;
-  border: none;
-  background-image: none;
-  background-color: #ffffff;
-  box-shadow: none;
-  padding-bottom: 20px !important;
-  font-weight: 300;
-}
-
-.fc-today-button {
-  border: 1px solid #979797;
-  background-image: none;
-  background-color: #ffffff;
-  box-shadow: none;
-  font-size: 13px;
-  color: #555555;
-}
-
-.fc-day-header {
-  border: 0px;
-  font-family: $sitnet-family-helvetica;
-  font-size: 14px;
-  color: #555555;
-  padding-bottom: 0px !important;
-  margin-bottom: 0px;
-  font-weight: normal;
-  vertical-align: middle !important;
-  height: 60px;
-  background-color: #FAFAFA;
-}
-
-.fc-widget-header {
-  background-color: #FAFAFA;
-}
-
-.fc-time-grid .fc-slats .fc-minor td {
-  border-top-style: none !important;
-}
-
-.fc-title {
-  font-family: $sitnet-family-helvetica;
-  color: #2C2C2C !important;
-  font-size: 13px !important;
-}
-
-.fc-time {
-  font-family: $sitnet-family-helvetica;
-  color: #2C2C2C !important;
-}
-
 
 /* exam_search */
 .input-group-addon {
@@ -613,19 +352,6 @@ label {
     max-width: 550px;
   }
 
-}
-
-.dropdown-menu {
-
-  &.settings {
-    left: -180% !important;
-  }
-}
-
-.text-info {
-  color:#2C2C2C;
-  font-size: 14px;
-  font-family: $sitnet-family-helvetica;
 }
 
 .waitingroom-info {
@@ -687,7 +413,6 @@ label {
       width:30px;
       height:30px;
     }
-
 
   }
 
