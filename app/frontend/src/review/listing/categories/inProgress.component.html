@@ -51,14 +51,14 @@
             </div>
         </div>
         <div
-            [hidden]="exam.executionType.type === 'MATURITY' || parentCtrl.collaborative"
+            [hidden]="exam.executionType.type === 'MATURITY' || collaborative"
             class="review-attachment-button review-list-speed-button marr20"
         >
             <a class="pointer" uiSref="speedReview" [uiParams])="{id: exam.id }">
                 {{ 'sitnet_speed_review' | translate }} ({{ view.filtered.length }})
             </a>
         </div>
-        <div *ngIf="!parentCtrl.collaborative" class="review-attachment-button review-list-speed-button marr20">
+        <div *ngIf="!collaborative" class="review-attachment-button review-list-speed-button marr20">
             <a
                 ngbPopover="{{ 'sitnet_exam_review_attachment_description' | translate }}"
                 placement="left"
