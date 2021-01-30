@@ -10,11 +10,6 @@
     }
   }
 
-  .library-toolbar {
-    float:right; 
-    margin-right: 30px;
-  }
-
   .library-button {
     a {
       font-size: 16px;
@@ -52,7 +47,6 @@
 
     }
 
-
     a:hover, button:active, button:focus, button:active:focus {
       background-color: $sitnet-dark-green-new;
       border: 1px solid $sitnet-dark-green-new;
@@ -83,11 +77,6 @@
       margin-left: 30px;
     }
 
-  }
-
-  .library-button-remove {
-    border: 0px;
-    background-color: white;
   }
 
   .library-table {
@@ -196,65 +185,6 @@
         border-bottom: 0;
       }
     }
-  }
-
-  .questions-wrapper {
-    width:100%;
-    margin:1em 0 0 0;
-    padding:0;
-    height:100%;
-    display: inline-table;
-  }
-
-  .question-list-wrapper {
-    width:94%;
-    float:left;
-    margin-bottom:0;
-    height:100%;
-    min-height:100%;
-    max-width: 100%;
-
-  }
-
-  .drag-all-wrap {
-    float:left;
-    height:100%;
-    margin-top:0.3em;
-    cursor:move;
-    border-top:1px solid $sitnet-common-dark;
-    border-left:1px solid $sitnet-common-dark;
-    border-bottom:1px solid $sitnet-common-dark;
-  }
-
-
-  .library-name {
-    color: $sitnet-common-medium;
-    border-bottom: 0.15em solid $sitnet-common-light;
-  }
-
-  .library-row-icon {
-    width:10%;
-    float:left;
-    cursor: inherit;
-  }
-
-  .library-row-text p{
-    margin:0.1em;
-    padding:0.1em;
-    cursor: inherit;
-  }
-
-  .library-row-text {
-    cursor: inherit;
-  }
-
-  .library-row-text-wrap {
-    width:90%;
-    overflow: hidden;
-  }
-
-  .filter-menu {
-    position: relative;
   }
 
   ul {

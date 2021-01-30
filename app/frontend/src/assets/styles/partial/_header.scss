@@ -40,44 +40,6 @@
     background-color: $sitnet-common-light;
   }
 
-  .header-button {
-    font-family: $sitnet-family-opensans-bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    background-color: $sitnet-theme;
-    border: 0;
-    color: $sitnet-background;
-    min-width: 3em;
-    text-align: center;
-    font-size: 0.8em;
-    padding: 0.5em 1.2em 0.5em 1.2em;
-    @include border-radius(5px);
-  }
-  .header-button > i {
-    margin-left: 0.2em;
-    padding-right: 2em;
-  }
-
-  .exam-clock {
-    font-size: 1.8em;
-    font-style: italic;
-    font-family: $sitnet-family-opensans-bold;
-    color: $sitnet-common-medium;
-    line-height: 2.2em;
-    font-weight: 100;
-    text-align: right;
-    letter-spacing: 0.2em;
-  }
-  .exam-clock-text {
-    text-align: right;
-    line-height: 4em;
-    font-size: 1.1em;
-    font-style: italic;
-    font-family: $sitnet-family-opensans-bold;
-    color: $sitnet-common-medium;
-    margin-right: 1em;
-  }
-
   @media screen {
     .print-only {
       display: none !important;
