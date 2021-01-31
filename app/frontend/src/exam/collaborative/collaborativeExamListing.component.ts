@@ -12,15 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../session/session.service';
-import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
+import type { CollaborativeExam } from '../exam.model';
+import { CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
 
 enum ListingView {
@@ -80,21 +83,21 @@ export class CollaborativeExamListingComponent implements OnInit {
     listAllExams = () =>
         this.CollaborativeExam.listExams()
             .pipe(
-                tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
+                tap((exams) => (this.exams = this.returnListedCollaborativeExams(exams))),
                 finalize(() => (this.loader = { loading: false })),
             )
             .subscribe();
 
     returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
         const listedExams: ListedCollaborativeExam[] = exams
-            .map(e => {
-                const ownerAggregate = e.examOwners.map(o => o.email).join();
+            .map((e) => {
+                const ownerAggregate = e.examOwners.map((o) => o.email).join();
                 const stateTranslation = this.getStateTranslation(e);
                 const listingView = this.determineListingView(e);
 
                 return { ...e, ownerAggregate, stateTranslation, listingView };
             })
-            .filter(e => e.listingView !== ListingView.OTHER);
+            .filter((e) => e.listingView !== ListingView.OTHER);
 
         return listedExams;
     }
@@ -115,7 +118,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         return ListingView.OTHER;
     }
 
-    filterByView = (view: string) => this.exams.filter(e => this.determineListingView(e) === view);
+    filterByView = (view: string) => this.exams.filter((e) => this.determineListingView(e) === view);
 
     setView(view: ListingView) {
         this.view = view;
@@ -134,7 +137,7 @@ export class CollaborativeExamListingComponent implements OnInit {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
     }
 
@@ -164,7 +167,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.CollaborativeExam.searchExams(text)
             .pipe(
                 tap(
-                    exams => (this.exams = this.returnListedCollaborativeExams(exams)),
+                    (exams) => (this.exams = this.returnListedCollaborativeExams(exams)),
                     finalize(() => (this.loader = { loading: false })),
                 ),
             )

@@ -235,7 +235,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             "examFeedback",
             "creditType",
             "expanded",
-            "attachment"
+            "attachment",
         };
     }
 
@@ -247,7 +247,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             "lotteryOn",
             "sequenceNumber",
             "description",
-            "lotteryItemCount"
+            "lotteryItemCount",
         };
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];

@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class InspectionComment extends OwnedModel {
+
     @Column(columnDefinition = "TEXT")
     private String comment;
 

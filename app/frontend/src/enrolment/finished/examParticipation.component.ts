@@ -13,16 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
-import { AssessedParticipation, ReviewedExam } from '../enrolment.model';
+import type { ReviewedExam } from '../enrolment.model';
+import { AssessedParticipation } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participation',
@@ -123,7 +125,7 @@ export class ExamParticipationComponent implements OnInit {
         }
         this.http
             .get<ReviewedExam>(`/app/feedback/exams/${this.participation.exam.id}/score`)
-            .subscribe(this.prepareScores, err => toastr.error(err.data));
+            .subscribe(this.prepareScores, (err) => toastr.error(err.data));
     };
 
     private prepareScores = (exam: ReviewedExam) => {

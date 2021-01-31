@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
 
 @Entity
 public class DefaultWorkingHours extends GeneratedIdentityModel {
+
     @Temporal(TemporalType.TIME)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime startTime;

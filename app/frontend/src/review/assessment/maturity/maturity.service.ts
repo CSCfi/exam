@@ -20,8 +20,8 @@ import { from, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import { LanguageInspection } from '../../../maturity/maturity.model';
+import type { Exam } from '../../../exam/exam.model';
+import type { LanguageInspection } from '../../../maturity/maturity.model';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { AssessmentService } from '../assessment.service';
@@ -179,7 +179,7 @@ export class MaturityService {
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
                 switchMap(() => this.http.put(`app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
-                catchError(err => {
+                catchError((err) => {
                     toast.error(err.data);
                     return throwError(err);
                 }),

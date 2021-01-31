@@ -24,6 +24,7 @@ import javax.persistence.OneToOne;
 
 @Entity
 public class Comment extends OwnedModel implements AttachmentContainer {
+
     @Column(columnDefinition = "TEXT")
     private String comment;
 

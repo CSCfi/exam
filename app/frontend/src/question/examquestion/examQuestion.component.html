@@ -356,8 +356,8 @@
                     </div>
                     <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
                         <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
-                            <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
-                            <span style="color:#E8172F;">
+                            <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
+                            <span style="color: #e8172f">
                                 {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
                                 <span *ngFor="let opt of missingOptions; let l = last">
                                     {{ opt | translate }}{{ l ? '' : ',' }}

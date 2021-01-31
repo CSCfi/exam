@@ -32,6 +32,7 @@ import javax.persistence.Transient;
 
 @Entity
 public class ExamScore extends GeneratedIdentityModel {
+
     @OneToOne(mappedBy = "examScore")
     @JsonBackReference
     private ExamRecord examRecord;
@@ -268,7 +269,7 @@ public class ExamScore extends GeneratedIdentityModel {
             "lecturerId",
             "lecturerEmployeeNumber",
             "date",
-            "additionalInfo"
+            "additionalInfo",
         };
     }
 

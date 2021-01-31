@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
@@ -67,7 +68,7 @@ export class ExamListCategoryComponent implements OnInit {
     ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(text => {
+            .subscribe((text) => {
                 this.filterText = text;
                 this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
                 this.onFilterChange.emit(this.filterText);
@@ -114,11 +115,11 @@ export class ExamListCategoryComponent implements OnInit {
         this.http
             .post<{ id: number }>(`/app/exams/${exam.id}`, { type: type })
             .subscribe(
-                resp => {
+                (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('examEditor', { id: resp.id });
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
     };
 
@@ -133,10 +134,10 @@ export class ExamListCategoryComponent implements OnInit {
                     toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
         });
     };
 
-    isOwner = (exam: Exam) => exam.examOwners.some(eo => eo.id === this.userId);
+    isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);
 }

@@ -18,7 +18,8 @@ import { StateService } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { WindowRef } from '../utility/window/window.service';
-import { Examination, ExaminationSection, ExaminationService } from './examination.service';
+import type { Examination, ExaminationSection } from './examination.service';
+import { ExaminationService } from './examination.service';
 
 @Component({
     selector: 'examination',
@@ -49,7 +50,7 @@ export class ExaminationComponent {
             this.isCollaborative,
             this.state.params.id,
         ).subscribe(
-            exam => {
+            (exam) => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
                 // set section indices
                 exam.examSections.forEach((section, index) => (section.index = index + 1));
@@ -59,7 +60,7 @@ export class ExaminationComponent {
                     this.Enrolment.showMaturityInstructions({ exam: this.exam });
                 }
             },
-            err => {
+            (err) => {
                 console.log(JSON.stringify(err));
                 this.state.go('dashboard');
             },
@@ -93,7 +94,7 @@ export class ExaminationComponent {
     };
 
     private findSection = (sectionId: number) => {
-        const i = this.exam.examSections.map(es => es.id).indexOf(sectionId);
+        const i = this.exam.examSections.map((es) => es.id).indexOf(sectionId);
         if (i >= 0) {
             return this.exam.examSections[i];
         }

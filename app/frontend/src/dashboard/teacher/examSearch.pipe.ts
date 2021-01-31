@@ -12,25 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Pipe, PipeTransform } from '@angular/core';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 
 @Pipe({ name: 'examSearch' })
 export class ExamSearchPipe implements PipeTransform {
     private getAggregate = (exam: Exam) => {
         const code = exam.course ? exam.course.code : '';
-        const owners = exam.examOwners.map(eo => `${eo.firstName} ${eo.lastName}`).join(' ');
+        const owners = exam.examOwners.map((eo) => `${eo.firstName} ${eo.lastName}`).join(' ');
         return `${code} ${owners} ${exam.name}`;
     };
 
     transform<T extends Exam>(exams: T[], filter: string): T[] {
-        return !filter
-            ? exams
-            : exams.filter(e =>
-                  this.getAggregate(e)
-                      .toLowerCase()
-                      .includes(filter.toLowerCase()),
-              );
+        return !filter ? exams : exams.filter((e) => this.getAggregate(e).toLowerCase().includes(filter.toLowerCase()));
     }
 }

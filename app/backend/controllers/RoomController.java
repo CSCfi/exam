@@ -60,6 +60,7 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
 public class RoomController extends BaseController {
+
     private final boolean examVisitActivated;
     private final String defaultTimeZoneId;
     private ExternalFacilityAPI externalApi;

@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -27,8 +27,10 @@ import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+import { ExamSection, ExamSectionQuestion } from '../../exam.model';
 
+import type { Observable } from 'rxjs';
+import type { ExamSectionQuestionOption, Question } from '../../exam.model';
 @Component({
     selector: 'section-question',
     templateUrl: './sectionQuestion.component.html',
@@ -78,11 +80,11 @@ export class SectionQuestionComponent {
         }
         return this.http
             .get<{ distributed: boolean }>(`/app/exams/question/${this.sectionQuestion.id}/distribution`)
-            .pipe(map(resp => resp.distributed));
+            .pipe(map((resp) => resp.distributed));
     }
 
     private openExamQuestionEditor = () =>
-        this.getQuestionDistribution().subscribe(distributed => {
+        this.getQuestionDistribution().subscribe((distributed) => {
             if (!distributed) {
                 // If this is not distributed, treat it as a plain question (or at least trick the user to
                 // believe so)
@@ -113,7 +115,7 @@ export class SectionQuestionComponent {
                     question: question,
                 })
                 .subscribe(
-                    resp => {
+                    (resp) => {
                         this.sectionQuestion = _.merge(this.sectionQuestion, resp);
                         // Collaborative exam question handling.
                         if (!this.collaborative) {
@@ -127,7 +129,7 @@ export class SectionQuestionComponent {
                             this.Files.upload(
                                 '/integration/iop/attachment/question',
                                 attachment.file,
-                                { examId: this.examId, questionId: this.sectionQuestion.id },
+                                { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
                                 this.sectionQuestion.question,
                             );
                         } else if (attachment.removed) {
@@ -139,7 +141,7 @@ export class SectionQuestionComponent {
                             });
                         }
                     },
-                    resp => {
+                    (resp) => {
                         toast.error(resp.data);
                     },
                 );

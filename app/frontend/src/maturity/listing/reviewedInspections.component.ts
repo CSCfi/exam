@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { LanguageInspectionData } from '../languageInspections.component';
+import type { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
 
 @Component({
@@ -62,10 +63,8 @@ export class ReviewedInspectionsComponent implements OnInit {
     };
 
     filterTextChanged = () =>
-        (this.filteredInspections = this.inspections.filter(i =>
-            this.examToString(i)
-                .toLowerCase()
-                .match(this.filterText.toLowerCase()),
+        (this.filteredInspections = this.inspections.filter((i) =>
+            this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
         ));
 
     startDateChanged = (event: { date: Date }) => this.onStartDateChange.emit({ date: event.date });

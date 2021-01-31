@@ -14,23 +14,17 @@
  */
 /// <reference types="ckeditor" />
 import { DOCUMENT } from '@angular/common';
-import {
-    AfterViewChecked,
-    AfterViewInit,
-    Component,
-    forwardRef,
-    Inject,
-    Input,
-    NgZone,
-    OnDestroy,
-    ViewChild,
-} from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, ElementRef, forwardRef, Inject, Input, NgZone, ViewChild } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 
 import { WindowRef } from '../window/window.service';
 
+import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
+import type { ControlValueAccessor } from '@angular/forms';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let CKEDITOR: any;
 
 @Component({
@@ -43,9 +37,7 @@ declare let CKEDITOR: any;
             multi: true,
         },
     ],
-    template: `
-        <textarea #host [required]="required"></textarea>
-    `,
+    template: ` <textarea #host [required]="required"></textarea> `,
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
     @Input() required = false;
@@ -57,14 +49,15 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
             this.onChange(v);
         }
     }
-    get value(): any {
+    get value(): unknown {
         return this._value;
     }
 
-    @ViewChild('host', { static: false }) host: any;
+    @ViewChild('host', { static: false }) host: ElementRef;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     instance: any;
-    _value: any;
+    _value: unknown;
     onChange: (_: unknown) => unknown;
     onTouched: () => unknown;
 
@@ -75,7 +68,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         private Window: WindowRef,
     ) {}
 
-    updateValue(value: any) {
+    updateValue(value: unknown) {
         this.zone.run(() => {
             this.onChange(value);
             this.onTouched();
@@ -136,17 +129,17 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         }
     }
 
-    writeValue(value: any) {
+    writeValue(value: unknown) {
         this._value = value;
         if (this.instance) {
             this.instance.setData(value);
         }
     }
 
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (_: unknown) => unknown): void {
         this.onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn: () => unknown): void {
         this.onTouched = fn;
     }
 }

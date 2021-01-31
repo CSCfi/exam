@@ -19,7 +19,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Reservation } from './reservation.model';
+import type { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
 @Component({
@@ -50,7 +50,7 @@ export class ReservationDetailsComponent {
                 this.reservations.splice(this.reservations.indexOf(reservation), 1);
                 toast.info(this.translate.instant('sitnet_reservation_removed'));
             })
-            .catch(err => toast.error(err));
+            .catch((err) => toast.error(err));
     }
 
     permitRetrial(reservation: Reservation) {
@@ -59,7 +59,7 @@ export class ReservationDetailsComponent {
                 reservation.retrialPermitted = true;
                 toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     }
 

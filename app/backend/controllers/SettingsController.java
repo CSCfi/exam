@@ -35,6 +35,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class SettingsController extends BaseController {
+
     private final Environment environment;
     private final ConfigReader configReader;
 

@@ -105,7 +105,7 @@ public interface SectionQuestionHandler {
 
     enum OptionUpdateOptions {
         SKIP_DEFAULTS,
-        HANDLE_DEFAULTS
+        HANDLE_DEFAULTS,
     }
 
     default void updateOption(JsonNode node, OptionUpdateOptions defaults) {

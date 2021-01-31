@@ -16,10 +16,10 @@ import { Component, Input } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
+import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-statement',
     templateUrl: './statement.component.html',
@@ -35,7 +35,7 @@ export class StatementComponent {
     toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
 
     saveInspectionStatement = () =>
-        this.Maturity.saveInspectionStatement$(this.exam).subscribe(resp => (this.exam.languageInspection = resp));
+        this.Maturity.saveInspectionStatement$(this.exam).subscribe((resp) => (this.exam.languageInspection = resp));
 
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
 
@@ -47,7 +47,7 @@ export class StatementComponent {
                 this.Files.upload(
                     `/app/attachment/exam/${this.exam.id}/feedback`,
                     res.$value.attachmentFile,
-                    { examId: this.exam.id },
+                    { examId: this.exam.id.toString() },
                     this.exam.examFeedback,
                 );
             }),

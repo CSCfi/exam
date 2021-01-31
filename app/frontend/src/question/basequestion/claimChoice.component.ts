@@ -148,8 +148,8 @@ export class ClaimChoiceEditorComponent {
 
     private validate = () =>
         (this.missingOptions = this.Question.getInvalidClaimOptionTypes(this.question.options)
-            .filter(type => type !== 'SkipOption')
-            .map(optionType => this.Question.getOptionTypeTranslation(optionType)));
+            .filter((type) => type !== 'SkipOption')
+            .map((optionType) => this.Question.getOptionTypeTranslation(optionType)));
 
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {

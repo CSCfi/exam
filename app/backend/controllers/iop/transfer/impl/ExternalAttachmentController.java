@@ -34,6 +34,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
+
     @Inject
     private WSClient wsClient;
 

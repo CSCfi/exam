@@ -27,7 +27,7 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
 
     public enum Type {
         @EnumValue("1")
-        CAN_INSPECT_LANGUAGE
+        CAN_INSPECT_LANGUAGE,
     }
 
     private Type type;

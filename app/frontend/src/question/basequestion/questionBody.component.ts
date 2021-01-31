@@ -14,14 +14,18 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { from, Observable } from 'rxjs';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import { ExamSectionQuestion, ReverseQuestion, Tag } from '../../exam/exam.model';
-import { SessionService, User } from '../../session/session.service';
+import type { ReverseQuestion, Tag } from '../../exam/exam.model';
+import { ExamSectionQuestion } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { QuestionDraft, QuestionService } from '../question.service';
+import type { QuestionDraft } from '../question.service';
+import { QuestionService } from '../question.service';
 
 @Component({
     selector: 'question-body',
@@ -51,14 +55,14 @@ export class QuestionBodyComponent {
     ) {}
 
     private init = () => {
-        const sections = this.question.examSectionQuestions.map(esq => esq.examSection);
-        const examNames = sections.map(s => {
+        const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+        const examNames = sections.map((s) => {
             if (s.exam.state === 'PUBLISHED') {
                 this.isInPublishedExam = true;
             }
             return s.exam.name as string;
         });
-        const sectionNames = sections.map(s => s.name);
+        const sectionNames = sections.map((s) => s.name);
         // remove duplicates
         this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
@@ -87,12 +91,12 @@ export class QuestionBodyComponent {
         filter$.pipe(
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap(term =>
+            exhaustMap((term) =>
                 term.length < 2
                     ? from([])
                     : this.http.get<User[]>('/app/users/question/owners/TEACHER', { params: { q: term } }),
             ),
-            map(users => users.filter(u => this.currentOwners.map(o => o.id).indexOf(u.id) === -1).slice(0, 15)),
+            map((users) => users.filter((u) => this.currentOwners.map((o) => o.id).indexOf(u.id) === -1).slice(0, 15)),
         );
 
     nameFormat = (u: User & { name: string }) => {
@@ -124,7 +128,7 @@ export class QuestionBodyComponent {
     };
 
     selectFile = () =>
-        this.Attachment.selectFile(true).then(data => {
+        this.Attachment.selectFile(true).then((data) => {
             this.question.attachment = {
                 ...this.question.attachment,
                 modified: true,
@@ -172,7 +176,7 @@ export class QuestionBodyComponent {
         const user = this.Session.getUser();
         return (
             this.question.questionOwners &&
-            (user.isAdmin || this.question.questionOwners.map(o => o.id).indexOf(user.id) > -1)
+            (user.isAdmin || this.question.questionOwners.map((o) => o.id).indexOf(user.id) > -1)
         );
     };
 }

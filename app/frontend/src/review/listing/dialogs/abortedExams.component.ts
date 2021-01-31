@@ -19,9 +19,9 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Exam } from '../../../exam/exam.model';
-import { Reservation } from '../../../reservation/reservation.model';
+import type { Reservation } from '../../../reservation/reservation.model';
 import { SessionService } from '../../../session/session.service';
-import { Review } from '../../review.model';
+import type { Review } from '../../review.model';
 
 @Component({
     selector: 'aborted-exams',

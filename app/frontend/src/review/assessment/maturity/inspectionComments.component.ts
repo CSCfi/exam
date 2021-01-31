@@ -19,7 +19,7 @@ import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { Exam } from '../../../exam/exam.model';
-import { User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
 
 @Component({
@@ -50,5 +50,5 @@ export class InspectionCommentsComponent {
                     ),
                 ),
             )
-            .subscribe(comment => this.exam.inspectionComments.unshift(comment));
+            .subscribe((comment) => this.exam.inspectionComments.unshift(comment));
 }

@@ -1,7 +1,7 @@
 <div class="top-padding-2 lightBorderBox">
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow ">{{ 'sitnet_question' | translate }}:</div>
-        <div class="sub-content-row col-md-9 ">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
             <span [MathJax]="sectionQuestion.question.question"></span>
         </div>
     </div>
@@ -71,7 +71,7 @@
     <!-- grade -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
-        <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="sub-content-row col-md-9 ">
+        <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="sub-content-row col-md-9">
             <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
                 {{ scoreMultipleChoiceAnswer(true) }}
             </span>
@@ -82,7 +82,7 @@
         </div>
         <div
             *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
-            class="sub-content-row col-md-9 "
+            class="sub-content-row col-md-9"
         >
             <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
                 {{ scoreWeightedMultipleChoiceAnswer(true) }}

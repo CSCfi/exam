@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { ExamParticipation } from '../../../exam/exam.model';
+import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { WindowRef } from '../../../utility/window/window.service';

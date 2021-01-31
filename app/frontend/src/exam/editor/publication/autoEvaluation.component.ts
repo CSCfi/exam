@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import type { OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import * as _ from 'lodash';
 
-import { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
+import type { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
@@ -74,7 +76,7 @@ export class AutoEvaluationComponent implements OnInit {
             const releaseType = this.selectedReleaseType();
             this.exam.autoEvaluationConfig = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map(function(g) {
+                gradeEvaluations: this.exam.gradeScale.grades.map(function (g) {
                     return { grade: _.cloneDeep(g), percentage: 0 };
                 }),
                 amountDays: 0,
@@ -88,11 +90,11 @@ export class AutoEvaluationComponent implements OnInit {
         }
     };
 
-    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find(rt => rt.name === name);
+    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
 
     private applyFilter = (type?: ReleaseType) => {
         if (!this.exam.autoEvaluationConfig) return;
-        this.autoevaluation.releaseTypes.forEach(rt => (rt.filtered = false));
+        this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
         }
@@ -101,7 +103,7 @@ export class AutoEvaluationComponent implements OnInit {
         this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
     };
 
-    selectedReleaseType = () => this.autoevaluation.releaseTypes.find(rt => rt.filtered);
+    selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 

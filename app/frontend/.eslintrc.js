@@ -2,11 +2,11 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     parserOptions: {
         project: './tsconfig.json',
-        ecmaVersion: 2018,
+        ecmaVersion: 2021,
         sourceType: 'module',
         createDefaultProgram: true, // https://github.com/typescript-eslint/typescript-eslint/issues/864
     },
-    plugins: ['@typescript-eslint'],
+    plugins: ['@typescript-eslint', 'import'],
     extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/eslint-recommended',
@@ -19,8 +19,8 @@ module.exports = {
         node: true,
     },
     rules: {
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/consistent-type-imports': 1,
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
         'no-redeclare': 'error',
         'no-eval': 'error',
         'no-caller': 'error',

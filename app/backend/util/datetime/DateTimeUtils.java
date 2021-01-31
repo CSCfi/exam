@@ -36,7 +36,7 @@ public class DateTimeUtils {
 
     public enum RestrictionType {
         RESTRICTIVE,
-        NON_RESTRICTIVE
+        NON_RESTRICTIVE,
     }
 
     public static List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {

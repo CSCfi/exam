@@ -13,13 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { NgbModal, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExamMaterial, ExamSection } from '../../exam.model';
+import type { ExamMaterial } from '../../exam.model';
+import { ExamSection } from '../../exam.model';
 import { ExamMaterialComponent } from './examMaterial.component';
 
 @Component({
@@ -37,7 +40,9 @@ export class ExamMaterialSelectorComponent {
     constructor(private http: HttpClient, private modal: NgbModal) {}
 
     private filterOutExisting = () => {
-        this.materials = this.allMaterials.filter(m => this.section.examMaterials.map(em => em.id).indexOf(m.id) == -1);
+        this.materials = this.allMaterials.filter(
+            (m) => this.section.examMaterials.map((em) => em.id).indexOf(m.id) == -1,
+        );
     };
 
     ngOnInit() {
@@ -57,9 +62,9 @@ export class ExamMaterialSelectorComponent {
     filterMaterials$ = (text$: Observable<string>): Observable<ExamMaterial[]> => {
         return text$.pipe(
             distinctUntilChanged(),
-            map(t => {
+            map((t) => {
                 const re = new RegExp(t, 'i');
-                return this.materials.filter(m => m.name.match(re));
+                return this.materials.filter((m) => m.name.match(re));
             }),
         );
     };
@@ -74,7 +79,7 @@ export class ExamMaterialSelectorComponent {
                 this.filterOutExisting();
                 this.filter = '';
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     };
 
@@ -84,7 +89,7 @@ export class ExamMaterialSelectorComponent {
                 this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
                 this.filterOutExisting();
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     };
 

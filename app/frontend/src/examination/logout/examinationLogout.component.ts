@@ -59,7 +59,7 @@ export class ExaminationLogoutComponent {
 
         if (this.quitLinkEnabled) {
             this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(
-                resp => (this.quitLink = resp.quitLink),
+                (resp) => (this.quitLink = resp.quitLink),
                 () =>
                     // Fetching quit link failed for some reason, just log out
                     () => this.logout(),

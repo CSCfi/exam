@@ -13,11 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { merge } from 'lodash';
 
-import { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
+import type { ExaminationEventConfiguration } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
 
 @Component({
     selector: 'select-examination-event-dialog',
@@ -33,8 +35,8 @@ export class SelectExaminationEventDialogComponent implements OnInit {
 
     ngOnInit() {
         this.configs = this.exam.examinationEventConfigurations
-            .map(ec => merge(ec, { examinationEvent: { start: new Date(ec.examinationEvent.start) } }))
-            .filter(ec => ec.examinationEvent.start > new Date() && ec.id !== this.existingEventId)
+            .map((ec) => merge(ec, { examinationEvent: { start: new Date(ec.examinationEvent.start) } }))
+            .filter((ec) => ec.examinationEvent.start > new Date() && ec.id !== this.existingEventId)
             .sort((a, b) => a.examinationEvent.start.getTime() - b.examinationEvent.start.getTime());
     }
 

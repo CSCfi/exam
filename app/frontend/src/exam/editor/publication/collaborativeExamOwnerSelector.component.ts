@@ -13,10 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
@@ -36,22 +38,22 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     }
 
     addOwner = () => {
-        const exists = this.exam.examOwners.some(o => o.email === this.newOwner.email);
+        const exists = this.exam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
             this.http.post<User>(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
-                user => {
+                (user) => {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
         }
     };
 
     removeOwner = (id: number) => {
         this.http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
-            () => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)),
-            resp => toast.error(resp.data),
+            () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
+            (resp) => toast.error(resp.data),
         );
     };
 }

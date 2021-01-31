@@ -25,7 +25,7 @@ public class Role extends GeneratedIdentityModel implements be.objectify.deadbol
     public enum Name {
         STUDENT,
         TEACHER,
-        ADMIN
+        ADMIN,
     }
 
     private String name;

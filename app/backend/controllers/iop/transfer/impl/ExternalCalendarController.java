@@ -381,8 +381,7 @@ public class ExternalCalendarController extends CalendarController {
         Optional<String> org,
         Optional<String> date,
         Http.Request request
-    )
-        throws MalformedURLException {
+    ) throws MalformedURLException {
         if (org.isPresent() && date.isPresent()) {
             // First check that exam exists
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);

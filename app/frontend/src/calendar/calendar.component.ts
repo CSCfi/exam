@@ -13,21 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import { CalendarEvent } from 'calendar-utils';
+import type { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Course, Exam, ExamSection } from '../exam/exam.model';
-import { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
+import type { Course, Exam, ExamSection } from '../exam/exam.model';
+import type { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { SlotMeta } from './bookingCalendar.component';
-import { CalendarService, OpeningHours, Slot } from './calendar.service';
+import type { SlotMeta } from './bookingCalendar.component';
+import type { OpeningHours, Slot } from './calendar.service';
+import { CalendarService } from './calendar.service';
 
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
@@ -102,10 +104,10 @@ export class CalendarComponent implements OnInit {
 
     private prepareOptionalSections = (data: ReservationInfo | null) => {
         this.examInfo.examSections
-            .filter(es => es.optional)
-            .forEach(es => {
+            .filter((es) => es.optional)
+            .forEach((es) => {
                 es.selected =
-                    (data?.optionalSections && data.optionalSections.map(os => os.id).indexOf(es.id) > -1) ||
+                    (data?.optionalSections && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
                     (this.uiRouter.params.selected && this.uiRouter.params.selected.indexOf(es.id) > -1);
             });
     };
@@ -127,12 +129,12 @@ export class CalendarComponent implements OnInit {
         this.http
             .get<ExamInfo>(url)
             .pipe(
-                tap(resp => {
+                tap((resp) => {
                     resp.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
                     this.examInfo = resp;
                 }),
                 switchMap(() => this.http.get<{ value: number }>('/app/settings/reservationWindow')),
-                tap(resp => {
+                tap((resp) => {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = moment().add(resp.value, 'days');
                     this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate)).toDate();
@@ -141,14 +143,14 @@ export class CalendarComponent implements OnInit {
                         .toDate();
                 }),
                 switchMap(() => this.http.get<Accessibility[]>('/app/accessibility')),
-                tap(resp => (this.accessibilities = resp.map(a => ({ ...a, filtered: false })))),
+                tap((resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false })))),
                 switchMap(() => this.http.get<ExamRoom[]>('/app/rooms')),
-                tap(resp => {
+                tap((resp) => {
                     const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false }));
                     this.rooms = rooms.sort((a, b) => (a.name > b.name ? 1 : -1));
                 }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
-                tap(resp => (this.isInteroperable = resp.isExamVisitSupported)),
+                tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
                 switchMap(() =>
                     this.http.get<ReservationInfo | null>(
                         `/app/calendar/enrolment/${this.uiRouter.params.id}/reservation`,
@@ -159,7 +161,7 @@ export class CalendarComponent implements OnInit {
             .subscribe();
     }
 
-    hasOptionalSections = (): boolean => this.examInfo.examSections.some(es => es.optional);
+    hasOptionalSections = (): boolean => this.examInfo.examSections.some((es) => es.optional);
 
     getSequenceNumber(area: string): number {
         const hasOptionalSections = this.hasOptionalSections();
@@ -191,7 +193,7 @@ export class CalendarComponent implements OnInit {
     }
 
     selectedAccessibilities() {
-        return this.accessibilities.filter(a => a.filtered);
+        return this.accessibilities.filter((a) => a.filtered);
     }
 
     getRoomInstructions(): string | undefined {
@@ -219,7 +221,7 @@ export class CalendarComponent implements OnInit {
 
     getRoomAccessibility(): string {
         const room = this.selectedRoom;
-        return room && room.accessibilities ? room.accessibilities.map(a => a.name).join(', ') : '';
+        return room && room.accessibilities ? room.accessibilities.map((a) => a.name).join(', ') : '';
     }
 
     makeExternalReservation() {
@@ -229,7 +231,7 @@ export class CalendarComponent implements OnInit {
         ).result.then(() =>
             this.state.go('externalCalendar', {
                 id: this.state.params.id,
-                selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+                selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
                 isCollaborative: this.isCollaborative,
             }),
         );
@@ -239,7 +241,7 @@ export class CalendarComponent implements OnInit {
         const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
         this.state.go(nextState, {
             id: this.uiRouter.params.id,
-            selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
+            selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
         });
     }
 
@@ -305,7 +307,7 @@ export class CalendarComponent implements OnInit {
             return;
         }
         const date = $event.date;
-        const accessibilities = this.accessibilities.filter(i => i.filtered).map(i => i.id);
+        const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
         this.loader.loading = true;
         const tz = room.localTimezone;
 
@@ -330,7 +332,7 @@ export class CalendarComponent implements OnInit {
 
     selectRoom(room: FilteredRoom) {
         if (!room.outOfService) {
-            this.rooms.forEach(r => (r.filtered = false));
+            this.rooms.forEach((r) => (r.filtered = false));
             room.filtered = true;
             this.selectedRoom = room;
             delete this.reservation;
@@ -360,14 +362,14 @@ export class CalendarComponent implements OnInit {
         }
     };
 
-    sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
+    sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 
     confirmReservation() {
         const room = this.selectedRoom;
         if (!room || !this.reservation || this.confirming) {
             return;
         }
-        const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
+        const selectedSectionIds = this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id);
         if (!this.sectionSelectionOk()) {
             toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
             return;
@@ -384,7 +386,7 @@ export class CalendarComponent implements OnInit {
         )
             .subscribe(
                 () => this.state.go('dashboard'),
-                resp => {
+                (resp) => {
                     toast.error(resp);
                 },
             )

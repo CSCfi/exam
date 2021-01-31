@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { QuestionBase } from '../../utility/forms/questionTypes';
+import type { QuestionBase } from '../../utility/forms/questionTypes';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
 @Component({
@@ -44,7 +44,7 @@ export class ExaminationQuestionComponent {
 
     answered = (event: { payload: { id: string; answer: string }[] }) => {
         if (this.sq.clozeTestAnswer) {
-            const dictionary = Object.assign({}, ...event.payload.map(x => ({ [x.id]: x.answer })));
+            const dictionary = Object.assign({}, ...event.payload.map((x) => ({ [x.id]: x.answer })));
             this.sq.clozeTestAnswer.answer = JSON.stringify(dictionary);
         }
     };

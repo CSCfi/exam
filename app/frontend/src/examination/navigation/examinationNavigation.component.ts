@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { Examination, ExaminationSection } from '../examination.service';
 
@@ -37,7 +38,7 @@ export class ExaminationNavigationComponent {
     prev: Partial<NavigationPage>;
 
     ngOnInit() {
-        this.pages = this.exam.examSections.map(es => ({ id: es.id, text: es.name, type: 'section', valid: true }));
+        this.pages = this.exam.examSections.map((es) => ({ id: es.id, text: es.name, type: 'section', valid: true }));
         // Add guide page
         this.pages.unshift({ text: 'sitnet_exam_guide', type: 'guide', valid: true });
         this.setupNavigation();
@@ -62,7 +63,7 @@ export class ExaminationNavigationComponent {
     };
 
     private activePageIndex = () => {
-        const page = this.pages.filter(p => this.activeSection.id === p.id)[0];
+        const page = this.pages.filter((p) => this.activeSection.id === p.id)[0];
         return this.pages.indexOf(page);
     };
 

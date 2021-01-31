@@ -14,16 +14,19 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { AnsweredQuestion, AttachmentService } from '../../utility/attachment/attachment.service';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
+import { Examination, ExaminationService } from '../examination.service';
 
+import type { ExaminationQuestion } from '../examination.service';
+import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
+import type { EssayAnswer } from 'exam/exam.model';
 @Component({
     selector: 'examination-essay-question',
     templateUrl: './examinationEssayQuestion.component.html',
 })
 export class ExaminationEssayQuestionComponent {
-    @Input() sq: ExaminationQuestion;
+    @Input() sq: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
     @Input() exam: Examination;
     @Input() isPreview: boolean;
     constructor(
@@ -53,12 +56,12 @@ export class ExaminationEssayQuestionComponent {
         if (this.isPreview) {
             return;
         }
-        this.Attachment.selectFile(false).then(data => {
+        this.Attachment.selectFile(false).then((data) => {
             if (this.exam.external) {
                 this.Files.uploadAnswerAttachment(
                     '/app/iop/attachment/question/answer',
                     data.$value.attachmentFile,
-                    { questionId: this.sq.id, examId: this.exam.hash },
+                    { questionId: this.sq.id.toString(), examId: this.exam.hash },
                     this.sq.essayAnswer,
                 );
                 return;
@@ -66,7 +69,7 @@ export class ExaminationEssayQuestionComponent {
             this.Files.uploadAnswerAttachment(
                 '/app/attachment/question/answer',
                 data.$value.attachmentFile,
-                { questionId: this.sq.id, answerId: this.sq.essayAnswer?.id },
+                { questionId: this.sq.id.toString(), answerId: this.sq.essayAnswer.id.toString() },
                 this.sq.essayAnswer,
             );
         });

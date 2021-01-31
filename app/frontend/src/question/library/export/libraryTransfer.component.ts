@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -39,16 +40,16 @@ export class LibraryTransferComponent implements OnInit {
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<Organisation[]>('/integration/iop/organisations').subscribe(resp => {
-            this.organisations = resp.filter(org => !org.homeOrg);
+        this.http.get<Organisation[]>('/integration/iop/organisations').subscribe((resp) => {
+            this.organisations = resp.filter((org) => !org.homeOrg);
             this.filterOrganisations();
         });
     }
 
     filterOrganisations = () =>
         (this.filteredOrganisations = this.organisations
-            .filter(o => o.name.startsWith(this.filter))
-            .map(o => ({ ...o, filtered: false })));
+            .filter((o) => o.name.startsWith(this.filter))
+            .map((o) => ({ ...o, filtered: false })));
 
     transfer = () => {
         if (this.selections.length == 0) {
@@ -62,7 +63,7 @@ export class LibraryTransferComponent implements OnInit {
                 })
                 .subscribe(
                     () => toast.info(this.translate.instant('sitnet_questions_transferred')),
-                    err => toast.error(err.data),
+                    (err) => toast.error(err.data),
                 );
         }
     };

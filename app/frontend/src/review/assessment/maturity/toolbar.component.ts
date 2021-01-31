@@ -18,7 +18,8 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { AssessmentService } from '../assessment.service';
-import { MaturityService, StateName } from './maturity.service';
+import type { StateName } from './maturity.service';
+import { MaturityService } from './maturity.service';
 
 @Component({
     selector: 'r-maturity-toolbar',

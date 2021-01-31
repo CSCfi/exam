@@ -89,7 +89,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("11")
         DELETED, // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
         @EnumValue("12")
-        REJECTED // EXAM NOT QUALIFIED FOR REGISTRATION
+        REJECTED, // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
     public enum Implementation {
@@ -98,7 +98,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("2")
         CLIENT_AUTH,
         @EnumValue("3")
-        WHATEVER
+        WHATEVER,
     }
 
     private static final DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));

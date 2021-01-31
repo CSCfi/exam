@@ -14,7 +14,8 @@
  */
 import { Component, EventEmitter, Output } from '@angular/core';
 
-import { SessionService, User } from '../session.service';
+import type { User } from '../session.service';
+import { SessionService } from '../session.service';
 
 @Component({
     selector: 'dev-login',
@@ -67,7 +68,7 @@ export class DevLoginComponent {
             (user: User) => {
                 this.onLoggedIn.emit(user);
             },
-            err => console.log(JSON.stringify(err)),
+            (err) => console.log(JSON.stringify(err)),
         );
     }
 }

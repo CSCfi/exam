@@ -21,7 +21,7 @@ import { debounceTime, distinctUntilChanged, exhaustMap, map, takeUntil, tap } f
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { Exam, Implementation } from '../exam.model';
+import type { Exam, Implementation } from '../exam.model';
 import { ExamService } from '../exam.service';
 
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
@@ -65,10 +65,10 @@ export class ExamListingComponent {
         this.filter = { text: '' };
         this.loader = { loading: false };
 
-        this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe(resp => {
+        this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
             const byodSupported = resp.isByodExaminationSupported;
-            this.Exam.listExecutionTypes().subscribe(types => {
-                this.executionTypes = types.map(t => {
+            this.Exam.listExecutionTypes().subscribe((types) => {
+                this.executionTypes = types.map((t) => {
                     const implementations =
                         t.type != 'PRINTOUT' && byodSupported
                             ? [
@@ -85,14 +85,14 @@ export class ExamListingComponent {
                     tap(() => (this.loader.loading = true)),
                     debounceTime(500),
                     distinctUntilChanged(),
-                    exhaustMap(term =>
+                    exhaustMap((term) =>
                         term.length < 2
                             ? from([])
                             : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
                     ),
                     map((exams: ExamListExam[]) => {
-                        exams.forEach(e => {
-                            e.ownerAggregate = e.examOwners.map(o => `${o.firstName} ${o.lastName}`).join();
+                        exams.forEach((e) => {
+                            e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
                             if (e.state === 'PUBLISHED') {
                                 e.expired = new Date() > new Date(e.examActiveEndDate);
                             } else {
@@ -101,7 +101,7 @@ export class ExamListingComponent {
                         });
                         return exams;
                     }),
-                    tap(exams => {
+                    tap((exams) => {
                         this.exams = exams;
                         this.loader.loading = false;
                     }),
@@ -119,11 +119,11 @@ export class ExamListingComponent {
         this.http
             .post<Exam>(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
             .subscribe(
-                resp => {
+                (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('examEditor', { id: resp.id, tab: 1 });
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
 
     deleteExam = (exam: ExamListExam) => {
@@ -137,14 +137,14 @@ export class ExamListingComponent {
                     toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.exams.splice(this.exams.indexOf(exam), 1);
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         });
     };
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>
-        this.exams.filter(e => e.state === state && e.expired == expired);
-    filterByState = (state: string) => this.exams.filter(e => e.state === state);
+        this.exams.filter((e) => e.state === state && e.expired == expired);
+    filterByState = (state: string) => this.exams.filter((e) => e.state === state);
 
     getExecutionTypeTranslation = (exam: ExamListExam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
 

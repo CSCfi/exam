@@ -33,6 +33,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class ExamRecordAPIController extends BaseController {
+
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
 
     static {

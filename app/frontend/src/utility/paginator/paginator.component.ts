@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import * as _ from 'lodash';
 
+import type { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
     selector: 'paginator',
     template: `
@@ -28,7 +29,7 @@ import * as _ from 'lodash';
     `,
 })
 export class PaginatorComponent implements OnChanges {
-    @Input() items: any[] = [];
+    @Input() items: unknown[] = [];
     @Input() pageSize = 1;
     @Input() currentPage = 0;
     @Output() onSelectPage = new EventEmitter<{ page: number }>();

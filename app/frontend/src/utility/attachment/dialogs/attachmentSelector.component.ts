@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FileService } from '../../file/file.service';
@@ -36,7 +37,7 @@ export class AttachmentSelectorComponent implements OnInit {
     constructor(public activeModal: NgbActiveModal, private Files: FileService) {}
 
     ngOnInit() {
-        this.Files.getMaxFilesize().then(data => (this.maxFileSize = data.filesize));
+        this.Files.getMaxFilesize().then((data) => (this.maxFileSize = data.filesize));
     }
 
     confirmed() {

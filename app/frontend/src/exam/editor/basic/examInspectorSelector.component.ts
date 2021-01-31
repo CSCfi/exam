@@ -13,14 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, of, throwError } from 'rxjs';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { User } from '../../../session/session.service';
-import { Exam, ExamInspection } from '../../exam.model';
+import type { User } from '../../../session/session.service';
+import type { ExamInspection } from '../../exam.model';
+import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'exam-inspector-selector',
@@ -49,22 +52,22 @@ export class ExamInspectorSelectorComponent implements OnInit {
 
     private getInspectors = () =>
         this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe(
-            inspections => (this.examInspections = inspections),
-            err => toast.error(err.data),
+            (inspections) => (this.examInspections = inspections),
+            (err) => toast.error(err.data),
         );
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap(text => (this.newInspector.name = text)),
+            tap((text) => (this.newInspector.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
-            exhaustMap(text =>
+            exhaustMap((text) =>
                 text.length < 2
                     ? of([])
                     : this.http.get<User[]>(`/app/users/filter/TEACHER/${this.exam.id}`, { params: { q: text } }),
             ),
             take(15),
-            catchError(err => {
+            catchError((err) => {
                 toast.error(err.data);
                 return throwError(err);
             }),
@@ -90,6 +93,6 @@ export class ExamInspectorSelectorComponent implements OnInit {
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe(
             () => this.getInspectors(),
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
 }

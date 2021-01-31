@@ -65,7 +65,7 @@
                     <li role="presentation" class="dropdown-header input-group">
                         <input
                             [ngModel]="limitations.department"
-                            (input)="handleDepartmentInputChange($event)"
+                            (change)="handleDepartmentInputChange()"
                             type="text"
                             class="form-control"
                             placeholder="{{ 'sitnet_search' | translate }}"

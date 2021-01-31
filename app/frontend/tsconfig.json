@@ -1,23 +1,21 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES5",
-    "lib": [
-      "DOM",
-      "ESNext",
-    ],
-    "module": "CommonJS",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "noLib": false,
+    "baseUrl": "./src",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true,
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "noEmitHelpers": true,
     "importHelpers": true,
     "strictNullChecks": true,
+    "noImplicitAny": true,
+    "target": "es2015",
+    "lib": [
+      "es2019",
+      "dom"
+    ]
   },
-  "include": [
-    "src/**/*"
-  ]
 }

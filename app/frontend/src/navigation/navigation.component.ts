@@ -12,15 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import type { OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
 
 import { ExaminationStatusService } from '../examination/examinationStatus.service';
-import { SessionService, User } from '../session/session.service';
-import { Link, NavigationService } from './navigation.service';
+import type { User } from '../session/session.service';
+import { SessionService } from '../session/session.service';
+import type { Link } from './navigation.service';
+import { NavigationService } from './navigation.service';
 
 @Component({
     selector: 'navigation',
@@ -56,8 +59,8 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.user = this.Session.getUser();
         if (this.user && this.user.isAdmin) {
             this.Navigation.getAppVersion().subscribe(
-                resp => (this.appVersion = resp.appVersion),
-                e => toastr.error(e),
+                (resp) => (this.appVersion = resp.appVersion),
+                (e) => toastr.error(e),
             );
             this.getLinks(true);
         } else if (this.user) {
@@ -81,11 +84,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private getLinks = (checkInteroperability: boolean) => {
         if (checkInteroperability) {
             this.Navigation.getInteroperability().subscribe(
-                resp => {
+                (resp) => {
                     this.isInteroperable = resp.isExamCollaborationSupported;
                     this.links = this.Navigation.getLinks(this.isInteroperable);
                 },
-                e => toastr.error(e),
+                (e) => toastr.error(e),
             );
         } else {
             this.links = this.Navigation.getLinks(false);

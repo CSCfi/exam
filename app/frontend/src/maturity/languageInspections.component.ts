@@ -12,13 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
 import { LanguageService } from '../utility/language/language.service';
-import { LanguageInspectionService, QueryParams } from './languageInspections.service';
-import { LanguageInspection } from './maturity.model';
+import type { QueryParams } from './languageInspections.service';
+import { LanguageInspectionService } from './languageInspections.service';
+import type { LanguageInspection } from './maturity.model';
 
 export interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
@@ -57,10 +59,10 @@ export class LanguageInspectionsComponent implements OnInit {
         }
         const refreshAll = _.isEmpty(params);
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {
-            const inspections: LanguageInspectionData[] = resp.map(i =>
+            const inspections: LanguageInspectionData[] = resp.map((i) =>
                 _.assign(i, {
                     ownerAggregate: i.exam.parent
-                        ? i.exam.parent.examOwners.map(o => `${o.firstName} ${o.lastName}`).join(', ')
+                        ? i.exam.parent.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(', ')
                         : '',
                     studentName: i.exam.creator ? `${i.exam.creator.firstName} ${i.exam.creator.lastName}` : '',
                     studentNameAggregate: i.exam.creator
@@ -74,9 +76,9 @@ export class LanguageInspectionsComponent implements OnInit {
                 }),
             );
             if (refreshAll) {
-                this.ongoingInspections = inspections.filter(i => !i.finishedAt);
+                this.ongoingInspections = inspections.filter((i) => !i.finishedAt);
             }
-            this.processedInspections = inspections.filter(i => i.finishedAt);
+            this.processedInspections = inspections.filter((i) => i.finishedAt);
         });
     };
 

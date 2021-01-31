@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as moment from 'moment';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
-import { LanguageInspection } from '../maturity.model';
+import type { LanguageInspection } from '../maturity.model';
 
 @Component({
     selector: 'maturity-reporting',
@@ -43,7 +44,7 @@ export class MaturityReportingComponent implements OnInit {
             this.month = event.date;
         }
         this.LanguageInspection.query(params).subscribe(
-            inspections => (this.processedInspections = inspections.filter(i => i.finishedAt)),
+            (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
         );
     };
 

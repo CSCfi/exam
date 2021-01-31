@@ -47,7 +47,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     public enum State {
         ACTIVE,
-        INACTIVE
+        INACTIVE,
     }
 
     private String name;
@@ -392,6 +392,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     }
 
     public final class OpeningHours {
+
         private final Interval hours;
         private final int timezoneOffset;
 

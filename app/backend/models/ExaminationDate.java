@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExaminationDate extends GeneratedIdentityModel {
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 

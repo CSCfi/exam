@@ -52,7 +52,7 @@ export class ArchiveDownloadComponent {
             });
         }
     };
-    cancel = function() {
+    cancel = function () {
         this.dismiss({ $value: 'cancel' });
     };
 }

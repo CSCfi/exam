@@ -30,6 +30,7 @@ import org.joda.time.Interval;
 
 @Entity
 public class ExamMachine extends GeneratedIdentityModel {
+
     private String name;
 
     private String otherIdentifier;

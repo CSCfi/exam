@@ -75,5 +75,5 @@ export class OptionalSectionsComponent {
 
     checkSectionSelections = () => this.onSelection.emit({ valid: this.sectionSelectionOk() });
 
-    sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
+    sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 }

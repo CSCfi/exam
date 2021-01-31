@@ -22,9 +22,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 padl30 mart20" *ngIf="examReviews.length === 0">
-            N/A
-        </div>
+        <div class="col-md-12 padl30 mart20" *ngIf="examReviews.length === 0">N/A</div>
 
         <div *ngIf="examReviews.length > 0">
             <div class="col-md-12 padl0 padr0 mart40">
@@ -148,8 +146,9 @@
                                     <option
                                         *ngFor="let grade of review.selectableGrades | orderBy: 'id'"
                                         [ngValue]="grade"
-                                        >{{ grade.name }}</option
                                     >
+                                        {{ grade.name }}
+                                    </option>
                                     <option value="" [selected]="!review.exam.selectedGrade">
                                         {{ 'sitnet_choose' | translate }}
                                     </option>
@@ -186,7 +185,7 @@
         </div>
 
         <!-- Buttons -->
-        <div class=" padl0 padr0 marb20">
+        <div class="padl0 padr0 marb20">
             <div class="speed-review-csv">
                 <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
                 <sup>

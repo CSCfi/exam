@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class DeadboltCache implements HandlerCache {
+
     private final AuthorizationHandler defaultHandler;
 
     private final Map<String, DeadboltHandler> handlers = new HashMap<>();

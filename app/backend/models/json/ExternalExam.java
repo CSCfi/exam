@@ -35,6 +35,7 @@ import org.joda.time.DateTime;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {
+
     @Column
     private String externalRef; // exam.hash of the remote parent exam
 

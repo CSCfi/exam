@@ -64,7 +64,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     private enum QuestionState {
         NEW,
         SAVED,
-        DELETED
+        DELETED,
     }
 
     @Authenticated

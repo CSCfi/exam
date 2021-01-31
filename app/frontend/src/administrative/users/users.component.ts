@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../session/session.service';
-import { Permission, PermissionType, UserManagementService } from './users.service';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
+import type { Permission } from './users.service';
+import { PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -55,7 +58,7 @@ export class UsersComponent implements OnInit {
     ) {
         this.textChanged
             .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(text => {
+            .subscribe((text) => {
                 this.filter.text = text;
                 this.search();
             });
@@ -67,8 +70,8 @@ export class UsersComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.userManagement.getPermissions().subscribe(permissions => {
-            this.permissions = permissions.map(p => {
+        this.userManagement.getPermissions().subscribe((permissions) => {
+            this.permissions = permissions.map((p) => {
                 if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
                     return {
                         ...p,
@@ -91,11 +94,11 @@ export class UsersComponent implements OnInit {
         this.initSearch();
     };
 
-    hasRole = (user: User, role: string) => user.roles.some(r => r.name === role);
+    hasRole = (user: User, role: string) => user.roles.some((r) => r.name === role);
 
-    hasPermission = (user: User, permission: string) => user.permissions.some(p => p.type === permission);
+    hasPermission = (user: User, permission: string) => user.permissions.some((p) => p.type === permission);
 
-    applyRoleFilter = function(role: RoleOption) {
+    applyRoleFilter = function (role: RoleOption) {
         this.roles = this.roles.map((r: RoleOption) => {
             if (r.type === role.type) {
                 return { ...r, filtered: !r.filtered };
@@ -106,7 +109,7 @@ export class UsersComponent implements OnInit {
     };
 
     applyPermissionFilter = (permission: PermissionOption) => {
-        this.permissions = this.permissions.map(p => {
+        this.permissions = this.permissions.map((p) => {
             if (p.type === permission.type) {
                 return { ...p, filtered: !p.filtered };
             }
@@ -122,10 +125,10 @@ export class UsersComponent implements OnInit {
         }
         let result = true;
         this.roles
-            .filter(role => {
+            .filter((role) => {
                 return role.filtered;
             })
-            .forEach(role => {
+            .forEach((role) => {
                 if (!this.hasRole(user, role.type)) {
                     result = false;
                 }
@@ -134,10 +137,10 @@ export class UsersComponent implements OnInit {
             return result;
         }
         this.permissions
-            .filter(permission => {
+            .filter((permission) => {
                 return permission.filtered;
             })
-            .forEach(permission => {
+            .forEach((permission) => {
                 if (!this.hasPermission(user, permission.type)) {
                     result = false;
                 }
@@ -162,7 +165,7 @@ export class UsersComponent implements OnInit {
     removeRole = (user: UserWithOptions, role: RoleOption) => {
         this.userManagement.removeRole(user.id, role.type).subscribe(() => {
             const i = user.roles
-                .map(function(r) {
+                .map(function (r) {
                     return r.name;
                 })
                 .indexOf(role.type);
@@ -175,7 +178,7 @@ export class UsersComponent implements OnInit {
     removePermission = (user: UserWithOptions, permission: PermissionOption) => {
         this.userManagement.removePermission(user.id, permission.type).subscribe(() => {
             const i = user.permissions
-                .map(function(p) {
+                .map(function (p) {
                     return p.type;
                 })
                 .indexOf(permission.type);
@@ -190,8 +193,8 @@ export class UsersComponent implements OnInit {
     updateEditOptions = (user: UserWithOptions) => {
         user.availableRoles = [];
         user.removableRoles = [];
-        this.roles.forEach(role => {
-            if (user.roles.map(r => r.name).indexOf(role.type) === -1) {
+        this.roles.forEach((role) => {
+            if (user.roles.map((r) => r.name).indexOf(role.type) === -1) {
                 user.availableRoles.push(cloneDeep(role));
             } else {
                 user.removableRoles.push(cloneDeep(role));
@@ -199,8 +202,8 @@ export class UsersComponent implements OnInit {
         });
         user.availablePermissions = [];
         user.removablePermissions = [];
-        this.permissions.forEach(permission => {
-            if (user.permissions.map(p => p.type).indexOf(permission.type) === -1) {
+        this.permissions.forEach((permission) => {
+            if (user.permissions.map((p) => p.type).indexOf(permission.type) === -1) {
                 user.availablePermissions.push(cloneDeep(permission));
             } else {
                 user.removablePermissions.push(cloneDeep(permission));
@@ -210,7 +213,7 @@ export class UsersComponent implements OnInit {
 
     initSearch = () => {
         this.userManagement.getUsers(this.filter.text).subscribe(
-            users => {
+            (users) => {
                 this.users = users;
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
@@ -218,7 +221,7 @@ export class UsersComponent implements OnInit {
                 this.filterUsers();
                 this.loader.loading = false;
             },
-            err => {
+            (err) => {
                 this.loader.loading = false;
                 toast.error(this.translate.instant(err.data));
             },

@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 
 public class ReservationReminderActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(ReservationReminderActor.class);
 
     private EmailComposer emailComposer;

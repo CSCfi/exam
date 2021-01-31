@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -23,9 +23,11 @@ import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import { ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import type { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,
@@ -89,7 +91,7 @@ export class SectionComponent {
             return true;
         }
         const score = this.getQuestionScore(sectionQuestions[0]);
-        return sectionQuestions.every(sq => score === this.getQuestionScore(sq));
+        return sectionQuestions.every((sq) => score === this.getQuestionScore(sq));
     };
 
     private updateSection = (silent: boolean) => {
@@ -112,16 +114,13 @@ export class SectionComponent {
         const resource = this.collaborative
             ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
             : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-        const data: any = { sequenceNumber: seq };
-        if (this.collaborative) {
-            data.question = question;
-        }
+        const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
         this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
-            resp => {
+            (resp) => {
                 // Add new section question to existing section
                 if (!this.collaborative) {
                     const section = resp as ExamSection;
-                    const examSectionQuestion = section.sectionQuestions.find(esq => esq.question.id === question.id);
+                    const examSectionQuestion = section.sectionQuestions.find((esq) => esq.question.id === question.id);
                     if (examSectionQuestion) {
                         this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
                     }
@@ -137,7 +136,7 @@ export class SectionComponent {
                 });
                 this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
     };
 
@@ -151,7 +150,7 @@ export class SectionComponent {
             this.Files.upload(
                 '/integration/iop/attachment/question',
                 attachment.file,
-                { examId: this.examId, questionId: data.id },
+                { examId: this.examId.toString(), questionId: data.id.toString() },
                 question,
                 callback,
             );
@@ -159,7 +158,7 @@ export class SectionComponent {
     };
 
     private openBaseQuestionEditor = () =>
-        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe(resp =>
+        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
             this.insertExamQuestion(resp, this.section.sectionQuestions.length),
         );
 
@@ -177,7 +176,7 @@ export class SectionComponent {
                         this.section.lotteryOn = false;
                         toast.info(this.translate.instant('sitnet_all_questions_removed'));
                     },
-                    resp => toast.error(resp.data),
+                    (resp) => toast.error(resp.data),
                 );
         });
     };
@@ -217,7 +216,7 @@ export class SectionComponent {
                     }
                     toast.info(this.translate.instant('sitnet_section_updated'));
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
     };
 
@@ -259,7 +258,7 @@ export class SectionComponent {
                 this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`),
             )
             .subscribe(
-                resp => {
+                (resp) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
                     toast.info(this.translate.instant('sitnet_question_removed'));
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
@@ -271,7 +270,7 @@ export class SectionComponent {
                         this.section.lotteryItemCount = resp.lotteryItemCount;
                     }
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
     };
 
@@ -299,5 +298,5 @@ export class SectionComponent {
     getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
 
     getAmountOfSelectionEvaluatedQuestions = () =>
-        this.section.sectionQuestions.filter(q => q.evaluationType === 'Selection').length;
+        this.section.sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
 }

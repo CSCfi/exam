@@ -12,10 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../../session/session.service';
-import { QuestionReview } from '../../review.model';
+import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
@@ -32,8 +33,8 @@ export class QuestionFlowComponent {
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
     private init = () => {
-        this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
-        this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
+        this.unfinished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
+        this.finished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
     };
 
     getAssessedAnswerCount = (review: QuestionReview) =>
@@ -50,7 +51,7 @@ export class QuestionFlowComponent {
     }
 
     questionSelected = (review: QuestionReview) => {
-        this.unfinished.concat(this.finished).forEach(r => (r.selected = r.question.id === review.question.id));
+        this.unfinished.concat(this.finished).forEach((r) => (r.selected = r.question.id === review.question.id));
         this.onSelection.emit(this.reviews.indexOf(review));
     };
 }

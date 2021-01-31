@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { from, Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -56,14 +58,14 @@ export class CoursePickerComponent implements OnInit {
 
     private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
         text$.pipe(
-            tap(term => {
+            tap((term) => {
                 this.setInputValue(category, term);
                 this.toggleLoadingIcon(category, term.length >= 2);
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap(term => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
-            tap(courses => {
+            exhaustMap((term) => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
+            tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
                     this.showError(this.filter.code as string);

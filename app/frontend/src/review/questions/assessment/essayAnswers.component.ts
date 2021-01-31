@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { ReviewQuestion } from '../../review.model';
+import type { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({

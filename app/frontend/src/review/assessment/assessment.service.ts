@@ -17,11 +17,13 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, Observable, of, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { from, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamSectionQuestion, Feedback, isRealGrade } from '../../exam/exam.model';
+import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -63,7 +65,7 @@ export class AssessmentService {
                     toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
             }),
-            map(feedback => {
+            map((feedback) => {
                 exam.examFeedback = feedback;
                 return exam;
             }),
@@ -156,7 +158,7 @@ export class AssessmentService {
         }
         const messages = this.getErrors(exam);
         if (messages.length > 0) {
-            messages.forEach(msg => toast.error(this.translate.instant(msg)));
+            messages.forEach((msg) => toast.error(this.translate.instant(msg)));
             return of();
         } else {
             let dialogNote, res: string;
@@ -297,7 +299,7 @@ export class AssessmentService {
                 switchMap(() => this.saveFeedback$(exam)),
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
-                        messages.forEach(function(msg) {
+                        messages.forEach(function (msg) {
                             toast.warning(this.translate.instant(msg));
                         });
                         this.windowRef.nativeWindow.setTimeout(
@@ -309,7 +311,7 @@ export class AssessmentService {
                         this.location.go(this.getExitUrl(exam));
                     }
                 }),
-                catchError(resp => toast.error(resp)),
+                catchError((resp) => toast.error(resp)),
             )
             .subscribe();
     };

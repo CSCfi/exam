@@ -15,13 +15,15 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Option } from '../../utility/select/dropDownSelect.component';
-import { ExamMachine, Reservation } from '../reservation.model';
+import type { Option } from '../../utility/select/dropDownSelect.component';
+import type { ExamMachine } from '../reservation.model';
+import { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'change-machine-dialog',
@@ -36,8 +38,8 @@ export class ChangeMachineDialogComponent implements OnInit {
 
     ngOnInit() {
         this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/machines`).subscribe(
-            resp =>
-                (this.availableMachineOptions = resp.map(o => {
+            (resp) =>
+                (this.availableMachineOptions = resp.map((o) => {
                     return {
                         id: o.id,
                         label: o.name,
@@ -53,11 +55,11 @@ export class ChangeMachineDialogComponent implements OnInit {
         this.http
             .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
             .subscribe(
-                resp => {
+                (resp) => {
                     toast.info(this.translate.instant('sitnet_updated'));
                     this.activeModal.close(resp);
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
 
     cancel = () => this.activeModal.dismiss();

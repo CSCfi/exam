@@ -38,6 +38,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @Entity
 @Table(name = "app_user")
 public class User extends GeneratedIdentityModel implements Subject {
+
     private String email;
 
     private String eppn;

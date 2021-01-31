@@ -17,10 +17,11 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { Exam, ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
-import { Reservation } from '../../../reservation/reservation.model';
-import { User } from '../../../session/session.service';
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
 export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
@@ -49,11 +50,11 @@ export class GeneralInfoComponent {
             return;
         }
         // Filter out the participation we are looking into
-        const previousParticipations = data.filter(p => {
+        const previousParticipations = data.filter((p) => {
             return p.id !== this.participation.id;
         });
-        this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe(enrolments => {
-            const noShows: Partial<Participation>[] = enrolments.map(ee => {
+        this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
+            const noShows: Partial<Participation>[] = enrolments.map((ee) => {
                 return {
                     id: ee.id,
                     noShow: true,

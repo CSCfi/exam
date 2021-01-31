@@ -1,17 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import type { HttpClient } from '@angular/common/http';
 
-import {
-    Exam,
-    ExamLanguage,
-    ExamType,
-    GradeScale,
-    isRealGrade,
-    NoGrade,
-    SelectableGrade,
-} from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { LanguageService } from '../../../utility/language/language.service';
-import { AssessmentService } from '../assessment.service';
+import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
+import { isRealGrade } from '../../../exam/exam.model';
+import type { ExamService } from '../../../exam/exam.service';
+import type { LanguageService } from '../../../utility/language/language.service';
+import type { AssessmentService } from '../assessment.service';
 
 export abstract class GradingBaseComponent {
     selections: { grade: SelectableGrade; type: ExamType; language: ExamLanguage };
@@ -47,7 +40,7 @@ export abstract class GradingBaseComponent {
 
     protected initGrade = () => {
         const scale = this.resolveGradeScale();
-        this.grades = scale.grades.map(grade => {
+        this.grades = scale.grades.map((grade) => {
             return {
                 ...grade,
                 name: this.Exam.getExamGradeDisplayName(grade.name),
@@ -56,7 +49,7 @@ export abstract class GradingBaseComponent {
         });
         const exam = this.getExam();
         this.grades
-            .filter(g => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id)
+            .filter((g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id)
             .forEach(this._setGrade);
 
         // The "no grade" option
@@ -73,10 +66,10 @@ export abstract class GradingBaseComponent {
 
     protected initCreditTypes = () => {
         const exam = this.getExam();
-        this.Exam.refreshExamTypes().subscribe(types => {
+        this.Exam.refreshExamTypes().subscribe((types) => {
             const creditType = exam.creditType || exam.examType;
             this.creditTypes = types;
-            types.forEach(type => {
+            types.forEach((type) => {
                 if (creditType.id === type.id) {
                     // Reset also exam's credit type in case it was taken from its exam type.
                     // Confusing isn't it :)
@@ -95,8 +88,8 @@ export abstract class GradingBaseComponent {
         if (!exam.answerLanguage) {
             exam.answerLanguage = lang.code;
         }
-        this.Language.getExamLanguages().then(languages => {
-            this.languages = languages.map(language => {
+        this.Language.getExamLanguages().then((languages) => {
+            this.languages = languages.map((language) => {
                 if (lang.code === language.code) {
                     this.selections.language = language;
                 }

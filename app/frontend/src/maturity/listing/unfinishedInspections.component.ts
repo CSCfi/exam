@@ -1,10 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService, User } from '../../session/session.service';
-import { LanguageInspectionData } from '../languageInspections.component';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
+import type { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
-import { LanguageInspection } from '../maturity.model';
+import type { LanguageInspection } from '../maturity.model';
 
 /*
  * Copyright (c) 2018 Exam Consortium
@@ -67,10 +69,8 @@ export class UnfinishedInspectionsComponent implements OnInit {
     };
 
     filterTextChanged = () =>
-        (this.filteredInspections = this.inspections.filter(i =>
-            this.examToString(i)
-                .toLowerCase()
-                .match(this.filterText.toLowerCase()),
+        (this.filteredInspections = this.inspections.filter((i) =>
+            this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
         ));
 
     getInspectionAmounts = () =>

@@ -12,15 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { EnrolmentService } from '../../enrolment/enrolment.service';
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 import { ReservationService } from '../../reservation/reservation.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
-import { DashboardEnrolment, StudentDashboardService } from './studentDashboard.service';
+import type { DashboardEnrolment } from './studentDashboard.service';
+import { StudentDashboardService } from './studentDashboard.service';
 
 @Component({
     selector: 'student-dashboard',
@@ -39,8 +41,8 @@ export class StudentDashboardComponent implements OnInit {
 
     ngOnInit() {
         this.StudentDashboard.listEnrolments().subscribe(
-            data => (this.userEnrolments = data),
-            err => console.error(err),
+            (data) => (this.userEnrolments = data),
+            (err) => console.error(err),
         );
     }
 

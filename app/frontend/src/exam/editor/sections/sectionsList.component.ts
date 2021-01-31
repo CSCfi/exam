@@ -12,15 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam, ExamMaterial, ExamSection } from '../../exam.model';
+import type { ExamMaterial, ExamSection } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
@@ -42,7 +45,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
     ) {}
 
     loadMaterials = () => {
-        this.http.get<ExamMaterial[]>('/app/materials').subscribe(resp => (this.materials = resp));
+        this.http.get<ExamMaterial[]>('/app/materials').subscribe((resp) => (this.materials = resp));
     };
 
     private init = () => {
@@ -74,19 +77,19 @@ export class SectionsListComponent implements OnInit, OnChanges {
                     this.updateSectionIndices();
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         }
     };
 
     addNewSection = () =>
         this.Exam.addSection(this.exam, this.collaborative).pipe(
-            tap(es => {
+            tap((es) => {
                 toast.success(this.translate.instant('sitnet_section_added'));
                 this.exam.examSections.push(es);
                 this.updateSectionIndices();
             }),
-            catchError(resp => toast.error(resp)),
+            catchError((resp) => toast.error(resp)),
         );
 
     updateExam = (silent: boolean) =>
@@ -96,7 +99,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
                     toast.info(this.translate.instant('sitnet_exam_saved'));
                 }
             }),
-            catchError(resp => toast.error(this.translate.instant(resp))),
+            catchError((resp) => toast.error(this.translate.instant(resp))),
         );
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
@@ -112,7 +115,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                     this.updateSectionIndices();
                 },
-                resp => toast.error(resp.data),
+                (resp) => toast.error(resp.data),
             );
     };
 

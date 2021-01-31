@@ -12,13 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
-import { CollaborativeExam } from '../../exam/exam.model';
+import type { CollaborativeExam } from '../../exam/exam.model';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentService } from '../enrolment.service';
 
@@ -70,23 +71,23 @@ export class CollaborativeExamSearchComponent implements OnInit {
 
         this.CollaborativeExam.searchExams(text)
             .pipe(
-                tap(exams => this.updateExamList(exams)),
+                tap((exams) => this.updateExamList(exams)),
                 finalize(() => (this.loader = { loading: false })),
             )
             .subscribe();
     };
 
     updateExamList(exams: CollaborativeExam[]) {
-        this.exams = exams.map(e =>
+        this.exams = exams.map((e) =>
             _.assign(e, {
                 reservationMade: false,
                 enrolled: false,
-                languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)),
+                languages: e.examLanguages.map((l) => this.Language.getLanguageNativeName(l.code)),
             }),
         );
-        this.exams.forEach(e => {
-            this.Enrolment.getEnrolments(e.id, true).subscribe(enrolments => {
-                e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+        this.exams.forEach((e) => {
+            this.Enrolment.getEnrolments(e.id, true).subscribe((enrolments) => {
+                e.reservationMade = enrolments.some((e) => _.isObject(e.reservation));
                 e.enrolled = enrolments.length > 0;
             });
         });

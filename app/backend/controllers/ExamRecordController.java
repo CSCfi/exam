@@ -58,6 +58,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class ExamRecordController extends BaseController {
+
     private final EmailComposer emailComposer;
 
     private CsvBuilder csvBuilder;

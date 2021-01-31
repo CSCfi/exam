@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 
-import { Exam } from '../exam.model';
+import type { Exam } from '../exam.model';
 
 @Component({
     selector: 'printout-listing',
@@ -35,17 +35,17 @@ export class PrintoutListingComponent {
         this.http
             .get<Exam[]>('/app/exam/printouts')
             .pipe(
-                map(exams => {
-                    return exams.map(p => {
-                        const dates = p.examinationDates.map(ed => ed.date).sort();
+                map((exams) => {
+                    return exams.map((p) => {
+                        const dates = p.examinationDates.map((ed) => ed.date).sort();
                         return {
                             ...p,
-                            examinationDatesAggregate: dates.map(d => moment(d).format('DD.MM.YYYY')).join(', '),
+                            examinationDatesAggregate: dates.map((d) => moment(d).format('DD.MM.YYYY')).join(', '),
                         };
                     });
                 }),
             )
-            .subscribe(printouts => (this.printouts = printouts));
+            .subscribe((printouts) => (this.printouts = printouts));
     }
 
     setPredicate = (predicate: string) => {

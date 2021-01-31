@@ -19,28 +19,29 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import * as moment from 'moment';
-import { forkJoin, Observable, throwError } from 'rxjs';
+import { forkJoin, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import {
+import { isRealGrade } from '../../exam/exam.model';
+import { ExamService } from '../../exam/exam.service';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../../utility/file/file.service';
+import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
+
+import type { Observable } from 'rxjs';
+import type {
     Course,
     Exam,
     ExamParticipation,
     Grade,
     GradeScale,
-    isRealGrade,
     NoGrade,
     SelectableGrade,
 } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
-import { User } from '../../session/session.service';
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../../utility/file/file.service';
-import { Review } from '../review.model';
-import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
-
+import type { User } from '../../session/session.service';
+import type { Review } from '../review.model';
 @Component({
     selector: 'speed-review',
     templateUrl: './speedReview.component.html',
@@ -81,14 +82,14 @@ export class SpeedReviewComponent {
     private initGrades = (exam: Exam): SelectableGrade[] => {
         const scale = this.resolveGradeScale(exam);
         const grades: SelectableGrade[] = scale.grades
-            .map(grade => {
+            .map((grade) => {
                 return {
                     ...grade,
                     name: this.Exam.getExamGradeDisplayName(grade.name),
                     type: grade.name,
                 };
             })
-            .filter(g => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id);
+            .filter((g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id);
 
         // The "no grade" option
         const noGrade: NoGrade = {
@@ -105,7 +106,7 @@ export class SpeedReviewComponent {
             .get<Exam>(`/app/exams/${this.examId}`)
             .pipe(
                 tap(
-                    exam =>
+                    (exam) =>
                         (this.examInfo = {
                             examOwners: exam.examOwners,
                             title: `${(exam.course as Course).code.split('_')[0]} ${exam.name}`,
@@ -115,10 +116,10 @@ export class SpeedReviewComponent {
                 switchMap(() => this.http.get<ExamParticipation[]>(`/app/reviews/${this.examId}`)),
             )
             .subscribe(
-                reviews => {
+                (reviews) => {
                     this.examReviews = reviews
-                        .filter(r => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED')
-                        .map(r => ({
+                        .filter((r) => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED')
+                        .map((r) => ({
                             examParticipation: r,
                             grades: this.initGrades(r.exam),
                             displayName: r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString(),
@@ -129,7 +130,7 @@ export class SpeedReviewComponent {
                         }));
                     this.toggleReviews = this.examReviews.length > 0;
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
     }
 
@@ -169,7 +170,7 @@ export class SpeedReviewComponent {
         if (this.examReviews) {
             return (
                 this.examReviews.filter(
-                    r =>
+                    (r) =>
                         r.selectedGrade &&
                         (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NONE') &&
                         this.isGradeable(r),
@@ -182,13 +183,13 @@ export class SpeedReviewComponent {
 
     isOwner = (user: User, owners: User[]) => {
         if (owners) {
-            return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
+            return owners.some((o) => o.firstName + o.lastName === user.firstName + user.lastName);
         }
         return false;
     };
 
     gradeExams = () => {
-        const reviews = this.examReviews.filter(r => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
+        const reviews = this.examReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
         this.Confirmation.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_grade_review'),
@@ -209,7 +210,7 @@ export class SpeedReviewComponent {
         if (!review.selectedGrade && !gradeId) {
             messages.push('sitnet_participation_unreviewed');
         }
-        messages.forEach(msg => toast.warning(this.translate.instant(msg)));
+        messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {
             let grade: SelectableGrade | undefined;
             if (review.selectedGrade?.type === 'NONE') {
@@ -240,15 +241,15 @@ export class SpeedReviewComponent {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv').then(result =>
-            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, null, this.state.reload),
+        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv').then((result) =>
+            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
         );
     };
 
     createGradingTemplate = () => {
         const rows = this.examReviews
             .map(
-                r =>
+                (r) =>
                     [
                         r.examParticipation.exam.id,
                         '',

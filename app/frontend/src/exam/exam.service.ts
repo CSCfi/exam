@@ -16,15 +16,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import {
+
+import type { Observable } from 'rxjs';
+import type { ReviewedExam } from '../enrolment/enrolment.model';
+import type {
     Exam,
     ExamExecutionType,
     ExaminationEventConfiguration,
@@ -48,26 +49,26 @@ export class ExamService {
     ) {}
 
     getReviewablesCount = (exam: Exam) =>
-        exam.children.filter(child => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;
+        exam.children.filter((child) => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;
 
-    getGradedCount = (exam: Exam) => exam.children.filter(child => child.state === 'GRADED').length;
+    getGradedCount = (exam: Exam) => exam.children.filter((child) => child.state === 'GRADED').length;
 
     getProcessedCount = (exam: Exam) =>
-        exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
+        exam.children.filter((child) => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
             .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
             .subscribe(
-                response => {
+                (response) => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
                     this.State.go('courseSelector', { id: response.id });
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
     };
 
-    updateExam$ = (exam: Exam, overrides: any = {}, collaborative = false): Observable<Exam> => {
+    updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
         const data = {
             id: exam.id,
             name: exam.name || '',
@@ -156,8 +157,8 @@ export class ExamService {
 
     refreshExamTypes = (): Observable<(ExamType & { name: string })[]> =>
         this.http.get<ExamType[]>('/app/examtypes').pipe(
-            map(resp =>
-                resp.map(et => ({
+            map((resp) =>
+                resp.map((et) => ({
                     ...et,
                     name: this.getExamTypeDisplayName(et.type),
                 })),
@@ -189,8 +190,8 @@ export class ExamService {
     refreshGradeScales = (isCollaborative: boolean): Observable<GradeScale[]> => {
         const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
         return this.http.get<GradeScale[]>(url).pipe(
-            map(resp =>
-                resp.map(gs =>
+            map((resp) =>
+                resp.map((gs) =>
                     Object.assign(gs, {
                         name: this.getScaleDisplayName(gs),
                     }),
@@ -231,8 +232,8 @@ export class ExamService {
 
     listExecutionTypes = (): Observable<(ExamExecutionType & { name: string })[]> =>
         this.http.get<ExamExecutionType[]>('/app/executiontypes').pipe(
-            map(resp =>
-                resp.map(et =>
+            map((resp) =>
+                resp.map((et) =>
                     Object.assign(et, {
                         name: this.getExecutionTypeTranslation(et),
                     }),
@@ -316,7 +317,8 @@ export class ExamService {
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
 
     hasEssayQuestions = (exam: SectionContainer) =>
-        exam.examSections.filter(es => es.sectionQuestions.some(sq => sq.question.type === 'EssayQuestion')).length > 0;
+        exam.examSections.filter((es) => es.sectionQuestions.some((sq) => sq.question.type === 'EssayQuestion'))
+            .length > 0;
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
@@ -331,7 +333,7 @@ export class ExamService {
         return (
             examToCheck &&
             examToCheck.examOwners.filter(
-                o => o.id === user.id || (collaborative && (o.eppn === user.eppn || o.email === user.email)),
+                (o) => o.id === user.id || (collaborative && (o.eppn === user.eppn || o.email === user.email)),
             ).length > 0
         );
     };
@@ -353,7 +355,7 @@ export class ExamService {
                         toast.success(this.translate.instant('sitnet_exam_removed'));
                         this.State.go('dashboard');
                     },
-                    err => toast.error(err),
+                    (err) => toast.error(err),
                 ),
             );
         } else {
@@ -383,14 +385,14 @@ export class ExamService {
         }
     };
 
-    reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<any> =>
-        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
+    reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
+        this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
 
     addSection = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
 
-    removeSection = (exam: Exam, section: ExamSection): Observable<any> =>
-        this.http.delete(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
+    removeSection = (exam: Exam, section: ExamSection): Observable<void> =>
+        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
 
     addExaminationEvent = (
         examId: number,

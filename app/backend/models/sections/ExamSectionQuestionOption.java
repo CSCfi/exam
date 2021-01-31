@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExamSectionQuestionOption extends GeneratedIdentityModel {
+
     @ManyToOne
     @JsonBackReference
     private ExamSectionQuestion examSectionQuestion;

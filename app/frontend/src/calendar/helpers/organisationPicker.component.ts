@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Organisation } from '../calendar.component';
+import type { Organisation } from '../calendar.component';
 
 @Component({
     selector: 'calendar-organisation-picker',
@@ -77,11 +77,13 @@ export class OrganisationPickerComponent {
     ngOnInit() {
         this.http
             .get<Organisation[]>('/integration/iop/organisations')
-            .subscribe(resp => (this.organisations = resp.filter(org => !org.homeOrg && org.facilities.length > 0)));
+            .subscribe(
+                (resp) => (this.organisations = resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
+            );
     }
 
     setOrganisation = (organisation: Organisation) => {
-        this.organisations.forEach(o => (o.filtered = false));
+        this.organisations.forEach((o) => (o.filtered = false));
         organisation.filtered = true;
         this.selectedOrganisation = organisation;
         this.onSelection.emit(organisation);

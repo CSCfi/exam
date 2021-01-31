@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Directive } from '@angular/core';
-import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import { NG_VALIDATORS } from '@angular/forms';
 
 export function fixedPrecisionValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {

@@ -26,7 +26,7 @@ public class ExamExecutionType extends Model {
         PRIVATE,
         PUBLIC,
         MATURITY,
-        PRINTOUT
+        PRINTOUT,
     }
 
     @Id

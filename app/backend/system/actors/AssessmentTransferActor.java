@@ -36,6 +36,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
 public class AssessmentTransferActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(AssessmentTransferActor.class);
 
     private WSClient wsClient;

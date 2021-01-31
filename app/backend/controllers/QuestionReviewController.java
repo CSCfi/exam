@@ -46,7 +46,7 @@ public class QuestionReviewController extends BaseController {
         Exam.State.REVIEW_STARTED,
         Exam.State.GRADED,
         Exam.State.GRADED_LOGGED,
-        Exam.State.REJECTED
+        Exam.State.REJECTED,
     };
 
     private boolean canAssess(User user, Exam exam) {

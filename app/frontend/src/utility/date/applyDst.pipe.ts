@@ -12,16 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Pipe, PipeTransform } from '@angular/core';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 import * as moment from 'moment';
 
 @Pipe({ name: 'applyDst' })
 export class ApplyDstPipe implements PipeTransform {
     transform = (input: moment.MomentInput): string => {
         if (moment(input).isDST()) {
-            return moment(input)
-                .add(-1, 'hour')
-                .format();
+            return moment(input).add(-1, 'hour').format();
         }
         return moment(input).format();
     };

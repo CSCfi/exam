@@ -34,6 +34,7 @@ import play.Logger;
 import scala.concurrent.duration.Duration;
 
 public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
+
     private final EmailComposer composer;
 
     private final ActorSystem actor;

@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as toast from 'toastr';
 
-import { ExamMaterial } from '../../exam.model';
+import type { ExamMaterial } from '../../exam.model';
 
 @Component({
     selector: 'exam-material',
@@ -35,23 +35,24 @@ export class ExamMaterialComponent {
     ngOnInit() {
         this.http
             .get<ExamMaterial[]>('/app/materials')
-            .subscribe(resp => (this.materials = this.filteredMaterials = resp));
+            .subscribe((resp) => (this.materials = this.filteredMaterials = resp));
     }
 
     filterMaterials = () =>
         (this.filteredMaterials = this.materials.filter(
-            m => m.name.startsWith(this.filter) || m.author?.startsWith(this.filter) || m.isbn?.startsWith(this.filter),
+            (m) =>
+                m.name.startsWith(this.filter) || m.author?.startsWith(this.filter) || m.isbn?.startsWith(this.filter),
         ));
 
     createMaterial = () => {
         this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe(
-            resp => {
+            (resp) => {
                 this.materials.push(resp);
                 this.filterMaterials();
                 delete this.newMaterial;
                 this.materialsChanged = true;
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     };
 
@@ -62,7 +63,7 @@ export class ExamMaterialComponent {
                 this.filterMaterials();
                 this.materialsChanged = true;
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     };
 

@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
-import { ExamParticipation } from '../../exam/exam.model';
+import type { ExamParticipation } from '../../exam/exam.model';
 
 interface Filter {
     ordering: string;
@@ -44,7 +45,7 @@ export class CollaborativeExamParticipationsComponent implements OnInit {
                 this.originals = Array.from(participations);
                 this.participations = Array.from(participations);
             },
-            err => toastr.error(err.data),
+            (err) => toastr.error(err.data),
         );
     }
 

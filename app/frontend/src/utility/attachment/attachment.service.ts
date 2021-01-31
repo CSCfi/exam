@@ -18,24 +18,16 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Observable } from '../../../node_modules/rxjs';
-import { ReviewedExam } from '../../enrolment/enrolment.model';
-import { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { Examination } from '../../examination/examination.service';
-import { ReviewQuestion } from '../../review/review.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../file/file.service';
-import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
+import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.component';
 
-interface ExamWithFeedback {
-    id: number;
-    examFeedback: { attachment: any };
-}
-
-interface ExamWithStatement {
-    id: number;
-    languageInspection: { statement: { attachment: any } };
-}
+import type { Observable } from '../../../node_modules/rxjs';
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import type { Examination } from '../../examination/examination.service';
+import type { ReviewQuestion } from '../../review/review.model';
+import type { FileResult } from './dialogs/attachmentSelector.component';
 
 export interface AnsweredQuestion {
     id: number;
@@ -76,22 +68,22 @@ export class AttachmentService {
         }
     }
 
-    private toPromise = (observable: Observable<any>) =>
+    private toPromise = (observable: Observable<void>) =>
         new Promise<void>((resolve, reject) => {
             observable.subscribe(
                 () => resolve(),
-                err => reject(err),
+                (err) => reject(err),
             );
         });
 
     eraseQuestionAttachment = (question: Question) =>
-        this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)));
+        this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)));
 
-    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
+    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
                 () => resolve(),
-                err => reject(err),
+                (err) => reject(err),
             );
         });
     }
@@ -111,12 +103,12 @@ export class AttachmentService {
         );
         dialog.result.then(() => {
             this.http.delete<{ objectVersion: number }>(url, {}).subscribe(
-                resp => {
+                (resp) => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = resp.objectVersion;
                     delete question.essayAnswer.attachment;
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         });
     }
@@ -133,7 +125,7 @@ export class AttachmentService {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.attachment;
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         });
     }
@@ -149,7 +141,7 @@ export class AttachmentService {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.examFeedback.attachment;
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         });
     }
@@ -161,12 +153,12 @@ export class AttachmentService {
         );
         dialog.result.then(() => {
             this.http.delete<{ rev: string }>(`/integration/iop/attachment/exam/${id}/${ref}/feedback`).subscribe(
-                resp => {
+                (resp) => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     participation._rev = resp.rev;
                     delete participation.exam.examFeedback.attachment;
                 },
-                resp => toast.error(resp),
+                (resp) => toast.error(resp),
             );
         });
     };
@@ -182,7 +174,7 @@ export class AttachmentService {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.languageInspection?.statement.attachment;
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         });
     }
@@ -258,7 +250,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, params?: any, title = 'sitnet_attachment_selection'): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params?: unknown, title = 'sitnet_attachment_selection'): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false,

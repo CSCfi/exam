@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 
 @Entity
 public class GradeEvaluation extends GeneratedIdentityModel {
+
     @ManyToOne
     @JsonBackReference
     private AutoEvaluationConfig autoEvaluationConfig;

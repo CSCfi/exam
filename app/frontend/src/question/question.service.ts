@@ -17,10 +17,16 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, Observable } from 'rxjs';
+import { from } from 'rxjs';
 import * as toast from 'toastr';
 
-import {
+import { SessionService } from '../session/session.service';
+import { AttachmentService } from '../utility/attachment/attachment.service';
+import { FileService } from '../utility/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+
+import type { Observable } from 'rxjs';
+import type {
     Exam,
     ExamSection,
     ExamSectionQuestion,
@@ -29,10 +35,6 @@ import {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
@@ -96,8 +98,8 @@ export class QuestionService {
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };
-        exam.examSections.forEach(section => {
-            section.sectionQuestions.forEach(sectionQuestion => {
+        exam.examSections.forEach((section) => {
+            section.sectionQuestions.forEach((sectionQuestion) => {
                 const question = sectionQuestion.question;
                 if (question.type === 'EssayQuestion') {
                     if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
@@ -116,22 +118,22 @@ export class QuestionService {
 
     getQuestionAmountsBySection = (section: ExamSection) => {
         const scores = section.sectionQuestions
-            .filter(sq => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
-            .map(sq => sq.essayAnswer?.evaluatedScore);
-        return { accepted: scores.filter(s => s === 1).length, rejected: scores.filter(s => s === 0).length };
+            .filter((sq) => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
+            .map((sq) => sq.essayAnswer?.evaluatedScore);
+        return { accepted: scores.filter((s) => s === 1).length, rejected: scores.filter((s) => s === 0).length };
     };
 
     calculateDefaultMaxPoints = (question: Question) =>
-        question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
+        question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
     // For weighted mcq
     calculateMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
-        const points = sectionQuestion.options.filter(o => o.score > 0).reduce((a, b) => a + b.score, 0);
+        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
     };
 
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
-        const optionScores = sectionQuestion.options.map(o => o.score);
+        const optionScores = sectionQuestion.options.map((o) => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
         return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
             ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
@@ -142,7 +144,7 @@ export class QuestionService {
         if (!question.options) {
             return 0;
         }
-        const correctOption = question.options.filter(o => o.correctOption && o.claimChoiceType === 'CorrectOption');
+        const correctOption = question.options.filter((o) => o.correctOption && o.claimChoiceType === 'CorrectOption');
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
     };
 
@@ -150,7 +152,7 @@ export class QuestionService {
         if (!sectionQuestion.options) {
             return 0;
         }
-        const optionScores = sectionQuestion.options.map(o => o.score);
+        const optionScores = sectionQuestion.options.map((o) => o.score);
         return Math.max(0, ...optionScores);
     };
 
@@ -171,7 +173,7 @@ export class QuestionService {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
-        const score = sectionQuestion.options.filter(o => o.answered).reduce((a, b) => a + b.score, 0);
+        const score = sectionQuestion.options.filter((o) => o.answered).reduce((a, b) => a + b.score, 0);
         return Math.max(0, score);
     };
 
@@ -180,7 +182,7 @@ export class QuestionService {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
-        const answered = sectionQuestion.options.filter(o => o.answered);
+        const answered = sectionQuestion.options.filter((o) => o.answered);
         if (answered.length === 0) {
             // No answer
             return 0;
@@ -196,10 +198,10 @@ export class QuestionService {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
-        const selected = sectionQuestion.options.filter(o => o.answered);
+        const selected = sectionQuestion.options.filter((o) => o.answered);
 
         // Use the score from the skip option if no option was chosen
-        const skipOption = sectionQuestion.options.filter(o => o.option.claimChoiceType === 'SkipOption');
+        const skipOption = sectionQuestion.options.filter((o) => o.option.claimChoiceType === 'SkipOption');
         const skipScore = skipOption.length === 1 ? skipOption[0].score : 0;
 
         if (selected.length === 0) {
@@ -214,8 +216,8 @@ export class QuestionService {
         return 0;
     };
 
-    private getQuestionData(question: Partial<Question>): Question {
-        const questionToUpdate: any = {
+    private getQuestionData(question: Partial<Question>): Partial<Question> {
+        const questionToUpdate: Partial<Question> = {
             type: question.type,
             defaultMaxScore: question.defaultMaxScore,
             question: question.question,
@@ -249,13 +251,13 @@ export class QuestionService {
         // TODO: make this a pipe
         return new Promise<Question>((resolve, reject) => {
             this.http.post<Question>(this.questionsApi(), body).subscribe(
-                response => {
+                (response) => {
                     toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
                             '/app/attachment/question',
                             question.attachment.file,
-                            { questionId: response.id },
+                            { questionId: response.id.toString() },
                             question,
                             () => resolve(response),
                         );
@@ -263,26 +265,26 @@ export class QuestionService {
                         resolve(response);
                     }
                 },
-                error => reject(error),
+                (error) => reject(error),
             );
         });
     };
 
     updateQuestion = (question: Question): Promise<Question> => {
         const body = this.getQuestionData(question);
-        return new Promise<Question>(resolve => {
-            this.http.put<Question>(this.questionsApi(question.id), body).subscribe(response => {
+        return new Promise<Question>((resolve) => {
+            this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
                 toast.info(this.translate.instant('sitnet_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
                     this.Files.upload(
                         '/app/attachment/question',
                         question.attachment.file,
-                        { questionId: question.id },
+                        { questionId: question.id.toString() },
                         question,
                         () => resolve,
                     );
                 } else if (question.attachment && question.attachment.removed) {
-                    this.Attachment.eraseQuestionAttachment(question).then(function() {
+                    this.Attachment.eraseQuestionAttachment(question).then(function () {
                         resolve(response);
                     });
                 } else {
@@ -298,7 +300,7 @@ export class QuestionService {
         examId: number,
         sectionId: number,
     ) => {
-        const data: any = {
+        const data: Partial<ExamSectionQuestion> = {
             id: sectionQuestion.id,
             maxScore: sectionQuestion.maxScore,
             answerInstructions: sectionQuestion.answerInstructions,
@@ -321,15 +323,15 @@ export class QuestionService {
                     data,
                 )
                 .subscribe(
-                    response => {
+                    (response) => {
                         Object.assign(response.question, question);
                         if (question.attachment && question.attachment.modified && question.attachment.file) {
                             this.Files.upload(
                                 '/app/attachment/question',
                                 question.attachment.file,
-                                { questionId: question.id },
+                                { questionId: question.id.toString() },
                                 question,
-                                function() {
+                                function () {
                                     response.question.attachment = question.attachment;
                                     resolve(response);
                                 },
@@ -343,7 +345,7 @@ export class QuestionService {
                             resolve(response);
                         }
                     },
-                    err => {
+                    (err) => {
                         toast.error(err.data);
                         reject();
                     },
@@ -353,20 +355,20 @@ export class QuestionService {
 
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
         option.correctOption = true;
-        options.forEach(o => (o.correctOption = o === option));
+        options.forEach((o) => (o.correctOption = o === option));
     };
 
     getInvalidClaimOptionTypes = (options: MultipleChoiceOption[]) => {
         const invalidOptions: string[] = [];
 
         const hasCorrectOption = options.some(
-            opt => opt.claimChoiceType === 'CorrectOption' && opt.defaultScore > 0 && opt.option,
+            (opt) => opt.claimChoiceType === 'CorrectOption' && opt.defaultScore > 0 && opt.option,
         );
         const hasIncorrectOption = options.some(
-            opt => opt.claimChoiceType === 'IncorrectOption' && opt.defaultScore <= 0 && opt.option,
+            (opt) => opt.claimChoiceType === 'IncorrectOption' && opt.defaultScore <= 0 && opt.option,
         );
         const hasSkipOption = options.some(
-            opt => opt.claimChoiceType === 'SkipOption' && opt.defaultScore === 0 && opt.option,
+            (opt) => opt.claimChoiceType === 'SkipOption' && opt.defaultScore === 0 && opt.option,
         );
 
         if (!hasCorrectOption) {
@@ -441,17 +443,17 @@ export class QuestionService {
     getInvalidDistributedClaimOptionTypes = (options: ExamSectionQuestionOption[]) => {
         const invalidOptions = [];
 
-        const hasCorrectOption = options.some(opt => {
+        const hasCorrectOption = options.some((opt) => {
             const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
             const parentOption = opt.option;
             return claimChoiceType === 'CorrectOption' && opt.score > 0 && parentOption.option;
         });
-        const hasIncorrectOption = options.some(opt => {
+        const hasIncorrectOption = options.some((opt) => {
             const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
             const parentOption = opt.option;
             return claimChoiceType === 'IncorrectOption' && opt.score <= 0 && parentOption.option;
         });
-        const hasSkipOption = options.some(opt => {
+        const hasSkipOption = options.some((opt) => {
             const claimChoiceType = this.determineClaimOptionTypeForExamQuestionOption(opt);
             const parentOption = opt.option;
             return claimChoiceType === 'SkipOption' && opt.score === 0 && parentOption.option;
@@ -472,12 +474,12 @@ export class QuestionService {
         return invalidOptions;
     };
 
-    addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
+    addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<void> => {
         const data = {
             uid: uid,
             questionIds: qids.join(),
         };
-        return this.http.post(this.questionOwnerApi(uid), data);
+        return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
 
     openBaseQuestionEditor = (newQuestion: boolean, collaborative: boolean): Observable<Question> => {

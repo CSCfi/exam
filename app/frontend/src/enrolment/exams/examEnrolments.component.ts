@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
-import { EnrolmentInfo } from '../enrolment.model';
+import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
@@ -52,12 +53,12 @@ export class ExamEnrolmentsComponent implements OnInit {
             return;
         }
         this.Enrolment.getEnrolmentInfo(this.state.params.code, parseInt(this.state.params.id)).subscribe(
-            exam => (this.exam = exam),
-            err => toast.error(err.data),
+            (exam) => (this.exam = exam),
+            (err) => toast.error(err.data),
         );
         this.Enrolment.listEnrolments(this.state.params.code, parseInt(this.state.params.id)).subscribe(
-            exams => (this.exams = exams),
-            err => toast.error(err.data),
+            (exams) => (this.exams = exams),
+            (err) => toast.error(err.data),
         );
     }
 }

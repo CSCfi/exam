@@ -19,7 +19,7 @@ import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
-import { ExamRoom } from '../../reservation/reservation.model';
+import type { ExamRoom } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -53,7 +53,7 @@ export class ExaminationToolbarComponent {
 
     ngOnInit() {
         if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
-            this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe(resp => (this.room = resp));
+            this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe((resp) => (this.room = resp));
         }
     }
 
@@ -99,7 +99,7 @@ export class ExaminationToolbarComponent {
                         quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
                     });
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             ),
         );
     };

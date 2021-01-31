@@ -40,6 +40,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
+
     @Inject
     private WSClient wsClient;
 

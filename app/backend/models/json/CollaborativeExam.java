@@ -31,6 +31,7 @@ import org.joda.time.DateTime;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {
+
     @Column
     private String externalRef; // REFERENCE TO EXAM ELSEWHERE
 

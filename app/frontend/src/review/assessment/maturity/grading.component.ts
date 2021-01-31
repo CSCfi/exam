@@ -55,7 +55,7 @@ export class MaturityGradingComponent extends GradingBaseComponent {
 
         this.translate.onLangChange.subscribe(() => {
             this.initCreditTypes();
-            this.grades.forEach(g => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
+            this.grades.forEach((g) => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
         });
     }
 

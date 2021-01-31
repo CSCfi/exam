@@ -30,6 +30,7 @@ import org.joda.time.Interval;
 
 @Entity
 public class ExaminationEvent extends GeneratedIdentityModel {
+
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime start;
 

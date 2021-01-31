@@ -26,6 +26,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 
 public class ExamExpirationActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
 
     @Inject

@@ -86,16 +86,16 @@ export class MultiChoiceQuestionComponent {
                 this.state.params.ref,
                 this.participation._rev,
             ).subscribe(
-                resp => {
+                (resp) => {
                     toast.info(this.translate.instant('sitnet_graded'));
                     this.onScore.emit(resp.rev);
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         } else {
             this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(
                 () => toast.info(this.translate.instant('sitnet_graded')),
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         }
     };

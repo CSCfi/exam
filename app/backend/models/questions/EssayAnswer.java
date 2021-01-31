@@ -26,6 +26,7 @@ import javax.persistence.Transient;
 
 @Entity
 public class EssayAnswer extends OwnedModel implements AttachmentContainer {
+
     @Column(columnDefinition = "TEXT")
     private String answer;
 

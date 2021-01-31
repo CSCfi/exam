@@ -27,6 +27,7 @@ import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
 class EmailSenderImpl implements EmailSender {
+
     private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private String HOST = ConfigFactory.load().getString("play.mailer.host");
     private Integer PORT = ConfigFactory.load().getInt("play.mailer.port");
@@ -56,8 +57,7 @@ class EmailSenderImpl implements EmailSender {
         String subject,
         String content,
         EmailAttachment... attachments
-    )
-        throws EmailException {
+    ) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setCharset("utf-8");
         for (EmailAttachment attachment : attachments) {
