@@ -9,7 +9,7 @@
             <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
-                (click)="$ctrl.disableRoom(room)"
+                (click)="disableRoom(room)"
                 placement="top"
                 delay="500"
                 triggers="mouseenter:mouseleave"
@@ -21,7 +21,7 @@
             </a>
             <a
                 [hidden]="room.state !== 'INACTIVE'"
-                (click)="$ctrl.enableRoom(room)"
+                (click)="enableRoom(room)"
                 placement="top"
                 delay="500"
                 triggers="mouseenter:mouseleave"
@@ -32,25 +32,23 @@
                 <i class="fa fa-plus text-success pointer fa-stack-1x"></i>
             </a>
 
-            <div class="toggleMessage" class="col-md-12">
+            <div class="toggleMessage col-md-12">
                 {{ 'sitnet_exam_basic_information_tab' | translate }}
                 <div class="pull-right">
-                    <span>{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
-                    <i
-                        [ngClass]="{ 'fa fa-chevron-up': toggle, 'fa fa-chevron-down': !toggle }"
-                        (click)="toggle = !toggle"
-                    ></i>
+                    <span class="mr-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                    <i class="fa fa-chevron-up" *ngIf="room.addressVisible" (click)="room.addressVisible = false"></i>
+                    <i class="fa fa-chevron-down" *ngIf="!room.addressVisible" (click)="room.addressVisible = true"></i>
                 </div>
                 <a
                     href="/rooms/{{ room.id }}"
-                    placement="basic-info2"
+                    placement="top"
                     delay="500"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ 'sitnet_edit' | translate }}"
                 >
                     <i class="fa fa-pencil"></i>
                 </a>
-                <div [hidden]="!toggle">
+                <div [hidden]="!room.addressVisible">
                     <!-- Room Code & Accessibility Info -->
                     <div class="row">
                         <div class="col-md-6">

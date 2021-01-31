@@ -15,7 +15,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { StateService, StateParams } from '@uirouter/angular';
+import { StateService } from '@uirouter/angular';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { MachineService } from './machines.service';
@@ -39,16 +39,15 @@ export class MachineComponent implements OnInit {
         private machines: MachineService,
         private translate: TranslateService,
         private state: StateService,
-        private stateParams: StateParams,
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.stateParams.id).subscribe(
+        this.machines.getMachine(this.state.params.id).subscribe(
             machine => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe(data => {
                     this.software = (data as unknown) as SoftwareWithClass[];
-                    this.software.forEach(function(s) {
+                    this.software.forEach(s => {
                         s.class =
                             this.machine.softwareInfo
                                 .map((si: any) => {
@@ -111,7 +110,7 @@ export class MachineComponent implements OnInit {
     };
 
     updateMachineAndExit = () => {
-        this.updateMachine().then(function() {
+        this.updateMachine().then(() => {
             this.state.go('rooms');
         });
     };

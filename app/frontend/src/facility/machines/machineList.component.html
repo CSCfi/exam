@@ -1,5 +1,5 @@
 <div class="detail-row" [hidden]="room.state === 'INACTIVE'">
-    <h4 class="col-md-12">
+    <h5 class="col-md-12">
         <a (click)="toggleShow()" class="fa-stack fa-lg">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
             <i [hidden]="!showMachines" class="fa fa-chevron-down fa-stack-1x"></i>
@@ -12,7 +12,7 @@
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
         >
-            <span class="label label-success">
+            <span class="badge badge-success">
                 {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
             </span>
         </span>
@@ -22,7 +22,7 @@
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_status_notice' | translate }}"
         >
-            <span class="label label-warning marl10">
+            <span class="badge badge-warning marl10 sitnet-white">
                 {{ countMachineNotices() }}
             </span>
         </span>
@@ -32,7 +32,7 @@
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
         >
-            <span class="label label-danger marl10">
+            <span class="badge badge-danger marl10">
                 {{ countMachineAlerts() }}
             </span>
         </span>
@@ -47,7 +47,7 @@
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
             <i class="fa fa-plus text-success fa-stack-1x"></i>
         </a>
-    </h4>
+    </h5>
 </div>
 <div class="col-md-12" [hidden]="!showMachines">
     <table class="table table-bordered table-striped room-machines-table">

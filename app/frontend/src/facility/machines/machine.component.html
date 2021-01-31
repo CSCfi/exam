@@ -3,7 +3,7 @@
         <span class="header-text">{{ 'sitnet_exam_machine' | translate }}</span>
     </div>
 </div>
-<div id="dashboard">
+<div id="dashboard" *ngIf="machine">
     <div class="detail-row">
         <div class="col-md-6">
             <div class="sitnet-info-text">
@@ -19,7 +19,7 @@
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" [ngModel]="machine.accessible" (ngModelChange)="updateMachine()" />
+                    <input type="checkbox" [(ngModel)]="machine.accessible" (change)="updateMachine()" />
                     {{ 'sitnet_machine_accessible' | translate }}
                 </label>
             </div>
@@ -31,8 +31,8 @@
                     type="text"
                     [disabled]="!machine.accessible"
                     class="form-control"
-                    [ngModel]="machine.accessibilityInfo"
-                    (ngModelChange)="updateMachine()"
+                    [(ngModel)]="machine.accessibilityInfo"
+                    (blur)="updateMachine()"
                 />
             </div>
         </div>
@@ -46,8 +46,8 @@
                 <input
                     type="text"
                     class="form-control"
-                    [ngModel]="machine.otherIdentifier"
-                    (ngModelChange)="updateMachine()"
+                    [(ngModel)]="machine.otherIdentifier"
+                    (blur)="updateMachine()"
                 />
             </div>
         </div>
@@ -58,8 +58,8 @@
                 <input
                     type="text"
                     class="form-control"
-                    [ngModel]="machine.surveillanceCamera"
-                    (ngModelChange)="updateMachine()"
+                    [(ngModel)]="machine.surveillanceCamera"
+                    (blur)="updateMachine()"
                 />
             </div>
         </div>
@@ -73,20 +73,15 @@
                 <input
                     type="text"
                     class="form-control"
-                    [ngModel]="machine.videoRecordings"
-                    (ngModelChange)="updateMachine()"
+                    [(ngModel)]="machine.videoRecordings"
+                    (blur)="updateMachine()"
                 />
             </div>
         </div>
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_machine_ip_address' | translate }}</div>
             <div>
-                <input
-                    type="text"
-                    class="form-control"
-                    [ngModel]="machine.ipAddress"
-                    (ngModelChange)="updateMachine()"
-                />
+                <input type="text" class="form-control" [(ngModel)]="machine.ipAddress" (blur)="updateMachine()" />
             </div>
         </div>
     </div>
@@ -114,7 +109,7 @@
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" [ngModel]="machine.outOfService" (ngModelChange)="updateMachine()" />
+                    <input type="checkbox" [(ngModel)]="machine.outOfService" (ngModelChange)="updateMachine()" />
                     {{ 'sitnet_out_of_service' | translate }}
                 </label>
             </div>
@@ -124,8 +119,8 @@
             <textarea
                 [disabled]="!machine.outOfService"
                 class="form-control ng-pristine ng-valid"
-                [ngModel]="machine.statusComment"
-                (ngModelChange)="updateMachine()"
+                [(ngModel)]="machine.statusComment"
+                (blur)="updateMachine()"
             >
             </textarea>
         </div>

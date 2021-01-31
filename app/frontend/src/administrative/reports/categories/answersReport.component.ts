@@ -68,12 +68,11 @@ export class AnswersReportComponent {
         this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
     };
 
-    startDateChanged = (date: Date) => {
-        console.log(date);
-        this.startDate = date;
+    startDateChanged = (event: { date: Date }) => {
+        this.startDate = event.date;
     };
 
-    endDateChanged = (date: Date) => {
-        this.endDate = date;
+    endDateChanged = (event: { date: Date }) => {
+        this.endDate = event.date;
     };
 }

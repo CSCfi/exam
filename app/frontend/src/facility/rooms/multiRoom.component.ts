@@ -25,23 +25,27 @@ import { RoomService, Week } from './room.service';
 })
 export class MultiRoomComponent implements OnInit {
     week: Week;
-    rooms: ExamRoom[];
+    allRooms: ExamRoom[];
+    massEditedRooms: ExamRoom[];
     roomIds: number[];
 
     constructor(private room: RoomService) {}
 
     ngOnInit() {
+        this.loadRooms();
         this.week = this.room.getWeek();
     }
 
     addException = (exception: ExceptionWorkingHours) => {
+        const roomIds = this.getRoomIds();
+        console.log(roomIds);
         this.room.addException(this.getRoomIds(), exception).then(() => {
             this.loadRooms();
         });
     };
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        this.room.deleteException(this.rooms[0].id, exception.id).then(() => {
+        this.room.deleteException(this.allRooms[0].id, exception.id).then(() => {
             this.loadRooms();
         });
     };
@@ -61,7 +65,8 @@ export class MultiRoomComponent implements OnInit {
     private loadRooms = () => {
         this.room.getRooms().subscribe(
             rooms => {
-                this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
+                this.allRooms = rooms;
+                this.massEditedRooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
             error => {
@@ -70,5 +75,5 @@ export class MultiRoomComponent implements OnInit {
         );
     };
 
-    private getRoomIds = () => this.rooms.map(room => room.id);
+    private getRoomIds = () => this.allRooms.map(room => room.id);
 }

@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -25,8 +26,15 @@ import { Address, RoomService } from '../rooms/room.service';
 })
 export class AddressComponent {
     @Input() address: Address;
+    @ViewChild('addressForm') addressForm: NgForm;
 
     constructor(private room: RoomService, private translate: TranslateService) {}
+
+    validateAndUpdateAddress = () => {
+        if (this.addressForm.valid) {
+            this.updateAddress();
+        }
+    };
 
     updateAddress = () => {
         this.room.updateAddress(this.address).subscribe(

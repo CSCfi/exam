@@ -87,7 +87,7 @@ export class ReportsComponent implements OnInit {
         this.userResource.usersByRole(UserRole.TEACHER).subscribe(resp => {
             this.teachers = resp.map(t => ({
                 id: t.id,
-                label: t.name!,
+                label: t.name as string,
                 value: { ...t },
             }));
         });
@@ -95,7 +95,7 @@ export class ReportsComponent implements OnInit {
         this.userResource.usersByRole(UserRole.STUDENT).subscribe(resp => {
             this.students = resp.map(t => ({
                 id: t.id,
-                label: t.name!,
+                label: t.name as string,
                 value: { ...t },
             }));
         });

@@ -32,7 +32,7 @@ import { ExamName, FileType } from '../reports.service';
         <div class="bottom-row">
             <div class="col-md-10">
                 <label for="exam">{{ 'sitnet_select_exam' | translate }}</label>
-                <dropdown-select id="exam" [options]="examNames" (onSelect)="examSelected(value)"></dropdown-select>
+                <dropdown-select id="exam" [options]="examNames" (onSelect)="examSelected($event)"></dropdown-select>
             </div>
             <div class="col-md-2">
                 <label for="link"></label>
@@ -61,8 +61,8 @@ export class ExamsReportComponent {
 
     constructor(private translate: TranslateService, private files: FileService) {}
 
-    examSelected = (value: Exam) => {
-        this.exam = value;
+    examSelected = (event: { value: Exam }) => {
+        this.exam = event.value;
     };
 
     getExams = () => {

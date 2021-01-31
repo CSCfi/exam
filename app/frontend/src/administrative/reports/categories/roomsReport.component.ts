@@ -29,18 +29,18 @@ import { FileService } from '../../../utility/file/file.service';
         <div class="bottom-row">
             <div class="col-md-4">
                 <label for="roomPick">{{ 'sitnet_select_room' | translate }}</label>
-                <dropdown-select id="roomPick" [options]="rooms" (onSelect)="roomSelected(value)"></dropdown-select>
+                <dropdown-select id="roomPick" [options]="rooms" (onSelect)="roomSelected($event)"></dropdown-select>
             </div>
             <div class="col-md-3">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-3">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-2">
@@ -70,8 +70,8 @@ export class RoomsReportComponent {
 
     constructor(private translate: TranslateService, private datePipe: DatePipe, private files: FileService) {}
 
-    roomSelected = (value: ExamRoom) => {
-        this.room = value;
+    roomSelected = (event: { value: ExamRoom }) => {
+        this.room = event.value;
     };
 
     getRoomReservationsByDate = () => {
@@ -84,11 +84,11 @@ export class RoomsReportComponent {
         }
     };
 
-    startDateChanged = (date: Date) => {
-        this.startDate = date;
+    startDateChanged = (event: { date: Date }) => {
+        this.startDate = event.date;
     };
 
-    endDateChanged = (date: Date) => {
-        this.endDate = date;
+    endDateChanged = (event: { date: Date }) => {
+        this.endDate = event.date;
     };
 }

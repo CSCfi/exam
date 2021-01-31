@@ -9,20 +9,20 @@
             <h3 class="col-md-12 header-text">{{ 'sitnet_room_default_working_hours' | translate }}</h3>
         </div>
         <div class="bottom-row">
-            <open-hours *ngIf="rooms" class="col-md-12" [week]="week" (onSelect)="updateWorkingHours()"></open-hours>
+            <open-hours *ngIf="allRooms" class="col-md-12" [week]="week" (onSelect)="updateWorkingHours()"></open-hours>
         </div>
-        <starting-time *ngIf="rooms" [roomIds]="roomIds"></starting-time>
+        <starting-time *ngIf="allRooms" [roomIds]="roomIds"></starting-time>
         <div class="top-row">
             <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
         </div>
-        <div class="detail-row-tall" *ngFor="let room of rooms">
+        <div class="detail-row-tall" *ngFor="let room of massEditedRooms">
             <div class="col-md-12">
                 <b>{{ room.name || 'sitnet_no_name' | translate }}</b>
             </div>
             <exception-list
                 [room]="room"
-                (onCreate)="addException(exception)"
-                (onDelete)="deleteException(exception)"
+                (onCreate)="addException($event)"
+                (onDelete)="deleteException($event)"
                 [filter]="massEditedExceptionFilter"
                 [hideButton]="true"
                 [hideTitle]="true"

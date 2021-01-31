@@ -12,8 +12,8 @@
                 lang="en"
                 min="0"
                 max="59"
-                [ngModel]="examStartingHourOffset"
-                (ngModelChange)="setStartingHourOffset()"
+                [(ngModel)]="examStartingHourOffset"
+                (change)="setStartingHourOffset()"
             />
         </div>
     </form>
@@ -22,8 +22,8 @@
     <div class="col-md-6">
         <span
             *ngFor="let hour of examStartingHours"
-            class="label pointer"
-            [ngClass]="hour.selected ? 'label-success' : 'label-default'"
+            class="badge pointer"
+            [ngClass]="hour.selected ? 'badge-success' : 'badge-default'"
             (click)="hour.selected = !hour.selected"
             style="margin: 0.2em"
             >{{ hour.startingHour }}</span

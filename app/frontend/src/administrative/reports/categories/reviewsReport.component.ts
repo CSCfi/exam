@@ -27,20 +27,20 @@ import { FileService } from '../../../utility/file/file.service';
             <div class="col-md-5">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (on-update)="startDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-5">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (on-update)="endDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="link">&nbsp;</label>
                 <div id="link">
                     <a
-                        (click)="$ctrl.getReviewsByDate()"
+                        (click)="getReviewsByDate()"
                         class="fa-stack fa-lg pointer pull-right"
                         download
                         triggers="mouseenter:mouseleave"
@@ -67,11 +67,11 @@ export class ReviewsReportComponent {
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
     };
 
-    startDateChanged = (date: Date) => {
-        this.startDate = date;
+    startDateChanged = (event: { date: Date }) => {
+        this.startDate = event.date;
     };
 
-    endDateChanged = (date: Date) => {
-        this.endDate = date;
+    endDateChanged = (event: { date: Date }) => {
+        this.endDate = event.date;
     };
 }

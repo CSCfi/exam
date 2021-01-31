@@ -32,7 +32,7 @@ import { ExamName } from '../reports.service';
                 <dropdown-select
                     id="enrolment"
                     [options]="examNames"
-                    (onSelect)="enrolmentSelected(value)"
+                    (onSelect)="enrolmentSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-md-2">
@@ -72,7 +72,7 @@ export class EnrolmentsReportComponent implements OnInit {
         }
     };
 
-    enrolmentSelected = (value: ExamName) => {
-        this.enrolment = value;
+    enrolmentSelected = (event: { value: ExamName }) => {
+        this.enrolment = event.value;
     };
 }

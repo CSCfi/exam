@@ -20,6 +20,10 @@ import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import { SessionService, User } from '../../session/session.service';
 import { RoomService, Address } from './room.service';
 
+interface RoomWithAddressVisibility extends ExamRoom {
+    addressVisible: boolean;
+}
+
 @Component({
     template: require('./roomList.component.html'),
     selector: 'room-list',
@@ -27,7 +31,7 @@ import { RoomService, Address } from './room.service';
 export class RoomListComponent implements OnInit {
     user: User;
     times: string[];
-    rooms: ExamRoom[];
+    rooms: RoomWithAddressVisibility[];
 
     constructor(
         private state: StateService,
@@ -43,7 +47,8 @@ export class RoomListComponent implements OnInit {
             if (!this.state.params.id) {
                 this.room.getRooms().subscribe(rooms => {
                     this.times = this.room.getTimes();
-                    this.rooms = rooms;
+                    const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
+                    this.rooms = roomsWithVisibility.map(r => ({ ...r, addressVisible: false }));
                     this.rooms.forEach(room => {
                         room.examMachines = room.examMachines.filter(machine => {
                             return !machine.archived;

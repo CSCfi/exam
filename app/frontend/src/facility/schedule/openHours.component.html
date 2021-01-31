@@ -1,7 +1,7 @@
 <div id="room">
     <table style="display:inline-block">
         <thead>
-            <tr *ngFor="let time of $ctrl.times">
+            <tr *ngFor="let time of times">
                 <th style="vertical-align: bottom;" [ngClass]="{ light: $odd }">{{ time }}</th>
             </tr>
         </thead>

@@ -32,26 +32,26 @@ import { FileService } from '../../../utility/file/file.service';
                 <dropdown-select
                     id="teacher"
                     [options]="teachers"
-                    (on-select)="teacherSelected(value)"
+                    (onSelect)="teacherSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-md-4">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (on-update)="$ctrl.startDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="answerStartDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-4">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (on-update)="$ctrl.endDateChanged(date)"></date-picker>
+                    <date-picker (onUpdate)="answerEndDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="link">&nbsp;</label>
                 <div id="link">
                     <a
-                        (click)="$ctrl.getTeacherExamsByDate()"
+                        (click)="getTeacherExamsByDate()"
                         class="fa-stack fa-lg pointer pull-right"
                         download
                         triggers="mouseenter:mouseleave"
@@ -87,15 +87,15 @@ export class TeachersReportComponent {
         }
     };
 
-    teacherSelected = (value: User) => {
-        this.teacher = value;
+    teacherSelected = (event: { value: User }) => {
+        this.teacher = event.value;
     };
 
-    answerStartDateChanged = (date: Date) => {
-        this.answerStartDate = date;
+    answerStartDateChanged = (event: { date: Date }) => {
+        this.answerStartDate = event.date;
     };
 
-    answerEndDateChanged = (date: Date) => {
-        this.answerEndDate = date;
+    answerEndDateChanged = (event: { date: Date }) => {
+        this.answerEndDate = event.date;
     };
 }

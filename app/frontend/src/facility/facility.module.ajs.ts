@@ -40,7 +40,7 @@ angular
     .directive('starting-time', downgradeComponent({ component: StartingTimeComponent }))
     .directive('availability', downgradeComponent({ component: AvailabilityComponent }))
     .directive('exception-list-all', downgradeComponent({ component: ExceptionListAllComponent }))
-    .directive('multi-room', downgradeComponent({ component: MultiRoomComponent }))
+    .directive('multiRoom', downgradeComponent({ component: MultiRoomComponent }))
     .directive('room', downgradeComponent({ component: RoomComponent }))
     .directive('room-list', downgradeComponent({ component: RoomListComponent }))
     .directive('examRoomsAdminTabs', downgradeComponent({ component: ExamRoomsAdminTabsComponent })).name;

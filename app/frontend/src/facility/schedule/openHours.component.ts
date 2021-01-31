@@ -15,7 +15,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTimeService } from '../../utility/date/date.service';
-import { RoomService, Week, Day, Weekday } from '../rooms/room.service';
+import { RoomService, Week, Weekday } from '../rooms/room.service';
 
 @Component({
     template: require('./openHours.component.html'),
@@ -45,15 +45,15 @@ export class OpenHoursComponent implements OnInit {
         return Object.keys(this.week);
     };
 
-    getType = function(day: Weekday, time: number) {
+    getType = (day: Weekday, time: number) => {
         return this.week[day][time].type;
     };
 
-    calculateTime = function(index: number) {
+    calculateTime = (index: number) => {
         return (this.times[index] || '0:00') + ' - ' + this.times[index + 1];
     };
 
-    selectSlot = function(day: Weekday, time: number) {
+    selectSlot = (day: Weekday, time: number) => {
         const status = this.week[day][time].type;
         if (status === 'accepted') {
             // clear selection
@@ -96,6 +96,6 @@ export class OpenHoursComponent implements OnInit {
             }
         }
 
-        this.onSelect();
+        this.onSelect.emit();
     };
 }

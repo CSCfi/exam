@@ -45,19 +45,20 @@ export class DateTimePickerComponent {
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
     date: Date;
-    time: Date;
+    time: { hour: number; minute: number; second: number; millisecond?: number };
 
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
         this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time.setHours(dt.getHours());
-        this.time.setMinutes(dt.getMinutes());
-        this.time.setSeconds(0);
-        this.time.setMilliseconds(0);
+        this.time.hour = dt.getHours();
+        this.time.minute = dt.getMinutes();
+        this.time.second = 0;
+        this.time.millisecond = 0;
     };
 
     ngOnInit() {
-        this.time = new Date();
+        const now = new Date();
+        this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
         this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
@@ -65,8 +66,8 @@ export class DateTimePickerComponent {
     }
 
     onTimeUpdate() {
-        this.date.setHours(this.time.getHours());
-        this.date.setMinutes(this.time.getMinutes());
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });
@@ -75,8 +76,8 @@ export class DateTimePickerComponent {
     onDateUpdate() {
         this.date.setFullYear(this.date.getFullYear());
         this.date.setMonth(this.date.getMonth(), this.date.getDate());
-        this.date.setHours(this.time.getHours());
-        this.date.setMinutes(this.time.getMinutes());
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });

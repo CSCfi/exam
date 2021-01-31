@@ -18,7 +18,7 @@ import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.m
 import { RoomService } from '../rooms/room.service';
 
 @Component({
-    template: require('./exceptionDialog.component.html'),
+    template: require('./exceptionList.component.html'),
     selector: 'exception-list',
 })
 export class ExceptionListComponent {
@@ -39,7 +39,11 @@ export class ExceptionListComponent {
     };
 
     addException = () => {
-        this.roomService.openExceptionDialog(this.onCreate.emit);
+        this.roomService.openExceptionDialog(this.createExceptionCallback);
+    };
+
+    createExceptionCallback = (exception: ExceptionWorkingHours) => {
+        this.onCreate.emit(exception);
     };
 
     deleteException = (exception: ExceptionWorkingHours) => {

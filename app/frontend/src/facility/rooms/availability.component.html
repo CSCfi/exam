@@ -6,7 +6,7 @@
 <div id="dashboard">
     <div class="student-exam-row">
         <!-- ROOM  -->
-        <div class="calendar-room-title" [hidden]="!room">
+        <div class="calendar-room-title" *ngIf="room">
             <span
                 >{{ room.name }}&nbsp;
                 <small> ({{ room.localTimezone }})</small>
@@ -16,7 +16,7 @@
             </span>
         </div>
 
-        <div class="calendar-room-info" [hidden]="!room">
+        <div class="calendar-room-info" *ngIf="room">
             s
             <div class="calendar-room-info-title">{{ 'sitnet_room_default_working_hours' | translate }}</div>
             <div class="calendar-room-info-content">
@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="calendar-room-info" [hidden]="exceptionHours.length === 0">
+        <div class="calendar-room-info" *ngIf="exceptionHours && exceptionHours.length > 0">
             <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
             <div class="calendar-room-info-content">
                 <div *ngFor="let eh of exceptionHours">
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <hr [hidden]="!room" />
+        <hr *ngIf="room" />
     </div>
 
     <div class="student-exam-row bottom-row">

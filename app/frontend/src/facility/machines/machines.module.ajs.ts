@@ -24,4 +24,4 @@ angular
     .module('app.facility.machines', [])
     .service('Machines', downgradeInjectable(MachineService))
     .directive('machine-list', downgradeComponent({ component: MachineListComponent }))
-    .directive('machines', downgradeComponent({ component: MachineComponent }));
+    .directive('machine', downgradeComponent({ component: MachineComponent }));

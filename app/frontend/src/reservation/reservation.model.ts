@@ -48,6 +48,7 @@ export interface ExamRoom {
     accessibilities: Accessibility[];
     outOfService: boolean;
     statusComment: string;
+    buildingName: string;
 }
 
 export interface ExamMachine {
@@ -57,6 +58,10 @@ export interface ExamMachine {
     outOfService: boolean;
     statusComment: string;
     archived: boolean;
+    softwareInfo: {
+        id: number;
+        status: string;
+    }[];
 }
 
 export interface ExternalReservation {

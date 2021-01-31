@@ -32,19 +32,19 @@ import { FileService } from '../../../utility/file/file.service';
                 <dropdown-select
                     id="student"
                     [options]="students"
-                    (on-select)="studentSelected(value)"
+                    (on-select)="studentSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-md-4">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (on-update)="startDateChanged(date)"></date-picker>
+                    <date-picker (on-update)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-4">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (on-update)="endDateChanged(date)"></date-picker>
+                    <date-picker (on-update)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-md-2">
@@ -84,15 +84,15 @@ export class StudentsReportComponent {
         }
     };
 
-    studentSelected = (value: User) => {
-        this.student = value;
+    studentSelected = (event: { value: User }) => {
+        this.student = event.value;
     };
 
-    startDateChanged = (date: Date) => {
-        this.startDate = date;
+    startDateChanged = (event: { date: Date }) => {
+        this.startDate = event.date;
     };
 
-    endDateChanged = (date: Date) => {
-        this.endDate = date;
+    endDateChanged = (event: { date: Date }) => {
+        this.endDate = event.date;
     };
 }

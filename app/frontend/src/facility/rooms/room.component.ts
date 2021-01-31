@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as moment from 'moment';
@@ -27,6 +28,7 @@ import { SettingsResourceService } from './settingsResource';
     selector: 'room',
 })
 export class RoomComponent implements OnInit {
+    @ViewChild('roomForm') roomForm: NgForm;
     room: InteroperableRoom;
     week: Week;
     showName: boolean;
@@ -44,7 +46,7 @@ export class RoomComponent implements OnInit {
         this.week = this.roomService.getWeek();
         this.showName = true;
         this.settings.examVisit().subscribe((data: any) => {
-            this.isInteroperable = data.isInteroperable;
+            this.isInteroperable = data.isExamVisitSupported;
         });
 
         this.roomService.getRoom(this.state.params.id).subscribe(
@@ -54,7 +56,7 @@ export class RoomComponent implements OnInit {
                 if (!this.roomService.isAnyExamMachines(this.room)) {
                     toast.warning(this.translate.instant('sitnet_room_has_no_machines_yet'));
                 }
-                this.room.calendarExceptionEvents.forEach(function(event) {
+                this.room.calendarExceptionEvents.forEach(event => {
                     this.roomService.formatExceptionEvent(event);
                 });
                 this.room.defaultWorkingHours.forEach(daySlot => {
@@ -91,6 +93,20 @@ export class RoomComponent implements OnInit {
 
     enableRoom = () => {
         this.roomService.enableRoom(this.room);
+    };
+
+    validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
+        const { name } = event.target;
+        const ctrl = this.roomForm.controls[name];
+        if (ctrl.valid) {
+            this.updateRoom();
+        }
+    };
+
+    validateAndUpdateRoom = () => {
+        if (this.roomForm.valid) {
+            this.updateRoom();
+        }
     };
 
     updateRoom = () => {

@@ -133,8 +133,8 @@ export class RoomService {
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     addressApi = (id: number) => `/app/address/${id}`;
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
-    workingHoursApi = () => '/app/workinghours/';
-    examStartingHoursApi = () => '/app/startinghours/';
+    workingHoursApi = () => '/app/workinghours';
+    examStartingHoursApi = () => '/app/startinghours';
     exceptionsApi = () => '/app/exception';
     exceptionApi = (roomId: number, exceptionId: number) => `/app/rooms/${roomId}/exception/${exceptionId}`;
     draftApi = () => '/app/draft/rooms';
@@ -143,13 +143,15 @@ export class RoomService {
 
     getRoom = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
-    updateRoom = (room: ExamRoom) => this.http.put<ExamRoom>(this.roomsApi(room.id), room);
+    updateRoom = (room: ExamRoom) =>
+        this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as any });
 
     inactivateRoom = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
 
     activateRoom = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
 
-    updateAddress = (address: Address) => this.http.put<Address>(this.addressApi(address.id), address);
+    updateAddress = (address: Address) =>
+        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as any });
 
     getAvailability = (roomId: number, date: string) => this.http.get<Availability>(this.availabilityApi(roomId, date));
 
@@ -162,7 +164,7 @@ export class RoomService {
         this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
 
     removeException = (roomId: number, exceptionId: number) =>
-        this.http.delete<void>(this.exceptionApi(roomId, exceptionId));
+        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as any });
 
     getDraft = () => this.http.get<ExamRoom>(this.draftApi());
 
@@ -226,16 +228,16 @@ export class RoomService {
 
     addException = (ids: number[], exception: ExceptionWorkingHours) =>
         new Promise<ExceptionWorkingHours>((resolve, reject) => {
-            this.updateExceptions(ids, exception)
-                .toPromise()
-                .then((data: ExceptionWorkingHours) => {
+            this.updateExceptions(ids, exception).subscribe(
+                (data: ExceptionWorkingHours) => {
                     toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
-                })
-                .catch(error => {
+                },
+                error => {
                     toast.error(error.data);
                     reject();
-                });
+                },
+            );
         });
 
     openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) => {
@@ -253,16 +255,16 @@ export class RoomService {
 
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
-            this.removeException(roomId, exceptionId)
-                .toPromise()
-                .then(() => {
+            this.removeException(roomId, exceptionId).subscribe(
+                () => {
                     toast.info(this.translate.instant('sitnet_exception_time_removed'));
                     resolve();
-                })
-                .catch(error => {
-                    toast.error(error.data);
-                    reject();
-                });
+                },
+                error => {
+                    toast.error(error);
+                    reject(error);
+                },
+            );
         });
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
@@ -306,13 +308,13 @@ export class RoomService {
         }
         data.workingHours = workingHours;
         data.roomIds = ids;
-        this.updateWorkingHoursData(data)
-            .toPromise()
-            .then(() => {
+        this.updateWorkingHoursData(data).subscribe(
+            () => {
                 toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
-            })
-            .catch(error => {
+            },
+            error => {
                 toast.error(error.data);
-            });
+            },
+        );
     };
 }

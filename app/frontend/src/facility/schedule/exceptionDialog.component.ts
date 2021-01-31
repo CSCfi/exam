@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 import { cloneDeep } from 'lodash';
@@ -9,7 +9,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     template: require('./exceptionDialog.component.html'),
     selector: 'exception-dialog',
 })
-export class ExceptionDialogComponent implements OnInit {
+export class ExceptionDialogComponent {
     dateOptions = {
         'starting-day': 1,
     };
@@ -20,9 +20,7 @@ export class ExceptionDialogComponent implements OnInit {
         outOfService: boolean;
     };
 
-    constructor(private translate: TranslateService, private activeModal: NgbActiveModal) {}
-
-    ngOnInit() {
+    constructor(private translate: TranslateService, private activeModal: NgbActiveModal) {
         const now = new Date();
         now.setSeconds(0);
         now.setMilliseconds(0);
@@ -49,5 +47,13 @@ export class ExceptionDialogComponent implements OnInit {
 
     cancel = () => {
         this.activeModal.dismiss();
+    };
+
+    onStartDateChange = (e: { date: Date }) => {
+        this.exception.startDate = e.date;
+    };
+
+    onEndDateChange = (e: { date: Date }) => {
+        this.exception.endDate = e.date;
     };
 }
