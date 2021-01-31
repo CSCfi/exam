@@ -121,6 +121,7 @@ public class AvailabilityController extends BaseController {
 
     // DTO aimed for clients
     protected static class Availability {
+
         private final String start;
         private final String end;
         private final int total;

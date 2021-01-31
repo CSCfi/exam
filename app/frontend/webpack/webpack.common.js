@@ -29,10 +29,6 @@ const config = {
                 use: ['style-loader', 'css-loader'],
             },
             {
-                test: /\.less$/,
-                use: ['style-loader', 'css-loader', 'less-loader'],
-            },
-            {
                 test: /\.(scss)$/,
                 use: [
                     {
@@ -40,15 +36,6 @@ const config = {
                     },
                     {
                         loader: 'css-loader', // translates CSS into CommonJS modules
-                    },
-                    {
-                        loader: 'postcss-loader', // Run post css actions
-                        options: {
-                            plugins: function() {
-                                // post css plugins, can be exported to postcss.config.js
-                                return [require('precss'), require('autoprefixer')];
-                            },
-                        },
                     },
                     {
                         loader: 'sass-loader', // compiles Sass to CSS
@@ -63,22 +50,16 @@ const config = {
                 ],
             },
             {
-                // Mark files inside `@angular/core` as using SystemJS style dynamic imports.
-                // Removing this will cause deprecation warnings to appear.
-                test: /[\/\\]@angular[\/\\]core[\/\\].+\.js$/,
-                parser: { system: true }, // enable SystemJS
-            },
-            {
                 test: /\.(jpg|png|svg)$/,
-                use: 'url-loader?limit=100000',
+                type: 'asset/resource',
             },
             {
                 test: /\.html$/,
-                use: 'raw-loader',
+                type: 'asset/source',
             },
             {
                 test: /\.(woff|woff2|ttf|eof|eot)$/,
-                use: 'url-loader',
+                use: ['url-loader'],
             },
         ],
     },
@@ -100,6 +81,7 @@ const config = {
     resolve: {
         alias: { Images: path.resolve(__dirname, '../src/assets/images') },
         extensions: ['.ts', '.js', '.json', '.css', '.html'],
+        fallback: { buffer: require.resolve('buffer/') },
     },
 };
 

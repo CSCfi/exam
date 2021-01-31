@@ -15,12 +15,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
+import type { Observable } from 'rxjs';
+import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
     displayedMaxScore: number | string;
@@ -74,7 +74,7 @@ export class LibraryService {
         return entry && entry[category] ? JSON.parse(entry[category]) : {};
     };
 
-    storeFilters = (filters: any, category: string) => {
+    storeFilters = (filters: unknown, category: string) => {
         const data = { filters: filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
@@ -83,7 +83,7 @@ export class LibraryService {
 
     applyFreeSearchFilter = (text: string | undefined, questions: LibraryQuestion[]) => {
         if (text) {
-            return questions.filter(question => {
+            return questions.filter((question) => {
                 const re = new RegExp(text, 'i');
 
                 const isMatch = question.question && this.htmlDecode(question.question).match(re);
@@ -94,7 +94,7 @@ export class LibraryService {
                 // match course code
                 return (
                     question.examSectionQuestions.filter(
-                        esq =>
+                        (esq) =>
                             // Course can be empty in case of a copied exam
                             esq.examSection.exam.course && esq.examSection.exam.course.code.match(re),
                     ).length > 0
@@ -107,7 +107,7 @@ export class LibraryService {
 
     applyOwnerSearchFilter = (text: string, questions: LibraryQuestion[]) => {
         if (text) {
-            return questions.filter(question => {
+            return questions.filter((question) => {
                 const re = new RegExp(text, 'i');
                 const owner = question.creator ? question.creator.firstName + ' ' + question.creator.lastName : '';
                 return owner.match(re);
@@ -165,9 +165,9 @@ export class LibraryService {
                 params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
             })
             .pipe(
-                map(questions => {
-                    questions.map(question => Object.assign(question, { icon: this.getIcon(question) }));
-                    questions.forEach(q => {
+                map((questions) => {
+                    questions.map((question) => Object.assign(question, { icon: this.getIcon(question) }));
+                    questions.forEach((q) => {
                         q.displayedMaxScore = this.getDisplayedMaxScore(q);
                         q.typeOrd = [
                             'EssayQuestion',
@@ -178,7 +178,7 @@ export class LibraryService {
                         ].indexOf(q.type);
                         q.ownerAggregate = this.getOwnerAggregate(q);
                         q.allowedToRemove =
-                            q.examSectionQuestions.filter(function(esq) {
+                            q.examSectionQuestions.filter(function (esq) {
                                 const exam = esq.examSection.exam;
                                 return (
                                     exam.state === 'PUBLISHED' &&

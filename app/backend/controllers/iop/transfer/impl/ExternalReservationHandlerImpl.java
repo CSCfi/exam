@@ -46,6 +46,7 @@ import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
+
     @Inject
     WSClient wsClient;
 

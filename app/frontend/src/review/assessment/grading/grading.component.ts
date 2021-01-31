@@ -13,19 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import {
-    Exam,
-    ExamExecutionType,
-    ExamLanguage,
-    ExamParticipation,
-    ExamType,
-    SelectableGrade,
-} from '../../../exam/exam.model';
+import type { Exam, ExamExecutionType, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
+import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { Examination } from '../../../examination/examination.service';
 import { QuestionAmounts } from '../../../question/question.service';
@@ -75,7 +70,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
         this.translate.onLangChange.subscribe(() => {
             this.initCreditTypes();
-            this.grades.forEach(g => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
+            this.grades.forEach((g) => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
         });
     }
 
@@ -90,7 +85,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         // Do not add up if user exists in both groups
         const examOwners = this.collaborative ? this.exam.examOwners : (this.exam.parent as Exam).examOwners;
         const owners = examOwners.filter(
-            owner => this.exam.examInspections.map(inspection => inspection.user?.id).indexOf(owner.id) === -1,
+            (owner) => this.exam.examInspections.map((inspection) => inspection.user?.id).indexOf(owner.id) === -1,
         );
         return this.exam.examInspections.length + owners.length;
     };
@@ -110,7 +105,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
                     delete this.message.text;
                     toast.info(this.translate.instant('sitnet_email_sent'));
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         } else {
             this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe(() => {

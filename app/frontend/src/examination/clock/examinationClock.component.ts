@@ -55,7 +55,7 @@ export class ExaminationClockComponent {
     };
 
     private setRemainingTime = () =>
-        this.http.get<number>('/app/time/' + this.examHash).subscribe(resp => (this.remainingTime = resp));
+        this.http.get<number>('/app/time/' + this.examHash).subscribe((resp) => (this.remainingTime = resp));
 
     private notifyTimeout = () => {
         this.Window.nativeWindow.clearTimeout(this.pollerId);

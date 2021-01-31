@@ -50,7 +50,7 @@ public class ExcelBuilder {
 
     public enum CellType {
         DECIMAL,
-        STRING
+        STRING,
     }
 
     private static final String[] ScoreReportDefaultHeaders = new String[] {
@@ -61,7 +61,7 @@ public class ExcelBuilder {
         "studentEmail",
         "studentId",
         "examState",
-        "submissionId"
+        "submissionId",
     };
 
     private static Map<String, String> getStudentReportHeaderMap(User student) {

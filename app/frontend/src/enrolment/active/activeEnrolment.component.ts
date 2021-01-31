@@ -15,9 +15,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ExamRoom } from '../../reservation/reservation.model';
+import type { ExamRoom } from '../../reservation/reservation.model';
 import { FileService } from '../../utility/file/file.service';
-import { ExamEnrolment } from '../enrolment.model';
+import type { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({

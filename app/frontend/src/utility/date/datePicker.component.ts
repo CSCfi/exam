@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
+
+import type { OnInit } from '@angular/core';
 
 @Component({
     selector: 'date-picker',
@@ -24,7 +26,7 @@ export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | null = null;
     @Input() extra: boolean;
     @Input() extraText: string;
-    @Input() modelOptions: any = {};
+    @Input() modelOptions: Record<string, string> = {};
     @Input() disabled: boolean;
     @Input() optional: boolean;
 

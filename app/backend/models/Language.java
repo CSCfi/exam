@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class Language extends VersionedModel {
+
     @Id
     private String code;
 

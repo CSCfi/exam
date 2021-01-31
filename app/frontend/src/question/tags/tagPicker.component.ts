@@ -14,11 +14,12 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { from, Observable } from 'rxjs';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import { Question, Tag } from '../../exam/exam.model';
+import type { Question, Tag } from '../../exam/exam.model';
 
 @Component({
     selector: 'tag-picker',
@@ -34,22 +35,22 @@ export class TagPickerComponent {
         text$.pipe(
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap(term => {
+            exhaustMap((term) => {
                 if (term.length < 2) return from([]);
                 else {
                     return this.http
                         .get<Tag[]>('/app/tags', { params: { filter: term } })
-                        .pipe(map(tags => ({ filter: term, tags: tags })));
+                        .pipe(map((tags) => ({ filter: term, tags: tags })));
                 }
             }),
-            map(resp => {
+            map((resp) => {
                 const { filter, tags } = resp;
                 if (filter) {
                     tags.unshift({ name: filter });
                 }
                 // filter out the ones already tagged for this question and slice
                 return tags
-                    .filter(tag => !this.question.tags || this.question.tags.every(qt => qt.name !== tag.name))
+                    .filter((tag) => !this.question.tags || this.question.tags.every((qt) => qt.name !== tag.name))
                     .slice(0, 15);
             }),
         );

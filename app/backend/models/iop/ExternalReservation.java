@@ -24,6 +24,7 @@ import javax.persistence.OneToOne;
 
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {
+
     private String orgRef;
 
     private String orgName;

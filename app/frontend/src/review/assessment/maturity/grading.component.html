@@ -112,7 +112,7 @@
                 required
             >
                 <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
-                <option value="" [selected]="!exam.grade">{{ 'sitnet_choose' | translate }} </option>
+                <option value="" [selected]="!exam.grade">{{ 'sitnet_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">

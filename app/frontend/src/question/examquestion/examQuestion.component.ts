@@ -18,17 +18,18 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import {
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { WindowRef } from '../../utility/window/window.service';
+import { QuestionService } from '../question.service';
+
+import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
 } from '../../exam/exam.model';
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { WindowRef } from '../../utility/window/window.service';
-import { QuestionService } from '../question.service';
 
 type EditableExamSectionQuestionOption = Omit<ExamSectionQuestionOption, 'option'> & {
     option: Partial<MultipleChoiceOption>;
@@ -50,7 +51,7 @@ export class ExamQuestionComponent {
     @Output() onCancel = new EventEmitter<void>();
 
     question: ReverseQuestion;
-    transitionWatcher?: Function;
+    transitionWatcher?: unknown;
     examNames: string[];
     sectionNames: string[];
     missingOptions: string[];
@@ -66,7 +67,7 @@ export class ExamQuestionComponent {
         private Attachment: AttachmentService,
         private Confirmation: ConfirmationDialogService,
     ) {
-        this.transitionWatcher = this.transition.onStart({ to: '*' }, t => {
+        this.transitionWatcher = this.transition.onStart({ to: '*' }, (t) => {
             if (this.Window.nativeWindow.onbeforeunload) {
                 t.abort();
                 // we got changes in the model, ask confirmation
@@ -74,7 +75,7 @@ export class ExamQuestionComponent {
                     this.translate.instant('sitnet_confirm_exit'),
                     this.translate.instant('sitnet_unsaved_question_data'),
                 );
-                dialog.result.then(data => {
+                dialog.result.then((data) => {
                     if (data.toString() === 'yes') {
                         // ok to reroute
                         this.Window.nativeWindow.onbeforeunload = null;
@@ -105,16 +106,16 @@ export class ExamQuestionComponent {
     };
 
     private init = () =>
-        this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe(question => {
+        this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
             this.question = question;
-            const sections = this.question.examSectionQuestions.map(esq => esq.examSection);
-            const examNames = sections.map(s => {
+            const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+            const examNames = sections.map((s) => {
                 if (s.exam.state === 'PUBLISHED') {
                     this.isInPublishedExam = true;
                 }
                 return s.exam.name as string;
             });
-            const sectionNames = sections.map(s => s.name);
+            const sectionNames = sections.map((s) => s.name);
             // remove duplicates
             this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
@@ -132,7 +133,7 @@ export class ExamQuestionComponent {
 
         const hasCorrectAnswer =
             this.examQuestion.options.filter(
-                o =>
+                (o) =>
                     o.id !== selectedOption.id &&
                     (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
             ).length > 0;
@@ -156,7 +157,7 @@ export class ExamQuestionComponent {
     correctAnswerToggled = (option: ExamSectionQuestionOption) =>
         this.Question.toggleCorrectOption(
             option.option,
-            this.examQuestion.options.map(o => o.option) as MultipleChoiceOption[],
+            this.examQuestion.options.map((o) => o.option) as MultipleChoiceOption[],
         );
 
     optionDisabled = (option: ExamSectionQuestionOption) => option.option.correctOption;
@@ -168,7 +169,7 @@ export class ExamQuestionComponent {
     };
 
     selectFile = () =>
-        this.Attachment.selectFile(true).then(data => {
+        this.Attachment.selectFile(true).then((data) => {
             this.question.attachment = {
                 ...this.question.attachment,
                 modified: true,
@@ -211,8 +212,8 @@ export class ExamQuestionComponent {
         this.missingOptions = this.Question.getInvalidDistributedClaimOptionTypes(
             this.examQuestion.options as ExamSectionQuestionOption[],
         )
-            .filter(type => type !== 'SkipOption')
-            .map(optionType => this.Question.getOptionTypeTranslation(optionType));
+            .filter((type) => type !== 'SkipOption')
+            .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
     };
 
     hasInvalidClaimChoiceOptions = () =>

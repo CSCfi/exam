@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
-import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
+import type { OnInit } from '@angular/core';
+import type { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
+import type { ExamEnrolment } from '../enrolment.model';
 @Component({
     selector: 'wrong-location',
     templateUrl: './wrongLocation.component.html',
@@ -35,6 +36,7 @@ export class WrongLocationComponent implements OnInit {
     isUpcoming: boolean;
     roomInstructions: string;
     currentMachine: ExamMachine;
+    occasion: { startAt: string; endAt: string };
 
     constructor(
         private http: HttpClient,
@@ -59,7 +61,7 @@ export class WrongLocationComponent implements OnInit {
         if (this.state.params.eid) {
             this.isUpcoming = true;
             this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
-                enrolment => {
+                (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
                     }
@@ -70,16 +72,16 @@ export class WrongLocationComponent implements OnInit {
                     this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http
                         .get<ExamMachine>(`/app/machines/${this.state.params.mid}`)
-                        .subscribe(machine => (this.currentMachine = machine));
+                        .subscribe((machine) => (this.currentMachine = machine));
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         }
     }
 
     printExamDuration = () => this.DateTime.printExamDuration(this.enrolment.exam);
 
-    private setOccasion = (reservation: any) => {
+    private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
         const start = moment.tz(reservation.startAt, tz);
         const end = moment.tz(reservation.endAt, tz);
@@ -89,7 +91,7 @@ export class WrongLocationComponent implements OnInit {
         if (end.isDST()) {
             end.add(-1, 'hour');
         }
-        reservation.occasion = {
+        this.occasion = {
             startAt: start.format('HH:mm'),
             endAt: end.format('HH:mm'),
         };

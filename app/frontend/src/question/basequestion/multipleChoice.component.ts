@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { MultipleChoiceOption, Question } from '../../exam/exam.model';
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
 @Component({

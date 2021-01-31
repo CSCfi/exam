@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 interface ExamInfo {
     name: string;
@@ -68,7 +69,7 @@ export class ExamStatisticsComponent implements OnInit {
     listExams = () =>
         this.http
             .get<ExamInfo[]>('/app/reports/exams', { params: this.queryParams })
-            .subscribe(resp => {
+            .subscribe((resp) => {
                 if (!resp) {
                     return;
                 }

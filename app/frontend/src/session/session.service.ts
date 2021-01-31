@@ -13,12 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, OnDestroy } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import { defer, from, iif, interval, Observable, of, Subject, throwError, Unsubscribable } from 'rxjs';
+import type { Observable, Unsubscribable } from 'rxjs';
+import { defer, from, iif, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
 
@@ -91,7 +93,7 @@ export class SessionService implements OnDestroy {
         this.user = user;
     }
 
-    setEnv = () => this.init().subscribe(e => (this.env = e));
+    setEnv = () => this.init().subscribe((e) => (this.env = e));
 
     private init(): Observable<Env> {
         if (this.env) {
@@ -104,7 +106,7 @@ export class SessionService implements OnDestroy {
         if (!user) {
             return false;
         }
-        return user.permissions.some(p => p.type === permission);
+        return user.permissions.some((p) => p.type === permission);
     }
 
     static hasRole(user: User, role: string): boolean {
@@ -113,8 +115,8 @@ export class SessionService implements OnDestroy {
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
         this.init().pipe(
-            tap(env => (this.env = env)),
-            map(env => (env.isProd ? 'PROD' : 'DEV')),
+            tap((env) => (this.env = env)),
+            map((env) => (env.isProd ? 'PROD' : 'DEV')),
         );
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
@@ -145,7 +147,7 @@ export class SessionService implements OnDestroy {
         if (!this.user) {
             return;
         }
-        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe(resp => {
+        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe((resp) => {
             this.webStorageService.remove('EXAM_USER');
             // delete this.user;
             this.onLogoutSuccess(resp);
@@ -184,7 +186,7 @@ export class SessionService implements OnDestroy {
 
     checkSession = () => {
         this.http.get('/app/checkSession', { responseType: 'text' }).subscribe(
-            resp => {
+            (resp) => {
                 if (resp === 'alarm') {
                     toastr.warning(
                         this.i18n.instant('sitnet_continue_session'),
@@ -199,7 +201,7 @@ export class SessionService implements OnDestroy {
                                             timeOut: 1000,
                                         });
                                     },
-                                    resp => toastr.error(resp),
+                                    (resp) => toastr.error(resp),
                                 );
                             },
                         },
@@ -211,7 +213,7 @@ export class SessionService implements OnDestroy {
                     this.logout();
                 }
             },
-            resp => toastr.error(resp),
+            (resp) => toastr.error(resp),
         );
     };
 
@@ -247,7 +249,7 @@ export class SessionService implements OnDestroy {
     }
 
     private prepareUser(user: User): User {
-        user.roles.forEach(role => {
+        user.roles.forEach((role) => {
             switch (role.name) {
                 case 'ADMIN':
                     role.displayName = 'sitnet_admin';
@@ -285,9 +287,9 @@ export class SessionService implements OnDestroy {
                 password: password,
             })
             .pipe(
-                map(u => this.prepareUser(u)),
-                switchMap(u => this.processLogin$(u)),
-                tap(u => {
+                map((u) => this.prepareUser(u)),
+                switchMap((u) => this.processLogin$(u)),
+                tap((u) => {
                     this.user = u;
                     this.webStorageService.set('EXAM_USER', this.user);
                     this.restartSessionCheck();
@@ -302,7 +304,7 @@ export class SessionService implements OnDestroy {
                     this.windowRef.nativeWindow.setTimeout(welcome, 2000);
                     this.redirect();
                 }),
-                catchError(resp => {
+                catchError((resp) => {
                     toastr.error(resp);
                     this.logout();
                     return throwError(resp);
@@ -318,6 +320,6 @@ export class SessionService implements OnDestroy {
             );
         return user.loginRole
             ? userAgreementConfirmation$(user)
-            : this.openRoleSelectModal$(user).pipe(switchMap(u => userAgreementConfirmation$(u)));
+            : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));
     }
 }

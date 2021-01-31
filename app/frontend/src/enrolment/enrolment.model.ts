@@ -1,6 +1,6 @@
-import { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
-import { Reservation } from '../reservation/reservation.model';
-import { User } from '../session/session.service';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
+import type { Reservation } from '../reservation/reservation.model';
+import type { User } from '../session/session.service';
 
 export interface Scores {
     maxScore: number;
@@ -32,6 +32,16 @@ export interface AssessedParticipation extends Omit<ExamParticipation, 'exam'> {
     };
 }
 
+export interface ExternalExam {
+    id: number;
+    hash: string;
+    created: Date;
+    started: Date;
+    finished: Date;
+    sent: Date;
+    creator: User;
+}
+
 export interface ExamEnrolment {
     id: number;
     information: string;
@@ -40,7 +50,7 @@ export interface ExamEnrolment {
     user: User;
     collaborativeExam: CollaborativeExam;
     reservationCanceled: boolean;
-    externalExam?: any; // TBD
+    externalExam?: ExternalExam;
     examinationEventConfiguration?: ExaminationEventConfiguration;
     preEnrolledUserEmail?: string;
 }

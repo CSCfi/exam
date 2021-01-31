@@ -16,7 +16,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 
 @Injectable()
 export class DateTimeService {
@@ -49,6 +49,6 @@ export class DateTimeService {
         const options = { weekday: 'short' };
         return _.range(1, 7)
             .concat(0)
-            .map(d => this.getDateForWeekday(d).toLocaleDateString(locale, options));
+            .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
 }

@@ -34,9 +34,9 @@
                     <div class="col-md-9">
                         <select class="form-control" [(ngModel)]="type" (ngModelChange)="selectType()" required>
                             <option value="">{{ 'sitnet_choose' | translate }}</option>
-                            <option *ngFor="let type of executionTypes" [ngValue]="type">{{
-                                type.name | translate
-                            }}</option>
+                            <option *ngFor="let type of executionTypes" [ngValue]="type">
+                                {{ type.name | translate }}
+                            </option>
                         </select>
                     </div>
                 </div>

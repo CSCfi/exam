@@ -28,6 +28,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class Course extends GeneratedIdentityModel {
+
     private String code;
 
     private String name;

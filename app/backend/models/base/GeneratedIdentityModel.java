@@ -22,6 +22,7 @@ import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class GeneratedIdentityModel extends VersionedModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     protected Long id;

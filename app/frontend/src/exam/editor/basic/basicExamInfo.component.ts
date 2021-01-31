@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,9 +22,11 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamType, GradeScale } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import type { ExamType, GradeScale } from '../../exam.model';
 export type UpdateProps = {
     props: {
         code: string | null;
@@ -71,13 +73,13 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.refreshGradeScales();
         this.http
             .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
-            .subscribe(setting => (this.byodExaminationSupported = setting.isByodExaminationSupported));
+            .subscribe((setting) => (this.byodExaminationSupported = setting.isByodExaminationSupported));
         this.http
             .get<{ overridable: boolean }>('/app/settings/gradescale')
-            .subscribe(setting => (this.gradeScaleSetting = setting));
+            .subscribe((setting) => (this.gradeScaleSetting = setting));
         this.http
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
-            .subscribe(setting => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
+            .subscribe((setting) => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
         this.initGradeScale();
     }
 
@@ -108,7 +110,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                     },
                 });
             },
-            resp => toast.error(resp),
+            (resp) => toast.error(resp),
         );
     };
 
@@ -186,9 +188,9 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
 
     selectAttachmentFile = () => {
-        this.Attachment.selectFile(true, {}).then(data => {
+        this.Attachment.selectFile(true, {}).then((data) => {
             const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id }, this.exam);
+            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
     };
 
@@ -210,10 +212,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes().subscribe(types => {
+        this.Exam.refreshExamTypes().subscribe((types) => {
             // Maturity can only have a FINAL type
             if (this.exam.executionType.type === 'MATURITY') {
-                types = types.filter(t => t.type === 'FINAL');
+                types = types.filter((t) => t.type === 'FINAL');
             }
             this.examTypes = types;
         });

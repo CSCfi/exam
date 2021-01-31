@@ -14,10 +14,11 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, CollaborativeExamState, ExamParticipation } from '../exam.model';
+import type { CollaborativeExam, ExamParticipation } from '../exam.model';
+import { CollaborativeExamState } from '../exam.model';
 
 @Injectable()
 export class CollaborativeExamService {

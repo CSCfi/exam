@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { Course, Exam } from '../../exam.model';
+import type { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
@@ -36,7 +37,7 @@ export class CourseSelectionComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe(exam => (this.exam = exam));
+        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe((exam) => (this.exam = exam));
     }
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
@@ -44,7 +45,7 @@ export class CourseSelectionComponent implements OnInit {
     updateExamName = () =>
         this.Exam.updateExam$(this.exam).subscribe(
             () => toast.info(this.translate.instant('sitnet_exam_saved')),
-            error => {
+            (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
                     toast.error(this.translate.instant(msg));

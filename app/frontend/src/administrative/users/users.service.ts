@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Role, User } from '../../session/session.service';
+import type { Role, User } from '../../session/session.service';
 
 export enum PermissionType {
     CAN_INSPECT_LANGUAGE = 'CAN_INSPECT_LANGUAGE',

@@ -21,6 +21,7 @@ import javax.persistence.Entity;
 
 @Entity
 public class ExamType extends GeneratedIdentityModel {
+
     private String type;
 
     @Column(columnDefinition = "boolean default false")

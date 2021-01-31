@@ -18,11 +18,11 @@ import { StateService } from '@uirouter/core';
 import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
+import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',
@@ -58,7 +58,7 @@ export class FeedbackComponent {
                 this.Files.upload(
                     `/app/attachment/exam/${this.exam.id}/feedback`,
                     res.$value.attachmentFile,
-                    { examId: this.exam.id },
+                    { examId: this.exam.id.toString() },
                     this.exam.examFeedback,
                 );
             }),

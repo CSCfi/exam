@@ -15,11 +15,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { Reservation } from '../../reservation/reservation.model';
+import type { Observable } from 'rxjs';
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
+import type { Reservation } from '../../reservation/reservation.model';
 
 interface Occasion {
     startAt: string;
@@ -28,7 +28,7 @@ interface Occasion {
 
 export interface DashboardEnrolment extends ExamEnrolment {
     occasion?: Occasion;
-    startAtAggregate: any;
+    startAtAggregate: string;
 }
 
 @Injectable()
@@ -37,14 +37,14 @@ export class StudentDashboardService {
 
     listEnrolments = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(
-            map(enrolments =>
-                enrolments.map(e => {
+            map((enrolments) =>
+                enrolments.map((e) => {
                     const occasion = e.reservation ? this.getOccasion(e.reservation) : undefined;
                     const startAt = e.reservation ? e.reservation.startAt : 0;
                     return {
                         ...e,
                         occasion,
-                        startAtAggregate: startAt,
+                        startAtAggregate: startAt.toString(),
                     };
                 }),
             ),

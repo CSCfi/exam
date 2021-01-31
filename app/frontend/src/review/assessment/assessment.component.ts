@@ -17,10 +17,12 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
+import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import { QuestionAmounts, QuestionService } from '../../question/question.service';
-import { SessionService, User } from '../../session/session.service';
+import type { QuestionAmounts } from '../../question/question.service';
+import { QuestionService } from '../../question/question.service';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
@@ -55,13 +57,13 @@ export class AssessmentComponent {
         const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
         const url = this.getResource(path);
         this.http.get<ExamParticipation>(url).subscribe(
-            participation => {
+            (participation) => {
                 const exam = participation.exam;
-                exam.examSections.forEach(es =>
+                exam.examSections.forEach((es) =>
                     es.sectionQuestions
-                        .filter(esq => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
+                        .filter((esq) => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
                         .forEach(
-                            esq =>
+                            (esq) =>
                                 ((esq.clozeTestAnswer as ClozeTestAnswer).answer = JSON.parse(
                                     esq.clozeTestAnswer?.answer as string,
                                 )),
@@ -74,7 +76,7 @@ export class AssessmentComponent {
                 this.user = this.Session.getUser();
                 this.backUrl = this.Assessment.getExitUrl(this.exam, this.collaborative);
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
     }
 
@@ -122,7 +124,7 @@ export class AssessmentComponent {
                     this.participation._rev as string,
                 );
                 const url = `/integration/iop/reviews/${this.state.params.id}/${this.state.params.ref}`;
-                this.http.put<{ rev: string }>(url, review).subscribe(resp => {
+                this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;
                 });

@@ -16,9 +16,10 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { Exam, ExamParticipation } from '../../exam/exam.model';
-import { Review } from '../review.model';
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
+import type { ExamParticipation } from '../../exam/exam.model';
+import { Exam } from '../../exam/exam.model';
+import type { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
@@ -49,7 +50,7 @@ export class ReviewListComponent {
             //TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
-            this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe(resp => (this.noShows = resp));
+            this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe((resp) => (this.noShows = resp));
         }
     }
 
@@ -58,14 +59,14 @@ export class ReviewListComponent {
         this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED'], this.reviews);
         this.gradedReviews = this.filterByState(
             ['GRADED'],
-            this.reviews.filter(r => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
+            this.reviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
         );
         this.gradedLoggedReviews = this.filterByState(['GRADED_LOGGED'], this.reviews);
         this.archivedReviews = this.filterByState(['ARCHIVED'], this.reviews);
         this.languageInspectedReviews = this.filterByState(
             ['GRADED'],
             this.reviews.filter(
-                r => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
+                (r) => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
             ),
         );
         this.rejectedReviews = this.filterByState(['REJECTED'], this.reviews);
@@ -78,8 +79,8 @@ export class ReviewListComponent {
 
     filterByState = (states: string[], reviews: ExamParticipation[]): Review[] =>
         reviews
-            .filter(r => states.indexOf(r.exam.state) > -1)
-            .map(r => ({
+            .filter((r) => states.indexOf(r.exam.state) > -1)
+            .map((r) => ({
                 examParticipation: r,
                 grades: [],
                 displayName: this.ReviewList.getDisplayName(r, this.collaborative),
@@ -90,15 +91,17 @@ export class ReviewListComponent {
             }));
 
     onArchive = (reviews: Review[]) => {
-        const ids = reviews.map(r => r.examParticipation.id);
-        const archived = this.gradedLoggedReviews.filter(glr => ids.indexOf(glr.examParticipation.id) > -1);
+        const ids = reviews.map((r) => r.examParticipation.id);
+        const archived = this.gradedLoggedReviews.filter((glr) => ids.indexOf(glr.examParticipation.id) > -1);
         this.archivedReviews = this.archivedReviews.concat(archived);
-        this.gradedLoggedReviews = this.gradedLoggedReviews.filter(glr => ids.indexOf(glr.examParticipation.id) === -1);
+        this.gradedLoggedReviews = this.gradedLoggedReviews.filter(
+            (glr) => ids.indexOf(glr.examParticipation.id) === -1,
+        );
     };
 
     onRegistration = (reviews: Review[]) => {
-        reviews.forEach(r => {
-            const index = this.gradedReviews.map(gr => gr.examParticipation.id).indexOf(r.examParticipation.id);
+        reviews.forEach((r) => {
+            const index = this.gradedReviews.map((gr) => gr.examParticipation.id).indexOf(r.examParticipation.id);
             this.gradedReviews.splice(index, 1);
             r.selected = false;
             r.displayedGradingTime = r.examParticipation.exam.languageInspection

@@ -45,6 +45,7 @@ import play.Logger;
 import play.mvc.Result;
 
 public class StatisticsController extends BaseController {
+
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -176,7 +177,7 @@ public class StatisticsController extends BaseController {
             "exam type",
             "in review",
             "graded",
-            "logged"
+            "logged",
         };
         addHeader(sheet, headers);
         for (Exam parent : exams) {
@@ -301,7 +302,7 @@ public class StatisticsController extends BaseController {
             "credits",
             "grade",
             "exam type",
-            "answer language"
+            "answer language",
         };
 
         addHeader(sheet, headers);
@@ -361,7 +362,7 @@ public class StatisticsController extends BaseController {
             "machine IP",
             "room id",
             "room name",
-            "room code"
+            "room code",
         };
 
         addHeader(sheet, headers);

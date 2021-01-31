@@ -15,8 +15,8 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { Exam } from '../../../exam/exam.model';
-import { User } from '../../../session/session.service';
+import type { Exam } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 
 interface NoShow {
     exam: Exam;
@@ -38,7 +38,7 @@ export class NoShowsComponent {
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
-        this.noShows.forEach(r => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
+        this.noShows.forEach((r) => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
     }
 
     cancel = () => this.modal.dismiss();

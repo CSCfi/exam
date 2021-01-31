@@ -13,14 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
@@ -43,21 +45,21 @@ export class ExamOwnerSelectorComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(users => (this.examOwners = users));
+        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe((users) => (this.examOwners = users));
     }
 
     listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap(text => (this.newOwner.name = text)),
+            tap((text) => (this.newOwner.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
-            exhaustMap(text =>
+            exhaustMap((text) =>
                 text.length < 2
                     ? of([])
                     : this.http.get<User[]>(`/app/users/filter/TEACHER/${this.exam.id}`, { params: { q: text } }),
             ),
             take(15),
-            catchError(err => {
+            catchError((err) => {
                 toast.error(err.data);
                 return throwError(err);
             }),
@@ -77,7 +79,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                     delete this.newOwner.name;
                     delete this.newOwner.id;
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         } else {
             toast.error(this.translate.instant('sitnet_teacher_not_found'));
@@ -87,12 +89,12 @@ export class ExamOwnerSelectorComponent implements OnInit {
     removeOwner = (id: number) =>
         this.http.delete(`/app/exam/${this.exam.id}/owner/${id}`).subscribe(
             () => this.getExamOwners(),
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
 
     private getExamOwners = () =>
         this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(
-            owners => (this.examOwners = owners),
-            err => toast.error(err.data),
+            (owners) => (this.examOwners = owners),
+            (err) => toast.error(err.data),
         );
 }

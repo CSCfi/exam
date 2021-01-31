@@ -14,7 +14,8 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
+import type { ExamSectionQuestionOption } from '../../../exam/exam.model';
+import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({

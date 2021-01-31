@@ -24,6 +24,7 @@ import javax.persistence.ManyToMany;
 
 @Entity
 public class Accessibility extends GeneratedIdentityModel {
+
     private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)

@@ -54,7 +54,7 @@ export class ClozeTestComponent {
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
     };
 
-    displayAchievedScore = function() {
+    displayAchievedScore = function () {
         const max = this.sectionQuestion.maxScore;
         const score = this.sectionQuestion.clozeTestAnswer.score;
         const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
@@ -68,7 +68,7 @@ export class ClozeTestComponent {
                   this.state.params.id,
                   this.state.params.ref,
                   this.participation._rev as string,
-              ).subscribe(resp => {
+              ).subscribe((resp) => {
                   toast.info(this.translate.instant('sitnet_graded'));
                   this.onScore.emit(resp.rev);
               })

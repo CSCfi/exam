@@ -18,7 +18,8 @@ import { TransitionService } from '@uirouter/core';
 
 import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { WindowRef } from '../../utility/window/window.service';
-import { QuestionDraft } from '../question.service';
+
+import type { QuestionDraft } from '../question.service';
 
 @Component({
     selector: 'base-question-editor',
@@ -50,7 +51,7 @@ export class BaseQuestionEditorComponent {
     @Input() examId: number;
     @Input() sectionQuestion: ExamSectionQuestion;
 
-    transitionWatcher: Function;
+    transitionWatcher: unknown;
 
     constructor(public modal: NgbActiveModal, private transition: TransitionService, private Window: WindowRef) {
         this.transitionWatcher = this.transition.onStart({ to: '*' }, () => {

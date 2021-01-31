@@ -20,6 +20,7 @@ import javax.persistence.Entity;
 
 @Entity
 public class MailAddress extends GeneratedIdentityModel {
+
     private String street;
 
     private String zip;

@@ -17,7 +17,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Course, Exam } from '../../exam.model';
+import type { Course } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({

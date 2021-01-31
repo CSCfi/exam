@@ -13,9 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, Input } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../../exam/exam.model';
+import type { Exam } from '../../../exam/exam.model';
 
 @Component({
     template: `
@@ -60,13 +61,13 @@ export class ResponseStatisticsComponent implements OnInit {
     listResponses = () =>
         this.http
             .get<Exam[]>('/app/reports/responses', { params: this.queryParams })
-            .subscribe(resp => {
+            .subscribe((resp) => {
                 this.assessedExams = resp.filter(
-                    e => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
+                    (e) => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
                 );
                 this.unassessedExams = resp.filter(
-                    e => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
+                    (e) => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
                 );
-                this.abortedExams = resp.filter(e => e.state === 'ABORTED');
+                this.abortedExams = resp.filter((e) => e.state === 'ABORTED');
             });
 }

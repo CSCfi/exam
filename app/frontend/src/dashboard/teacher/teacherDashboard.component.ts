@@ -13,20 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { StateService } from '@uirouter/core';
 
-import { ExamExecutionType } from '../../exam/exam.model';
-import { SessionService, User } from '../../session/session.service';
+import type { ExamExecutionType } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
-import {
-    ActiveExam,
-    ArchivedExam,
-    DraftExam,
-    FinalizedExam,
-    TeacherDashboardService,
-} from './teacherDashboard.service';
+import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
+import { TeacherDashboardService } from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;
@@ -111,14 +108,14 @@ export class TeacherDashboardComponent implements OnInit {
         const activeTab = this.state.params.tab;
         this.activeTab = activeTab || '1';
         this.userId = this.Session.getUser().id;
-        this.TeacherDashboard.populate().subscribe(dashboard => {
+        this.TeacherDashboard.populate().subscribe((dashboard) => {
             this.filteredFinished = this.finishedExams = dashboard.finishedExams;
             this.filteredActive = this.activeExams = dashboard.activeExams;
             this.filteredArchived = this.archivedExams = dashboard.archivedExams;
             this.filteredDrafts = this.draftExams = dashboard.draftExams;
-            this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe(resp => {
+            this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
                 const byodSupported = resp.isByodExaminationSupported;
-                this.executionTypes = dashboard.executionTypes.map(t => {
+                this.executionTypes = dashboard.executionTypes.map((t) => {
                     const examinationTypes =
                         t.type !== 'PRINTOUT' && byodSupported
                             ? [
@@ -146,18 +143,18 @@ export class TeacherDashboardComponent implements OnInit {
         this.filteredDrafts = this.searchFilter.transform(this.draftExams, text);
 
         // for drafts, display exams only for owners AM-1658
-        this.filteredDrafts = this.filteredDrafts.filter(exam =>
+        this.filteredDrafts = this.filteredDrafts.filter((exam) =>
             exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
 
         // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
         this.filteredFinished = this.filteredFinished.filter(
-            exam => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+            (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
 
         // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
         this.filteredActive = this.filteredActive.filter(
-            exam => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+            (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
     };
 }

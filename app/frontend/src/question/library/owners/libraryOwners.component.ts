@@ -12,14 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
 import { UserService } from '../../../utility/user/user.service';
 import { QuestionService } from '../../question.service';
 
@@ -44,16 +46,16 @@ export class LibraryOwnersComponent implements OnInit {
 
     private filterByName = (src: User[], q: string): User[] => {
         if (!q) return src;
-        return src.filter(u => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
+        return src.filter((u) => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
     };
 
     listTeachers$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
             debounceTime(100),
             distinctUntilChanged(),
-            map(text => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
+            map((text) => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
             take(8),
-            catchError(err => {
+            catchError((err) => {
                 toast.error(err.data);
                 return throwError(err);
             }),

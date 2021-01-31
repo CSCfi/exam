@@ -68,14 +68,14 @@ public class Question extends OwnedModel implements AttachmentContainer {
         @EnumValue("4")
         ClozeTestQuestion,
         @EnumValue("5")
-        ClaimChoiceQuestion
+        ClaimChoiceQuestion,
     }
 
     public enum EvaluationType {
         @EnumValue("1")
         Points,
         @EnumValue("2")
-        Selection
+        Selection,
     }
 
     @Column

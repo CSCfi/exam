@@ -19,7 +19,7 @@ import { map } from 'rxjs/operators';
 
 import { FileService } from '../../utility/file/file.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
+import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
 
@@ -40,13 +40,13 @@ export class PrintoutComponent {
         this.http
             .get<Exam>(`/app/exams/${this.state.params.id}/preview`)
             .pipe(
-                map(exam => {
+                map((exam) => {
                     exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-                    exam.examSections.forEach(es => {
+                    exam.examSections.forEach((es) => {
                         es.sectionQuestions
-                            .filter(esq => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
+                            .filter((esq) => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
                             .forEach(
-                                esq =>
+                                (esq) =>
                                     ((esq.clozeTestAnswer as ClozeTestAnswer).answer = JSON.parse(
                                         (esq.clozeTestAnswer as ClozeTestAnswer).answer,
                                     )),
@@ -55,14 +55,14 @@ export class PrintoutComponent {
                     exam.examSections.forEach((es, i) => (es.index = i + 1));
                     return {
                         ...exam,
-                        examLanguages: exam.examLanguages.map(l => ({
+                        examLanguages: exam.examLanguages.map((l) => ({
                             ...l,
                             ord: ['fi', 'sv', 'en', 'de'].indexOf(l.code),
                         })),
                     };
                 }),
             )
-            .subscribe(exam => (this.exam = exam));
+            .subscribe((exam) => (this.exam = exam));
     }
 
     getLanguageName = (lang: ExamLanguage) => {

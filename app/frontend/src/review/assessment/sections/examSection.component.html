@@ -6,12 +6,12 @@
                 <span class="score-details">
                     <span *ngIf="getSectionMaxScore() > 0">
                         {{ 'sitnet_word_points' | translate }}:&nbsp;
-                        <span style="color:#2C2C2C">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
+                        <span style="color: #2c2c2c">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
                     </span>
                     &nbsp;
                     <span *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
                         {{ 'sitnet_section_accepted_and_rejected' | translate }}:&nbsp;
-                        <span style="color:#2C2C2C"
+                        <span style="color: #2c2c2c"
                             >{{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}</span
                         >
                     </span>

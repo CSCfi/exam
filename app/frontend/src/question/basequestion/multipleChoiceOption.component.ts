@@ -68,7 +68,7 @@ export class MultipleChoiceOptionEditorComponent {
     correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
 
     removeOption = () => {
-        const hasCorrectAnswer = this.question.options.some(o => o !== this.option && o.correctOption);
+        const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.correctOption);
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {

@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { ExamLanguage } from '../../exam/exam.model';
+import type { ExamLanguage } from '../../exam/exam.model';
 
 export interface IsoLang {
     name: string;
@@ -51,13 +51,13 @@ export class LanguageService {
     getExamLanguages(): Promise<ExamLanguage[]> {
         return new Promise((resolve, reject) => {
             this.http.get<ExamLanguage[]>('/app/languages').subscribe(
-                resp => {
+                (resp) => {
                     resolve(resp);
                 },
-                err => reject(err),
+                (err) => reject(err),
             );
         });
     }
 
-    getLanguages = () => Object.keys(this.isoLangs).map(k => this.isoLangs[k]);
+    getLanguages = () => Object.keys(this.isoLangs).map((k) => this.isoLangs[k]);
 }

@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { QuestionReview } from '../../review.model';
+import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
@@ -33,8 +33,8 @@ export class QuestionReviewsComponent {
 
     ngOnInit() {
         this.QuestionReview.getReviews$(this.examId).subscribe(
-            resp => (this.reviews = resp),
-            err => toast.error(err),
+            (resp) => (this.reviews = resp),
+            (err) => toast.error(err),
         );
     }
 
@@ -48,13 +48,13 @@ export class QuestionReviewsComponent {
     };
 
     removeSelections = () => {
-        this.reviews.forEach(r => (r.selected = false));
+        this.reviews.forEach((r) => (r.selected = false));
         this.selectedReviews = [];
     };
 
     addSelections = () => {
-        this.reviews.forEach(r => (r.selected = true));
-        this.selectedReviews = this.reviews.map(r => r.question.id);
+        this.reviews.forEach((r) => (r.selected = true));
+        this.selectedReviews = this.reviews.map((r) => r.question.id);
     };
 
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());

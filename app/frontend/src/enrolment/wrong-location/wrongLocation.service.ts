@@ -35,7 +35,7 @@ export class WrongLocationService {
         let parts: string[];
         if (startsAt.isAfter(now)) {
             parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
-            this.translate.instant(parts).then((t: any) =>
+            this.translate.instant(parts).then((t: Record<string, string>) =>
                 toast.warning(
                     `${t.sitnet_your_exam_will_start_at} ${startsAt.format('HH:mm')}
                      ${t.sitnet_at_location} ${data[0]}: ${data[1]}, ${t.sitnet_at_room} ${data[2]}
@@ -46,7 +46,7 @@ export class WrongLocationService {
             );
         } else {
             parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
-            this.translate.instant(parts).then((t: any) =>
+            this.translate.instant(parts).then((t: Record<string, string>) =>
                 toast.error(
                     `${t.sitnet_you_have_ongoing_exam_at_location}: ${data[0]}, ${data[1]}
                     ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`,

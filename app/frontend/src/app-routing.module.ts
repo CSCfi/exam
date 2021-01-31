@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { RootModule, UIRouter, UIRouterModule } from '@uirouter/angular';
+import type { RootModule, UIRouter } from '@uirouter/angular';
+import { UIRouterModule } from '@uirouter/angular';
 
 import { SettingsComponent } from './administrative/settings/settings.component';
 import { UsersComponent } from './administrative/users/users.component';

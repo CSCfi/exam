@@ -18,9 +18,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ExaminationStatusService } from './examination/examinationStatus.service';
-import { SessionService, User } from './session/session.service';
+import { SessionService } from './session/session.service';
 import { WindowRef } from './utility/window/window.service';
 
+import type { User } from './session/session.service';
 @Component({
     selector: 'app',
     template: `
@@ -33,8 +34,8 @@ import { WindowRef } from './utility/window/window.service';
                 id="mainView"
                 class="container-fluid"
                 [ngClass]="{
-                    'vmenu-on': !hideNavBar && !user.isAdmin,
-                    'vmenu-on-admin': user.isAdmin
+                    'vmenu-on': !hideNavBar && !user?.isAdmin,
+                    'vmenu-on-admin': user?.isAdmin
                 }"
             >
                 <ui-view></ui-view>
@@ -86,7 +87,7 @@ export class AppComponent {
             this.Session.getEnv$().subscribe(
                 (value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
-                        this.Session.login$('', '').subscribe(user => (this.user = user));
+                        this.Session.login$('', '').subscribe((user) => (this.user = user));
                     }
                     this.devLoginRequired = value === 'DEV';
                 },
@@ -100,7 +101,7 @@ export class AppComponent {
         this.ngUnsubscribe.complete();
     }
 
-    setUser(user: any) {
+    setUser(user: User) {
         this.user = user;
     }
 }

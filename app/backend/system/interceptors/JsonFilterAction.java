@@ -30,6 +30,7 @@ import play.mvc.Action;
 import play.mvc.Result;
 
 abstract class JsonFilterAction<T> extends Action<T> {
+
     private Materializer materializer;
 
     JsonFilterAction(Materializer materializer) {

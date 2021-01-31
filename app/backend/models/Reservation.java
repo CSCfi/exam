@@ -40,6 +40,7 @@ import org.joda.time.Interval;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime startAt;

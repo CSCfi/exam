@@ -12,20 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
 
-import { Attachment } from '../../exam/exam.model';
+import type { HttpResponse } from '@angular/common/http';
+import type { Attachment } from '../../exam/exam.model';
+
+type Container = { attachment?: Attachment; objectVersion?: number };
 
 @Injectable()
 export class FileService {
     maxFileSize: number;
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
-    download(url: string, filename: string, params?: any, post?: boolean) {
+    download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
         const method = post ? 'POST' : 'GET';
         this.http.request(method, url, { responseType: 'text', observe: 'response', params: params }).subscribe(
             (resp: HttpResponse<string>) => {
@@ -36,7 +39,7 @@ export class FileService {
                     }
                 }
             },
-            resp => {
+            (resp) => {
                 console.log('error ' + JSON.stringify(resp));
                 toast.error(resp.body || resp);
             },
@@ -49,19 +52,19 @@ export class FileService {
                 resolve({ filesize: this.maxFileSize });
             } else {
                 this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe(
-                    resp => {
+                    (resp) => {
                         this.maxFileSize = resp.filesize;
                         resolve(resp);
                     },
-                    e => reject(e),
+                    (e) => reject(e),
                 );
             }
         });
     }
 
-    upload(url: string, file: File, params: any, parent: any, callback?: () => void): void {
+    upload(url: string, file: File, params: Record<string, string>, parent?: Container, callback?: () => void): void {
         this.doUpload(url, file, params)
-            .then(resp => {
+            .then((resp) => {
                 if (parent) {
                     parent.attachment = resp;
                 }
@@ -69,16 +72,16 @@ export class FileService {
                     callback();
                 }
             })
-            .catch(resp => toast.error(this.translate.instant(resp.data)));
+            .catch((resp) => toast.error(this.translate.instant(resp.data)));
     }
 
-    uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
+    uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
         this.doUpload(url, file, params)
-            .then(resp => {
+            .then((resp) => {
                 parent.objectVersion = resp.objectVersion; // FIXME: CSCEXAM-266 fixed in master, won't work here (ts)
                 parent.attachment = resp;
             })
-            .catch(resp => toast.error(this.translate.instant(resp.data)));
+            .catch((resp) => toast.error(this.translate.instant(resp.data)));
     }
 
     private saveFile(data: string, fileName: string, contentType: string) {
@@ -112,7 +115,7 @@ export class FileService {
         return false;
     }
 
-    private doUpload(url: string, file: File, params: any): Promise<Attachment> {
+    private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment> {
         return new Promise<Attachment>((resolve, reject) => {
             if (this.isFileTooBig(file)) {
                 reject({ data: 'sitnet_file_too_large' });
@@ -125,8 +128,8 @@ export class FileService {
                     }
                 }
                 this.http.post<Attachment>(url, fd).subscribe(
-                    resp => resolve(resp),
-                    resp => reject(resp),
+                    (resp) => resolve(resp),
+                    (resp) => reject(resp),
                 );
             }
         });

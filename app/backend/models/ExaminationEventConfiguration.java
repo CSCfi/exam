@@ -30,6 +30,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class ExaminationEventConfiguration extends GeneratedIdentityModel {
+
     @ManyToOne
     @JoinColumn(name = "exam_id")
     @JsonBackReference

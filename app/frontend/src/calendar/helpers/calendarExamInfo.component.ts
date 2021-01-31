@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamInfo } from '../calendar.component';
 

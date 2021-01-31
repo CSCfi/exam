@@ -12,17 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
 import { ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { User } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { QuestionDraft, QuestionService } from '../question.service';
+import { QuestionService } from '../question.service';
+
+import type { OnInit } from '@angular/core';
+import type { User } from '../../session/session.service';
+import type { QuestionDraft } from '../question.service';
 
 @Component({
     selector: 'question',
@@ -43,7 +46,7 @@ export class QuestionComponent implements OnInit {
 
     currentOwners: User[];
     question: Question | QuestionDraft;
-    transitionWatcher?: Function;
+    transitionWatcher?: unknown;
 
     constructor(
         private state: StateService,
@@ -53,7 +56,7 @@ export class QuestionComponent implements OnInit {
         private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
     ) {
-        this.transitionWatcher = this.transition.onStart({ to: '*' }, t => {
+        this.transitionWatcher = this.transition.onStart({ to: '*' }, (t) => {
             if (this.window.nativeWindow.onbeforeunload) {
                 t.abort();
                 // we got changes in the model, ask confirmation
@@ -94,7 +97,7 @@ export class QuestionComponent implements OnInit {
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },
-                error => toast.error(error),
+                (error) => toast.error(error),
             );
         }
     }
@@ -105,7 +108,7 @@ export class QuestionComponent implements OnInit {
     };
 
     hasNoCorrectOption = () =>
-        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every(o => !o.correctOption);
+        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every((o) => !o.correctOption);
 
     hasInvalidClaimChoiceOptions = () =>
         this.question.type === 'ClaimChoiceQuestion' &&
@@ -125,11 +128,11 @@ export class QuestionComponent implements OnInit {
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, error => toast.error(error));
+            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => toast.error(error));
         } else {
             this.Question.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
-                error => toast.error(error),
+                (error) => toast.error(error),
             );
         }
     };

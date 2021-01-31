@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
+
     private static final Logger.ALogger logger = Logger.of(AutoEvaluationNotifierActor.class);
 
     private EmailComposer composer;

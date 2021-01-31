@@ -24,6 +24,7 @@ import javax.persistence.ManyToMany;
 
 @Entity
 public class Software extends GeneratedIdentityModel {
+
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwareInfo")
     @JsonBackReference
     private List<ExamMachine> machines;

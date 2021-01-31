@@ -13,16 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { NgbTabChangeEvent, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
+import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toastr from 'toastr';
 
-import { SessionService, User } from '../../session/session.service';
-import { Exam, ExamParticipation } from '../exam.model';
+import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
+import type { Exam, ExamParticipation } from '../exam.model';
 
 @Component({
     selector: 'exam-tabs',
@@ -74,7 +77,7 @@ export class ExamTabsComponent implements OnInit {
 
     isOwner = () => {
         return this.exam.examOwners.some(
-            x => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
+            (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
     };
 
@@ -99,30 +102,30 @@ export class ExamTabsComponent implements OnInit {
 
     private downloadExam = () => {
         this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe(
-            exam => {
+            (exam) => {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
                 this.activeTab = '2';
             },
-            err => toastr.error(err.data),
+            (err) => toastr.error(err.data),
         );
     };
 
     private downloadCollaborativeExam = () => {
         this.http.get<Exam>(`/integration/iop/exams/${this.routing.params.id}`).subscribe(
-            exam => {
+            (exam) => {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
                 this.activeTab = '2';
             },
-            err => toastr.error(err.data),
+            (err) => toastr.error(err.data),
         );
     };
 
     private getReviews = (examId: number) => {
-        this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe(reviews => {
+        this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe((reviews) => {
             this.reviews = reviews;
             this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
         });
@@ -133,5 +136,5 @@ export class ExamTabsComponent implements OnInit {
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some(ee => !_.isNil(ee.reservation) && moment(ee.reservation.endAt) > moment());
+        exam.examEnrolments.some((ee) => !_.isNil(ee.reservation) && moment(ee.reservation.endAt) > moment());
 }

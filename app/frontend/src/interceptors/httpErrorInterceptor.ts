@@ -12,18 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
+import { TranslateService } from '@ngx-translate/core';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import * as toast from 'toastr';
-import { TranslateService } from '@ngx-translate/core';
-import { Observable, throwError } from 'rxjs';
+
+import type { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
     constructor(private translate: TranslateService) {}
-    intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<any>> {
+    intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         return next.handle(req).pipe(
             catchError((response: HttpErrorResponse) => {
                 if (response.status === -1) {

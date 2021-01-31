@@ -18,19 +18,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { forkJoin, Observable, of, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
-import { ExamRoom } from '../reservation/reservation.model';
-import { User } from '../session/session.service';
+import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { ExamRoom } from '../reservation/reservation.model';
+import type { User } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { LanguageService } from '../utility/language/language.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
-import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+import type { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
 
 @Injectable()
 export class EnrolmentService {
@@ -53,7 +54,7 @@ export class EnrolmentService {
         const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
         return this.http
             .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`)
-            .pipe(map(data => data.value));
+            .pipe(map((data) => data.value));
     };
 
     private getResource = (path: string, collaborative: boolean) =>
@@ -88,7 +89,7 @@ export class EnrolmentService {
                     toast.info(this.translate.instant('sitnet_examination_event_removed'));
                     delete enrolment.examinationEventConfiguration;
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         });
     };
@@ -99,7 +100,7 @@ export class EnrolmentService {
                 code: exam.course ? exam.course.code : undefined,
             })
             .pipe(
-                tap(enrolment => {
+                tap((enrolment) => {
                     toast.success(
                         this.translate.instant('sitnet_you_have_enrolled_to_exam') +
                             '<br/>' +
@@ -118,10 +119,10 @@ export class EnrolmentService {
 
     checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> => {
         return this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
-            switchMap(resp =>
+            switchMap((resp) =>
                 resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
             ),
-            catchError(err => {
+            catchError((err) => {
                 toast.error(err);
                 return throwError(err);
             }),
@@ -137,12 +138,12 @@ export class EnrolmentService {
 
     getEnrolmentInfo = (code: string, id: number): Observable<EnrolmentInfo> =>
         this.http.get<Exam>(`/app/enrolments/${id}?code=${code}`).pipe(
-            switchMap(exam =>
+            switchMap((exam) =>
                 this.getMaturityInstructions(exam).pipe(
-                    map(instructions => {
+                    map((instructions) => {
                         return {
                             ...exam,
-                            languages: exam.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
+                            languages: exam.examLanguages.map((el) => this.Language.getLanguageNativeName(el.code)),
                             maturityInstructions: instructions,
                             alreadyEnrolled: false,
                             reservationMade: false,
@@ -151,12 +152,12 @@ export class EnrolmentService {
                     }),
                 ),
             ),
-            switchMap(ei =>
+            switchMap((ei) =>
                 this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${ei.id}`).pipe(
-                    map(resp => {
+                    map((resp) => {
                         if (resp.length > 0) {
                             ei.alreadyEnrolled = true;
-                            ei.reservationMade = resp.some(e => _.isObject(e.reservation));
+                            ei.reservationMade = resp.some((e) => _.isObject(e.reservation));
                         }
                         return ei;
                     }),
@@ -170,10 +171,10 @@ export class EnrolmentService {
 
     private check = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
         this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
-            map(resp => {
+            map((resp) => {
                 if (resp.length > 0) {
                     info.alreadyEnrolled = true;
-                    info.reservationMade = resp.some(e => _.isObject(e.reservation));
+                    info.reservationMade = resp.some((e) => _.isObject(e.reservation));
                 } else {
                     info.alreadyEnrolled = info.reservationMade = false;
                 }
@@ -190,13 +191,13 @@ export class EnrolmentService {
 
     listEnrolments = (code: string, id: number): Observable<EnrolmentInfo[]> =>
         this.http.get<Exam[]>(`/app/enrolments?code=${code}`).pipe(
-            map(resp =>
+            map((resp) =>
                 resp
-                    .filter(e => e.id !== id)
-                    .map(e => {
+                    .filter((e) => e.id !== id)
+                    .map((e) => {
                         return {
                             ...e,
-                            languages: e.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
+                            languages: e.examLanguages.map((el) => this.Language.getLanguageNativeName(el.code)),
                             maturityInstructions: null,
                             alreadyEnrolled: false,
                             reservationMade: false,
@@ -221,7 +222,7 @@ export class EnrolmentService {
                     toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                err => toast.error(err),
+                (err) => toast.error(err),
             );
         });
     };
@@ -236,25 +237,25 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
         modalRef.componentInstance.title = 'sitnet_instructions';
-        modalRef.result.catch(err => toast.error(err));
+        modalRef.result.catch((err) => toast.error(err));
     };
 
     showMaturityInstructions = (enrolment: { exam: Exam }) => {
-        this.getMaturityInstructions(enrolment.exam).subscribe(instructions => {
+        this.getMaturityInstructions(enrolment.exam).subscribe((instructions) => {
             const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',
                 keyboard: false,
             });
             modalRef.componentInstance.instructions = instructions;
             modalRef.componentInstance.title = 'sitnet_maturity_instructions';
-            modalRef.result.catch(err => toast.error(err));
+            modalRef.result.catch((err) => toast.error(err));
         });
     };
 
     hasUpcomingAlternativeEvents = (enrolment: ExamEnrolment) =>
         enrolment.exam &&
         enrolment.exam.examinationEventConfigurations.some(
-            eec =>
+            (eec) =>
                 new Date(eec.examinationEvent.start) > new Date() &&
                 (!enrolment.examinationEventConfiguration || eec.id !== enrolment.examinationEventConfiguration.id),
         );

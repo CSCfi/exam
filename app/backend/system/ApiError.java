@@ -20,6 +20,7 @@ package backend.system;
  *  @see <a href="http://labs.omniti.com/labs/jsend">JSend</a>
  */
 class ApiError {
+
     private static final String STATUS = "error";
 
     private String message;

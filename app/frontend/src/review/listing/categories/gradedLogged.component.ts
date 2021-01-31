@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
@@ -22,9 +22,11 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Review } from '../../review.model';
-import { ReviewListService, ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
 
+import type { SimpleChanges } from '@angular/core';
+import type { Review } from '../../review.model';
+import type { ReviewListView } from '../reviewList.service';
 @Component({
     selector: 'rl-graded-logged',
     templateUrl: './gradedLogged.component.html',
@@ -92,7 +94,7 @@ export class GradedLoggedReviewsComponent {
             this.onArchive.emit(selection);
             toast.info(this.translate.instant('sitnet_exams_archived'));
         };
-        const ids = selection.map(r => r.examParticipation.exam.id);
+        const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
     };
 
@@ -106,12 +108,12 @@ export class GradedLoggedReviewsComponent {
             url += 'report/';
         }
         const fileType = asReport ? 'xlsx' : 'csv';
-        const ids = selection.map(r => (this.collaborative ? r.examParticipation._id : r.examParticipation.exam.id));
+        const ids = selection.map((r) => (this.collaborative ? r.examParticipation._id : r.examParticipation.exam.id));
 
         this.Files.download(
             url + this.exam.id,
             `${this.translate.instant('sitnet_grading_info')}_${moment().format('dd-MM-yyyy')}.${fileType}`,
-            { childIds: ids },
+            { childIds: ids.map(toString) },
             true,
         );
     };

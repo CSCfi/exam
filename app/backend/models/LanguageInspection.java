@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class LanguageInspection extends OwnedModel {
+
     @OneToOne
     private Exam exam;
 

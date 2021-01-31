@@ -13,9 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { ExamExecutionType, Implementation } from '../../exam.model';
+import type { ExamExecutionType, Implementation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
@@ -31,12 +32,12 @@ export class NewExamComponent implements OnInit {
     constructor(private http: HttpClient, private Exam: ExamService) {}
 
     ngOnInit() {
-        this.Exam.listExecutionTypes().subscribe(types => {
+        this.Exam.listExecutionTypes().subscribe((types) => {
             this.executionTypes = types;
             this.examinationType = 'AQUARIUM';
             this.http
                 .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
-                .subscribe(resp => (this.byodExaminationSupported = resp.isByodExaminationSupported));
+                .subscribe((resp) => (this.byodExaminationSupported = resp.isByodExaminationSupported));
         });
     }
 

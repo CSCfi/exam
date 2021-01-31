@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -53,7 +54,7 @@ export class InspectionComponent implements OnInit {
                     toast.info(this.translate.instant('sitnet_exam_updated'));
                     this.onInspection.emit();
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
         }
     };

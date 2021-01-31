@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ExamSection, Question } from '../../exam/exam.model';
+import type { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
     selector: 'question-selector',
@@ -52,14 +52,14 @@ export class QuestionSelectorComponent {
                     questions: this.selections.join(),
                 })
                 .subscribe(
-                    resp => {
-                        const insertedSectionQuestions = resp.sectionQuestions.filter(esq =>
+                    (resp) => {
+                        const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
                             this.selections.includes(esq.question.id),
                         );
                         toast.info(this.translate.instant('sitnet_question_added'));
                         this.modal.close({ $value: insertedSectionQuestions });
                     },
-                    err => {
+                    (err) => {
                         toast.error(err.data);
                         this.cancel();
                     },

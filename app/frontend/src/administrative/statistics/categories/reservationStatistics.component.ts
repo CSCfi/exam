@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 interface Reservation {
     noShow: boolean;
@@ -57,8 +58,8 @@ export class ReservationStatisticsComponent implements OnInit {
     listReservations = () =>
         this.http
             .get<Reservation[]>('/app/reports/reservations', { params: this.queryParams })
-            .subscribe(resp => {
-                this.reservations = resp.filter(r => !r.noShow);
-                this.noShows = resp.filter(r => r.noShow);
+            .subscribe((resp) => {
+                this.reservations = resp.filter((r) => !r.noShow);
+                this.noShows = resp.filter((r) => r.noShow);
             });
 }

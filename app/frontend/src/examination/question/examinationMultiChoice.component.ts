@@ -62,7 +62,7 @@ export class ExaminationMultiChoiceComponent {
             this.sq.options.sort((a, b) => a.id - b.id);
         }
 
-        const answered = this.sq.options.filter(o => o.answered);
+        const answered = this.sq.options.filter((o) => o.answered);
         if (answered.length > 1) {
             console.warn('several answered options for mcq');
         }

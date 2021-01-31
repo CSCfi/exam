@@ -14,15 +14,17 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 interface Selection {
-    value: any;
+    value: unknown;
 }
 
 export interface Option {
-    value?: any;
-    id: any | null;
+    value?: unknown;
+    id: unknown | null;
     label: string | null;
     isHeader?: boolean;
 }
@@ -39,7 +41,7 @@ export class DropdownSelectComponent implements OnChanges, OnInit {
     filteredOptions: Option[]; // filtered
     searchFilter = '';
     selected?: Option;
-    labelFilter: (o: Option) => Option = o => o;
+    labelFilter: (o: Option) => Option = (o) => o;
 
     ngOnInit() {
         this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;

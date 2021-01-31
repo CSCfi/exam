@@ -15,9 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
-import { SessionService, User } from '../session/session.service';
+import type { User } from '../session/session.service';
+import { SessionService } from '../session/session.service';
 
 export interface Link {
     state: string;

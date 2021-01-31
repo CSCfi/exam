@@ -42,6 +42,6 @@ export class ExamFeedbackComponent {
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, null, false);
+        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, undefined, false);
     };
 }

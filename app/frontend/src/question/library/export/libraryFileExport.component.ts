@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as toast from 'toastr';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
 
@@ -31,7 +31,12 @@ export class LibraryFileExportComponent {
         if (this.selections.length === 0) {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         } else {
-            this.Files.download('/app/questions/export', 'moodle-export.xml', { ids: this.selections }, true);
+            this.Files.download(
+                '/app/questions/export',
+                'moodle-export.xml',
+                { ids: this.selections.map(toString) },
+                true,
+            );
         }
     }
 }

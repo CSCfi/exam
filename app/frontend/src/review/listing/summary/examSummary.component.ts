@@ -19,14 +19,16 @@ import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
-import { Exam, ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+
+import type { ExamParticipation } from '../../../exam/exam.model';
 @Component({
     selector: 'exam-summary',
     templateUrl: './examSummary.component.html',
@@ -59,8 +61,8 @@ export class ExamSummaryComponent {
         this.getNoShows();
         this.calculateGradeDistribution();
         this.renderGradeDistributionChart();
-        this.gradedCount = this.reviews.filter(r => r.exam.gradedTime).length;
-        this.abortedExams = this.reviews.filter(r => r.exam.state === 'ABORTED');
+        this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
+        this.abortedExams = this.reviews.filter((r) => r.exam.state === 'ABORTED');
         this.calculateGradeTimeValues();
         this.renderGradeTimeChart();
     };
@@ -79,11 +81,11 @@ export class ExamSummaryComponent {
     getRegisteredCount = () => this.reviews.length;
 
     getReadFeedback = () =>
-        this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
+        this.reviews.filter((r) => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
 
     getTotalFeedback = () =>
         this.reviews.filter(
-            r =>
+            (r) =>
                 r.exam.examFeedback &&
                 (r.exam.state === 'GRADED_LOGGED' || r.exam.state === 'ARCHIVED' || r.exam.state === 'REJECTED'),
         ).length;
@@ -101,8 +103,8 @@ export class ExamSummaryComponent {
 
     calculateGradeDistribution = () => {
         const grades: string[] = this.reviews
-            .filter(r => r.exam.gradedTime)
-            .map(r => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
+            .filter((r) => r.exam.gradedTime)
+            .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
         this.gradeDistribution = _.countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
         this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
@@ -133,7 +135,7 @@ export class ExamSummaryComponent {
     calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
 
     getAverageTime = () => {
-        const durations = this.reviews.map(r => parseInt(r.duration));
+        const durations = this.reviews.map((r) => parseInt(r.duration));
         return this.calcAverage(durations);
     };
 
@@ -145,14 +147,14 @@ export class ExamSummaryComponent {
         } else {
             this.http
                 .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
-                .subscribe(enrolments => (this.noShows = enrolments));
+                .subscribe((enrolments) => (this.noShows = enrolments));
         }
     };
 
     calculateGradeTimeValues = () => {
         this.gradeTimeData = this.reviews
             .sort((a, b) => (a.duration > b.duration ? 1 : -1))
-            .map(r => ({ x: r.duration, y: r.exam.totalScore }));
+            .map((r) => ({ x: r.duration, y: r.exam.totalScore }));
     };
 
     renderGradeTimeChart = () => {
@@ -178,7 +180,7 @@ export class ExamSummaryComponent {
                 tooltips: {
                     displayColors: false,
                     callbacks: {
-                        label: tooltipItem => {
+                        label: (tooltipItem) => {
                             const { xLabel, yLabel } = tooltipItem;
                             const pointsLabel = this.translate.instant('sitnet_word_points');
                             const minutesLabel = this.translate.instant('sitnet_word_minutes');
@@ -226,13 +228,13 @@ export class ExamSummaryComponent {
     }
 
     printQuestionScoresReport = () => {
-        const ids = this.reviews.map(r => r.exam.id);
+        const ids = this.reviews.map((r) => r.exam.id);
         if (ids.length > 0) {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
                 this.translate.instant('sitnet_grading_info') + '_' + moment().format('dd-MM-yyyy') + '.xlsx',
-                { childIds: ids },
+                { childIds: ids.map(toString) },
                 true,
             );
         }
@@ -265,12 +267,12 @@ export class ExamSummaryComponent {
             }),
             {},
         );
-        const childExamSections = this.reviews.flatMap(r => r.exam.examSections);
+        const childExamSections = this.reviews.flatMap((r) => r.exam.examSections);
 
         /* Get section max scores from child exams as well, in case sections got renamed/deleted from parent */
         const childSectionMaxScores = this.reviews
-            .flatMap(r => r.exam.examSections)
-            .filter(es => !parentSectionMaxScores[es.name])
+            .flatMap((r) => r.exam.examSections)
+            .filter((es) => !parentSectionMaxScores[es.name])
             .reduce((obj, current) => {
                 const prevMax = obj[current.name] || 0;
                 const newMax = this.Exam.getSectionMaxScore(current);

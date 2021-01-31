@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -37,7 +38,7 @@ export class SettingsComponent implements OnInit {
     private onError = (error: string) => toast.error(error);
 
     ngOnInit() {
-        this.http.get<AppConfig>('/app/config').subscribe(resp => {
+        this.http.get<AppConfig>('/app/config').subscribe((resp) => {
             this.config = resp;
         });
     }

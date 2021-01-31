@@ -17,22 +17,23 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { from, Observable, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import {
+import type {
     ClozeTestAnswer,
     EssayAnswer,
     Exam,
     ExamSection,
     ExamSectionQuestion,
     ExamSectionQuestionOption,
-    isBlankElement,
-    isTextElement,
     MultipleChoiceOption,
 } from '../exam/exam.model';
-import { BlankQuestion, QuestionBase, TextPart } from '../utility/forms/questionTypes';
+import { isBlankElement, isTextElement } from '../exam/exam.model';
+import type { QuestionBase } from '../utility/forms/questionTypes';
+import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
 import { WindowRef } from '../utility/window/window.service';
 
 export interface Examination extends Exam {
@@ -76,7 +77,7 @@ export class ExaminationService {
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url),
             ),
-            tap(e => {
+            tap((e) => {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
@@ -110,7 +111,7 @@ export class ExaminationService {
         };
 
         return this.http.post<ClozeTestAnswer | EssayAnswer>(url, msg).pipe(
-            map(a => {
+            map((a) => {
                 if (autosave) {
                     esq.autosaved = new Date();
                 } else {
@@ -123,7 +124,7 @@ export class ExaminationService {
                 answerObj.objectVersion = a.objectVersion;
                 return esq;
             }),
-            catchError(resp => {
+            catchError((resp) => {
                 if (resp.error) {
                     toast.error(resp);
                 }
@@ -150,16 +151,16 @@ export class ExaminationService {
         allowEmpty: boolean,
         canFail: boolean,
     ): Observable<ExaminationQuestion[]> => {
-        const questions = section.sectionQuestions.filter(esq => this.isTextualAnswer(esq, allowEmpty));
+        const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         return from(questions).pipe(
-            concatMap(q => this.saveTextualAnswer(q, hash, autosave, canFail)),
+            concatMap((q) => this.saveTextualAnswer(q, hash, autosave, canFail)),
             toArray(),
         );
     };
 
     saveAllTextualAnswersOfExam = (exam: Examination, canFail: boolean): Observable<unknown> =>
         from(exam.examSections).pipe(
-            concatMap(es => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true, canFail)),
+            concatMap((es) => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true, canFail)),
         );
 
     private stripHtml = (text: string) => {
@@ -178,10 +179,10 @@ export class ExaminationService {
                 break;
             }
             case 'MultipleChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some(o => o.answered);
+                isAnswered = _.isObject(sq.selectedOption) || sq.options.some((o) => o.answered);
                 break;
             case 'WeightedMultipleChoiceQuestion':
-                isAnswered = sq.options.some(o => o.answered);
+                isAnswered = sq.options.some((o) => o.answered);
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
@@ -189,7 +190,7 @@ export class ExaminationService {
                 break;
             }
             case 'ClaimChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some(o => o.answered);
+                isAnswered = _.isObject(sq.selectedOption) || sq.options.some((o) => o.answered);
                 break;
             default:
                 isAnswered = false;
@@ -212,7 +213,7 @@ export class ExaminationService {
     saveOption = (hash: string, sq: ExaminationQuestion, preview: boolean) => {
         let ids: number[];
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
-            ids = sq.options.filter(o => o.answered).map(o => o.id);
+            ids = sq.options.filter((o) => o.answered).map((o) => o.id);
         } else {
             ids = [sq.selectedOption as number];
         }
@@ -221,10 +222,10 @@ export class ExaminationService {
             this.http.post(url, { oids: ids }).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_answer_saved'));
-                    sq.options.forEach(o => (o.answered = ids.indexOf(o.id) > -1));
+                    sq.options.forEach((o) => (o.answered = ids.indexOf(o.id) > -1));
                     this.setQuestionColors(sq);
                 },
-                resp => toast.error(resp),
+                (resp) => toast.error(resp),
             );
         } else {
             this.setQuestionColors(sq);
@@ -237,8 +238,8 @@ export class ExaminationService {
         }
 
         const sum = section.sectionQuestions
-            .filter(esq => esq.question.type && esq.evaluationType !== 'Selection')
-            .map(esq => esq.derivedMaxScore)
+            .filter((esq) => esq.question.type && esq.evaluationType !== 'Selection')
+            .map((esq) => esq.derivedMaxScore)
             .reduce((acc, current) => acc + current, 0);
 
         return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
@@ -256,14 +257,14 @@ export class ExaminationService {
             this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put(url, {}).subscribe(ok, resp => {
+        this.http.put(url, {}).subscribe(ok, (resp) => {
             if (!canFail) toast.error(this.translate.instant(resp.data));
             else ok();
         });
     };
 
     parseClozeTestQuestion = (data: ClozeTestAnswer): QuestionBase<string>[] => {
-        const questions: QuestionBase<string>[] = data.elements.map(ce => {
+        const questions: QuestionBase<string>[] = data.elements.map((ce) => {
             if (isTextElement(ce)) {
                 return new TextPart({
                     value: ce.text,

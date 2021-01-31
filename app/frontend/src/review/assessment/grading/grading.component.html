@@ -157,7 +157,7 @@
                 (ngModelChange)="setGrade()"
                 required
             >
-                <option value="">{{ 'sitnet_choose' | translate }} </option>
+                <option value="">{{ 'sitnet_choose' | translate }}</option>
                 <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
             </select>
         </div>

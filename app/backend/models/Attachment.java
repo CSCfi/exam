@@ -21,6 +21,7 @@ import javax.persistence.Transient;
 
 @Entity
 public class Attachment extends OwnedModel {
+
     private String fileName;
     private String filePath;
     private String mimeType;

@@ -13,15 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { LibraryQuestion, LibraryService } from '../library.service';
+import type { LibraryQuestion } from '../library.service';
+import { LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
@@ -70,12 +73,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     }
 
     selectAll = () => {
-        this.questions.forEach(q => (q.selected = this.allSelected));
+        this.questions.forEach((q) => (q.selected = this.allSelected));
         this.questionSelected();
     };
 
     questionSelected = () => {
-        const selections = this.questions.filter(q => q.selected).map(q => q.id);
+        const selections = this.questions.filter((q) => q.selected).map((q) => q.id);
         this.onSelection.emit(selections);
     };
 
@@ -98,7 +101,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('sitnet_copy_question'),
         );
         dialog.result.then(() =>
-            this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe(copy => {
+            this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe((copy) => {
                 this.questions.splice(this.questions.indexOf(question), 0, copy);
                 this.onCopy.emit(copy);
             }),
@@ -107,7 +110,8 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
 
-    printOwners = (question: LibraryQuestion) => question.questionOwners.map(o => this.printOwner(o, false)).join(', ');
+    printOwners = (question: LibraryQuestion) =>
+        question.questionOwners.map((o) => this.printOwner(o, false)).join(', ');
 
     renderMailTo = (owner?: User) => {
         if (!(owner && owner.email)) {
@@ -129,7 +133,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
-    printTags = (question: LibraryQuestion) => question.tags.map(t => t.name.toUpperCase()).join(', ');
+    printTags = (question: LibraryQuestion) => question.tags.map((t) => t.name.toUpperCase()).join(', ');
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
@@ -182,7 +186,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     };
 
     private resetSelections = () => {
-        this.questions.forEach(q => (q.selected = false));
+        this.questions.forEach((q) => (q.selected = false));
         this.questionSelected();
     };
 

@@ -13,14 +13,15 @@ module.exports = merge(common, {
         //chunkFilename: '[id].[contenthash].chunk.js'
     },
     optimization: {
-        noEmitOnErrors: true,
+        emitOnErrors: false,
+        moduleIds: 'deterministic',
         runtimeChunk: 'single',
         splitChunks: {
             chunks: 'all',
             maxInitialRequests: Infinity,
             minSize: 0,
             cacheGroups: {
-                vendor: {
+                defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
                     name(module) {
                         // get the name. E.g. node_modules/packageName/not/this/part.js
@@ -35,7 +36,6 @@ module.exports = merge(common, {
         },
     },
     plugins: [
-        new webpack.HashedModuleIdsPlugin(), // so that file hashes don't change unexpectedly
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../../../public/index.ejs'),
             inject: true,

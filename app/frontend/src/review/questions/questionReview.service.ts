@@ -15,10 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
-import { User } from '../../session/session.service';
-import { QuestionReview, ReviewQuestion } from '../review.model';
+import type { User } from '../../session/session.service';
+import type { QuestionReview, ReviewQuestion } from '../review.model';
 
 @Injectable()
 export class QuestionReviewService {
@@ -38,7 +38,7 @@ export class QuestionReviewService {
     isLocked = (answer: ReviewQuestion, user: User) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
         const exam = answer.examSection.exam;
-        const isInspector = exam.examInspections.map(ei => ei.user.id).indexOf(user.id) > -1;
+        const isInspector = exam.examInspections.map((ei) => ei.user.id).indexOf(user.id) > -1;
         if (!isInspector) {
             states.push('GRADED');
         }
@@ -46,7 +46,7 @@ export class QuestionReviewService {
     };
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
+        !review ? 0 : review.answers.filter((a) => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
 
     getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
         this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
@@ -56,7 +56,7 @@ export class QuestionReviewService {
             return 0;
         }
         return review.answers.filter(
-            a => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)),
+            (a) => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)),
         ).length;
     };
 }

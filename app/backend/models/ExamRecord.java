@@ -26,6 +26,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
+
     @OneToOne
     private User teacher;
 

@@ -36,7 +36,7 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         @EnumValue("2")
         IncorrectOption,
         @EnumValue("3")
-        SkipOption
+        SkipOption,
     }
 
     private String option;

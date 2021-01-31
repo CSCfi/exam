@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -51,6 +52,6 @@ export class EulaDialogComponent implements OnInit {
     ngOnInit() {
         this.http
             .get<{ value: string }>('/app/settings/agreement')
-            .subscribe(resp => (this.settings = { eula: { value: resp.value } }));
+            .subscribe((resp) => (this.settings = { eula: { value: resp.value } }));
     }
 }

@@ -59,7 +59,7 @@ export class WeightedMultipleChoiceOptionEditorComponent {
     constructor(private translate: TranslateService) {}
 
     removeOption = () => {
-        const hasCorrectAnswer = this.question.options.some(o => o !== this.option && o.defaultScore > 0);
+        const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.defaultScore > 0);
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {

@@ -1,7 +1,7 @@
-import { ExamEnrolment } from '../enrolment/enrolment.model';
-import { LanguageInspection } from '../maturity/maturity.model';
-import { Reservation } from '../reservation/reservation.model';
-import { User } from '../session/session.service';
+import type { ExamEnrolment } from '../enrolment/enrolment.model';
+import type { LanguageInspection } from '../maturity/maturity.model';
+import type { Reservation } from '../reservation/reservation.model';
+import type { User } from '../session/session.service';
 
 export interface Grade {
     id: number;
@@ -108,7 +108,7 @@ export interface Question {
 }
 
 export interface EssayAnswer {
-    id?: number;
+    id: number;
     evaluatedScore?: number;
     answer?: string;
     objectVersion?: number;
@@ -154,14 +154,6 @@ export interface ClozeTestAnswer {
     answer: string;
     objectVersion: number;
     elements: ContentElement[];
-}
-
-export interface ReverseExamSection extends ExamSection {
-    exam: Exam;
-}
-
-export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
-    examSection: ReverseExamSection;
 }
 
 export interface ExamSectionQuestion {
@@ -349,11 +341,4 @@ export enum ClaimChoiceOptionType {
     CorrectOption = 'CorrectOption',
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
-}
-
-export interface ExamSectionQuestionOption {
-    id: number;
-    option: MultipleChoiceOption;
-    answered: boolean;
-    score: number;
 }

@@ -18,9 +18,9 @@ import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import { ExaminationQuestion } from '../../../examination/examination.service';
+import type { ExaminationQuestion } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { ReviewQuestion } from '../../review.model';
+import type { ReviewQuestion } from '../../review.model';
 import { AssessmentService } from '../assessment.service';
 
 @Component({
@@ -71,7 +71,7 @@ export class EssayQuestionComponent {
                 this.state.params.id,
                 this.state.params.ref,
                 this.participation._rev as string,
-            ).subscribe(resp => {
+            ).subscribe((resp) => {
                 toast.info(this.translate.instant('sitnet_graded'));
                 this.onScore.emit(resp.rev);
             });

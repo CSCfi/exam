@@ -63,7 +63,7 @@ public class DataTransferController extends BaseController {
     }
 
     enum DataType {
-        QUESTION
+        QUESTION,
     }
 
     private final WSClient wsClient;

@@ -28,6 +28,7 @@ import org.joda.time.LocalTime;
 
 @Entity
 public class ExamStartingHour extends GeneratedIdentityModel implements Comparable<ExamStartingHour> {
+
     @Temporal(TemporalType.TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date startingHour;

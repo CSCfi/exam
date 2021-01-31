@@ -17,12 +17,14 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { QuestionAmounts, QuestionService } from '../../../question/question.service';
-import { Reservation } from '../../../reservation/reservation.model';
-import { SessionService, User } from '../../../session/session.service';
+import type { QuestionAmounts } from '../../../question/question.service';
+import { QuestionService } from '../../../question/question.service';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
@@ -59,14 +61,14 @@ export class PrintedAssessmentComponent {
         const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
         const url = this.getResource(path);
 
-        this.http.get<ExamParticipation>(url).subscribe(participation => {
+        this.http.get<ExamParticipation>(url).subscribe((participation) => {
             //TODO: Some duplicates here, refactor some more
             const exam = participation.exam;
-            exam.examSections.forEach(es =>
+            exam.examSections.forEach((es) =>
                 es.sectionQuestions
-                    .filter(esq => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
+                    .filter((esq) => esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer?.answer)
                     .forEach(
-                        esq =>
+                        (esq) =>
                             ((esq.clozeTestAnswer as ClozeTestAnswer).answer = JSON.parse(
                                 esq.clozeTestAnswer?.answer as string,
                             )),
@@ -108,9 +110,9 @@ export class PrintedAssessmentComponent {
             return;
         }
         // Filter out the participation we are looking into
-        const previousParticipations: PreviousParticipation[] = data.filter(p => p.id !== this.participation.id);
-        this.http.get<Reservation[]>(`/app/usernoshows/${this.exam.id}`).subscribe(resp => {
-            const noShows: PreviousParticipation[] = resp.map(r => ({
+        const previousParticipations: PreviousParticipation[] = data.filter((p) => p.id !== this.participation.id);
+        this.http.get<Reservation[]>(`/app/usernoshows/${this.exam.id}`).subscribe((resp) => {
+            const noShows: PreviousParticipation[] = resp.map((r) => ({
                 noShow: true,
                 started: r.startAt,
                 exam: { state: 'no_show' },
@@ -154,7 +156,7 @@ export class PrintedAssessmentComponent {
         // Do not add up if user exists in both groups
         const exam = this.collaborative ? this.exam : (this.exam.parent as Exam);
         const owners = exam.examOwners.filter(
-            owner => this.exam.examInspections.map(i => i.user.id).indexOf(owner.id) === -1,
+            (owner) => this.exam.examInspections.map((i) => i.user.id).indexOf(owner.id) === -1,
         );
         return this.exam.examInspections.length + owners.length;
     };

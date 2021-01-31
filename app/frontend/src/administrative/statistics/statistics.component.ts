@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
 
+import type { OnInit } from '@angular/core';
 interface Departments {
     name: string;
     filtered: boolean;
@@ -28,7 +29,7 @@ enum Tab {
 }
 
 @Component({
-    template: require('./statistics.component.html'),
+    templateUrl: './statistics.component.html',
     selector: 'statistics',
 })
 export class StatisticsComponent implements OnInit {
@@ -47,8 +48,8 @@ export class StatisticsComponent implements OnInit {
         this.limitations = { department: '' };
         this.queryParams = {};
 
-        this.http.get<{ departments: string[] }>('/app/reports/departments').subscribe(resp => {
-            this.departments = resp.departments.map(d => ({ name: d, filtered: false }));
+        this.http.get<{ departments: string[] }>('/app/reports/departments').subscribe((resp) => {
+            this.departments = resp.departments.map((d) => ({ name: d, filtered: false }));
             this.filteredDepartments = this.departments;
         });
     }
@@ -61,9 +62,9 @@ export class StatisticsComponent implements OnInit {
         if (this.endDate) {
             params.end = this.endDate.toISOString();
         }
-        const departments = this.departments.filter(d => d.filtered);
+        const departments = this.departments.filter((d) => d.filtered);
         if (departments.length > 0) {
-            params.dept = departments.map(d => d.name).join();
+            params.dept = departments.map((d) => d.name).join();
         }
         this.queryParams = params;
     };
@@ -83,16 +84,13 @@ export class StatisticsComponent implements OnInit {
         this.setQueryParams();
     };
 
-    handleDepartmentInputChange = (event: any) => {
-        const { value } = event.target;
-        console.log(value);
-        this.limitations.department = value;
-
-        if (value === '') {
+    handleDepartmentInputChange = () => {
+        if (this.limitations.department === '') {
             this.filteredDepartments = this.departments;
+        } else {
+            this.filteredDepartments = this.departments.filter((d) =>
+                d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
+            );
         }
-        this.filteredDepartments = this.departments.filter(d =>
-            d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
-        );
     };
 }

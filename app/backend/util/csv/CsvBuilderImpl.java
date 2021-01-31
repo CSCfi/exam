@@ -195,7 +195,7 @@ public class CsvBuilderImpl implements CsvBuilder {
             "lecturerEmail",
             "lecturerEmployeeNumber",
             "date",
-            "additionalInfo"
+            "additionalInfo",
         };
     }
 
@@ -223,7 +223,7 @@ public class CsvBuilderImpl implements CsvBuilder {
             teacher.get("email"),
             teacher.path("employeeNumber"),
             exam.get("gradedTime"),
-            exam.path("additionalInfo")
+            exam.path("additionalInfo"),
         };
         return Stream.of(nodes).map(JsonNode::asText);
     }

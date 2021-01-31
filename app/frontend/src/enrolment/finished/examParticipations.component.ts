@@ -14,13 +14,14 @@
  */
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { AssessedParticipation } from '../enrolment.model';
+import type { AssessedParticipation } from '../enrolment.model';
 
 @Component({
     selector: 'exam-participations',
@@ -64,18 +65,16 @@ export class ExamParticipationsComponent implements OnInit {
         this.http
             .get<AssessedParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
             .subscribe(
-                data => {
-                    data.filter(p => !p.ended).forEach(
-                        p =>
+                (data) => {
+                    data.filter((p) => !p.ended).forEach(
+                        (p) =>
                             (p.ended = p.reservation
                                 ? p.reservation.endAt
-                                : moment(p.examinationEvent?.start)
-                                      .add(p.duration, 'minutes')
-                                      .format()),
+                                : moment(p.examinationEvent?.start).add(p.duration, 'minutes').format()),
                     );
                     this.participations = data;
                 },
-                err => toast.error(err.data),
+                (err) => toast.error(err.data),
             );
     };
 

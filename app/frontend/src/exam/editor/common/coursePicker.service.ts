@@ -15,7 +15,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Course } from '../../exam.model';
+import type { Course } from '../../exam.model';
 
 @Injectable()
 export class CoursePickerService {

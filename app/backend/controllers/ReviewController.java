@@ -590,8 +590,7 @@ public class ReviewController extends BaseController {
         DateTime end,
         Exam exam,
         Map<Long, String> questions
-    )
-        throws IOException {
+    ) throws IOException {
         File file = File.createTempFile("summary", ".txt");
         FileOutputStream fos = new FileOutputStream(file);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));

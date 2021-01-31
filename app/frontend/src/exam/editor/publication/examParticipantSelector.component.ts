@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
@@ -39,8 +41,8 @@ export class ExamParticipantSelectorComponent implements OnInit {
     constructor(private http: HttpClient, private translate: TranslateService, private Enrolment: EnrolmentService) {}
 
     ngOnInit() {
-        this.enrolments = this.exam.examEnrolments.filter(ee => !ee.preEnrolledUserEmail);
-        this.participants = _.flatten(this.exam.children.map(c => c.examEnrolments)).map(e => e.user);
+        this.enrolments = this.exam.examEnrolments.filter((ee) => !ee.preEnrolledUserEmail);
+        this.participants = _.flatten(this.exam.children.map((c) => c.examEnrolments)).map((e) => e.user);
     }
 
     private findUsers$ = (criteria: string) =>
@@ -48,10 +50,10 @@ export class ExamParticipantSelectorComponent implements OnInit {
 
     listStudents$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap(name => (this.newParticipant.name = name)),
+            tap((name) => (this.newParticipant.name = name)),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap(s => (s.length < 2 ? from([]) : this.findUsers$(s))),
+            exhaustMap((s) => (s.length < 2 ? from([]) : this.findUsers$(s))),
             take(15),
         );
 
@@ -66,23 +68,23 @@ export class ExamParticipantSelectorComponent implements OnInit {
 
     addParticipant = () =>
         this.Enrolment.enrollStudent(this.exam, this.newParticipant).subscribe(
-            enrolment => {
+            (enrolment) => {
                 // push to the list
                 this.enrolments.push(enrolment);
                 // nullify input fields
                 delete this.newParticipant.name;
                 delete this.newParticipant.id;
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
 
     removeParticipant = (id: number) =>
         this.http.delete(`/app/enrolments/student/${id}`).subscribe(
             () => {
-                this.exam.examEnrolments = this.exam.examEnrolments.filter(ee => ee.id !== id);
+                this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
                 toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>

@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import play.db.ebean.EbeanConfig;
 
 public class UserRepository {
+
     private final EbeanServer db;
     private final DatabaseExecutionContext ec;
 

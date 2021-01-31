@@ -47,7 +47,7 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
         @EnumValue("4")
         AFTER_EXAM_PERIOD,
         @EnumValue("5")
-        NEVER
+        NEVER,
     }
 
     private ReleaseType releaseType;

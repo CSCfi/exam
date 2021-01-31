@@ -15,12 +15,15 @@
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { Exam, ExamParticipation } from '../../../exam/exam.model';
-import { SessionService, User } from '../../../session/session.service';
+import type { ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Review } from '../../review.model';
+import type { Review } from '../../review.model';
 import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
-import { ReviewListService, ReviewListView } from '../reviewList.service';
+import type { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
 
 @Component({
     selector: 'rl-in-progress',
@@ -40,10 +43,10 @@ export class InProgressReviewsComponent {
     ) {}
 
     ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, r => r, 'deadline');
+        this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'deadline');
     }
 
-    isOwner = (user: User) => this.exam && this.exam.examOwners.some(o => o.id === user.id);
+    isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
 
@@ -69,7 +72,7 @@ export class InProgressReviewsComponent {
                 backdrop: 'static',
                 keyboard: true,
             })
-            .result.then(params =>
+            .result.then((params) =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
             );
 }

@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamParticipation } from '../../../exam/exam.model';
+import type { ExamParticipation } from '../../../exam/exam.model';
 import { HttpClient } from '@angular/common/http';
 
 interface Participations {
@@ -75,7 +75,7 @@ export class RoomStatisticsComponent {
     listParticipations = () => {
         this.http
             .get<Participations>('/app/reports/participations', { params: this.queryParams })
-            .subscribe(resp => {
+            .subscribe((resp) => {
                 this.participations = resp;
                 if (Object.values(this.participations).flat().length > 0) {
                     this.rooms = Object.keys(this.participations);
@@ -126,11 +126,11 @@ export class RoomStatisticsComponent {
 
     private getMinAndMaxDates = (): { min: Date; max: Date } => {
         const dates: Date[] = Object.values(this.participations)
-            .flatMap(ps =>
+            .flatMap((ps) =>
                 ps
-                    .filter(p => p.exam || p.externalExam)
-                    .map(p => (p.externalExam ? p.externalExam.started : p.exam.created))
-                    .map(d => new Date(d)),
+                    .filter((p) => p.exam || p.externalExam)
+                    .map((p) => (p.externalExam ? p.externalExam.started : p.exam.created))
+                    .map((d) => new Date(d)),
             )
             .sort((a, b) => a.getTime() - b.getTime());
         let minDate = dates[0];

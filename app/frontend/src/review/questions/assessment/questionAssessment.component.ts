@@ -19,10 +19,11 @@ import * as _ from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-import { QuestionReview, ReviewQuestion } from '../../review.model';
+import type { QuestionReview, ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
@@ -53,14 +54,14 @@ export class QuestionAssessmentComponent {
         this.examId = this.state.params.id;
         const ids = this.state.params.q || [];
         this.QuestionReview.getReviews$(this.examId, ids).subscribe(
-            reviews => {
+            (reviews) => {
                 reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
                 this.reviews = reviews;
                 if (this.reviews.length > 0) {
                     this.setSelectedReview(this.reviews[0]);
                 }
             },
-            err => toast.error(err),
+            (err) => toast.error(err),
         );
     }
 
@@ -80,7 +81,7 @@ export class QuestionAssessmentComponent {
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
     private saveEvaluation = (answer: ReviewQuestion) => {
-        return new Promise<void>(resolve => {
+        return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
             this.Assessment.saveEssayScore(answer).subscribe(() => {
                 toast.info(this.$translate.instant('sitnet_graded'));
@@ -90,11 +91,11 @@ export class QuestionAssessmentComponent {
 
                     // Make sure that this.reviews gets also updated
                     const currentQuestionId = this.selectedReview.question.id;
-                    const currentReviewIndex = this.reviews.findIndex(r => r.question.id === currentQuestionId);
+                    const currentReviewIndex = this.reviews.findIndex((r) => r.question.id === currentQuestionId);
 
                     if (this.reviews[currentReviewIndex]) {
                         const currentAnswerIndex = this.reviews[currentReviewIndex].answers.findIndex(
-                            a => a.id === answer.id,
+                            (a) => a.id === answer.id,
                         );
                         if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
                             this.reviews[currentReviewIndex].answers[currentAnswerIndex] = _.cloneDeep(answer);
@@ -120,10 +121,10 @@ export class QuestionAssessmentComponent {
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };
         this.assessedAnswers = this.selectedReview.answers.filter(
-            a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+            (a) => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
         );
         this.unassessedAnswers = this.selectedReview.answers.filter(
-            a => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+            (a) => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
         );
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };
@@ -131,7 +132,7 @@ export class QuestionAssessmentComponent {
     private isLocked = (answer: ReviewQuestion) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
         const exam = answer.examSection.exam;
-        const isInspector = exam.examInspections.some(ei => ei.user.id === this.user.id);
+        const isInspector = exam.examInspections.some((ei) => ei.user.id === this.user.id);
         if (!isInspector) {
             states.push('GRADED');
         }

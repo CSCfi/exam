@@ -33,6 +33,7 @@ import org.joda.time.DateTime;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel {
+
     @ManyToOne
     @JsonBackReference
     private User user;

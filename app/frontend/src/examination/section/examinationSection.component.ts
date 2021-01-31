@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, SimpleChanges } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
@@ -46,7 +47,7 @@ export class ExaminationSectionComponent {
     getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
 
     getAmountOfSelectionEvaluatedQuestions = () =>
-        this.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length;
+        this.section.sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
 
     private resetAutosaver = () => {
         this.cancelAutosaver();
