@@ -12,10 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnChanges, SimpleChanges } from '@angular/core';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import type { CalendarEvent } from 'angular-calendar';
 import { CalendarDateFormatter, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
 import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
@@ -23,6 +21,8 @@ import { ExamRoom } from '../reservation/reservation.model';
 import { DateFormatter } from './bookingCalendarDateFormatter';
 import { CalendarService } from './calendar.service';
 
+import type { OnChanges, SimpleChanges } from '@angular/core';
+import type { CalendarEvent } from 'angular-calendar';
 export type SlotMeta = { availableMachines: number };
 
 @Component({
@@ -98,11 +98,11 @@ export class BookingCalendarComponent implements OnChanges {
     eventClicked(event: CalendarEvent<SlotMeta>): void {
         // todo check the colors
         if (event.meta && event.meta.availableMachines > 0) {
-            event.color = { primary: '#777777', secondary: '#555555' };
+            event.color = { primary: '#a6e9b2', secondary: '#add2eb' };
             if (!this.clickedEvent) {
                 this.clickedEvent = event;
             } else if (event.id !== this.clickedEvent.id) {
-                this.clickedEvent.color = { primary: '#e3bc08', secondary: '#FDF1BA' };
+                this.clickedEvent.color = { primary: '#add2eb', secondary: '#a6e9b2' };
                 this.clickedEvent = event;
             }
             this.onEventSelected.emit(event);

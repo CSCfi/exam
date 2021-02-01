@@ -40,7 +40,6 @@ export interface ExamRoom {
     _id?: number;
     name: string;
     examMachines: ExamMachine[];
-    buildingName: string;
     localTimezone: string;
     roomInstruction: string;
     roomInstructionEN: string;
@@ -52,6 +51,7 @@ export interface ExamRoom {
     outOfService: boolean;
     statusComment: string;
     buildingName: string;
+    mailAddress: { street: string; zip: string; city: string };
 }
 
 export interface ExamMachine {

@@ -998,5 +998,6 @@
   "sitnet_download_report": "Lataa raportti EN",
   "sitnet_error_creating_excel_file": "Virhe raportin luomisessa EN",
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään EN",
-  "sitnet_questions_transferred": "Kysymykset kopioitu EN"
+  "sitnet_questions_transferred": "Kysymykset kopioitu EN",
+  "sitnet_exam_room_accessibility": "Tenttitilan esteettömyysvaatimukset EN"
 }

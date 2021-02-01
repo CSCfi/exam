@@ -255,6 +255,79 @@ p {
   color: #2C2C2C;
 }
 
+.calendar-button-save {
+  vertical-align: top;
+  width: 22%;
+  float: right;
+  margin-right: 30px;
+  cursor: not-allowed;
+
+  a {
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    background-color: #D8D8D8;
+    border: 1px solid #979797;
+    width: 100%;
+    margin-left: 10px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+    display: block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    &.cancel {
+      cursor: pointer;
+      background-color: #606060;
+      border: 1px solid #565656;
+
+    }
+  }
+
+  a:hover, button:active, button:focus, button:active:focus {
+    background-color: #D8D8D8;
+    border: 1px solid #979797;
+    &.cancel {
+      cursor: pointer;
+      background-color: #6B6B6B;
+      border: 1px solid #6B6B6B;
+    }
+    text-decoration: none;
+  }
+}
+
+
+.calendar-button-save-activated {
+
+  cursor: pointer;
+
+  a {
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    background-color: $sitnet-green-new;
+    border: 1px solid $sitnet-dark-green-new;
+    width: 100%;
+    margin-left: 10px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+    display: block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  a:hover, button:active, button:focus, button:active:focus {
+    background-color: $sitnet-dark-green-new;
+    border: 1px solid $sitnet-dark-green-new;
+    text-decoration: none;
+  }
+
+
+}
+
+
 .calendar-phase-icon {
   float: right;
 }

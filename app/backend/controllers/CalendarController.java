@@ -40,6 +40,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -282,14 +284,19 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids, Http.Request request) {
+    public Result getSlots(Long examId, Long roomId, String day, String aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
-        return calendarHandler.getSlots(user, ee.getExam(), roomId, day, aids);
+        Collection<Integer> accessibilityIds = Stream
+            .of(aids.split(","))
+            .filter(s -> !s.isEmpty())
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
+        return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);
     }
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {

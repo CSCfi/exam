@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -183,13 +185,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> getSlots(
-        Long examId,
-        Long roomId,
-        String day,
-        Collection<Integer> aids,
-        Http.Request request
-    ) {
+    public CompletionStage<Result> getSlots(Long examId, Long roomId, String day, String aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
         if (ce == null) {
@@ -209,7 +205,12 @@ public class CollaborativeCalendarController extends CollaborationController {
                     if (!exam.hasState(Exam.State.PUBLISHED)) {
                         return notFound("sitnet_error_exam_not_found");
                     }
-                    return calendarHandler.getSlots(user, exam, roomId, day, aids);
+                    Collection<Integer> accessibilityIds = Stream
+                        .of(aids.split(","))
+                        .filter(s -> !s.isEmpty())
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+                    return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
                 }
             );
     }
