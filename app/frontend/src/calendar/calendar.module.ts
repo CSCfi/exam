@@ -27,6 +27,8 @@ import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/calendarExamInfo.component';
 import { OptionalSectionsComponent } from './helpers/optionalSections.component';
 import { OrganisationPickerComponent } from './helpers/organisationPicker.component';
+import { SelectedRoomComponent } from './helpers/selectedRoom.component';
+import { SlotPickerComponent } from './helpers/slotPicker.component';
 
 @NgModule({
     imports: [
@@ -44,6 +46,8 @@ import { OrganisationPickerComponent } from './helpers/organisationPicker.compon
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
         OrganisationPickerComponent,
+        SlotPickerComponent,
+        SelectedRoomComponent,
     ],
     entryComponents: [CalendarComponent],
     providers: [CalendarService],

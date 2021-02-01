@@ -13,31 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import type { CalendarEvent } from 'calendar-utils';
 import * as moment from 'moment';
-import type { Observable } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Course, Exam, ExamSection } from '../exam/exam.model';
-import type { Accessibility, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import type { SlotMeta } from './bookingCalendar.component';
-import type { OpeningHours, Slot } from './calendar.service';
 import { CalendarService } from './calendar.service';
+
+import type { OnInit } from '@angular/core';
+import type { Course, Exam, ExamSection } from '../exam/exam.model';
+import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
     examSections: (ExamSection & { selected: boolean })[];
 };
-type AvailableSlot = Slot & { availableMachines: number };
-type FilteredAccessibility = Accessibility & { filtered: boolean };
-type FilteredRoom = ExamRoom & { filtered: boolean };
 type ReservationInfo = {
     id: number;
     optionalSections: ExamSection[];
@@ -48,7 +42,7 @@ export type Organisation = {
     code: string;
     filtered: boolean;
     homeOrg: string;
-    facilities: FilteredRoom[];
+    facilities: ExamRoom[];
 };
 
 @Component({
@@ -59,7 +53,6 @@ export class CalendarComponent implements OnInit {
     @Input() isExternal: boolean;
     @Input() isCollaborative: boolean;
 
-    accessibilities: FilteredAccessibility[] = [];
     isInteroperable: boolean;
     confirming = false;
     examInfo: ExamInfo = {
@@ -70,27 +63,18 @@ export class CalendarComponent implements OnInit {
         examSections: [],
         course: { code: '', name: '' },
     };
-    limitations = {};
-    openingHours: OpeningHours[];
-    organisations: Organisation[];
-    reservation?: { room: string; start: moment.Moment; end: moment.Moment; time: string };
-    rooms: FilteredRoom[] = [];
-    exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
-    loader = {
-        loading: false,
+    reservation?: {
+        room: ExamRoom;
+        start: moment.Moment;
+        end: moment.Moment;
+        time: string;
+        accessibilities: Accessibility[];
     };
     minDate: Date;
     maxDate: Date;
-    minHours: number;
-    maxHours: number;
     reservationWindowEndDate: moment.Moment;
     reservationWindowSize: number;
-    selectedRoom?: FilteredRoom;
     selectedOrganisation?: Organisation;
-    calendarVisible: boolean;
-    showAccs = false;
-
-    events: CalendarEvent<SlotMeta>[];
 
     constructor(
         private http: HttpClient,
@@ -116,12 +100,6 @@ export class CalendarComponent implements OnInit {
         if (this.uiRouter.params.isCollaborative === 'true') {
             this.isCollaborative = true;
         }
-        this.translate.onLangChange.subscribe(() => {
-            const optionalRoom = this.selectedRoom;
-            if (optionalRoom !== undefined) {
-                this.openingHours = this.Calendar.processOpeningHours(optionalRoom);
-            }
-        });
 
         const url = this.isCollaborative
             ? `/integration/iop/exams/${this.uiRouter.params.id}/info`
@@ -142,16 +120,10 @@ export class CalendarComponent implements OnInit {
                         .min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate))
                         .toDate();
                 }),
-                switchMap(() => this.http.get<Accessibility[]>('/app/accessibility')),
-                tap((resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false })))),
-                switchMap(() => this.http.get<ExamRoom[]>('/app/rooms')),
-                tap((resp) => {
-                    const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false }));
-                    this.rooms = rooms.sort((a, b) => (a.name > b.name ? 1 : -1));
-                }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
                 switchMap(() =>
+                    // TODO: move to section selector
                     this.http.get<ReservationInfo | null>(
                         `/app/calendar/enrolment/${this.uiRouter.params.id}/reservation`,
                     ),
@@ -192,38 +164,6 @@ export class CalendarComponent implements OnInit {
         return 0;
     }
 
-    selectedAccessibilities() {
-        return this.accessibilities.filter((a) => a.filtered);
-    }
-
-    getRoomInstructions(): string | undefined {
-        const optionalRoom = this.selectedRoom;
-        if (optionalRoom == undefined) {
-            return;
-        }
-        const room: ExamRoom = optionalRoom;
-        let info;
-        switch (this.translate.currentLang) {
-            case 'fi':
-                info = room.roomInstruction;
-                break;
-            case 'sv':
-                info = room.roomInstructionSV;
-                break;
-            case 'en':
-            /* falls through */
-            default:
-                info = room.roomInstructionEN;
-                break;
-        }
-        return info;
-    }
-
-    getRoomAccessibility(): string {
-        const room = this.selectedRoom;
-        return room && room.accessibilities ? room.accessibilities.map((a) => a.name).join(', ') : '';
-    }
-
     makeExternalReservation() {
         this.Dialog.open(
             this.translate.instant('sitnet_confirm'),
@@ -245,127 +185,29 @@ export class CalendarComponent implements OnInit {
         });
     }
 
-    private adjust(date: string, tz: string): Date {
-        const adjusted: moment.Moment = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
-    }
-
-    private getTitle(slot: AvailableSlot): string {
-        if (slot.availableMachines > 0) {
-            return `${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
-        } else {
-            return slot.conflictingExam
-                ? this.translate.instant('sitnet_own_reservation')
-                : this.translate.instant('sitnet_reserved');
-        }
-    }
-
-    private query(date: string, room: ExamRoom, accessibilityIds: number[]): Observable<AvailableSlot[]> {
-        if (this.isExternal && this.selectedOrganisation) {
-            const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.state.params.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.state.params.id}/${room._id}`;
-            return this.http.get<AvailableSlot[]>(url, {
-                params: {
-                    org: this.selectedOrganisation._id,
-                    date: date,
-                },
-            });
-        } else {
-            const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.state.params.id}/calendar/${room.id}`
-                : `/app/calendar/${this.state.params.id}/${room.id}`;
-            return this.http.get<AvailableSlot[]>(url, {
-                params: {
-                    day: date,
-                    aids: accessibilityIds.join(','),
-                },
-            });
-        }
-    }
-
-    hide() {
-        this.calendarVisible = false;
-    }
-
-    render() {
-        this.calendarVisible = true;
-    }
-
-    renderExceptionHours = ($event: { start: Date; end: Date }) => {
-        if (!this.selectedRoom) return;
-        this.exceptionHours =
-            !$event.start || !$event.end
-                ? []
-                : this.Calendar.getExceptionHours(this.selectedRoom, moment($event.start), moment($event.end));
-    };
-
-    refresh($event: { date: Date }) {
-        const room = this.selectedRoom;
-        if (!room) {
-            return;
-        }
-        const date = $event.date;
-        const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
-        this.loader.loading = true;
-        const tz = room.localTimezone;
-
-        const successFn = (resp: AvailableSlot[]) => {
-            const events: CalendarEvent<SlotMeta>[] = resp.map((slot: AvailableSlot, i) => ({
-                id: i,
-                title: this.getTitle(slot),
-                start: this.adjust(slot.start, tz),
-                end: this.adjust(slot.end, tz),
-                meta: { availableMachines: slot.availableMachines },
-            }));
-            this.loader.loading = false;
-            this.events = events;
-            this.render();
+    createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilites: Accessibility[] }) {
+        this.reservation = {
+            room: $event.room,
+            time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
+            start: moment($event.start),
+            end: moment($event.end),
+            accessibilities: $event.accessibilites,
         };
-        const errorFn = (resp: string) => {
-            this.loader.loading = false;
-            toast.error(resp);
-        };
-        this.query(moment(date).format('YYYY-MM-DD'), room, accessibilities).subscribe(successFn, errorFn);
     }
 
-    selectRoom(room: FilteredRoom) {
-        if (!room.outOfService) {
-            this.rooms.forEach((r) => (r.filtered = false));
-            room.filtered = true;
-            this.selectedRoom = room;
-            delete this.reservation;
-            this.openingHours = this.Calendar.processOpeningHours(room);
-            this.refresh({ date: new Date() });
-        }
-    }
-
-    createReservation($event: { start: Date; end: Date }) {
-        const room = this.selectedRoom;
-        if (room !== undefined) {
-            this.reservation = {
-                room: room.name,
-                time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
-                start: moment($event.start),
-                end: moment($event.end),
-            };
-        }
-    }
-
-    onSelection = (event: { valid: boolean }) => {
+    onSectionSelection = (event: { valid: boolean }) => {
+        // TODO: how to invalidate calendar
         if (!event.valid) {
             delete this.selectedOrganisation;
-            delete this.selectedRoom;
+            // delete this.selectedRoom;
             delete this.reservation;
-            this.render();
         }
     };
 
     sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 
     confirmReservation() {
-        const room = this.selectedRoom;
+        const room = this.reservation?.room;
         if (!room || !this.reservation || this.confirming) {
             return;
         }
@@ -379,7 +221,7 @@ export class CalendarComponent implements OnInit {
             this.reservation.start,
             this.reservation.end,
             room,
-            this.accessibilities,
+            this.reservation.accessibilities,
             { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
             this.isCollaborative,
             selectedSectionIds,
@@ -395,24 +237,6 @@ export class CalendarComponent implements OnInit {
 
     setOrganisation(org: Organisation) {
         this.selectedOrganisation = org;
-        delete this.selectedRoom;
-        this.rooms = org.facilities;
-        this.hide();
-    }
-
-    selectAccessibility(accessibility: FilteredAccessibility) {
-        accessibility.filtered = !accessibility.filtered;
-        if (this.selectedRoom) {
-            // this.bc.bookingCalendar.getApi().refetchEvents();
-        }
-    }
-
-    getDescription(room: ExamRoom): string {
-        if (room.outOfService) {
-            const status = room.statusComment ? ': ' + room.statusComment : '';
-            return this.translate.instant('sitnet_room_out_of_service') + status;
-        }
-        return room.name;
     }
 
     printExamDuration(exam: Exam) {

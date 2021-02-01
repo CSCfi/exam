@@ -27,7 +27,7 @@ import { ExamInfo } from '../calendar.component';
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mart10">
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
@@ -55,21 +55,21 @@ import { ExamInfo } from '../calendar.component';
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
-                        {{ 'sitnet_calendar_instructions' | translate }}:
-                        <span [innerHtml]="examInfo.enrollInstruction"></span>
-                    </span>
+                <div class="row mart10">
+                    <div class="col-md-12">
+                        <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
+                            {{ 'sitnet_calendar_instructions' | translate }}:
+                            <span [innerHtml]="examInfo.enrollInstruction"></span>
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 mart10">
-                    <span *ngIf="showReservationWindowInfo()" class="text-info">
-                        <img class="arrow_icon" src="/assets/assets/images/icon_info.png" alt="info-icon" />
-                        {{ getReservationWindowDescription() }}
-                    </span>
+                <div class="row mart10">
+                    <div class="col-md-12">
+                        <span *ngIf="showReservationWindowInfo()" class="infolink">
+                            <img class="arrow_icon padr10" src="/assets/assets/images/icon_info.png" alt="info-icon" />
+                            {{ getReservationWindowDescription() }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

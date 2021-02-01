@@ -4,6 +4,7 @@ const merge = require('webpack-merge');
 const common = require('./webpack.common');
 
 module.exports = merge(common, {
+    target: 'web',
     devtool: 'eval-cheap-source-map',
     mode: 'development',
     output: {
@@ -12,6 +13,7 @@ module.exports = merge(common, {
     },
     devServer: {
         stats: 'normal',
+        hot: true,
     },
     optimization: { emitOnErrors: false },
 });

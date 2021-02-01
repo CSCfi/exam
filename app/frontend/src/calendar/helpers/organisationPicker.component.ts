@@ -11,7 +11,7 @@ import type { Organisation } from '../calendar.component';
                 <span class="calendar-phase-title">
                     {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
                     <small>
-                        <button class="btn btn-sm btn-success btn-link" (click)="makeInternalReservation()">
+                        <button class="btn btn-sm btn-link infolink" (click)="makeInternalReservation()">
                             {{ 'sitnet_internal_reservation' | translate }}&nbsp;
                             <i class="bi-chevron-double-right"></i>
                         </button>
