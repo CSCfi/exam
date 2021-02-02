@@ -247,6 +247,7 @@ export interface ExamInspection {
 export interface Software {
     id: number;
     name: string;
+    turnedOn: boolean;
 }
 
 export interface ExamImpl {

@@ -14,6 +14,7 @@ import { ReservationStatisticsComponent } from './statistics/categories/reservat
 import { ResponseStatisticsComponent } from './statistics/categories/responseStatistics.component';
 import { RoomStatisticsComponent } from './statistics/categories/roomStatistics.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { ReportsModule } from './reports/reports.module';
 
 @NgModule({
     entryComponents: [UsersComponent, SettingsComponent, StatisticsComponent],
@@ -26,7 +27,7 @@ import { StatisticsComponent } from './statistics/statistics.component';
         RoomStatisticsComponent,
         StatisticsComponent,
     ],
-    imports: [CommonModule, NgbModule, TranslateModule, SessionModule, UtilityModule, FormsModule],
+    imports: [CommonModule, NgbModule, TranslateModule, SessionModule, UtilityModule, FormsModule, ReportsModule],
     providers: [UserManagementService],
 })
 export class AdministrativeModule {}

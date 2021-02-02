@@ -13,15 +13,4 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./reports.module');
-require('./reports.service');
-require('./reports.component');
-
-require('./categories/answersReport.component');
-require('./categories/enrolmentsReport.component');
-require('./categories/examsReport.component');
-require('./categories/recordsReport.component');
-require('./categories/reviewsReport.component');
-require('./categories/roomsReport.component');
-require('./categories/studentsReport.component');
-require('./categories/teachersReport.component');
+require('./reports.module.ajs');

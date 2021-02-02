@@ -22,9 +22,11 @@ export type DefaultWorkingHours = {
 };
 
 export type ExceptionWorkingHours = {
-    startDate: Date;
-    endDate: Date;
+    id: number;
+    startDate: Date | string;
+    endDate: Date | string;
     outOfService: boolean;
+    massEdited: boolean;
 };
 
 export type Accessibility = {
@@ -46,12 +48,20 @@ export interface ExamRoom {
     accessibilities: Accessibility[];
     outOfService: boolean;
     statusComment: string;
+    buildingName: string;
 }
 
 export interface ExamMachine {
     id: number;
     name: string;
     room: ExamRoom;
+    outOfService: boolean;
+    statusComment: string;
+    archived: boolean;
+    softwareInfo: {
+        id: number;
+        status: string;
+    }[];
 }
 
 export interface ExternalReservation {

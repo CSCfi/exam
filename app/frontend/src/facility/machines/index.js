@@ -14,7 +14,4 @@
  *
  */
 
-require('./machines.module');
-require('./machine.component');
-require('./machineList.component.ts');
-require('./machines.service');
+require('./machines.module.ajs');

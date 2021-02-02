@@ -12,12 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-require('./facility.module');
 require('./accessibility');
 require('./machines');
-require('./rooms');
-require('./address');
-require('./schedule');
-require('../software');
-require('./examRoomsAdminTabs.component');
+require('./facility.module.ajs');

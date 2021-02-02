@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import './administrative';
+import './facility';
 import './assets/styles/main.scss';
 import 'angular-animate';
 import 'angular-dialog-service';
@@ -59,6 +60,7 @@ export const ajsApp = angularJS
         DashboardModule,
         MaturityModuleAjs,
         'app.administrative',
+        'app.facility',
         ExaminationModuleAjs,
         ExamModuleAjs,
     ])

@@ -1,0 +1,35 @@
+<div id="room">
+    <table style="display:inline-block">
+        <thead>
+            <tr *ngFor="let time of times">
+                <th style="vertical-align: bottom;" [ngClass]="{ light: $odd }">{{ time }}</th>
+            </tr>
+        </thead>
+    </table>
+
+    <table style="display:inline-block">
+        <thead>
+            <tr>
+                <th *ngFor="let weekday of weekdayNames">{{ weekday }}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let slot of timeRange()">
+                <td
+                    *ngFor="let day of getWeekdays()"
+                    class="selectable {{ getType(day, slot) }}"
+                    (click)="selectSlot(day, slot)"
+                >
+                    <div
+                        class="fullsize"
+                        placement="right"
+                        animation="false"
+                        delay="50"
+                        ngbTooltip="{{ calculateTime(slot) }}"
+                    ></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

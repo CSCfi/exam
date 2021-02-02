@@ -1,0 +1,46 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-9">
+            <div class="student-enroll-title-wrap marb20">
+                <div>
+                    <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
+                    <a (click)="createExamRoom()" class="marl20">
+                        <img class="plus_icon" src="Images/icon_plus.png" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
+            </span>
+            <a class="header-top-link" (click)="editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
+        </div>
+    </div>
+    <div class="tab-wrapper">
+        <ngb-tabset [activeId]="activeTab" (tabChange)="tabChanged($event)">
+            <ngb-tab *ngIf="user.isAdmin" [id]="1" [title]="getHeadingTranslation('sitnet_exam_all_rooms')">
+                <ng-template ngbTabContent>
+                    <room-list (onNextTabSelected)="switchToExceptionTimes()"> </room-list>
+                </ng-template>
+            </ngb-tab>
+            <!--<uib-tab ng-if="user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"-->
+            <!--deselect="tabChanged($selectedIndex)">-->
+            <!--<exception-list-all-->
+            <!--room="room" on-previous-tab-selected="switchToExamRooms" on-next-tab-selected="switchToNeededSoftware">-->
+            <!--</exception-list-all>-->
+            <!--</uib-tab>-->
+            <ngb-tab *ngIf="user.isAdmin" [id]="3" [title]="getHeadingTranslation('sitnet_exam_machine_softwares')">
+                <ng-template ngbTabContent>
+                    <software></software>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab *ngIf="user.isAdmin" [id]="4" [title]="getHeadingTranslation('sitnet_room_accessibility_info')">
+                <ng-template ngbTabContent>
+                    <accessibility></accessibility>
+                </ng-template>
+            </ngb-tab>
+        </ngb-tabset>
+    </div>
+</div>
