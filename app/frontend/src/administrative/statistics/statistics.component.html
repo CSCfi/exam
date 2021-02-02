@@ -49,16 +49,15 @@
             <span class="dropdown" ngbDropdown>
                 <button
                     ngbDropdownToggle
-                    class="btn btn-default dropdown-toggle"
+                    class="btn btn-outline-secondary"
                     type="button"
                     id="dropDownMenu1"
-                    data-toggle="dropdown"
                     aria-expanded="true"
                 >
                     {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <ul
-                    class="dropdown-menu"
+                    ngbDropdownMenu
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
@@ -78,11 +77,13 @@
                         </div>
                     </li>
                     <li
+                        ngbDropdownItem
+                        tabindex="0"
                         *ngFor="let department of filteredDepartments"
-                        class="dropdown-item"
                         role="presentation"
                         [ngClass]="department.filtered ? 'active' : ''"
                         (click)="setDepartmentFilter(department)"
+                        (keydown.enter)="setDepartmentFilter(department)"
                     >
                         <a role="menuitem" title="{{ department.name }}">{{ department.name }}</a>
                     </li>

@@ -5,6 +5,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AccessibilityComponent } from './accessibility.component';
+import { AccessibilityService } from './accessibility.service';
 import { AccessibilitySelectorComponent } from './accessibilitySelector.component';
 
 @NgModule({
@@ -12,5 +13,6 @@ import { AccessibilitySelectorComponent } from './accessibilitySelector.componen
     imports: [NgbModule, TranslateModule, CommonModule, FormsModule],
     declarations: [AccessibilityComponent, AccessibilitySelectorComponent],
     exports: [AccessibilityComponent, AccessibilitySelectorComponent],
+    providers: [AccessibilityService],
 })
 export class AccessibilityModule {}

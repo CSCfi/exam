@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     name: 'filterBy',
 })
 export class FilterByPipe implements PipeTransform {
-    transform(items: any[], filterFn: (item: any) => boolean) {
+    transform(items: unknown[], filterFn: (item: unknown) => boolean) {
         if (!items || !filterFn) {
             return items;
         }

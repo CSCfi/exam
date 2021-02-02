@@ -17,9 +17,8 @@ import * as moment from 'moment';
 
 import { RoomService, WorkingHour } from '../rooms/room.service';
 
-const zeropad = (n: any) => {
-    n += '';
-    return n.length > 1 ? n : '0' + n;
+const zeropad = (n: number) => {
+    return String(n).length > 1 ? n : '0' + n;
 };
 
 @Component({

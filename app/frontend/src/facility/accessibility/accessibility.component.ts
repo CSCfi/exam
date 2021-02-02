@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
+import { Accessibility } from '../../reservation/reservation.model';
+import { AccessibilityService } from './accessibility.service';
 
 @Component({
     template: require('./accessibility.component.html'),
@@ -24,14 +25,14 @@ import * as toast from 'toastr';
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string };
-    accessibilities: any[];
+    accessibilities: Accessibility[];
     showName = false;
 
-    constructor(private translate: TranslateService, private http: HttpClient) {}
+    constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
 
     ngOnInit() {
         this.newItem = { name: '' };
-        this.http.get<any[]>('/app/accessibility').subscribe(resp => {
+        this.accessibilityService.getAccessibilities().subscribe(resp => {
             this.accessibilities = resp;
         });
     }
@@ -40,24 +41,21 @@ export class AccessibilityComponent implements OnInit {
         this.newItem = { name: '' };
     };
 
-    add = () => {
-        this.http.post<any>('/app/accessibility', this.newItem).subscribe(resp => {
+    add = () =>
+        this.accessibilityService.addAccessibility(this.newItem).subscribe(resp => {
             this.accessibilities.push(resp);
             toast.info(this.translate.instant('sitnet_accessibility_added'));
             this.initItem();
         });
-    };
 
-    update = (accessibility: any) => {
-        this.http.put<void>('/app/accessibility', accessibility).subscribe(() => {
+    update = (accessibility: Accessibility) =>
+        this.accessibilityService.updateAccessibility(accessibility).subscribe(() => {
             toast.info(this.translate.instant('sitnet_accessibility_updated'));
         });
-    };
 
-    remove = (accessibility: any) => {
-        this.http.delete<void>('/app/accessibility/' + accessibility.id).subscribe(() => {
+    remove = (accessibility: Accessibility) =>
+        this.accessibilityService.removeAccessibility(accessibility.id).subscribe(() => {
             this.accessibilities.splice(this.accessibilities.indexOf(accessibility), 1);
             toast.info(this.translate.instant('sitnet_accessibility_removed'));
         });
-    };
 }

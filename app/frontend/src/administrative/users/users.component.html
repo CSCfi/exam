@@ -21,31 +21,35 @@
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_user_search_description' | translate }}"
                     />
-                    <div class="input-group-addon">
-                        <i class="fa fa-search fa-fw"></i>
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-search fa-fw"></i>
+                        </span>
                     </div>
                 </div>
             </div>
             <span class="col-md-8">
-                <span class="dropdown" ngbDropdown>
+                <span class="dropdown mr-2" ngbDropdown>
                     <button
                         ngbDropdownToggle
-                        class="btn btn-default dropdown-toggle"
+                        class="btn btn-outline-secondary"
                         type="button"
                         id="dropDownMenu1"
-                        data-toggle="dropdown"
                         aria-expanded="true"
                     >
                         {{ 'sitnet_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
+                    <ul ngbDropdownMenu style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
                         <li
+                            ngbDropdownItem
+                            tabindex="0"
                             *ngFor="let role of roles"
                             role="presentation"
                             [ngClass]="role.filtered ? 'active' : ''"
                             (click)="applyRoleFilter(role)"
+                            (keydown.enter)="applyRoleFilter(role)"
                         >
-                            <a class="dropdown-item" role="menuitem" title="{{ role.name }}">
+                            <a role="menuitem" title="{{ role.name }}">
                                 <i class="fa pull-right" [ngClass]="role.icon"></i>
                                 {{ role.name | translate }}
                             </a>
@@ -56,7 +60,8 @@
                 <span class="dropdown" ngbDropdown>
                     <button
                         ngbDropdownToggle
-                        class="btn btn-default dropdown-toggle"
+                        tabindex="0"
+                        class="btn btn-outline-secondary"
                         type="button"
                         id="dropDownMenu2"
                         data-toggle="dropdown"
@@ -64,14 +69,17 @@
                     >
                         {{ 'sitnet_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu2">
+                    <ul ngbDropdownMenu style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu2">
                         <li
+                            ngbDropdownItem
+                            tabindex="0"
                             *ngFor="let permission of permissions"
                             role="presentation"
                             [ngClass]="permission.filtered ? 'active' : ''"
                             (click)="applyPermissionFilter(permission)"
+                            (keydown.enter)="applyPermissionFilter(permission)"
                         >
-                            <a class="dropdown-item" role="menuitem" title="{{ permission.name }}">
+                            <a role="menuitem" title="{{ permission.name }}">
                                 <i class="fa pull-right" [ngClass]="permission.icon"></i>
                                 {{ permission.name | translate }}&nbsp;
                             </a>
@@ -123,10 +131,9 @@
                                 <span class="dropdown pointer" ngbDropdown>
                                     <button
                                         type="button"
-                                        class="dropdown-toggle border-none background-none pad0"
+                                        class="border-none background-none pad0"
                                         id="addRoleDropdown"
                                         ngbDropdownToggle
-                                        data-toggle="dropdown"
                                         aria-expanded="true"
                                         [disabled]="user.availableRoles.length === 0"
                                     >
@@ -134,15 +141,22 @@
                                         <i *ngIf="user.availableRoles.length === 0" class="text-muted fa fa-plus"></i>
                                     </button>
                                     <ul
-                                        class="dropdown-menu pull-right"
+                                        ngbDropdownMenu
+                                        class="pull-right"
                                         role="menu"
                                         style="min-width: 17em"
                                         *ngIf="user.availableRoles.length > 0"
                                         aria-labelledby="addRoleDropdown"
                                     >
                                         <li class="dropdown-header">{{ 'sitnet_add' | translate }}</li>
-                                        <li *ngFor="let role of user.availableRoles">
-                                            <a class="dropdown-item" role="menuitem" (click)="addRole(user, role)">
+                                        <li
+                                            *ngFor="let role of user.availableRoles"
+                                            ngbDropdownItem
+                                            tabindex="0"
+                                            (click)="addRole(user, role)"
+                                            (keydown.enter)="addRole(user, role)"
+                                        >
+                                            <a class="dropdown-item" role="menuitem">
                                                 <i class="fa pull-right" [ngClass]="role.icon"></i>
                                                 {{ role.name | translate }}
                                             </a>
@@ -152,10 +166,9 @@
                                 <span class="dropdown pointer" ngbDropdown>
                                     <button
                                         id="removeRoleDropdown"
-                                        class="dropdown-toggle border-none background-none pad0 marl5"
+                                        class="border-none background-none pad0 marl5"
                                         type="button"
                                         ngbDropdownToggle
-                                        data-toggle="dropdown"
                                         aria-expanded="true"
                                         [disabled]="user.removableRoles.length <= 1"
                                     >
@@ -171,15 +184,22 @@
                                         ></i>
                                     </button>
                                     <ul
-                                        class="dropdown-menu pull-right"
+                                        ngbDropdownMenu
+                                        class="pull-right"
                                         role="menu"
                                         style="min-width: 17em"
                                         *ngIf="user.removableRoles.length > 1"
                                         aria-labelledby="removeRoleDropdown"
                                     >
                                         <li class="dropdown-header">{{ 'sitnet_remove' | translate }}</li>
-                                        <li *ngFor="let role of user.removableRoles">
-                                            <a class="dropdown-item" role="menuitem" (click)="removeRole(user, role)">
+                                        <li
+                                            *ngFor="let role of user.removableRoles"
+                                            ngbDropdownItem
+                                            tabindex="0"
+                                            (click)="removeRole(user, role)"
+                                            (keydown.enter)="removeRole(user, role)"
+                                        >
+                                            <a class="dropdown-item" role="menuitem">
                                                 <i class="fa pull-right" [ngClass]="role.icon"></i
                                                 >{{ role.name | translate }}
                                             </a>
@@ -194,11 +214,10 @@
                             <div class="pull-right">
                                 <span class="dropdown pointer" ngbDropdown>
                                     <button
-                                        class="dropdown-toggle border-none background-none pad0"
+                                        class="border-none background-none pad0"
                                         type="button"
                                         ngbDropdownToggle
                                         id="addPermissionDropdown"
-                                        data-toggle="dropdown"
                                         aria-expanded="true"
                                         [disabled]="user.availablePermissions.length === 0"
                                     >
@@ -212,19 +231,22 @@
                                         ></i>
                                     </button>
                                     <ul
-                                        class="dropdown-menu pull-right"
+                                        ngbDropdownMenu
+                                        class="pull-right"
                                         style="min-width: 17em"
                                         *ngIf="user.availablePermissions.length > 0"
                                         aria-labelledby="addPermissionDropdown"
                                         role="menu"
                                     >
                                         <li class="dropdown-header">{{ 'sitnet_add' | translate }}</li>
-                                        <li *ngFor="let permission of user.availablePermissions">
-                                            <a
-                                                class="dropdown-item"
-                                                role="menuitem"
-                                                (click)="addPermission(user, permission)"
-                                            >
+                                        <li
+                                            *ngFor="let permission of user.availablePermissions"
+                                            ngbDropdownItem
+                                            tabindex="0"
+                                            (click)="addPermission(user, permission)"
+                                            (keydown.enter)="addPermission(user, permission)"
+                                        >
+                                            <a role="menuitem">
                                                 <i class="fa pull-right" [ngClass]="permission.icon"></i>
                                                 {{ permission.name | translate }}
                                             </a>
@@ -233,11 +255,10 @@
                                 </span>
                                 <span class="dropdown pointer" ngbDropdown>
                                     <button
-                                        class="dropdown-toggle border-none background-none pad0 marl5"
+                                        class="border-none background-none pad0 marl5"
                                         type="button"
                                         ngbDropdownToggle
                                         id="removePermissionDropdown"
-                                        data-toggle="dropdown"
                                         aria-expanded="true"
                                         [disabled]="user.removablePermissions.length === 0"
                                     >
@@ -251,19 +272,22 @@
                                         ></i>
                                     </button>
                                     <ul
-                                        class="dropdown-menu pull-right"
+                                        ngbDropdownMenu
+                                        class="pull-right"
                                         style="min-width: 17em"
                                         *ngIf="user.removablePermissions.length > 0"
                                         aria-labelledby="removePermissionDropdown"
                                         role="menu"
                                     >
                                         <li class="dropdown-header">{{ 'sitnet_remove' | translate }}</li>
-                                        <li *ngFor="let permission of user.removablePermissions">
-                                            <a
-                                                class="dropdown-item"
-                                                role="menuitem"
-                                                (click)="removePermission(user, permission)"
-                                            >
+                                        <li
+                                            *ngFor="let permission of user.removablePermissions"
+                                            ngbDropdownItem
+                                            tabindex="0"
+                                            (click)="removePermission(user, permission)"
+                                            (keydown.enter)="removePermission(user, permission)"
+                                        >
+                                            <a role="menuitem">
                                                 <i class="fa pull-right" [ngClass]="permission.icon"></i
                                                 >{{ permission.name | translate }}
                                             </a>

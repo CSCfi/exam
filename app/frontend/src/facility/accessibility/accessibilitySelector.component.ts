@@ -19,6 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import { AccessibilityService } from './accessibility.service';
 
 @Component({
     template: require('./accessibilitySelector.component.html'),
@@ -28,10 +29,10 @@ export class AccessibilitySelectorComponent implements OnInit {
     @Input() room: ExamRoom;
     accessibilities: Accessibility[];
 
-    constructor(private translate: TranslateService, private http: HttpClient) {}
+    constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
 
     ngOnInit() {
-        this.http.get<Accessibility[]>('/app/accessibility').subscribe(resp => {
+        this.accessibilityService.getAccessibilities().subscribe(resp => {
             this.accessibilities = resp;
         });
     }
@@ -59,7 +60,7 @@ export class AccessibilitySelectorComponent implements OnInit {
         }
         const ids = this.room.accessibilities.map(item => item.id).join(', ');
 
-        this.http.post(`/app/room/${this.room.id}/accessibility`, { ids: ids }).subscribe(() => {
+        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
             toast.info(this.translate.instant('sitnet_room_updated'));
         });
     };

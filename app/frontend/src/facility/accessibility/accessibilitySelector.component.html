@@ -4,27 +4,25 @@
         <span class="dropdown" ngbDropdown>
             <button
                 ngbDropdownToggle
-                class="btn btn-default dropdown-toggle"
+                class="btn btn-outline-secondary"
                 type="button"
                 id="dropDownMenu1"
-                data-toggle="dropdown"
                 aria-expanded="true"
             >
                 {{ selectedAccessibilities() }}&nbsp;<span class="caret"></span>
             </button>
-            <ul
-                class="dropdown-menu"
-                style="padding-left: 0; min-width: 17em"
-                role="menu"
-                aria-labelledby="dropDownMenu1"
-            >
+            <ul ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
                 <li
+                    ngbDropdownItem
                     *ngFor="let ac of accessibilities"
                     role="presentation"
+                    class="pointer"
                     [ngClass]="isSelected(ac) ? 'active' : ''"
                     (click)="updateAccessibility(ac)"
+                    (keydown.enter)="updateAccessibility(ac)"
+                    tabindex="0"
                 >
-                    <a role="menuitem" class="pointer" title="{{ ac.name }}">{{ ac.name }}</a>
+                    <a role="menuitem" title="{{ ac.name }}">{{ ac.name }}</a>
                 </li>
             </ul>
         </span>
