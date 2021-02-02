@@ -96,7 +96,6 @@ export class BookingCalendarComponent implements OnChanges {
     refetch = () => this.onNeedMoreEvents.emit({ date: this.viewDate });
 
     eventClicked(event: CalendarEvent<SlotMeta>): void {
-        // todo check the colors
         if (event.meta && event.meta.availableMachines > 0) {
             event.color = { primary: '#a6e9b2', secondary: '#add2eb' };
             if (!this.clickedEvent) {

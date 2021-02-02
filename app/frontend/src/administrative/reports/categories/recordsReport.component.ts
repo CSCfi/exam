@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
@@ -66,7 +67,10 @@ export class RecordsReportComponent {
         const end = this.endDate
             ? new Date(this.endDate).setHours(23, 59, 59, 999)
             : new Date().setHours(23, 59, 59, 999);
-        this.files.download('/app/exam/record', 'examrecords.csv', { startDate: start, endDate: end });
+        this.files.download('/app/exam/record', 'examrecords.csv', {
+            startDate: start.toString(),
+            endDate: end.toString(),
+        });
     };
 
     startDateChanged = (event: { date: Date }) => {

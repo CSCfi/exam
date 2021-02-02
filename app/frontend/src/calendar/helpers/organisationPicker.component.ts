@@ -6,58 +6,67 @@ import type { Organisation } from '../calendar.component';
 @Component({
     selector: 'calendar-organisation-picker',
     template: `
-        <div class="student-enrolment-wrapper details-view row" [ngClass]="selectedOrganisation ? '' : 'notactive'">
-            <span class="col-md-12">
-                <span class="calendar-phase-title">
-                    {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
-                    <small>
-                        <button class="btn btn-sm btn-link infolink" (click)="makeInternalReservation()">
-                            {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                            <i class="bi-chevron-double-right"></i>
-                        </button>
-                    </small>
-                </span>
-                <span class="calendar-phase-icon pull-right">
-                    <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose institution" />
-                </span>
-            </span>
+        <div class="row student-enrolment-wrapper details-view row" [ngClass]="selectedOrganisation ? '' : 'notactive'">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-1 student-exam-row-title">
-                        <span ngbDropdown>
-                            <button
-                                [disabled]="disabled"
-                                ngbDropdownToggle
-                                class="btn btn-default"
-                                type="button"
-                                id="dropDownMenu21"
-                                aria-haspopup="true"
-                                aria-expanded="true"
-                            >
-                                {{ 'sitnet_faculty_name' | translate }}&nbsp;
-                            </button>
-                            <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                                <li
-                                    ngbDropdownItem
-                                    *ngFor="let org of organisations"
-                                    [hidden]="org.filtered"
-                                    role="presentation"
-                                    (click)="setOrganisation(org)"
-                                >
-                                    <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
-                                </li>
-                            </ul>
+                    <span class="col-md-12">
+                        <span class="calendar-phase-title">
+                            {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
+                            <small>
+                                <button class="btn btn-sm btn-link infolink" (click)="makeInternalReservation()">
+                                    {{ 'sitnet_internal_reservation' | translate }}&nbsp;
+                                    <i class="bi-chevron-double-right"></i>
+                                </button>
+                            </small>
                         </span>
+                        <span class="calendar-phase-icon float-right" *ngIf="selectedOrganisation">
+                            <img
+                                class="arrow_icon"
+                                src="/assets/assets/images/icon-phase.png"
+                                alt="choose institution"
+                            />
+                        </span>
+                    </span>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row mart10">
+                            <div class="col student-exam-row-title">
+                                <span ngbDropdown>
+                                    <button
+                                        [disabled]="disabled"
+                                        ngbDropdownToggle
+                                        class="btn btn-outline-dark"
+                                        type="button"
+                                        id="dropDownMenu21"
+                                        aria-haspopup="true"
+                                        aria-expanded="true"
+                                    >
+                                        {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                                    </button>
+                                    <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
+                                        <li
+                                            ngbDropdownItem
+                                            *ngFor="let org of organisations"
+                                            [hidden]="org.filtered"
+                                            role="presentation"
+                                            (click)="setOrganisation(org)"
+                                        >
+                                            <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Selected organisation  -->
-        <div id="calendar" class="row selected-room-container" *ngIf="selectedOrganisation">
-            <div class="col-md-12">
-                <div class="calendar-room-title">
-                    <span>{{ selectedOrganisation.name }}&nbsp;({{ selectedOrganisation.code }})</span>
+                <!-- Selected organisation  -->
+                <div class="row" *ngIf="selectedOrganisation">
+                    <div class="col-md-12">
+                        <div class="calendar-room-title">
+                            <span>{{ selectedOrganisation?.name }}&nbsp;({{ selectedOrganisation?.code }})</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

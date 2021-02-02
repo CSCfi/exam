@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import { ExamRoom } from '../../reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
 
+import type { OnInit } from '@angular/core';
+import type { Accessibility } from '../../reservation/reservation.model';
+
 @Component({
-    template: require('./accessibilitySelector.component.html'),
+    templateUrl: './accessibilitySelector.component.html',
     selector: 'accessibility-selector',
 })
 export class AccessibilitySelectorComponent implements OnInit {
@@ -32,7 +33,7 @@ export class AccessibilitySelectorComponent implements OnInit {
     constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
 
     ngOnInit() {
-        this.accessibilityService.getAccessibilities().subscribe(resp => {
+        this.accessibilityService.getAccessibilities().subscribe((resp) => {
             this.accessibilities = resp;
         });
     }
@@ -41,7 +42,7 @@ export class AccessibilitySelectorComponent implements OnInit {
         return this.room.accessibilities.length === 0
             ? this.translate.instant('sitnet_select')
             : this.room.accessibilities
-                  .map(ac => {
+                  .map((ac) => {
                       return ac.name;
                   })
                   .join(', ');
@@ -58,12 +59,12 @@ export class AccessibilitySelectorComponent implements OnInit {
         } else {
             this.room.accessibilities.push(ac);
         }
-        const ids = this.room.accessibilities.map(item => item.id).join(', ');
+        const ids = this.room.accessibilities.map((item) => item.id).join(', ');
 
         this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
             toast.info(this.translate.instant('sitnet_room_updated'));
         });
     };
 
-    getIndexOf = (ac: Accessibility) => this.room.accessibilities.map(a => a.id).indexOf(ac.id);
+    getIndexOf = (ac: Accessibility) => this.room.accessibilities.map((a) => a.id).indexOf(ac.id);
 }

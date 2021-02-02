@@ -12,15 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { Accessibility } from '../../reservation/reservation.model';
+
 import { AccessibilityService } from './accessibility.service';
 
+import type { OnInit } from '@angular/core';
+import type { Accessibility } from '../../reservation/reservation.model';
+
 @Component({
-    template: require('./accessibility.component.html'),
+    template: './accessibility.component.html',
     selector: 'accessibility',
 })
 export class AccessibilityComponent implements OnInit {
@@ -32,7 +34,7 @@ export class AccessibilityComponent implements OnInit {
 
     ngOnInit() {
         this.newItem = { name: '' };
-        this.accessibilityService.getAccessibilities().subscribe(resp => {
+        this.accessibilityService.getAccessibilities().subscribe((resp) => {
             this.accessibilities = resp;
         });
     }
@@ -42,7 +44,7 @@ export class AccessibilityComponent implements OnInit {
     };
 
     add = () =>
-        this.accessibilityService.addAccessibility(this.newItem).subscribe(resp => {
+        this.accessibilityService.addAccessibility(this.newItem).subscribe((resp) => {
             this.accessibilities.push(resp);
             toast.info(this.translate.instant('sitnet_accessibility_added'));
             this.initItem();

@@ -12,12 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
+
 import { FileService } from '../../../utility/file/file.service';
-import { ExamName } from '../reports.service';
+
+import type { OnInit } from '@angular/core';
+import type { ExamName } from '../reports.service';
 
 @Component({
     template: `

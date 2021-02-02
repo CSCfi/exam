@@ -14,7 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { InteroperableRoom } from './room.service';
+
+import type { InteroperableRoom } from './room.service';
 
 @Injectable()
 export class InteroperabilityResourceService {

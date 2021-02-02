@@ -5,7 +5,7 @@ const common = require('./webpack.common');
 
 module.exports = merge(common, {
     target: 'web',
-    devtool: 'eval-cheap-source-map',
+    devtool: 'eval-source-map',
     mode: 'development',
     output: {
         filename: 'app.bundle.js',

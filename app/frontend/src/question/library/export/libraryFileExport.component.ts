@@ -34,7 +34,7 @@ export class LibraryFileExportComponent {
             this.Files.download(
                 '/app/questions/export',
                 'moodle-export.xml',
-                { ids: this.selections.map(toString) },
+                { ids: this.selections.map((s) => s.toString()) },
                 true,
             );
         }

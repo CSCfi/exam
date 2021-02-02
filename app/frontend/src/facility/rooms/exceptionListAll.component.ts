@@ -12,16 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import { Component, OnInit } from '@angular/core';
-import * as toast from 'toastr';
+import { Component } from '@angular/core';
 import { orderBy } from 'lodash';
+import * as toast from 'toastr';
 
-import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { RoomService, Week } from './room.service';
+import { RoomService } from './room.service';
+
+import type { OnInit } from '@angular/core';
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { Week } from './room.service';
 
 @Component({
-    template: require('./exceptionListAll.component.html'),
+    templateUrl: './exceptionListAll.component.html',
     selector: 'exception-list-all',
 })
 export class ExceptionListAllComponent implements OnInit {
@@ -56,21 +58,21 @@ export class ExceptionListAllComponent implements OnInit {
         this.room.updateWorkingHours(this.week, this.getRoomIds());
     };
 
-    massEditedRoomFilter = (room: ExamRoom) => room.calendarExceptionEvents.some(e => e.massEdited);
+    massEditedRoomFilter = (room: ExamRoom) => room.calendarExceptionEvents.some((e) => e.massEdited);
 
     massEditedExceptionFilter = (exception: ExceptionWorkingHours) => exception.massEdited;
 
     private loadRooms = () => {
         this.room.getRooms().subscribe(
-            rooms => {
+            (rooms) => {
                 this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
     };
 
-    private getRoomIds = () => this.rooms.map(room => room.id);
+    private getRoomIds = () => this.rooms.map((room) => room.id);
 }

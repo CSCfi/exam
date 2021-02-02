@@ -12,30 +12,36 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
-import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
+import type { OnInit } from '@angular/core';
+import type { EnrolmentInfo } from '../enrolment.model';
 @Component({
     selector: 'exam-enrolments',
     template: `
         <div id="dashboard">
-            <div class="main-row" *ngIf="exam.noTrialsLeft">
+            <div class="row mt-2 ml-2" *ngIf="exam?.noTrialsLeft">
                 <div class="col-md-12 alert-danger">
                     <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
                 </div>
             </div>
             <enrolment-details *ngIf="exam" [exam]="exam"></enrolment-details>
-            <div *ngIf="exams.length > 0" class="student-details-title-wrap subtitle">
-                <div class="student-exam-details-title subtitle">{{ 'sitnet_student_exams' | translate }}</div>
-            </div>
-            <div class="exams-list">
-                <exam-search-result *ngFor="let exam of exams" [exam]="exam"></exam-search-result>
+            <div *ngIf="exams?.length > 0">
+                <div class="row mt-2 ml-4">
+                    <div class="col-md-12 mt-2 ml-4">
+                        <h3>{{ 'sitnet_student_exams' | translate }}</h3>
+                    </div>
+                </div>
+                <div class="row mt-2 ml-4" *ngFor="let exam of exams">
+                    <div class="col-md-12">
+                        <exam-search-result [exam]="exam"></exam-search-result>
+                    </div>
+                </div>
             </div>
         </div>
     `,

@@ -14,13 +14,13 @@
  */
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import type { OnInit } from '@angular/core';
 import type { AssessedParticipation } from '../enrolment.model';
 
 @Component({

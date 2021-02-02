@@ -185,6 +185,8 @@ export class CalendarComponent implements OnInit {
         });
     }
 
+    cancel = () => this.state.go('dashboard');
+
     createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilites: Accessibility[] }) {
         this.reservation = {
             room: $event.room,

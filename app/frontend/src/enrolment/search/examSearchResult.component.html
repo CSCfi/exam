@@ -1,12 +1,17 @@
 <div
-    class="student-enrolment-wrapper details-view row"
-    [ngClass]="exam.enrolled && exam.reservationMade ? '' : 'notactive'"
+    class="student-enrolment-wrapper row align-items-center"
+    [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
 >
     <div class="col-xs-12 col-sm-12 col-md-10">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 pad5">
                 <span class="student-exam-row-title-blue">
-                    <a *ngIf="!collaborative" href="/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}">
+                    <a
+                        *ngIf="!collaborative"
+                        class="infolink"
+                        uiSref="enrolments"
+                        [uiParams]="{ id: exam.id, code: exam.course?.code }"
+                    >
                         {{ exam.name }}
                     </a>
                     <span *ngIf="collaborative">{{ exam.name }}</span>
@@ -52,12 +57,12 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
         <div class="student-message-dialog-button-save" *ngIf="!exam.alreadyEnrolled">
-            <button class="btn btn-success nowdt" (click)="enrollForExam()" [disabled]="enrolling">
+            <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling">
                 {{ 'sitnet_enroll_to_exam' | translate }}
             </button>
         </div>
         <div class="student-message-dialog-button-save" *ngIf="exam.alreadyEnrolled && !exam.reservationMade">
-            <button class="btn btn-success nowdt" (click)="makeReservation()">
+            <button class="btn btn-success" (click)="makeReservation()">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>

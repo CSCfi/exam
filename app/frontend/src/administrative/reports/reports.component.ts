@@ -12,16 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
+import { RoomService } from '../../facility/rooms/room.service';
 import { ReportsService } from './reports.service';
 import { UserResourceService, UserRole } from './userResource.service';
-import { RoomService } from '../../facility/rooms/room.service';
+
+import type { OnInit } from '@angular/core';
 
 interface Category {
     id: number;
     label: string;
-    value: any;
+    value: Record<string, unknown>;
 }
 
 @Component({
@@ -37,7 +39,7 @@ interface Category {
             <div id="dashboard">
                 <div class="report-category" *ngIf="rooms"><rooms-report [rooms]="rooms"></rooms-report></div>
                 <div class="report-category" *ngIf="examNames">
-                    <exams-report [examNames]="examNames" [fileType]="xlsx"></exams-report>
+                    <exams-report [examNames]="examNames" fileType="xlsx"></exams-report>
                 </div>
                 <div class="report-category" *ngIf="students">
                     <students-report [students]="students"></students-report>
@@ -68,32 +70,32 @@ export class ReportsComponent implements OnInit {
     students: Category[];
 
     ngOnInit() {
-        this.room.getRooms().subscribe(resp => {
-            this.rooms = resp.map(r => ({
+        this.room.getRooms().subscribe((resp) => {
+            this.rooms = resp.map((r) => ({
                 id: r.id,
                 label: `${r.buildingName} - ${r.name}`,
                 value: { ...r },
             }));
         });
 
-        this.reports.examNames().subscribe(resp => {
-            this.examNames = resp.map(en => ({
+        this.reports.examNames().subscribe((resp) => {
+            this.examNames = resp.map((en) => ({
                 id: en.id,
                 label: `${en.course.code} - ${en.name}`,
                 value: { ...en },
             }));
         });
 
-        this.userResource.usersByRole(UserRole.TEACHER).subscribe(resp => {
-            this.teachers = resp.map(t => ({
+        this.userResource.usersByRole(UserRole.TEACHER).subscribe((resp) => {
+            this.teachers = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
                 value: { ...t },
             }));
         });
 
-        this.userResource.usersByRole(UserRole.STUDENT).subscribe(resp => {
-            this.students = resp.map(t => ({
+        this.userResource.usersByRole(UserRole.STUDENT).subscribe((resp) => {
+            this.students = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
                 value: { ...t },

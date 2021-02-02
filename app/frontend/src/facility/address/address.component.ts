@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Component, Input, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,12 +20,12 @@ import * as toast from 'toastr';
 import { Address, RoomService } from '../rooms/room.service';
 
 @Component({
-    template: require('./address.component.html'),
+    templateUrl: './address.component.html',
     selector: 'exam-address',
 })
 export class AddressComponent {
     @Input() address: Address;
-    @ViewChild('addressForm') addressForm: NgForm;
+    @ViewChild('addressForm', { static: false }) addressForm: NgForm;
 
     constructor(private room: RoomService, private translate: TranslateService) {}
 
@@ -41,7 +40,7 @@ export class AddressComponent {
             () => {
                 toast.info(this.translate.instant('sitnet_room_address_updated'));
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );

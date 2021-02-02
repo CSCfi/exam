@@ -12,29 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import { StateService } from '@uirouter/core';
-import { RoomService } from './room.service';
-import { CalendarService, OpeningHours } from '../../calendar/calendar.service';
-import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { Availability } from './room.service';
 
-type SuccessFunction = (response: any) => void;
+import { CalendarService } from '../../calendar/calendar.service';
+import { RoomService } from './room.service';
+
+import type { OnInit } from '@angular/core';
+import type { OpeningHours } from '../../calendar/calendar.service';
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { Availability } from './room.service';
+
+type SuccessFunction = (response: Availability[]) => void;
 
 interface AvailableEvent {
     title: string;
     color: string;
-    start: Date;
-    end: Date;
+    start: string;
+    end: string;
     availableMachines: number;
 }
 
 type RefreshCallBackFn = (events: AvailableEvent[]) => void;
 
 @Component({
-    template: require('./availability.component.html'),
+    templateUrl: './availability.component.html',
     selector: 'availability',
 })
 export class AvailabilityComponent implements OnInit {
@@ -50,7 +54,7 @@ export class AvailabilityComponent implements OnInit {
         this.loader = {
             loading: false,
         };
-        this.roomService.getRoom(this.state.params.id).subscribe(room => {
+        this.roomService.getRoom(this.state.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
@@ -59,10 +63,12 @@ export class AvailabilityComponent implements OnInit {
     }
 
     query = (successFn: SuccessFunction, date: string) => {
-        this.roomService.getAvailability(this.state.params.id, date).subscribe(successFn, error => toast.error(error));
+        this.roomService
+            .getAvailability(this.state.params.id, date)
+            .subscribe(successFn, (error) => toast.error(error));
     };
 
-    adjust = (date: Date, tz: string) => {
+    adjust = (date: string, tz: string) => {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? -1 : 0;
         return adjusted.add(offset, 'hour').format();
@@ -82,7 +88,7 @@ export class AvailabilityComponent implements OnInit {
         const date = start.format();
         this.loader.loading = true;
         const tz = this.room.localTimezone;
-        const successFn = (resp: any) => {
+        const successFn = (resp: Availability[]) => {
             const events = resp.map((slot: Availability) => {
                 return {
                     title: slot.reserved + ' / ' + slot.total,

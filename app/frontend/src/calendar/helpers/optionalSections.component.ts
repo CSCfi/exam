@@ -9,7 +9,7 @@ import { ExamInfo } from '../calendar.component';
             <div class="row" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
                 <span class="col-md-12">
                     <span class="calendar-phase-title">2. {{ 'sitnet_exam_materials' | translate }}</span>
-                    <span class="calendar-phase-icon pull-right">
+                    <span class="calendar-phase-icon pull-right" *ngIf="sectionSelectionOk()">
                         <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
                     </span>
                 </span>

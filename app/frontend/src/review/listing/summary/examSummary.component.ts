@@ -234,7 +234,7 @@ export class ExamSummaryComponent {
             this.Files.download(
                 url,
                 this.translate.instant('sitnet_grading_info') + '_' + moment().format('dd-MM-yyyy') + '.xlsx',
-                { childIds: ids.map(toString) },
+                { childIds: ids.map((i) => i.toString()) },
                 true,
             );
         }

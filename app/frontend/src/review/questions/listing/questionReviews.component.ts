@@ -16,9 +16,9 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
+import type { QuestionReview } from '../../review.model';
 @Component({
     selector: 'question-reviews',
     templateUrl: './questionReviews.component.html',
@@ -59,5 +59,6 @@ export class QuestionReviewsComponent {
 
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
-    startReview = () => this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map(toString) });
+    startReview = () =>
+        this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map((r) => r.toString()) });
 }

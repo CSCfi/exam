@@ -16,9 +16,11 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamName, FileType } from '../reports.service';
+import { FileType } from '../reports.service';
+
+import type { Exam } from '../../../exam/exam.model';
+import type { ExamName } from '../reports.service';
 
 @Component({
     template: `

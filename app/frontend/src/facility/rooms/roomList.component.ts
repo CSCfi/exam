@@ -12,20 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as toast from 'toastr';
-import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
-import { SessionService, User } from '../../session/session.service';
-import { RoomService, Address } from './room.service';
+
+import { SessionService } from '../../session/session.service';
+import { RoomService } from './room.service';
+
+import type { OnInit } from '@angular/core';
+import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
+import type { User } from '../../session/session.service';
+import type { Address } from './room.service';
 
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
 }
 
 @Component({
-    template: require('./roomList.component.html'),
+    templateUrl: './roomList.component.html',
     selector: 'room-list',
 })
 export class RoomListComponent implements OnInit {
@@ -45,12 +50,12 @@ export class RoomListComponent implements OnInit {
 
         if (this.user.isAdmin) {
             if (!this.state.params.id) {
-                this.room.getRooms().subscribe(rooms => {
+                this.room.getRooms().subscribe((rooms) => {
                     this.times = this.room.getTimes();
                     const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
-                    this.rooms = roomsWithVisibility.map(r => ({ ...r, addressVisible: false }));
-                    this.rooms.forEach(room => {
-                        room.examMachines = room.examMachines.filter(machine => {
+                    this.rooms = roomsWithVisibility.map((r) => ({ ...r, addressVisible: false }));
+                    this.rooms.forEach((room) => {
+                        room.examMachines = room.examMachines.filter((machine) => {
                             return !machine.archived;
                         });
                     });
@@ -72,11 +77,11 @@ export class RoomListComponent implements OnInit {
     // Called when create exam button is clicked
     createExamRoom = () => {
         this.room.getDraft().subscribe(
-            room => {
+            (room) => {
                 toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('room', { id: room.id });
             },
-            function(error) {
+            function (error) {
                 toast.error(error.data);
             },
         );
