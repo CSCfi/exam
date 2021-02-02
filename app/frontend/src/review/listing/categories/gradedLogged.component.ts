@@ -108,12 +108,14 @@ export class GradedLoggedReviewsComponent {
             url += 'report/';
         }
         const fileType = asReport ? 'xlsx' : 'csv';
-        const ids = selection.map((r) => (this.collaborative ? r.examParticipation._id : r.examParticipation.exam.id));
+        const ids = selection.map((r) =>
+            this.collaborative ? (r.examParticipation._id as string) : r.examParticipation.exam.id,
+        );
 
         this.Files.download(
             url + this.exam.id,
             `${this.translate.instant('sitnet_grading_info')}_${moment().format('dd-MM-yyyy')}.${fileType}`,
-            { childIds: ids.map(toString) },
+            { childIds: ids.map((i) => i.toString()) },
             true,
         );
     };

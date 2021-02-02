@@ -12,22 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
 import { StateService } from '@uirouter/angular';
+import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { MachineService } from './machines.service';
-import { Software } from '../../exam/exam.model';
-import { ExamMachine } from '../../reservation/reservation.model';
+
+import type { OnInit } from '@angular/core';
+import type { Software } from '../../exam/exam.model';
+import type { ExamMachine } from '../../reservation/reservation.model';
 
 interface SoftwareWithClass extends Software {
     class: string;
 }
 
 @Component({
-    template: require('./machine.component.html'),
+    templateUrl: './machine.component.html',
     selector: 'machine',
 })
 export class MachineComponent implements OnInit {
@@ -43,14 +45,14 @@ export class MachineComponent implements OnInit {
 
     ngOnInit() {
         this.machines.getMachine(this.state.params.id).subscribe(
-            machine => {
+            (machine) => {
                 this.machine = machine;
-                this.machines.getSoftware().subscribe(data => {
+                this.machines.getSoftware().subscribe((data) => {
                     this.software = (data as unknown) as SoftwareWithClass[];
-                    this.software.forEach(s => {
+                    this.software.forEach((s) => {
                         s.class =
                             this.machine.softwareInfo
-                                .map((si: any) => {
+                                .map((si) => {
                                     return si.id;
                                 })
                                 .indexOf(s.id) > -1
@@ -59,7 +61,7 @@ export class MachineComponent implements OnInit {
                     });
                 });
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
@@ -76,7 +78,7 @@ export class MachineComponent implements OnInit {
                     toast.info(this.translate.instant('sitnet_machine_removed'));
                     this.state.go('rooms');
                 },
-                error => {
+                (error) => {
                     toast.error(error.data);
                 },
             );
@@ -85,10 +87,10 @@ export class MachineComponent implements OnInit {
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe(
-            response => {
+            (response) => {
                 software.class = response.turnedOn === true ? 'btn-info' : 'btn-default';
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
@@ -101,7 +103,7 @@ export class MachineComponent implements OnInit {
                     toast.info(this.translate.instant('sitnet_machine_updated'));
                     resolve(null);
                 },
-                error => {
+                (error) => {
                     toast.error(error.data);
                     reject();
                 },

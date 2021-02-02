@@ -16,8 +16,10 @@ import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { User } from '../../../session/session.service';
+
 import { FileService } from '../../../utility/file/file.service';
+
+import type { User } from '../../../session/session.service';
 
 @Component({
     template: `

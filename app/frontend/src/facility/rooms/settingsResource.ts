@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class SettingsResourceService {
@@ -24,7 +24,7 @@ export class SettingsResourceService {
     gradeScale = () => this.http.get('/app/settings/gradescale');
     enrolmentPermissions = () => this.http.get('/app/settings/enrolmentPermissionCheck');
     environment = () => this.http.get('/app/settings/environment');
-    examVisit = () => this.http.get('/app/settings/iop/examVisit');
+    examVisit = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
     anonymousReviewEnabled = () => this.http.get('/app/settings/anonymousReviewEnabled');
     maxFilesize = () => this.http.get('/app/settings/maxfilesize');
     appVersion = () => this.http.get('/app/settings/appVersion');

@@ -16,8 +16,10 @@ import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { ExamRoom } from '../../../reservation/reservation.model';
+
 import { FileService } from '../../../utility/file/file.service';
+
+import type { ExamRoom } from '../../../reservation/reservation.model';
 
 @Component({
     template: `

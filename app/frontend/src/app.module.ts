@@ -33,6 +33,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
 import { ExaminationModule } from './examination/examination.module';
+import { FacilityModule } from './facility/facility.module';
 import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
 import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
 import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
@@ -44,7 +45,6 @@ import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
-import { FacilityModule } from './facility/facility.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {

@@ -13,13 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
-import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
+
+import { ExamRoom } from '../../reservation/reservation.model';
+
+import type { OnInit } from '@angular/core';
+import type { ExamMachine } from '../../reservation/reservation.model';
 
 @Component({
-    template: require('./machineList.component.html'),
+    templateUrl: './machineList.component.html',
     selector: 'machine-list',
 })
 export class MachineListComponent implements OnInit {
@@ -34,17 +38,17 @@ export class MachineListComponent implements OnInit {
 
     toggleShow = () => (this.showMachines = !this.showMachines);
 
-    countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => m.outOfService).length : 0);
+    countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter((m) => m.outOfService).length : 0);
 
     countMachineNotices = (): number =>
-        this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0;
+        this.room ? this.room.examMachines.filter((m) => !m.outOfService && m.statusComment).length : 0;
 
     addNewMachine = () =>
         this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe(
-            resp => {
+            (resp) => {
                 toast.info(this.translate.instant('sitnet_machine_added'));
                 this.room.examMachines.push(resp);
             },
-            err => toast.error(err.data),
+            (err) => toast.error(err.data),
         );
 }

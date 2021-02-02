@@ -39,7 +39,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             </button>
                         </small>
                     </span>
-                    <span class="calendar-phase-icon pull-right">
+                    <span class="calendar-phase-icon pull-right" *ngIf="selectedRoom">
                         <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose room" />
                     </span>
                 </span>
@@ -243,7 +243,9 @@ export class SlotPickerComponent {
             const url = this.isCollaborative
                 ? `/integration/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
                 : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
-            const params = new HttpParams({ fromObject: { day: date, aids: accessibilityIds.map(toString) } });
+            const params = new HttpParams({
+                fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
+            });
             return this.http.get<AvailableSlot[]>(url, {
                 params: params,
             });
@@ -259,30 +261,40 @@ export class SlotPickerComponent {
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
         const tz = this.selectedRoom.localTimezone;
 
+        const colorFn = (slot: AvailableSlot) => {
+            if (slot.availableMachines < 0) {
+                return { primary: '#f50f35', secondary: '#fc3858' }; // red
+            } else if (slot.availableMachines > 0) {
+                return { primary: '#27542f', secondary: '#a6e9b2' }; // green
+            } else {
+                return { primary: '#8f8f8f', secondary: '#d8d8d8' }; // grey
+            }
+        };
         const successFn = (resp: AvailableSlot[]) => {
             const events: CalendarEvent<SlotMeta>[] = resp.map((slot: AvailableSlot, i) => ({
                 id: i,
                 title: this.getTitle(slot),
                 start: this.adjust(slot.start, tz),
                 end: this.adjust(slot.end, tz),
-                color: { primary: '#27542f', secondary: '#a6e9b2' },
+                color: colorFn(slot),
                 cssClass: 'black-event-text',
                 meta: { availableMachines: slot.availableMachines },
-            })); // todo if not available set color to gray
+            }));
             this.events = events;
         };
-        const errorFn = (resp: string) => {
-            toast.error(resp);
-        };
+        const errorFn = (resp: string) => toast.error(resp);
         this.query(moment(date).format('YYYY-MM-DD'), accessibilities).subscribe(successFn, errorFn);
     }
 
-    makeExternalReservation = () => this.onCancel.emit();
+    makeExternalReservation = () => {
+        delete this.selectedRoom;
+        this.events = [];
+        this.onCancel.emit();
+    };
 
     selectAccessibility = (accessibility: FilterableAccessibility) => {
-        // TODO
         accessibility.filtered = !accessibility.filtered;
-        //this.selectedAccessibilities = (this.accessibilities.filter((a) => a.filtered));
+        this.refresh({ date: this.currentWeek });
     };
 
     selectRoom = (room: FilterableRoom) => {

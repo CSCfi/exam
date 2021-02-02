@@ -12,13 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import * as moment from 'moment';
-import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+
+import { ExamRoom } from '../../reservation/reservation.model';
 import { RoomService } from '../rooms/room.service';
 
+import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
+
 @Component({
-    template: require('./exceptionList.component.html'),
+    templateUrl: './exceptionList.component.html',
     selector: 'exception-list',
 })
 export class ExceptionListComponent {
@@ -31,7 +34,7 @@ export class ExceptionListComponent {
 
     constructor(private roomService: RoomService) {}
 
-    formatDate = (exception: any) => {
+    formatDate = (exception: ExceptionWorkingHours) => {
         const fmt = 'DD.MM.YYYY HH:mm';
         const start = moment(exception.startDate);
         const end = moment(exception.endDate);

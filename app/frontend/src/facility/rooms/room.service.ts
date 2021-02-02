@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { cloneDeep } from 'lodash';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import { cloneDeep } from 'lodash';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
-import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
@@ -41,8 +42,8 @@ interface WorkingHoursObject {
 }
 
 export interface Availability {
-    start: Date;
-    end: Date;
+    start: string;
+    end: string;
     total: number;
     reserved: number;
 }
@@ -143,17 +144,19 @@ export class RoomService {
 
     getRoom = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
+    /* TODO, check these text response APIs on backend side, doesn't seem legit */
     updateRoom = (room: ExamRoom) =>
-        this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as any });
+        this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' });
 
     inactivateRoom = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
 
     activateRoom = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
 
     updateAddress = (address: Address) =>
-        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as any });
+        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' });
 
-    getAvailability = (roomId: number, date: string) => this.http.get<Availability>(this.availabilityApi(roomId, date));
+    getAvailability = (roomId: number, date: string) =>
+        this.http.get<Availability[]>(this.availabilityApi(roomId, date));
 
     updateWorkingHoursData = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
 
@@ -163,8 +166,8 @@ export class RoomService {
     updateExceptions = (roomIds: number[], exception: ExceptionWorkingHours) =>
         this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
 
-    removeException = (roomId: number, exceptionId: number) =>
-        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as any });
+    private removeException = (roomId: number, exceptionId: number) =>
+        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
 
     getDraft = () => this.http.get<ExamRoom>(this.draftApi());
 
@@ -210,7 +213,7 @@ export class RoomService {
                     toast.info(this.translate.instant('sitnet_room_inactivated'));
                     this.state.reload();
                 })
-                .catch(error => {
+                .catch((error) => {
                     toast.error(error.data);
                 }),
         );
@@ -222,7 +225,7 @@ export class RoomService {
             .then(() => {
                 toast.info(this.translate.instant('sitnet_room_activated'));
             })
-            .catch(error => {
+            .catch((error) => {
                 toast.error(error.data);
             });
 
@@ -233,7 +236,7 @@ export class RoomService {
                     toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
                 },
-                error => {
+                (error) => {
                     toast.error(error.data);
                     reject();
                 },
@@ -260,7 +263,7 @@ export class RoomService {
                     toast.info(this.translate.instant('sitnet_exception_time_removed'));
                     resolve();
                 },
-                error => {
+                (error) => {
                     toast.error(error);
                     reject(error);
                 },
@@ -274,7 +277,7 @@ export class RoomService {
 
     updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
         new Promise<void>((resolve, reject) => {
-            const selected = hours.filter(hour => hour.selected).map(hour => formatTime(hour.startingHour));
+            const selected = hours.filter((hour) => hour.selected).map((hour) => formatTime(hour.startingHour));
             const data = { hours: selected, offset, roomIds };
 
             this.updateExamStartingHours(data).subscribe(
@@ -282,7 +285,7 @@ export class RoomService {
                     toast.info(this.translate.instant('sitnet_exam_starting_hours_updated'));
                     resolve();
                 },
-                error => {
+                (error) => {
                     toast.error(error.data);
                     reject();
                 },
@@ -312,7 +315,7 @@ export class RoomService {
             () => {
                 toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );

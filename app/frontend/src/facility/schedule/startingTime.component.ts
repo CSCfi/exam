@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import * as moment from 'moment';
 
-import { RoomService, WorkingHour } from '../rooms/room.service';
+import { RoomService } from '../rooms/room.service';
 
-const zeropad = (n: number) => {
-    return String(n).length > 1 ? n : '0' + n;
-};
+import type { OnInit } from '@angular/core';
+import type { WorkingHour } from '../rooms/room.service';
 
 @Component({
-    template: require('./startingTime.component.html'),
+    templateUrl: './startingTime.component.html',
     selector: 'starting-time',
 })
 export class StartingTimeComponent implements OnInit {
@@ -34,19 +33,19 @@ export class StartingTimeComponent implements OnInit {
     constructor(private room: RoomService) {}
 
     ngOnInit() {
-        this.examStartingHours = [...Array(24)].map(function(x, i) {
+        this.examStartingHours = [...Array(24)].map(function (x, i) {
             return { startingHour: i + ':00', selected: true };
         });
         if (this.startingHours && this.startingHours.length > 0) {
-            const startingHourDates = this.startingHours.map(function(hour) {
+            const startingHourDates = this.startingHours.map(function (hour) {
                 return moment(hour.startingHour);
             });
             this.examStartingHourOffset = startingHourDates[0].minute();
-            const startingHours = startingHourDates.map(hour => {
+            const startingHours = startingHourDates.map((hour) => {
                 return hour.format('H:mm');
             });
             this.setStartingHourOffset();
-            this.examStartingHours.forEach(hour => {
+            this.examStartingHours.forEach((hour) => {
                 hour.selected = startingHours.indexOf(hour.startingHour) !== -1;
             });
         }
@@ -61,20 +60,22 @@ export class StartingTimeComponent implements OnInit {
     };
 
     toggleAllExamStartingHours = () => {
-        const anySelected = this.examStartingHours.some(hours => {
+        const anySelected = this.examStartingHours.some((hours) => {
             return hours.selected;
         });
-        this.examStartingHours.forEach(hours => {
+        this.examStartingHours.forEach((hours) => {
             hours.selected = !anySelected;
         });
     };
 
     setStartingHourOffset = () => {
         this.examStartingHourOffset = this.examStartingHourOffset || 0;
-        this.examStartingHours.forEach(hours => {
-            hours.startingHour = hours.startingHour.split(':')[0] + ':' + zeropad(this.examStartingHourOffset);
+        this.examStartingHours.forEach((hours) => {
+            hours.startingHour = hours.startingHour.split(':')[0] + ':' + this.zeropad(this.examStartingHourOffset);
         });
     };
 
-    anyStartingHoursSelected = () => this.examStartingHours.some(hours => hours.selected);
+    anyStartingHoursSelected = () => this.examStartingHours.some((hours) => hours.selected);
+
+    private zeropad = (n: number) => (String(n).length > 1 ? n : '0' + n);
 }

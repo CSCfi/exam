@@ -37,7 +37,7 @@ module.exports = merge(common, {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, '../../../public/index.ejs'),
+            template: path.resolve(__dirname, './index.ejs'),
             inject: true,
             scriptLoading: 'defer',
             filename: path.resolve(__dirname, '../../../public/index.html'),

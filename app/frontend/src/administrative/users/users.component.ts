@@ -1,4 +1,3 @@
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
@@ -6,10 +5,12 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import type { Permission } from './users.service';
 import { PermissionType, UserManagementService } from './users.service';
+
+import type { OnInit } from '@angular/core';
+import type { User } from '../../session/session.service';
+import type { Permission } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -32,7 +33,7 @@ interface UserWithOptions extends User {
 }
 
 @Component({
-    template: require('./users.component.html'),
+    templateUrl: './users.component.html',
     selector: 'users',
 })
 export class UsersComponent implements OnInit {

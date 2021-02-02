@@ -12,23 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
+
 import { InteroperabilityResourceService } from './interoperabilityResource.service';
-import { InteroperableRoom, RoomService, Week, Weekday } from './room.service';
+import { RoomService } from './room.service';
 import { SettingsResourceService } from './settingsResource';
 
+import type { OnInit } from '@angular/core';
+import type { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { InteroperableRoom, Week, Weekday } from './room.service';
+
 @Component({
-    template: require('./room.component.html'),
+    templateUrl: './room.component.html',
     selector: 'room',
 })
 export class RoomComponent implements OnInit {
-    @ViewChild('roomForm') roomForm: NgForm;
+    @ViewChild('roomForm', { static: false }) roomForm: NgForm;
     room: InteroperableRoom;
     week: Week;
     showName: boolean;
@@ -45,7 +49,7 @@ export class RoomComponent implements OnInit {
     ngOnInit() {
         this.week = this.roomService.getWeek();
         this.showName = true;
-        this.settings.examVisit().subscribe((data: any) => {
+        this.settings.examVisit().subscribe((data) => {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
@@ -56,15 +60,15 @@ export class RoomComponent implements OnInit {
                 if (!this.roomService.isAnyExamMachines(this.room)) {
                     toast.warning(this.translate.instant('sitnet_room_has_no_machines_yet'));
                 }
-                this.room.calendarExceptionEvents.forEach(event => {
+                this.room.calendarExceptionEvents.forEach((event) => {
                     this.roomService.formatExceptionEvent(event);
                 });
-                this.room.defaultWorkingHours.forEach(daySlot => {
+                this.room.defaultWorkingHours.forEach((daySlot) => {
                     const timeSlots = this.slotToTimes(daySlot);
                     this.setSelected(daySlot.weekday as Weekday, timeSlots);
                 });
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
@@ -75,7 +79,7 @@ export class RoomComponent implements OnInit {
     };
 
     addException = (exception: ExceptionWorkingHours) => {
-        this.roomService.addException([this.room.id], exception).then(data => {
+        this.roomService.addException([this.room.id], exception).then((data) => {
             this.roomService.formatExceptionEvent(data);
             this.room.calendarExceptionEvents.push(data);
         });
@@ -114,7 +118,7 @@ export class RoomComponent implements OnInit {
             () => {
                 toast.info(this.translate.instant('sitnet_room_updated'));
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
@@ -134,7 +138,7 @@ export class RoomComponent implements OnInit {
                 toast.info(this.translate.instant('sitnet_room_saved'));
                 this.state.go('rooms');
             },
-            error => {
+            (error) => {
                 toast.error(error.data);
             },
         );
@@ -142,23 +146,23 @@ export class RoomComponent implements OnInit {
 
     updateInteroperability = () => {
         this.interoperability.updateFacility(this.room).subscribe(
-            data => {
+            (data) => {
                 this.room.externalRef = data.externalRef;
                 this.room.availableForExternals = data.externalRef !== null;
             },
-            err => {
+            (err) => {
                 this.room.availableForExternals = !this.room.availableForExternals;
                 toast.error(err.data.message);
             },
         );
     };
 
-    private remove = (arr: any[], item: any) => {
+    private remove = (arr: unknown[], item: unknown) => {
         const index = arr.indexOf(item);
         arr.splice(index, 1);
     };
 
-    private setSelected = (day: Weekday, slots: any[]) => {
+    private setSelected = (day: Weekday, slots: number[]) => {
         for (let i = 0; i < slots.length; ++i) {
             if (this.week[day][slots[i]]) {
                 this.week[day][slots[i]].type = 'selected';

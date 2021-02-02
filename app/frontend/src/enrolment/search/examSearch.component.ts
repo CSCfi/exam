@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
@@ -21,18 +21,31 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../utility/language/language.service';
+
+import type { OnInit } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
 @Component({
     selector: 'exam-search',
     templateUrl: './examSearch.component.html',
+    animations: [
+        trigger('listAnimation', [
+            transition('* <=> *', [
+                query(
+                    ':enter',
+                    [style({ opacity: 0 }), stagger('60ms', animate('600ms ease-out', style({ opacity: 1 })))],
+                    { optional: true },
+                ),
+                query(':leave', animate('100ms', style({ opacity: 0 })), { optional: true }),
+            ]),
+        ]),
+    ],
 })
 export class ExamSearchComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
     filter: { text: string };
-    loader: { loading: boolean };
     permissionCheck: { active: boolean };
 
     constructor(private http: HttpClient, private Language: LanguageService) {
@@ -40,11 +53,9 @@ export class ExamSearchComponent implements OnInit {
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {
                 if (this.permissionCheck.active === false) {
+                    this.exams = [];
                     if (txt) {
-                        this.loader.loading = true;
                         this.doSearch();
-                    } else {
-                        this.exams = [];
                     }
                 }
             });
@@ -57,7 +68,6 @@ export class ExamSearchComponent implements OnInit {
 
     ngOnInit() {
         this.filter = { text: '' };
-        this.loader = { loading: false };
         this.permissionCheck = { active: false };
         this.http.get<{ active: boolean }>('/app/settings/enrolmentPermissionCheck').subscribe((setting) => {
             this.permissionCheck = setting;
@@ -88,9 +98,6 @@ export class ExamSearchComponent implements OnInit {
                 },
                 (err) => {
                     toast.error(err.data);
-                },
-                () => {
-                    this.loader.loading = false;
                 },
             );
 

@@ -1,3 +1,4 @@
+import type { Organisation } from '../calendar/calendar.component';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { LanguageInspection } from '../maturity/maturity.model';
 import type { Reservation } from '../reservation/reservation.model';
@@ -36,6 +37,7 @@ export interface Course {
     code: string;
     credits: number;
     gradeScale: GradeScale | null;
+    organisation?: Organisation;
 }
 
 export interface ExamExecutionType {
@@ -244,12 +246,6 @@ export interface Software {
     id: number;
     name: string;
     turnedOn: boolean;
-}
-
-export interface ExamType {
-    id: number;
-    type: string;
-    name?: string;
 }
 
 export interface ExamType {

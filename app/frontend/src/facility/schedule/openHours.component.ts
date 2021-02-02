@@ -12,13 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+
 import { DateTimeService } from '../../utility/date/date.service';
-import { RoomService, Week, Weekday } from '../rooms/room.service';
+import { RoomService, Week } from '../rooms/room.service';
+
+import type { OnInit } from '@angular/core';
+import type { Weekday } from '../rooms/room.service';
 
 @Component({
-    template: require('./openHours.component.html'),
+    templateUrl: './openHours.component.html',
     selector: 'open-hours',
 })
 export class OpenHoursComponent implements OnInit {
