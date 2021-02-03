@@ -17,19 +17,20 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import type { Observable } from 'rxjs';
 import { from, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 
-//import { Examination, ExaminationQuestion } from '../../examination/examination.service';
+import type { Observable } from 'rxjs';
+import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
+
 type Payload = {
     id: number;
     state: string;
@@ -56,8 +57,8 @@ export class AssessmentService {
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Exam> => {
         const data = {
-            id: exam.examFeedback.id,
-            comment: exam.examFeedback.comment,
+            id: exam.examFeedback?.id,
+            comment: exam.examFeedback?.comment,
         };
         return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
             tap(() => {
@@ -166,7 +167,7 @@ export class AssessmentService {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent(exam.examFeedback.comment);
+                dialogNote = this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment);
                 res = '/app/exam/record';
             }
             const payload = this.getPayload(exam, 'GRADED');
@@ -179,16 +180,18 @@ export class AssessmentService {
         }
     };
 
-    isCommentRead = (exam: Exam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
+    isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
-    setCommentRead = (exam: Exam) => {
+    setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
             const examFeedback = {
                 feedbackStatus: true,
             };
-            this.http
-                .put<void>(`/app/review/${exam.id}/comment/:cid/feedbackstatus`, examFeedback)
-                .subscribe(() => (exam.examFeedback.feedbackStatus = true));
+            this.http.put<void>(`/app/review/${exam.id}/comment/:cid/feedbackstatus`, examFeedback).subscribe(() => {
+                if (exam.examFeedback) {
+                    exam.examFeedback.feedbackStatus = true;
+                }
+            });
         }
     };
 

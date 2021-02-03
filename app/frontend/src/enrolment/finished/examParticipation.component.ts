@@ -13,28 +13,40 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import type { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
-import type { ReviewedExam } from '../enrolment.model';
-import { AssessedParticipation } from '../enrolment.model';
 
+import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
+import type { ExamParticipation } from '../../exam/exam.model';
+import type { OnInit } from '@angular/core';
+import type { Exam } from '../../exam/exam.model';
+import type { ReviewedExam } from '../enrolment.model';
+
+type Scores = {
+    maxScore: number;
+    totalScore: number;
+    approvedAnswerCount: number;
+    rejectedAnswerCount: number;
+    hasApprovedRejectedAnswers: boolean;
+};
 @Component({
     selector: 'exam-participation',
     templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit {
-    @Input() participation: AssessedParticipation;
+    @Input() participation: ExamParticipation | CollaborativeParticipation;
     @Input() collaborative: boolean;
 
+    reviewedExam: ReviewedExam;
+    scores: Scores;
     showEvaluation = false;
+    gradeDisplayName = '';
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -55,16 +67,14 @@ export class ExamParticipationComponent implements OnInit {
         ) {
             if (this.collaborative) {
                 // No need to load anything, because we have already everything.
-                this.prepareReview(this.participation.exam);
+                this.prepareReview(this.participation.exam as ReviewedExam);
                 return;
             }
-            this.loadReview(this.participation.exam);
+            this.loadReview(this.participation.exam as Exam);
         }
         this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            if (this.participation.exam) {
-                this.participation.exam.grade.displayName = this.Exam.getExamGradeDisplayName(
-                    this.participation.exam.grade.name,
-                );
+            if (this.participation.exam.grade) {
+                this.gradeDisplayName = this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);
             }
         });
     }
@@ -74,25 +84,28 @@ export class ExamParticipationComponent implements OnInit {
         this.ngUnsubscribe.complete();
     };
 
-    setCommentRead = (exam: Exam) => {
+    setCommentRead = (exam: Exam | ReviewedExam) => {
         if (
             this.collaborative &&
             this.participation.exam.examFeedback &&
             !this.participation.exam.examFeedback.feedbackStatus
         ) {
+            const participation = this.participation as CollaborativeParticipation;
             this.CollaborativeAssessment.setCommentRead(
-                this.participation.examId,
-                this.participation._id,
-                this.participation._rev,
+                participation.examId,
+                participation._id,
+                participation._rev,
             ).subscribe(() => {
-                this.participation.exam.examFeedback.feedbackStatus = true;
+                if (this.participation.exam.examFeedback) {
+                    this.participation.exam.examFeedback.feedbackStatus = true;
+                }
             });
         } else {
             this.Assessment.setCommentRead(exam);
         }
     };
 
-    private loadReview = (exam: ReviewedExam) =>
+    private loadReview = (exam: Exam) =>
         this.http.get<ReviewedExam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
@@ -117,7 +130,7 @@ export class ExamParticipationComponent implements OnInit {
             exam.creditType.displayName = this.Exam.getExamTypeDisplayName(exam.creditType.type);
         }
 
-        this.participation.exam = exam;
+        this.reviewedExam = exam;
         if (this.collaborative) {
             // No need to load separate scores.
             this.prepareScores(exam);
@@ -129,7 +142,7 @@ export class ExamParticipationComponent implements OnInit {
     };
 
     private prepareScores = (exam: ReviewedExam) => {
-        this.participation.scores = {
+        this.scores = {
             maxScore: exam.maxScore,
             totalScore: exam.totalScore,
             approvedAnswerCount: exam.approvedAnswerCount,

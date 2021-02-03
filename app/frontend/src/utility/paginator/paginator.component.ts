@@ -19,7 +19,7 @@ import type { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
     selector: 'paginator',
     template: `
-        <ul class="pagination pagination-sm">
+        <ul class="paginator">
             <li [ngClass]="previousPageDisabled()"><a (click)="previousPage()">&#60;</a></li>
             <li *ngFor="let n of range()" [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)">
                 <a>{{ printRange(n) }}</a>
@@ -45,7 +45,7 @@ export class PaginatorComponent implements OnChanges {
         }
     }
 
-    printRange = (n: number) => n + 1;
+    printRange = (n: number) => (n < 9 ? '0' + (n + 1) : n + 1);
 
     previousPage = () => {
         if (this.currentPage > 0) {

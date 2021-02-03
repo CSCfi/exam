@@ -14,11 +14,19 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
 
 import { SessionService } from '../../session/session.service';
-import type { CollaborativeExam, ExamParticipation } from '../exam.model';
 import { CollaborativeExamState } from '../exam.model';
+
+import type { Observable } from 'rxjs';
+
+import type { CollaborativeExam, ExamParticipation } from '../exam.model';
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
+export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
+    examId: string;
+    _id: string;
+    _rev: string;
+};
 
 @Injectable()
 export class CollaborativeExamService {
@@ -26,8 +34,8 @@ export class CollaborativeExamService {
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
-    listStudentParticipations = (): Observable<ExamParticipation[]> =>
-        this.http.get<ExamParticipation[]>('/integration/iop/student/finishedExams');
+    listStudentParticipations = (): Observable<CollaborativeParticipation[]> =>
+        this.http.get<CollaborativeParticipation[]>('/integration/iop/student/finishedExams');
 
     listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';

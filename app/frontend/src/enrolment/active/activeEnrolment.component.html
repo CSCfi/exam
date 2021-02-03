@@ -267,8 +267,8 @@
             </div>
         </div>
 
-        <div class="row student-exam-row">
-            <div class="col-md-2 student-exam-row-infolink">
+        <div class="row mt-2">
+            <div class="col-md-2">
                 <a
                     class="infolink pointer"
                     [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
@@ -297,8 +297,8 @@
                 [innerHtml]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction"
             ></div>
         </div>
-        <div class="row student-exam-row" *ngIf="enrolment.reservation?.optionalSections.length > 0">
-            <div class="col-md-12 student-exam-row-infolink">
+        <div class="row mt-2" *ngIf="enrolment.reservation?.optionalSections.length > 0">
+            <div class="col-md-12">
                 <a
                     class="infolink pointer"
                     (click)="showMaterials = !showMaterials"
@@ -383,7 +383,7 @@
                 </div>
             </div>
         </div>
-        <div class="row student-exam-row">
+        <div class="row mt-2">
             <div class="col-md-12">
                 <div
                     *ngIf="

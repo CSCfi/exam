@@ -11,14 +11,15 @@ export interface Scores {
 }
 
 type GradedExam = Omit<Exam, 'grade' | 'creditType'> & {
-    grade: { displayName: string; name: string };
+    grade?: { displayName: string; name: string };
     creditType: { displayName: string; type: string };
 };
 
 export interface ReviewedExam extends GradedExam, Scores {}
 
 export interface AssessedParticipation extends Omit<ExamParticipation, 'exam'> {
-    exam: ReviewedExam;
+    reviewedExam: ReviewedExam;
+    exam: Exam;
     collaborativeExam: CollaborativeExam;
     _id: string;
     examId: string;

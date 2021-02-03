@@ -22,7 +22,7 @@ import type { OnInit } from '@angular/core';
     template: `
         <span>
             <strong>{{ owners }}</strong
-            >{{ inspectors }}
+            ><span *ngIf="inspectors">, {{ inspectors }}</span>
         </span>
     `,
 })

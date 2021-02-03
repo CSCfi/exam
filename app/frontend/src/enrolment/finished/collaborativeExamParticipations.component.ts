@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
-import type { ExamParticipation } from '../../exam/exam.model';
 
+import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
+import type { OnInit } from '@angular/core';
 interface Filter {
     ordering: string;
     text: string;
@@ -30,8 +30,8 @@ interface Filter {
 })
 export class CollaborativeExamParticipationsComponent implements OnInit {
     collaborative = true;
-    originals: ExamParticipation[];
-    participations: ExamParticipation[] = [];
+    originals: CollaborativeParticipation[];
+    participations: CollaborativeParticipation[] = [];
     pageSize = 10;
     currentPage = 1;
     filter: Filter;
@@ -41,7 +41,7 @@ export class CollaborativeExamParticipationsComponent implements OnInit {
     ngOnInit() {
         this.filter = { ordering: '-ended', text: '' };
         this.CollaborativeExam.listStudentParticipations().subscribe(
-            (participations: ExamParticipation[]) => {
+            (participations: CollaborativeParticipation[]) => {
                 this.originals = Array.from(participations);
                 this.participations = Array.from(participations);
             },
@@ -59,7 +59,7 @@ export class CollaborativeExamParticipationsComponent implements OnInit {
             this.participations = this.originals;
             return;
         }
-        this.participations = this.originals.filter((participation: ExamParticipation) => {
+        this.participations = this.originals.filter((participation) => {
             const exam = participation.exam;
             return exam && exam.name && exam.name.indexOf(text) > -1;
         });

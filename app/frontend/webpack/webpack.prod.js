@@ -36,6 +36,10 @@ module.exports = merge(common, {
         },
     },
     plugins: [
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+            contextRegExp: /moment$/,
+        }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, './index.ejs'),
             inject: true,

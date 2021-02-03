@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import * as moment from 'moment';
@@ -22,15 +22,21 @@ import * as toast from 'toastr';
 
 import type { OnInit } from '@angular/core';
 import type { AssessedParticipation } from '../enrolment.model';
+import type { ExamParticipation } from '../../exam/exam.model';
 
 @Component({
     selector: 'exam-participations',
     templateUrl: './examParticipations.component.html',
     animations: [
-        trigger('openClose', [
-            state('open', style({ opacity: 1 })),
-            transition('void => *', [style({ opacity: 0 }), animate(700)]),
-            transition('* => void', [animate(700, style({ opacity: 1 }))]),
+        trigger('listAnimation', [
+            transition('* <=> *', [
+                query(
+                    ':enter',
+                    [style({ opacity: 0 }), stagger('60ms', animate('600ms ease-out', style({ opacity: 1 })))],
+                    { optional: true },
+                ),
+                query(':leave', animate('100ms', style({ opacity: 0 })), { optional: true }),
+            ]),
         ]),
     ],
 })
@@ -38,7 +44,7 @@ export class ExamParticipationsComponent implements OnInit {
     filter = { ordering: '-ended', text: '' };
     pageSize = 10;
     currentPage = 0;
-    participations: AssessedParticipation[];
+    participations: ExamParticipation[];
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();

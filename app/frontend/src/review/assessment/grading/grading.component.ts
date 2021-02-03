@@ -13,13 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { Exam, ExamExecutionType, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { Examination } from '../../../examination/examination.service';
@@ -31,6 +29,8 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
+import type { OnInit } from '@angular/core';
+import type { Exam, ExamExecutionType, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
     selector: 'r-grading',
     templateUrl: './grading.component.html',
@@ -128,7 +128,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     };
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback.attachment;
+        const attachment = this.exam.examFeedback?.attachment;
         if (this.collaborative && attachment && attachment.externalId) {
             this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
         } else {

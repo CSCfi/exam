@@ -1,34 +1,28 @@
-<div id="sitnet-dialog">
-    <div class="student-message-dialog-wrapper-padding">
-        <div class="student-enroll-dialog-wrap">
-            <div class="student-enroll-title">{{ 'sitnet_student_enrolment_info' | translate }}</div>
-        </div>
-        <div>
-            <form role="form" id="infoForm" name="infoForm" novalidate>
-                <p class="student-enroll-dialog-subtitle">
-                    {{ 'sitnet_student_enrolment_info_description' | translate }}
-                </p>
-                <textarea
-                    name="info"
-                    aria-label="write additional information for the examiner"
-                    rows="10"
-                    class="student-message-dialog-textarea"
-                    [(ngModel)]="information"
-                >
-                </textarea>
-            </form>
-        </div>
-        <div class="student-message-dialog-footer">
-            <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" (click)="ok()">
-                    {{ 'sitnet_button_save' | translate }}
-                </button>
-            </div>
-            <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
-                    {{ 'sitnet_button_cancel' | translate }}
-                </button>
-            </div>
-        </div>
+<div class="modal-header">
+    <h4 class="modal-title">{{ 'sitnet_student_enrolment_info' | translate }}</h4>
+</div>
+<div class="modal-body">
+    <form role="form" id="infoForm" name="infoForm" novalidate>
+        {{ 'sitnet_student_enrolment_info_description' | translate }}
+        <textarea
+            name="info"
+            aria-label="write additional information for the examiner"
+            rows="10"
+            class="mart10 student-message-dialog-textarea"
+            [(ngModel)]="information"
+        >
+        </textarea>
+    </form>
+</div>
+<div class="modal-footer">
+    <div class="student-message-dialog-button-save">
+        <button class="btn btn-sm btn-primary" (click)="ok()">
+            {{ 'sitnet_button_save' | translate }}
+        </button>
+    </div>
+    <div class="student-message-dialog-button-cancel">
+        <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
     </div>
 </div>

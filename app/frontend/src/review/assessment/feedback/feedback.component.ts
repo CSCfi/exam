@@ -66,7 +66,7 @@ export class FeedbackComponent {
     };
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback.attachment;
+        const attachment = this.exam.examFeedback?.attachment;
         if (!attachment) {
             return;
         }

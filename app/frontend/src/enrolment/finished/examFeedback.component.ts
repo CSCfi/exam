@@ -31,7 +31,7 @@ export class ExamFeedbackComponent {
     constructor(private Attachment: AttachmentService, private Files: FileService) {}
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.assessment.examFeedback.attachment;
+        const attachment = this.assessment.examFeedback?.attachment;
         if (this.collaborative && attachment && attachment.externalId) {
             this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
         } else {

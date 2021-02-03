@@ -1,5 +1,5 @@
 <div id="dashboard">
-    <div class="row" *ngIf="assessment.grade.name === 'NONE'">
+    <div class="row" *ngIf="assessment.grade?.name === 'NONE'">
         <div class="notice-wrap">
             <span class="form-group"
                 ><img class="nopad" alt="info-icon" src="/assets/assets/images/icon_info.png" />
@@ -31,7 +31,7 @@
                 <div class="clearfix visible-sm"></div>
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_grade' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                    {{ assessment.grade.displayName }}
+                    {{ assessment.grade?.displayName }}
                 </div>
             </div>
         </div>
@@ -60,43 +60,41 @@
         </div>
     </div>
 
-    <!-- total score: only show if not maturity and actual grade given -->
-    <div
-        class="row evaluation-padtop"
-        [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade.name === 'NONE'"
-    >
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_total_score' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ scores.totalScore }} / {{ scores.maxScore }}</div>
+    <div *ngIf="scores">
+        <!-- total score: only show if not maturity and actual grade given -->
+        <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_total_score' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ scores.totalScore }} / {{ scores.maxScore }}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- approved and rejected: only show if not maturity and actual grade given -->
-    <div
-        class="row evaluation-padtop"
-        [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade.name === 'NONE'"
-    >
-        <div class="col-md-12">
-            <!-- only show if approved or rejected answer count is given -->
-            <div class="row" *ngIf="scores.hasApprovedRejectedAnswers">
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_approved' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ scores.approvedAnswerCount }}
-                </div>
-                <div class="clearfix visible-xs"></div>
-                <div class="clearfix visible-sm"></div>
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_rejected' | translate }}:</div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ scores.rejectedAnswerCount }}
+        <!-- approved and rejected: only show if not maturity and actual grade given -->
+        <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+            <div class="col-md-12">
+                <!-- only show if approved or rejected answer count is given -->
+                <div class="row" *ngIf="scores.hasApprovedRejectedAnswers">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_approved' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ scores.approvedAnswerCount }}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_rejected' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ scores.rejectedAnswerCount }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- comments: only show if comments given -->
-    <div class="row evaluation-padtop margin-10" *ngIf="assessment.languageInspection">
+    <div class="row margin-10" *ngIf="assessment.languageInspection">
         <div class="col-md-12">
             <div class="row">
                 <div class="clearfix visible-xs"></div>
@@ -111,30 +109,27 @@
 
     <div
         class="row"
-        [ngClass]="!assessment.languageInspection ? 'evaluation-padtop margin-10' : ''"
-        *ngIf="assessment.examFeedback.comment"
+        [ngClass]="!assessment.languageInspection ? 'margin-10' : ''"
+        *ngIf="assessment.examFeedback?.comment"
     >
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</div>
             </div>
             <div class="row">
-                <div
-                    class="col-md-12 evaluation-padtop general-info-content"
-                    [innerHtml]="assessment.examFeedback.comment"
-                ></div>
+                <div class="col-md-12 general-info-content" [innerHtml]="assessment.examFeedback?.comment"></div>
             </div>
         </div>
     </div>
 
     <!-- comment attachment: only show if attachment uploaded -->
-    <div class="row evaluation-padtop" *ngIf="assessment.examFeedback && assessment.examFeedback.attachment">
+    <div class="row" *ngIf="assessment.examFeedback?.attachment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_feedback_attachment' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                     <a class="link-text pointer" ng-click="downloadFeedbackAttachment()">
-                        {{ assessment.examFeedback.attachment.fileName }}
+                        {{ assessment.examFeedback?.attachment?.fileName }}
                     </a>
                 </div>
                 <div class="clearfix visible-xs"></div>
@@ -146,12 +141,12 @@
     </div>
 
     <!-- credits and grade-->
-    <div class="row evaluation-padtop margin-20" *ngIf="assessment.languageInspection">
+    <div class="row margin-20" *ngIf="assessment.languageInspection">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_language_inspections' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ assessment.grade.displayName }}
+                    {{ assessment.grade?.displayName }}
                 </div>
             </div>
         </div>
@@ -165,21 +160,21 @@
             </div>
             <div class="row">
                 <div
-                    class="col-md-12 evaluation-padtop general-info-content"
-                    [innerHtml]="assessment.languageInspection.statement.comment"
+                    class="col-md-12 general-info-content"
+                    [innerHtml]="assessment.languageInspection?.statement.comment"
                 ></div>
             </div>
         </div>
     </div>
 
     <!-- statement attachment: only show if attachment uploaded -->
-    <div class="row evaluation-padtop" *ngIf="assessment.languageInspection.statement.attachment">
+    <div class="row" *ngIf="assessment.languageInspection?.statement.attachment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_statement_attachment' | translate }}:</div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                     <a class="link-text pointer col-md-8" ng-click="downloadStatementAttachment()">
-                        {{ assessment.languageInspection.statement.attachment.fileName }}
+                        {{ assessment.languageInspection?.statement.attachment.fileName }}
                     </a>
                 </div>
                 <div class="clearfix visible-xs"></div>
