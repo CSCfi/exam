@@ -13,16 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import type { OnInit } from '@angular/core';
-interface Filter {
-    ordering: string;
-    text: string;
-}
 
 @Component({
     selector: 'collaborative-exam-participations',
@@ -30,38 +26,39 @@ interface Filter {
 })
 export class CollaborativeExamParticipationsComponent implements OnInit {
     collaborative = true;
-    originals: CollaborativeParticipation[];
-    participations: CollaborativeParticipation[] = [];
+    originals: CollaborativeParticipation[] = [];
+    participations: CollaborativeParticipation[];
     pageSize = 10;
-    currentPage = 1;
-    filter: Filter;
+    currentPage = 0;
+    filter = { ordering: 'ended', reverse: true, text: '' };
 
-    constructor(private CollaborativeExam: CollaborativeExamService) {}
+    constructor(private changeDetector: ChangeDetectorRef, private CollaborativeExam: CollaborativeExamService) {}
 
     ngOnInit() {
-        this.filter = { ordering: '-ended', text: '' };
         this.CollaborativeExam.listStudentParticipations().subscribe(
             (participations: CollaborativeParticipation[]) => {
-                this.originals = Array.from(participations);
-                this.participations = Array.from(participations);
+                this.originals = participations;
+                this.search();
             },
             (err) => toastr.error(err.data),
         );
     }
 
-    pageSelected(page: number) {
-        this.currentPage = page;
+    ngAfterViewInit() {
+        this.changeDetector.detectChanges();
     }
+
+    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 
     search() {
         const text = this.filter.text;
         if (!text || text.length < 1) {
             this.participations = this.originals;
-            return;
+        } else {
+            this.participations = this.originals.filter((participation) => {
+                const exam = participation.exam;
+                return exam.name && exam.name.indexOf(text) > -1;
+            });
         }
-        this.participations = this.originals.filter((participation) => {
-            const exam = participation.exam;
-            return exam && exam.name && exam.name.indexOf(text) > -1;
-        });
     }
 }

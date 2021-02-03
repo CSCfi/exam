@@ -1,4 +1,4 @@
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { Reservation } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 
@@ -16,23 +16,6 @@ type GradedExam = Omit<Exam, 'grade' | 'creditType'> & {
 };
 
 export interface ReviewedExam extends GradedExam, Scores {}
-
-export interface AssessedParticipation extends Omit<ExamParticipation, 'exam'> {
-    reviewedExam: ReviewedExam;
-    exam: Exam;
-    collaborativeExam: CollaborativeExam;
-    _id: string;
-    examId: string;
-    _rev: string;
-    scores: {
-        maxScore: number;
-        totalScore: number;
-        approvedAnswerCount: number;
-        rejectedAnswerCount: number;
-        hasApprovedRejectedAnswers: boolean;
-    };
-}
-
 export interface ExternalExam {
     id: number;
     hash: string;

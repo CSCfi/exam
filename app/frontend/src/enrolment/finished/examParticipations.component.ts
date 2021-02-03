@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import * as moment from 'moment';
@@ -21,27 +20,14 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import type { OnInit } from '@angular/core';
-import type { AssessedParticipation } from '../enrolment.model';
 import type { ExamParticipation } from '../../exam/exam.model';
 
 @Component({
     selector: 'exam-participations',
     templateUrl: './examParticipations.component.html',
-    animations: [
-        trigger('listAnimation', [
-            transition('* <=> *', [
-                query(
-                    ':enter',
-                    [style({ opacity: 0 }), stagger('60ms', animate('600ms ease-out', style({ opacity: 1 })))],
-                    { optional: true },
-                ),
-                query(':leave', animate('100ms', style({ opacity: 0 })), { optional: true }),
-            ]),
-        ]),
-    ],
 })
 export class ExamParticipationsComponent implements OnInit {
-    filter = { ordering: '-ended', text: '' };
+    filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
     participations: ExamParticipation[];
@@ -69,7 +55,7 @@ export class ExamParticipationsComponent implements OnInit {
     private doSearch = (text: string) => {
         this.filter.text = text;
         this.http
-            .get<AssessedParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
+            .get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
             .subscribe(
                 (data) => {
                     data.filter((p) => !p.ended).forEach(

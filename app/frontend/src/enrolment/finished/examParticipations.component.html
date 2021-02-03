@@ -51,36 +51,36 @@
                 <button
                     ngbDropdownItem
                     role="presentation"
-                    (click)="filter.ordering = 'exam.name'"
+                    (click)="filter.ordering = 'exam.name'; filter.reverse = false"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'exam.name'"
+                    (keyup.enter)="filter.ordering = 'exam.name'; filter.reverse = false"
                 >
                     {{ 'sitnet_exam_name_ascending' | translate }}
                 </button>
                 <button
                     ngbDropdownItem
                     role="presentation"
-                    (click)="filter.ordering = '-exam.name'"
+                    (click)="filter.ordering = 'exam.name'; filter.reverse = true"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = '-exam.name'"
+                    (keyup.enter)="filter.ordering = 'exam.name'; filter.reverse = true"
                 >
                     {{ 'sitnet_exam_name_descending' | translate }}
                 </button>
                 <button
                     ngbDropdownItem
                     role="presentation"
-                    (click)="filter.ordering = 'ended'"
+                    (click)="filter.ordering = 'ended'; filter.reverse = false"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'ended'"
+                    (keyup.enter)="filter.ordering = 'ended'; filter.reverse = false"
                 >
                     {{ 'sitnet_exam_participation_descending' | translate }}
                 </button>
                 <button
                     ngbDropdownItem
                     role="presentation"
-                    (click)="filter.ordering = '-ended'"
+                    (click)="filter.ordering = 'ended'; filter.reverse = true"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = '-ended'"
+                    (keyup.enter)="filter.ordering = 'ended'; filter.reverse = true"
                 >
                     {{ 'sitnet_exam_participation_ascending' | translate }}
                 </button>
@@ -89,21 +89,16 @@
     </div>
 
     <!-- List of finished exams -->
-    <div [@listAnimation]="pageSize">
-        <div
-            class="row mart10"
-            *ngFor="
-                let participation of participations
-                    | orderBy: filter.ordering
-                    | slice: currentPage * pageSize:currentPage * pageSize + pageSize
-            "
-        >
-            <div class="col-md-12">
-                <exam-participation
-                    [participation]="participation"
-                    [collaborative]="collaborative"
-                ></exam-participation>
-            </div>
+    <div
+        class="row mart10"
+        *ngFor="
+            let participation of participations
+                | orderBy: filter.ordering:filter.reverse
+                | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+        "
+    >
+        <div class="col-md-12">
+            <exam-participation [participation]="participation" [collaborative]="collaborative"></exam-participation>
         </div>
     </div>
 

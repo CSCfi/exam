@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
@@ -36,7 +37,7 @@ import { WrongLocationComponent } from './wrong-location/wrongLocation.component
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UIRouterModule, UtilityModule],
+    imports: [BrowserAnimationsModule, NgbModule, OrderModule, UIRouterModule, UtilityModule],
     exports: [ActiveEnrolmentComponent],
     declarations: [
         ActiveEnrolmentComponent,
