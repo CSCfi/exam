@@ -13,20 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { from, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import { ExaminationTypeSelectorComponent } from '../../../exam/editor/common/examinationTypeSelector.component';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 
+import type { OnInit } from '@angular/core';
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 export interface ExtraColumn {
     text: string;
     property: string;
@@ -46,7 +48,6 @@ export class ExamListCategoryComponent implements OnInit {
     @Input() defaultReverse: boolean;
     @Output() onFilterChange = new EventEmitter<string>();
 
-    selectedType: ExecutionType;
     userId: number;
     pageSize = 10;
     sorting: {
@@ -61,7 +62,8 @@ export class ExamListCategoryComponent implements OnInit {
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
-        private dialog: ConfirmationDialogService,
+        private modal: NgbModal,
+        private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
         private DateTime: DateTimeService,
         private Session: SessionService,
@@ -111,20 +113,23 @@ export class ExamListCategoryComponent implements OnInit {
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
     };
 
-    copyExam = (exam: Exam, type: string) => {
-        this.http
-            .post<{ id: number }>(`/app/exams/${exam.id}`, { type: type })
+    copyExam = (exam: Exam) =>
+        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
+            .pipe(
+                switchMap((data: { type: string; examinationType: string }) =>
+                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
+                ),
+            )
             .subscribe(
                 (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('examEditor', { id: resp.id });
+                    this.state.go('examEditor', { id: resp.id, tab: 1 });
                 },
-                (resp) => toast.error(resp.data),
+                (err) => toast.error(err.data),
             );
-    };
 
     deleteExam = (exam: Exam) => {
-        const dialog = this.dialog.open(
+        const dialog = this.Dialog.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
         );

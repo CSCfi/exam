@@ -14,16 +14,18 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { from, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, map, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import type { Exam, Implementation } from '../exam.model';
+import { ExaminationTypeSelectorComponent } from '../editor/common/examinationTypeSelector.component';
 import { ExamService } from '../exam.service';
 
+import type { Exam, Implementation } from '../exam.model';
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
@@ -37,9 +39,6 @@ export class ExamListingComponent {
     reverse: boolean;
     filter: { text: string };
     loader: { loading: boolean };
-    executionTypes: { type: string; name: string; examinationTypes: { type: string; name: string }[] }[];
-    selectedType: { type: string; name: string; examinationTypes: { type: string; name: string }[] };
-    byodExaminationSupported: boolean;
     exams: ExamListExam[] = [];
     subject = new Subject<string>();
     ngUnsubscribe = new Subject();
@@ -48,6 +47,7 @@ export class ExamListingComponent {
         private translate: TranslateService,
         private state: StateService,
         private http: HttpClient,
+        private modal: NgbModal,
         private Confirmation: ConfirmationDialogService,
         private Exam: ExamService,
     ) {}
@@ -65,59 +65,47 @@ export class ExamListingComponent {
         this.filter = { text: '' };
         this.loader = { loading: false };
 
-        this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
-            const byodSupported = resp.isByodExaminationSupported;
-            this.Exam.listExecutionTypes().subscribe((types) => {
-                this.executionTypes = types.map((t) => {
-                    const implementations =
-                        t.type != 'PRINTOUT' && byodSupported
-                            ? [
-                                  { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
-                                  { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
-                                  { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
-                              ]
-                            : [];
-                    return { ...t, examinationTypes: implementations };
-                });
-            });
-            this.subject
-                .pipe(
-                    tap(() => (this.loader.loading = true)),
-                    debounceTime(500),
-                    distinctUntilChanged(),
-                    exhaustMap((term) =>
-                        term.length < 2
-                            ? from([])
-                            : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
-                    ),
-                    map((exams: ExamListExam[]) => {
-                        exams.forEach((e) => {
-                            e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
-                            if (e.state === 'PUBLISHED') {
-                                e.expired = new Date() > new Date(e.examActiveEndDate);
-                            } else {
-                                e.expired = false;
-                            }
-                        });
-                        return exams;
-                    }),
-                    tap((exams) => {
-                        this.exams = exams;
-                        this.loader.loading = false;
-                    }),
-                    takeUntil(this.ngUnsubscribe),
-                )
-                .subscribe();
-        });
+        this.subject
+            .pipe(
+                tap(() => (this.loader.loading = true)),
+                debounceTime(500),
+                distinctUntilChanged(),
+                exhaustMap((term) =>
+                    term.length < 2
+                        ? from([])
+                        : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
+                ),
+                map((exams: ExamListExam[]) => {
+                    exams.forEach((e) => {
+                        e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
+                        if (e.state === 'PUBLISHED') {
+                            e.expired = new Date() > new Date(e.examActiveEndDate);
+                        } else {
+                            e.expired = false;
+                        }
+                    });
+                    return exams;
+                }),
+                tap((exams) => {
+                    this.exams = exams;
+                    this.loader.loading = false;
+                }),
+                takeUntil(this.ngUnsubscribe),
+            )
+            .subscribe();
     }
 
     search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
 
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 
-    copyExam = (exam: Exam, type: string, examinationType = 'AQUARIUM') =>
-        this.http
-            .post<Exam>(`/app/exams/${exam.id}`, { type: type, examinationType: examinationType })
+    copyExam = (exam: Exam) =>
+        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
+            .pipe(
+                switchMap((data: { type: string; examinationType: string }) =>
+                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
+                ),
+            )
             .subscribe(
                 (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
