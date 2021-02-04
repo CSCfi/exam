@@ -14,61 +14,69 @@
  */
 import { Component, EventEmitter, Output } from '@angular/core';
 
-import type { User } from '../session.service';
 import { SessionService } from '../session.service';
 
+import type { User } from '../session.service';
 @Component({
     selector: 'dev-login',
     template: `
-        <div class="top-row">
-            <div class="col-md-12">
-                <div class="student-details-title-wrap padtop noleft">
-                    <div class="student-exam-details-title">{{ 'sitnet_login' | translate }}</div>
+        <div class="container-fluid">
+            <div class="row mart20">
+                <div class="col-md-12">
+                    <div class="student-details-title-wrap">
+                        <div class="student-enroll-title">{{ 'sitnet_login' | translate }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="login">
-            <form (ngSubmit)="login()">
-                <p>
-                    <label class="control-label">{{ 'sitnet_username' | translate }}</label>
-                    <input
-                        class="form-control login"
-                        name="uname"
-                        type="text"
-                        placeholder="{{ 'sitnet_username' | translate }}"
-                        [(ngModel)]="credentials.username"
-                    />
-                </p>
-                <p>
-                    <label class="control-label">{{ 'sitnet_password' | translate }}</label>
-                    <input
-                        class="form-control login"
-                        type="password"
-                        name="pwd"
-                        placeholder="{{ 'sitnet_password' | translate }}"
-                        [(ngModel)]="credentials.password"
-                    /><br />
-                </p>
-                <p>
-                    <button type="submit" class="btn btn-primary" id="submit">{{ 'sitnet_login' | translate }}</button>
-                </p>
-            </form>
+            <div class="row marl20">
+                <div class="col">
+                    <form (ngSubmit)="login()">
+                        <div class="form-group">
+                            <label for="uname">{{ 'sitnet_username' | translate }}</label>
+                            <input
+                                id="uname"
+                                class="form-control login"
+                                name="uname"
+                                type="text"
+                                placeholder="{{ 'sitnet_username' | translate }}"
+                                [(ngModel)]="username"
+                                (keydown.enter)="$event.target.blur(); login()"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="pwd">{{ 'sitnet_password' | translate }}</label>
+                            <input
+                                id="pwd"
+                                class="form-control login"
+                                type="password"
+                                name="pwd"
+                                placeholder="{{ 'sitnet_password' | translate }}"
+                                [(ngModel)]="password"
+                                (keydown.enter)="$event.target.blur(); login()"
+                            />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submit">
+                            {{ 'sitnet_login' | translate }}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     `,
 })
 export class DevLoginComponent {
     @Output() onLoggedIn = new EventEmitter<User>();
 
-    credentials = { username: '', password: '' };
+    username: string;
+    password: string;
 
     constructor(private Session: SessionService) {}
 
-    login() {
-        this.Session.login$(this.credentials.username, this.credentials.password).subscribe(
-            (user: User) => {
-                this.onLoggedIn.emit(user);
-            },
+    login = () => {
+        this.Session.login$(this.username, this.password).subscribe(
+            (user) => this.onLoggedIn.emit(user),
             (err) => console.log(JSON.stringify(err)),
         );
-    }
+    };
 }

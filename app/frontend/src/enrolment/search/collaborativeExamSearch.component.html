@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div *ngIf="exams.length > 0 && filter.text && filter.text.length > 2" class="student-details-title-wrap padleft">
+    <div *ngIf="exams.length > 0 && filter.text.length > 2" class="student-details-title-wrap padleft">
         {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
         {{ 'sitnet_student_exam_search_result_continues' | translate }}
         <b>"{{ filter.text }}"</b>

@@ -14,6 +14,7 @@
  */
 import './assets/styles/main.scss';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'toastr/toastr.scss';
 
 import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';

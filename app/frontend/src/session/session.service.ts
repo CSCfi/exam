@@ -13,14 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnDestroy } from '@angular/core';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import type { Observable, Unsubscribable } from 'rxjs';
-import { defer, from, iif, interval, of, Subject, throwError } from 'rxjs';
+import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
 
@@ -28,6 +26,8 @@ import { WindowRef } from '../utility/window/window.service';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
+import type { OnDestroy } from '@angular/core';
+import type { Observable, Unsubscribable } from 'rxjs';
 export interface Role {
     name: string;
     displayName?: string;
@@ -305,7 +305,7 @@ export class SessionService implements OnDestroy {
                     this.redirect();
                 }),
                 catchError((resp) => {
-                    toastr.error(resp);
+                    toastr.error(this.i18n.instant(resp));
                     this.logout();
                     return throwError(resp);
                 }),
@@ -313,11 +313,8 @@ export class SessionService implements OnDestroy {
 
     private processLogin$(user: User): Observable<User> {
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
-            iif(
-                () => u.isStudent && !u.userAgreementAccepted,
-                defer(() => this.openUserAgreementModal$(u)),
-                of(u),
-            );
+            //    switchMap((u: User) => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
+            defer(() => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
         return user.loginRole
             ? userAgreementConfirmation$(user)
             : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));

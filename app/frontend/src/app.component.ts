@@ -63,7 +63,7 @@ export class AppComponent {
         });
         this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             delete this.user;
-            this.state.go('/');
+            this.state.go('app');
         });
     }
 

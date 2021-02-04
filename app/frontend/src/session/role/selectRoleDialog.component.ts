@@ -43,7 +43,7 @@ import { User } from '../session.service';
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
+                <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
                     {{ 'sitnet_button_decline' | translate }}
                 </button>
             </div>
