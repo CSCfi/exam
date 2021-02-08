@@ -22,7 +22,7 @@ import type { OnInit } from '@angular/core';
 import type { Accessibility } from '../../reservation/reservation.model';
 
 @Component({
-    template: './accessibility.component.html',
+    templateUrl: './accessibility.component.html',
     selector: 'accessibility',
 })
 export class AccessibilityComponent implements OnInit {

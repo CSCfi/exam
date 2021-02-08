@@ -93,7 +93,7 @@
         <div class="col-md-12">
             <button [hidden]="!loader.loading" class="btn btn-success">
                 {{ 'sitnet_searching' | translate }}&hellip;
-                <div class="spinner-border" role="status">
+                <div class="spinner-border spinner-border-sm" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </button>
@@ -298,7 +298,7 @@
             <div *ngIf="filteredUsers && filteredUsers.length > pageSize">
                 <paginator
                     [items]="filteredUsers"
-                    (onSelectPage)="pageSelected(page)"
+                    (onSelectPage)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                 ></paginator>

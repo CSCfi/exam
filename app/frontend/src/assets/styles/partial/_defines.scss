@@ -352,12 +352,32 @@ $sitnet-icon-size: 32px;
 }
 
 .header-top-link {
+  display: flex;
   margin: 0 0.8em;
   color: $sitnet-text;
   font-size: 0.9em;
-  line-height: 4em;
+  line-height: 0.5em;
   font-weight: bold;
   cursor: pointer;
+  align-items: center;
+  text-decoration: none !important;
+
+  span:hover {
+    text-decoration: underline;
+  }
+
+  i {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    background-color: #3FA9F5;
+    border-radius: 2px;
+    color: white;
+    margin-right: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+  }
 }
 
 .top-margin-1 {
@@ -793,4 +813,8 @@ $sitnet-icon-size: 32px;
 
 .background-none {
   background: none;
+}
+
+.font-6 {
+  font-size: 1.5rem;
 }

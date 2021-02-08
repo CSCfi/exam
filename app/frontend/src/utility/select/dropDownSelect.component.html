@@ -1,16 +1,16 @@
 <div ngbDropdown>
     <button
         ngbDropdownToggle
-        class="btn btn-default btn-block"
+        class="btn btn-outline-secondary"
         type="button"
         aria-haspopup="true"
         aria-expanded="true"
         id="dd1"
     >
-        {{ selected.label || placeholder | translate }}
+        {{ selected?.label || placeholder | translate }}
     </button>
     <ul ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-        <li ngbDropdownItem class="input-group">
+        <li class="input-group p-2">
             <input
                 [(ngModel)]="searchFilter"
                 class="form-control"

@@ -23,31 +23,30 @@ import { FileService } from '../../../utility/file/file.service';
                 {{ 'sitnet_get_graded_exams' | translate }}
             </h4>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-5">
+        <div class="bottom-row d-flex justify-content-between">
+            <div class="col-lg-5 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
                     <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-lg-5 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
                     <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 mb-2">
                 <label for="link">&nbsp;</label>
                 <div id="link">
                     <a
                         (click)="getReviewsByDate()"
-                        class="fa-stack fa-lg pointer pull-right"
+                        class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i class="bi-file-earmark-word font-6"></i>
                     </a>
                 </div>
             </div>

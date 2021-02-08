@@ -48,6 +48,12 @@ import { SpeedReviewComponent } from './review/listing/speedReview.component';
 import { QuestionAssessmentComponent } from './review/questions/assessment/questionAssessment.component';
 import { LogoutComponent } from './session/logout/logout.component';
 import { SoftwareComponent } from './software/software.component';
+import { ExamRoomsAdminTabsComponent } from './facility/examRoomsAdminTabs.component';
+import { MachineComponent } from './facility/machines/machine.component';
+import { RoomComponent } from './facility/rooms/room.component';
+import { AvailabilityComponent } from './facility/rooms/availability.component';
+import { MultiRoomComponent } from './facility/rooms/multiRoom.component';
+import { ReportsComponent } from './administrative/reports/reports.component';
 
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
@@ -309,6 +315,36 @@ const rootModule: RootModule = {
             name: 'app',
             url: '/',
             component: AppComponent,
+        },
+        {
+            name: 'rooms',
+            url: '/rooms',
+            component: ExamRoomsAdminTabsComponent,
+        },
+        {
+            name: 'machine',
+            url: '/machines/:id',
+            component: MachineComponent,
+        },
+        {
+            name: 'room',
+            url: '/rooms/:id',
+            component: RoomComponent,
+        },
+        {
+            name: 'availability',
+            url: '/rooms/:id/availability',
+            component: AvailabilityComponent,
+        },
+        {
+            name: 'multiRoom',
+            url: '/rooms_edit/edit_multiple',
+            component: MultiRoomComponent,
+        },
+        {
+            name: 'reports',
+            url: '/reports',
+            component: ReportsComponent,
         },
     ],
     useHash: false,

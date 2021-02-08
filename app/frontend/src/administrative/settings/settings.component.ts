@@ -20,10 +20,13 @@ export interface AppConfig {
     roles: { ADMIN: string[]; TEACHER: string[]; STUDENT: string[] };
     supportsMaturity: boolean;
     supportsPrintouts: boolean;
+    isExamVisitSupported: boolean;
+    isExamCollaborationSupported: boolean;
+    courseSearchIntegrationUrls: { [key: string]: string };
 }
 
 @Component({
-    template: require('./settings.component.html'),
+    templateUrl: './settings.component.html',
     selector: 'settings',
 })
 export class SettingsComponent implements OnInit {

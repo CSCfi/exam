@@ -1,9 +1,8 @@
-<div class="detail-row" [hidden]="room.state === 'INACTIVE'">
-    <h5 class="col-md-12">
-        <a (click)="toggleShow()" class="fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i [hidden]="!showMachines" class="fa fa-chevron-down fa-stack-1x"></i>
-            <i [hidden]="showMachines" class="fa fa-chevron-right fa-stack-1x"></i>
+<div class="detail-row p-3" [hidden]="room.state === 'INACTIVE'">
+    <h5 class="ml-3">
+        <a (click)="toggleShow()">
+            <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
+            <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
         </a>
         {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
         <span
@@ -66,7 +65,8 @@
                     <a
                         [ngClass]="{ 'text-danger': !machine.name }"
                         class="exams-info-title bold-button"
-                        href="/machines/{{ machine.id }}"
+                        uiSref="machine"
+                        [uiParams]="{ id: machine.id }"
                     >
                         {{ !machine.name ? ('sitnet_no_name' | translate) : machine.name }}
                     </a>

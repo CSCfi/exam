@@ -41,7 +41,6 @@ export class MultiRoomComponent implements OnInit {
 
     addException = (exception: ExceptionWorkingHours) => {
         const roomIds = this.getRoomIds();
-        console.log(roomIds);
         this.room.addException(this.getRoomIds(), exception).then(() => {
             this.loadRooms();
         });

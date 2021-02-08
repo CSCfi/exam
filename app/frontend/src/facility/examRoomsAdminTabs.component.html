@@ -1,28 +1,29 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-9">
+    <div class="top-row d-flex justify-content-between align-items-center">
+        <div>
             <div class="student-enroll-title-wrap marb20">
                 <div>
                     <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
-                    <a (click)="createExamRoom()" class="marl20">
-                        <img class="plus_icon" src="Images/icon_plus.png" />
+                    <a (click)="createExamRoom()" class="font-6 marl20">
+                        <i class="bi-plus-circle"></i>
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <span class="pull-left fa-stack fa-lg header-top-icon">
-                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
-            </span>
-            <a class="header-top-link" (click)="editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
+        <div>
+            <a class="header-top-link" (click)="editMultipleRooms()">
+                <i class="bi-building"></i>
+                <span>
+                    {{ 'sitnet_edit_all_rooms' | translate }}
+                </span>
+            </a>
         </div>
     </div>
     <div class="tab-wrapper">
         <ngb-tabset [activeId]="activeTab" (tabChange)="tabChanged($event)">
             <ngb-tab *ngIf="user.isAdmin" [id]="1" [title]="getHeadingTranslation('sitnet_exam_all_rooms')">
                 <ng-template ngbTabContent>
-                    <room-list (onNextTabSelected)="switchToExceptionTimes()"> </room-list>
+                    <room-list></room-list>
                 </ng-template>
             </ngb-tab>
             <!--<uib-tab ng-if="user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"-->

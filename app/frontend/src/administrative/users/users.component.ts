@@ -37,8 +37,8 @@ interface UserWithOptions extends User {
     selector: 'users',
 })
 export class UsersComponent implements OnInit {
-    users: User[] = [];
-    filteredUsers: User[] = [];
+    users: UserWithOptions[] = [];
+    filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
     currentPage = 0;
     filter = { text: '' };
@@ -88,7 +88,7 @@ export class UsersComponent implements OnInit {
         this.loader = { loading: false };
     }
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
     search = () => {
         this.loader.loading = true;
