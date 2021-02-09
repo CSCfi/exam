@@ -215,7 +215,7 @@ export class UsersComponent implements OnInit {
     initSearch = () => {
         this.userManagement.getUsers(this.filter.text).subscribe(
             (users) => {
-                this.users = users;
+                this.users = users as UserWithOptions[];
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
                 });
