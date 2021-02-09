@@ -151,7 +151,7 @@ interface BlankElement extends ContentElement {
 }
 export interface ClozeTestAnswer {
     id: number;
-    score: { correctAnswers: number; incorrectAnswers: number };
+    score?: { correctAnswers: number; incorrectAnswers: number };
     maxScore: number;
     answer: string;
     objectVersion: number;
@@ -263,7 +263,7 @@ export interface ExamImpl {
     examActiveStartDate: string | number;
     examActiveEndDate: string | number;
     duration: number;
-    course: Course | null;
+    course?: Course;
     external: boolean;
     collaborative: boolean;
     hash: string;

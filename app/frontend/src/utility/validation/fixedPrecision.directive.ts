@@ -12,25 +12,31 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Directive } from '@angular/core';
-import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
-import { NG_VALIDATORS } from '@angular/forms';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
-export function fixedPrecisionValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-        const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
-        const match = !control.value.toString().match(re);
-
-        return match ? null : { notFixedPrecisionValue: { value: control.value } };
-    };
-}
 @Directive({
     selector: '[fixedPrecision]',
-    /* eslint-disable-next-line */
-    providers: [{ provide: NG_VALIDATORS, useExisting: FixedPrecisionValidatorDirective, multi: true }],
 })
-export class FixedPrecisionValidatorDirective implements Validator {
-    validate(control: AbstractControl): ValidationErrors | null {
-        return fixedPrecisionValidator()(control);
+export class FixedPrecisionValidatorDirective {
+    @Input() ngModel?: number;
+
+    constructor(private el: ElementRef) {}
+
+    @HostListener('change')
+    onChange() {
+        const fixed = this.toFixed();
+        console.log('fixed value: ' + fixed);
+        (this.el.nativeElement as HTMLInputElement).value = fixed;
     }
+
+    private toFixed = () => {
+        if (!this.ngModel) {
+            return '0';
+        }
+        const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
+        if (!this.ngModel.toString().match(re)) {
+            return this.ngModel.toFixed(2);
+        }
+        return this.ngModel.toString();
+    };
 }

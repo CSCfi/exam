@@ -50,11 +50,11 @@ export class ExamQuestionComponent {
     @Output() onSave = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
     @Output() onCancel = new EventEmitter<void>();
 
-    question: ReverseQuestion;
+    question?: ReverseQuestion;
     transitionWatcher?: unknown;
-    examNames: string[];
-    sectionNames: string[];
-    missingOptions: string[];
+    examNames: string[] = [];
+    sectionNames: string[] = [];
+    missingOptions: string[] = [];
     isInPublishedExam: boolean;
 
     constructor(
@@ -97,7 +97,10 @@ export class ExamQuestionComponent {
 
     save = () => {
         this.Window.nativeWindow.onbeforeunload = null;
-        this.onSave.emit({ question: this.question, examQuestion: this.examQuestion as ExamSectionQuestion });
+        this.onSave.emit({
+            question: this.question as ReverseQuestion,
+            examQuestion: this.examQuestion as ExamSectionQuestion,
+        });
     };
 
     cancel = () => {
@@ -170,6 +173,9 @@ export class ExamQuestionComponent {
 
     selectFile = () =>
         this.Attachment.selectFile(true).then((data) => {
+            if (!this.question) {
+                return;
+            }
             this.question.attachment = {
                 ...this.question.attachment,
                 modified: true,
@@ -180,9 +186,9 @@ export class ExamQuestionComponent {
             };
         });
 
-    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.question);
+    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.question as ReverseQuestion);
 
-    removeQuestionAttachment = () => this.Attachment.removeQuestionAttachment(this.question);
+    removeQuestionAttachment = () => this.Attachment.removeQuestionAttachment(this.question as ReverseQuestion);
 
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
@@ -214,6 +220,10 @@ export class ExamQuestionComponent {
         )
             .filter((type) => type !== 'SkipOption')
             .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
+    };
+
+    errors = (status: unknown) => {
+        return JSON.stringify(status);
     };
 
     hasInvalidClaimChoiceOptions = () =>

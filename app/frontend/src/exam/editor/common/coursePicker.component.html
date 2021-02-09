@@ -1,92 +1,67 @@
-<!-- old style for course search results, not very accessible 
-    <ng-template #rt let-r="result">
-        <style>
-                li:nth-child(even) {
-                    background-color: #f2f2f2;
-                }
-        </style>    
-        <a style="font-size:0.90em;color:#000;cursor:pointer;">
-            <span ng-if="r.code.indexOf('_') === -1" style="text-transform: uppercase;">{{r.code}} {{r.name}}</span>
-            <span ng-if="r.code.indexOf('_') > -1">{{r.code}} <br />{{r.name}}</span>
-        </a>	    
-</ng-template-->
-<form class="inline-form col-md-12" autocomplete="off">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="exam-basic-title">
-                {{ 'sitnet_course' | translate }}
-                <sup>
-                    <img
-                        ngbPopover="{{ 'sitnet_select_exam_course_description' | translate }}"
-                        placement="right"
+<form class="form-inline" autocomplete="off">
+    <div>
+        <label for="courseCode" class="exam-basic-selecttitle" style="display: block">{{
+            'sitnet_course_code' | translate
+        }}</label>
+        <div class="input-group">
+            <input
+                id="courseCode"
+                class="form-control"
+                [(ngModel)]="filter"
+                name="code"
+                [ngbTypeahead]="getCoursesByCode$"
+                (selectItem)="onCourseSelect($event)"
+                [inputFormatter]="codeFormat"
+                [resultFormatter]="courseFormat"
+                required
+            />
+            <div class="input-group-append">
+                <span class="input-group-text">
+                    <i
+                        *ngIf="!loader.code.isOn"
+                        class="bi-question-circle"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
                         triggers="mouseenter:mouseleave"
-                        src="/assets/assets/images/icon_tooltip.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                    />
-                </sup>
+                    ></i>
+                    <span class="spinner-border spinner-border-sm" role="status" *ngIf="loader.code.isOn">
+                        <span class="sr-only">Loading...</span>
+                    </span>
+                </span>
             </div>
         </div>
-        <div class="col-md-3">
-            <label for="courseCode" class="exam-basic-selecttitle">{{ 'sitnet_course_code' | translate }}</label>
-            <div class="input-group">
-                <input
-                    id="courseCode"
-                    class="form-control"
-                    [(ngModel)]="filter"
-                    name="code"
-                    [ngbTypeahead]="getCoursesByCode$"
-                    (selectItem)="onCourseSelect($event)"
-                    [inputFormatter]="codeFormat"
-                    [resultFormatter]="courseFormat"
-                    required
-                />
-                <div class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            *ngIf="!loader.code.isOn"
-                            class="bi-question-circle"
-                            ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
-                            placement="left"
-                            triggers="mouseenter:mouseleave"
-                        ></i>
-                        <span class="spinner-border" role="status">
+    </div>
+    <div class="ml-5" style="min-width: 500px">
+        <label for="courseName" class="exam-basic-selecttitle" style="display: block">{{
+            'sitnet_course_name' | translate
+        }}</label>
+        <div class="input-group">
+            <input
+                id="courseName"
+                class="form-control"
+                [(ngModel)]="filter"
+                name="name"
+                [ngbTypeahead]="getCoursesByName$"
+                (selectItem)="onCourseSelect($event)"
+                [inputFormatter]="nameFormat"
+                [resultFormatter]="courseFormat"
+                required
+            />
+            <div class="input-group-append">
+                <span class="input-group-text">
+                    <i
+                        *ngIf="!loader.name.isOn"
+                        class="bi-question-circle"
+                        ngbPopover="{{ 'sitnet_course_name' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    ></i>
+                    <span *ngIf="loader.name.isOn" class="horizontal-padding-05">
+                        <span class="spinner-border-sm" role="status">
                             <span class="sr-only">Loading...</span>
                         </span>
                     </span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-5">
-            <label for="courseName" class="exam-basic-selecttitle">{{ 'sitnet_course_name' | translate }}</label>
-            <div class="input-group">
-                <input
-                    id="courseName"
-                    class="form-control"
-                    [(ngModel)]="filter"
-                    name="name"
-                    [ngbTypeahead]="getCoursesByName$"
-                    (selectItem)="onCourseSelect($event)"
-                    [inputFormatter]="nameFormat"
-                    [resultFormatter]="courseFormat"
-                    required
-                />
-                <div class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            *ngIf="!loader.name.isOn"
-                            class="bi-question-circle"
-                            ngbPopover="{{ 'sitnet_course_name' | translate }}"
-                            placement="left"
-                            triggers="mouseenter:mouseleave"
-                        ></i>
-                        <span *ngIf="loader.name.isOn" class="horizontal-padding-05">
-                            <span class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </span>
-                        </span>
-                    </span>
-                </div>
+                </span>
             </div>
         </div>
     </div>

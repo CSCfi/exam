@@ -155,7 +155,7 @@ export class ExamService {
         return name;
     };
 
-    refreshExamTypes = (): Observable<(ExamType & { name: string })[]> =>
+    refreshExamTypes$ = (): Observable<(ExamType & { name: string })[]> =>
         this.http.get<ExamType[]>('/app/examtypes').pipe(
             map((resp) =>
                 resp.map((et) => ({
@@ -187,7 +187,7 @@ export class ExamService {
         return name;
     };
 
-    refreshGradeScales = (isCollaborative: boolean): Observable<GradeScale[]> => {
+    refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
         const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
         return this.http.get<GradeScale[]>(url).pipe(
             map((resp) =>
@@ -230,7 +230,7 @@ export class ExamService {
         }
     };
 
-    listExecutionTypes = (): Observable<(ExamExecutionType & { name: string })[]> =>
+    listExecutionTypes$ = (): Observable<(ExamExecutionType & { name: string })[]> =>
         this.http.get<ExamExecutionType[]>('/app/executiontypes').pipe(
             map((resp) =>
                 resp.map((et) =>
@@ -385,27 +385,27 @@ export class ExamService {
         }
     };
 
-    reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
+    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
         this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
 
-    addSection = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
+    addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
 
-    removeSection = (exam: Exam, section: ExamSection): Observable<void> =>
+    removeSection$ = (exam: Exam, section: ExamSection): Observable<void> =>
         this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
 
-    addExaminationEvent = (
+    addExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
 
-    updateExaminationEvent = (
+    updateExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
 
-    removeExaminationEvent = (examId: number, config: ExaminationEventConfiguration) =>
+    removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
 }

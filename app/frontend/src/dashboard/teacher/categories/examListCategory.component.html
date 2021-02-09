@@ -135,18 +135,21 @@
                         </td>
                         <td class="text-center">
                             <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
-                                <img
-                                    src="/assets/assets/images/icon_trashcan.svg"
-                                    alt="exam"
-                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_trashcan.png'"
+                                <i
+                                    class="bi-trash text-dark"
                                     ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
-                                    placement="left"
                                     triggers="mouseenter:mouseleave"
-                                />
+                                ></i>
                             </a>
                         </td>
                         <td class="text-center">
-                            <a (click)="copyExam(exam)"><i class="bi-files"></i></a>
+                            <a class="pointer" (click)="copyExam(exam)">
+                                <i
+                                    class="bi-files text-dark"
+                                    ngbPopover="{{ 'sitnet_copy' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                ></i>
+                            </a>
                         </td>
                     </tr>
                     <tr *ngIf="!items || items.length === 0">

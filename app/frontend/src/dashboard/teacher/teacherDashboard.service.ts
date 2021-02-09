@@ -64,7 +64,7 @@ export class TeacherDashboardService {
     }
 
     populate = (): Observable<Dashboard> =>
-        forkJoin(this.Exam.listExecutionTypes(), this.http.get<Exam[]>('/app/reviewerexams')).pipe(
+        forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
             map((resp) => {
                 const dashboard = new Dashboard();
                 dashboard.executionTypes = resp[0];
