@@ -1,80 +1,95 @@
 <!-- Sections -->
-<div class="col-md-12 exam-border">
-    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40" *ngIf="exam.hasEnrolmentsInEffect">
+<div class="exam-border">
+    <div class="row" *ngIf="exam.hasEnrolmentsInEffect">
         <div class="col-md-12">
-            <div class="col-md-1">
-                <img
-                    src="/assets/assets/images/icon_warning.png"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"
-                />
-            </div>
-            <div class="col-md-11 warning-text">
-                {{ 'sitnet_upcoming_reservations_exist' | translate }}
+            <div class="row student-enrolment-wrapper review-view exam-questions-warning mart40">
+                <div class="col-md-1">
+                    <img
+                        src="/assets/assets/images/icon_warning.png"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"
+                    />
+                </div>
+                <div class="col-md-11 warning-text">
+                    {{ 'sitnet_upcoming_reservations_exist' | translate }}
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-12 padl0 padt40" id="exam">
-        <div cdkDropList (cdkDropListDropped)="moveSection($event)" style="cursor: move">
-            <div *ngFor="let section of exam.examSections" cdkDrag cdkDragLockAxis="y">
-                <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-                <div class="drag-preview" *cdkDragPreview>#{{ section.index }} {{ section.name }}</div>
-                <section
-                    [section]="section"
-                    [examId]="exam.id"
-                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                    (on-delete)="removeSection(section)"
-                    (on-materials-changed)="loadMaterials()"
-                ></section>
+    <div class="row">
+        <div class="col-md-12 padl0 padt20" id="exam">
+            <div cdkDropList (cdkDropListDropped)="moveSection($event)" style="cursor: move">
+                <div *ngFor="let section of exam.examSections" cdkDrag cdkDragLockAxis="y" class="section-handle">
+                    <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                    <div class="drag-preview" *cdkDragPreview>#{{ section.index }} {{ section.name }}</div>
+                    <section
+                        [section]="section"
+                        [examId]="exam.id"
+                        [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
+                        (onDelete)="removeSection(section)"
+                        (onMaterialsChanged)="loadMaterials()"
+                    ></section>
+                </div>
             </div>
         </div>
-        <div class="col-md-12 padl0 mart20">
-            <div class="col-md-3 exam-basic-title">{{ 'sitnet_total_score' | translate }}:</div>
-            <div class="col-md-9">
-                {{ calculateExamMaxScore() }}
-            </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 exam-basic-title">
+            <h4>{{ 'sitnet_total_score' | translate }}:</h4>
+        </div>
+        <div class="col-md-9">
+            <h4>{{ calculateExamMaxScore() }}</h4>
         </div>
     </div>
 </div>
 
 <!-- Buttons -->
-<div class="col-md-12 padl0 padr0 marb20">
-    <div class="review-attachment-button exam-questions-buttons">
-        <a class="pointer" (click)="addNewSection()">
-            <i class="bi-plus"></i>&nbsp;{{ 'sitnet_section_add' | translate }}
-        </a>
+<div class="row mr-1">
+    <div class="col-md-2 marb20">
+        <div class="review-attachment-button exam-questions-buttons">
+            <a class="pointer" (click)="addNewSection()">
+                <i class="bi-plus"></i>&nbsp;{{ 'sitnet_section_add' | translate }}
+            </a>
+        </div>
     </div>
-    <span class="pull-right">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" (click)="previewExam(2)">
-                {{ 'sitnet_preview' | translate }}
-            </a>
+    <div class="col">
+        <div class="row justify-content-end">
+            <div class="col-auto p-1">
+                <div class="review-attachment-button exam-questions-buttons">
+                    <a class="pointer preview" (click)="previewExam(2)">
+                        {{ 'sitnet_preview' | translate }}
+                    </a>
+                </div>
+            </div>
+            <div class="col-auto p-1">
+                <div class="review-attachment-button exam-questions-buttons marl10">
+                    <a class="pointer" (click)="updateExam()">
+                        {{ 'sitnet_save' | translate }}
+                    </a>
+                </div>
+            </div>
+            <div class="col-auto p-1">
+                <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons marl10">
+                    <a class="pointer warning" (click)="removeExam()">
+                        {{ 'sitnet_exam_remove' | translate }}
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="review-attachment-button exam-questions-buttons marl10">
-            <a class="pointer" (click)="updateExam()">
-                {{ 'sitnet_save' | translate }}
-            </a>
-        </div>
-        <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons marl10">
-            <a class="pointer warning" (click)="removeExam()">
-                {{ 'sitnet_exam_remove' | translate }}
-            </a>
-        </div>
-    </span>
+    </div>
 </div>
-
-<div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
-    <span class="pull-right">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" (click)="nextTab()"> {{ 'sitnet_exam_publish_tab' | translate }} &#187;</a>
-        </div>
-    </span>
-    <span class="pull-left">
+<div class="row mt-2">
+    <div class="col-md-2 grey-top marb20 padt20">
         <div class="review-attachment-button exam-questions-buttons">
             <a class="pointer preview" (click)="previousTab()">
                 &#171; {{ 'sitnet_exam_basic_information_tab' | translate }}</a
             >
         </div>
-    </span>
+    </div>
+    <div class="col grey-top marb20 padt20">
+        <div class="review-attachment-button exam-questions-buttons float-right">
+            <a class="pointer preview" (click)="nextTab()"> {{ 'sitnet_exam_publish_tab' | translate }} &#187;</a>
+        </div>
+    </div>
 </div>

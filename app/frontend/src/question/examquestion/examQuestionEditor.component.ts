@@ -28,6 +28,7 @@ import type { Question } from '../../exam/exam.model';
         <div id="sitnet-dialog">
             <div class="modal-body">
                 <exam-question
+                    *ngIf="examQuestion"
                     [examQuestion]="examQuestion"
                     (onSave)="onSave($event)"
                     (onCancel)="cancel()"

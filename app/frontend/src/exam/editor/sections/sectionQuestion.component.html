@@ -1,11 +1,11 @@
-<div class="student-enrolment-wrapper review-view">
+<div class="student-enrolment-wrapper review-view mb-2">
     <div class="review-points-exam">
         <strong>#{{ sectionQuestion.question.id }}</strong>
         <a
             *ngIf="sectionQuestion.question.attachment?.id || sectionQuestion.question.attachment?.externalId"
-            class="pointer attachment-link pull-right"
-            ngbPopover="{{ sectionQuestion.question.attachment.fileName }}"
-            placement="left"
+            class="infolink pointer attachment-link float-right"
+            ngbPopover="{{ sectionQuestion.question.attachment?.fileName }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
             (click)="downloadQuestionAttachment()"
         >
@@ -42,12 +42,14 @@
             *ngIf="sectionQuestion.answerInstructions || sectionQuestion.options.length > 0"
         >
             <img
+                *ngIf="!sectionQuestion.expanded"
                 (click)="(!sectionQuestion.expanded)"
                 src="/assets/assets/images/icon_list_show_right.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
             />
             <img
+                *ngIf="sectionQuestion.expanded"
                 (click)="(sectionQuestion.expanded)"
                 src="/assets/assets/images/icon_list_show_down.svg"
                 alt="exam"
@@ -57,26 +59,15 @@
     </div>
     <!-- Cog icon -->
 
-    <div class="pull-right dropdown pointer-hand single-question-icon" ngbDropdown>
-        <a href class="pull-right dropdown-toggle exam-settings-link" ngbDropdownToggle>
-            <span class="exam-section-question-settings">{{ 'sitnet_settings' | translate }}</span>
-            <img
-                src="/assets/assets/images/icon_settings.png"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_settings.png'"
-            />
-        </a>
-        <ul class="dropdown-menu" ngbDropdownMenu>
-            <li ngbDropdownItem>
-                <a (click)="editQuestion()"> {{ 'sitnet_edit' | translate }}</a>
-            </li>
-            <li ngbDropdownItem>
-                <a (click)="removeQuestion()">{{ 'sitnet_remove' | translate }}</a>
-            </li>
-        </ul>
+    <div class="pull-right pointer-hand single-question-icon" ngbDropdown>
+        <button class="btn btn-outline-dark" ngbDropdownToggle>{{ 'sitnet_settings' | translate }}</button>
+        <div ngbDropdownMenu>
+            <button ngbDropdownItem (click)="editQuestion()">{{ 'sitnet_edit' | translate }}</button>
+            <button ngbDropdownItem (click)="removeQuestion()">{{ 'sitnet_remove' | translate }}</button>
+        </div>
     </div>
 
-    <div class="col-md-12" *ngIf="sectionQuestion.expanded">
+    <div *ngIf="sectionQuestion.expanded" class="marl10 mt-2">
         <img
             src="/assets/assets/images/icon_info.png"
             *ngIf="sectionQuestion.answerInstructions?.length > 0"
@@ -86,8 +77,9 @@
         <span *ngIf="sectionQuestion.answerInstructions?.length > 0" class="padl10">
             {{ sectionQuestion.answerInstructions }}</span
         >
-        <ul class="exam-section-question-options">
+        <ul class="exam-section-question-options mt-2">
             <li
+                class="ml-2"
                 [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
                 *ngFor="let option of sectionQuestion.options"
             >
@@ -103,9 +95,10 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
                 />
-                <span class="exam-question-option-text">{{ option.option.option }}</span>
+                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
             </li>
             <li
+                class="ml-2"
                 [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
                 *ngFor="let option of sectionQuestion.options"
             >
@@ -121,12 +114,13 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.png'"
                 />
-                <span class="exam-question-option-text">{{ option.option.option }}</span>
-                <span class="exam-question-option-text pull-right"
+                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
+                <span class="exam-question-option-text pl-2"
                     >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
                 >
             </li>
             <li
+                class="mt-2"
                 [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
                 *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'"
             >
@@ -148,8 +142,8 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
                 />
-                <span class="exam-question-option-text">{{ option.option.option }}</span>
-                <span class="exam-question-option-text pull-right"
+                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
+                <span class="exam-question-option-text pl-2"
                     >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
                 >
             </li>

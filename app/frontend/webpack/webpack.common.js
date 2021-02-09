@@ -11,9 +11,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
  * Base configuration object for Webpack
  */
 const config = {
-    entry: [
-        './src/main.ts', // Angular entrypoint
-    ],
+    entry: ['./src/main.ts'],
     optimization: {
         usedExports: true,
     },
@@ -45,12 +43,12 @@ const config = {
             {
                 test: /\.ts$/,
                 use: [
-                    { loader: 'ts-loader', options: { transpileOnly: true } },
+                    { loader: 'ts-loader', options: { transpileOnly: true, experimentalWatchApi: true } },
                     { loader: 'angular2-template-loader' },
                 ],
             },
             {
-                test: /\.(jpg|png|svg)$/,
+                test: /\.(png|svg)$/,
                 type: 'asset/resource',
             },
             {
@@ -58,29 +56,20 @@ const config = {
                 type: 'asset/source',
             },
             {
-                test: /\.(woff|woff2|ttf|eof|eot)$/,
+                test: /\.(woff|woff2)$/,
                 use: ['url-loader'],
             },
         ],
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin({
-            eslint: true,
-        }),
+        new ForkTsCheckerWebpackPlugin({ eslint: true }),
         new ForkTsCheckerNotifierWebpackPlugin({ title: 'TypeScript', excludeWarnings: false }),
-        new webpack.ProvidePlugin({
-            $: 'jquery',
-            jQuery: 'jquery',
-            'window.jQuery': 'jquery',
-        }),
-        new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/, path.join(__dirname, './src')),
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-        new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
+        //new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     ],
     resolve: {
-        alias: { Images: path.resolve(__dirname, '../src/assets/images') },
-        extensions: ['.ts', '.js', '.json', '.css', '.html'],
+        extensions: ['.ts', '.js'],
         fallback: { buffer: require.resolve('buffer/') },
     },
 };

@@ -56,7 +56,7 @@
                             <input
                                 type="text"
                                 name="roomCode"
-                                class="form-control ng-pristine ng-valid"
+                                class="form-control"
                                 [(ngModel)]="room.roomCode"
                                 required
                                 (blur)="validateInputAndUpdateRoom($event)"
@@ -80,7 +80,7 @@
                             <input
                                 type="text"
                                 name="buildingName"
-                                class="form-control ng-pristine ng-valid"
+                                class="form-control"
                                 [(ngModel)]="room.buildingName"
                                 (blur)="updateRoom()"
                             />
@@ -107,7 +107,7 @@
                                 <input
                                     type="text"
                                     name="campus"
-                                    class="form-control ng-pristine ng-valid"
+                                    class="form-control"
                                     [(ngModel)]="room.campus"
                                     (blur)="updateRoom()"
                                 />
@@ -180,21 +180,21 @@
             <div class="sitnet-info-text">{{ 'sitnet_room_guidance' | translate }}</div>
             <div class="input-group">
                 <textarea
-                    class="form-control ng-pristine ng-valid"
+                    class="form-control"
                     [(ngModel)]="room.roomInstruction"
                     (blur)="updateRoom()"
                     placeholder="fin"
                 >
                 </textarea>
                 <textarea
-                    class="form-control ng-pristine ng-valid"
+                    class="form-control"
                     [(ngModel)]="room.roomInstructionEN"
                     (blur)="updateRoom()"
                     placeholder="eng"
                 >
                 </textarea>
                 <textarea
-                    class="form-control ng-pristine ng-valid"
+                    class="form-control"
                     [(ngModel)]="room.roomInstructionSV"
                     (blur)="updateRoom()"
                     placeholder="swe"
@@ -216,12 +216,7 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_room_contact_person' | translate }}</div>
             <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control ng-pristine ng-valid"
-                    [(ngModel)]="room.contactPerson"
-                    (blur)="updateRoom()"
-                />
+                <input type="text" class="form-control" [(ngModel)]="room.contactPerson" (blur)="updateRoom()" />
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
@@ -241,12 +236,7 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_room_videorecordings_url' | translate }}</div>
             <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control ng-pristine ng-valid"
-                    [(ngModel)]="room.videoRecordingsURL"
-                    (blur)="updateRoom()"
-                />
+                <input type="text" class="form-control" [(ngModel)]="room.videoRecordingsURL" (blur)="updateRoom()" />
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
@@ -288,7 +278,7 @@
             <div class="input-group">
                 <textarea
                     [disabled]="!room.outOfService"
-                    class="form-control ng-pristine ng-valid"
+                    class="form-control"
                     [(ngModel)]="room.statusComment"
                     (blur)="updateRoom()"
                 >

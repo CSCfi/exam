@@ -16,64 +16,67 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
     selector: 'multiple-choice-editor',
     template: `
-        <div class="col-md-12 mart20 marb10" *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
-            <div class="col-md-6 padl0">
+        <div class="row mt-2" *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
+            <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
                     <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                    <small class="pl-2" *ngIf="showWarning">{{
+                        'sitnet_shared_question_property_info' | translate
+                    }}</small>
                 </span>
             </div>
-            <div class="col-md-2 question-option-title">
+            <div class="col-md-6 question-option-title">
                 {{ 'sitnet_word_points' | translate | uppercase }}
             </div>
-            <div class="col-md-4"></div>
         </div>
-        <div class="col-md-12 mart20 marb10" *ngIf="question.type == 'MultipleChoiceQuestion'">
-            <div class="col-md-6 padl0">
+        <div class="row mt-2" *ngIf="question.type == 'MultipleChoiceQuestion'">
+            <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
                     <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
                     <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
                 </span>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-6">
                 <div class="question-option-title make-inline">
                     {{ 'sitnet_multiplechoice_question_correct' | translate | uppercase }}
                 </div>
             </div>
-            <div class="col-md-4"></div>
         </div>
-        <div id="question-editor">
-            <div class="row" *ngFor="let option of question.options">
+        <div class="row" id="question-editor" *ngFor="let option of question.options; let i = index">
+            <div class="col-md-12">
                 <mc-option-editor
                     *ngIf="question.type === 'MultipleChoiceQuestion'"
                     [option]="option"
                     [question]="question"
+                    [index]="i"
                     [allowRemoval]="!lotteryOn && allowOptionRemoval"
                 >
                 </mc-option-editor>
                 <wmc-option-editor
                     *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
                     [option]="option"
+                    [index]="i"
                     [question]="question"
                     [lotteryOn]="lotteryOn"
                 ></wmc-option-editor>
             </div>
-            <div *ngIf="question.type == 'WeightedMultipleChoiceQuestion'" class="row">
-                <div class="col-md-6">&nbsp;</div>
-                <div class="col-md-2 question-option-title">
-                    {{ 'sitnet_max_score' | translate | uppercase }}:
-                    {{ calculateDefaultMaxPoints() }}
-                </div>
+        </div>
+        <div *ngIf="question.type == 'WeightedMultipleChoiceQuestion'" class="row mt-3">
+            <div class="col-md-12 question-option-title">
+                {{ 'sitnet_max_score' | translate | uppercase }}:
+                {{ calculateDefaultMaxPoints() }}
             </div>
-            <div class="row mart20 padl30">
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
                 <a (click)="addNewOption()" class="attachment-link pointer">
                     <i class="bi-plus"></i>
                     {{ 'sitnet_question_add_new_option' | translate }}

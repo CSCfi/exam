@@ -35,19 +35,19 @@ import type { ExamParticipation } from '../../../exam/exam.model';
 })
 export class ExamSummaryComponent {
     @Input() exam: Exam;
-    @Input() reviews: ExamParticipation[];
+    @Input() reviews: ExamParticipation[] = [];
     @Input() collaborative: boolean;
 
-    gradeDistribution: _.Dictionary<number>;
+    gradeDistribution: Record<string, number>;
     gradedCount: number;
     gradeTimeData: Array<{ x: string; y: number }>;
-    gradeDistributionData: number[];
-    gradeDistributionLabels: string[];
-    abortedExams: ExamParticipation[];
-    noShows: ExamEnrolment[];
+    gradeDistributionData: number[] = [];
+    gradeDistributionLabels: string[] = [];
+    abortedExams: ExamParticipation[] = [];
+    noShows: ExamEnrolment[] = [];
     gradeDistributionChart: Chart;
     gradeTimeChart: Chart;
-    sectionScores: _.Dictionary<{ max: number; totals: number[] }>;
+    sectionScores: Record<string, { max: number; totals: number[] }>;
 
     constructor(
         private http: HttpClient,

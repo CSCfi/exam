@@ -34,6 +34,7 @@ export class LanguageService {
         en: { name: 'English', nativeName: 'English' },
         fi: { name: 'Finnish', nativeName: 'suomi' },
         sv: { name: 'Swedish', nativeName: 'svenska' },
+        de: { name: 'German', nativeName: 'Deutsch' },
     };
 
     getLanguageName = (code: string) => {

@@ -99,8 +99,8 @@ export class ExamPublicationComponent implements OnInit {
         });
     };
 
-    startDateChanged = (date: string) => (this.exam.examActiveStartDate = date);
-    endDateChanged = (date: string) => (this.exam.examActiveEndDate = date);
+    startDateChanged = (event: { date: string }) => (this.exam.examActiveStartDate = event.date);
+    endDateChanged = (event: { date: string }) => (this.exam.examActiveEndDate = event.date);
 
     autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
         Object.assign(this.exam.autoEvaluationConfig, config);
@@ -111,7 +111,7 @@ export class ExamPublicationComponent implements OnInit {
         this.exam.gradeScale &&
         this.exam.executionType.type !== 'MATURITY';
 
-    updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
+    private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
         const config = {
             evaluationConfig:
                 this.autoEvaluation.enabled && this.canBeAutoEvaluated()
@@ -242,7 +242,7 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
+            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
                 this.exam.examinationEventConfigurations.push(config);
             });
         });
@@ -256,7 +256,7 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
+            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
                 (config: ExaminationEventConfiguration) => {
                     const index = this.exam.examinationEventConfigurations.indexOf(configuration);
                     console.log(index);
@@ -276,7 +276,7 @@ export class ExamPublicationComponent implements OnInit {
             this.translate.instant('sitnet_are_you_sure'),
         )
             .result.then(() =>
-                this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
+                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe(
                     () => {
                         this.exam.examinationEventConfigurations.splice(
                             this.exam.examinationEventConfigurations.indexOf(configuration),

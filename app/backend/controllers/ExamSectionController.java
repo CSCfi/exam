@@ -337,7 +337,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Transactional
-    public Result insertMultipleQuestions(Long eid, Long sid, String questions, Http.Request request) {
+    public Result insertMultipleQuestions(Long eid, Long sid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
         if (exam == null || section == null) {
@@ -348,6 +348,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return forbidden("sitnet_error_access_forbidden");
         }
         int sequence = request.body().asJson().get("sequenceNumber").asInt();
+        String questions = request.body().asJson().get("questions").asText();
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {

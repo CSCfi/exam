@@ -17,6 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
 import { QuestionService } from '../../../question/question.service';
@@ -282,17 +283,17 @@ export class SectionComponent {
         const modal = this.modal.open(QuestionSelectorComponent, {
             backdrop: 'static',
             keyboard: true,
-            windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;
         modal.componentInstance.questionCount = this.section.sectionQuestions.length;
-        modal.result.then((modalValue: ExamSectionQuestion[] | undefined) => {
-            if (modalValue && Array.isArray(modalValue)) {
-                this.section.sectionQuestions = [...this.section.sectionQuestions, ...modalValue];
-            }
-        });
+        modal.result
+            .then(
+                (questions: ExamSectionQuestion[]) =>
+                    (this.section.sectionQuestions = [...this.section.sectionQuestions, ...questions]),
+            )
+            .catch(noop);
     };
 
     getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);

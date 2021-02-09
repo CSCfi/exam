@@ -19,12 +19,12 @@ import { Question } from '../../exam/exam.model';
 @Component({
     selector: 'essay-editor',
     template: `
-        <div class="col-md-12 margin-20 padl0 padr0">
-            <form name="essayForm">
-                <div class="col-md-3 exam-basic-title padl0">
+        <form name="essayForm">
+            <div class="row mt-3">
+                <div class="col-md-3 exam-basic-title">
                     {{ 'sitnet_essay_length_recommendation' | translate }}
                 </div>
-                <div class="col-lg-5 col-md-7">
+                <div class="col-md-9">
                     <div class="input-group">
                         <input
                             id="wc"
@@ -34,11 +34,10 @@ import { Question } from '../../exam/exam.model';
                             lang="en"
                             class="form-control"
                             [(ngModel)]="question.defaultExpectedWordCount"
-                            (change)="estimateCharacters()"
-                            min="1"
-                            max="1000000"
+                            [min]="1"
+                            [max]="1000000"
                         />
-                        <span class="input-group-addon" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
+                        <span class="input-group-text" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
                             {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}
                             {{ 'sitnet_characters' | translate }}
                         </span>
@@ -48,8 +47,8 @@ import { Question } from '../../exam/exam.model';
                         {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     `,
 })
 export class EssayEditorComponent {

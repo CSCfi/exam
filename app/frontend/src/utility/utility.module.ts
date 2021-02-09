@@ -46,6 +46,8 @@ import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
+import { MaxDirective } from './validation/maxValue.directive';
+import { MinDirective } from './validation/minValue.directive';
 import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
 import { WindowRef } from './window/window.service';
 
@@ -74,6 +76,8 @@ import { WindowRef } from './window/window.service';
         DiffInDaysPipe,
         DynamicFormComponent,
         FilterByPipe,
+        MinDirective,
+        MaxDirective,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -98,6 +102,8 @@ import { WindowRef } from './window/window.service';
         DynamicFormComponent,
         DynamicFormQuestionComponent,
         FilterByPipe,
+        MinDirective,
+        MaxDirective,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

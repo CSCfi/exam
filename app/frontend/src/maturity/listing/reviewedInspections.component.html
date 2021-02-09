@@ -210,7 +210,7 @@
                 <!-- 7 -->
                 <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
                 <!-- 8 -->
-                <td ng-if="inspection.modifier">
+                <td *ngIf="inspection.modifier">
                     <span>{{ inspection.inspectorName }} </span>
                     <span>
                         <br />
