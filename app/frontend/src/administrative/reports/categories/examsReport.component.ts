@@ -31,24 +31,28 @@ import type { ExamName } from '../reports.service';
                 <span *ngIf="fileType === 'json'">{{ 'sitnet_json_file' | translate }}</span>
             </h4>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-10">
+        <div class="bottom-row d-flex justify-content-between">
+            <div class="col-lg-10 mb-4">
                 <label for="exam">{{ 'sitnet_select_exam' | translate }}</label>
-                <dropdown-select id="exam" [options]="examNames" (onSelect)="examSelected($event)"></dropdown-select>
+                <dropdown-select
+                    id="exam"
+                    *ngIf="examNames"
+                    [options]="examNames"
+                    (onSelect)="examSelected($event)"
+                ></dropdown-select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 mb-2">
                 <label for="link"></label>
                 <div id="link">
                     <a
                         (click)="getExams()"
-                        class="fa-stack fa-lg pull-right"
+                        class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i *ngIf="fileType === 'xlsx'" class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
-                        <i *ngIf="fileType === 'json'" class="fa fa-file-code-o sitnet-white fa-stack-1x"></i>
+                        <i *ngIf="fileType === 'xlsx'" class="bi-file-earmark-excel font-6"></i>
+                        <i *ngIf="fileType === 'json'" class="bi-file-earmark-code font-6"></i>
                     </a>
                 </div>
             </div>

@@ -28,39 +28,39 @@ import type { User } from '../../../session/session.service';
                 {{ 'sitnet_get_all_student_activities' | translate }}
             </h4>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-2">
+        <div class="bottom-row d-flex justify-content-between">
+            <div class="col-lg-4 mb-2">
                 <label for="student">{{ 'sitnet_student' | translate }}</label>
                 <dropdown-select
                     id="student"
+                    *ngIf="students"
                     [options]="students"
                     (on-select)="studentSelected($event)"
                 ></dropdown-select>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
                     <date-picker (on-update)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
                     <date-picker (on-update)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-2">
-                <label for="link"></label>
+            <div class="col-lg-2 mb-2">
+                <label for="link">&nbsp;</label>
                 <div id="link">
                     <a
                         (click)="getStudentReport()"
-                        class="fa-stack fa-lg pointer pull-right"
+                        class="print-btn"
                         download
                         popover-trigger="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i class="bi-file-earmark-word font-6"></i>
                     </a>
                 </div>
             </div>

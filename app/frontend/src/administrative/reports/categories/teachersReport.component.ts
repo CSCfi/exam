@@ -18,7 +18,6 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
-
 import type { User } from '../../../session/session.service';
 
 @Component({
@@ -28,39 +27,39 @@ import type { User } from '../../../session/session.service';
                 {{ 'sitnet_get_all_teacher_exams' | translate }}
             </h4>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-2">
+        <div class="bottom-row d-flex justify-content-between">
+            <div class="col-lg-4 mb-2">
                 <label for="teacher">{{ 'sitnet_teacher' | translate }}</label>
                 <dropdown-select
                     id="teacher"
+                    *ngIf="teachers"
                     [options]="teachers"
                     (onSelect)="teacherSelected($event)"
                 ></dropdown-select>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
                     <date-picker (onUpdate)="answerStartDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
                     <date-picker (onUpdate)="answerEndDateChanged($event)"></date-picker>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 mb-2">
                 <label for="link">&nbsp;</label>
                 <div id="link">
                     <a
+                        class="print-btn"
                         (click)="getTeacherExamsByDate()"
-                        class="fa-stack fa-lg pointer pull-right"
                         download
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i class="bi-file-earmark-word font-6"></i>
                     </a>
                 </div>
             </div>

@@ -56,15 +56,14 @@
                                             type="button"
                                             (click)="showName = !showName; update(accessibility)"
                                         >
-                                            <i class="fa fa-check"></i>
+                                            <i class="bi-check"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                             <td>
-                                <a class="fa-stack fa-lg" (click)="showName = !showName">
-                                    <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                                    <i class="fa fa-pencil fa-stack-1x"></i>
+                                <a (click)="showName = !showName">
+                                    <i class="bi-pencil"></i>
                                 </a>
                             </td>
                             <td>
@@ -75,7 +74,7 @@
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'sitnet_remove_room_accessibility_info' | translate }}"
                                 >
-                                    <i class="sitnet-red fa fa-times fa-stack-1x"></i>
+                                    <i class="sitnet-red bi-x"></i>
                                 </a>
                             </td>
                         </tr>

@@ -52,6 +52,9 @@ export interface ExamRoom {
     statusComment: string;
     buildingName: string;
     mailAddress: { street: string; zip: string; city: string };
+    state: 'ACTIVE' | 'INACTIVE';
+    campus: string;
+    contactPerson: string;
 }
 
 export interface ExamMachine {
@@ -65,6 +68,8 @@ export interface ExamMachine {
         id: number;
         status: string;
     }[];
+    otherIdentifier: string;
+    accessibilityInfo: string;
 }
 
 export interface ExternalReservation {

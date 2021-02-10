@@ -796,6 +796,26 @@
     margin: 2em;
     border: 2px solid lightgrey;
     border-radius: 4pt;
+
+    .dropup > button,
+    .dropdown > button {
+      width: 100%;
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .print-btn {
+      background-color: #6AA33A;
+      color: white;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 2px;
+      margin-left: auto;
+    }
   }
 
   .library-question-header-inactive {

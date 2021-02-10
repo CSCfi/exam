@@ -6,7 +6,7 @@
         [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }"
     >
         <div class="col-md-12">
-            <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
+            <h2 class="room-name-title mr-2 mb-0">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
                 (click)="disableRoom(room)"
@@ -14,10 +14,8 @@
                 delay="500"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'sitnet_inactivate_room' | translate }}"
-                class="fa-stack fa-lg"
             >
-                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                <i class="fa fa-trash-o text-warning pointer fa-stack-1x"></i>
+                <i class="bi-trash text-warning pointer"></i>
             </a>
             <a
                 [hidden]="room.state !== 'INACTIVE'"
@@ -26,28 +24,35 @@
                 delay="500"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'sitnet_activate_room' | translate }}"
-                class="fa-stack fa-lg"
             >
-                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                <i class="fa fa-plus text-success pointer fa-stack-1x"></i>
+                <i class="bi-plus text-success pointer"></i>
             </a>
 
             <div class="toggleMessage col-md-12">
-                {{ 'sitnet_exam_basic_information_tab' | translate }}
-                <div class="pull-right">
-                    <span class="mr-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
-                    <i class="fa fa-chevron-up" *ngIf="room.addressVisible" (click)="room.addressVisible = false"></i>
-                    <i class="fa fa-chevron-down" *ngIf="!room.addressVisible" (click)="room.addressVisible = true"></i>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {{ 'sitnet_exam_basic_information_tab' | translate }}
+                        <a
+                            uiSref="room"
+                            [uiParams]="{ id: room.id }"
+                            placement="top"
+                            delay="500"
+                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ 'sitnet_edit' | translate }}"
+                        >
+                            <i class="bi-pencil"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <span class="mr-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                        <i class="bi-chevron-up" *ngIf="room.addressVisible" (click)="room.addressVisible = false"></i>
+                        <i
+                            class="bi-chevron-down"
+                            *ngIf="!room.addressVisible"
+                            (click)="room.addressVisible = true"
+                        ></i>
+                    </div>
                 </div>
-                <a
-                    href="/rooms/{{ room.id }}"
-                    placement="top"
-                    delay="500"
-                    triggers="mouseenter:mouseleave"
-                    ngbPopover="{{ 'sitnet_edit' | translate }}"
-                >
-                    <i class="fa fa-pencil"></i>
-                </a>
                 <div [hidden]="!room.addressVisible">
                     <!-- Room Code & Accessibility Info -->
                     <div class="row">
@@ -63,7 +68,7 @@
                                 {{ 'sitnet_room_accessibility_info' | translate }}:
                                 <span
                                     class="room-info-span-text"
-                                    *ngFor="let info of room.accessibility; let last = last"
+                                    *ngFor="let info of room.accessibilities; let last = last"
                                 >
                                     {{ info.name }}{{ last ? '' : ', ' }}
                                 </span>

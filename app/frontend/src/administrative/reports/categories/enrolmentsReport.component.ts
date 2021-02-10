@@ -17,8 +17,6 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
-
-import type { OnInit } from '@angular/core';
 import type { ExamName } from '../reports.service';
 
 @Component({
@@ -28,27 +26,27 @@ import type { ExamName } from '../reports.service';
                 {{ 'sitnet_get_all_enrolments_reservations_and_cancelations' | translate }}
             </h4>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-10">
+        <div class="bottom-row d-flex justify-content-between">
+            <div class="col-lg-10 mb-4">
                 <label for="enrolment">{{ 'sitnet_select_exam' | translate }}</label>
                 <dropdown-select
                     id="enrolment"
+                    *ngIf="examNames"
                     [options]="examNames"
                     (onSelect)="enrolmentSelected($event)"
                 ></dropdown-select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 mb-2">
                 <label for="link"></label>
                 <div id="link">
                     <a
                         (click)="getExamEnrolments()"
-                        class="fa-stack fa-lg pull-right"
+                        class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i class="bi-file-earmark-word font-6"></i>
                     </a>
                 </div>
             </div>
@@ -56,15 +54,11 @@ import type { ExamName } from '../reports.service';
     `,
     selector: 'enrolments-report',
 })
-export class EnrolmentsReportComponent implements OnInit {
+export class EnrolmentsReportComponent {
     @Input() examNames: ExamName[];
     enrolment: ExamName;
 
     constructor(private translate: TranslateService, private files: FileService) {}
-
-    ngOnInit() {
-        console.log(this.examNames);
-    }
 
     getExamEnrolments = () => {
         if (this.enrolment) {

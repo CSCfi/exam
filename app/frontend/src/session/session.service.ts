@@ -51,6 +51,8 @@ export interface User {
     isStudent: boolean;
     isTeacher: boolean;
     isLanguageInspector: boolean;
+    employeeNumber: string | null;
+    lastLogin: string | null;
 }
 
 interface Env {
