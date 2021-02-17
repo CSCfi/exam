@@ -1,4 +1,8 @@
-<div class="{{ sq.selectedAnsweredState }} guide-wrapper" [ngClass]="sq.answered ? '' : 'notactive'">
+<div
+    class="guide-wrapper"
+    [ngClass]="sq.selectedAnsweredState ? sq.selectedAnsweredState : ''"
+    [ngClass]="sq.answered ? '' : 'notactive'"
+>
     <div class="wrap-title">
         <!-- question text -->
         <div class="section-header-left">
