@@ -80,8 +80,8 @@ public class ReservationAPIController extends BaseController {
             .stream()
             .peek(
                 r -> {
-                    r.setStartAt(DateTimeUtils.adjustDST(r.getStartAt()));
-                    r.setEndAt(DateTimeUtils.adjustDST(r.getEndAt()));
+                    r.setStartAt(DateTimeUtils.normalize(r.getStartAt(), r));
+                    r.setEndAt(DateTimeUtils.normalize(r.getEndAt(), r));
                 }
             )
             .sorted(Comparator.comparing(Reservation::getStartAt))
