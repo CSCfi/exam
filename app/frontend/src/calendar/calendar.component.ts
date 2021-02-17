@@ -223,7 +223,7 @@ export class CalendarComponent implements OnInit {
             this.reservation.start,
             this.reservation.end,
             room,
-            this.reservation.accessibilities,
+            this.reservation.accessibilities || [],
             { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
             this.isCollaborative,
             selectedSectionIds,
