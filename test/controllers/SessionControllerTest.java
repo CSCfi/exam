@@ -2,8 +2,8 @@ package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.models.Role;
-import backend.models.User;
+import models.Role;
+import models.User;
 import base.IntegrationTestCase;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.Ebean;

@@ -3,7 +3,7 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
+import models.Exam;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;

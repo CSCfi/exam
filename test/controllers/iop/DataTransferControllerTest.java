@@ -2,10 +2,10 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.models.Attachment;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.Question;
+import models.Attachment;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.Question;
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;

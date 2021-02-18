@@ -51,7 +51,7 @@ libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1
 javacOptions += "-Xlint:unchecked"
 javacOptions += "-Xlint:deprecation"
 
-routesImport += "backend.util.scala.Binders._"
+routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
@@ -61,11 +61,11 @@ sources in (Compile, doc) := Seq.empty
 publishArtifact in (Compile, packageDoc) := false
 
 lazy val frontendDirectory = baseDirectory {
-  _ / "app/frontend"
+  _ / "ui"
 }
 
 lazy val protractorDirectory = baseDirectory {
-  _ / "app/protractor"
+  _ / "ui/protractor"
 }
 
 /**

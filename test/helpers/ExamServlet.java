@@ -16,8 +16,8 @@
 
 package helpers;
 
-import backend.models.Exam;
-import backend.util.json.JsonDeserializer;
+import models.Exam;
+import util.json.JsonDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.stream.Collectors;

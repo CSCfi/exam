@@ -20,12 +20,12 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
+import models.Attachment;
+import models.Exam;
+import models.ExamExecutionType;
+import models.questions.EssayAnswer;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
 import base.IntegrationTestCase;
 import helpers.AttachmentServlet;
 import helpers.ExamServlet;

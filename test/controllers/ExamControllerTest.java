@@ -3,9 +3,9 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamType;
-import backend.models.sections.ExamSection;
+import models.Exam;
+import models.ExamType;
+import models.sections.ExamSection;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;

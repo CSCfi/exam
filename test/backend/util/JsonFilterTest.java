@@ -18,7 +18,7 @@ package backend.util;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.util.json.JsonFilter;
+import util.json.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;

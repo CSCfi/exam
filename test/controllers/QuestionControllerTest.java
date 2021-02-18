@@ -3,12 +3,12 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
+import models.User;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
