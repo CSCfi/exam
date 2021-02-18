@@ -7,8 +7,8 @@
             <span *ngIf="showRemainingTime" [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''">
                 {{ formatRemainingTime() }}
             </span>
-            <span *ngIf="!showRemainingTime" class="clock-hide">
-                <i>{{ 'sitnet_clock_hidden' | translate }}</i>
+            <span *ngIf="!showRemainingTime" class="clock-hide text-muted">
+                {{ 'sitnet_clock_hidden' | translate }}
             </span>
         </span>
         <span>
