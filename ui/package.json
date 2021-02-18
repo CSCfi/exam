@@ -1,0 +1,129 @@
+{
+  "name": "exam",
+  "version": "5.3.0",
+  "description": "EXAM – electronic exam software for higher education",
+  "repository": {
+    "type": "git",
+    "url": " https://github.com/CSCfi/exam.git"
+  },
+  "license": "EUPL-1.1",
+  "scripts": {
+    "test": "test",
+    "lint": "eslint \"src/**/*.{js,ts}\"; exit 0",
+    "lint-fix": "eslint \"src/**/*.{js,ts}\" --fix; exit 0",
+    "prettier": "prettier --check \"src/**/*.{js,ts,html}\" --check \"../app/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "prettier-test": "prettier --check \"../test/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "prettier-fix": "prettier --write \"src/**/*.{js,ts,html}\" --write \"../app/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "prettier-fix-test": "prettier --write \"../test/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "build": "webpack --progress --color --config ./webpack/webpack.prod.js",
+    "start": "webpack serve --progress --color --config ./webpack/webpack.dev.js"
+  },
+  "dependencies": {
+    "@angular/animations": "^8.0.0",
+    "@angular/cdk": "^8.0.0",
+    "@angular/common": "^8.0.0",
+    "@angular/compiler": "^8.0.0",
+    "@angular/core": "^8.0.0",
+    "@angular/forms": "^8.0.0",
+    "@angular/platform-browser": "^8.0.0",
+    "@angular/platform-browser-dynamic": "^8.0.0",
+    "@angular/router": "^8.0.0",
+    "@ng-bootstrap/ng-bootstrap": "^5.0.0",
+    "@ngx-translate/core": "^12.0.0",
+    "@ngx-translate/http-loader": "^5.0.0",
+    "@uirouter/angular": "^6.0.0",
+    "@uirouter/core": "^6.0.0",
+    "@uirouter/rx": "^0.6.0",
+    "@uirouter/visualizer": "7.2.1",
+    "angular-calendar": "^0.28.22",
+    "base64-js": "^1.3.1",
+    "bootstrap": "^4.4.1",
+    "bootstrap-icons": "^1.3.0",
+    "chart.js": "^2.9.4",
+    "core-js": "^3.6.5",
+    "date-fns": "^2.16.1",
+    "file-saver": "^2.0.5",
+    "jquery": "3.5.1",
+    "lodash": "^4.17.19",
+    "moment": "^2.22.2",
+    "moment-timezone": "0.5.31",
+    "ngx-order-pipe": "^2.0.2",
+    "ngx-webstorage-service": "^4.1.0",
+    "popper.js": "^1.16.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.6.3",
+    "toastr": "^2.1.4",
+    "zone.js": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/base64-js": "^1.2.5",
+    "@types/chart.js": "^2.9.29",
+    "@types/ckeditor": "^0.0.46",
+    "@types/file-saver": "1.3.0",
+    "@types/jquery": "^3.3.35",
+    "@types/lodash": "^4.14.149",
+    "@types/mathjax": "^0.0.32",
+    "@types/toastr": "^2.1.37",
+    "@typescript-eslint/eslint-plugin": "^4.2.0",
+    "@typescript-eslint/parser": "^4.2.0",
+    "@webpack-cli/serve": "^1.3.0",
+    "angular2-template-loader": "^0.6.2",
+    "buffer": "^6.0.3",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^5.0.1",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "fork-ts-checker-webpack-plugin": "^6.1.0",
+    "html-webpack-plugin": "^5.2.0",
+    "husky": "^5.1.1",
+    "lint-staged": "^10.5.4",
+    "node-sass": "^5.0.0",
+    "prettier": "^2.2.1",
+    "prettier-plugin-java": "^1.0.1",
+    "sass-loader": "^11.0.1",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.14.0",
+    "webpack-bundle-analyzer": "^3.7.0",
+    "webpack-cli": "^4.3.1",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.7.3"
+  },
+  "engines": {
+    "node": ">= 10",
+    "npm": ">= 6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,html}": [
+      "prettier --write",
+      "git add"
+    ],
+    "../app/**/*.java": [
+      "prettier --write --print-width=120 --tab-width=4",
+      "git add"
+    ],
+    "../test/**/*.java": [
+      "prettier --write --print-width=120 --tab-width=4",
+      "git add"
+    ],
+    "*.{ts,js}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "Firefox ESR",
+    "not dead"
+  ]
+}

@@ -19,9 +19,9 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.User;
+import models.Exam;
+import models.ExamInspection;
+import models.User;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsTeacher;

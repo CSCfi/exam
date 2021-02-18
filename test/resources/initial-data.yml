@@ -1,53 +1,53 @@
 role:
 
-    - &admin !!backend.models.Role
+    - &admin !!models.Role
       name: ADMIN
-    - &student !!backend.models.Role
+    - &student !!models.Role
       name: STUDENT
-    - &teacher !!backend.models.Role
+    - &teacher !!models.Role
       name: TEACHER
 
 organisations:
 
-    - &OulunYliopisto !!backend.models.Organisation
+    - &OulunYliopisto !!models.Organisation
       name: Oulun Yliopisto
       nameAbbreviation: OY
       code: oulu.fi
 
 exam-type:
 
-    - &partial !!backend.models.ExamType
+    - &partial !!models.ExamType
       type: PARTIAL
       deprecated: false
-    - &final !!backend.models.ExamType
+    - &final !!models.ExamType
       type: FINAL
       deprecated: false
 
 exam-execution-type:
 
-    - &public !!backend.models.ExamExecutionType
+    - &public !!models.ExamExecutionType
       type: PUBLIC
-    - &private !!backend.models.ExamExecutionType
+    - &private !!models.ExamExecutionType
       type: PRIVATE
-    - &maturity !!backend.models.ExamExecutionType
+    - &maturity !!models.ExamExecutionType
       type: MATURITY
-    - &printout !!backend.models.ExamExecutionType
+    - &printout !!models.ExamExecutionType
       type: PRINTOUT
 
 ################################################################
 
 languages:
 
-    - &fi !!backend.models.Language
+    - &fi !!models.Language
       code: fi
       name: suomi
-    - &sv !!backend.models.Language
+    - &sv !!models.Language
       code: sv
       name: svenska
-    - &en !!backend.models.Language
+    - &en !!models.Language
       code: en
       name: English
-    - &de !!backend.models.Language
+    - &de !!models.Language
       code: de
       name: Deutsch
 
@@ -55,7 +55,7 @@ languages:
 
 users:
 
-    - &adminUser !!backend.models.User
+    - &adminUser !!models.User
       email:      admin@funet.fi
       eppn:       admin@funet.fi
       firstName:  Admin
@@ -66,7 +66,7 @@ users:
       roles:
          - *admin
 
-    - &olli !!backend.models.User
+    - &olli !!models.User
       email:      teacher@funet.fi
       eppn:       teacher@funet.fi
       firstName:  Olli
@@ -76,7 +76,7 @@ users:
       roles:
           - *teacher
 
-    - &sauli !!backend.models.User
+    - &sauli !!models.User
       email:      student@funet.fi
       eppn:       student@funet.fi
       firstName:  Sauli
@@ -87,7 +87,7 @@ users:
       roles:
           - *student
 
-    - &arvo !!backend.models.User
+    - &arvo !!models.User
       email:      teacher@b.funet.fi
       eppn:       teacher@b.funet.fi
       firstName:  Arvon
@@ -102,83 +102,83 @@ users:
 ################################################################
 grade-scales:
 
-  - &zerotofive !!backend.models.GradeScale
+  - &zerotofive !!models.GradeScale
     description: ZERO_TO_FIVE
 
-  - &latin !!backend.models.GradeScale
+  - &latin !!models.GradeScale
     description: LATIN
 
-  - &approvedrejected !!backend.models.GradeScale
+  - &approvedrejected !!models.GradeScale
     description: APPROVED_REJECTED
 
 
 grades:
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 0
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 1
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 2
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 3
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 4
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: 5
     gradeScale: *zerotofive
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: I
     gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: I
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: A
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: B
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: N
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: C
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: M
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: E
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
       name: L
       gradeScale: *latin
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: APPROVED
     gradeScale: *approvedrejected
 
-  - !!backend.models.Grade
+  - !!models.Grade
     name: REJECTED
     gradeScale: *approvedrejected
 
@@ -188,28 +188,28 @@ question-essay:
 
 # Essay questions
 
-  - &essay1 !!backend.models.questions.Question
+  - &essay1 !!models.questions.Question
     type: EssayQuestion
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     defaultMaxScore: 4.0
 
-  - &essay2 !!backend.models.questions.Question
+  - &essay2 !!models.questions.Question
     type: EssayQuestion
     creator: *olli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     defaultMaxScore: 4.0
 
-  - &essay3 !!backend.models.questions.Question
+  - &essay3 !!models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     defaultMaxScore: 4.0
 
-  - &essay_algo_01 !!backend.models.questions.Question
+  - &essay_algo_01 !!models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
@@ -222,28 +222,28 @@ question-clozetest:
 
 # Cloze test questions
 
-  - &cloze1 !!backend.models.questions.Question
+  - &cloze1 !!models.questions.Question
     type: ClozeTestQuestion
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <p><span cloze="true" id="1">Pariisi</span>on Ranskan pääkaupunki. <span cloze="true" id="2">Berliini</span>on Saksan pääkaupunki.</p>
     defaultMaxScore: 4
 
-  - &cloze2 !!backend.models.questions.Question
+  - &cloze2 !!models.questions.Question
     type: ClozeTestQuestion
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <p><span cloze="true" id="1">Budapest</span>on Unkarin pääkaupunki. <span cloze="true" id="2">Tukholma</span>on Ruotsin pääkaupunki.</p>
     defaultMaxScore: 4
 
-  - &cloze3 !!backend.models.questions.Question
+  - &cloze3 !!models.questions.Question
     type: ClozeTestQuestion
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <p><span cloze="true" id="1">Istanbul</span>on Turkin pääkaupunki. <span cloze="true" id="2">Ateena</span>on Kreikan pääkaupunki.</p>
     defaultMaxScore: 4
 
-  - &cloze4 !!backend.models.questions.Question
+  - &cloze4 !!models.questions.Question
     type: ClozeTestQuestion
     creator: *olli
     created: 2014-04-01 12:30:05.123
@@ -258,335 +258,335 @@ question-clozetest:
 question-multiple-choice:
 
 # Multiple choice questions
-  - &multi1 !!backend.models.questions.Question
+  - &multi1 !!models.questions.Question
     type: MultipleChoiceQuestion
     creator: *olli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: 3, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: 42, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: 99, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: 7, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: 3, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: 42, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: 99, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &multi2 !!backend.models.questions.Question
+  - &multi2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
     creator: *olli
     created: 2014-01-03 12:40:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &multi3 !!backend.models.questions.Question
+  - &multi3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *olli
     created: 2014-01-01 12:10:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Antiteflon, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Adheesio, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Hakman, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Antiteflon, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Adheesio, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Hakman, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &multi4 !!backend.models.questions.Question
+  - &multi4 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &multi5 !!backend.models.questions.Question
+  - &multi5 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
     creator: *arvo
     created: 2014-01-06 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Tulevaisuus valkenee, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Tulevaisuus valkenee, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus1 !!backend.models.questions.Question
+  - &avaruus1 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *olli
     created: 2014-01-07 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: kosmonautti, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: kosmetologi, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: kosmologi, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: kosmonautti, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: kosmetologi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: kosmologi, correctOption: true}
     defaultMaxScore: 4.0
 
-  - &avaruus2 !!backend.models.questions.Question
+  - &avaruus2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *olli
     created: 2014-01-08 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Ytimessä, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Säteilyvyöhykkeessä, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Konvektiovyöhykkeessä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Ytimessä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Säteilyvyöhykkeessä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Konvektiovyöhykkeessä, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus3 !!backend.models.questions.Question
+  - &avaruus3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   AU mittaa
     creator: *olli
     created: 2014-01-09 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Aikaa, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Etäisyyttä, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Painoa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Aikaa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Etäisyyttä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Painoa, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus4 !!backend.models.questions.Question
+  - &avaruus4 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Ekliptika on
     creator: *olli
     created: 2014-01-10 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus5 !!backend.models.questions.Question
+  - &avaruus5 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Tähdenlento eli
     creator: *olli
     created: 2014-01-11 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Meteori, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Meteori, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus6 !!backend.models.questions.Question
+  - &avaruus6 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *olli
     created: 2014-01-12 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Aineen palamisesta ilmakehässä, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Kaasujen hehkumisesta, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Aineen palamisesta ilmakehässä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Kaasujen hehkumisesta, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus7 !!backend.models.questions.Question
+  - &avaruus7 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *olli
     created: 2014-01-13 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Maa, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Jupiter, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Venus, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Maa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jupiter, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Venus, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus8 !!backend.models.questions.Question
+  - &avaruus8 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
     creator: *olli
     created: 2014-01-14 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Jupiterin korkeapaineen aluetta, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Mars-planeettaa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jupiterin korkeapaineen aluetta, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Mars-planeettaa, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus9 !!backend.models.questions.Question
+  - &avaruus9 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
     creator: *olli
     created: 2014-01-15 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus10 !!backend.models.questions.Question
+  - &avaruus10 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Uudenkuun aikaan
     creator: *olli
     created: 2014-01-16 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Kuu on Auringon ja Maan välissä, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Kuu tulee uudelleen näkyviin, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuu on Auringon ja Maan välissä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Kuu tulee uudelleen näkyviin, correctOption: false}
     defaultMaxScore: 4.0
 
-  - &avaruus11 !!backend.models.questions.Question
+  - &avaruus11 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *olli
     created: 2014-01-17 12:30:05.123
     options:
-        - !!backend.models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false}
-        - !!backend.models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true}
-        - !!backend.models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false}
     defaultMaxScore: 4.0
 
 ######################################################################
 
 question-weighted-multiple-choice:
 
-  - &weighted1 !!backend.models.questions.Question
+  - &weighted1 !!models.questions.Question
       type: WeightedMultipleChoiceQuestion
       question: Kumpi vai kampi
       creator: *olli
       created: 2014-01-18 12:30:05.123
       options:
-          - &kampi !!backend.models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
-          - &kumpi !!backend.models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
-          - &molemmat !!backend.models.questions.MultipleChoiceOption {option: Molemmat, defaultScore: -1}
+          - &kampi !!models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
+          - &kumpi !!models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
+          - &molemmat !!models.questions.MultipleChoiceOption {option: Molemmat, defaultScore: -1}
 
 ######################################################################
 
 question-claim-choice:
 
-  - &claim1 !!backend.models.questions.Question
+  - &claim1 !!models.questions.Question
       type: ClaimChoiceQuestion
       question: Suomen pääkaupunki on Helsinki
       creator: *olli
       created: 2014-01-18 12:30:05.123
       options:
-        - &tosi !!backend.models.questions.MultipleChoiceOption {option: Tosi, defaultScore: 1, claimChoiceType: CorrectOption}
-        - &epatosi !!backend.models.questions.MultipleChoiceOption {option: Epätosi, defaultScore: -1, claimChoiceType: IncorrectOption}
-        - &eos !!backend.models.questions.MultipleChoiceOption {option: En osaa sanoa, defaultScore: 0, claimChoiceType: SkipOption}
+        - &tosi !!models.questions.MultipleChoiceOption {option: Tosi, defaultScore: 1, claimChoiceType: CorrectOption}
+        - &epatosi !!models.questions.MultipleChoiceOption {option: Epätosi, defaultScore: -1, claimChoiceType: IncorrectOption}
+        - &eos !!models.questions.MultipleChoiceOption {option: En osaa sanoa, defaultScore: 0, claimChoiceType: SkipOption}
 
 ######################################################################
 
 courses:
 
-  - &alkeet !!backend.models.Course
+  - &alkeet !!models.Course
     institutionName: "Testing Yliopisto"
     code: 810136P
     name: Johdatus alkeiden perusteisiin
     credits: 5
 
-  - &tietokannat !!backend.models.Course
+  - &tietokannat !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
     name: Tietokantojen perusteet
     credits: 7
 
-  - &765104P !!backend.models.Course
+  - &765104P !!models.Course
     institutionName: "Testing Yliopisto"
     code: 765104P
     name: Astronomian perusteet
     credits: 8
 
-  - &811386A !!backend.models.Course
+  - &811386A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811386A
     name: Algoritmit
     credits: 5
     gradeScale: *zerotofive
 
-  - &812346A !!backend.models.Course
+  - &812346A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
     credits: 5
 
-  - &ay905061Y !!backend.models.Course
+  - &ay905061Y !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay905061Y
     name: Arabian peruskurssi II
 
-  - &ayA113801 !!backend.models.Course
+  - &ayA113801 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113801
     name: Historia 25
     credits: 25
 
-  - &ayA113301 !!backend.models.Course
+  - &ayA113301 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113301
     name: Elämänkatsomustieto 25
     credits: 25
 
-  - &A110102 !!backend.models.Course
+  - &A110102 !!models.Course
     institutionName: "Testing Yliopisto"
     code: A110102
     name: Englantilainen filologia aineopinnot
     credits: 35
 
-  - &ayA114001 !!backend.models.Course
+  - &ayA114001 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA114001
     name: Japani-opinnot perusopintoja
     credits: 27
 
-  - &ayA110401 !!backend.models.Course
+  - &ayA110401 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA110401
     name: Suomen kieli
     credits: 25
 
-  - &ayA111501 !!backend.models.Course
+  - &ayA111501 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA111501
     name: Valtio-oppi
     credits: 25
 
-  - &ayA250504 !!backend.models.Course
+  - &ayA250504 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA250504
     name: Kasvatustiede
     credits: 25
 
-  - &ay900060A !!backend.models.Course
+  - &ay900060A !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay900060A
     name: Tekniikan viestintä
     credits: 2
     gradeScale: *zerotofive
 
-  - &ay464085A !!backend.models.Course
+  - &ay464085A !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay464085A
     name: Tuotesuojaus
     credits: 3.5
     gradeScale: *zerotofive
 
-  - &5010107K !!backend.models.Course
+  - &5010107K !!models.Course
     institutionName: "Testing Yliopisto"
     code: 5010107K
     name: Tilastollisten menetelmien työpaja jatko-opiskelijoille
     credits: 5
 
-  - &5119161 !!backend.models.Course
+  - &5119161 !!models.Course
     institutionName: "Testing Yliopisto"
     code: 5119161
     name: Sustainability and Natural Resources
     credits: 5
 
-  - !!backend.models.Course
+  - !!models.Course
     institutionName: "Testing Yliopisto"
     code: EKTA170
     name: Hyvä elämä ja etiikka
     credits: 5
 
-  - !!backend.models.Course
+  - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ERIA279
     name: Kandidaatin kypsyysnäyte
     credits: 0
 
-  - !!backend.models.Course
+  - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ITKS452
     name: Requirements Engineering
@@ -597,25 +597,25 @@ courses:
 
 comments:
 
-  - &comment_sauli !!backend.models.Comment
+  - &comment_sauli !!models.Comment
     comment: "Hyvin se Sauli vetää!"
 
 ################################################################
 
 softwares:
-  - &Matematica !!backend.models.Software
+  - &Matematica !!models.Software
     name: Matematica
 
-  - &Firefox !!backend.models.Software
+  - &Firefox !!models.Software
     name: Firefox
 
-  - &Excel !!backend.models.Software
+  - &Excel !!models.Software
     name: Excel
 
-  - &Mathcad !!backend.models.Software
+  - &Mathcad !!models.Software
     name: Mathcad
 
-  - &Notepad !!backend.models.Software
+  - &Notepad !!models.Software
     name: Notepad
 
 
@@ -623,7 +623,7 @@ softwares:
 
 exams:
 
-  - &alkeidenperusteetGraded !!backend.models.Exam
+  - &alkeidenperusteetGraded !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
@@ -650,7 +650,7 @@ exams:
       - *Firefox
       - *Matematica
 
-  - &alkeidenperusteetReview !!backend.models.Exam
+  - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
@@ -672,7 +672,7 @@ exams:
       - *sv
       - *en
 
-  - &astronomianPerusteet !!backend.models.Exam
+  - &astronomianPerusteet !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *765104P
@@ -692,7 +692,7 @@ exams:
       - *fi
       - *sv
 
-  - &tietokannat2013 !!backend.models.Exam
+  - &tietokannat2013 !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
@@ -711,7 +711,7 @@ exams:
     examLanguages:
       - *fi
 
-  - &tietokannat2014 !!backend.models.Exam
+  - &tietokannat2014 !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
@@ -730,7 +730,7 @@ exams:
     examLanguages:
       - *fi
 
-  - &algoritmit !!backend.models.Exam
+  - &algoritmit !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *811386A
@@ -749,7 +749,7 @@ exams:
     examLanguages:
       - *de
 
-  - &ooad !!backend.models.Exam
+  - &ooad !!models.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *812346A
@@ -767,7 +767,7 @@ exams:
     examLanguages:
       - *sv
 
-  - &algoritmit_graded !!backend.models.Exam
+  - &algoritmit_graded !!models.Exam
     creator: *olli
     created: 2015-01-01 12:30:05.123
     parent: *algoritmit
@@ -791,73 +791,73 @@ exams:
 
 exam-sections:
 
-  - &alkeet_mv_osio1 !!backend.models.sections.ExamSection
+  - &alkeet_mv_osio1 !!models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     optional: true
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_mv_osio2 !!backend.models.sections.ExamSection
+  - &alkeet_mv_osio2 !!models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 1
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_essay !!backend.models.sections.ExamSection
+  - &alkeet_essay !!models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_mv_osio1b !!backend.models.sections.ExamSection
+  - &alkeet_mv_osio1b !!models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     exam: *alkeidenperusteetReview
 
-  - &alkeet_mv_osio2b !!backend.models.sections.ExamSection
+  - &alkeet_mv_osio2b !!models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 1
     exam: *alkeidenperusteetReview
 
-  - &alkeet_essayb !!backend.models.sections.ExamSection
+  - &alkeet_essayb !!models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *alkeidenperusteetReview
 
-  - &osio2 !!backend.models.sections.ExamSection
+  - &osio2 !!models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 0
     exam: *tietokannat2013
 
-  - &osio1_algo !!backend.models.sections.ExamSection
+  - &osio1_algo !!models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     exam: *algoritmit
 
-  - &osio2_algo !!backend.models.sections.ExamSection
+  - &osio2_algo !!models.sections.ExamSection
     name: Essee 1
     sequenceNumber: 1
     exam: *algoritmit
 
-  - &osio4 !!backend.models.sections.ExamSection
+  - &osio4 !!models.sections.ExamSection
     name: Monivalinnat 4
     sequenceNumber: 0
     exam: *ooad
 
-  - &osio5 !!backend.models.sections.ExamSection
+  - &osio5 !!models.sections.ExamSection
     name: Monivalinnat 5
     sequenceNumber: 1
     exam: *ooad
 
-  - &astro1 !!backend.models.sections.ExamSection
+  - &astro1 !!models.sections.ExamSection
     name: Astronomian Monivalinnat
     sequenceNumber: 0
     exam: *astronomianPerusteet
 
-  - &ooadessay !!backend.models.sections.ExamSection
+  - &ooadessay !!models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *ooad
 
-  - &claimsection !!backend.models.sections.ExamSection
+  - &claimsection !!models.sections.ExamSection
     name: Väittämä-osio
     sequenceNumber: 3
     exam: *alkeidenperusteetGraded
@@ -866,368 +866,368 @@ exam-sections:
 
 section-questions:
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *multi1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *multi2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *cloze1
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
       examSection: *alkeet_mv_osio2
       question: *cloze2
       sequenceNumber: 3
       maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *cloze3
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *multi1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *multi2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *cloze4
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *cloze1
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *cloze2
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi3
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *cloze3
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus9
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus8
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus7
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi1
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi2
     sequenceNumber: 4
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi3
     sequenceNumber: 5
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus9
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus8
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus7
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus3
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus4
     sequenceNumber: 3
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus5
     sequenceNumber: 4
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus6
     sequenceNumber: 5
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus7
     sequenceNumber: 6
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus8
     sequenceNumber: 7
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus9
     sequenceNumber: 8
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus10
     sequenceNumber: 9
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus11
     sequenceNumber: 10
     maxScore: 7
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *weighted1
     sequenceNumber: 2
     options:
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *molemmat, score: -2}
+      - !!models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
+      - !!models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
+      - !!models.sections.ExamSectionQuestionOption {option: *molemmat, score: -2}
 
-  - !!backend.models.sections.ExamSectionQuestion
+  - !!models.sections.ExamSectionQuestion
     examSection: *claimsection
     question: *claim1
     sequenceNumber: 0
     options:
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}
-      - !!backend.models.sections.ExamSectionQuestionOption {option: *eos, score: 0}
+      - !!models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
+      - !!models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}
+      - !!models.sections.ExamSectionQuestionOption {option: *eos, score: 0}
 
 ################################################################
 
 exam-participations:
 
-  - !!backend.models.ExamParticipation
+  - !!models.ExamParticipation
     user: *sauli
     exam: *ooad
     started: 2014-05-23 08:00:00.575
@@ -1235,7 +1235,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!backend.models.ExamParticipation
+  - !!models.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetGraded
     started: 2014-05-24 08:00:00.575
@@ -1243,7 +1243,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!backend.models.ExamParticipation
+  - !!models.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetReview
     started: 2014-05-26 08:00:00.575
@@ -1251,7 +1251,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!backend.models.ExamParticipation
+  - !!models.ExamParticipation
       user: *sauli
       exam: *algoritmit_graded
       started: 2014-05-26 08:00:00.575
@@ -1263,42 +1263,42 @@ exam-participations:
 
 exam-inspections:
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *olli
     exam: *alkeidenperusteetReview
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *olli
     exam: *alkeidenperusteetGraded
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *arvo
     exam: *astronomianPerusteet
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *arvo
     exam: *algoritmit
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *arvo
     exam: *ooad
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *arvo
     exam: *tietokannat2013
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *arvo
     exam: *tietokannat2014
 
-  - !!backend.models.ExamInspection
+  - !!models.ExamInspection
     user: *olli
     exam: *ooad
 
 ############### Tilavaraus ###############
 
 mail-addresses:
-  - &oulu-yo !!backend.models.MailAddress
+  - &oulu-yo !!models.MailAddress
     street: Yliopistokatu 1
     zip: 90570
     city: Oulu
@@ -1306,7 +1306,7 @@ mail-addresses:
 ################################################################
 
 exam-rooms:
-  - &room-pegasus !!backend.models.ExamRoom
+  - &room-pegasus !!models.ExamRoom
     name: Tenttiakvaario Pegasus
     roomCode: IT101
     buildingName: Oulun yliopiston päärakennus
@@ -1326,49 +1326,49 @@ exam-rooms:
 ################################################################
 
 calendar-events:
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: MONDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: TUESDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: WEDNESDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: THURSDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: FRIDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: SATURDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 
-  - !!backend.models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 21:00:00.000
     weekday: SUNDAY
@@ -1379,7 +1379,7 @@ calendar-events:
 
 exam-machines:
 
-  - &exam-machine1 !!backend.models.ExamMachine
+  - &exam-machine1 !!models.ExamMachine
     name: Pegasus 01
     otherIdentifier: Huone, jonka tunnus on 1
     surveillanceCamera: CAM-001
@@ -1393,7 +1393,7 @@ exam-machines:
     reservations:
     outOfService: false
 
-  - &exam-machine2 !!backend.models.ExamMachine
+  - &exam-machine2 !!models.ExamMachine
     name: Pegasus 02
     otherIdentifier: Huone, jonka tunnus on 2
     surveillanceCamera: CAM-002
@@ -1408,7 +1408,7 @@ exam-machines:
     reservations:
     outOfService: false
 
-  - &exam-machine3 !!backend.models.ExamMachine
+  - &exam-machine3 !!models.ExamMachine
     name: Pegasus 03
     otherIdentifier: Huone, jonka tunnus on 3
     surveillanceCamera: CAM-003
@@ -1429,17 +1429,17 @@ exam-machines:
 
 exam-room-reservations:
 
-  - &reservation1 !!backend.models.Reservation
+  - &reservation1 !!models.Reservation
     startAt: 2014-06-10 08:00:00.000
     endAt: 2014-06-10 10:00:00.000
     machine: *exam-machine1
 
-  - &reservation2 !!backend.models.Reservation
+  - &reservation2 !!models.Reservation
     startAt: 2014-06-12 12:00:00.000
     endAt: 2014-06-12 14:00:00.000
     machine: *exam-machine2
 
-  - &reservation3 !!backend.models.Reservation
+  - &reservation3 !!models.Reservation
     startAt: 2014-06-16 14:00:00.000
     endAt: 2014-06-16 16:00:00.000
     machine: *exam-machine3
@@ -1448,24 +1448,24 @@ exam-room-reservations:
 
 exam-enrolments:
 
-  - &enrolment1 !!backend.models.ExamEnrolment
+  - &enrolment1 !!models.ExamEnrolment
     user: *sauli
     exam: *ooad
     reservation: *reservation1
     enrolledOn: 2014-05-03 20:32:04.575
 
-  - &enrolment2 !!backend.models.ExamEnrolment
+  - &enrolment2 !!models.ExamEnrolment
     user: *sauli
     exam: *algoritmit
     reservation: *reservation2
     enrolledOn: 2014-04-03 20:32:04.575
 
-  - &enrolment3 !!backend.models.ExamEnrolment
+  - &enrolment3 !!models.ExamEnrolment
     user: *sauli
     exam: *astronomianPerusteet
     enrolledOn: 2014-04-03 20:32:04.575
 
-  - &enrolment5 !!backend.models.ExamEnrolment
+  - &enrolment5 !!models.ExamEnrolment
     user: *sauli
     exam: *alkeidenperusteetGraded
     enrolledOn: 2014-05-03 20:32:04.575

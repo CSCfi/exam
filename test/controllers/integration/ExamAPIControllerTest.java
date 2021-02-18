@@ -19,8 +19,8 @@ package controllers.integration;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
+import models.Exam;
+import models.ExamExecutionType;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

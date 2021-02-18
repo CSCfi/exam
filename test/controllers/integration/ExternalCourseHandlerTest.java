@@ -3,11 +3,11 @@ package controllers.integration;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Course;
-import backend.models.Grade;
-import backend.models.GradeScale;
-import backend.models.Organisation;
-import backend.models.User;
+import models.Course;
+import models.Grade;
+import models.GradeScale;
+import models.Organisation;
+import models.User;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
