@@ -1,4 +1,4 @@
-<div class="row marr10">
+<div class="row">
     <div class="col-md-12 studentexam-header">
         <h2>
             <span class="exam-title">{{ section.index }}. {{ section.name }}</span>
@@ -14,21 +14,19 @@
                 {{ 'sitnet_word_passed_max' | translate }}: &nbsp; {{ getAmountOfSelectionEvaluatedQuestions() }}
             </div>
         </div>
+        <!-- DESCRIPTION FOR SECTION -->
+        <div *ngIf="section.description.length > 0">
+            <img
+                src="/assets/assets/images/icon_info.svg"
+                alt="info-icon"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
+            />
+            <span class="pl-2">{{ section.description }}</span>
+        </div>
     </div>
 </div>
-<div class="row marr10 guide-column list-group">
-    <div class="col-md-12 pad-15">
-        <div class="row">
-            <!-- DESCRIPTION FOR SECTION -->
-            <div *ngIf="section.description.length > 0" class="col-md-12 mart30">
-                <img
-                    src="/assets/assets/images/icon_info.svg"
-                    alt="info-icon"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
-                />
-                <span class="padl10">{{ section.description }}</span>
-            </div>
-        </div>
+<div class="row">
+    <div class="col-md-12">
         <div *ngFor="let material of section.examMaterials" class="row">
             <div class="col-md-12 info-row mart10">
                 <i class="text-muted bi-book" alt="exam materials"></i>
@@ -39,14 +37,12 @@
                 </span>
             </div>
         </div>
-        <div *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'" class="row">
-            <examination-question
-                class="col-md-12"
-                [sq]="sq"
-                [exam]="exam"
-                [isPreview]="isPreview"
-                [isCollaborative]="isCollaborative"
-            ></examination-question>
-        </div>
+        <examination-question
+            *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
+            [sq]="sq"
+            [exam]="exam"
+            [isPreview]="isPreview"
+            [isCollaborative]="isCollaborative"
+        ></examination-question>
     </div>
 </div>

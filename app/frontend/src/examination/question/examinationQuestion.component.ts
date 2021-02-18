@@ -15,9 +15,9 @@
 import { Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import type { QuestionBase } from '../../utility/forms/questionTypes';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
+import type { QuestionBase } from '../../utility/forms/questionTypes';
 @Component({
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',
@@ -29,7 +29,7 @@ export class ExaminationQuestionComponent {
     @Input() isCollaborative: boolean;
 
     clozeTestFormQuestions: QuestionBase<string>[] = [];
-    expanded = false;
+    expanded = true;
 
     constructor(private Examination: ExaminationService, private Attachment: AttachmentService) {}
 

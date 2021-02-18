@@ -39,12 +39,10 @@ export class MultiRoomComponent implements OnInit {
         this.week = this.room.getWeek();
     }
 
-    addException = (exception: ExceptionWorkingHours) => {
-        const roomIds = this.getRoomIds();
+    addException = (exception: ExceptionWorkingHours) =>
         this.room.addException(this.getRoomIds(), exception).then(() => {
             this.loadRooms();
         });
-    };
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.room.deleteException(this.allRooms[0].id, exception.id).then(() => {

@@ -37,7 +37,6 @@ import type { Question } from '../../exam/exam.model';
             </div>
             <div class="modal-footer"></div>
         </div>
-        ',
     `,
 })
 export class ExamQuestionEditorComponent {

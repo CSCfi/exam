@@ -1,5 +1,5 @@
 <!-- SECTION NAVIGATION ARROWS AND LABELS -->
-<div class="row exam-navigation">
+<div class="row exam-navigation mb-3">
     <span class="col-md-12 ml-2">
         <!-- PREVIOUS SECTION BUTTON -->
         <a
@@ -13,7 +13,12 @@
             {{ prev.text | translate }}
         </a>
         <!-- NEXT SECTION BUTTON -->
-        <a class="green_button ml-2" [hidden]="!next.valid" (click)="nextPage()" tabindex="0" (keyup.enter)="nextPage()"
+        <a
+            class="green_button float-right mr-2"
+            [hidden]="!next.valid"
+            (click)="nextPage()"
+            tabindex="0"
+            (keyup.enter)="nextPage()"
             >{{ next.text | translate }}
             <img class="arrow_icon" alt="next page" src="/assets/assets/images/icon_right_white.png" />
         </a>
