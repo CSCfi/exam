@@ -124,84 +124,92 @@
 <div class="review-grade-row marb20" [hidden]="!isReadOnly()">
     <div class="col-md-2 general-info-title">
         {{ 'sitnet_teachers_comment' | translate }}
-        <span *ngIf="isCommentRead()">({{ 'sitnet_teachers_comment_read' | translate | lowercase }})</span>
+        <span *ngIf="!!isCommentRead()">({{ 'sitnet_teachers_comment_read' | translate | lowercase }})</span>
         <span *ngIf="!isCommentRead()">({{ 'sitnet_teachers_comment_notread' | translate | lowercase }})</span>:
     </div>
     <div
         class="col-md-10"
         [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        [MathJax]="exam.examFeedback.comment"
+        [MathJax]="exam.examFeedback?.comment"
     ></div>
-    <div *ngIf="exam.examFeedback.attachment" class="col-md-offset-2 col-md-10 general-info-content">
+    <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
         <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
-            {{ exam.examFeedback.attachment.fileName }}
+            {{ exam.examFeedback.attachment?.fileName }}
         </a>
     </div>
 </div>
 
-<div class="review-grade-row">
+<div class="review-grade-row row">
     <div class="col-md-3 grading-title">{{ 'sitnet_exam_grade' | translate | uppercase }}</div>
     <div class="col-md-3 grading-title">{{ 'sitnet_exam_choose_credit_type' | translate | uppercase }}</div>
     <div class="col-md-3 grading-title">{{ 'sitnet_exam_record_language' | translate | uppercase }}</div>
     <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
 </div>
 <div class="review-grade-row marb20">
-    <form #gradingForm name="gradingForm" role="form" novalidate>
-        <div class="col-md-3 general-info-content">
-            <select
-                id="examGrade"
-                name="examGrade"
-                class="form-control"
-                [(ngModel)]="selections.grade"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                (ngModelChange)="setGrade()"
-                required
-            >
-                <option value="">{{ 'sitnet_choose' | translate }}</option>
-                <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3 general-info-title">
-            <select
-                id="creditType"
-                name="creditType"
-                class="form-control"
-                [(ngModel)]="selections.type"
-                (ngModelChange)="setCreditType()"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                required
-            >
-                <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3 general-info-title">
-            <select
-                id="answerLanguage"
-                name="answerLanguage"
-                class="form-control"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                [(ngModel)]="selections.language"
-                (ngModelChange)="setLanguage()"
-                required
-            >
-                <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
-            </select>
-        </div>
-        <div class="col-md-3 general-info-title">
-            <input
-                id="customCredit"
-                type="number"
-                lang="en"
-                [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                required
-                min="0"
-                class="form-control"
-                maxlength="3"
-                [(ngModel)]="exam.customCredit"
-            />
+    <form #gradingForm class="w-100 px-3" name="gradingForm" role="form" novalidate>
+        <div class="row">
+            <div class="col-md-3 general-info-content">
+                <select
+                    id="examGrade"
+                    name="examGrade"
+                    class="form-control form-select"
+                    [(ngModel)]="selections.grade"
+                    [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                    (ngModelChange)="setGrade()"
+                    required
+                >
+                    <option value="">{{ 'sitnet_choose' | translate }}</option>
+                    <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-3 general-info-title">
+                <select
+                    id="creditType"
+                    name="creditType"
+                    class="form-control form-select"
+                    [(ngModel)]="selections.type"
+                    (ngModelChange)="setCreditType()"
+                    [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                    required
+                >
+                    <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-3 general-info-title">
+                <select
+                    id="answerLanguage"
+                    name="answerLanguage"
+                    class="form-control form-select"
+                    [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                    [(ngModel)]="selections.language"
+                    (ngModelChange)="setLanguage()"
+                    required
+                >
+                    <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-3 general-info-title">
+                <input
+                    id="customCredit"
+                    name="customCredit"
+                    type="number"
+                    lang="en"
+                    [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                    required
+                    min="0"
+                    class="form-control"
+                    maxlength="3"
+                    [(ngModel)]="exam.customCredit"
+                />
+            </div>
         </div>
     </form>
 </div>
 
 <!-- Bottom toolbar -->
-<r-toolbar [valid]="gradingForm.valid"></r-toolbar>
+<r-toolbar
+    [valid]="gradingForm.valid"
+    [exam]="exam"
+    [participation]="participation"
+    [collaborative]="collaborative"
+></r-toolbar>

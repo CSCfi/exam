@@ -18,8 +18,8 @@ import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { OrderPipe } from 'ngx-order-pipe';
-import { forkJoin, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import { map, tap, mergeMap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../session/session.service';
@@ -114,7 +114,7 @@ export class ReservationComponentBase {
     }
 
     ngOnInit() {
-        this.selection = { examId: this.examId };
+        this.selection = this.examId ? { examId: this.examId } : {};
         this.initOptions();
         this.query();
         this.stateOptions = this.examStates.map((s) => {
@@ -130,10 +130,10 @@ export class ReservationComponentBase {
             delete params.examId;
         }
         if (this.startDate) {
-            params.start = this.startDate.toString();
+            params.start = this.startDate.toISOString();
         }
         if (this.endDate) {
-            params.end = this.endDate.toString();
+            params.end = this.endDate.toISOString();
         }
         return params;
     };
@@ -148,10 +148,10 @@ export class ReservationComponentBase {
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
-            forkJoin(
+            forkJoin([
                 this.http.get<Reservation[]>('/app/reservations', { params: params }),
                 this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
-            )
+            ])
                 .pipe(
                     map(([reservations, enrolments]) => {
                         const events: Partial<Reservation>[] = enrolments.map((ee) => {
@@ -269,7 +269,7 @@ export class ReservationComponentBase {
             },
             (resp) => toast.error(resp.data),
         );
-        this.http.get<{ isExamVisitSupported: boolean }>('/settings/iop/examVisit').subscribe((resp) => {
+        this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
             this.isInteroperable = resp.isExamVisitSupported;
             this.initExamOptions();
         });
@@ -304,27 +304,27 @@ export class ReservationComponentBase {
         }
     }
 
-    protected initExamOptions(): void {
-        this.http.get<Exam[]>('/app/reservations/exams').pipe(
-            switchMap((exams) => {
-                const examOptions = exams.map((e) => ({ id: e.id, value: e, name: e.name }));
-                if (this.isInteroperable && this.isAdminView()) {
-                    // Load also collaborative exams.
-                    return this.http.get<CollaborativeExam[]>('/integration/iop/exams').pipe(
-                        map((ee) => {
-                            const collabExamOptions = ee.map((e) => ({ id: e.id, value: e, name: e.name }));
-                            const res: { id: string | number; value: unknown; name: string | null }[] = [];
-                            return res.concat(examOptions).concat(collabExamOptions);
-                        }),
-                    );
-                }
-                return of(examOptions);
-            }),
-            tap((exams) => {
-                this.examOptions = this.orderPipe.transform(exams, 'name');
-            }),
-        );
-    }
+    protected initExamOptions = () => {
+        const loadExams = this.http.get<Exam[]>('/app/reservations/exams');
+        const loadCollaborativeExams = this.http.get<CollaborativeExam[]>('/integration/iop/exams');
+
+        const examObservables = [
+            loadExams,
+            ...(this.isInteroperable && this.isAdminView() ? [loadCollaborativeExams] : []),
+        ];
+
+        forkJoin(examObservables)
+            .pipe(
+                mergeMap((exams) => exams),
+                map((exams) =>
+                    (exams as Array<Exam | CollaborativeExam>).map((e) => ({ id: e.id, value: e, label: e.name })),
+                ),
+                tap((exams) => {
+                    this.examOptions = this.orderPipe.transform(exams, 'label');
+                }),
+            )
+            .subscribe();
+    };
 
     private roomContains = (room: ExamRoom, machine: ExamMachine) => room.examMachines.some((m) => m.id === machine.id);
 
@@ -349,24 +349,24 @@ export class ReservationComponentBase {
     private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option[] =>
         rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
-    roomChanged(room?: ExamRoom) {
-        if (room === undefined) {
+    roomChanged(event?: { value: ExamRoom }) {
+        if (event?.value === undefined) {
             delete this.selection.roomId;
             this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
         } else {
-            this.selection.roomId = room.id.toString();
-            this.machineOptions = this.machinesForRoom(room, this.machines);
+            this.selection.roomId = event.value.id.toString();
+            this.machineOptions = this.machinesForRoom(event.value, this.machines);
         }
         this.query();
     }
 
-    startDateChanged(date: Date) {
-        this.startDate = date;
+    startDateChanged(event: { date: Date }) {
+        this.startDate = event.date;
         this.query();
     }
 
-    endDateChanged(date: Date) {
-        this.endDate = date;
+    endDateChanged(event: { date: Date }) {
+        this.endDate = event.date;
         this.query();
     }
 
@@ -386,40 +386,48 @@ export class ReservationComponentBase {
         return this.startDate || this.endDate;
     }
 
-    ownerChanged(owner?: User) {
-        if (owner) {
-            this.selection.ownerId = owner.id.toString();
+    ownerChanged(event?: { value: User }) {
+        if (event?.value) {
+            this.selection.ownerId = event.value.id.toString();
         } else {
             delete this.selection.ownerId;
         }
         this.query();
     }
 
-    stateChanged(state: string) {
-        this.selection.state = state;
-        this.query();
+    stateChanged(event?: { value: string }) {
+        if (event?.value) {
+            this.selection.state = event.value;
+            this.query();
+        } else {
+            delete this.selection.state;
+        }
     }
 
-    studentChanged(student?: User) {
-        if (student) {
-            this.selection.studentId = student.id.toString();
+    studentChanged(event?: { value: User }) {
+        if (event?.value) {
+            this.selection.studentId = event.value.id.toString();
         } else {
             delete this.selection.studentId;
         }
         this.query();
     }
 
-    machineChanged(machine?: ExamMachine) {
-        if (machine) {
-            this.selection.machineId = machine.id.toString();
+    machineChanged(event?: { value: ExamMachine }) {
+        if (event?.value) {
+            this.selection.machineId = event.value.id.toString();
         } else {
             delete this.selection.machineId;
         }
         this.query();
     }
 
-    examChanged(exam: Exam) {
-        this.selection.examId = exam.id.toString();
-        this.query();
+    examChanged(event?: { value: Exam }) {
+        if (event?.value) {
+            this.selection.examId = event.value.id.toString();
+            this.query();
+        } else {
+            delete this.selection.examId;
+        }
     }
 }

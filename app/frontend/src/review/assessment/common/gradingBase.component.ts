@@ -7,7 +7,7 @@ import type { LanguageService } from '../../../utility/language/language.service
 import type { AssessmentService } from '../assessment.service';
 
 export abstract class GradingBaseComponent {
-    selections: { grade: SelectableGrade; type: ExamType; language: ExamLanguage };
+    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
     creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];
@@ -17,7 +17,13 @@ export abstract class GradingBaseComponent {
         protected Assessment: AssessmentService,
         protected Exam: ExamService,
         protected Language: LanguageService,
-    ) {}
+    ) {
+        this.selections = {
+            grade: null,
+            type: null,
+            language: null,
+        };
+    }
 
     protected abstract getExam(): Exam;
 
@@ -35,7 +41,9 @@ export abstract class GradingBaseComponent {
     };
 
     private _setGrade = (grade: SelectableGrade) => {
-        this.selections.grade = grade;
+        if (this.selections?.grade) {
+            this.selections.grade = grade;
+        }
     };
 
     protected initGrade = () => {

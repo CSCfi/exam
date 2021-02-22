@@ -47,7 +47,7 @@ export class ToolbarComponent {
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
     isMaturityRejection = () =>
-        this.exam.executionType.type === 'MATURITY' &&
+        this.exam?.executionType.type === 'MATURITY' &&
         !this.exam.subjectToLanguageInspection &&
         this.exam.grade &&
         this.exam.grade.marksRejection;

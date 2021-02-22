@@ -2,9 +2,47 @@
     <div class="student-enrolment-wrapper review-view">
         <div class="col-md-12">
             <!-- question text -->
-            <div>
-                <div class="pull-right">
-                    <a class="pull-right" (click)="reviewExpanded = !reviewExpanded">
+            <div class="d-flex justify-content-between">
+                <div class="review-question-title marr110" [MathJax]="sectionQuestion.question.question"></div>
+                <div>
+                    <!-- grade -->
+                    <div
+                        class="d-inline-block review-points"
+                        *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                    >
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                            {{ scoreMultipleChoiceAnswer(true) }}
+                        </span>
+                        <span *ngIf="hasForcedScore()" class="text text-danger">
+                            {{ sectionQuestion.forcedScore }}
+                        </span>
+                        / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
+                    </div>
+                    <div
+                        class="d-inline-block review-points"
+                        *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                    >
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                            {{ scoreWeightedMultipleChoiceAnswer(true) }}
+                        </span>
+                        <span *ngIf="hasForcedScore()" class="text text-danger">
+                            {{ sectionQuestion.forcedScore }}
+                        </span>
+                        / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+                    </div>
+                    <div
+                        class="d-inline-block review-points"
+                        *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'"
+                    >
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                            {{ scoreClaimChoiceAnswer(true) }}
+                        </span>
+                        <span *ngIf="hasForcedScore()" class="text text-danger">
+                            {{ sectionQuestion.forcedScore }}
+                        </span>
+                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+                    </div>
+                    <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
                         <img
                             *ngIf="!reviewExpanded"
                             src="/assets/assets/images/icon_list_show_right.svg"
@@ -18,40 +56,7 @@
                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
                         />
                     </a>
-                    <!-- grade -->
-                    <div class="review-points" *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
-                            {{ scoreMultipleChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
-                    </div>
-                    <div
-                        class="review-points"
-                        *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
-                    >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
-                            {{ scoreWeightedMultipleChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
-                    </div>
-                    <div class="review-points" *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
-                            {{ scoreClaimChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
-                    </div>
                 </div>
-
-                <div class="review-question-title marr110" [MathJax]="sectionQuestion.question.question"></div>
             </div>
 
             <!-- question attachment -->
@@ -64,43 +69,44 @@
             <!-- answer -->
             <div class="mart20" *ngIf="reviewExpanded">
                 <hr />
-            </div>
-            <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
-                <r-multi-choice-answer [sectionQuestion]="sectionQuestion"></r-multi-choice-answer>
-            </div>
-            <div *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                <r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion"> </r-weighted-multi-choice-answer>
-            </div>
-            <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-                <r-claim-choice-answer [sectionQuestion]="sectionQuestion"></r-claim-choice-answer>
-            </div>
-            <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
-                <div class="points-title">
-                    <span class="text text-danger"
-                        >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
-                        <small
-                            >[{{ getMinimumOptionScore() }} &hellip;
-                            {{ sectionQuestion.maxScore || calculateMaxPoints() }}]</small
-                        ></span
-                    >
+                <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
+                    <r-multi-choice-answer [sectionQuestion]="sectionQuestion"></r-multi-choice-answer>
                 </div>
-                <form #forcedPoints name="forcedPoints">
-                    <input
-                        name="score"
-                        type="number"
-                        lang="en"
-                        class="form-control"
-                        [(ngModel)]="sectionQuestion.forcedScore"
-                        fixedPrecision
-                        (blur)="forcedPoints.$valid && insertForcedScore()"
-                        [disabled]="!isScorable"
-                        min="{{ getMinimumOptionScore() }}"
-                        max="{{ sectionQuestion.maxScore || calculateMaxPoints() }}"
-                    />
-                    <small *ngIf="forcedPoints.invalid" class="alert-danger">
-                        <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
-                    </small>
-                </form>
+                <div *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
+                    <r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
+                    </r-weighted-multi-choice-answer>
+                </div>
+                <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
+                    <r-claim-choice-answer [sectionQuestion]="sectionQuestion"></r-claim-choice-answer>
+                </div>
+                <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
+                    <div class="points-title">
+                        <span class="text text-danger"
+                            >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
+                            <small
+                                >[{{ getMinimumOptionScore() }} &hellip;
+                                {{ sectionQuestion.maxScore || calculateMaxPoints() }}]</small
+                            ></span
+                        >
+                    </div>
+                    <form #forcedPoints name="forcedPoints">
+                        <input
+                            name="score"
+                            type="number"
+                            lang="en"
+                            class="form-control"
+                            [(ngModel)]="sectionQuestion.forcedScore"
+                            fixedPrecision
+                            (blur)="forcedPoints.$valid && insertForcedScore()"
+                            [disabled]="!isScorable"
+                            min="{{ getMinimumOptionScore() }}"
+                            max="{{ sectionQuestion.maxScore || calculateMaxPoints() }}"
+                        />
+                        <small *ngIf="forcedPoints.invalid" class="alert-danger">
+                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                        </small>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

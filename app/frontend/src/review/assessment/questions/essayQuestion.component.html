@@ -2,9 +2,11 @@
     <div class="student-enrolment-wrapper review-view">
         <div class="col-md-12">
             <!-- question text -->
-            <div>
+            <div class="d-flex justify-content-between">
+                <!-- question title -->
+                <div class="review-question-title marr20" [MathJax]="sectionQuestion.question.question"></div>
                 <!--chevron -->
-                <a class="pull-right" (click)="reviewExpanded = !reviewExpanded">
+                <a (click)="reviewExpanded = !reviewExpanded">
                     <img
                         *ngIf="!reviewExpanded"
                         src="/assets/assets/images/icon_list_show_right.svg"
@@ -18,8 +20,6 @@
                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
                     />
                 </a>
-                <!-- question title -->
-                <div class="review-question-title marr20" [MathJax]="sectionQuestion.question.question"></div>
             </div>
 
             <!-- question attachment -->
@@ -108,14 +108,14 @@
                     <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
                         <select
                             class="form-control"
-                            ([ngModel])="(sectionQuestion.essayAnswer.evaluatedScore)"
+                            [(ngModel)]="sectionQuestion.essayAnswer.evaluatedScore"
                             (change)="insertEssayScore()"
                             [disabled]="!isScorable"
                         >
-                            <option value="1" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 1">
+                            <option [ngValue]="1" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 0">
+                            <option [ngValue]="0" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 0">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>

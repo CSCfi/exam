@@ -27,12 +27,21 @@ import type { FileResult } from '../../../utility/attachment/dialogs/attachmentS
 export class StatementComponent {
     @Input() exam: Exam;
     hideEditor = false;
+    statement = '';
 
     constructor(private Attachment: AttachmentService, private Files: FileService, private Maturity: MaturityService) {}
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 
     toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
+
+    onChange = (value: string) => {
+        if (!this.exam.languageInspection?.statement?.comment) {
+            this.exam.languageInspection!.statement = { comment: value };
+        } else {
+            this.exam.languageInspection.statement.comment = value;
+        }
+    };
 
     saveInspectionStatement = () =>
         this.Maturity.saveInspectionStatement$(this.exam).subscribe((resp) => (this.exam.languageInspection = resp));

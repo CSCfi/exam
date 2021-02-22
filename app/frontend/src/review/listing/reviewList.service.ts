@@ -105,9 +105,9 @@ export class ReviewListService {
     };
     selectPage = (scope: Selection, items: Review[], selector: string) => {
         const override = this.resetSelections(scope, 'page');
-        const boxes: NodeList = document.querySelectorAll('.' + selector);
+        const boxes = document.querySelectorAll<HTMLInputElement>('.' + selector);
         const ids: string[] = [];
-        boxes.forEach((node) => ids.push(node.nodeValue as string));
+        boxes.forEach((node) => ids.push(node.value));
         // init all as not selected
         if (override) {
             items.forEach((i) => (i.selected = false));

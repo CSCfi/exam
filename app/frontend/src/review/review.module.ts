@@ -118,7 +118,7 @@ import { QuestionReviewService } from './questions/questionReview.service';
         QuestionReviewComponent,
         QuestionReviewsComponent,
     ],
-    entryComponents: [AssessmentComponent],
+    entryComponents: [AssessmentComponent, NoShowsComponent, AbortedExamsComponent],
     providers: [
         AssessmentService,
         CollaborativeAssesmentService,

@@ -54,6 +54,7 @@ import { RoomComponent } from './facility/rooms/room.component';
 import { AvailabilityComponent } from './facility/rooms/availability.component';
 import { MultiRoomComponent } from './facility/rooms/multiRoom.component';
 import { ReportsComponent } from './administrative/reports/reports.component';
+import { StatisticsComponent } from './administrative/statistics/statistics.component';
 
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
@@ -345,6 +346,11 @@ const rootModule: RootModule = {
             name: 'reports',
             url: '/reports',
             component: ReportsComponent,
+        },
+        {
+            name: 'statistics',
+            url: '/statistics',
+            component: StatisticsComponent,
         },
     ],
     useHash: false,

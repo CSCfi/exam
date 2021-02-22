@@ -1,4 +1,4 @@
-<div id="dashboard">
+<div id="dashboard" *ngIf="exam">
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
@@ -20,16 +20,16 @@
                         exam.state === 'REVIEW' || exam.state === 'REVIEW_STARTED' || exam.state === 'STUDENT_STARTED'
                     "
                     class="status"
-                    >{{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                    >{{ 'sitnet_exam_status_' + exam.state | lowercase }}
                 </span>
                 <span *ngIf="exam.state === 'GRADED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
                 </span>
                 <span *ngIf="exam.state === 'GRADED_LOGGED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
                 </span>
                 <span *ngIf="exam.state === 'REJECTED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
                 </span>
             </div>
         </div>
@@ -38,7 +38,7 @@
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title">
+                <div class="review-list-title d-flex justify-content-between">
                     <span *ngIf="exam.course"><course-code [course]="exam.course"></course-code> - </span
                     >{{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
@@ -84,7 +84,7 @@
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title">
+                <div class="review-list-title d-flex justify-content-between">
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a (click)="hideGradeInfo = !hideGradeInfo">
                         <img

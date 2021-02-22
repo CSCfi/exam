@@ -10,8 +10,10 @@
             >
                 <i
                     (click)="toggleFeedbackVisibility()"
-                    class="pointer vcenter"
-                    [ngClass]="hideEditor ? 'bi-arrow-right-circle sitnet-green' : 'bi-arrow-down-circle sitnet-red'"
+                    class="pointer vcenter font-6"
+                    [ngClass]="
+                        hideEditor ? 'bi-arrow-right-circle-fill sitnet-green' : 'bi-arrow-down-circle-fill sitnet-red'
+                    "
                 >
                 </i>
             </div>
@@ -23,30 +25,36 @@
         </div>
         <div [hidden]="hideEditor" class="body">
             <div class="row editor">
-                <div class="col-md-12" *ngIf="exam.examFeedback">
+                <div class="col-md-12">
                     <ckeditor
+                        id="feedback-editor"
                         [enableClozeTest]="false"
                         [(ngModel)]="exam.examFeedback.comment"
+                        ck-editor
                         #ck="ngModel"
                         name="ck"
+                        rows="10"
+                        cols="80"
                     ></ckeditor>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-2">
-                    <button class="btn btn-default" (click)="saveFeedback()">{{ 'sitnet_save' | translate }}</button>
+                <div class="col">
+                    <button class="btn btn-outline-secondary" (click)="saveFeedback()">
+                        {{ 'sitnet_save' | translate }}
+                    </button>
                 </div>
-                <div class="col-md-10">
-                    <div class="pull-right">
+                <div class="col d-flex justify-content-end">
+                    <div>
                         <span [hidden]="!exam.examFeedback?.attachment">
                             <a class="pointer" (click)="downloadFeedbackAttachment()">{{
-                                exam.examFeedback.attachment?.fileName
+                                exam.examFeedback?.attachment?.fileName
                             }}</a>
                             <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
                                 <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
                             </span>
                         </span>
-                        <button type="button" class="btn btn-default" (click)="selectFile()">
+                        <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
                             {{ 'sitnet_attach_file' | translate }}
                         </button>
                     </div>

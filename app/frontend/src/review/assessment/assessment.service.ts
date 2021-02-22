@@ -73,8 +73,8 @@ export class AssessmentService {
         );
     };
 
-    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam.state) > -1;
-    isGraded = (exam: Exam) => exam.state === 'GRADED';
+    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
+    isGraded = (exam: Exam) => exam?.state === 'GRADED';
 
     pickExamLanguage = (exam: Exam): { code: string } => {
         const lang = exam.answerLanguage;

@@ -818,3 +818,40 @@ $sitnet-icon-size: 32px;
 .font-6 {
   font-size: 1.5rem;
 }
+
+.font-sm {
+  font-size: 0.8rem !important;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-x-scroll {
+  overflow-x: scroll;
+}
+
+.dropdown-select-full-width {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+.mt-8 {
+  margin-top: 2rem !important;
+}
+
+.px-8 {
+  padding: 0 2rem !important;
+}
+
+.max-w-350 {
+  width: 350px !important;
+}
+
+.unstyled-link, .unstyled-link:hover, .unstyled-link:active {
+  text-decoration: none;
+  color: initial;
+}

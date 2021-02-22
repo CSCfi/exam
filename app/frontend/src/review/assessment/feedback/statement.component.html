@@ -1,5 +1,5 @@
 <div id="feedback" [hidden]="hasGoneThroughLanguageInspection()">
-    <div ckDrag id="draggable" class="wrapper">
+    <div cdkDrag id="draggable" class="wrapper">
         <div class="row">
             <div
                 class="col-md-1"
@@ -10,8 +10,10 @@
             >
                 <i
                     (click)="toggleEditorVisibility()"
-                    class="pointer fa fa-2x vcenter"
-                    [ngClass]="hideEditor ? 'bi-arrow-right-circle sitnet-green' : 'bi-arrown-down-circle sitnet-red'"
+                    class="pointer vcenter font-6"
+                    [ngClass]="
+                        hideEditor ? 'bi-arrow-right-circle-fill sitnet-green' : 'bi-arrow-down-circle-fill sitnet-red'
+                    "
                 >
                 </i>
             </div>
@@ -25,7 +27,8 @@
             <div class="col-md-12">
                 <ckeditor
                     [enableClozeTest]="false"
-                    [(ngModel)]="exam.languageInspection.statement.comment"
+                    [(ngModel)]="statement"
+                    (ngModelChange)="onChange($event)"
                     #ck="ngModel"
                     name="ck"
                 ></ckeditor>
@@ -39,9 +42,9 @@
             </div>
             <div class="col-md-10">
                 <div class="pull-right">
-                    <span *ngIf="exam.languageInspection?.statement.attachment">
+                    <span *ngIf="exam.languageInspection?.statement?.attachment">
                         <a class="pointer" (click)="downloadStatementAttachment()">{{
-                            exam.languageInspection?.statement.attachment?.fileName
+                            exam.languageInspection?.statement?.attachment?.fileName
                         }}</a>
                         <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
                             <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>

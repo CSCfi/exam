@@ -53,7 +53,7 @@ export class InProgressReviewsComponent {
     getLinkToAssessment = (review: ExamParticipation) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-            : `/assessments/${review.exam.id}`;
+            : `/assessments/${review.exam?.id}`;
 
     pageSelected = (page: number) => (this.view.page = page);
 
