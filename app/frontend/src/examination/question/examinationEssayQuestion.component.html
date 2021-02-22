@@ -19,12 +19,11 @@
         ></ckeditor>
     </div>
 </div>
-<div class="row">
+<div class="row" *ngIf="sq.autosaved">
     <div class="col-md-12">
-        <small class="sitnet-info-text" *ngIf="sq.autosaved">
+        <small class="sitnet-info-text">
             {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
         </small>
-        <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
     </div>
 </div>
 
@@ -60,31 +59,31 @@
         </div>
     </div>
 </div>
-<div class="row mart10" *ngIf="sq.essayAnswer && !sq.essayAnswer.attachment">
-    <div class="col-md-12">
-        <button
-            tabindex="0"
-            class="pull-right pointer btn btn-success marr30"
-            [disabled]="isPreview"
-            (click)="selectFile()"
-            (keyup.enter)="selectFile()"
-        >
-            {{ 'sitnet_upload_answer_attachment' | translate }}
-            <img
-                src="/assets/assets/images/icon_attachment.svg"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
-            />
-        </button>
-        <span class="pull-right padr10 mart10 filename-text" *ngIf="!sq.essayAnswer?.attachment?.fileName">
-            {{ 'sitnet_no_attachment' | translate }}
-        </span>
-    </div>
-</div>
-<div class="row mart10">
-    <div class="col-md-12">
-        <button (click)="saveAnswer()" class="pull-right pointer btn btn-success marr30" [disabled]="isPreview">
+<div class="row align-items-end">
+    <div class="col-md-6">
+        <button (click)="saveAnswer()" class="pointer btn btn-success" [disabled]="isPreview">
             {{ 'sitnet_save' | translate }}
         </button>
+    </div>
+    <div class="col-md-6" *ngIf="sq.essayAnswer && !sq.essayAnswer.attachment">
+        <div class="float-right mart10">
+            <div class="filename-text" *ngIf="!sq.essayAnswer?.attachment?.fileName">
+                {{ 'sitnet_no_attachment' | translate }}
+            </div>
+            <button
+                tabindex="0"
+                class="pointer btn btn-success"
+                [disabled]="isPreview"
+                (click)="selectFile()"
+                (keyup.enter)="selectFile()"
+            >
+                {{ 'sitnet_upload_answer_attachment' | translate }}
+                <img
+                    src="/assets/assets/images/icon_attachment.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
+                />
+            </button>
+        </div>
     </div>
 </div>

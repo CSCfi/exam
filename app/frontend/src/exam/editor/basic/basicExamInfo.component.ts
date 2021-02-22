@@ -212,7 +212,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes().subscribe((types) => {
+        this.Exam.refreshExamTypes$().subscribe((types) => {
             // Maturity can only have a FINAL type
             if (this.exam.executionType.type === 'MATURITY') {
                 types = types.filter((t) => t.type === 'FINAL');
@@ -222,7 +222,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshGradeScales = () => {
-        this.Exam.refreshGradeScales(this.collaborative).subscribe((scales: GradeScale[]) => {
+        this.Exam.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
             this.gradeScales = scales;
         });
     };

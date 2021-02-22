@@ -1,9 +1,9 @@
 <div id="sitnet-dialog">
-    <div class="student-details-title-wrap mart20">
+    <div class="student-details-title-wrap modal-header">
         <div class="student-enroll-title">{{ title | translate }}</div>
     </div>
 
-    <div class="modal-body marl20">
+    <div class="modal-body">
         <div class="row">
             <div class="col-md-3">
                 <label for="file-select" class="btn btn-success btn-file">{{ 'sitnet_choose' | translate }}</label>
@@ -22,21 +22,19 @@
         </div>
         <div class="row top-padding-2">
             <div class="col-md-12" *ngIf="isTeacherModal">
-                <p>{{ 'sitnet_check_file_accessible' | translate }}</p>
+                {{ 'sitnet_check_file_accessible' | translate }}
             </div>
-            <div class="col-md-12">
-                <p>{{ 'sitnet_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</p>
-            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">{{ 'sitnet_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
         </div>
     </div>
     <div class="modal-footer">
-        <div class="w-100 d-flex justify-content-between">
-            <button class="btn btn-primary pull-left" (click)="activeModal.dismiss()">
-                {{ 'sitnet_button_cancel' | translate }}
-            </button>
-            <button class="btn btn btn-success" (click)="confirmed()" [disabled]="!fileObject">
-                {{ 'sitnet_button_save' | translate }}
-            </button>
-        </div>
+        <button class="btn btn-primary pull-left" (click)="activeModal.dismiss()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
+        <button class="btn btn btn-success pull-right" (click)="confirmed()" [disabled]="!fileObject">
+            {{ 'sitnet_button_save' | translate }}
+        </button>
     </div>
 </div>

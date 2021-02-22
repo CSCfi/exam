@@ -18,6 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import { from } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../session/session.service';
@@ -35,7 +36,6 @@ import type {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
-
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
@@ -164,6 +164,7 @@ export class QuestionService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
+        if (!score) return 0;
         const proportion =
             (score.correctAnswers * sectionQuestion.maxScore) / (score.correctAnswers + score.incorrectAnswers);
         return parseFloat(proportion.toFixed(2));
@@ -294,7 +295,7 @@ export class QuestionService {
         });
     };
 
-    updateDistributedExamQuestion = (
+    updateDistributedExamQuestion$ = (
         question: Question,
         sectionQuestion: ExamSectionQuestion,
         examId: number,
@@ -316,41 +317,30 @@ export class QuestionService {
                 data.evaluationType = sectionQuestion.evaluationType;
                 break;
         }
-        return new Promise<ExamSectionQuestion>((resolve, reject) => {
-            this.http
-                .put<ExamSectionQuestion>(
-                    `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`,
-                    data,
-                )
-                .subscribe(
-                    (response) => {
-                        Object.assign(response.question, question);
-                        if (question.attachment && question.attachment.modified && question.attachment.file) {
-                            this.Files.upload(
-                                '/app/attachment/question',
-                                question.attachment.file,
-                                { questionId: question.id.toString() },
-                                question,
-                                function () {
-                                    response.question.attachment = question.attachment;
-                                    resolve(response);
-                                },
-                            );
-                        } else if (question.attachment && question.attachment.removed) {
-                            this.Attachment.eraseQuestionAttachment(question).then(() => {
-                                delete response.question.attachment;
-                                resolve(response);
-                            });
-                        } else {
-                            resolve(response);
-                        }
-                    },
-                    (err) => {
-                        toast.error(err.data);
-                        reject();
-                    },
-                );
-        });
+        return this.http
+            .put<ExamSectionQuestion>(
+                `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`,
+                data,
+            )
+            .pipe(
+                map((response) => {
+                    Object.assign(response.question, question);
+                    if (question.attachment && question.attachment.modified && question.attachment.file) {
+                        this.Files.upload(
+                            '/app/attachment/question',
+                            question.attachment.file,
+                            { questionId: question.id.toString() },
+                            question,
+                            () => (response.question.attachment = question.attachment),
+                        );
+                    } else if (question.attachment && question.attachment.removed) {
+                        this.Attachment.eraseQuestionAttachment(question).then(() => {
+                            delete response.question.attachment;
+                        });
+                    }
+                    return response;
+                }),
+            );
     };
 
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
@@ -487,7 +477,7 @@ export class QuestionService {
             backdrop: 'static',
             keyboard: false,
             windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modal.componentInstance.newQuestion = newQuestion;
         modal.componentInstance.collaborative = collaborative;

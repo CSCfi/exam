@@ -118,7 +118,7 @@
             </div>
             <textarea
                 [disabled]="!machine.outOfService"
-                class="form-control ng-pristine ng-valid"
+                class="form-control"
                 [(ngModel)]="machine.statusComment"
                 (blur)="updateMachine()"
             >

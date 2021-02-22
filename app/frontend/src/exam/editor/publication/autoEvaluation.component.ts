@@ -1,3 +1,9 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import * as _ from 'lodash';
+
+import { Exam } from '../../exam.model';
+import { ExamService } from '../../exam.service';
+
 /*
  * Copyright (c) 2017 Exam Consortium
  *
@@ -13,13 +19,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import * as _ from 'lodash';
-
 import type { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
-import { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -92,7 +92,7 @@ export class AutoEvaluationComponent implements OnInit {
 
     private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
 
-    private applyFilter = (type?: ReleaseType) => {
+    applyFilter = (type?: ReleaseType) => {
         if (!this.exam.autoEvaluationConfig) return;
         this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {

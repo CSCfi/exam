@@ -9,7 +9,7 @@ version := "5.3.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.4"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

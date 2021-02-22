@@ -21,38 +21,47 @@ import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
     selector: 'wmc-option-editor',
     template: `
-        <div class="col-md-12 form-horizontal question-editor-option">
-            <div
-                class="col-md-6 question-option-empty"
-                [ngClass]="option.defaultScore > 0 ? 'question-correct-option' : ''"
-            >
-                <input id="optionText" type="text" class="question-option-input" [(ngModel)]="option.option" required />
+        <div class="question-editor-option">
+            <div class="row">
+                <div
+                    class="col-md-6 question-option-empty"
+                    [ngClass]="option.defaultScore > 0 ? 'question-correct-option' : ''"
+                >
+                    <input
+                        id="optionText-{{ index }}"
+                        name="optionText-{{ index }}"
+                        type="text"
+                        class="question-option-input"
+                        [(ngModel)]="option.option"
+                        required
+                    />
+                </div>
+                <div
+                    class="col-md-2 question-option-empty-radio"
+                    [ngClass]="option.defaultScore > 0 ? 'question-correct-option-radio' : ''"
+                >
+                    <input
+                        id="optionScore-{{ index }}"
+                        name="optionScore-{{ index }}"
+                        class="question-option-input points"
+                        type="number"
+                        lang="en"
+                        [(ngModel)]="option.defaultScore"
+                        fixedPrecision
+                        required
+                        [disabled]="lotteryOn"
+                    />
+                </div>
+                <div class="col-md-1 question-option-trash pointer" [hidden]="lotteryOn" (click)="removeOption()">
+                    <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
+                </div>
             </div>
-            <div
-                class="col-md-2 question-option-empty-radio"
-                [ngClass]="option.defaultScore > 0 ? 'question-correct-option-radio' : ''"
-            >
-                <input
-                    id="optionScore"
-                    name="maxScore"
-                    class="question-option-input points"
-                    type="number"
-                    lang="en"
-                    [(ngModel)]="option.defaultScore"
-                    fixedPrecision
-                    required
-                    [disabled]="lotteryOn"
-                />
-            </div>
-            <div class="col-md-1 question-option-trash pointer" [hidden]="lotteryOn" (click)="removeOption()">
-                <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
-            </div>
-            <div class="col-md-3"></div>
         </div>
     `,
 })
 export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() option: MultipleChoiceOption;
+    @Input() index: number;
     @Input() question: Question;
     @Input() lotteryOn: boolean;
 

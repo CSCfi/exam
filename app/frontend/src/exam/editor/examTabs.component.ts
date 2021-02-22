@@ -13,9 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input, ViewChild } from '@angular/core';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
@@ -23,8 +21,11 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toastr from 'toastr';
 
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+
+import type { OnInit } from '@angular/core';
+import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { User } from '../../session/session.service';
 import type { Exam, ExamParticipation } from '../exam.model';
 
 @Component({
@@ -83,7 +84,7 @@ export class ExamTabsComponent implements OnInit {
 
     tabChanged = (event: NgbTabChangeEvent) => {
         const params = { id: this.exam.id, tab: event.nextId };
-        this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params, { notify: false });
+        this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params, { reload: false });
     };
 
     switchToBasicInfo = () => this.tabs.select('1');

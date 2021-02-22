@@ -115,7 +115,7 @@ DELETE        /app/exams/:eid/sections/:sid                            backend.c
 PUT           /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.updateSection(eid: Long, sid: Long, request: Request)
 DELETE        /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long, request: Request)
 POST          /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long, request: Request)
-POST          /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, questions: String, request: Request)
+POST          /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, request: Request)
 DELETE        /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 PUT           /app/exams/:eid/sections/:sid/reorder                    backend.controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
 PUT           /app/exams/:eid/reorder                                  backend.controllers.ExamSectionController.reorderSections(eid: Long, request: Request)

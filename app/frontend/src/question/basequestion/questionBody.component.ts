@@ -13,23 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import type { ReverseQuestion, Tag } from '../../exam/exam.model';
 import { ExamSectionQuestion } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import type { ReverseQuestion, Tag } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
+import type { QuestionDraft } from '../question.service';
 @Component({
     selector: 'question-body',
     templateUrl: './questionBody.component.html',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class QuestionBodyComponent {
     @Input() question: ReverseQuestion | QuestionDraft;
@@ -49,6 +51,7 @@ export class QuestionBodyComponent {
 
     constructor(
         private http: HttpClient,
+        private cdr: ChangeDetectorRef,
         private Session: SessionService,
         private Attachment: AttachmentService,
         private Question: QuestionService,
@@ -83,6 +86,7 @@ export class QuestionBodyComponent {
     setQuestionType = () => {
         this.question.type = this.Question.getQuestionType(this.newType);
         this.init();
+        this.cdr.detectChanges();
     };
 
     showWarning = () => this.examNames.length > 1;

@@ -215,7 +215,7 @@
                     <td *ngIf="!showId()" colspan="7">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr ng-repeat="r in [] | pageFill: view.filtered.length:view.page:view.pageSize">
+                <tr *ngFor="let r of [] | pageFill: view.filtered.length:view.page:view.pageSize">
                     <td class="table-column-bold">&nbsp;</td>
                     <td *ngIf="showId()" colspan="7"></td>
                     <td *ngIf="!showId()" colspan="6"></td>

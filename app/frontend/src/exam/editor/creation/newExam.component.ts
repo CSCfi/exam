@@ -13,26 +13,26 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 
-import type { ExamExecutionType, Implementation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import type { OnInit } from '@angular/core';
+import type { ExamExecutionType, Implementation } from '../../exam.model';
 @Component({
     selector: 'new-exam',
     templateUrl: './newExam.component.html',
 })
 export class NewExamComponent implements OnInit {
-    executionTypes: (ExamExecutionType & { name: string })[];
-    type: ExamExecutionType; // the one selected (on UI)
+    executionTypes: (ExamExecutionType & { name: string })[] = [];
+    type?: ExamExecutionType;
     examinationType: Implementation;
     byodExaminationSupported: boolean;
 
     constructor(private http: HttpClient, private Exam: ExamService) {}
 
     ngOnInit() {
-        this.Exam.listExecutionTypes().subscribe((types) => {
+        this.Exam.listExecutionTypes$().subscribe((types) => {
             this.executionTypes = types;
             this.examinationType = 'AQUARIUM';
             this.http
@@ -42,7 +42,7 @@ export class NewExamComponent implements OnInit {
     }
 
     selectType = () => {
-        if (!this.byodExaminationSupported) {
+        if (!this.byodExaminationSupported && this.type) {
             this.Exam.createExam(this.type.type, this.examinationType);
         }
     };

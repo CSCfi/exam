@@ -57,7 +57,7 @@ export class QuestionSelectorComponent {
                             this.selections.includes(esq.question.id),
                         );
                         toast.info(this.translate.instant('sitnet_question_added'));
-                        this.modal.close({ $value: insertedSectionQuestions });
+                        this.modal.close(insertedSectionQuestions);
                     },
                     (err) => {
                         toast.error(err.data);

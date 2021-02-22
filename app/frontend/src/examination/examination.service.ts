@@ -17,11 +17,15 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import type { Observable } from 'rxjs';
 import { from, throwError } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { isBlankElement, isTextElement } from '../exam/exam.model';
+import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
+import { WindowRef } from '../utility/window/window.service';
+
+import type { Observable } from 'rxjs';
 import type {
     ClozeTestAnswer,
     EssayAnswer,
@@ -29,29 +33,23 @@ import type {
     ExamSection,
     ExamSectionQuestion,
     ExamSectionQuestionOption,
-    MultipleChoiceOption,
 } from '../exam/exam.model';
-import { isBlankElement, isTextElement } from '../exam/exam.model';
 import type { QuestionBase } from '../utility/forms/questionTypes';
-import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
-import { WindowRef } from '../utility/window/window.service';
-
 export interface Examination extends Exam {
     cloned: boolean;
     external: boolean;
     examSections: ExaminationSection[];
 }
-type ExaminationQuestionOption = ExamSectionQuestionOption & { selectedOption: boolean };
 export interface ExaminationQuestion extends ExamSectionQuestion {
     questionStatus: string;
     autosaved: Date;
     derivedMaxScore: number;
     derivedMinScore: number;
-    selectedOption: MultipleChoiceOption | number;
+    selectedOption: number;
     answered: boolean;
     selectedAnsweredState: string;
     expanded: boolean;
-    options: ExaminationQuestionOption[];
+    options: ExamSectionQuestionOption[];
 }
 
 export interface ExaminationSection extends ExamSection {
@@ -179,7 +177,7 @@ export class ExaminationService {
                 break;
             }
             case 'MultipleChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some((o) => o.answered);
+                isAnswered = sq.selectedOption || sq.options.some((o) => o.answered);
                 break;
             case 'WeightedMultipleChoiceQuestion':
                 isAnswered = sq.options.some((o) => o.answered);
@@ -190,7 +188,7 @@ export class ExaminationService {
                 break;
             }
             case 'ClaimChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some((o) => o.answered);
+                isAnswered = sq.selectedOption || sq.options.some((o) => o.answered);
                 break;
             default:
                 isAnswered = false;
@@ -215,7 +213,7 @@ export class ExaminationService {
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
             ids = sq.options.filter((o) => o.answered).map((o) => o.id);
         } else {
-            ids = [sq.selectedOption as number];
+            ids = [sq.selectedOption];
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');

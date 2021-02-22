@@ -1,7 +1,7 @@
 #studentexam {
 
-  .top-padding-6 {
-    padding-top: 6.3em;
+  .top-margin-7 {
+    margin-top: 7.2em;
   }
 
   .more-separators {
@@ -17,8 +17,6 @@
     font-family: $sitnet-family-helvetica;
     padding-left: 15px;
   }
-
-  margin: 0 14px 0 0;
 
   .studentexam-header {
     padding-left: 1.2em;
@@ -98,13 +96,10 @@
 
     cursor: pointer;
     text-decoration: none;
-    float: right;
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
     background-color: $sitnet-green-new;
     border: 1px solid $sitnet-dark-green-new;
-    //width: 150px;
-    margin-left: 10px;
     border-radius: 3px;
     padding: 8px;
     padding-left: 20px;
@@ -166,7 +161,6 @@
 
     cursor: pointer;
     text-decoration: none;
-    float: right;
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
     background-color: #fff;
@@ -182,23 +176,22 @@
 
     :hover, :active, :focus, :active:focus {
       background-color: #efefef;
-      border: 1px solid #efefef;
-      text-decoration: none;
+      border-color: #efefef;
     }
 
   }
 
   .grey-button:hover, .grey-button:active, .grey-button:focus, .grey-button:active:focus {
     background-color: #efefef;
-    border: 1px solid #efefef;
-    text-decoration: none;
+    border-color: #efefef;
   }
 
   .arrow_icon {
     vertical-align: baseline;
     padding-left:13px;
+    padding-right:13px;
   }
-
+  
   // to highlight ck-editor content marked with this class
   .marker {
     background-color: yellow;
@@ -341,36 +334,19 @@
     border-radius: 4px;
     border: 2px solid #EDEDED;
     border-left: $sitnet-medium-green-new 4px solid;
-    margin-right: 1.4em;
-    padding: 30px;
+    padding: 10px;
     margin-bottom: 10px;
     margin-top:30px;
-    padding-left:60px;
-    padding-right: 60px;
-
-    .guide-column {
-      color: #555555;
-      font-size: 16px;
-      font-family: $sitnet-family-helvetica;
-
-      &.padtop {
-        padding-top: 120px;
-        padding-left: 15px;
-      }
-    }
-
+    
     &.notactive {
       border-left: #B1B1B1 4px solid;
     }
   }
 
   .right-column-box {
-//    width: 332px;
     border: 2px solid #EDEDED;
     border-radius: 4px;
-    margin-left: 15px;
-    padding-top:20px;
-
+    
     .user-span {
       font-family: $sitnet-family-helvetica;
       font-size: 18px;
@@ -399,6 +375,7 @@
       border-bottom: 1px solid #B1B1B1;
       margin-bottom: 18px;
       padding-bottom: 10px;
+      padding-top: 10px;
     }
 
     .button-separator {
@@ -408,8 +385,6 @@
 
   .attachment-button {
     display: inline-block;
-    margin-top: 20px;
-
   }
 
   .attachment-name {
@@ -417,12 +392,6 @@
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
-    margin-top: 10px;
-
-    @media (max-width: 1050px) {
-      margin-top: 3px;
-    }
-
   }
 
   .section-answered {

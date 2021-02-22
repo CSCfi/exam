@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, ViewChild } from '@angular/core';
+import { NgbAccordion, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ExamService } from '../../exam.service';
 
@@ -17,14 +17,18 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                 <ngb-accordion #acc="ngbAccordion">
                     <ngb-panel id="toggle-1" title="{{ 'sitnet_choose_execution_type' | translate }}">
                         <ng-template ngbPanelContent>
-                            <li *ngFor="let type of executionTypes">
-                                <a *ngIf="type.examinationTypes.length > 0" (click)="selectedType = type">
+                            <div *ngFor="let type of executionTypes">
+                                <a class="pointer" *ngIf="type.examinationTypes.length > 0" (click)="selectType(type)">
                                     {{ type.name | translate }}
                                 </a>
-                                <a *ngIf="type.examinationTypes.length === 0" (click)="selectConfig(type.type)">
+                                <a
+                                    class="pointer"
+                                    *ngIf="type.examinationTypes.length === 0"
+                                    (click)="selectConfig(type.type)"
+                                >
                                     {{ type.name | translate }}
                                 </a>
-                            </li>
+                            </div>
                         </ng-template>
                     </ngb-panel>
                     <ngb-panel
@@ -33,18 +37,18 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                         title="{{ 'sitnet_examination_type' | translate }}"
                     >
                         <ng-template ngbPanelContent>
-                            <li *ngFor="let et of selectedType.examinationTypes">
-                                <a (click)="selectConfig(selectedType.type, et.type)">
+                            <div *ngFor="let et of selectedType.examinationTypes">
+                                <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
                                     {{ et.name | translate }}
                                 </a>
-                            </li>
+                            </div>
                         </ng-template>
                     </ngb-panel>
                 </ngb-accordion>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-sm btn-danger" (click)="cancel()">
-                    {{ 'sitnet_button_decline' | translate }}
+                    {{ 'sitnet_button_cancel' | translate }}
                 </button>
             </div>
         </div>
@@ -54,12 +58,14 @@ export class ExaminationTypeSelectorComponent {
     executionTypes: ExamConfig[] = [];
     selectedType: ExamConfig;
 
+    @ViewChild('acc', { static: false }) acc: NgbAccordion;
+
     constructor(private http: HttpClient, private modal: NgbActiveModal, private Exam: ExamService) {}
 
     ngOnInit() {
         this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
             const byodSupported = resp.isByodExaminationSupported;
-            this.Exam.listExecutionTypes().subscribe((types) => {
+            this.Exam.listExecutionTypes$().subscribe((types) => {
                 this.executionTypes = types.map((t) => {
                     const implementations =
                         t.type != 'PRINTOUT' && byodSupported
@@ -72,8 +78,14 @@ export class ExaminationTypeSelectorComponent {
                     return { ...t, examinationTypes: implementations };
                 });
             });
+            this.acc.expand('toggle-1');
         });
     }
+
+    selectType = (type: ExamConfig) => {
+        this.selectedType = type;
+        setTimeout(() => this.acc.expand('toggle-2'), 100);
+    };
 
     selectConfig = (type: string, examinationType = 'AQUARIUM') =>
         this.modal.close({ type: type, examinationType: examinationType });

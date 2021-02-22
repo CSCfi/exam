@@ -1,31 +1,45 @@
-<div class="row">
-    <div class="col-md-12">
-        <course-picker class="row margin-20" [course]="exam.course" (onUpdate)="setCourse($event)"></course-picker>
-
-        <!-- Course scope and organization name elements -> 3 rows -->
-        <div class="row margin-20">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_course_scope' | translate }}
-            </div>
-            <div class="col-md-6">
-                {{ exam.course.credits }}
-            </div>
+<div class="row align-items-center">
+    <div class="col-md-3 mt-2">
+        <div class="exam-basic-title">
+            {{ 'sitnet_course' | translate }}
+            <sup>
+                <img
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'sitnet_select_exam_course_description' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    src="/assets/assets/images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                />
+            </sup>
         </div>
-        <div class="row margin-20">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_faculty_name' | translate }}
-            </div>
-            <div class="col-md-6">
-                {{ exam.course.organisation.name }}
-            </div>
-        </div>
-        <div class="row margin-20" ng-show="$ctrl.exam.course.gradeScale">
-            <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_grade_scale' | translate }}
-            </div>
-            <div class="col-md-6">
-                {{ displayGradeScale() }}
-            </div>
-        </div>
+    </div>
+    <div class="col mt-2">
+        <course-picker [course]="exam.course" (onUpdate)="setCourse($event)"></course-picker>
+    </div>
+</div>
+<!-- Course scope and organization name elements -> 3 rows -->
+<div class="row margin-20">
+    <div class="col-md-3 col-md-offset-3">
+        {{ 'sitnet_course_scope' | translate }}
+    </div>
+    <div class="col-md-6">
+        {{ exam.course?.credits }}
+    </div>
+</div>
+<div class="row margin-20">
+    <div class="col-md-3 col-md-offset-3">
+        {{ 'sitnet_faculty_name' | translate }}
+    </div>
+    <div class="col-md-6">
+        {{ exam.course?.organisation?.name }}
+    </div>
+</div>
+<div class="row margin-20" [hidden]="!exam.course?.gradeScale">
+    <div class="col-md-3 col-md-offset-3">
+        {{ 'sitnet_grade_scale' | translate }}
+    </div>
+    <div class="col-md-6">
+        {{ displayGradeScale() }}
     </div>
 </div>

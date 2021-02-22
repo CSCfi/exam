@@ -102,6 +102,10 @@ export class QuestionComponent implements OnInit {
         }
     }
 
+    ngOnDestroy() {
+        this.clearListeners();
+    }
+
     clearListeners = () => {
         this.window.nativeWindow.onbeforeunload = null;
         delete this.transitionWatcher;

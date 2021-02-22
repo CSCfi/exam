@@ -1,7 +1,8 @@
+import { isRealGrade } from '../../../exam/exam.model';
+
 import type { HttpClient } from '@angular/common/http';
 
 import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
-import { isRealGrade } from '../../../exam/exam.model';
 import type { ExamService } from '../../../exam/exam.service';
 import type { LanguageService } from '../../../utility/language/language.service';
 import type { AssessmentService } from '../assessment.service';
@@ -74,7 +75,7 @@ export abstract class GradingBaseComponent {
 
     protected initCreditTypes = () => {
         const exam = this.getExam();
-        this.Exam.refreshExamTypes().subscribe((types) => {
+        this.Exam.refreshExamTypes$().subscribe((types) => {
             const creditType = exam.creditType || exam.examType;
             this.creditTypes = types;
             types.forEach((type) => {

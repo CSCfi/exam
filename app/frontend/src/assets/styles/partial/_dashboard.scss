@@ -1232,8 +1232,10 @@
     border-bottom: 1px solid $sitnet-border-color;
     border-right: 1px solid $sitnet-border-color;
     padding-bottom: 50px;
-    padding-left: 60px;
+    padding-left: 50px;
+    padding-right: 50px;
     margin-bottom: 30px;
+    margin-left: 10px;
   }
 
   .exam-basic-title {
@@ -1261,14 +1263,7 @@
   }
 
   .exam-button:hover {
-    color: white;
     background-color: $sitnet-dark-green-new;
-    border: 1px solid $sitnet-dark-green-new;
-    height: 45px;
-    padding-left: 30px;
-    padding-right: 30px;
-    margin-bottom: 5px;
-    margin-left: 20px;
   }
 
   .btn-review {
@@ -1466,7 +1461,7 @@
     color: #777777;
     text-transform: uppercase;
     font-weight: normal;
-    padding-bottom: 25px;
+    padding-bottom: 10px;
   }
 
   .autoevaluation-inputs {
@@ -1606,7 +1601,7 @@
   }
 
   .question-option-input {
-    width: 30em;
+    width: 27em;
     height: 40px;
     border-radius: 4px;
     border: 1px solid #E0E0DF;
@@ -1679,9 +1674,7 @@
 
   .question-editor-option {
     margin: 0px;
-    padding: 0px;
-    padding-bottom: 0.5em;
-    margin-bottom: 1em;
+    padding: 0px;  
   }
 
   .question-editor-claim-choice-option {

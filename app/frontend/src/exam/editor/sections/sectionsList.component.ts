@@ -12,25 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import type { ExamMaterial, ExamSection } from '../../exam.model';
 import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import type { OnChanges, SimpleChanges } from '@angular/core';
+import type { ExamMaterial, ExamSection } from '../../exam.model';
 @Component({
     selector: 'sections',
     templateUrl: './sectionsList.component.html',
 })
-export class SectionsListComponent implements OnInit, OnChanges {
+export class SectionsListComponent implements OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Output() onNextTabSelected = new EventEmitter<void>();
@@ -58,10 +58,6 @@ export class SectionsListComponent implements OnInit, OnChanges {
         // set sections and question numbering
         this.exam.examSections.forEach((section, index) => (section.index = index + 1));
 
-    ngOnInit() {
-        this.init();
-    }
-
     ngOnChanges(changes: SimpleChanges) {
         if (changes.exam) {
             this.init();
@@ -71,7 +67,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
         const [from, to] = [event.previousIndex, event.currentIndex];
         if (from >= 0 && to >= 0 && from !== to) {
-            this.Exam.reorderSections(from, to, this.exam, this.collaborative).subscribe(
+            this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
                 () => {
                     moveItemInArray(this.exam.examSections, from, to);
                     this.updateSectionIndices();
@@ -82,15 +78,18 @@ export class SectionsListComponent implements OnInit, OnChanges {
         }
     };
 
-    addNewSection = () =>
-        this.Exam.addSection(this.exam, this.collaborative).pipe(
-            tap((es) => {
-                toast.success(this.translate.instant('sitnet_section_added'));
-                this.exam.examSections.push(es);
-                this.updateSectionIndices();
-            }),
-            catchError((resp) => toast.error(resp)),
-        );
+    addNewSection = () => {
+        this.Exam.addSection$(this.exam, this.collaborative)
+            .pipe(
+                tap((es) => {
+                    toast.success(this.translate.instant('sitnet_section_added'));
+                    this.exam.examSections.push(es);
+                    this.updateSectionIndices();
+                }),
+                catchError((resp) => toast.error(resp)),
+            )
+            .subscribe();
+    };
 
     updateExam = (silent: boolean) =>
         this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
