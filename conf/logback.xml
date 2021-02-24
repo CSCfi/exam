@@ -31,11 +31,27 @@
     </appender>
 
     <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="STDOUT"/>
+        <!-- increases the default queue size -->
+        <queueSize>512</queueSize>
+        <!-- don't discard messages -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- block when queue is full -->
+        <neverBlock>false</neverBlock>
+        <appender-ref ref="STDOUT" />
     </appender>
 
     <logger name="play" level="INFO"/>
-    <logger name="backend" level="DEBUG"/>
+
+    <logger name="controllers" level="DEBUG" />
+    <logger name="system" level="DEBUG" />
+    <logger name="validators" level="DEBUG" />
+    <logger name="util" level="DEBUG" />
+    <logger name="impl" level="DEBUG" />
+    <logger name="sanitizers" level="DEBUG" />
+    <logger name="repository" level="DEBUG" />
+    <logger name="models" level="DEBUG" />
+
+    <!-- logger name="backend" level="DEBUG"/ -->
 
     <!-- SQL logging, disabled by default. Enable by setting level to TRACE -->
     <logger name="io.ebean.SQL" level="OFF"/>
