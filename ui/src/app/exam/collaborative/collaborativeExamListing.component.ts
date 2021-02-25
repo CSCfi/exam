@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
@@ -20,12 +19,13 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import type { CollaborativeExam } from '../exam.model';
 import { CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
 
+import type { OnInit } from '@angular/core';
+import type { User } from '../../session/session.service';
+import type { CollaborativeExam } from '../exam.model';
 enum ListingView {
     PUBLISHED = 'PUBLISHED',
     EXPIRED = 'EXPIRED',
@@ -84,7 +84,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.CollaborativeExam.listExams()
             .pipe(
                 tap((exams) => (this.exams = this.returnListedCollaborativeExams(exams))),
-                finalize(() => (this.loader = { loading: false })),
+                finalize(() => (this.loader.loading = false)),
             )
             .subscribe();
 
@@ -166,10 +166,8 @@ export class CollaborativeExamListingComponent implements OnInit {
 
         this.CollaborativeExam.searchExams(text)
             .pipe(
-                tap(
-                    (exams) => (this.exams = this.returnListedCollaborativeExams(exams)),
-                    finalize(() => (this.loader = { loading: false })),
-                ),
+                tap((exams) => (this.exams = this.returnListedCollaborativeExams(exams))),
+                finalize(() => (this.loader.loading = false)),
             )
             .subscribe();
     };

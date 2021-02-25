@@ -20,7 +20,16 @@ import { FileService } from '../../../utility/file/file.service';
 
 @Component({
     selector: 'library-file-export',
-    templateUrl: './libraryFileExport.component.html',
+    template: `<div *ngIf="selections.length > 0" class="padl30 questions-selections-box">
+        <div class="make-inline">
+            <div class="question-add-owners-box">
+                <span class="padl10">
+                    <i class="bi-cloud-upload-fill" style="color: #266b99"></i>&nbsp;
+                    <a class="infolink pointer" (click)="export()"> {{ 'sitnet_export_questions' | translate }}</a>
+                </span>
+            </div>
+        </div>
+    </div> `,
 })
 export class LibraryFileExportComponent {
     @Input() selections: number[];

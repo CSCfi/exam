@@ -9,9 +9,9 @@
                             name="select_all"
                             [(ngModel)]="allSelected"
                             (change)="selectAll()"
-                            placement="top"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         />
                     </th>
                     <th>
@@ -116,7 +116,7 @@
                                     *ngIf="question.questionOwners.length > 1"
                                     class="bi-people text-primary"
                                     ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
-                                    placement="right"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                 ></i>
                             </span>
@@ -165,7 +165,7 @@
                         <a *ngIf="question.allowedToRemove" (click)="deleteQuestion(question)" class="pointer">
                             <i
                                 class="bi-trash"
-                                placement="left"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                                 ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
                             ></i>
@@ -175,7 +175,7 @@
                         <a (click)="copyQuestion(question, false)">
                             <i
                                 class="bi-files"
-                                placement="left"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                                 ngbPopover="{{ 'sitnet_copy' | translate }}"
                             ></i>

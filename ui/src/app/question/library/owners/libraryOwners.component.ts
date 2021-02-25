@@ -12,22 +12,51 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
 import { UserService } from '../../../utility/user/user.service';
 import { QuestionService } from '../../question.service';
 
+import type { OnInit } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import type { User } from '../../../session/session.service';
 @Component({
     selector: 'library-owner-selection',
-    templateUrl: './libraryOwners.component.html',
+    template: ` <div class="make-inline">
+        <div class="question-add-owners-box">
+            <span class="padl10">
+                <i class="bi-person-circle" style="color: #266b99"></i>&nbsp;
+                <a class="infolink pointer" (click)="showOwnerSelection = !showOwnerSelection">
+                    {{ 'sitnet_add_question_owner' | translate }}</a
+                >
+            </span>
+            <div [hidden]="!showOwnerSelection">
+                <div class="input-group">
+                    <input
+                        class="form-control question-add-owners"
+                        placeholder="{{ 'sitnet_add_question_owner' | translate }}"
+                        [ngbTypeahead]="listTeachers$"
+                        (selectItem)="setQuestionOwner($event)"
+                        [inputFormatter]="nameFormatter"
+                        [resultFormatter]="nameFormatter"
+                    />
+                </div>
+                <div class="col-md-2 bottom-padding-2 padl10">
+                    <input
+                        type="button"
+                        class="btn green border-green whitetext"
+                        (click)="addOwnerForSelected()"
+                        value="{{ 'sitnet_add' | translate }}"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>`,
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[];
