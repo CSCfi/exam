@@ -12,10 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import type { LibraryQuestion } from './library.service';
@@ -24,15 +23,11 @@ import type { LibraryQuestion } from './library.service';
     selector: 'library',
     templateUrl: './library.component.html',
 })
-export class LibraryComponent implements OnInit {
-    questions: LibraryQuestion[];
-    selections: number[];
+export class LibraryComponent {
+    questions: LibraryQuestion[] = [];
+    selections: number[] = [];
 
     constructor(private state: StateService, private translate: TranslateService) {}
-
-    ngOnInit() {
-        this.questions = [];
-    }
 
     resultsUpdated(results: LibraryQuestion[]) {
         this.questions = results;

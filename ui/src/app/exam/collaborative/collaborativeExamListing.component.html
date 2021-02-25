@@ -14,26 +14,28 @@
     </div>
 
     <div class="main-row">
-        <ul class="nav nav-tabs">
-            <li role="tab" [ngClass]="{ active: view === 'PUBLISHED' }">
-                <a class="pointer" (click)="setView('PUBLISHED')">
-                    Julkaistut ja esijulkaistut yhteistentit
-                    <span class="badge">{{ filterByView('PUBLISHED').length }}</span>
-                </a>
-            </li>
-            <li role="tab" [ngClass]="{ active: view === 'EXPIRED' }">
-                <a class="pointer" (click)="setView('EXPIRED')">
-                    Yhteistentit, joiden voimassaoloaika on päättynyt
-                    <span class="badge">{{ filterByView('EXPIRED').length }}</span>
-                </a>
-            </li>
-            <li role="tab" [ngClass]="{ active: view === 'DRAFTS' }">
-                <a class="pointer" (click)="setView('DRAFTS')">
-                    Yhteistenttiluonnokset
-                    <span class="badge">{{ filterByView('DRAFTS').length }}</span>
-                </a>
-            </li>
-        </ul>
+        <div class="col-md-12">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+                <li [ngbNavItem]="'PUBLISHED'">
+                    <a ngbNavLink>
+                        Julkaistut ja esijulkaistut yhteistentit
+                        <span class="ml-2 badge badge-secondary">{{ filterByView('PUBLISHED').length }}</span>
+                    </a>
+                </li>
+                <li [ngbNavItem]="'EXPIRED'">
+                    <a ngbNavLink>
+                        Yhteistentit, joiden voimassaoloaika on päättynyt
+                        <span class="ml-2 badge badge-secondary">{{ filterByView('EXPIRED').length }}</span>
+                    </a>
+                </li>
+                <li [ngbNavItem]="'DRAFTS'">
+                    <a ngbNavLink>
+                        Yhteistenttiluonnokset
+                        <span class="ml-2 badge badge-secondary">{{ filterByView('DRAFTS').length }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="detail-row">
@@ -46,7 +48,7 @@
                     class="form-control search"
                     placeholder="{{ 'sitnet_search' | translate }}"
                     ngbPopover="{{ 'sitnet_collaborative_exam_search_description_teacher' | translate }}"
-                    placement="top"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
                 <div class="input-group-addon search">
@@ -60,13 +62,10 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="main-row" [hidden]="!loader.loading">
-        <div class="col-md-12">
-            <button class="btn btn-success">
+        <div class="col" [hidden]="!loader.loading">
+            <button class="btn btn-sm btn-success">
                 {{ 'sitnet_searching' | translate }}...
-                <div class="spinner-border" role="status">
+                <div class="spinner-border spinner-border-sm" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </button>
