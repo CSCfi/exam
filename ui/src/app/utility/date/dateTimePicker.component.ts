@@ -17,16 +17,17 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'date-time-picker',
     template: `
-        <div>
-            <div id="datetimepicker" class="datetimepicker-wrapper">
+        <div class="row align-items-center">
+            <div class="col-auto">
                 <date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
                     (onUpdate)="onDateUpdate($event)"
                 ></date-picker>
             </div>
-            <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+            <div class="col">
                 <ngb-timepicker
+                    name="timepicker"
                     [disabled]="disabled"
                     [(ngModel)]="time"
                     (ngModelChange)="onTimeUpdate($event)"
@@ -73,9 +74,9 @@ export class DateTimePickerComponent {
         this.onUpdate.emit({ date: this.date });
     }
 
-    onDateUpdate() {
-        this.date.setFullYear(this.date.getFullYear());
-        this.date.setMonth(this.date.getMonth(), this.date.getDate());
+    onDateUpdate(event: { date: Date }) {
+        this.date.setFullYear(event.date.getFullYear());
+        this.date.setMonth(event.date.getMonth(), event.date.getDate());
         this.date.setHours(this.time.hour);
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);

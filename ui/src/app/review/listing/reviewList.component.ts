@@ -16,14 +16,14 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { ExamParticipation } from '../../exam/exam.model';
 import { Exam } from '../../exam/exam.model';
-import type { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
 
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
+import type { ExamParticipation } from '../../exam/exam.model';
+import type { Review } from '../review.model';
 @Component({
     selector: 'review-list',
     templateUrl: './reviewList.component.html',
@@ -31,7 +31,7 @@ import { ReviewListService } from './reviewList.service';
 export class ReviewListComponent {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Input() reviews: ExamParticipation[];
+    @Input() reviews: ExamParticipation[] = [];
 
     noShows: ExamEnrolment[] = [];
     abortedExams: Review[] = [];

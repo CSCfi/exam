@@ -1,29 +1,26 @@
 <form class="form">
-    <div class="form-group">
-        <div class="input-group">
-            <input
-                class="form-control"
-                [disabled]="disabled"
-                [required]="!optional"
-                placeholder="yyyy-mm-dd"
-                name="dp"
-                [(ngModel)]="date"
-                ngbDatepicker
-                #d="ngbDatepicker"
-                [startDate]="initialDate"
-                [showWeekNumbers]="true"
-                (dateSelect)="dateChanged($event)"
-            />
-            <div class="input-group-append">
-                <button class="btn btn-primary green border-green" (click)="d.toggle()" type="button">
-                    <img
-                        src="/assests/assets/images/reservation_calendar.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/reservation_calendar.png';"
-                    />
-                </button>
-                <!-- extra btn -->
-            </div>
+    <div class="input-group">
+        <input
+            [disabled]="disabled"
+            [required]="!optional"
+            placeholder="yyyy-mm-dd"
+            name="dp"
+            [(ngModel)]="date"
+            ngbDatepicker
+            #d="ngbDatepicker"
+            [startDate]="initialDate"
+            [showWeekNumbers]="true"
+            (dateSelect)="dateChanged($event)"
+        />
+        <div class="input-group-append">
+            <button class="btn btn-primary green border-green" [disabled]="disabled" (click)="d.toggle()" type="button">
+                <img
+                    src="/assests/assets/images/reservation_calendar.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/reservation_calendar.png';"
+                />
+            </button>
+            <!-- extra btn -->
         </div>
     </div>
 </form>

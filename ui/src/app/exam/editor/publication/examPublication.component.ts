@@ -239,6 +239,7 @@ export class ExamPublicationComponent implements OnInit {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
@@ -252,6 +253,7 @@ export class ExamPublicationComponent implements OnInit {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
