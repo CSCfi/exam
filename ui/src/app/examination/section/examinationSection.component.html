@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12 studentexam-header">
         <h2>
-            <span class="exam-title">{{ section.index }}. {{ section.name }}</span>
+            <span class="exam-title">{{ index }}. {{ section.name }}</span>
             <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
                 <small>({{ 'sitnet_lottery_questions' | translate }})</small>
             </span>
@@ -15,7 +15,7 @@
             </div>
         </div>
         <!-- DESCRIPTION FOR SECTION -->
-        <div *ngIf="section.description.length > 0">
+        <div *ngIf="section.description?.length > 0">
             <img
                 src="/assets/assets/images/icon_info.svg"
                 alt="info-icon"

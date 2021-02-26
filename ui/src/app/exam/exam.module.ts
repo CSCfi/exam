@@ -36,6 +36,7 @@ import { CourseSelectionComponent } from './editor/creation/courseSelection.comp
 import { NewExamComponent } from './editor/creation/newExam.component';
 import { ExaminationEventDialogComponent } from './editor/events/examinationEventDialog.component';
 import { ExamTabsComponent } from './editor/examTabs.component';
+import { ExamTabService } from './editor/examTabs.service';
 import { AutoEvaluationComponent } from './editor/publication/autoEvaluation.component';
 import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborativeExamOwnerSelector.component';
 import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
@@ -98,6 +99,6 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         ExaminationTypeSelectorComponent,
         ExaminationEventDialogComponent,
     ],
-    providers: [ExamService, CoursePickerService, CollaborativeExamService],
+    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })
 export class ExamModule {}

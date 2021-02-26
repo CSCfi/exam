@@ -123,7 +123,7 @@ export class ExamListCategoryComponent implements OnInit {
             .subscribe(
                 (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('examEditor', { id: resp.id, tab: 1 });
+                    this.state.go('examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
                 (err) => toast.error(err.data),
             );

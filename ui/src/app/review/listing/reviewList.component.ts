@@ -24,6 +24,7 @@ import { ReviewListService } from './reviewList.service';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import type { ExamParticipation } from '../../exam/exam.model';
 import type { Review } from '../review.model';
+import { ExamTabService } from '../../exam/editor/examTabs.service';
 @Component({
     selector: 'review-list',
     templateUrl: './reviewList.component.html',
@@ -42,7 +43,12 @@ export class ReviewListComponent {
     languageInspectedReviews: Review[] = [];
     rejectedReviews: Review[] = [];
 
-    constructor(private modal: NgbModal, private http: HttpClient, private ReviewList: ReviewListService) {}
+    constructor(
+        private modal: NgbModal,
+        private http: HttpClient,
+        private ReviewList: ReviewListService,
+        private Tabs: ExamTabService,
+    ) {}
 
     ngOnInit() {
         this.refreshLists();
@@ -53,6 +59,7 @@ export class ReviewListComponent {
         } else {
             this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe((resp) => (this.noShows = resp));
         }
+        this.Tabs.notifyTabChange(4);
     }
 
     ngOnChanges = () => {

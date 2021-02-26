@@ -129,7 +129,8 @@
                         <td>
                             <a
                                 class="exams-info-title bold-button"
-                                uiSref="collaborativeExamEditor({id: {{ exam.id }}, tab: 1})"
+                                uiSref="examEditor.basic"
+                                [uiParams]="{ id: exam.id, collaborative: 'collaborative' }"
                             >
                                 <span *ngIf="exam.name">{{ exam.name }}</span>
                                 <span *ngIf="!exam.name" class="text-danger">

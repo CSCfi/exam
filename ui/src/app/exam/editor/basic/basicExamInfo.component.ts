@@ -27,6 +27,8 @@ import { ExamService } from '../../exam.service';
 
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import type { ExamType, GradeScale } from '../../exam.model';
+import { StateService } from '@uirouter/core';
+import { ExamTabService } from '../examTabs.service';
 export type UpdateProps = {
     props: {
         code: string | null;
@@ -43,7 +45,6 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Output() onUpdate = new EventEmitter<UpdateProps>();
-    @Output() onNextTabSelected = new EventEmitter<void>();
 
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
@@ -56,11 +57,13 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     constructor(
         private http: HttpClient,
+        private state: StateService,
         private translate: TranslateService,
         private Exam: ExamService,
         private Attachment: AttachmentService,
         private Files: FileService,
         private Session: SessionService,
+        private Tabs: ExamTabService,
     ) {
         this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
             this.refreshExamTypes();
@@ -81,6 +84,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe((setting) => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
         this.initGradeScale();
+        this.Tabs.notifyTabChange(1);
     }
 
     ngOnChanges = (changes: SimpleChanges) => {
@@ -202,7 +206,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
 
-    nextTab = () => this.onNextTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(3);
+        this.state.go('examEditor.sections');
+    };
 
     showDelete = () => {
         if (this.collaborative) {

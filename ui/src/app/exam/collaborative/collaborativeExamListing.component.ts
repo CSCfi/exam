@@ -135,7 +135,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.CollaborativeExam.createExam().subscribe(
             (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
-                this.state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
+                this.state.go('examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
             },
             (err) => toast.error(err.data),
         );

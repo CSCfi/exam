@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
@@ -42,6 +42,7 @@ export class ExaminationToolbarComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Window: WindowRef,
         private Confirmation: ConfirmationDialogService,
@@ -141,7 +142,16 @@ export class ExaminationToolbarComponent {
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });
 
     exitPreview = () => {
-        const state = this.isCollaborative ? 'collaborativeExamEditor' : 'examEditor';
-        this.state.go(state, { id: this.exam.id, tab: this.state.params.tab });
+        const tab = parseInt(this.routing.params.tab || 1);
+        const collab = this.isCollaborative ? 'collaborative' : 'false';
+        if (tab == 1) {
+            this.state.go('examEditor.basic', { id: this.exam.id, collaborative: collab });
+        } else if (tab == 2) {
+            this.state.go('examEditor.sections', { id: this.exam.id, collaborative: collab });
+        } else if (tab == 3) {
+            this.state.go('examEditor.publication', { id: this.exam.id, collaborative: collab });
+        } else if (tab == 4) {
+            this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: collab });
+        }
     };
 }

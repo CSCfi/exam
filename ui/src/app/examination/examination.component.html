@@ -10,6 +10,7 @@
             <examination-section
                 *ngIf="activeSection"
                 [section]="activeSection"
+                [index]="activeSection?.sequenceNumber + 1"
                 [exam]="exam"
                 [isPreview]="isPreview"
                 [isCollaborative]="isCollaborative"

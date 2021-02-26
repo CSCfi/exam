@@ -108,7 +108,11 @@ export class AssessmentComponent {
 
     setCommentRead = () => this.Assessment.setCommentRead(this.exam);
 
-    goToAssessment = () => this.state.go('examEditor', { id: this.exam.parent?.id, tab: 4 });
+    goToAssessment = () =>
+        this.state.go('examEditor.assessments', {
+            id: this.exam.parent?.id,
+            collaborative: this.collaborative ? 'collaborative' : 'false',
+        });
 
     // Set review status as started if not already done so
     private startReview = () => {

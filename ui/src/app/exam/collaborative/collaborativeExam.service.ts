@@ -20,7 +20,7 @@ import { CollaborativeExamState } from '../exam.model';
 
 import type { Observable } from 'rxjs';
 
-import type { CollaborativeExam, ExamParticipation } from '../exam.model';
+import type { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
@@ -64,5 +64,9 @@ export class CollaborativeExamService {
             default:
                 return null;
         }
+    };
+
+    download = (id: number) => {
+        return this.http.get<Exam>(`/integration/iop/exams/${id}`).toPromise();
     };
 }

@@ -52,7 +52,6 @@ export class PrintoutComponent {
                                     )),
                             );
                     });
-                    exam.examSections.forEach((es, i) => (es.index = i + 1));
                     return {
                         ...exam,
                         examLanguages: exam.examLanguages.map((l) => ({

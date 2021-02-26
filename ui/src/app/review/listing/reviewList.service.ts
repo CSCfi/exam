@@ -164,4 +164,12 @@ export class ReviewListService {
 
     sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
     sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
+
+    getReviews = (examId: number, collaborative = false) => {
+        return this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
+        //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
+    };
+
+    private getResource = (examId: number, collaborative: boolean) =>
+        collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
 }

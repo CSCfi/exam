@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import * as moment from 'moment';
 import { forkJoin, noop, throwError } from 'rxjs';
@@ -59,6 +59,7 @@ export class SpeedReviewComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
@@ -192,16 +193,14 @@ export class SpeedReviewComponent {
         this.Confirmation.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_grade_review'),
-        )
-            .result.then(() => {
-                forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_saved'));
-                    if (this.examReviews.length === 0) {
-                        this.state.go('examEditor', { id: this.state.params.id, tab: 4 });
-                    }
-                });
-            })
-            .catch(noop);
+        ).result.then(() => {
+            forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
+                toast.info(this.translate.instant('sitnet_saved'));
+                if (this.examReviews.length === 0) {
+                    this.state.go('examEditor.assessments', { id: this.routing.params.id });
+                }
+            });
+        });
     };
 
     private gradeExam$ = (review: Review): Observable<void> => {

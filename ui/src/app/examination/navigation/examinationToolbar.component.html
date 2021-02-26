@@ -87,8 +87,8 @@
             <li
                 tabindex="0"
                 class="row align-items-center pointer phase-box"
-                *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'"
-                [ngClass]="activeSection?.index === section.index ? '' : 'notactive'"
+                *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
+                [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
                 (keyup.enter)="selectSection(section)"
                 ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
@@ -119,8 +119,8 @@
                     </div>
                 </div>
                 <div class="col-md-9">
-                    <span [ngClass]="activeSection?.index === section.index ? 'sitnet-text' : 'sitnet-text-dark'">
-                        {{ section.index }}. {{ section.name }}
+                    <span [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'">
+                        {{ i + 1 }}. {{ section.name }}
                     </span>
                 </div>
                 <div class="col-md-2">

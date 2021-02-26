@@ -24,7 +24,7 @@ import type { OnInit } from '@angular/core';
     selector: 'collaborative-exam-participations',
     templateUrl: './examParticipations.component.html',
 })
-export class CollaborativeExamParticipationsComponent implements OnInit {
+export class CollaborativeParticipationsComponent implements OnInit {
     collaborative = true;
     originals: CollaborativeParticipation[] = [];
     participations: CollaborativeParticipation[];

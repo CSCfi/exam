@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
@@ -37,6 +37,7 @@ import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import { ExamTabService } from '../examTabs.service';
 
 @Component({
     selector: 'exam-publication',
@@ -45,8 +46,6 @@ import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfigurati
 export class ExamPublicationComponent implements OnInit {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onPreviousTabSelected = new EventEmitter<void>();
-    @Output() onNextTabSelected = new EventEmitter<void>();
 
     user: User;
     hostName: string;
@@ -63,6 +62,7 @@ export class ExamPublicationComponent implements OnInit {
         private Session: SessionService,
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
+        private Tabs: ExamTabService,
     ) {}
 
     ngOnInit() {
@@ -75,6 +75,7 @@ export class ExamPublicationComponent implements OnInit {
             (data) => (this.examDurations = data.examDurations),
             (error) => toast.error(error),
         );
+        this.Tabs.notifyTabChange(3);
     }
 
     addExaminationDate = (date: Date) => {
@@ -166,8 +167,14 @@ export class ExamPublicationComponent implements OnInit {
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    nextTab = () => this.onNextTabSelected.emit();
-    previousTab = () => this.onPreviousTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(4);
+        this.state.go('examEditor.assessments');
+    };
+    previousTab = () => {
+        this.Tabs.notifyTabChange(2);
+        this.state.go('examEditor.sections');
+    };
 
     saveAndPublishExam = () => {
         const errors: string[] = this.isDraftCollaborativeExam()

@@ -36,6 +36,7 @@ import type { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.mod
 })
 export class SectionComponent {
     @Input() section: ExamSection;
+    @Input() index: number;
     @Input() examId: number;
     @Input() canBeOptional: boolean;
     @Input() collaborative: boolean;

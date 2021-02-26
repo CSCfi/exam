@@ -184,7 +184,6 @@ export interface ExamMaterial {
 export interface ExamSection {
     id: number;
     name: string;
-    index: number;
     description: string;
     lotteryOn: boolean;
     lotteryItemCount: number;

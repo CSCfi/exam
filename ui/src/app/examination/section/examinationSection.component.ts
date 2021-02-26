@@ -25,6 +25,7 @@ import type { SimpleChanges } from '@angular/core';
 export class ExaminationSectionComponent {
     @Input() exam: Examination;
     @Input() section: ExaminationSection;
+    @Input() index?: number;
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
 
