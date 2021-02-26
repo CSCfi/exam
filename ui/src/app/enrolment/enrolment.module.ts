@@ -25,7 +25,7 @@ import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMe
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
 import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
-import { CollaborativeExamParticipationsComponent } from './finished/collaborativeExamParticipations.component';
+import { CollaborativeParticipationsComponent } from './finished/collaborativeExamParticipations.component';
 import { ExamFeedbackComponent } from './finished/examFeedback.component';
 import { ExamParticipationComponent } from './finished/examParticipation.component';
 import { ExamParticipationsComponent } from './finished/examParticipations.component';
@@ -43,7 +43,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
         ExamEnrolmentsComponent,
-        CollaborativeExamParticipationsComponent,
+        CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,
@@ -59,7 +59,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
         ExamEnrolmentsComponent,
-        CollaborativeExamParticipationsComponent,
+        CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,

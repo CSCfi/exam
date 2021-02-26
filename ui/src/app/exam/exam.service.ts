@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
+import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -408,4 +409,17 @@ export class ExamService {
 
     removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
+
+    downloadExam = (id: number) => {
+        return this.http
+            .get<Exam>(`/app/exams/${id}`)
+            .toPromise()
+            .then((exam: Exam) => {
+                exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
+                return exam;
+            });
+    };
+
+    private hasEffectiveEnrolments = (exam: Exam) =>
+        exam.examEnrolments.some((ee) => ee.reservation && moment(ee.reservation.endAt) > moment());
 }

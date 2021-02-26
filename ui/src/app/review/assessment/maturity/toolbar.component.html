@@ -8,7 +8,11 @@
                 </button>
             </div>
             <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
-                <a class="pointer preview" uiSref="examEditor" [uiParams]="{ id: exam.parent.id, tab: 4 }">
+                <a
+                    class="pointer preview"
+                    uiSref="examEdito.assessments"
+                    [uiParams]="{ id: exam.parent?.id, collaborative: 'false' }"
+                >
                     {{ 'sitnet_close' | translate }}</a
                 >
             </div>

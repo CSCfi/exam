@@ -155,15 +155,15 @@
                                 <a
                                     *ngIf="exam.name"
                                     class="exams-info-title bold-button"
-                                    uiSref="examEditor"
-                                    [uiParams]="{ id: exam.id, tab: 1 }"
+                                    uiSref="examEditor.basic"
+                                    [uiParams]="{ id: exam.id }"
                                     >{{ exam.name }}</a
                                 >
                                 <a
                                     *ngIf="!exam.name"
                                     class="exams-info-title bold-button text-danger"
-                                    uiSref="examEditor"
-                                    [uiParams]="{ id: exam.id, tab: 1 }"
+                                    uiSref="examEditor.basic"
+                                    [uiParams]="{ id: exam.id }"
                                     >{{ 'sitnet_no_name' | translate }}
                                 </a>
                             </td>

@@ -437,8 +437,7 @@ p {
 .paginator {
   list-style: none;
   margin: 15px;
-  display: flex;
-  justify-content:center
+  justify-content: center;
 
   .disabled {
     display:none;

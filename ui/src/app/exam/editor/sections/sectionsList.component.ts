@@ -14,7 +14,7 @@
  */
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -26,6 +26,8 @@ import { ExamService } from '../../exam.service';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import type { ExamMaterial, ExamSection } from '../../exam.model';
+import { ExamTabService } from '../examTabs.service';
+import { StateService } from '@uirouter/core';
 @Component({
     selector: 'sections',
     templateUrl: './sectionsList.component.html',
@@ -33,15 +35,16 @@ import type { ExamMaterial, ExamSection } from '../../exam.model';
 export class SectionsListComponent implements OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onNextTabSelected = new EventEmitter<void>();
-    @Output() onPreviousTabSelected = new EventEmitter<void>();
+
     materials: ExamMaterial[];
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private State: StateService,
         private Exam: ExamService,
         private Session: SessionService,
+        private Tabs: ExamTabService,
     ) {}
 
     loadMaterials = () => {
@@ -51,17 +54,16 @@ export class SectionsListComponent implements OnChanges {
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
         this.loadMaterials();
-        this.updateSectionIndices();
     };
-
-    private updateSectionIndices = () =>
-        // set sections and question numbering
-        this.exam.examSections.forEach((section, index) => (section.index = index + 1));
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.exam) {
             this.init();
         }
+    }
+
+    ngOnInit() {
+        this.Tabs.notifyTabChange(2);
     }
 
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
@@ -70,7 +72,6 @@ export class SectionsListComponent implements OnChanges {
             this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
                 () => {
                     moveItemInArray(this.exam.examSections, from, to);
-                    this.updateSectionIndices();
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
                 (err) => toast.error(err),
@@ -84,7 +85,6 @@ export class SectionsListComponent implements OnChanges {
                 tap((es) => {
                     toast.success(this.translate.instant('sitnet_section_added'));
                     this.exam.examSections.push(es);
-                    this.updateSectionIndices();
                 }),
                 catchError((resp) => toast.error(resp)),
             )
@@ -112,7 +112,6 @@ export class SectionsListComponent implements OnChanges {
                 () => {
                     toast.info(this.translate.instant('sitnet_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
-                    this.updateSectionIndices();
                 },
                 (resp) => toast.error(resp.data),
             );
@@ -120,9 +119,15 @@ export class SectionsListComponent implements OnChanges {
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
-    nextTab = () => this.onNextTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(3);
+        this.State.go('examEditor.publication');
+    };
 
-    previousTab = () => this.onPreviousTabSelected.emit();
+    previousTab = () => {
+        this.Tabs.notifyTabChange(1);
+        this.State.go('examEditor.basic');
+    };
 
     showDelete = () => {
         if (this.collaborative) {

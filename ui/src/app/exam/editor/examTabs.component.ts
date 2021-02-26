@@ -12,60 +12,60 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
-import * as moment from 'moment';
-import * as toastr from 'toastr';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SessionService } from '../../session/session.service';
+import { Exam } from '../exam.model';
+import { ExamTabService } from './examTabs.service';
 
 import type { OnInit } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../../session/session.service';
-import type { Exam, ExamParticipation } from '../exam.model';
-
 @Component({
     selector: 'exam-tabs',
     templateUrl: './examTabs.component.html',
 })
 export class ExamTabsComponent implements OnInit {
+    @Input() exam: Exam;
     @Input() collaborative: boolean;
+
     user: User;
     examInfo: { title: string | null };
-    exam: Exam;
-    reviews: ExamParticipation[] = [];
+    activeTab = 1;
+    private ngUnsubscribe = new Subject();
 
     @ViewChild('nav', { static: false }) nav: NgbNav;
-    activeTab: number;
 
     constructor(
-        private http: HttpClient,
         private cdr: ChangeDetectorRef,
         private state: StateService,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
+        private Tabs: ExamTabService,
     ) {
         this.examInfo = { title: null };
+        this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
+            this.activeTab = tab;
+            this.cdr.detectChanges();
+        });
     }
 
     ngOnInit() {
         this.user = this.Session.getUser();
-        if (this.collaborative) {
-            this.downloadCollaborativeExam();
-        } else {
-            this.downloadExam();
-        }
-        this.getReviews(this.routing.params.id);
-        this.activeTab = this.routing.params.tab ? parseInt(this.routing.params.tab) : 1;
-        this.cdr.detectChanges();
+        this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
     }
 
-    //ngAfterViewInit() {}
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
 
     updateTitle = (code: string | null, name: string | null) => {
         if (code && name) {
@@ -77,23 +77,27 @@ export class ExamTabsComponent implements OnInit {
         }
     };
 
-    isOwner = () => {
-        return this.exam?.examOwners.some(
+    isOwner = () =>
+        this.exam?.examOwners.some(
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
+
+    navChanged = (event: NgbNavChangeEvent, forceRegularExam = false) => {
+        const params = forceRegularExam ? { collaborative: 'false', id: this.exam.id } : undefined;
+        if (event.nextId === 1) {
+            this.state.go('examEditor.basic', params);
+        } else if (event.nextId === 2) {
+            this.state.go('examEditor.sections', params);
+        } else if (event.nextId === 3) {
+            this.state.go('examEditor.publication', params);
+        } else if (event.nextId === 4) {
+            this.state.go('examEditor.assessments', params);
+        } else {
+            // TODO
+            const params = { id: this.exam.id, tab: event.nextId };
+            this.state.go('examEditor', params, { reload: false });
+        }
     };
-
-    navChanged = (event: NgbNavChangeEvent) => {
-        console.log('nav changed from ' + event.activeId + ' to ' + event.nextId);
-        const params = { id: this.exam.id, tab: event.nextId };
-        this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params, { reload: false });
-    };
-
-    switchToBasicInfo = () => this.nav.select(1);
-
-    switchToQuestions = () => this.nav.select(2);
-
-    switchToPublishSettings = () => this.nav.select(3);
 
     examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
         this.updateTitle(props.code, props.name);
@@ -102,40 +106,4 @@ export class ExamTabsComponent implements OnInit {
             this.exam = _.cloneDeep(this.exam);
         }
     };
-
-    private downloadExam = () => {
-        this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe(
-            (exam) => {
-                this.exam = exam;
-                this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
-                this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-            },
-            (err) => toastr.error(err.data),
-        );
-    };
-
-    private downloadCollaborativeExam = () => {
-        this.http.get<Exam>(`/integration/iop/exams/${this.routing.params.id}`).subscribe(
-            (exam) => {
-                this.exam = exam;
-                this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
-                this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-            },
-            (err) => toastr.error(err.data),
-        );
-    };
-
-    private getReviews = (examId: number) => {
-        this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe((reviews) => {
-            this.reviews = reviews;
-            //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
-        });
-    };
-
-    private getResource = (examId: number) => {
-        return this.collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
-    };
-
-    private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some((ee) => !_.isNil(ee.reservation) && moment(ee.reservation.endAt) > moment());
 }
