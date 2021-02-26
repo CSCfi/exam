@@ -42,9 +42,7 @@ export abstract class GradingBaseComponent {
     };
 
     private _setGrade = (grade: SelectableGrade) => {
-        if (this.selections?.grade) {
-            this.selections.grade = grade;
-        }
+        this.selections.grade = grade;
     };
 
     protected initGrade = () => {

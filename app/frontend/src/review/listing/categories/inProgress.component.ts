@@ -14,6 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { noop } from 'rxjs';
 
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { Exam } from '../../../exam/exam.model';
@@ -74,5 +75,6 @@ export class InProgressReviewsComponent {
             })
             .result.then((params) =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
-            );
+            )
+            .catch(noop);
 }

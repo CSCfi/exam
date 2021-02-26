@@ -89,7 +89,7 @@
                             ></span
                         >
                     </div>
-                    <form #forcedPoints name="forcedPoints">
+                    <form #forcedPoints="ngForm" name="forcedPoints">
                         <input
                             name="score"
                             type="number"
@@ -97,7 +97,7 @@
                             class="form-control"
                             [(ngModel)]="sectionQuestion.forcedScore"
                             fixedPrecision
-                            (blur)="forcedPoints.$valid && insertForcedScore()"
+                            (blur)="forcedPoints.valid && insertForcedScore()"
                             [disabled]="!isScorable"
                             min="{{ getMinimumOptionScore() }}"
                             max="{{ sectionQuestion.maxScore || calculateMaxPoints() }}"

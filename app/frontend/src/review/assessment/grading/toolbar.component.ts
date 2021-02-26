@@ -16,6 +16,7 @@ import { Location } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
 import { ExamParticipation } from '../../../exam/exam.model';
@@ -76,7 +77,7 @@ export class ToolbarComponent {
             this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_review_recorded'));
                 this.location.go(this.getExitUrl());
-            });
+            }, noop);
         }
     };
 

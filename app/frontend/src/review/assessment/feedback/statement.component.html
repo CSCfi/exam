@@ -23,25 +23,25 @@
                 </div>
             </div>
         </div>
-        <div class="row editor" [hidden]="hideEditor">
-            <div class="col-md-12">
-                <ckeditor
-                    [enableClozeTest]="false"
-                    [(ngModel)]="statement"
-                    (ngModelChange)="onChange($event)"
-                    #ck="ngModel"
-                    name="ck"
-                ></ckeditor>
+        <div [hidden]="hideEditor" class="body">
+            <div class="row editor">
+                <div class="col-md-12">
+                    <ckeditor
+                        [enableClozeTest]="false"
+                        [(ngModel)]="statement"
+                        (ngModelChange)="onChange($event)"
+                        #ck="ngModel"
+                        name="ck"
+                    ></ckeditor>
+                </div>
             </div>
-        </div>
-        <div class="row" [hidden]="hideEditor">
-            <div class="col-md-2">
-                <button class="btn btn-default" (click)="saveInspectionStatement()">
-                    {{ 'sitnet_save' | translate }}
-                </button>
-            </div>
-            <div class="col-md-10">
-                <div class="pull-right">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
+                        {{ 'sitnet_save' | translate }}
+                    </button>
+                </div>
+                <div>
                     <span *ngIf="exam.languageInspection?.statement?.attachment">
                         <a class="pointer" (click)="downloadStatementAttachment()">{{
                             exam.languageInspection?.statement?.attachment?.fileName
@@ -50,7 +50,7 @@
                             <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
                         </span>
                     </span>
-                    <button type="button" class="btn btn-default" (click)="selectFile()">
+                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
                         {{ 'sitnet_attach_file' | translate }}
                     </button>
                 </div>

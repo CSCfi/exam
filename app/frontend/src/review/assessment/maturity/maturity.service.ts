@@ -115,7 +115,7 @@ export class MaturityService {
             id: inspection.id,
             comment: inspection.statement.comment,
         };
-        return this.http.put<LanguageInspection>(`/app/inspection/${exam.id}/statement`, statement);
+        return this.http.put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement);
     };
 
     private getNextStateName = (exam: Exam): StateName => {

@@ -15,6 +15,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
+import { noop } from 'rxjs';
 
 import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
@@ -61,15 +62,17 @@ export class FeedbackComponent implements OnInit {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(true, {}).then((res: FileResult) =>
-            this.Assessment.saveFeedback$(this.exam).subscribe(() => {
-                this.Files.upload(
-                    `/app/attachment/exam/${this.exam.id}/feedback`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id.toString() },
-                    this.exam.examFeedback,
-                );
-            }),
+        this.Attachment.selectFile(true, {}).then(
+            (res: FileResult) =>
+                this.Assessment.saveFeedback$(this.exam).subscribe(() => {
+                    this.Files.upload(
+                        `/app/attachment/exam/${this.exam.id}/feedback`,
+                        res.$value.attachmentFile,
+                        { examId: this.exam.id.toString() },
+                        this.exam.examFeedback,
+                    );
+                }),
+            noop,
         );
     };
 

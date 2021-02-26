@@ -41,7 +41,7 @@
     <div class="row py-3 px-8">
         <div class="col-lg-6 search input-group my-2">
             <input
-                (change)="applyFreeSearchFilter()"
+                (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
                 class="form-control search"
                 placeholder="{{ 'sitnet_search' | translate }}"

@@ -1015,17 +1015,6 @@
     font-size: 16px;
     font-weight: normal;
     color: #2C2C2C;
-    float: right;
-    padding-right: 15px;
-
-    .score-label {
-      color: #555555;
-      width: 230px;
-
-      .score-value {
-        float: right;
-      }
-    }
   }
 
   @media (max-width: 1100px) {
@@ -1914,11 +1903,8 @@
   }
 
   .speed-review-csv {
-    display: inline-block;
-    margin-top: 42px;
     font-size: 16px;
     font-weight: bold;
-    margin-left: 30px;
     color: #266B99;
   }
 

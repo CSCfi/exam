@@ -10,9 +10,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
                     <div class="student-enroll-title">{{ title | translate }}</div>
                 </div>
             </div>
-            <div class="modal-body">
-                {{ description }}
-            </div>
+            <div class="modal-body" [innerHTML]="description"></div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()">

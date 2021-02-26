@@ -52,8 +52,14 @@ export class ReviewListService {
             return true;
         }
         const s = filter.toLowerCase();
-        const name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
-        return name.toLowerCase().indexOf(s) > -1 || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
+        const name =
+            _.get(review, 'examParticipation.user.firstName', '') +
+            ' ' +
+            _.get(review, 'examParticipation.user.lastName', '');
+        return (
+            name.toLowerCase().indexOf(s) > -1 ||
+            _.get(review, 'examParticipation.user.email', '').toLowerCase().indexOf(s) > -1
+        );
     };
     filterByState = (reviews: ExamParticipation[], states: string[]) => {
         return reviews.filter((r) => {

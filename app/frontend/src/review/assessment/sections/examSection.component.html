@@ -88,20 +88,15 @@
                 </div>
             </div>
         </div>
-        <div class="detail-row padt20 padr30">
+        <div class="detail-row padt20 padr30 d-flex justify-content-end">
             <div class="review-list-footer">
-                <div class="score-label" *ngIf="getSectionMaxScore() > 0">
+                <div *ngIf="getSectionMaxScore() > 0">
                     {{ 'sitnet_word_points' | translate }}:
-                    <span class="score-value"> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
+                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
                 </div>
-                <div
-                    class="score-label"
-                    *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0"
-                >
+                <div *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
                     {{ 'sitnet_section_accepted_and_rejected' | translate }}:
-                    <span class="score-value">
-                        {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}
-                    </span>
+                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
                 </div>
             </div>
         </div>

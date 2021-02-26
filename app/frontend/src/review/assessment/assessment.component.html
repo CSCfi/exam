@@ -13,23 +13,23 @@
             </div>
 
             <div class="status-floater">
-                <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}:</span>
+                <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}: </span>
                 <span *ngIf="exam.state === 'ABORTED'" class="status">{{ 'sitnet_aborted_exam' | translate }} </span>
                 <span
                     *ngIf="
                         exam.state === 'REVIEW' || exam.state === 'REVIEW_STARTED' || exam.state === 'STUDENT_STARTED'
                     "
                     class="status"
-                    >{{ 'sitnet_exam_status_' + exam.state | lowercase }}
+                    >{{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
                 </span>
                 <span *ngIf="exam.state === 'GRADED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
                 </span>
                 <span *ngIf="exam.state === 'GRADED_LOGGED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
                 </span>
                 <span *ngIf="exam.state === 'REJECTED'" class="status">
-                    {{ 'sitnet_exam_status_' + exam.state | lowercase }}
+                    {{ 'sitnet_exam_status_' + exam.state | lowercase | translate }}
                 </span>
             </div>
         </div>

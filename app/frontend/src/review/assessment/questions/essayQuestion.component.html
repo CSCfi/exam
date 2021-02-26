@@ -87,7 +87,7 @@
                 </div>
                 <div>
                     <span *ngIf="sectionQuestion.evaluationType === 'Points'">
-                        <form #essayPoints name="essayPoints">
+                        <form #essayPoints="ngForm" name="essayPoints">
                             <input
                                 name="score"
                                 type="number"
@@ -97,10 +97,10 @@
                                 fixedPrecision
                                 (blur)="insertEssayScore()"
                                 [disabled]="!isScorable"
-                                min="0"
-                                max="{{ sectionQuestion.maxScore }}"
+                                [min]="0"
+                                [max]="sectionQuestion.maxScore"
                             />
-                            <small *ngIf="essayPoints.$invalid" class="alert-danger">
+                            <small *ngIf="!essayPoints.valid && isScorable" class="alert-danger">
                                 <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
                             </small>
                         </form>

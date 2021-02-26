@@ -41,7 +41,7 @@
     <div class="row py-3 px-8">
         <div class="col-lg-6 search input-group my-2">
             <input
-                (change)="applyFreeSearchFilter()"
+                (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
                 class="form-control search"
                 placeholder="{{ 'sitnet_search' | translate }}"
@@ -181,7 +181,23 @@
                     </td>
                     <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                     <td class="table-column-13 table-column-bold">
-                        <a class="pointer" href="{{ getLinkToAssessment(review) }}">
+                        <a
+                            *ngIf="collaborative"
+                            class="pointer"
+                            uiSref="collaborativeAssessment"
+                            [uiParams]="{ id: this.exam.id, ref: review._id }"
+                        >
+                            {{ review.displayName }}
+                            <span *ngIf="review.examParticipation.user?.userIdentifier">
+                                <br />({{ review.examParticipation.user.userIdentifier }})</span
+                            >
+                        </a>
+                        <a
+                            *ngIf="!collaborative"
+                            class="pointer"
+                            uiSref="assessment"
+                            [uiParams]="{ id: review.examParticipation.exam.id }"
+                        >
                             {{ review.displayName }}
                             <span *ngIf="review.examParticipation.user?.userIdentifier">
                                 <br />({{ review.examParticipation.user.userIdentifier }})</span
@@ -204,7 +220,9 @@
                         {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                     </td>
                     <td class="table-column-10">
-                        {{ review.deadline | date: 'dd.MM.yyyy' }} (<span [innerHtml]="review.deadline | dayDiff"></span
+                        {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                            [innerHtml]="review.examParticipation.deadline | dayDiff"
+                        ></span
                         >)
                     </td>
                     <td class="table-column-10">

@@ -28,15 +28,15 @@
 </div>
 
 <div *ngIf="view.toggle && view.items.length > 0">
-    <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+    <div class="col-lg-6 search input-group my-2">
         <input
             (change)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
             class="form-control search"
             placeholder="{{ 'sitnet_search' | translate }}"
         />
-        <div class="input-group-addon search">
-            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
+        <div class="input-group-append search">
+            <i class="input-group-text bi-search"></i>
         </div>
     </div>
 
@@ -142,11 +142,16 @@
                 </td>
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>
                 <td class="table-column-10">
-                    {{ review.started | applyDst | date: 'dd.MM.yyyy' }} {{ 'sitnet_clock_short' | translate }}
-                    {{ review.started | applyDst | date: 'HH:mm' }} - {{ review.ended | applyDst | date: 'HH:mm' }}
+                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                    {{ 'sitnet_clock_short' | translate }}
+                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                 </td>
                 <td class="table-column-10">
-                    {{ review.deadline | date: 'dd.MM.yyyy' }} (<span [innerHtml]="review.deadline | dayDiff"></span>)
+                    {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                        [innerHtml]="review.examParticipation.deadline | dayDiff"
+                    ></span
+                    >)
                 </td>
                 <td class="table-column-15">
                     {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
