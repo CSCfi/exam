@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,6 +20,7 @@ import * as toast from 'toastr';
 
 import { ExaminationEventConfiguration } from '../../exam.model';
 
+import type { OnInit } from '@angular/core';
 @Component({
     selector: 'examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',
@@ -48,21 +48,19 @@ export class ExaminationEventDialogComponent implements OnInit {
     }
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
-    onStartDateChange = (date: Date) => (this.start = date);
+    onStartDateChange = (event: { date: Date }) => (this.start = event.date);
 
     ok() {
         if (!this.start) {
             toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
         }
         this.activeModal.close({
-            $value: {
-                config: {
-                    examinationEvent: {
-                        start: this.start,
-                        description: this.description,
-                    },
-                    settingsPassword: this.password,
+            config: {
+                examinationEvent: {
+                    start: this.start,
+                    description: this.description,
                 },
+                settingsPassword: this.password,
             },
         });
     }

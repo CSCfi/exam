@@ -123,6 +123,12 @@ p {
     border: 1px solid #133b17;
   }
 
+  button:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: not-allowed;
+  }
+
   a {
     font-size: 16px;
     font-family: $sitnet-family-helvetica;

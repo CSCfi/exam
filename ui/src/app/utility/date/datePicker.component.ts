@@ -40,12 +40,12 @@ export class DatePickerComponent implements OnInit {
     ngOnInit() {
         if (this.initialDate !== null) {
             const d = moment(this.initialDate);
-            this.date = new NgbDate(d.get('year'), d.get('month'), d.get('date'));
+            this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
         }
     }
 
     transform(value: NgbDate): Date {
-        return new Date(value.year, value.month, value.day);
+        return new Date(value.year, value.month - 1, value.day);
     }
 
     dateChanged() {

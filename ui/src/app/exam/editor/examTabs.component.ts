@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, ViewChild } from '@angular/core';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
@@ -24,7 +24,7 @@ import * as toastr from 'toastr';
 import { SessionService } from '../../session/session.service';
 
 import type { OnInit } from '@angular/core';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../../session/session.service';
 import type { Exam, ExamParticipation } from '../exam.model';
 
@@ -37,13 +37,14 @@ export class ExamTabsComponent implements OnInit {
     user: User;
     examInfo: { title: string | null };
     exam: Exam;
-    reviews: ExamParticipation[];
+    reviews: ExamParticipation[] = [];
 
-    @ViewChild('tabs', { static: false }) tabs: NgbTabset;
-    activeTab = '1';
+    @ViewChild('nav', { static: false }) nav: NgbNav;
+    activeTab: number;
 
     constructor(
         private http: HttpClient,
+        private cdr: ChangeDetectorRef,
         private state: StateService,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
@@ -60,11 +61,11 @@ export class ExamTabsComponent implements OnInit {
             this.downloadExam();
         }
         this.getReviews(this.routing.params.id);
+        this.activeTab = this.routing.params.tab ? parseInt(this.routing.params.tab) : 1;
+        this.cdr.detectChanges();
     }
 
-    ngAfterViewInit() {
-        // this.tabs.select(this.state.params.tab);
-    }
+    //ngAfterViewInit() {}
 
     updateTitle = (code: string | null, name: string | null) => {
         if (code && name) {
@@ -77,21 +78,22 @@ export class ExamTabsComponent implements OnInit {
     };
 
     isOwner = () => {
-        return this.exam.examOwners.some(
+        return this.exam?.examOwners.some(
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
     };
 
-    tabChanged = (event: NgbTabChangeEvent) => {
+    navChanged = (event: NgbNavChangeEvent) => {
+        console.log('nav changed from ' + event.activeId + ' to ' + event.nextId);
         const params = { id: this.exam.id, tab: event.nextId };
         this.state.go(this.collaborative ? 'collaborativeExamEditor' : 'examEditor', params, { reload: false });
     };
 
-    switchToBasicInfo = () => this.tabs.select('1');
+    switchToBasicInfo = () => this.nav.select(1);
 
-    switchToQuestions = () => this.tabs.select('2');
+    switchToQuestions = () => this.nav.select(2);
 
-    switchToPublishSettings = () => this.tabs.select('3');
+    switchToPublishSettings = () => this.nav.select(3);
 
     examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
         this.updateTitle(props.code, props.name);
@@ -107,7 +109,6 @@ export class ExamTabsComponent implements OnInit {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-                this.activeTab = '2';
             },
             (err) => toastr.error(err.data),
         );
@@ -119,7 +120,6 @@ export class ExamTabsComponent implements OnInit {
                 this.exam = exam;
                 this.exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 this.updateTitle(!exam.course ? null : exam.course.code, exam.name);
-                this.activeTab = '2';
             },
             (err) => toastr.error(err.data),
         );
@@ -128,7 +128,7 @@ export class ExamTabsComponent implements OnInit {
     private getReviews = (examId: number) => {
         this.http.get<ExamParticipation[]>(this.getResource(examId)).subscribe((reviews) => {
             this.reviews = reviews;
-            this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
+            //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
         });
     };
 

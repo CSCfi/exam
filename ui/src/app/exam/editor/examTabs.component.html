@@ -10,80 +10,95 @@
                 <a uiSref="dashboard">
                     <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
                 </a>
-                <div class="student-exam-details-title">{{ examInfo.title }}</div>
+                <div class="student-exam-details-title">{{ examInfo.title || 'loading' }}</div>
             </div>
             <span *ngIf="exam?.state" class="exam-status">{{ 'sitnet_' + exam.state | lowercase | translate }} </span>
         </div>
     </div>
 
-    <div class="tab-wrapper-exams">
-        <ngb-tabset #tabs="ngbTabset" [activeId]="activeTab" (tabChange)="tabChanged($event)">
-            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="1">
-                <ng-template ngbTabTitle>{{ 'sitnet_exam_basic_information_tab' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <basic-exam-info
-                        [exam]="exam"
-                        (onNextTabSelected)="switchToQuestions($event)"
-                        (onUpdate)="examUpdated($event)"
-                        [collaborative]="collaborative"
-                    >
-                    </basic-exam-info>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="2">
-                <ng-template ngbTabTitle>{{ 'sitnet_exam_question_tab' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <sections
-                        [exam]="exam"
-                        (onPreviousTabSelected)="switchToBasicInfo()"
-                        (onNextTabSelected)="switchToPublishSettings()"
-                        [collaborative]="collaborative"
-                    >
-                    </sections>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab *ngIf="exam && (isOwner() || user.isAdmin)" id="3">
-                <ng-template ngbTabTitle>{{ 'sitnet_exam_publish_tab' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <exam-publication
-                        [exam]="exam"
-                        (onPreviousTabSelected)="switchToQuestions($event)"
-                        [collaborative]="collaborative"
-                    >
-                    </exam-publication>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab *ngIf="exam && exam.executionType.type !== 'PRINTOUT'" id="4">
-                <ng-template ngbTabTitle>{{ 'sitnet_exam_responses' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <review-list
-                        *ngIf="reviews"
-                        [exam]="exam"
-                        [collaborative]="collaborative"
-                        [reviews]="reviews"
-                    ></review-list>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab *ngIf="exam && !user.isAdmin && exam.executionType.type !== 'PRINTOUT' && !collaborative" id="5">
-                <ng-template ngbTabTitle>{{ 'sitnet_question_review' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <question-reviews [examId]="exam.id"></question-reviews>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab
-                *ngIf="exam && !collaborative && (isOwner() || user.isAdmin) && exam.executionType.type !== 'PRINTOUT'"
-                [id]="user.isAdmin ? '5' : '6'"
-            >
-                <ng-template ngbTabTitle>{{ 'sitnet_exam_summary_tab' | translate }}</ng-template>
-                <ng-template ngbTabContent>
-                    <exam-summary
-                        *ngIf="reviews"
-                        [exam]="exam"
-                        [reviews]="reviews"
-                        [collaborative]="collaborative"
-                    ></exam-summary>
-                </ng-template>
-            </ngb-tab>
-        </ngb-tabset>
+    <ul
+        ngbNav
+        #nav="ngbNav"
+        [(activeId)]="activeTab"
+        [destroyOnHide]="false"
+        class="nav-tabs"
+        (navChange)="navChanged($event)"
+    >
+        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="1">
+            <a ngbNavLink>{{ 'sitnet_exam_basic_information_tab' | translate }}</a>
+            <ng-template ngbNavContent>
+                <basic-exam-info
+                    *ngIf="exam"
+                    [exam]="exam"
+                    (onNextTabSelected)="switchToQuestions($event)"
+                    (onUpdate)="examUpdated($event)"
+                    [collaborative]="collaborative"
+                >
+                </basic-exam-info>
+            </ng-template>
+        </li>
+        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="2">
+            <a ngbNavLink>{{ 'sitnet_exam_question_tab' | translate }}</a>
+            <ng-template ngbNavContent>
+                <sections
+                    *ngIf="exam"
+                    [exam]="exam"
+                    (onPreviousTabSelected)="switchToBasicInfo()"
+                    (onNextTabSelected)="switchToPublishSettings()"
+                    [collaborative]="collaborative"
+                >
+                </sections>
+            </ng-template>
+        </li>
+        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="3">
+            <a ngbNavLink>{{ 'sitnet_exam_publish_tab' | translate }}</a>
+            <ng-template ngbNavContent>
+                <exam-publication
+                    *ngIf="exam"
+                    [exam]="exam"
+                    (onPreviousTabSelected)="switchToQuestions($event)"
+                    [collaborative]="collaborative"
+                >
+                </exam-publication>
+            </ng-template>
+        </li>
+        <li [disabled]="exam?.executionType.type === 'PRINTOUT'" [ngbNavItem]="4">
+            <a ngbNavLink>{{ 'sitnet_exam_responses' | translate }}</a>
+            <ng-template ngbNavContent>
+                <review-list
+                    *ngIf="exam && reviews?.length > 0"
+                    [exam]="exam"
+                    [collaborative]="collaborative"
+                    [reviews]="reviews"
+                ></review-list>
+            </ng-template>
+        </li>
+        <li *ngIf="exam" [disabled]="exam?.executionType.type === 'PRINTOUT' || collaborative" [ngbNavItem]="5">
+            <a ngbNavLink>{{ 'sitnet_question_review' | translate }}</a>
+            <ng-template ngbNavContent>
+                <question-reviews [examId]="exam.id"></question-reviews>
+            </ng-template>
+        </li>
+        <li
+            *ngIf="exam"
+            [disabled]="collaborative || (!isOwner() && !user.isAdmin) || exam?.executionType.type === 'PRINTOUT'"
+            [ngbNavItem]="6"
+        >
+            <a ngbNavLink>{{ 'sitnet_exam_summary_tab' | translate }}</a>
+            <ng-template ngbNavContent>
+                <exam-summary
+                    *ngIf="reviews"
+                    [exam]="exam"
+                    [reviews]="reviews"
+                    [collaborative]="collaborative"
+                ></exam-summary>
+            </ng-template>
+        </li>
+    </ul>
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <div [ngbNavOutlet]="nav"></div>
+        </div>
     </div>
 </div>
