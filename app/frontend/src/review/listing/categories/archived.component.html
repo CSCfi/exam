@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div *ngIf="view.toggle && view.items.length > 0">
+<div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
     <div class="col-lg-6 search input-group my-2">
         <input
             (input)="applyFreeSearchFilter()"

@@ -25,6 +25,12 @@ import { AssessmentService } from '../../assessment/assessment.service';
 export class SpeedReviewFeedbackComponent {
     @Input() exam: Exam;
 
+    ngOnInit() {
+        if (!this.exam.examFeedback) {
+            this.exam.examFeedback = { comment: '' };
+        }
+    }
+
     constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
     ok = () => {
         if (!this.exam.examFeedback) {

@@ -37,7 +37,7 @@
     </div>
 </div>
 
-<div *ngIf="view.toggle && view.items.length > 0">
+<div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
     <div class="col-lg-6 search input-group my-2">
         <input
             (input)="applyFreeSearchFilter()"
@@ -225,10 +225,10 @@
                     {{ review.displayedCredit }}
                 </td>
                 <td class="table-column-10">
-                    <span *ngIf="review.examParticipation.exam.examFeedback.feedbackStatus">{{
+                    <span *ngIf="review.examParticipation.exam.examFeedback?.feedbackStatus">{{
                         'sitnet_teachers_comment_read' | translate
                     }}</span>
-                    <span *ngIf="!review.examParticipation.exam.examFeedback.feedbackStatus">{{
+                    <span *ngIf="!review.examParticipation.exam.examFeedback?.feedbackStatus">{{
                         'sitnet_teachers_comment_notread' | translate
                     }}</span>
                 </td>
