@@ -18,14 +18,14 @@ before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
-  - npm i -g npm@v6.10.2
-  - nvm install 10.17.0
-  - nvm use 10.17.0
+  - npm i -g npm@v7.5.6
+  - nvm install 15.10.0
+  - nvm use 15.10.0
 
 script:
-  - rm -rf app/frontend/node_modules
-  - npm --prefix app/frontend install
-  - npm --prefix app/frontend run-script build
+  - rm -rf ui/node_modules
+  - npm --prefix ui install
+  - npm --prefix ui run-script build
   - sbt test
 
 before_cache:
