@@ -1,4 +1,4 @@
-<div id="dashboard">
+<div id="dashboard" *ngIf="exam">
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
@@ -13,7 +13,7 @@
             </div>
 
             <div class="status-floater">
-                <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}:</span>
+                <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}: </span>
                 <span *ngIf="exam.state === 'ABORTED'" class="status">{{ 'sitnet_aborted_exam' | translate }} </span>
                 <span
                     *ngIf="
@@ -38,7 +38,7 @@
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title">
+                <div class="review-list-title d-flex justify-content-between">
                     <span *ngIf="exam.course"><course-code [course]="exam.course"></course-code> - </span
                     >{{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
@@ -84,7 +84,7 @@
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title">
+                <div class="review-list-title d-flex justify-content-between">
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a (click)="hideGradeInfo = !hideGradeInfo">
                         <img

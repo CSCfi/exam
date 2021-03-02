@@ -60,7 +60,7 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
                         triggers="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="bi-file-earmark-word font-6"></i>
+                        <i class="bi-file-earmark-excel font-6"></i>
                     </a>
                 </div>
             </div>

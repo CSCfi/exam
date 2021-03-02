@@ -3,11 +3,11 @@
         <div class="col-md-2 general-info-title">{{ 'sitnet_name' | translate }}:</div>
         <div class="col-md-4 general-info-content">
             {{ studentName }}
-            <span *ngIf="student.userIdentifier">&nbsp;({{ student.userIdentifier }})</span>
+            <span *ngIf="student?.userIdentifier">&nbsp;({{ student.userIdentifier }})</span>
         </div>
         <div class="col-md-2 general-info-title">{{ 'sitnet_email' | translate }}:</div>
         <div class="col-md-4 general-info-link">
-            <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+            <a *ngIf="student?.email" href="mailto:{{ student.email }}">{{ student.email }}</a>
         </div>
     </div>
     <div class="detail-row marb20">
@@ -54,7 +54,7 @@
         <div class="col-md-12 general-info-title">{{ 'sitnet_previous_exam_participations' | translate }}:</div>
     </div>
     <div class="detail-row marb20">
-        <span *ngIf="previousParticipations.length === 0" class="padl15 sitnet-info-text-compact">
+        <span *ngIf="previousParticipations?.length === 0" class="padl15 sitnet-info-text-compact">
             <img
                 src="/assets/assets/images/icon_info.svg"
                 alt="exam"
@@ -64,7 +64,7 @@
         </span>
         <div
             class="col-md-12 padl0"
-            [hidden]="previousParticipations.length === 0"
+            [hidden]="previousParticipations?.length === 0"
             *ngFor="let participation of previousParticipations"
         >
             <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>

@@ -11,7 +11,7 @@
     <div class="speed-review-border marb20 padb30">
         <div class="review-list-title-row marb20">
             <div class="col-md-12 padl0">
-                <div class="speed-review-title">
+                <div class="speed-review-title" *ngIf="examInfo?.examOwners">
                     {{ examInfo.title }}
                     <span class="speed-review-subtitle">({{ 'sitnet_teachers' | translate }}:</span>
                     <span class="speed-review-subtitle" *ngFor="let owner of examInfo.examOwners; let isLast = last">
@@ -22,10 +22,10 @@
             </div>
         </div>
 
-        <div class="col-md-12 padl30 mart20" *ngIf="examReviews.length === 0">N/A</div>
+        <div class="col-md-12 padl30 mart20" *ngIf="examReviews && examReviews.length === 0">N/A</div>
 
-        <div *ngIf="examReviews.length > 0">
-            <div class="col-md-12 padl0 padr0 mart40">
+        <div *ngIf="examReviews && examReviews.length > 0">
+            <div class="col-md-12 padl0 padr0 mart40 overflow-x-scroll">
                 <table class="table table-striped exams-table">
                     <thead>
                         <tr>
@@ -74,16 +74,16 @@
                         >
                             <td class="table-column-bold reservation-search">
                                 {{ review.displayName }}
-                                <span *ngIf="review.examParticipation.user.userIdentifier">
-                                    <br />({{ review.examParticipation.user.userIdentifier }})</span
+                                <span *ngIf="review.examParticipation.user?.userIdentifier">
+                                    <br />({{ review.examParticipation.user?.userIdentifier }})</span
                                 >
                                 <br />
                                 <a
                                     class="pointer"
                                     uiSref="assessment"
-                                    [uiParams]="{ id: review.examParticpation.exam.id }"
+                                    [uiParams]="{ id: review.examParticpation?.exam.id }"
                                 >
-                                    {{ review.examParticipation.user.email }}
+                                    {{ review.examParticipation.user?.email }}
                                 </a>
                             </td>
                             <td>
@@ -138,18 +138,15 @@
                                     'sitnet_speed_review_incomplete_info_or_no_permission' | translate
                                 }}</span>
                                 <select
-                                    class="form-control"
+                                    class="form-control custom-select"
                                     [disabled]="!isGradeable(review)"
                                     [(ngModel)]="review.selectedGrade"
                                     required
                                 >
-                                    <option
-                                        *ngFor="let grade of review.selectableGrades | orderBy: 'id'"
-                                        [ngValue]="grade"
-                                    >
+                                    <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
                                         {{ grade.name }}
                                     </option>
-                                    <option value="" [selected]="!review.exam.selectedGrade">
+                                    <option value="" [selected]="!review.exam?.selectedGrade">
                                         {{ 'sitnet_choose' | translate }}
                                     </option>
                                 </select>
@@ -185,28 +182,46 @@
         </div>
 
         <!-- Buttons -->
-        <div class="padl0 padr0 marb20">
-            <div class="speed-review-csv">
-                <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
-                <sup>
-                    <img
-                        ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
-                        placement="right"
-                        triggers="mouseenter:mouseleave"
-                        src="/assets/assets/images/icon_tooltip.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                    />
-                </sup>
+        <div class="padl15 padr15 marb20 d-flex justify-content-between">
+            <div>
+                <div class="speed-review-csv mb-1">
+                    <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
+                    <sup>
+                        <img
+                            ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
+                            placement="right"
+                            triggers="mouseenter:mouseleave"
+                            src="/assets/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                        />
+                    </sup>
+                </div>
+
+                <div class="speed-review-csv mart0">
+                    <a class="pointer" (click)="createGradingTemplate()">{{
+                        'sitnet_create_grading_template' | translate
+                    }}</a>
+                    <sup>
+                        <img
+                            ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
+                            placement="right"
+                            triggers="mouseenter:mouseleave"
+                            src="/assets/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                        />
+                    </sup>
+                </div>
             </div>
 
-            <span class="pull-right">
+            <div class="p-2">
                 <div class="review-attachment-button make-inline">
                     <a class="pointer preview" uiSref="examEditor" [uiParams]="{ id: examId, tab: 4 }">
                         {{ 'sitnet_button_cancel' | translate }}
                     </a>
                 </div>
-                <div class="review-attachment-button make-inline mart20 marr30 marl10">
+                <div class="review-attachment-button make-inline ml-2">
                     <button
                         class="btn btn-link"
                         [disabled]="!hasModifications()"
@@ -216,23 +231,6 @@
                         {{ 'sitnet_grade_exams' | translate }}
                     </button>
                 </div>
-            </span>
-        </div>
-        <div class="padl0">
-            <div class="speed-review-csv mart0">
-                <a class="pointer" (click)="createGradingTemplate()">{{
-                    'sitnet_create_grading_template' | translate
-                }}</a>
-                <sup>
-                    <img
-                        ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
-                        placement="right"
-                        triggers="mouseenter:mouseleave"
-                        src="/assets/assets/images/icon_tooltip.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                    />
-                </sup>
             </div>
         </div>
     </div>

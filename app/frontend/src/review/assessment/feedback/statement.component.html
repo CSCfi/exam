@@ -1,5 +1,5 @@
 <div id="feedback" [hidden]="hasGoneThroughLanguageInspection()">
-    <div ckDrag id="draggable" class="wrapper">
+    <div cdkDrag id="draggable" class="wrapper">
         <div class="row">
             <div
                 class="col-md-1"
@@ -10,8 +10,10 @@
             >
                 <i
                     (click)="toggleEditorVisibility()"
-                    class="pointer fa fa-2x vcenter"
-                    [ngClass]="hideEditor ? 'bi-arrow-right-circle sitnet-green' : 'bi-arrown-down-circle sitnet-red'"
+                    class="pointer vcenter font-6"
+                    [ngClass]="
+                        hideEditor ? 'bi-arrow-right-circle-fill sitnet-green' : 'bi-arrow-down-circle-fill sitnet-red'
+                    "
                 >
                 </i>
             </div>
@@ -21,33 +23,34 @@
                 </div>
             </div>
         </div>
-        <div class="row editor" [hidden]="hideEditor">
-            <div class="col-md-12">
-                <ckeditor
-                    [enableClozeTest]="false"
-                    [(ngModel)]="exam.languageInspection.statement.comment"
-                    #ck="ngModel"
-                    name="ck"
-                ></ckeditor>
+        <div [hidden]="hideEditor" class="body">
+            <div class="row editor">
+                <div class="col-md-12">
+                    <ckeditor
+                        [enableClozeTest]="false"
+                        [(ngModel)]="statement"
+                        (ngModelChange)="onChange($event)"
+                        #ck="ngModel"
+                        name="ck"
+                    ></ckeditor>
+                </div>
             </div>
-        </div>
-        <div class="row" [hidden]="hideEditor">
-            <div class="col-md-2">
-                <button class="btn btn-default" (click)="saveInspectionStatement()">
-                    {{ 'sitnet_save' | translate }}
-                </button>
-            </div>
-            <div class="col-md-10">
-                <div class="pull-right">
-                    <span *ngIf="exam.languageInspection?.statement.attachment">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
+                        {{ 'sitnet_save' | translate }}
+                    </button>
+                </div>
+                <div>
+                    <span *ngIf="exam.languageInspection?.statement?.attachment">
                         <a class="pointer" (click)="downloadStatementAttachment()">{{
-                            exam.languageInspection?.statement.attachment?.fileName
+                            exam.languageInspection?.statement?.attachment?.fileName
                         }}</a>
                         <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
                             <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
                         </span>
                     </span>
-                    <button type="button" class="btn btn-default" (click)="selectFile()">
+                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
                         {{ 'sitnet_attach_file' | translate }}
                     </button>
                 </div>

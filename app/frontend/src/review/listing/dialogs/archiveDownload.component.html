@@ -2,36 +2,24 @@
     <div class="student-details-title-wrap mart20">
         <div class="student-enroll-title">{{ 'sitnet_exam_validity' | translate }}</div>
     </div>
-    <div class="modal-body marl20">
-        <div class="row" id="dashboard">
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <p>{{ 'sitnet_begin' | translate }}:</p>
-                </div>
-                <div class="col-md-6">
-                    <p>{{ 'sitnet_end' | translate }}:</p>
-                </div>
+    <div class="modal-body mx-4">
+        <div id="dashboard">
+            <div>
+                <label for="archive-download-start">{{ 'sitnet_begin' | translate }}:</label>
+                <date-picker id="archive-download-start" (onUpdate)="startDateChanged($event)"></date-picker>
             </div>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
-                </div>
-                <div class="col-md-6">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
-                </div>
+            <div>
+                <label for="archive-download-end">{{ 'sitnet_end' | translate }}:</label>
+                <date-picker id="archive-download-end" (onUpdate)="endDateChanged($event)"></date-picker>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <div class="col-md-6">
-            <button class="btn btn btn-success pull-left" (click)="ok()">
-                {{ 'sitnet_search' | translate }}
-            </button>
-        </div>
-        <div class="col-md-6">
-            <button class="btn btn-primary pull-right" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
-            </button>
-        </div>
+        <button class="btn btn-primary" (click)="cancel()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
+        <button class="btn btn btn-success" (click)="ok()">
+            {{ 'sitnet_search' | translate }}
+        </button>
     </div>
 </div>

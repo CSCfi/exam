@@ -4,21 +4,17 @@
     </div>
     <div class="modal-body marl20">
         <div class="row">
-            <div class="col-md-12 padl0">
+            <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
                 <ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></ckeditor>
             </div>
         </div>
     </div>
-    <div class="modal-footer">
-        <div class="col-md-6">
-            <button class="btn btn btn-success pull-left" (click)="ok()">
-                {{ 'sitnet_save' | translate }}
-            </button>
-        </div>
-        <div class="col-md-6">
-            <button class="btn btn-primary pull-right" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
-            </button>
-        </div>
+    <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn btn-success pull-left" (click)="ok()">
+            {{ 'sitnet_save' | translate }}
+        </button>
+        <button class="btn btn-primary pull-right" (click)="cancel()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
     </div>
 </div>

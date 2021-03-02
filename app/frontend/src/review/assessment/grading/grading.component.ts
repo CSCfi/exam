@@ -42,8 +42,8 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() collaborative: boolean;
     @Input() user: User;
     @Output() onUpdate = new EventEmitter<void>();
-    message: { text?: string };
-    selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
+    message: { text?: string } = { text: '' };
+    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
     creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];

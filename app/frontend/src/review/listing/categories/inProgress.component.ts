@@ -14,6 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { noop } from 'rxjs';
 
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { Exam } from '../../../exam/exam.model';
@@ -53,7 +54,7 @@ export class InProgressReviewsComponent {
     getLinkToAssessment = (review: ExamParticipation) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-            : `/assessments/${review.exam.id}`;
+            : `/assessments/${review.exam?.id}`;
 
     pageSelected = (page: number) => (this.view.page = page);
 
@@ -74,5 +75,6 @@ export class InProgressReviewsComponent {
             })
             .result.then((params) =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
-            );
+            )
+            .catch(noop);
 }

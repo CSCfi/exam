@@ -124,10 +124,10 @@ export class PrintedAssessmentComponent {
 
     private printPage = () => {
         // FIXME: check how to do this angular-style
-        $('#vmenu').hide();
-        const mainView = $('#mainView');
-        mainView.css('margin', '0 15px');
-        mainView.css('max-width', '1000px');
+        // $('#vmenu').hide();
+        // const mainView = $('#mainView');
+        // mainView.css('margin', '0 15px');
+        // mainView.css('max-width', '1000px');
         MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
         this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
     };

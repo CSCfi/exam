@@ -33,18 +33,19 @@ export class ReviewListComponent {
     @Input() collaborative: boolean;
     @Input() reviews: ExamParticipation[];
 
-    noShows: ExamEnrolment[];
-    abortedExams: Review[];
-    inProgressReviews: Review[];
-    gradedReviews: Review[];
-    gradedLoggedReviews: Review[];
-    archivedReviews: Review[];
-    languageInspectedReviews: Review[];
-    rejectedReviews: Review[];
+    noShows: ExamEnrolment[] = [];
+    abortedExams: Review[] = [];
+    inProgressReviews: Review[] = [];
+    gradedReviews: Review[] = [];
+    gradedLoggedReviews: Review[] = [];
+    archivedReviews: Review[] = [];
+    languageInspectedReviews: Review[] = [];
+    rejectedReviews: Review[] = [];
 
     constructor(private modal: NgbModal, private http: HttpClient, private ReviewList: ReviewListService) {}
 
     ngOnInit() {
+        this.refreshLists();
         // No-shows
         if (this.collaborative) {
             //TODO: Fetch collaborative no-shows from xm.
@@ -55,6 +56,10 @@ export class ReviewListComponent {
     }
 
     ngOnChanges = () => {
+        this.refreshLists();
+    };
+
+    refreshLists = () => {
         this.abortedExams = this.filterByState(['ABORTED'], this.reviews);
         this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED'], this.reviews);
         this.gradedReviews = this.filterByState(
@@ -118,6 +123,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
@@ -128,6 +134,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modalRef.componentInstance.noShows = this.noShows;
     };

@@ -16,7 +16,7 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import type { OnInit } from '@angular/core';
 
 interface Selection {
     value: unknown;
@@ -33,27 +33,23 @@ export interface Option {
     selector: 'dropdown-select',
     templateUrl: './dropDownSelect.component.html',
 })
-export class DropdownSelectComponent implements OnChanges, OnInit {
+export class DropdownSelectComponent implements OnInit {
     @Input() options: Option[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
+    @Input() fullWidth?: boolean = false;
     @Output() onSelect = new EventEmitter<Selection>();
     filteredOptions: Option[]; // filtered
     searchFilter = '';
     selected?: Option;
-    labelFilter: (o: Option) => Option = (o) => o;
 
     ngOnInit() {
         this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
         this.filterOptions();
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (this.options && changes.options) {
-            this.searchFilter = this.searchFilter || '';
-            this.filterOptions();
-        }
-    }
+    labelFilter = (option: Option): boolean =>
+        option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
 
     filterOptions = () => {
         // Show all options, if limit is set to 0

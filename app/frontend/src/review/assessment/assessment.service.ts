@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, of, throwError } from 'rxjs';
+import { from, noop, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -73,8 +73,8 @@ export class AssessmentService {
         );
     };
 
-    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam.state) > -1;
-    isGraded = (exam: Exam) => exam.state === 'GRADED';
+    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
+    isGraded = (exam: Exam) => exam?.state === 'GRADED';
 
     pickExamLanguage = (exam: Exam): { code: string } => {
         const lang = exam.answerLanguage;
@@ -196,7 +196,7 @@ export class AssessmentService {
     };
 
     saveEssayScore = (question: ExamSectionQuestion): Observable<void> => {
-        if (!question.essayAnswer?.evaluatedScore) {
+        if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/app/review/examquestion/${question.id}/score`;
@@ -252,7 +252,7 @@ export class AssessmentService {
                         this.translate.instant('sitnet_confirm'),
                         this.translate.instant('sitnet_confirm_grade_review'),
                     );
-                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam));
+                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam)).catch(noop);
                 }
             }
         }

@@ -35,19 +35,19 @@ import type { User } from '../../../session/session.service';
                     id="student"
                     *ngIf="students"
                     [options]="students"
-                    (on-select)="studentSelected($event)"
+                    (onSelect)="studentSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (on-update)="startDateChanged($event)"></date-picker>
+                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (on-update)="endDateChanged($event)"></date-picker>
+                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -60,7 +60,7 @@ import type { User } from '../../../session/session.service';
                         popover-trigger="mouseenter:mouseleave"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
-                        <i class="bi-file-earmark-word font-6"></i>
+                        <i class="bi-file-earmark-excel font-6"></i>
                     </a>
                 </div>
             </div>

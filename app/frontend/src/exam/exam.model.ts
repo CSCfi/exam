@@ -218,7 +218,7 @@ export interface Feedback {
     comment: string;
     id?: number;
     attachment?: Attachment;
-    feedbackStatus: boolean;
+    feedbackStatus?: boolean;
 }
 
 export interface ExaminationEvent {

@@ -53,6 +53,6 @@ export class ArchiveDownloadComponent {
         }
     };
     cancel = function () {
-        this.dismiss({ $value: 'cancel' });
+        this.modal.dismiss();
     };
 }

@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import * as moment from 'moment';
-import { forkJoin, throwError } from 'rxjs';
+import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -89,8 +89,7 @@ export class SpeedReviewComponent {
                     type: grade.name,
                 };
             })
-            .filter((g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id);
-
+            .filter(isRealGrade);
         // The "no grade" option
         const noGrade: NoGrade = {
             name: this.Exam.getExamGradeDisplayName('NONE'),
@@ -193,14 +192,16 @@ export class SpeedReviewComponent {
         this.Confirmation.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_grade_review'),
-        ).result.then(() => {
-            forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_saved'));
-                if (this.examReviews.length === 0) {
-                    this.state.go('examEditor', { id: this.state.params.id, tab: 4 });
-                }
-            });
-        });
+        )
+            .result.then(() => {
+                forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
+                    toast.info(this.translate.instant('sitnet_saved'));
+                    if (this.examReviews.length === 0) {
+                        this.state.go('examEditor', { id: this.state.params.id, tab: 4 });
+                    }
+                });
+            })
+            .catch(noop);
     };
 
     private gradeExam$ = (review: Review): Observable<void> => {
@@ -241,9 +242,11 @@ export class SpeedReviewComponent {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv').then((result) =>
-            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
-        );
+        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
+            .then((result) =>
+                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
+            )
+            .catch(noop);
     };
 
     createGradingTemplate = () => {

@@ -2,6 +2,7 @@
     <button
         ngbDropdownToggle
         class="btn btn-outline-secondary"
+        [ngClass]="{ 'dropdown-select-full-width': fullWidth }"
         type="button"
         aria-haspopup="true"
         aria-expanded="true"
@@ -14,7 +15,7 @@
             <input
                 [(ngModel)]="searchFilter"
                 class="form-control"
-                (change)="filterOptions()"
+                (input)="filterOptions()"
                 (click)="$event.stopPropagation()"
                 placeholder="{{ 'sitnet_search' | translate }}"
             />
@@ -24,11 +25,11 @@
                 </span>
             </div>
         </li>
-        <li ngbDropdownItem>
-            <a class="dropdown-item pointer" (click)="clearSelection()">{{ placeholder | translate }}</a>
+        <li ngbDropdownItem (click)="clearSelection()">
+            <a class="dropdown-item pointer">{{ placeholder | translate }}</a>
         </li>
-        <li ngbDropdownItem *ngFor="let opt of filteredOptions" [ngClass]="getClasses(opt)">
-            <a *ngIf="!opt.isHeader" (click)="selectOption(opt)">
+        <li ngbDropdownItem *ngFor="let opt of filteredOptions" [ngClass]="getClasses(opt)" (click)="selectOption(opt)">
+            <a *ngIf="!opt.isHeader">
                 {{ opt.label | translate | slice: 0:40 }}
             </a>
             <span *ngIf="opt.isHeader">{{ opt.label }}</span>

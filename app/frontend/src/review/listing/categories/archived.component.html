@@ -27,16 +27,16 @@
     </div>
 </div>
 
-<div *ngIf="view.toggle && view.items.length > 0">
-    <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+<div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
+    <div class="col-lg-6 search input-group my-2">
         <input
-            (change)="applyFreeSearchFilter()"
+            (input)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
             class="form-control search"
             placeholder="{{ 'sitnet_search' | translate }}"
         />
-        <div class="input-group-addon search">
-            <img class="nopad" src="/assets/assets//assets/assets/images/icon_search.png" width="49" height="40" />
+        <div class="input-group-append search">
+            <i class="input-group-text bi-search"></i>
         </div>
     </div>
 
@@ -121,14 +121,14 @@
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" uiSref="assessment" [uiParams]="{ id: review.examParticipation.exam.id }">
                         {{ review.displayName }}
-                        <span *ngIf="review.examParticipation.user.userIdentifier">
-                            <br />({{ review.examParticipation.user.userIdentifier }})</span
+                        <span *ngIf="review.examParticipation.user?.userIdentifier">
+                            <br />({{ review.examParticipation.user?.userIdentifier }})</span
                         >
                     </a>
                 </td>
                 <td class="table-column-15">
-                    <a class="pointer" href="mailto:{{ review.examParticipation.user.email }}">{{
-                        review.examParticipation.user.email
+                    <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">{{
+                        review.examParticipation.user?.email
                     }}</a>
                 </td>
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>

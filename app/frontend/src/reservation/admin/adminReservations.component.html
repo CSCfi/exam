@@ -8,30 +8,45 @@
     </div>
 
     <div class="reservation-border">
-        <div class="pad30">
+        <div class="p-4 row">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
-                <dropdown-select *ngIf="studentOptions" [options]="studentOptions" (onSelect)="studentChanged($event)">
+                <dropdown-select
+                    *ngIf="studentOptions"
+                    [fullWidth]="true"
+                    [options]="studentOptions"
+                    (onSelect)="studentChanged($event)"
+                >
                 </dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
-                <dropdown-select *ngIf="examOptions" [options]="examOptions" (onSelect)="examChanged($event)">
+                <dropdown-select
+                    *ngIf="examOptions"
+                    [fullWidth]="true"
+                    [options]="examOptions"
+                    (onSelect)="examChanged($event)"
+                >
                 </dropdown-select>
             </div>
-            <div class="col-md-2 reservation-search-titles">
-                {{ 'sitnet_begin' | translate }}
+            <div class="col-md-2 pt-1 reservation-search-titles">
+                <strong class="reservation-search-titles">{{ 'sitnet_begin' | translate }}</strong>
                 <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
             </div>
-            <div class="col-md-2 reservation-search-titles">
-                {{ 'sitnet_end' | translate }}
+            <div class="col-md-2 pt-1 reservation-search-titles">
+                <strong class="reservation-search-titles">{{ 'sitnet_end' | translate }}</strong>
                 <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
             </div>
         </div>
-        <div class="pad30">
+        <div class="p-4 row">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_owners' | translate }}</strong>
-                <dropdown-select *ngIf="teacherOptions" [options]="teacherOptions" (onSelect)="ownerChanged($event)">
+                <dropdown-select
+                    *ngIf="teacherOptions"
+                    [fullWidth]="true"
+                    [options]="teacherOptions"
+                    (onSelect)="ownerChanged($event)"
+                >
                 </dropdown-select>
             </div>
             <div class="col-md-2">
@@ -41,6 +56,7 @@
                     [options]="roomOptions"
                     (onSelect)="roomChanged($event)"
                     [limitTo]="0"
+                    [fullWidth]="true"
                 >
                 </dropdown-select>
             </div>
@@ -51,12 +67,14 @@
                     [options]="machineOptions"
                     (onSelect)="machineChanged($event)"
                     [limitTo]="0"
+                    [fullWidth]="true"
                 >
                 </dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
-                <dropdown-select [options]="stateOptions" (onSelect)="stateChanged($event)"> </dropdown-select>
+                <dropdown-select [options]="stateOptions" [fullWidth]="true" (onSelect)="stateChanged($event)">
+                </dropdown-select>
             </div>
             <div class="col-md-3">
                 <div class="checkbox">

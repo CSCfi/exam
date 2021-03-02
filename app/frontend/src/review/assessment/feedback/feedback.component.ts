@@ -12,8 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
+import { noop } from 'rxjs';
 
 import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
@@ -27,10 +29,11 @@ import type { FileResult } from '../../../utility/attachment/dialogs/attachmentS
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnInit {
     @Input() exam: Examination;
     @Input() collaborative: boolean;
     @Input() participation: ExamParticipation;
+    feedbackComment = '';
 
     hideEditor = false;
 
@@ -41,6 +44,12 @@ export class FeedbackComponent {
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
+
+    ngOnInit() {
+        if (!this.exam.examFeedback) {
+            this.exam.examFeedback = { id: undefined, comment: '' };
+        }
+    }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
@@ -53,15 +62,17 @@ export class FeedbackComponent {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(true, {}).then((res: FileResult) =>
-            this.Assessment.saveFeedback$(this.exam).subscribe(() => {
-                this.Files.upload(
-                    `/app/attachment/exam/${this.exam.id}/feedback`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id.toString() },
-                    this.exam.examFeedback,
-                );
-            }),
+        this.Attachment.selectFile(true, {}).then(
+            (res: FileResult) =>
+                this.Assessment.saveFeedback$(this.exam).subscribe(() => {
+                    this.Files.upload(
+                        `/app/attachment/exam/${this.exam.id}/feedback`,
+                        res.$value.attachmentFile,
+                        { examId: this.exam.id.toString() },
+                        this.exam.examFeedback,
+                    );
+                }),
+            noop,
         );
     };
 

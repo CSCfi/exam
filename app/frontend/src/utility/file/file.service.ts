@@ -30,20 +30,27 @@ export class FileService {
 
     download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
         const method = post ? 'POST' : 'GET';
-        this.http.request(method, url, { responseType: 'text', observe: 'response', params: params }).subscribe(
-            (resp: HttpResponse<string>) => {
-                if (resp.body) {
-                    const contentType = resp.headers.get('Content-Type');
-                    if (contentType) {
-                        this.saveFile(resp.body, filename, contentType.split(';')[0]);
+        this.http
+            .request(method, url, {
+                responseType: 'text',
+                observe: 'response',
+                params: method === 'GET' ? params : undefined,
+                body: method === 'POST' ? { params } : undefined,
+            })
+            .subscribe(
+                (resp: HttpResponse<string>) => {
+                    if (resp.body) {
+                        const contentType = resp.headers.get('Content-Type');
+                        if (contentType) {
+                            this.saveFile(resp.body, filename, contentType.split(';')[0]);
+                        }
                     }
-                }
-            },
-            (resp) => {
-                console.log('error ' + JSON.stringify(resp));
-                toast.error(resp.body || resp);
-            },
-        );
+                },
+                (resp) => {
+                    console.log('error ' + JSON.stringify(resp));
+                    toast.error(resp.body || resp);
+                },
+            );
     }
 
     getMaxFilesize(): Promise<{ filesize: number }> {

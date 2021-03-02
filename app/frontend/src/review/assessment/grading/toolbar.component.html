@@ -1,14 +1,17 @@
 <!-- Buttons -->
-<div class="review-toolbar-wrapper padl0 padr0 marb20">
-    <div
-        [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
-        class="review-attachment-button exam-questions-buttons marl15"
-    >
+<div class="review-toolbar-wrapper padl0 padr0 marb20 d-flex justify-content-between">
+    <div class="review-attachment-button exam-questions-buttons marl15">
         <!-- TODO: use uiSref instead of href -->
-        <a class="pointer preview" href="{{ getExitUrl() }}"> {{ 'sitnet_close' | translate }}</a>
+        <a
+            class="pointer preview"
+            href="{{ getExitUrl() }}"
+            [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
+        >
+            {{ 'sitnet_close' | translate }}
+        </a>
     </div>
 
-    <span class="pull-right">
+    <div>
         <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
             <button
                 class="pointer warning-filled"
@@ -49,5 +52,5 @@
                 </button>
             </span>
         </div>
-    </span>
+    </div>
 </div>
