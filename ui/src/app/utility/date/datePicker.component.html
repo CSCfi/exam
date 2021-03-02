@@ -10,7 +10,8 @@
             #d="ngbDatepicker"
             [startDate]="initialDate"
             [showWeekNumbers]="true"
-            (dateSelect)="dateChanged($event)"
+            (dateSelect)="dateChange()"
+            (blur)="dateChange()"
         />
         <div class="input-group-append">
             <button class="btn btn-primary green border-green" [disabled]="disabled" (click)="d.toggle()" type="button">
