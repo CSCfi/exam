@@ -30,7 +30,7 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
 import type { OnInit } from '@angular/core';
-import type { Exam, ExamExecutionType, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
+import type { Exam, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
     selector: 'r-grading',
     templateUrl: './grading.component.html',

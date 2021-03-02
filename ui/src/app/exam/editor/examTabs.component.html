@@ -38,9 +38,6 @@
         </li>
         <li *ngIf="exam" [disabled]="exam?.executionType.type === 'PRINTOUT' || collaborative" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'sitnet_question_review' | translate }}</a>
-            <ng-template ngbNavContent>
-                <question-reviews [examId]="exam.id"></question-reviews>
-            </ng-template>
         </li>
         <li
             *ngIf="exam"
@@ -48,14 +45,6 @@
             [ngbNavItem]="6"
         >
             <a ngbNavLink>{{ 'sitnet_exam_summary_tab' | translate }}</a>
-            <ng-template ngbNavContent>
-                <exam-summary
-                    *ngIf="reviews"
-                    [exam]="exam"
-                    [reviews]="reviews"
-                    [collaborative]="collaborative"
-                ></exam-summary>
-            </ng-template>
         </li>
     </ul>
 

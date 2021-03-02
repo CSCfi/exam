@@ -58,13 +58,14 @@ import { PrintedAssessmentComponent } from './review/assessment/print/printedAss
 import { ReviewListComponent } from './review/listing/reviewList.component';
 import { ReviewListService } from './review/listing/reviewList.service';
 import { SpeedReviewComponent } from './review/listing/speedReview.component';
+import { ExamSummaryComponent } from './review/listing/summary/examSummary.component';
 import { QuestionAssessmentComponent } from './review/questions/assessment/questionAssessment.component';
+import { QuestionReviewsComponent } from './review/questions/listing/questionReviews.component';
 import { LogoutComponent } from './session/logout/logout.component';
 import { SoftwareComponent } from './software/software.component';
 
 import type { RootModule, UIRouter } from '@uirouter/angular';
 import type { Exam } from './exam/exam.model';
-
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
     // If the browser URL doesn't matches any state when the router starts,
@@ -188,6 +189,41 @@ const rootModule: RootModule = {
             name: 'examEditor.assessments',
             url: '/4',
             component: ReviewListComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+                {
+                    token: 'reviews',
+                    deps: [ReviewListService, Transition, 'collaborative'],
+                    resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
+                        reviewList.getReviews(transition.params().id, collaborative),
+                },
+            ],
+        },
+        {
+            name: 'examEditor.questionReview',
+            url: '/5',
+            component: QuestionReviewsComponent,
+            resolve: [
+                {
+                    token: 'examId',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam.id,
+                },
+            ],
+        },
+        {
+            name: 'examEditor.summary',
+            url: '/6',
+            component: ExamSummaryComponent,
             resolve: [
                 {
                     token: 'exam',
@@ -466,13 +502,3 @@ const rootModule: RootModule = {
     exports: [UIRouterModule],
 })
 export class AppRoutingModule {}
-
-/*.state('rooms', { url: 'rooms', component: 'examRoomsAdminTabs', parent: 'app' })
-        .state('room', { url: 'rooms/{id}', component: 'room', parent: 'app' })
-        .state('availability', { url: 'rooms/{id}/availability', component: 'availability', parent: 'app' })
-        .state('multiRoom', { url: 'rooms_edit/edit_multiple', component: 'multiRoom', parent: 'app' })
-        .state('accessibility', { url: 'accessibility', component: 'accessibility', parent: 'app' })
-        .state('machine', { url: 'machines/{id}', component: 'machine', parent: 'app' })
-        .state('reports', { url: 'reports', component: 'reports', parent: 'app' })
-        .state('statistics', { url: 'statistics', component: 'statistics', parent: 'app' })
-*/

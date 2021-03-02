@@ -92,10 +92,10 @@ export class ExamTabsComponent implements OnInit {
             this.state.go('examEditor.publication', params);
         } else if (event.nextId === 4) {
             this.state.go('examEditor.assessments', params);
-        } else {
-            // TODO
-            const params = { id: this.exam.id, tab: event.nextId };
-            this.state.go('examEditor', params, { reload: false });
+        } else if (event.nextId === 5) {
+            this.state.go('examEditor.questionReview', params);
+        } else if (event.nextId === 6) {
+            this.state.go('examEditor.summary', params);
         }
     };
 
