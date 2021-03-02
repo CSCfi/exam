@@ -12,37 +12,37 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import type { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
 
+import type { SimpleChanges, OnChanges } from '@angular/core';
+import type { LanguageInspectionData } from '../languageInspections.component';
 @Component({
     selector: 'reviewed-inspections',
     templateUrl: './reviewedInspections.component.html',
 })
-export class ReviewedInspectionsComponent implements OnInit {
-    @Input() inspections: LanguageInspectionData[];
+export class ReviewedInspectionsComponent implements OnChanges {
+    @Input() inspections: LanguageInspectionData[] = [];
     @Output() onStartDateChange = new EventEmitter<{ date: Date }>();
     @Output() onEndDateChange = new EventEmitter<{ date: Date }>();
 
-    filteredInspections: LanguageInspectionData[];
-    sorting: { predicate: string; reverse: boolean };
+    filteredInspections: LanguageInspectionData[] = [];
+    sorting = {
+        predicate: 'exam.created',
+        reverse: true,
+    };
     pageSize = 10;
     currentPage = 0;
-    filterText: string;
+    filterText = '';
     hideItems = false;
 
     constructor(private LanguageInspections: LanguageInspectionService) {}
 
-    ngOnInit() {
-        this.sorting = {
-            predicate: 'exam.created',
-            reverse: true,
-        };
-        this.filterText = '';
-        this.filterTextChanged();
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.inspections) {
+            this.filterTextChanged();
+        }
     }
 
     setPredicate = (predicate: string) => {

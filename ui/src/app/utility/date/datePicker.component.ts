@@ -44,11 +44,12 @@ export class DatePickerComponent implements OnInit {
         }
     }
 
-    transform(value: NgbDate): Date {
+    transform(value: NgbDate | null): Date | null {
+        if (!value) return null;
         return new Date(value.year, value.month - 1, value.day);
     }
 
-    dateChanged() {
+    dateChange() {
         this.onUpdate.emit({ date: this.transform(this.date) });
     }
 
