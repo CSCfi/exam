@@ -1,15 +1,16 @@
-<div class="col-md-12 padl0 margin-20">
-    <div class="col-md-9 col-md-offset-3">
-        <form #myForm name="myForm">
+<div class="row">
+    <div class="col-md-9 offset-md-3">
+        <form #myForm="ngForm" name="myForm">
             <input
                 type="email"
                 name="email"
                 placeholder="{{ 'sitnet_write_pre_participant_email' | translate }}"
                 class="form-control wdth-30 make-inline"
                 [(ngModel)]="newPreParticipant.email"
+                email
             />
             <button
-                [disabled]="!myForm.email.valid || !newPreParticipant.email"
+                [disabled]="!myForm.valid || !newPreParticipant.email"
                 (click)="addPreParticipant()"
                 class="btn btn-primary green border-green"
             >
@@ -17,35 +18,33 @@
             </button>
         </form>
     </div>
-
-    <div class="row col-md-12">
-        <div class="col-md-3 exam-basic-title"></div>
-        <div class="col-md-9">
-            <ul class="muted-list mart10">
-                <!-- Students not having finished the exam -->
-                <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
-                    {{ renderParticipantLabel(enrolment) }}
-                    <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
-                    <button
-                        class="reviewer-remove"
-                        [disabled]="exam.state === 'PUBLISHED'"
-                        (click)="removeParticipant(enrolment.id)"
-                        title="{{ 'sitnet_remove' | translate }}"
-                    >
-                        <img
-                            [hidden]="exam.state === 'PUBLISHED'"
-                            src="/assets/assets/images/icon_remove.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
-                        />
-                    </button>
-                </li>
-                <!-- Students that have finished the exam -->
-                <li class="marl10" *ngFor="let participant of exam.examParticipations">
-                    {{ participant.user.firstName }} {{ participant.user.lastName }}
-                    <span *ngIf="participant.user.userIdentifier">({{ participant.user.userIdentifier }})</span>
-                </li>
-            </ul>
-        </div>
+</div>
+<div class="row">
+    <div class="col-md-9 offset-md-3">
+        <ul class="muted-list mart10">
+            <!-- Students not having finished the exam -->
+            <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
+                {{ renderParticipantLabel(enrolment) }}
+                <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
+                <button
+                    class="reviewer-remove"
+                    [disabled]="exam.state === 'PUBLISHED'"
+                    (click)="removeParticipant(enrolment.id)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img
+                        [hidden]="exam.state === 'PUBLISHED'"
+                        src="/assets/assets/images/icon_remove.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
+                    />
+                </button>
+            </li>
+            <!-- Students that have finished the exam -->
+            <li class="marl10" *ngFor="let participant of exam.examParticipations">
+                {{ participant.user.firstName }} {{ participant.user.lastName }}
+                <span *ngIf="participant.user.userIdentifier">({{ participant.user.userIdentifier }})</span>
+            </li>
+        </ul>
     </div>
 </div>
