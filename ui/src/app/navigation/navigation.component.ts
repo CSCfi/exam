@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
@@ -38,7 +38,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private Navigation: NavigationService,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
@@ -76,7 +76,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    isActive = (link: Link): boolean => link.state === this.state.current.name;
+    isActive = (link: Link): boolean => link.state === this.routing.current.name;
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

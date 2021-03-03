@@ -12,12 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import * as moment from 'moment';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
+
+import type { OnInit } from '@angular/core';
 import type { LanguageInspection } from '../maturity.model';
 
 @Component({
@@ -37,9 +38,9 @@ export class MaturityReportingComponent implements OnInit {
 
     printReport = () => this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 500);
 
-    query = (event?: { date: Date }) => {
+    query = (event?: { date: Date | null }) => {
         const params: { month?: string } = {};
-        if (event) {
+        if (event?.date) {
             params.month = moment(event.date).toISOString();
             this.month = event.date;
         }

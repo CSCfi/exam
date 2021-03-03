@@ -149,10 +149,10 @@
                     <td>
                         {{ inspection.exam.course.code }}
                     </td>
-                    <td class="table-column-bold">
+                    <td>
                         {{ inspection.answerLanguage }}
                     </td>
-                    <td class="table-column-bold">
+                    <td>
                         <span class="exam-basic-title">
                             {{ inspection.exam.name }}
                         </span>
@@ -189,7 +189,7 @@
                         <span class="text-danger">{{ 'sitnet_undefined' | translate }}</span>
                     </td>
                     <td *ngIf="inspection.modifier">
-                        <a class="pointer" uiSref="assessment({id: {{ inspection.exam.id }} })">{{
+                        <a class="pointer" uiSref="assessment" [uiParams]="{ id: inspection.exam.id }">{{
                             'sitnet_view' | translate
                         }}</a>
                     </td>
@@ -203,7 +203,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="filteredInspections.length === 0">
-                    <td colspan="8">{{ 'sitnet_review_no_result' | translate }}</td>
+                    <td colspan="9">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
             </tbody>
         </table>

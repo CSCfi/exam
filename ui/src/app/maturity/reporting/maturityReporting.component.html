@@ -15,11 +15,11 @@
 
     <div class="tab-wrapper-exams">
         <!-- Datepicker -->
-        <div class="col-md-2 no-print">
+        <div class="col-md-12 ml-3 mb-3 no-print">
             <label for="month">{{ 'sitnet_month' | translate }}:</label>
 
             <p id="month" class="input-group">
-                <date-picker (onUpdate)="query($event)"></date-picker>
+                <date-picker [optional]="true" (onUpdate)="query($event)"></date-picker>
             </p>
         </div>
 
