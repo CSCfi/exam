@@ -17,15 +17,15 @@ package util.datetime;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
-import models.ExamRoom;
-import models.Reservation;
-import models.calendar.ExceptionWorkingHours;
-import models.iop.ExternalReservation;
 import com.typesafe.config.ConfigFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import models.ExamRoom;
+import models.Reservation;
+import models.calendar.ExceptionWorkingHours;
+import models.iop.ExternalReservation;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -194,11 +194,18 @@ public class DateTimeUtils {
             dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
-        } // jos ollaan kesäajassa, lisätään tunti?
+        }
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
             result = dateTime.plusHours(1);
         }
         return result;
+    }
+
+    public static DateTime normalize(DateTime dateTime, Reservation reservation) {
+        DateTimeZone dtz = reservation.getMachine() == null
+            ? getDefaultTimeZone()
+            : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
     public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {

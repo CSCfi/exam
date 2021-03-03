@@ -15,12 +15,8 @@
 
 package controllers.integration;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExamRoom;
-import models.Reservation;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
@@ -29,10 +25,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.ExamRoom;
+import models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
+import util.datetime.DateTimeUtils;
 
 public class ReservationAPIController extends BaseController {
 
@@ -80,8 +80,8 @@ public class ReservationAPIController extends BaseController {
             .stream()
             .peek(
                 r -> {
-                    r.setStartAt(DateTimeUtils.adjustDST(r.getStartAt()));
-                    r.setEndAt(DateTimeUtils.adjustDST(r.getEndAt()));
+                    r.setStartAt(DateTimeUtils.normalize(r.getStartAt(), r));
+                    r.setEndAt(DateTimeUtils.normalize(r.getEndAt(), r));
                 }
             )
             .sorted(Comparator.comparing(Reservation::getStartAt))

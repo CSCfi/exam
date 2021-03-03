@@ -15,12 +15,6 @@
 
 package impl;
 
-import models.Course;
-import models.Grade;
-import models.GradeScale;
-import models.Organisation;
-import models.User;
-import util.config.ConfigReader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -47,27 +41,27 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Course;
+import models.Grade;
+import models.GradeScale;
+import models.Organisation;
+import models.User;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
+import util.config.ConfigReader;
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
-    private static final boolean API_KEY_USED = ConfigFactory
-        .load()
-        .getBoolean("sitnet.integration.enrolmentPermissionCheck.apiKey.enabled");
-    private static final String API_KEY_NAME = ConfigFactory
-        .load()
-        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.name");
-    private static final String API_KEY_VALUE = ConfigFactory
-        .load()
-        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.value");
+    private static final boolean API_KEY_USED = ConfigFactory.load().getBoolean("sitnet.integration.apiKey.enabled");
+    private static final String API_KEY_NAME = ConfigFactory.load().getString("sitnet.integration.apiKey.name");
+    private static final String API_KEY_VALUE = ConfigFactory.load().getString("sitnet.integration.apiKey.value");
     private static final String USER_IDENTIFIER = ConfigFactory
         .load()
         .getString("sitnet.integration.enrolmentPermissionCheck.id");
@@ -195,6 +189,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
+        }
+        if (API_KEY_USED) {
+            request = request.addHeader(API_KEY_NAME, API_KEY_VALUE);
         }
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
