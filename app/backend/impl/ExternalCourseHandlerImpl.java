@@ -60,13 +60,13 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
     private static final boolean API_KEY_USED = ConfigFactory
         .load()
-        .getBoolean("sitnet.integration.enrolmentPermissionCheck.apiKey.enabled");
+        .getBoolean("sitnet.integration.apiKey.enabled");
     private static final String API_KEY_NAME = ConfigFactory
         .load()
-        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.name");
+        .getString("sitnet.integration.apiKey.name");
     private static final String API_KEY_VALUE = ConfigFactory
         .load()
-        .getString("sitnet.integration.enrolmentPermissionCheck.apiKey.value");
+        .getString("sitnet.integration.apiKey.value");
     private static final String USER_IDENTIFIER = ConfigFactory
         .load()
         .getString("sitnet.integration.enrolmentPermissionCheck.id");
@@ -194,6 +194,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
+        }
+        if (API_KEY_USED) {
+            request = request.addHeader(API_KEY_NAME, API_KEY_VALUE);
         }
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
