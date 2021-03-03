@@ -14,12 +14,13 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { WindowRef } from '../utility/window/window.service';
-import { Examination, ExaminationSection, ExaminationService } from './examination.service';
+import { ExaminationService } from './examination.service';
 
+import { Examination, ExaminationSection } from './examination.service';
 @Component({
     selector: 'examination',
     templateUrl: './examination.component.html',
@@ -32,6 +33,7 @@ export class ExaminationComponent {
 
     constructor(
         private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Examination: ExaminationService,
         private Enrolment: EnrolmentService,
@@ -44,15 +46,13 @@ export class ExaminationComponent {
             this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
         this.Examination.startExam$(
-            this.state.params.hash,
+            this.routing.params.hash,
             this.isPreview,
             this.isCollaborative,
-            this.state.params.id,
+            this.routing.params.id,
         ).subscribe(
             exam => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-                // set section indices
-                exam.examSections.forEach((section, index) => (section.index = index + 1));
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
                 if (!this.isPreview && !this.exam.cloned && this.exam.executionType.type === 'MATURITY') {
@@ -74,7 +74,7 @@ export class ExaminationComponent {
 
     timedOut = () =>
         // Save all textual answers regardless of empty or not
-        this.Examination.saveAllTextualAnswersOfExam(this.exam, true).subscribe(() =>
+        this.Examination.saveAllTextualAnswersOfExam$(this.exam, true).subscribe(() =>
             this.logout('sitnet_exam_time_is_up', true),
         );
 
@@ -83,7 +83,13 @@ export class ExaminationComponent {
 
     private setActiveSection = (page: { type: string; id?: number }) => {
         if (this.activeSection) {
-            this.Examination.saveAllTextualAnswersOfSection(this.activeSection, this.exam.hash, true, false, false);
+            this.Examination.saveAllTextualAnswersOfSection$(
+                this.activeSection,
+                this.exam.hash,
+                true,
+                false,
+                false,
+            ).subscribe();
         }
         delete this.activeSection;
         if (page.type === 'section') {

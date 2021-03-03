@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, Input } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 

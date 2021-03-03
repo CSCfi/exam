@@ -16,12 +16,17 @@ import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import models.json.ExternalExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
@@ -41,9 +46,9 @@ public class ExternalExaminationControllerTest extends IntegrationTestCase {
     private Exam exam;
     private ExternalExam ee;
 
-    private ExamEnrolment enrolment = new ExamEnrolment();
+    private final ExamEnrolment enrolment = new ExamEnrolment();
     private ExamMachine machine;
-    private Reservation reservation = new Reservation();
+    private final Reservation reservation = new Reservation();
 
     @Rule
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
@@ -60,7 +65,7 @@ public class ExternalExaminationControllerTest extends IntegrationTestCase {
         ee.setCreator(user);
         ee.setContent(
             EJson.parseObject(
-                Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read()
+                Files.asCharSource(new File("test/resources/enrolment.json"), StandardCharsets.UTF_8).read()
             )
         );
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);

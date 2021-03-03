@@ -13,14 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as toast from 'toastr';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
     selector: 'library-file-export',
-    templateUrl: './libraryFileExport.component.html',
+    template: `
+        <div *ngIf="selections.length > 0" class="padl30 questions-selections-box">
+            <div class="make-inline">
+                <div class="question-add-owners-box">
+                    <span class="padl10">
+                        <i class="bi-cloud-upload-fill" style="color: #266b99"></i>&nbsp;
+                        <a class="infolink pointer" (click)="export()"> {{ 'sitnet_export_questions' | translate }}</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    `,
 })
 export class LibraryFileExportComponent {
     @Input() selections: number[];
@@ -31,7 +42,12 @@ export class LibraryFileExportComponent {
         if (this.selections.length === 0) {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         } else {
-            this.Files.download('/app/questions/export', 'moodle-export.xml', { ids: this.selections }, true);
+            this.Files.download(
+                '/app/questions/export',
+                'moodle-export.xml',
+                { ids: this.selections.map(s => s.toString()) },
+                true,
+            );
         }
     }
 }

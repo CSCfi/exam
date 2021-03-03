@@ -31,7 +31,7 @@ export class ExamFeedbackComponent {
     constructor(private Attachment: AttachmentService, private Files: FileService) {}
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.assessment.examFeedback.attachment;
+        const attachment = this.assessment.examFeedback?.attachment;
         if (this.collaborative && attachment && attachment.externalId) {
             this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
         } else {
@@ -42,6 +42,6 @@ export class ExamFeedbackComponent {
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, null, false);
+        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, undefined, false);
     };
 }

@@ -73,6 +73,11 @@ export class MaturityGradingComponent extends GradingBaseComponent {
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
     inspectionDone = () => this.onUpdate.emit();
     isGraded = () => this.Assessment.isGraded(this.exam);
+    isMaturityRejection = () =>
+        this.exam.executionType.type === 'MATURITY' &&
+        !this.exam.subjectToLanguageInspection &&
+        this.exam.grade &&
+        this.exam.grade.marksRejection;
 
     sendEmailMessage = () => {
         if (!this.message.text) {

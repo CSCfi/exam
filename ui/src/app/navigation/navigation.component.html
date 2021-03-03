@@ -4,26 +4,26 @@
             <div class="logo">
                 <div class="hidden-mobile">
                     <img
-                        src="assets/images/exam-logo-new.svg"
+                        src="/assets/assets/images/exam-logo-new.svg"
                         alt="exam"
                         onerror="this.onerror = null;
-                            this.src = 'assets/images/exam-logo-new.png'"
+                            this.src = '/assets/assets/images/exam-logo-new.png'"
                     />
                 </div>
                 <div class="visible-mobile">
                     <div class="mobile-menu" (click)="openMenu()" [hidden]="!user">
                         <img
-                            src="assets/images/icon_menu_mobile.svg"
+                            src="/assets/assets/images/icon_menu_mobile.svg"
                             alt="exam-menu-mobile"
                             onerror="this.onerror = null;
-                                this.src = 'assets/images/icon_menu_mobile.png'"
+                                this.src = '/assets/assets/images/icon_menu_mobile.png'"
                         />
                     </div>
                     <img
-                        src="assets/images/exam-logo-mobile.svg"
+                        src="/assets/assets/images/exam-logo-mobile.svg"
                         alt="exam-log-mobile"
                         onerror="this.onerror = null;
-                            this.src = 'assets/images/exam-logo-mobile.png'"
+                            this.src = '/assets/assets/images/exam-logo-mobile.png'"
                     />
                 </div>
             </div>
@@ -36,7 +36,11 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
-                        <img width="18" src="assets/images/nav/{{ link.iconPng }}" alt="{{ link.state | translate }}" />
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
@@ -51,7 +55,7 @@
                                 <div>
                                     <img
                                         width="18"
-                                        src="assets/images/nav/{{ subitem.iconPng }}"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
                                         alt="{{ link.state | translate }}"
                                     />
                                     {{ subitem.name | translate }}
@@ -71,7 +75,11 @@
                         uiSref="{{ link.state }}"
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
-                        <img width="18" src="assets/images/nav/{{ link.iconPng }}" alt="{{ link.state | translate }}" />
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                     <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">
@@ -84,7 +92,7 @@
                                 <div>
                                     <img
                                         width="18"
-                                        src="assets/images/nav/{{ subitem.iconPng }}"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
                                         alt="{{ link.state | translate }}"
                                     />
                                     {{ subitem.name | translate }}
@@ -100,7 +108,7 @@
             <div class="user">
                 <div class="user-name">
                     <div class="user-logo">
-                        <img src="assets/images/icon_menu_user.png" alt="User logo" />
+                        <img src="/assets/assets/images/icon_menu_user.png" alt="User logo" />
                     </div>
                     <div class="user-data">
                         {{ user.firstName }}&nbsp;{{ user.lastName }}
@@ -114,13 +122,13 @@
         <div class="nav-footer">
             <div class="locale-bar">
                 <span class="locale-item">
-                    <a (click)="switchLanguage('fi')" tabindex="0" (ngEnter)="switchLanguage('fi')">FI</a>
+                    <a (click)="switchLanguage('fi')" tabindex="0" (keyup.enter)="switchLanguage('fi')">FI</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('sv')" tabindex="0" (ngEnter)="switchLanguage('sv')">SV</a>
+                    <a (click)="switchLanguage('sv')" tabindex="0" (keyup.enter)="switchLanguage('sv')">SV</a>
                 </span>
                 <span class="locale-item">
-                    <a (click)="switchLanguage('en')" tabindex="0" (ngEnter)="switchLanguage('en')">EN</a>
+                    <a (click)="switchLanguage('en')" tabindex="0" (keyup.enter)="switchLanguage('en')">EN</a>
                 </span>
             </div>
         </div>

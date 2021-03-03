@@ -17,17 +17,20 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, Observable, of, throwError } from 'rxjs';
+import { from, noop, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamSectionQuestion, Feedback, isRealGrade } from '../../exam/exam.model';
+import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 
-// import { Examination, ExaminationQuestion } from '../../examination/examination.service';
+import { Observable } from 'rxjs';
+import { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import { ReviewedExam } from '../../enrolment/enrolment.model';
+
 type Payload = {
     id: number;
     state: string;
@@ -54,8 +57,8 @@ export class AssessmentService {
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Exam> => {
         const data = {
-            id: exam.examFeedback.id,
-            comment: exam.examFeedback.comment,
+            id: exam.examFeedback?.id,
+            comment: exam.examFeedback?.comment,
         };
         return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
             tap(() => {
@@ -70,8 +73,8 @@ export class AssessmentService {
         );
     };
 
-    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam.state) > -1;
-    isGraded = (exam: Exam) => exam.state === 'GRADED';
+    isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
+    isGraded = (exam: Exam) => exam?.state === 'GRADED';
 
     pickExamLanguage = (exam: Exam): { code: string } => {
         const lang = exam.answerLanguage;
@@ -164,7 +167,7 @@ export class AssessmentService {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent(exam.examFeedback.comment);
+                dialogNote = this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment);
                 res = '/app/exam/record';
             }
             const payload = this.getPayload(exam, 'GRADED');
@@ -177,21 +180,23 @@ export class AssessmentService {
         }
     };
 
-    isCommentRead = (exam: Exam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
+    isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
-    setCommentRead = (exam: Exam) => {
+    setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
             const examFeedback = {
                 feedbackStatus: true,
             };
-            this.http
-                .put<void>(`/app/review/${exam.id}/comment/:cid/feedbackstatus`, examFeedback)
-                .subscribe(() => (exam.examFeedback.feedbackStatus = true));
+            this.http.put<void>(`/app/review/${exam.id}/comment/:cid/feedbackstatus`, examFeedback).subscribe(() => {
+                if (exam.examFeedback) {
+                    exam.examFeedback.feedbackStatus = true;
+                }
+            });
         }
     };
 
     saveEssayScore = (question: ExamSectionQuestion): Observable<void> => {
-        if (!question.essayAnswer?.evaluatedScore) {
+        if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/app/review/examquestion/${question.id}/score`;
@@ -208,7 +213,7 @@ export class AssessmentService {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`;
-        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev });
+        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
     };
 
     saveAssessmentInfo = (exam: Exam): Observable<void> => {
@@ -247,7 +252,7 @@ export class AssessmentService {
                         this.translate.instant('sitnet_confirm'),
                         this.translate.instant('sitnet_confirm_grade_review'),
                     );
-                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam));
+                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam)).catch(noop);
                 }
             }
         }
@@ -259,7 +264,7 @@ export class AssessmentService {
     };
     saveCollaborativeForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
-        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev });
+        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
     };
 
     rejectMaturity$ = (exam: Exam, askConfirmation = false): Observable<void> => {

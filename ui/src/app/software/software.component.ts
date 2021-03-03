@@ -26,6 +26,7 @@ import { Software } from '../exam/exam.model';
 export class SoftwareComponent {
     software: Software[] = [];
     newSoftware = { name: '' };
+    showName = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

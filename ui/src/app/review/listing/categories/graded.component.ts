@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
@@ -22,7 +23,8 @@ import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { Review } from '../../review.model';
-import { ReviewListService, ReviewListView } from '../reviewList.service';
+import { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
 
 @Component({
     selector: 'rl-graded',

@@ -12,22 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
+import { TranslateService } from '@ngx-translate/core';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import * as toast from 'toastr';
+
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    intercept(req: HttpRequest<any>, next: HttpHandler) {
+    constructor(private translate: TranslateService) {}
+    intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         return next.handle(req).pipe(
-            catchError(response => {
+            catchError((response: HttpErrorResponse) => {
                 if (response.status === -1) {
                     // connection failure
-                    return throwError('sitnet_connection_refused');
+                    toast.error(this.translate.instant('sitnet_connection_refused'));
                 } else if (typeof response.error === 'string') {
-                    return throwError(response);
+                    return throwError(this.translate.instant(response.error));
                 }
                 return throwError(response);
             }),

@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { Exam, ExamExecutionType, ExamLanguage, ExamParticipation, SelectableGrade } from '../../../exam/exam.model';
+import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { Examination } from '../../../examination/examination.service';
+import { QuestionAmounts } from '../../../question/question.service';
 import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
@@ -28,21 +29,23 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
+import { OnInit } from '@angular/core';
+import { Exam, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
     selector: 'r-grading',
     templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam: Examination;
-    @Input() questionSummary: unknown;
+    @Input() questionSummary: QuestionAmounts;
     @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
     @Input() user: User;
     @Output() onUpdate = new EventEmitter<void>();
-    message: { text?: string };
-    selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
+    message: { text?: string } = { text: '' };
+    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
-    creditTypes: ExamExecutionType[];
+    creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];
 
     constructor(
@@ -125,7 +128,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     };
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback.attachment;
+        const attachment = this.exam.examFeedback?.attachment;
         if (this.collaborative && attachment && attachment.externalId) {
             this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
         } else {

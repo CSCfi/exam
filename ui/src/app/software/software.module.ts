@@ -21,7 +21,7 @@ import { SoftwareComponent } from './software.component';
 
 @NgModule({
     imports: [NgbModule, OrderModule, UtilityModule],
-    exports: [],
+    exports: [SoftwareComponent],
     declarations: [SoftwareComponent],
     entryComponents: [SoftwareComponent],
     providers: [],

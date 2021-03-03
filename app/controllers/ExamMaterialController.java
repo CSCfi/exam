@@ -31,7 +31,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import security.Authenticated;
-import util.AppUtil;
 
 public class ExamMaterialController extends QuestionController implements SectionQuestionHandler {
 

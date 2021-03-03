@@ -13,32 +13,36 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { from, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import { ExaminationTypeSelectorComponent } from '../../../exam/editor/common/examinationTypeSelector.component';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 
+import { OnInit } from '@angular/core';
+import { Exam, ExamExecutionType } from '../../../exam/exam.model';
 export interface ExtraColumn {
     text: string;
     property: string;
     link: string;
     checkOwnership: boolean;
 }
+type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: { type: string; name: string }[] };
 @Component({
     selector: 'exam-list-category',
     templateUrl: './examListCategory.component.html',
 })
 export class ExamListCategoryComponent implements OnInit {
     @Input() items: Exam[];
-    @Input() examTypes: ExamExecutionType[];
+    @Input() examTypes: ExecutionType[];
     @Input() extraColumns: ExtraColumn[];
     @Input() defaultPredicate: string;
     @Input() defaultReverse: boolean;
@@ -51,22 +55,31 @@ export class ExamListCategoryComponent implements OnInit {
         reverse: boolean;
     };
     filterText: string;
-    filterChanged: Subject<string> = new Subject<string>();
+    filterChanged = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
-        private dialog: ConfirmationDialogService,
+        private modal: NgbModal,
+        private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(text => {
-            this.filterText = text;
-            this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
-            this.onFilterChange.emit(this.filterText);
-        });
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(text => {
+                this.filterText = text;
+                this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
+                this.onFilterChange.emit(this.filterText);
+            });
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {
@@ -100,20 +113,23 @@ export class ExamListCategoryComponent implements OnInit {
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
     };
 
-    copyExam = (exam: Exam, type: string) => {
-        this.http
-            .post<{ id: number }>(`/app/exams/${exam.id}`, { type })
+    copyExam = (exam: Exam) =>
+        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
+            .pipe(
+                switchMap((data: { type: string; examinationType: string }) =>
+                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
+                ),
+            )
             .subscribe(
                 resp => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('examEditor', { id: resp.id });
+                    this.state.go('examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
-                resp => toast.error(resp.data),
+                err => toast.error(err.data),
             );
-    };
 
     deleteExam = (exam: Exam) => {
-        const dialog = this.dialog.open(
+        const dialog = this.Dialog.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
         );

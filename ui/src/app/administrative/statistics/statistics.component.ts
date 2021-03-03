@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
 
+import { OnInit } from '@angular/core';
 interface Departments {
     name: string;
     filtered: boolean;
@@ -83,16 +84,13 @@ export class StatisticsComponent implements OnInit {
         this.setQueryParams();
     };
 
-    handleDepartmentInputChange = (event: any) => {
-        const { value } = event.target;
-        console.log(value);
-        this.limitations.department = value;
-
-        if (value === '') {
+    handleDepartmentInputChange = () => {
+        if (this.limitations.department === '') {
             this.filteredDepartments = this.departments;
+        } else {
+            this.filteredDepartments = this.departments.filter(d =>
+                d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
+            );
         }
-        this.filteredDepartments = this.departments.filter(d =>
-            d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
-        );
     };
 }

@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { Observable, of } from 'rxjs';
+import { noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -27,8 +27,10 @@ import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+import { ExamSection, ExamSectionQuestion } from '../../exam.model';
 
+import { Observable } from 'rxjs';
+import { ExamSectionQuestionOption, Question } from '../../exam.model';
 @Component({
     selector: 'section-question',
     templateUrl: './sectionQuestion.component.html',
@@ -99,6 +101,7 @@ export class SectionQuestionComponent {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'xl',
         });
         modal.componentInstance.lotteryOn = this.lotteryOn;
         modal.componentInstance.questionDraft = { ...this.sectionQuestion.question, examSectionQuestions: [] };
@@ -110,7 +113,7 @@ export class SectionQuestionComponent {
             const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
             this.http
                 .put<ExamSectionQuestion>(this.getResource(resource), {
-                    question,
+                    question: question,
                 })
                 .subscribe(
                     resp => {
@@ -127,7 +130,7 @@ export class SectionQuestionComponent {
                             this.Files.upload(
                                 '/integration/iop/attachment/question',
                                 attachment.file,
-                                { examId: this.examId, questionId: this.sectionQuestion.id },
+                                { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
                                 this.sectionQuestion.question,
                             );
                         } else if (attachment.removed) {
@@ -151,21 +154,27 @@ export class SectionQuestionComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'xl',
         });
         modal.componentInstance.examQuestion = { ...this.sectionQuestion };
         modal.componentInstance.lotteryOn = this.lotteryOn;
-        modal.result.then((data: { question: Question; examQuestion: ExamSectionQuestion }) => {
-            this.Question.updateDistributedExamQuestion(
-                data.question,
-                data.examQuestion,
-                this.examId,
-                this.section.id,
-            ).then((esq: ExamSectionQuestion) => {
-                toast.info(this.translate.instant('sitnet_question_saved'));
-                // apply changes back to scope
-                this.sectionQuestion = _.merge(this.sectionQuestion, esq);
-            });
-        });
+        modal.result
+            .then((data: { question: Question; examQuestion: ExamSectionQuestion }) => {
+                this.Question.updateDistributedExamQuestion$(
+                    data.question,
+                    data.examQuestion,
+                    this.examId,
+                    this.section.id,
+                ).subscribe(
+                    (esq: ExamSectionQuestion) => {
+                        toast.info(this.translate.instant('sitnet_question_saved'));
+                        // apply changes back to scope
+                        this.sectionQuestion = _.merge(this.sectionQuestion, esq);
+                    },
+                    err => toast.error(err),
+                );
+            })
+            .catch(noop);
     };
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {

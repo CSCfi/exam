@@ -1,3 +1,9 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import * as _ from 'lodash';
+
+import { Exam } from '../../exam.model';
+import { ExamService } from '../../exam.service';
+
 /*
  * Copyright (c) 2017 Exam Consortium
  *
@@ -12,12 +18,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
-import * as _ from 'lodash';
-
-import { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-
+import { OnInit, SimpleChanges } from '@angular/core';
+import { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -65,6 +67,9 @@ export class AutoEvaluationComponent implements OnInit {
         }
     };
 
+    disable = () => this.onDisabled.emit();
+    enable = () => this.onEnabled.emit();
+
     private prepareAutoEvaluationConfig = () => {
         this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
         if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
@@ -87,10 +92,8 @@ export class AutoEvaluationComponent implements OnInit {
 
     private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find(rt => rt.name === name);
 
-    private applyFilter = (type?: ReleaseType) => {
-        if (!this.exam.autoEvaluationConfig) {
-            return;
-        }
+    applyFilter = (type?: ReleaseType) => {
+        if (!this.exam.autoEvaluationConfig) return;
         this.autoevaluation.releaseTypes.forEach(rt => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
@@ -116,16 +119,12 @@ export class AutoEvaluationComponent implements OnInit {
     };
 
     releaseDateChanged = (date: Date) => {
-        if (!this.exam.autoEvaluationConfig) {
-            return;
-        }
+        if (!this.exam.autoEvaluationConfig) return;
         this.exam.autoEvaluationConfig.releaseDate = date;
         this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
     };
 
     propertyChanged = () => {
-        if (this.exam.autoEvaluationConfig) {
-            this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
-        }
+        if (this.exam.autoEvaluationConfig) this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
     };
 }

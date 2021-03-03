@@ -16,12 +16,13 @@
 package controllers
 
 import impl.ExternalCourseHandler
-import models.{Course, Role, User}
-import security.Authenticator
-import util.scala.JavaJsonResultProducer
 import io.ebean.Ebean
+import models.{Course, Role, User}
+
 import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
+import security.Authenticator
+import util.scala.JavaJsonResultProducer
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global

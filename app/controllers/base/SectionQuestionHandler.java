@@ -15,7 +15,6 @@ import org.jsoup.safety.Whitelist;
 import play.mvc.Result;
 import play.mvc.Results;
 import sanitizers.SanitizingHelper;
-import util.AppUtil;
 
 public interface SectionQuestionHandler {
     default Optional<Result> checkBounds(Integer from, Integer to) {

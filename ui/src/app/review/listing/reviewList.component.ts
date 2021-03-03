@@ -16,13 +16,15 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { Exam, ExamParticipation } from '../../exam/exam.model';
-import { Review } from '../review.model';
+import { Exam } from '../../exam/exam.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
 
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { ExamParticipation } from '../../exam/exam.model';
+import { Review } from '../review.model';
+import { ExamTabService } from '../../exam/editor/examTabs.service';
 @Component({
     selector: 'review-list',
     templateUrl: './reviewList.component.html',
@@ -30,30 +32,41 @@ import { ReviewListService } from './reviewList.service';
 export class ReviewListComponent {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Input() reviews: ExamParticipation[];
+    @Input() reviews: ExamParticipation[] = [];
 
-    private noShows: ExamEnrolment[];
-    private abortedExams: Review[];
-    public inProgressReviews: Review[];
-    private gradedReviews: Review[];
-    private gradedLoggedReviews: Review[];
-    private archivedReviews: Review[];
-    public languageInspectedReviews: Review[];
-    public rejectedReviews: Review[];
+    noShows: ExamEnrolment[] = [];
+    abortedExams: Review[] = [];
+    inProgressReviews: Review[] = [];
+    gradedReviews: Review[] = [];
+    gradedLoggedReviews: Review[] = [];
+    archivedReviews: Review[] = [];
+    languageInspectedReviews: Review[] = [];
+    rejectedReviews: Review[] = [];
 
-    constructor(private modal: NgbModal, private http: HttpClient, private ReviewList: ReviewListService) {}
+    constructor(
+        private modal: NgbModal,
+        private http: HttpClient,
+        private ReviewList: ReviewListService,
+        private Tabs: ExamTabService,
+    ) {}
 
     ngOnInit() {
+        this.refreshLists();
         // No-shows
         if (this.collaborative) {
-            // TODO: Fetch collaborative no-shows from xm.
+            //TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe(resp => (this.noShows = resp));
         }
+        this.Tabs.notifyTabChange(4);
     }
 
     ngOnChanges = () => {
+        this.refreshLists();
+    };
+
+    refreshLists = () => {
         this.abortedExams = this.filterByState(['ABORTED'], this.reviews);
         this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED'], this.reviews);
         this.gradedReviews = this.filterByState(
@@ -115,6 +128,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
@@ -125,6 +139,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'lg',
         });
         modalRef.componentInstance.noShows = this.noShows;
     };

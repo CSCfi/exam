@@ -32,7 +32,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
 
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
-        logger.warn("onClientError: URL: {}, status: {}, msg: {}", request.uri(), statusCode, message);
+        logger.warn("onClientError: {} {}, status: {}, msg: {}", request.method(), request.uri(), statusCode, message);
         Result result;
         switch (statusCode) {
             case Http.Status.BAD_REQUEST:
@@ -56,7 +56,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
 
     @Override
     public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
-        logger.error("onServerError: URL: {}", request.uri(), exception);
+        logger.error("onServerError: {} {}", request.method(), request.uri(), exception);
         Throwable cause = exception.getCause();
         String errorMessage = cause == null ? exception.getMessage() : cause.getMessage();
         Result result = Results.internalServerError(Json.toJson(new ApiError(errorMessage)));

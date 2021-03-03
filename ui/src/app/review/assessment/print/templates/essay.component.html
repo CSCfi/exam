@@ -11,7 +11,7 @@
         <div class="sub-content-row col-md-9">
             <span [hidden]="sectionQuestion.question.attachment">N/A</span>
             <span *ngIf="sectionQuestion.question.attachment">
-                {{ sectionQuestion.question.attachment.fileName }}&nbsp;
+                {{ sectionQuestion.question.attachment?.fileName }}&nbsp;
             </span>
         </div>
     </div>
@@ -39,15 +39,15 @@
     <!-- answer -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
-        <div class="sub-content-row col-md-9"><span [MathJax]="sectionQuestion.essayAnswer.answer"></span>&nbsp;</div>
+        <div class="sub-content-row col-md-9"><span [MathJax]="sectionQuestion.essayAnswer?.answer"></span>&nbsp;</div>
     </div>
     <!-- answer attachment -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <div [hidden]="sectionQuestion.essayAnswer.attachment">N/A</div>
-            <div *ngIf="sectionQuestion.essayAnswer.attachment">
-                {{ sectionQuestion.essayAnswer.attachment.fileName }}
+            <div [hidden]="sectionQuestion.essayAnswer?.attachment">N/A</div>
+            <div *ngIf="sectionQuestion.essayAnswer?.attachment">
+                {{ sectionQuestion.essayAnswer?.attachment?.fileName }}
             </div>
         </div>
     </div>
@@ -63,7 +63,7 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             {{ sectionQuestion.expectedWordCount }}&nbsp; ({{ 'sitnet_approximately' | translate }}
-            {{ sectionQuestion.expectedWordCount * 8 }} {{ 'sitnet_characters' | translate }})
+            {{ sectionQuestion.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
         </div>
     </div>
     <!-- grade -->
@@ -77,10 +77,10 @@
                 {{ getScore() }} / {{ sectionQuestion.maxScore }}
             </span>
             <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                <div *ngIf="sectionQuestion.essayAnswer.evaluatedScore == 1">
+                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore == 1">
                     {{ 'sitnet_approved' | translate }}
                 </div>
-                <div *ngIf="sectionQuestion.essayAnswer.evaluatedScore == 0">
+                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore == 0">
                     {{ 'sitnet_rejected' | translate }}
                 </div>
             </span>

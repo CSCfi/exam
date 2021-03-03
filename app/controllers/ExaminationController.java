@@ -258,10 +258,8 @@ public class ExaminationController extends BaseController {
                                     notifyTeachers(exam);
                                 }
                                 autoEvaluationHandler.autoEvaluate(exam);
-                                return ok("Exam sent for review").withSession(session);
-                            } else {
-                                return ok("exam already returned").withSession(session);
                             }
+                            return ok().withSession(session);
                         }
                     )
             );
@@ -291,9 +289,9 @@ public class ExaminationController extends BaseController {
                                 if (exam.isPrivate()) {
                                     notifyTeachers(exam);
                                 }
-                                return ok("Exam aborted").withSession(session);
+                                return ok().withSession(session);
                             } else {
-                                return forbidden("Exam already returned").withSession(session);
+                                return forbidden().withSession(session);
                             }
                         }
                     )

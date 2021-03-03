@@ -14,13 +14,17 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { noop } from 'rxjs';
 
-import { Exam, ExamParticipation } from '../../../exam/exam.model';
-import { SessionService, User } from '../../../session/session.service';
+import { ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
+import { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Review } from '../../review.model';
 import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
-import { ReviewListService, ReviewListView } from '../reviewList.service';
+import { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
 
 @Component({
     selector: 'rl-in-progress',
@@ -50,7 +54,7 @@ export class InProgressReviewsComponent {
     getLinkToAssessment = (review: ExamParticipation) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-            : `/assessments/${review.exam.id}`;
+            : `/assessments/${review.exam?.id}`;
 
     pageSelected = (page: number) => (this.view.page = page);
 
@@ -71,5 +75,6 @@ export class InProgressReviewsComponent {
             })
             .result.then(params =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
-            );
+            )
+            .catch(noop);
 }

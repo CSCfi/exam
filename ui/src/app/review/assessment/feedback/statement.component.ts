@@ -16,10 +16,10 @@ import { Component, Input } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
+import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-statement',
     templateUrl: './statement.component.html',
@@ -27,12 +27,24 @@ import { MaturityService } from '../maturity/maturity.service';
 export class StatementComponent {
     @Input() exam: Exam;
     hideEditor = false;
+    statement = '';
 
     constructor(private Attachment: AttachmentService, private Files: FileService, private Maturity: MaturityService) {}
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 
     toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
+
+    onChange = (value: string) => {
+        if (!this.exam.languageInspection) {
+            return;
+        }
+        if (!this.exam.languageInspection.statement?.comment) {
+            this.exam.languageInspection.statement = { comment: value };
+        } else {
+            this.exam.languageInspection.statement.comment = value;
+        }
+    };
 
     saveInspectionStatement = () =>
         this.Maturity.saveInspectionStatement$(this.exam).subscribe(resp => (this.exam.languageInspection = resp));
@@ -47,7 +59,7 @@ export class StatementComponent {
                 this.Files.upload(
                     `/app/attachment/exam/${this.exam.id}/feedback`,
                     res.$value.attachmentFile,
-                    { examId: this.exam.id },
+                    { examId: this.exam.id.toString() },
                     this.exam.examFeedback,
                 );
             }),

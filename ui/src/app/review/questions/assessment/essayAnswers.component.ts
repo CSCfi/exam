@@ -21,7 +21,7 @@ import { QuestionReviewService } from '../questionReview.service';
     selector: 'essay-answers',
     template: `
         <div class="top-row">
-            <div class="col-md-12" ng-repeat="answer in answers">
+            <div class="col-md-12" *ngFor="let answer of answers">
                 <essay-answer
                     [answer]="answer"
                     [editable]="editable"

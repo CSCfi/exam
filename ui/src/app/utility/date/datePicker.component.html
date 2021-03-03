@@ -1,48 +1,27 @@
-<form class="form-inline">
-    <div class="form-group">
-        <div class="input-group">
-            <input
-                class="form-control"
-                [disabled]="disabled"
-                [required]="!optional"
-                placeholder="yyyy-mm-dd"
-                name="dp"
-                [(ngModel)]="date"
-                ngbDatepicker
-                #d="ngbDatepicker"
-                [startDate]="initialDate"
-                [showWeekNumbers]="true"
-                (dateSelect)="dateChanged($event)"
-            />
-            <div class="input-group-append">
-                <button class="btn btn-primary green border-green" (click)="d.toggle()" type="button">
-                    <img
-                        src="/assests/assets/images/reservation_calendar.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='assets/images/reservation_calendar.png';"
-                    />
-                </button>
-                <!-- extra btn -->
-            </div>
+<form class="form">
+    <div class="input-group">
+        <input
+            [disabled]="disabled"
+            [required]="!optional"
+            placeholder="yyyy-mm-dd"
+            name="dp"
+            [(ngModel)]="date"
+            ngbDatepicker
+            #d="ngbDatepicker"
+            [startDate]="initialDate"
+            [showWeekNumbers]="true"
+            (dateSelect)="dateChange()"
+            (blur)="dateChange()"
+        />
+        <div class="input-group-append">
+            <button class="btn btn-primary green border-green" [disabled]="disabled" (click)="d.toggle()" type="button">
+                <img
+                    src="/assests/assets/images/reservation_calendar.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/reservation_calendar.png';"
+                />
+            </button>
+            <!-- extra btn -->
         </div>
     </div>
 </form>
-
-<!--div class="input-group">
-    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" [ng-model-options]="modelOptions"
-        (change)="dateChanged()" [is-open]="opened" [datepicker-options]="options" close-text="{{'sitnet_close' | translate}}"
-        current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
-        date-validator ng-required="!$ctrl.optional">
-    <span class="input-group-btn">
-        <button class="btn btn-default green" ng-click="$ctrl.openPicker($event)">
-            <img src="assets/images/reservation_calendar.svg" alt="exam" onerror="this.onerror=null;this.src='assets/images/reservation_calendar.png';" />
-        </button>
-    </span>
-    < Optional extra button -->
-<!--span ng-if="$ctrl.extra" class="input-group-btn">
-    <button ng-click="$ctrl.extraClicked()" class="btn btn-primary green border-green" style="margin-left: 1px">{{$ctrl.extraText
-        |
-        translate}}
-    </button>
-</span>
-</div-->

@@ -15,12 +15,20 @@
 
 package controllers.base
 
-import play.api.mvc.InjectedController
+import controllers.Assets
+import play.api.{Environment, Mode}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
-class FrontendRouterController extends InjectedController {
+import javax.inject.Inject
 
-  // Appends a hashbang to path and routes the request back so frontend can try to step in to handle this request
-  def routeToFront(path: String) = Action { implicit request =>
-    Redirect(s"/#${request.uri}")
+class FrontendRouterController @Inject()(assets: Assets, cc: ControllerComponents, env: Environment)
+    extends AbstractController(cc) {
+
+  def index(): Action[AnyContent] = env.mode match {
+    case Mode.Dev => assets.at("dev-index.html")
+    case _        => assets.at("index.html")
   }
+  // Just pass the index page and let client take it from there
+  def otherwise(path: String): Action[AnyContent] = index()
+
 }

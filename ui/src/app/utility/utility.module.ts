@@ -30,6 +30,7 @@ import { DiffInMinutesPipe } from './date/minuteDiff.pipe';
 import { ConfirmationDialogComponent } from './dialogs/confirmationDialog.component';
 import { ConfirmationDialogService } from './dialogs/confirmationDialog.service';
 import { FileService } from './file/file.service';
+import { FilterByPipe } from './filter/filterBy.pipe';
 import { DynamicFormComponent } from './forms/dynamicForm.component';
 import { DynamicFormQuestionComponent } from './forms/dynamicFormQuestion.component';
 import { QuestionControlService } from './forms/questionControl.service';
@@ -45,6 +46,8 @@ import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
+import { MaxDirective } from './validation/maxValue.directive';
+import { MinDirective } from './validation/minValue.directive';
 import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
 import { WindowRef } from './window/window.service';
 
@@ -72,6 +75,9 @@ import { WindowRef } from './window/window.service';
         DiffInMinutesPipe,
         DiffInDaysPipe,
         DynamicFormComponent,
+        FilterByPipe,
+        MinDirective,
+        MaxDirective,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -95,6 +101,9 @@ import { WindowRef } from './window/window.service';
         DiffInDaysPipe,
         DynamicFormComponent,
         DynamicFormQuestionComponent,
+        FilterByPipe,
+        MinDirective,
+        MaxDirective,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

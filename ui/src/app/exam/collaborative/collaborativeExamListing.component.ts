@@ -12,17 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../session/session.service';
-import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
+import { SessionService } from '../../session/session.service';
+import { CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
 
+import { OnInit } from '@angular/core';
+import { User } from '../../session/session.service';
+import { CollaborativeExam } from '../exam.model';
 enum ListingView {
     PUBLISHED = 'PUBLISHED',
     EXPIRED = 'EXPIRED',
@@ -49,6 +52,7 @@ export class CollaborativeExamListingComponent implements OnInit {
     filter: { text: string };
     loader: { loading: boolean };
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private state: StateService,
@@ -56,7 +60,14 @@ export class CollaborativeExamListingComponent implements OnInit {
         private Session: SessionService,
         private CollaborativeExam: CollaborativeExamService,
     ) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(this.doSearch);
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {
@@ -73,7 +84,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.CollaborativeExam.listExams()
             .pipe(
                 tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
-                finalize(() => (this.loader = { loading: false })),
+                finalize(() => (this.loader.loading = false)),
             )
             .subscribe();
 
@@ -124,7 +135,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.CollaborativeExam.createExam().subscribe(
             (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
-                this.state.go('collaborativeExamEditor', { id: exam.id, tab: 1 });
+                this.state.go('examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
             },
             err => toast.error(err.data),
         );
@@ -155,10 +166,8 @@ export class CollaborativeExamListingComponent implements OnInit {
 
         this.CollaborativeExam.searchExams(text)
             .pipe(
-                tap(
-                    exams => (this.exams = this.returnListedCollaborativeExams(exams)),
-                    finalize(() => (this.loader = { loading: false })),
-                ),
+                tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
+                finalize(() => (this.loader.loading = false)),
             )
             .subscribe();
     };

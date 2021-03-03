@@ -19,7 +19,8 @@ import * as _ from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 import { QuestionReview, ReviewQuestion } from '../../review.model';
@@ -34,7 +35,7 @@ export class QuestionAssessmentComponent {
     examId: number;
     ids: number[];
     reviews: QuestionReview[] = [];
-    selectedReview: QuestionReview;
+    selectedReview: QuestionReview & { expanded: boolean };
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
@@ -118,7 +119,7 @@ export class QuestionAssessmentComponent {
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
     setSelectedReview = (review: QuestionReview) => {
-        this.selectedReview = review;
+        this.selectedReview = { ...review, expanded: true };
         this.assessedAnswers = this.selectedReview.answers.filter(
             a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
         );

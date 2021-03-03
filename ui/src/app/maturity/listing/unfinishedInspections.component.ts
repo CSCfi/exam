@@ -1,9 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService, User } from '../../session/session.service';
-import { LanguageInspectionData } from '../languageInspections.component';
+import { SessionService } from '../../session/session.service';
 import { LanguageInspectionService } from '../languageInspections.service';
+
+import { OnChanges } from '@angular/core';
+import { User } from '../../session/session.service';
+import { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspection } from '../maturity.model';
 
 /*
@@ -24,30 +27,29 @@ import { LanguageInspection } from '../maturity.model';
     selector: 'unfinished-inspections',
     templateUrl: './unfinishedInspections.component.html',
 })
-export class UnfinishedInspectionsComponent implements OnInit {
-    @Input() inspections: LanguageInspectionData[];
+export class UnfinishedInspectionsComponent implements OnChanges {
+    @Input() inspections: LanguageInspectionData[] = [];
 
-    filteredInspections: LanguageInspectionData[];
+    filteredInspections: LanguageInspectionData[] = [];
     user: User;
-    sorting: { predicate: string; reverse: boolean };
+    sorting = {
+        predicate: 'created',
+        reverse: false,
+    };
     pageSize = 10;
     currentPage = 0;
-    filterText: string;
+    filterText = '';
     hideItems = false;
 
     constructor(
         private translate: TranslateService,
         private LanguageInspection: LanguageInspectionService,
-        private Session: SessionService,
-    ) {}
+        Session: SessionService,
+    ) {
+        this.user = Session.getUser();
+    }
 
-    ngOnInit() {
-        this.user = this.Session.getUser();
-        this.sorting = {
-            predicate: 'created',
-            reverse: false,
-        };
-        this.filterText = '';
+    ngOnChanges() {
         this.filterTextChanged();
     }
 

@@ -13,25 +13,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
-import { AutoEvaluationConfig, Exam, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 import { PublicationDialogComponent } from './publicationDialog.component';
 import { PublicationErrorDialogComponent } from './publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './publicationRevocationDialog.component';
+
+import { OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { User } from '../../../session/session.service';
+import { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import { ExamTabService } from '../examTabs.service';
 
 @Component({
     selector: 'exam-publication',
@@ -40,13 +46,12 @@ import { PublicationRevocationDialogComponent } from './publicationRevocationDia
 export class ExamPublicationComponent implements OnInit {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onPreviousTabSelected = new EventEmitter<void>();
-    @Output() onNextTabSelected = new EventEmitter<void>();
 
     user: User;
     hostName: string;
     autoEvaluation: { enabled: boolean };
     examDurations: number[];
+    visibleParticipantSelector = 'participant';
 
     constructor(
         private http: HttpClient,
@@ -57,6 +62,7 @@ export class ExamPublicationComponent implements OnInit {
         private Session: SessionService,
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
+        private Tabs: ExamTabService,
     ) {}
 
     ngOnInit() {
@@ -69,6 +75,7 @@ export class ExamPublicationComponent implements OnInit {
             data => (this.examDurations = data.examDurations),
             error => toast.error(error),
         );
+        this.Tabs.notifyTabChange(3);
     }
 
     addExaminationDate = (date: Date) => {
@@ -93,8 +100,8 @@ export class ExamPublicationComponent implements OnInit {
         });
     };
 
-    startDateChanged = (date: string) => (this.exam.examActiveStartDate = date);
-    endDateChanged = (date: string) => (this.exam.examActiveEndDate = date);
+    startDateChanged = (event: { date: string }) => (this.exam.examActiveStartDate = event.date);
+    endDateChanged = (event: { date: string }) => (this.exam.examActiveEndDate = event.date);
 
     autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
         Object.assign(this.exam.autoEvaluationConfig, config);
@@ -105,7 +112,7 @@ export class ExamPublicationComponent implements OnInit {
         this.exam.gradeScale &&
         this.exam.executionType.type !== 'MATURITY';
 
-    updateExam$ = (silent?: boolean, overrides?: any): Observable<Exam> => {
+    private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
         const config = {
             evaluationConfig:
                 this.autoEvaluation.enabled && this.canBeAutoEvaluated()
@@ -160,8 +167,14 @@ export class ExamPublicationComponent implements OnInit {
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    nextTab = () => this.onNextTabSelected.emit();
-    previousTab = () => this.onPreviousTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(4);
+        this.state.go('examEditor.assessments');
+    };
+    previousTab = () => {
+        this.Tabs.notifyTabChange(2);
+        this.state.go('examEditor.sections');
+    };
 
     saveAndPublishExam = () => {
         const errors: string[] = this.isDraftCollaborativeExam()
@@ -233,10 +246,11 @@ export class ExamPublicationComponent implements OnInit {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
+            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
                 this.exam.examinationEventConfigurations.push(config);
             });
         });
@@ -246,11 +260,12 @@ export class ExamPublicationComponent implements OnInit {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
+            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
                 (config: ExaminationEventConfiguration) => {
                     const index = this.exam.examinationEventConfigurations.indexOf(configuration);
                     console.log(index);
@@ -270,7 +285,7 @@ export class ExamPublicationComponent implements OnInit {
             this.translate.instant('sitnet_are_you_sure'),
         )
             .result.then(() =>
-                this.Exam.removeExaminationEvent(this.exam.id, configuration).subscribe(
+                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe(
                     () => {
                         this.exam.examinationEventConfigurations.splice(
                             this.exam.examinationEventConfigurations.indexOf(configuration),
@@ -290,9 +305,7 @@ export class ExamPublicationComponent implements OnInit {
     private countQuestions = () => this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
 
     private hasDuplicatePercentages = () => {
-        if (!this.exam.autoEvaluationConfig) {
-            return false;
-        }
+        if (!this.exam.autoEvaluationConfig) return false;
         const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map(e => e.percentage).sort();
         for (let i = 0; i < percentages.length - 1; ++i) {
             if (percentages[i + 1] === percentages[i]) {

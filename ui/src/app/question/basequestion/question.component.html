@@ -13,10 +13,10 @@
             </div>
         </div>
     </div>
-    <div class="marl50 marr50">
+    <div class="row marl50 marr50">
         <!-- Question body //-->
         <div class="col-md-12 question-border padl40 padr40">
-            <form role="form" #questionForm class="form-horizontal" name="questionForm" novalidate>
+            <form role="form" #form="ngForm" class="form-horizontal" name="form" novalidate>
                 <question-body
                     *ngIf="question"
                     [question]="question"
@@ -31,7 +31,9 @@
             <div class="mart20">
                 <div class="question-cancel">
                     <button
-                        [disabled]="!question.type || hasNoCorrectOption() || hasInvalidClaimChoiceOptions()"
+                        [disabled]="
+                            !question.type || hasNoCorrectOption() || hasInvalidClaimChoiceOptions() || form.invalid
+                        "
                         (click)="saveQuestion()"
                         type="submit"
                         class="btn btn-success bigbutton"

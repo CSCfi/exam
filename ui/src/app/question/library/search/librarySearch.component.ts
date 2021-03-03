@@ -12,14 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { tap } from 'rxjs/operators';
 
-import { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
-import { SessionService, User } from '../../../session/session.service';
-import { LibraryQuestion, LibraryService } from '../library.service';
+import { SessionService } from '../../../session/session.service';
+import { LibraryService } from '../library.service';
 
+import { OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
+import { User } from '../../../session/session.service';
+import { LibraryQuestion } from '../library.service';
 interface Filterable<T> {
     id: number;
     filtered: boolean;
@@ -153,14 +156,18 @@ export class LibrarySearchComponent implements OnInit {
         }
     };
 
-    getTags = (): Filterable<any>[] => {
-        const courses: Filterable<any>[] = this.courses.filter(_ => _.filtered);
-        const exams: Filterable<any>[] = this.exams.filter(_ => _.filtered);
-        const tags: Filterable<any>[] = this.tags.filter(_ => _.filtered);
-        return courses.concat(exams).concat(tags);
+    getTags = (): (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] => {
+        const courses = this.courses.filter(_ => _.filtered);
+        const exams = this.exams.filter(_ => _.filtered);
+        const tags = this.tags.filter(_ => _.filtered);
+        const res: (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] = [];
+        return res
+            .concat(courses)
+            .concat(exams)
+            .concat(tags);
     };
 
-    applyFilter = (tag: Filterable<any>) => {
+    applyFilter = (tag: Filterable<Tag>) => {
         tag.filtered = !tag.filtered;
         this.query().subscribe(() => this.applySearchFilter());
     };

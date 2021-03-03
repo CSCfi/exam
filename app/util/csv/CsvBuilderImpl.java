@@ -43,7 +43,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import play.Logger;
-import util.AppUtil;
 
 public class CsvBuilderImpl implements CsvBuilder {
 

@@ -9,5 +9,6 @@ export interface LanguageInspection {
     finishedAt?: Date;
     approved?: boolean;
     modifier: User;
+    creator: User;
     statement: { attachment?: Attachment; comment?: string };
 }

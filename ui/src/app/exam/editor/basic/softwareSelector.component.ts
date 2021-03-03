@@ -13,11 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam, Software } from '../../exam.model';
+import { Exam } from '../../exam.model';
+
+import { OnInit } from '@angular/core';
+import { Software } from '../../exam.model';
 
 @Component({
     selector: 'software-selector',
@@ -26,12 +29,12 @@ import { Exam, Software } from '../../exam.model';
 export class SoftwareSelectorComponent implements OnInit {
     @Input() exam: Exam;
 
-    software: unknown[];
+    software: Software[];
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<unknown[]>('/app/softwares').subscribe(data => (this.software = data));
+        this.http.get<Software[]>('/app/softwares').subscribe(data => (this.software = data));
     }
 
     selectedSoftware = () =>

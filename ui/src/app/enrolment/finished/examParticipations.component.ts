@@ -12,40 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { animate, state, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { OnInit } from '@angular/core';
 import { ExamParticipation } from '../../exam/exam.model';
 
 @Component({
     selector: 'exam-participations',
     templateUrl: './examParticipations.component.html',
-    animations: [
-        trigger('openClose', [
-            state('open', style({ opacity: 1 })),
-            transition('void => *', [style({ opacity: 0 }), animate(700)]),
-            transition('* => void', [animate(700, style({ opacity: 1 }))]),
-        ]),
-    ],
 })
 export class ExamParticipationsComponent implements OnInit {
-    filter = { ordering: '-ended', text: '' };
+    filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
     participations: ExamParticipation[];
+    collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(private http: HttpClient) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(this.doSearch);
     }
 
     ngOnInit() {
         this.search('');
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     search = (text: string) => this.filterChanged.next(text);

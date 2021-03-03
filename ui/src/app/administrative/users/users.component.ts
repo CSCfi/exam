@@ -1,12 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../session/session.service';
-import { Permission, PermissionType, UserManagementService } from './users.service';
+import { SessionService } from '../../session/session.service';
+import { PermissionType, UserManagementService } from './users.service';
+
+import { OnInit } from '@angular/core';
+import { User } from '../../session/session.service';
+import { Permission } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -33,12 +37,13 @@ interface UserWithOptions extends User {
     selector: 'users',
 })
 export class UsersComponent implements OnInit {
-    users: User[] = [];
-    filteredUsers: User[] = [];
+    users: UserWithOptions[] = [];
+    filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
     currentPage = 0;
     filter = { text: '' };
-    textChanged: Subject<string> = new Subject<string>();
+    textChanged = new Subject<string>();
+    ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
         { type: 'ADMIN', name: 'sitnet_admin', icon: 'bi-gear' },
         { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
@@ -52,10 +57,17 @@ export class UsersComponent implements OnInit {
         private session: SessionService,
         private userManagement: UserManagementService,
     ) {
-        this.textChanged.pipe(debounceTime(1000), distinctUntilChanged()).subscribe(text => {
-            this.filter.text = text;
-            this.search();
-        });
+        this.textChanged
+            .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(text => {
+                this.filter.text = text;
+                this.search();
+            });
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     ngOnInit() {
@@ -76,7 +88,7 @@ export class UsersComponent implements OnInit {
         this.loader = { loading: false };
     }
 
-    pageSelected = (page: number) => (this.currentPage = page);
+    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
     search = () => {
         this.loader.loading = true;
@@ -203,7 +215,7 @@ export class UsersComponent implements OnInit {
     initSearch = () => {
         this.userManagement.getUsers(this.filter.text).subscribe(
             users => {
-                this.users = users;
+                this.users = users as UserWithOptions[];
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
                 });

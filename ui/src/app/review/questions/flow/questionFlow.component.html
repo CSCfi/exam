@@ -13,7 +13,7 @@
 <question-flow-category
     *ngIf="finished"
     categoryTitle="sitnet_all_finished"
-    [reviews]="$ctrl.finished"
+    [reviews]="finished"
     [allDone]="true"
     (onSelection)="questionSelected($event)"
 >

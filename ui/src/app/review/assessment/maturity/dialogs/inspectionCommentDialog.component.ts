@@ -49,7 +49,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     `,
 })
 export class InspectionCommentDialogComponent {
-    data = {};
+    data = { comment: '' };
     constructor(private modal: NgbActiveModal) {}
 
     ok = () => this.modal.close(this.data);

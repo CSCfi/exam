@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AdministrativeModule } from './administrative/administrative.module';
@@ -32,6 +32,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExamModule } from './exam/exam.module';
 import { ExaminationModule } from './examination/examination.module';
+import { FacilityModule } from './facility/facility.module';
 import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
 import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
 import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
@@ -39,7 +40,6 @@ import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
 import { QuestionModule } from './question/question.module';
 import { ReviewModule } from './review/review.module';
-
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { SoftwareModule } from './software/software.module';
@@ -47,7 +47,7 @@ import { UtilityModule } from './utility/utility.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http);
+    return new TranslateHttpLoader(http, '/assets/assets/i18n/');
 }
 
 @NgModule({
@@ -58,7 +58,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         HttpClientModule,
         FormsModule,
         TranslateModule.forRoot({
-            defaultLanguage: 'en',
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,
@@ -80,14 +79,13 @@ export function HttpLoaderFactory(http: HttpClient) {
         MaturityModule,
         AdministrativeModule,
         SoftwareModule,
+        FacilityModule,
     ],
     declarations: [AppComponent],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-        /*{
-            provide: HTTP_INTERCEPTORS, useClass: ExaminationInterceptor, multi: true,
-        },*/
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ExaminationInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
         {
             provide: LOCALE_ID,
             deps: [SessionService],

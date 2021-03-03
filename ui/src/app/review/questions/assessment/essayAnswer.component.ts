@@ -38,7 +38,7 @@ export class EssayAnswerComponent {
             ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
             : this.answer.examSection.exam.id.toString();
         this.answer.expanded = true;
-        // this.answer.essayAnswer = this.answer.essayAnswer || {};
+        this.answer.essayAnswer = this.answer.essayAnswer || {};
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
         if (this.answer.evaluationType === 'Selection') {
             this.answer.essayAnswer.textualScore = this.answer.essayAnswer.evaluatedScore

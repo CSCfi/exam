@@ -23,7 +23,6 @@ import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
-import util.AppUtil;
 
 @Entity
 public final class ExamMaterial extends OwnedModel {

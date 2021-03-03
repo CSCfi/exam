@@ -1,8 +1,7 @@
 <div *ngIf="visible">
-    <div class="row text-center">
+    <div class="row mart20 marb10">
         <div class="col-md-4">
             <div class="btn-group">
-                <!-- TODO: Check how these behave regarding max/mid dates etc -->
                 <button
                     class="btn btn-primary"
                     mwlCalendarPreviousView
@@ -10,10 +9,10 @@
                     [view]="view"
                     (click)="prevWeek(); refetch(viewDate)"
                 >
-                    Previous
+                    <i class="bi-chevron-left"></i>
                 </button>
                 <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch(viewDate)">
-                    Today
+                    {{ 'sitnet_today' | translate }}
                 </button>
                 <button
                     class="btn btn-primary"
@@ -22,9 +21,12 @@
                     [disabled]="nextWeekDisabled"
                     (click)="nextWeek(); refetch(viewDate)"
                 >
-                    Next
+                    <i class="bi-chevron-right"></i>
                 </button>
             </div>
+        </div>
+        <div class="col">
+            <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
         </div>
     </div>
     <ng-template #loading *ngIf="visible">
@@ -46,22 +48,4 @@
         >
         </mwl-calendar-week-view>
     </div>
-
-    <!--full-calendar
-        #bookingCalendar
-        [plugins]="plugins"
-        [events]="fetchEvents"
-        [locale]="options.locale"
-        [defaultDate]="options.defaultDate"
-        [editable]="options.editable"
-        [selectable]="options.selectable"
-        [defaultView]="options.defaultView"
-        [allDaySlot]="options.allDaySlot"
-        [weekNumbers]="options.weekNumbers"
-        [firstDay]="options.firstDay"
-        [slotEventOverlap]="options.slotEventOverlap"
-        (eventClick)="options.eventClick($event)"
-        id="calendar"
-    >
-    </full-calendar-->
 </div>

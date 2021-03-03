@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
+
+import { OnInit } from '@angular/core';
 
 @Component({
     selector: 'date-picker',
@@ -24,7 +26,7 @@ export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | null = null;
     @Input() extra: boolean;
     @Input() extraText: string;
-    @Input() modelOptions: any = {};
+    @Input() modelOptions: Record<string, string> = {};
     @Input() disabled: boolean;
     @Input() optional: boolean;
 
@@ -38,15 +40,16 @@ export class DatePickerComponent implements OnInit {
     ngOnInit() {
         if (this.initialDate !== null) {
             const d = moment(this.initialDate);
-            this.date = new NgbDate(d.get('year'), d.get('month'), d.get('date'));
+            this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
         }
     }
 
-    transform(value: NgbDate): Date {
-        return new Date(value.year, value.month, value.day);
+    transform(value: NgbDate | null): Date | null {
+        if (!value) return null;
+        return new Date(value.year, value.month - 1, value.day);
     }
 
-    dateChanged() {
+    dateChange() {
         this.onUpdate.emit({ date: this.transform(this.date) });
     }
 

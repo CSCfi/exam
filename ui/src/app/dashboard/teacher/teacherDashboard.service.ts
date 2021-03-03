@@ -14,13 +14,14 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Exam, ExamExecutionType } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { ReservationService } from '../../reservation/reservation.service';
 
+import { Observable } from 'rxjs';
+import { Exam, ExamExecutionType } from '../../exam/exam.model';
 export interface DraftExam extends Exam {
     ownerAggregate: string;
 }
@@ -43,8 +44,6 @@ export class Dashboard {
     archivedExams: ArchivedExam[] = [];
 }
 
-type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
-
 @Injectable()
 export class TeacherDashboardService {
     constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
@@ -65,7 +64,7 @@ export class TeacherDashboardService {
     }
 
     populate = (): Observable<Dashboard> =>
-        forkJoin(this.Exam.listExecutionTypes(), this.http.get<Exam[]>('/app/reviewerexams')).pipe(
+        forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
             map(resp => {
                 const dashboard = new Dashboard();
                 dashboard.executionTypes = resp[0];
@@ -126,9 +125,9 @@ export class TeacherDashboardService {
                     if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                         dashboard.finishedExams.push({
                             ...ee,
-                            ownerAggregate,
-                            unassessedCount,
-                            unfinishedCount,
+                            ownerAggregate: ownerAggregate,
+                            unassessedCount: unassessedCount,
+                            unfinishedCount: unfinishedCount,
                         });
                     } else {
                         if (ee.executionType.type === 'PRINTOUT') {
@@ -136,7 +135,7 @@ export class TeacherDashboardService {
                         }
                         dashboard.archivedExams.push({
                             ...ee,
-                            ownerAggregate,
+                            ownerAggregate: ownerAggregate,
                             assessedCount: this.Exam.getProcessedCount(ee),
                         });
                     }

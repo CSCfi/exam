@@ -116,7 +116,7 @@
             <div [innerHtml]="exam.instruction"></div>
         </div>
     </div>
-    <div *ngFor="let es of exam.examSections | orderBy: 'index'">
+    <div *ngFor="let es of exam.examSections | orderBy: 'sequenceNumber'">
         <div class="prow">
             <div class="col-md-12">
                 <h4>{{ es.name }}</h4>

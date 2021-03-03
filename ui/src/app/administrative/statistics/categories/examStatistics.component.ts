@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
+import { OnInit } from '@angular/core';
 interface ExamInfo {
     name: string;
     participations: number;

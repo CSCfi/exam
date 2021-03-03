@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
-import { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
+import { OnInit } from '@angular/core';
+import { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
+import { ExamEnrolment } from '../enrolment.model';
 @Component({
     selector: 'wrong-location',
     templateUrl: './wrongLocation.component.html',
@@ -35,6 +36,7 @@ export class WrongLocationComponent implements OnInit {
     isUpcoming: boolean;
     roomInstructions: string;
     currentMachine: ExamMachine;
+    occasion: { startAt: string; endAt: string };
 
     constructor(
         private http: HttpClient,
@@ -79,7 +81,7 @@ export class WrongLocationComponent implements OnInit {
 
     printExamDuration = () => this.DateTime.printExamDuration(this.enrolment.exam);
 
-    private setOccasion = (reservation: any) => {
+    private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
         const start = moment.tz(reservation.startAt, tz);
         const end = moment.tz(reservation.endAt, tz);
@@ -89,7 +91,7 @@ export class WrongLocationComponent implements OnInit {
         if (end.isDST()) {
             end.add(-1, 'hour');
         }
-        reservation.occasion = {
+        this.occasion = {
             startAt: start.format('HH:mm'),
             endAt: end.format('HH:mm'),
         };

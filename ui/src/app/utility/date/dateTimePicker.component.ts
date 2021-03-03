@@ -17,16 +17,17 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'date-time-picker',
     template: `
-        <div>
-            <div id="datetimepicker" class="datetimepicker-wrapper">
+        <div class="row align-items-center">
+            <div class="col-auto">
                 <date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
                     (onUpdate)="onDateUpdate($event)"
                 ></date-picker>
             </div>
-            <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+            <div class="col">
                 <ngb-timepicker
+                    name="timepicker"
                     [disabled]="disabled"
                     [(ngModel)]="time"
                     (ngModelChange)="onTimeUpdate($event)"
@@ -45,19 +46,20 @@ export class DateTimePickerComponent {
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
     date: Date;
-    time: Date;
+    time: { hour: number; minute: number; second: number; millisecond?: number };
 
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
         this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time.setHours(dt.getHours());
-        this.time.setMinutes(dt.getMinutes());
-        this.time.setSeconds(0);
-        this.time.setMilliseconds(0);
+        this.time.hour = dt.getHours();
+        this.time.minute = dt.getMinutes();
+        this.time.second = 0;
+        this.time.millisecond = 0;
     };
 
     ngOnInit() {
-        this.time = new Date();
+        const now = new Date();
+        this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
         this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
@@ -65,18 +67,18 @@ export class DateTimePickerComponent {
     }
 
     onTimeUpdate() {
-        this.date.setHours(this.time.getHours());
-        this.date.setMinutes(this.time.getMinutes());
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });
     }
 
-    onDateUpdate() {
-        this.date.setFullYear(this.date.getFullYear());
-        this.date.setMonth(this.date.getMonth(), this.date.getDate());
-        this.date.setHours(this.time.getHours());
-        this.date.setMinutes(this.time.getMinutes());
+    onDateUpdate(event: { date: Date }) {
+        this.date.setFullYear(event.date.getFullYear());
+        this.date.setMonth(event.date.getMonth(), event.date.getDate());
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
         this.onUpdate.emit({ date: this.date });

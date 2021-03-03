@@ -13,29 +13,41 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { RootModule, UIRouter, UIRouterModule } from '@uirouter/angular';
-import { visualizer } from '@uirouter/visualizer';
+import { Transition, UIRouterModule } from '@uirouter/angular';
 
+import { ReportsComponent } from './administrative/reports/reports.component';
 import { SettingsComponent } from './administrative/settings/settings.component';
+import { StatisticsComponent } from './administrative/statistics/statistics.component';
 import { UsersComponent } from './administrative/users/users.component';
+import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExamEnrolmentsComponent } from './enrolment/exams/examEnrolments.component';
-import { CollaborativeExamParticipationsComponent } from './enrolment/finished/collaborativeExamParticipations.component';
+import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborativeExamParticipations.component';
 import { ExamParticipationsComponent } from './enrolment/finished/examParticipations.component';
 import { CollaborativeExamSearchComponent } from './enrolment/search/collaborativeExamSearch.component';
 import { ExamSearchComponent } from './enrolment/search/examSearch.component';
 import { WaitingRoomComponent } from './enrolment/waiting-room/waitingRoom.component';
 import { WrongLocationComponent } from './enrolment/wrong-location/wrongLocation.component';
+import { CollaborativeExamService } from './exam/collaborative/collaborativeExam.service';
 import { CollaborativeExamListingComponent } from './exam/collaborative/collaborativeExamListing.component';
+import { BasicExamInfoComponent } from './exam/editor/basic/basicExamInfo.component';
 import { CourseSelectionComponent } from './exam/editor/creation/courseSelection.component';
 import { NewExamComponent } from './exam/editor/creation/newExam.component';
 import { ExamTabsComponent } from './exam/editor/examTabs.component';
+import { ExamPublicationComponent } from './exam/editor/publication/examPublication.component';
+import { SectionsListComponent } from './exam/editor/sections/sectionsList.component';
+import { ExamService } from './exam/exam.service';
 import { ExamListingComponent } from './exam/listing/examList.component';
 import { PrintoutComponent } from './exam/printout/printout.component';
 import { PrintoutListingComponent } from './exam/printout/printoutListing.component';
 import { ExaminationComponent } from './examination/examination.component';
 import { ExaminationLogoutComponent } from './examination/logout/examinationLogout.component';
+import { ExamRoomsAdminTabsComponent } from './facility/examRoomsAdminTabs.component';
+import { MachineComponent } from './facility/machines/machine.component';
+import { AvailabilityComponent } from './facility/rooms/availability.component';
+import { MultiRoomComponent } from './facility/rooms/multiRoom.component';
+import { RoomComponent } from './facility/rooms/room.component';
 import { LanguageInspectionsComponent } from './maturity/languageInspections.component';
 import { MaturityReportingComponent } from './maturity/reporting/maturityReporting.component';
 import { QuestionComponent } from './question/basequestion/question.component';
@@ -43,19 +55,25 @@ import { LibraryComponent } from './question/library/library.component';
 import { TeacherReservationComponent } from './reservation/teacher/teacherReservations.component';
 import { AssessmentComponent } from './review/assessment/assessment.component';
 import { PrintedAssessmentComponent } from './review/assessment/print/printedAssessment.component';
+import { ReviewListComponent } from './review/listing/reviewList.component';
+import { ReviewListService } from './review/listing/reviewList.service';
 import { SpeedReviewComponent } from './review/listing/speedReview.component';
+import { ExamSummaryComponent } from './review/listing/summary/examSummary.component';
 import { QuestionAssessmentComponent } from './review/questions/assessment/questionAssessment.component';
+import { QuestionReviewsComponent } from './review/questions/listing/questionReviews.component';
 import { LogoutComponent } from './session/logout/logout.component';
 import { SoftwareComponent } from './software/software.component';
 
+import { RootModule, UIRouter } from '@uirouter/angular';
+import { Exam } from './exam/exam.model';
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
     // If the browser URL doesn't matches any state when the router starts,
     // go to the `dashboard` state by default
-    router.urlService.rules.initial({ state: 'dashboard' });
+    router.urlService.rules.initial({ state: 'app' });
 
     // Use @uirouter/visualizer to show the states and transitions
-    visualizer(router);
+    // visualizer(router);
 }
 
 const rootModule: RootModule = {
@@ -84,11 +102,148 @@ const rootModule: RootModule = {
             url: '/exams/new',
             component: NewExamComponent,
         },
+
+        // exam editor and its children
         {
             name: 'examEditor',
-            url: '/exams/:id/:tab',
+            url: '/exams/:id/:collaborative',
             component: ExamTabsComponent,
+            params: {
+                collaborative: {
+                    value: 'regular',
+                },
+            },
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: [ExamService, CollaborativeExamService, Transition],
+                    resolveFn: (
+                        examService: ExamService,
+                        collabService: CollaborativeExamService,
+                        transition: Transition,
+                    ) => {
+                        const id = transition.params().id;
+                        const isCollab = transition.params().collaborative == 'collaborative';
+                        return isCollab ? collabService.download(id) : examService.downloadExam(id);
+                    },
+                },
+                {
+                    token: 'collaborative',
+                    deps: [Transition],
+                    resolveFn: (transition: Transition) => transition.params().collaborative == 'collaborative',
+                },
+            ],
         },
+        {
+            name: 'examEditor.basic',
+            url: '/1',
+            component: BasicExamInfoComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+            ],
+        },
+        {
+            name: 'examEditor.sections',
+            url: '/2',
+            component: SectionsListComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+            ],
+        },
+        {
+            name: 'examEditor.publication',
+            url: '/3',
+            component: ExamPublicationComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+            ],
+        },
+        {
+            name: 'examEditor.assessments',
+            url: '/4',
+            component: ReviewListComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+                {
+                    token: 'reviews',
+                    deps: [ReviewListService, Transition, 'collaborative'],
+                    resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
+                        reviewList.getReviews(transition.params().id, collaborative),
+                },
+            ],
+        },
+        {
+            name: 'examEditor.questionReview',
+            url: '/5',
+            component: QuestionReviewsComponent,
+            resolve: [
+                {
+                    token: 'examId',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam.id,
+                },
+            ],
+        },
+        {
+            name: 'examEditor.summary',
+            url: '/6',
+            component: ExamSummaryComponent,
+            resolve: [
+                {
+                    token: 'exam',
+                    deps: ['exam'],
+                    resolveFn: (exam: Exam) => exam,
+                },
+                {
+                    token: 'collaborative',
+                    deps: ['collaborative'],
+                    resolveFn: (collaborative: boolean) => collaborative,
+                },
+                {
+                    token: 'reviews',
+                    deps: [ReviewListService, Transition, 'collaborative'],
+                    resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
+                        reviewList.getReviews(transition.params().id, collaborative),
+                },
+            ],
+        },
+
         {
             name: 'courseSelector',
             url: '/exams/:id/select/course',
@@ -128,14 +283,6 @@ const rootModule: RootModule = {
             name: 'collaborativeExams',
             url: '/exams/collaborative',
             component: CollaborativeExamListingComponent,
-        },
-        {
-            name: 'collaborativeExamEditor',
-            url: '/exams/collaborative/:id/:tab',
-            component: ExamTabsComponent,
-            resolve: {
-                collaborative: () => true,
-            },
         },
         {
             name: 'calendar',
@@ -226,7 +373,7 @@ const rootModule: RootModule = {
         {
             name: 'collaborativeParticipations',
             url: '/student/participations/collaborative',
-            component: CollaborativeExamParticipationsComponent,
+            component: CollaborativeParticipationsComponent,
         },
         {
             name: 'examinationLogout',
@@ -304,14 +451,49 @@ const rootModule: RootModule = {
             url: '/inspections/reports',
             component: MaturityReportingComponent,
         },
-        /*{
+        {
             name: 'app',
             url: '/',
-            component: AppComponent
-        }*/
+            component: AppComponent,
+        },
+        {
+            name: 'rooms',
+            url: '/rooms',
+            component: ExamRoomsAdminTabsComponent,
+        },
+        {
+            name: 'machine',
+            url: '/machines/:id',
+            component: MachineComponent,
+        },
+        {
+            name: 'room',
+            url: '/rooms/:id',
+            component: RoomComponent,
+        },
+        {
+            name: 'availability',
+            url: '/rooms/:id/availability',
+            component: AvailabilityComponent,
+        },
+        {
+            name: 'multiRoom',
+            url: '/rooms_edit/edit_multiple',
+            component: MultiRoomComponent,
+        },
+        {
+            name: 'reports',
+            url: '/reports',
+            component: ReportsComponent,
+        },
+        {
+            name: 'statistics',
+            url: '/statistics',
+            component: StatisticsComponent,
+        },
     ],
     useHash: false,
-    otherwise: 'dashboard',
+    //otherwise: 'dashboard',
     config: uiRouterConfigFn,
 };
 
@@ -320,13 +502,3 @@ const rootModule: RootModule = {
     exports: [UIRouterModule],
 })
 export class AppRoutingModule {}
-
-/*.state('rooms', { url: 'rooms', component: 'examRoomsAdminTabs', parent: 'app' })
-        .state('room', { url: 'rooms/{id}', component: 'room', parent: 'app' })
-        .state('availability', { url: 'rooms/{id}/availability', component: 'availability', parent: 'app' })
-        .state('multiRoom', { url: 'rooms_edit/edit_multiple', component: 'multiRoom', parent: 'app' })
-        .state('accessibility', { url: 'accessibility', component: 'accessibility', parent: 'app' })
-        .state('machine', { url: 'machines/{id}', component: 'machine', parent: 'app' })
-        .state('reports', { url: 'reports', component: 'reports', parent: 'app' })
-        .state('statistics', { url: 'statistics', component: 'statistics', parent: 'app' })
-*/

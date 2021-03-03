@@ -54,7 +54,6 @@ import sanitizers.Attrs;
 import sanitizers.ExamUpdateSanitizer;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import util.AppUtil;
 import util.config.ByodConfigHandler;
 import util.config.ConfigReader;
 
@@ -220,7 +219,7 @@ public class ExamController extends BaseController {
                 exam.setModifierWithDate(user);
                 exam.setState(Exam.State.DELETED);
                 exam.update();
-                return ok("Exam deleted");
+                return ok();
             }
             return forbidden("sitnet_exam_removal_not_possible");
         }

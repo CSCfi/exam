@@ -22,14 +22,15 @@ import { QuestionService } from '../question.service';
 @Component({
     selector: 'mc-option-editor',
     template: `
-        <div class="form-horizontal question-editor-option mart10">
-            <div class="col-md-12">
+        <div class="question-editor-option">
+            <div class="row">
                 <div
                     class="col-md-6 question-option-empty"
                     [ngClass]="{ 'question-correct-option': option.correctOption }"
                 >
                     <input
                         type="text"
+                        name="option-{{ index }}"
                         class="make-inline question-option-input radiobut"
                         [(ngModel)]="option.option"
                         required
@@ -40,12 +41,12 @@ import { QuestionService } from '../question.service';
                     [ngClass]="{ 'question-correct-option-radio': option.correctOption }"
                 >
                     <input
-                        name="correctOption"
+                        name="correctOption-{{ index }}"
                         type="radio"
                         [(ngModel)]="option.correctOption"
-                        value="true"
+                        [value]="true"
                         (change)="correctAnswerToggled()"
-                        [disabled]="option.correctOption == true"
+                        [disabled]="option.correctOption"
                         class="make-inline question-option-radio"
                     />
                 </div>
@@ -53,13 +54,13 @@ import { QuestionService } from '../question.service';
                 <div *ngIf="allowRemoval" (click)="removeOption()" class="col-md-1 question-option-trash">
                     <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
                 </div>
-                <div class="col-md-3"></div>
             </div>
         </div>
     `,
 })
 export class MultipleChoiceOptionEditorComponent {
     @Input() option: MultipleChoiceOption;
+    @Input() index: number;
     @Input() question: Question;
     @Input() allowRemoval: boolean; // !lotteryOn && !inPublishedExam
 

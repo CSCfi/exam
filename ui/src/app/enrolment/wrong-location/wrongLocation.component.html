@@ -1,5 +1,5 @@
 <div id="dashboard">
-    <div class="main-row" style="padding-left: 0;">
+    <div class="main-row" style="padding-left: 0">
         <div
             class="col-md-12 alert-danger exams-table-title-area"
             style="padding-bottom: 1em; padding-top: 1em; padding-left: 15px"
@@ -26,7 +26,7 @@
     <div class="detail-row" *ngIf="cause === 'room'">
         <div class="col-md-3 text">{{ 'sitnet_reserved_room' | translate }}:</div>
         <div class="col-md-9 light-text sitnet-text-ready">
-            {{ enrolment.reservation.machine.room.name }} ({{ enrolment.reservation.machine.room.roomCode }})
+            {{ enrolment.reservation?.machine.room.name }} ({{ enrolment.reservation?.machine.room.roomCode }})
         </div>
     </div>
 
@@ -50,15 +50,16 @@
     <div class="detail-row">
         <div class="col-md-3 header text">{{ 'sitnet_exam_room' | translate }}:</div>
         <strong class="col-md-9 text"
-            >{{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            >{{ enrolment.reservation?.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             {{ enrolment.reservation.machine.room.name }}({{ enrolment.reservation.machine.room.roomCode }})</strong
         >
     </div>
     <div class="detail-row">
         <div class="col-md-3 header text">{{ 'sitnet_reservation_time' | translate }}:</div>
         <strong class="col-md-9 text"
-            >{{ enrolment.reservation.startAt | date: 'dd.MM.yyyy' }} {{ enrolment.reservation.occasion.startAt }} -
-            {{ enrolment.reservation.occasion.endAt }} ({{ enrolment.reservation.machine.room.localTimezone }})
+            >{{ enrolment.reservation?.startAt | date: 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
+                enrolment.reservation?.machine.room.localTimezone
+            }})
         </strong>
     </div>
     <div class="detail-row" *ngIf="enrolment.exam.enrollInstruction">

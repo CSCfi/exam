@@ -14,10 +14,19 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam, CollaborativeExamState, ExamParticipation } from '../exam.model';
+import { CollaborativeExamState } from '../exam.model';
+
+import { Observable } from 'rxjs';
+
+import { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
+import { ReviewedExam } from '../../enrolment/enrolment.model';
+export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
+    examId: string;
+    _id: string;
+    _rev: string;
+};
 
 @Injectable()
 export class CollaborativeExamService {
@@ -25,8 +34,8 @@ export class CollaborativeExamService {
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
-    listStudentParticipations = (): Observable<ExamParticipation[]> =>
-        this.http.get<ExamParticipation[]>('/integration/iop/student/finishedExams');
+    listStudentParticipations = (): Observable<CollaborativeParticipation[]> =>
+        this.http.get<CollaborativeParticipation[]>('/integration/iop/student/finishedExams');
 
     listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
@@ -55,5 +64,9 @@ export class CollaborativeExamService {
             default:
                 return null;
         }
+    };
+
+    download = (id: number) => {
+        return this.http.get<Exam>(`/integration/iop/exams/${id}`).toPromise();
     };
 }

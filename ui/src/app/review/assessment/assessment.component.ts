@@ -19,8 +19,10 @@ import * as toast from 'toastr';
 
 import { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import { QuestionAmounts, QuestionService } from '../../question/question.service';
-import { SessionService, User } from '../../session/session.service';
+import { QuestionAmounts } from '../../question/question.service';
+import { QuestionService } from '../../question/question.service';
+import { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
@@ -37,6 +39,8 @@ export class AssessmentComponent {
     participation: ExamParticipation;
     user: User;
     backUrl: string;
+    hideGeneralInfo = false;
+    hideGradeInfo = false;
 
     constructor(
         private state: StateService,
@@ -77,9 +81,7 @@ export class AssessmentComponent {
     }
 
     isUnderLanguageInspection = () => {
-        if (!this.user) {
-            return false;
-        }
+        if (!this.user) return false;
         return (
             this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
         );
@@ -106,7 +108,11 @@ export class AssessmentComponent {
 
     setCommentRead = () => this.Assessment.setCommentRead(this.exam);
 
-    goToAssessment = () => this.state.go('examEditor', { id: this.exam.parent?.id, tab: 4 });
+    goToAssessment = () =>
+        this.state.go('examEditor.assessments', {
+            id: this.exam.parent?.id,
+            collaborative: this.collaborative ? 'collaborative' : 'false',
+        });
 
     // Set review status as started if not already done so
     private startReview = () => {

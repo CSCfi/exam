@@ -17,7 +17,6 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;

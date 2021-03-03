@@ -36,7 +36,7 @@ type State = {
     hint?: string;
     alternateState?: StateName;
 };
-enum StateName {
+export enum StateName {
     NOT_REVIEWED,
     REJECT_STRAIGHTAWAY,
     LANGUAGE_INSPECT,
@@ -51,16 +51,15 @@ type States = {
 
 @Injectable()
 export class MaturityService {
-    constructor(
-        private http: HttpClient,
-        private location: Location,
-        private translate: TranslateService,
-        private Confirmation: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-    ) {}
+    isMissingStatement = (exam: Exam) => {
+        if (!this.isUnderLanguageInspection(exam)) {
+            return false;
+        }
+        return !exam.languageInspection?.statement.comment;
+    };
+    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
 
-    private getStates = (): States => ({
+    MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: { id: 1, text: 'sitnet_not_reviewed', canProceed: false, warn: false },
         [StateName.REJECT_STRAIGHTAWAY]: { id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true },
         [StateName.LANGUAGE_INSPECT]: {
@@ -90,16 +89,16 @@ export class MaturityService {
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: { id: 9, text: 'sitnet_missing_statement', canProceed: false, warn: false },
-    });
-
-    isMissingStatement = (exam: Exam) => {
-        if (!this.isUnderLanguageInspection(exam)) {
-            return false;
-        }
-        return !exam.languageInspection?.statement.comment;
     };
 
-    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
+    constructor(
+        private http: HttpClient,
+        private location: Location,
+        private translate: TranslateService,
+        private Confirmation: ConfirmationDialogService,
+        private Assessment: AssessmentService,
+        private Session: SessionService,
+    ) {}
 
     private isUnderLanguageInspection = (exam: Exam) =>
         this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
@@ -116,10 +115,10 @@ export class MaturityService {
             id: inspection.id,
             comment: inspection.statement.comment,
         };
-        return this.http.put<LanguageInspection>(`/app/inspection/${exam.id}/statement`, statement);
+        return this.http.put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement);
     };
 
-    getNextState = (exam: Exam): StateName => {
+    private getNextStateName = (exam: Exam): StateName => {
         if (!this.isGraded(exam)) {
             return StateName.NOT_REVIEWED;
         }
@@ -138,10 +137,13 @@ export class MaturityService {
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
 
+    getNextState = (exam: Exam): State => this.MATURITY_STATES[this.getNextStateName(exam)];
+    getState = (state: StateName): State => this.MATURITY_STATES[state];
+
     proceed = (exam: Exam, alternate: boolean) => {
-        let state = this.getNextState(exam);
-        if (this.getStates()[state].alternateState && alternate) {
-            state = this.getStates()[state].alternateState as StateName;
+        let state = this.getNextStateName(exam);
+        if (this.MATURITY_STATES[state].alternateState && alternate) {
+            state = this.MATURITY_STATES[state].alternateState as StateName;
         }
         switch (state) {
             case StateName.REJECT_STRAIGHTAWAY:

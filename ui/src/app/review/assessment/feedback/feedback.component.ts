@@ -12,25 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
+import { noop } from 'rxjs';
 
 import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
+import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnInit {
     @Input() exam: Examination;
     @Input() collaborative: boolean;
     @Input() participation: ExamParticipation;
+    feedbackComment = '';
 
     hideEditor = false;
 
@@ -41,6 +44,12 @@ export class FeedbackComponent {
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
+
+    ngOnInit() {
+        if (!this.exam.examFeedback) {
+            this.exam.examFeedback = { id: undefined, comment: '' };
+        }
+    }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
@@ -53,20 +62,22 @@ export class FeedbackComponent {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(true, {}).then((res: FileResult) =>
-            this.Assessment.saveFeedback$(this.exam).subscribe(() => {
-                this.Files.upload(
-                    `/app/attachment/exam/${this.exam.id}/feedback`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id },
-                    this.exam.examFeedback,
-                );
-            }),
+        this.Attachment.selectFile(true, {}).then(
+            (res: FileResult) =>
+                this.Assessment.saveFeedback$(this.exam).subscribe(() => {
+                    this.Files.upload(
+                        `/app/attachment/exam/${this.exam.id}/feedback`,
+                        res.$value.attachmentFile,
+                        { examId: this.exam.id.toString() },
+                        this.exam.examFeedback,
+                    );
+                }),
+            noop,
         );
     };
 
     downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback.attachment;
+        const attachment = this.exam.examFeedback?.attachment;
         if (!attachment) {
             return;
         }

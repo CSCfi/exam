@@ -12,34 +12,43 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { QuestionBase } from '../../utility/forms/questionTypes';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
+import { AfterViewInit } from '@angular/core';
+import { QuestionBase } from '../../utility/forms/questionTypes';
 @Component({
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',
 })
-export class ExaminationQuestionComponent {
+export class ExaminationQuestionComponent implements AfterViewInit {
     @Input() exam: Examination;
     @Input() sq: ExaminationQuestion;
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
 
     clozeTestFormQuestions: QuestionBase<string>[] = [];
-    expanded = false;
+    expanded = true;
 
-    constructor(private Examination: ExaminationService, private Attachment: AttachmentService) {}
+    constructor(
+        private cdr: ChangeDetectorRef,
+        private Examination: ExaminationService,
+        private Attachment: AttachmentService,
+    ) {}
 
     ngOnInit() {
         this.sq.expanded = true;
         const answerData = this.sq.clozeTestAnswer;
         if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
             this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
-            // answerData.answer = JSON.parse(answerData.answer);
+            //answerData.answer = JSON.parse(answerData.answer);
         }
+    }
+
+    ngAfterViewInit() {
+        this.cdr.detectChanges();
     }
 
     answered = (event: { payload: { id: string; answer: string }[] }) => {

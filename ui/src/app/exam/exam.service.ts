@@ -16,19 +16,22 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import { Observable } from 'rxjs';
+import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
+
+import { Observable } from 'rxjs';
+import { ReviewedExam } from '../enrolment/enrolment.model';
 import {
     Exam,
     ExamExecutionType,
     ExaminationEventConfiguration,
     ExamSection,
+    ExamType,
     GradeScale,
     Implementation,
 } from './exam.model';
@@ -56,7 +59,7 @@ export class ExamService {
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
             .subscribe(
                 response => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
@@ -66,7 +69,7 @@ export class ExamService {
             );
     };
 
-    updateExam$ = (exam: Exam, overrides: any = {}, collaborative = false): Observable<Exam> => {
+    updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
         const data = {
             id: exam.id,
             name: exam.name || '',
@@ -95,7 +98,7 @@ export class ExamService {
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
     };
 
-    getExamTypeDisplayName = (type: string) => {
+    getExamTypeDisplayName = (type: string): string => {
         let name = '';
         switch (type) {
             case 'PARTIAL':
@@ -153,14 +156,13 @@ export class ExamService {
         return name;
     };
 
-    refreshExamTypes = (): Observable<ExamExecutionType[]> =>
-        this.http.get<ExamExecutionType[]>('/app/examtypes').pipe(
+    refreshExamTypes$ = (): Observable<(ExamType & { name: string })[]> =>
+        this.http.get<ExamType[]>('/app/examtypes').pipe(
             map(resp =>
-                resp.map(et =>
-                    Object.assign(et, {
-                        name: this.getExamTypeDisplayName(et.type),
-                    }),
-                ),
+                resp.map(et => ({
+                    ...et,
+                    name: this.getExamTypeDisplayName(et.type),
+                })),
             ),
         );
 
@@ -186,7 +188,7 @@ export class ExamService {
         return name;
     };
 
-    refreshGradeScales = (isCollaborative: boolean): Observable<GradeScale[]> => {
+    refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
         const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
         return this.http.get<GradeScale[]>(url).pipe(
             map(resp =>
@@ -229,7 +231,7 @@ export class ExamService {
         }
     };
 
-    listExecutionTypes = (): Observable<ExamExecutionType[]> =>
+    listExecutionTypes$ = (): Observable<(ExamExecutionType & { name: string })[]> =>
         this.http.get<ExamExecutionType[]>('/app/executiontypes').pipe(
             map(resp =>
                 resp.map(et =>
@@ -383,27 +385,40 @@ export class ExamService {
         }
     };
 
-    reorderSections = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<any> =>
-        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from, to });
+    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
+        this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
 
-    addSection = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
+    addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
 
-    removeSection = (exam: Exam, section: ExamSection): Observable<any> =>
-        this.http.delete(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
+    removeSection$ = (exam: Exam, section: ExamSection): Observable<void> =>
+        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
 
-    addExaminationEvent = (
+    addExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
 
-    updateExaminationEvent = (
+    updateExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
 
-    removeExaminationEvent = (examId: number, config: ExaminationEventConfiguration) =>
+    removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
+
+    downloadExam = (id: number) => {
+        return this.http
+            .get<Exam>(`/app/exams/${id}`)
+            .toPromise()
+            .then((exam: Exam) => {
+                exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
+                return exam;
+            });
+    };
+
+    private hasEffectiveEnrolments = (exam: Exam) =>
+        exam.examEnrolments.some(ee => ee.reservation && moment(ee.reservation.endAt) > moment());
 }

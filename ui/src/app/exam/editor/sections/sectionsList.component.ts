@@ -12,33 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam, ExamMaterial, ExamSection } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { OnChanges, SimpleChanges } from '@angular/core';
+import { ExamMaterial, ExamSection } from '../../exam.model';
+import { ExamTabService } from '../examTabs.service';
+import { StateService } from '@uirouter/core';
 @Component({
     selector: 'sections',
     templateUrl: './sectionsList.component.html',
 })
-export class SectionsListComponent implements OnInit, OnChanges {
+export class SectionsListComponent implements OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onNextTabSelected = new EventEmitter<void>();
-    @Output() onPreviousTabSelected = new EventEmitter<void>();
+
     materials: ExamMaterial[];
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private State: StateService,
         private Exam: ExamService,
         private Session: SessionService,
+        private Tabs: ExamTabService,
     ) {}
 
     loadMaterials = () => {
@@ -48,16 +54,7 @@ export class SectionsListComponent implements OnInit, OnChanges {
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
         this.loadMaterials();
-        this.updateSectionIndices();
     };
-
-    private updateSectionIndices = () =>
-        // set sections and question numbering
-        this.exam.examSections.forEach((section, index) => (section.index = index + 1));
-
-    ngOnInit() {
-        this.init();
-    }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.exam) {
@@ -65,13 +62,16 @@ export class SectionsListComponent implements OnInit, OnChanges {
         }
     }
 
+    ngOnInit() {
+        this.Tabs.notifyTabChange(2);
+    }
+
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
         const [from, to] = [event.previousIndex, event.currentIndex];
         if (from >= 0 && to >= 0 && from !== to) {
-            this.Exam.reorderSections(from, to, this.exam, this.collaborative).subscribe(
+            this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
                 () => {
                     moveItemInArray(this.exam.examSections, from, to);
-                    this.updateSectionIndices();
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
                 err => toast.error(err),
@@ -79,15 +79,17 @@ export class SectionsListComponent implements OnInit, OnChanges {
         }
     };
 
-    addNewSection = () =>
-        this.Exam.addSection(this.exam, this.collaborative).pipe(
-            tap(es => {
-                toast.success(this.translate.instant('sitnet_section_added'));
-                this.exam.examSections.push(es);
-                this.updateSectionIndices();
-            }),
-            catchError(resp => toast.error(resp)),
-        );
+    addNewSection = () => {
+        this.Exam.addSection$(this.exam, this.collaborative)
+            .pipe(
+                tap(es => {
+                    toast.success(this.translate.instant('sitnet_section_added'));
+                    this.exam.examSections.push(es);
+                }),
+                catchError(resp => toast.error(resp)),
+            )
+            .subscribe();
+    };
 
     updateExam = (silent: boolean) =>
         this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
@@ -110,7 +112,6 @@ export class SectionsListComponent implements OnInit, OnChanges {
                 () => {
                     toast.info(this.translate.instant('sitnet_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
-                    this.updateSectionIndices();
                 },
                 resp => toast.error(resp.data),
             );
@@ -118,9 +119,15 @@ export class SectionsListComponent implements OnInit, OnChanges {
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
-    nextTab = () => this.onNextTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(3);
+        this.State.go('examEditor.publication');
+    };
 
-    previousTab = () => this.onPreviousTabSelected.emit();
+    previousTab = () => {
+        this.Tabs.notifyTabChange(1);
+        this.State.go('examEditor.basic');
+    };
 
     showDelete = () => {
         if (this.collaborative) {

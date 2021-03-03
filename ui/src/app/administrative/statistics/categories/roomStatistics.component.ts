@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 
 import { ExamParticipation } from '../../../exam/exam.model';
+import { HttpClient } from '@angular/common/http';
 
 interface Participations {
     [room: string]: ExamParticipation[];
@@ -88,9 +88,7 @@ export class RoomStatisticsComponent {
     };
 
     totalParticipations = (month: Date, room: string) => {
-        if (!this.participations) {
-            return 0;
-        }
+        if (!this.participations) return 0;
         const isWithinBounds = (p: ExamParticipation) => {
             const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
             const current = new Date(month);

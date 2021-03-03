@@ -13,14 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { User } from '../../../session/session.service';
-import { Exam, ExamInspection } from '../../exam.model';
+import { ExamInspection } from '../../exam.model';
+import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'exam-inspector-selector',
@@ -73,6 +76,19 @@ export class ExamInspectorSelectorComponent implements OnInit {
     nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
 
     setInspector = (event: NgbTypeaheadSelectItemEvent) => (this.newInspector.id = event.item.id);
+
+    addInspector = () => {
+        if (this.newInspector.id) {
+            this.http
+                .post(`/app/exams/${this.exam.id}/inspector/${this.newInspector.id}`, {
+                    comment: this.newInspector.comment,
+                })
+                .subscribe(() => {
+                    this.getInspectors();
+                    this.newInspector = {};
+                });
+        }
+    };
 
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe(

@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Directive, Input } from '@angular/core';
-import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import { NG_VALIDATORS } from '@angular/forms';
 
 export function uniqueValuesValidator(property: string, values: { [key: string]: unknown }[]): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {

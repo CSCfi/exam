@@ -26,5 +26,5 @@ export class ExaminationClozeTestComponent {
 
     constructor(private Examination: ExaminationService) {}
 
-    saveAnswer = () => this.Examination.saveTextualAnswer(this.sq, this.examHash, false, false);
+    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.examHash, false, false).subscribe();
 }

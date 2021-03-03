@@ -180,7 +180,7 @@ public class ReservationController extends BaseController {
             enrolment.setReservation(null);
             enrolment.update();
             reservation.delete();
-            return wrapAsPromise(ok("removed"));
+            return wrapAsPromise(ok());
         }
     }
 

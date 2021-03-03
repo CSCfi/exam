@@ -1,16 +1,16 @@
-<div class="col-md-12 margin-20 padl0 padr0">
-    <div class="col-md-3 exam-basic-title padl0">
+<div class="row mt-2">
+    <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_tag_question' | translate }}
         <sup
             ><img
                 ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
-                placement="right"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
-                src="/assets/asses/images/icon_tooltip.svg'"
+                src="/assets/assets/images/icon_tooltip.svg"
                 alt="exam"
         /></sup>
     </div>
-    <div class="col-md-9 padr0">
+    <div class="col-md-9">
         <input
             id="newTag"
             name="newTag"
@@ -45,7 +45,7 @@
                     (click)="removeTag(tag)"
                     title="{{ 'sitnet_remove' | translate }}"
                 >
-                    <img src="/assets/asses/images/icon_remove.svg'" alt="exam" />
+                    <img src="/assets/assets/images/icon_remove.svg" alt="exam" />
                 </button>
             </li>
         </ul>

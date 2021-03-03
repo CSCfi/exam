@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -19,6 +20,9 @@ export interface AppConfig {
     roles: { ADMIN: string[]; TEACHER: string[]; STUDENT: string[] };
     supportsMaturity: boolean;
     supportsPrintouts: boolean;
+    isExamVisitSupported: boolean;
+    isExamCollaborationSupported: boolean;
+    courseSearchIntegrationUrls: { [key: string]: string };
 }
 
 @Component({

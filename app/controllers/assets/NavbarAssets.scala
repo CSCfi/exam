@@ -25,7 +25,7 @@ class NavbarAssets @Inject()(assets: Assets) extends InjectedController {
     val Pattern = "(.*%7B%7B.*iconPng%7D%7D)".r
     file match {
       case Pattern(_) => assets.at(path, "assets/images/1x1.png")(request)
-      case _ => assets.at(path, "assets/images/nav/".concat(file))(request)
+      case _          => assets.at(path, "assets/images/nav/".concat(file))(request)
     }
   }
 

@@ -20,9 +20,11 @@ import * as moment from 'moment';
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { QuestionAmounts, QuestionService } from '../../../question/question.service';
+import { QuestionAmounts } from '../../../question/question.service';
+import { QuestionService } from '../../../question/question.service';
 import { Reservation } from '../../../reservation/reservation.model';
-import { SessionService, User } from '../../../session/session.service';
+import { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
@@ -60,7 +62,7 @@ export class PrintedAssessmentComponent {
         const url = this.getResource(path);
 
         this.http.get<ExamParticipation>(url).subscribe(participation => {
-            // TODO: Some duplicates here, refactor some more
+            //TODO: Some duplicates here, refactor some more
             const exam = participation.exam;
             exam.examSections.forEach(es =>
                 es.sectionQuestions
@@ -102,7 +104,7 @@ export class PrintedAssessmentComponent {
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
-            // TODO: Add collaborative support for noshows.
+            //TODO: Add collaborative support for noshows.
             this.previousParticipations = data;
             this.printPage();
             return;
@@ -122,10 +124,10 @@ export class PrintedAssessmentComponent {
 
     private printPage = () => {
         // FIXME: check how to do this angular-style
-        $('#vmenu').hide();
-        const mainView = $('#mainView');
-        mainView.css('margin', '0 15px');
-        mainView.css('max-width', '1000px');
+        // $('#vmenu').hide();
+        // const mainView = $('#mainView');
+        // mainView.css('margin', '0 15px');
+        // mainView.css('max-width', '1000px');
         MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
         this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
     };
@@ -141,9 +143,7 @@ export class PrintedAssessmentComponent {
     getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
-        if (!this.exam) {
-            return 'N/A';
-        }
+        if (!this.exam) return 'N/A';
         const lang = this.Assessment.pickExamLanguage(this.exam);
         return !lang ? 'N/A' : this.Language.getLanguageNativeName(lang.code);
     };
@@ -160,4 +160,6 @@ export class PrintedAssessmentComponent {
         );
         return this.exam.examInspections.length + owners.length;
     };
+
+    translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

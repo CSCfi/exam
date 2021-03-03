@@ -12,16 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
+
 import { ExaminationStatusService } from '../examination/examinationStatus.service';
+import { SessionService } from '../session/session.service';
+import { NavigationService } from './navigation.service';
 
-import { SessionService, User } from '../session/session.service';
-import { Link, NavigationService } from './navigation.service';
-
+import { OnDestroy, OnInit } from '@angular/core';
+import { User } from '../session/session.service';
+import { Link } from './navigation.service';
 @Component({
     selector: 'navigation',
     templateUrl: './navigation.component.html',
@@ -43,17 +46,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.getLinks(false);
         });
+        this.ExaminationStatus.upcomingExam$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => this.getLinks(false));
         this.ExaminationStatus.wrongLocation$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.getLinks(false);
         });
-    }
-
-    ngOnInit() {
         this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User) => {
             this.user = user;
             this.getLinks(true);
         });
+    }
 
+    ngOnInit() {
         this.user = this.Session.getUser();
         if (this.user && this.user.isAdmin) {
             this.Navigation.getAppVersion().subscribe(

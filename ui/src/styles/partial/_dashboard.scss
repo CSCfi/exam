@@ -342,6 +342,28 @@
     }
   }
 
+  .infolink {
+    color: #266B99;
+    font-family: $sitnet-family-helvetica;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .infolink-light {
+    color: #266B99;
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .infolink-light-alert {
+    color: $sitnet-aborted;
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
   .student-exam-row-infolink {
 
     padding-top: 1em;
@@ -359,14 +381,6 @@
       font-family: $sitnet-family-helvetica;
       font-weight: normal;
       font-size: 14px;
-    }
-
-    .infolink {
-      color: #266B99;
-      font-family: $sitnet-family-helvetica;
-      font-weight: bold;
-      font-size: 14px;
-      text-decoration: none;
     }
 
     .arrow_icon {
@@ -536,20 +550,6 @@
         padding-bottom: 25px;
       }
 
-      .sort-img-down {
-        background: url('/assets/images/arrow_down_grey.png') no-repeat;
-        height: 9px;
-        display: inline-block;
-        width: 11px;
-      }
-
-      .sort-img-up {
-        background: url("/assets/images/arrow_up_grey.png") no-repeat;
-        height: 9px;
-        display: inline-block;
-        width: 11px;
-      }
-
     }
 
     td {
@@ -711,8 +711,8 @@
 
   .exams-list-title-text {
     font-size: 1.4em;
-    font-family: $sitnet-family-opensans-light;
-    font-weight: 600;
+    font-family: $sitnet-family-helvetica;
+    font-weight: 400;
     letter-spacing: 1px;
     vertical-align: middle;
   }
@@ -727,6 +727,10 @@
         margin-right: 10px;
       }
     }
+  }
+
+  .student-title-wrap {
+    display: inline-block;
   }
 
   .exam-settings-link {
@@ -792,6 +796,26 @@
     margin: 2em;
     border: 2px solid lightgrey;
     border-radius: 4pt;
+
+    .dropup > button,
+    .dropdown > button {
+      width: 100%;
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .print-btn {
+      background-color: #6AA33A;
+      color: white;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 2px;
+      margin-left: auto;
+    }
   }
 
   .library-question-header-inactive {
@@ -991,17 +1015,6 @@
     font-size: 16px;
     font-weight: normal;
     color: #2C2C2C;
-    float: right;
-    padding-right: 15px;
-
-    .score-label {
-      color: #555555;
-      width: 230px;
-
-      .score-value {
-        float: right;
-      }
-    }
   }
 
   @media (max-width: 1100px) {
@@ -1208,7 +1221,8 @@
     border-bottom: 1px solid $sitnet-border-color;
     border-right: 1px solid $sitnet-border-color;
     padding-bottom: 50px;
-    padding-left: 60px;
+    padding-left: 50px;
+    padding-right: 50px;
     margin-bottom: 30px;
   }
 
@@ -1237,14 +1251,7 @@
   }
 
   .exam-button:hover {
-    color: white;
     background-color: $sitnet-dark-green-new;
-    border: 1px solid $sitnet-dark-green-new;
-    height: 45px;
-    padding-left: 30px;
-    padding-right: 30px;
-    margin-bottom: 5px;
-    margin-left: 20px;
   }
 
   .btn-review {
@@ -1284,20 +1291,7 @@
     text-transform: uppercase;
     //white-space: nowrap;
 
-    .sort-img-down {
-      background: url("/assets/images/arrow_down_grey.png") no-repeat;
-      height: 9px;
-      display: inline-block;
-      width: 11px;
-    }
-
-    .sort-img-up {
-      background: url("/assets/images/arrow_up_grey.png") no-repeat;
-      height: 9px;
-      display: inline-block;
-      width: 11px;
-    }
-  }
+}
 
   .btn {
     &.green {
@@ -1366,7 +1360,6 @@
   }
 
   .review-points {
-    float: right;
     margin-right: 0px;
     padding-right: 15px;
     font-family: $sitnet-family-helvetica;
@@ -1456,7 +1449,7 @@
     color: #777777;
     text-transform: uppercase;
     font-weight: normal;
-    padding-bottom: 25px;
+    padding-bottom: 10px;
   }
 
   .autoevaluation-inputs {
@@ -1485,11 +1478,6 @@
   .question-add-owners-box {
     margin-top: 10px;
     margin-bottom: 20px;
-  }
-
-  .question-search {
-    padding-top: 30px;
-    padding-left: 30px;
   }
 
   .question-table-name {
@@ -1596,7 +1584,7 @@
   }
 
   .question-option-input {
-    width: 30em;
+    width: 27em;
     height: 40px;
     border-radius: 4px;
     border: 1px solid #E0E0DF;
@@ -1669,9 +1657,7 @@
 
   .question-editor-option {
     margin: 0px;
-    padding: 0px;
-    padding-bottom: 0.5em;
-    margin-bottom: 1em;
+    padding: 0px;  
   }
 
   .question-editor-claim-choice-option {
@@ -1911,11 +1897,8 @@
   }
 
   .speed-review-csv {
-    display: inline-block;
-    margin-top: 42px;
     font-size: 16px;
     font-weight: bold;
-    margin-left: 30px;
     color: #266B99;
   }
 
@@ -1929,7 +1912,7 @@
 
   .inspection-button {
     font-size: 16px;
-    font-family: Helvetica-Neue, Helvetica;
+    font-family: $sitnet-family-helvetica;
     background-color: $sitnet-green-new;
     border: 1px solid $sitnet-dark-green-new;
     padding-left: 20px;
@@ -2047,12 +2030,11 @@
     }
   }
 
-  .dropdown-submenu{position:relative;}
-  .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
-  .dropdown-submenu:hover>.dropdown-menu{display:block;}
-  .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
-  .dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
-  .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+  .no-caret {
+    .dropdown-toggle::after {
+      display:none;
+    }
+  }
   
 }
 

@@ -12,7 +12,7 @@
   }
 
   .section-border {
-    padding: 15px 15px 30px 0px;
+    padding: 0 15px 30px 0;
     border: 1px solid white;
     margin-bottom: 1em;
     margin-top:1em;
@@ -116,14 +116,6 @@
     font-weight: bold;
   }
 
-  .exams-generic-info-title {
-    font-size: 1.4em;
-    font-family: $sitnet-family-opensans-semibold;
-    font-weight: 300;
-    letter-spacing: 1px;
-    line-height: 2em;
-  }
-
   .exam-list-saved {
     color: $sitnet-dark-grey;
     border: dashed 3px $sitnet-white;
@@ -180,13 +172,13 @@
   .exams-table {
 
     border: 0;
-    font-family: $sitnet-family-opensans;
+    font-family: $sitnet-family-helvetica;
     font-weight: normal;
     font-size: 0.9em;
 
     th {
       background-color: $sitnet-common-light;
-      font-family: $sitnet-family-georgia;
+      font-family: $sitnet-family-helvetica;
       color: $sitnet-common-medium;
       font-style: italic;
       font-weight: normal;

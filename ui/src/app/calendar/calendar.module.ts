@@ -24,6 +24,11 @@ import { UtilityModule } from '../utility/utility.module';
 import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
+import { CalendarExamInfoComponent } from './helpers/calendarExamInfo.component';
+import { OptionalSectionsComponent } from './helpers/optionalSections.component';
+import { OrganisationPickerComponent } from './helpers/organisationPicker.component';
+import { SelectedRoomComponent } from './helpers/selectedRoom.component';
+import { SlotPickerComponent } from './helpers/slotPicker.component';
 
 @NgModule({
     imports: [
@@ -35,8 +40,17 @@ import { CalendarService } from './calendar.service';
         UIRouterModule,
         UtilityModule,
     ],
-    declarations: [BookingCalendarComponent, CalendarComponent],
+    declarations: [
+        BookingCalendarComponent,
+        CalendarComponent,
+        CalendarExamInfoComponent,
+        OptionalSectionsComponent,
+        OrganisationPickerComponent,
+        SlotPickerComponent,
+        SelectedRoomComponent,
+    ],
     entryComponents: [CalendarComponent],
     providers: [CalendarService],
+    exports: [CalendarComponent, BookingCalendarComponent],
 })
 export class CalendarModule {}

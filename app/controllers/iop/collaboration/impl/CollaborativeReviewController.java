@@ -58,7 +58,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.ExternalRefCollectionSanitizer;
@@ -218,19 +217,19 @@ public class CollaborativeReviewController extends CollaborationController {
                         .get()
                         .thenApplyAsync(
                             response -> {
-                                if (response.getStatus() != Http.Status.OK) {
-                                    return Results.status(response.getStatus());
+                                if (response.getStatus() != OK) {
+                                    return status(response.getStatus());
                                 }
                                 final JsonNode root = response.asJson();
                                 final Optional<JsonNode> assessment = stream(root)
                                     .filter(node -> node.path("_id").asText().equals(aid))
                                     .findFirst();
                                 if (assessment.isEmpty()) {
-                                    return Results.notFound("Assessment not found!");
+                                    return notFound("Assessment not found!");
                                 }
                                 final String eppn = assessment.get().path("user").path("eppn").textValue();
                                 if (StringUtils.isEmpty(eppn)) {
-                                    return Results.notFound("Eppn not found!");
+                                    return notFound("Eppn not found!");
                                 }
                                 // Filter for user eppn and left out assessment that we currently are looking.
                                 final Iterator<JsonNode> it = root.iterator();
@@ -478,7 +477,7 @@ public class CollaborativeReviewController extends CollaborationController {
                     WSRequest wsRequest = wsClient.url(url.get().toString());
                     Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
                         JsonNode root = response.asJson();
-                        if (response.getStatus() != Http.Status.OK) {
+                        if (response.getStatus() != OK) {
                             return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                         }
                         JsonNode examNode = root.get("exam");
@@ -756,7 +755,7 @@ public class CollaborativeReviewController extends CollaborationController {
 
     private Either<CompletionStage<Result>, WSResponse> getResponse(WSResponse wsr) {
         JsonNode root = wsr.asJson();
-        if (wsr.getStatus() != Http.Status.OK) {
+        if (wsr.getStatus() != OK) {
             return Either.left(wrapAsPromise(internalServerError(root.get("message").asText("Connection refused"))));
         }
         return Either.right(wsr);

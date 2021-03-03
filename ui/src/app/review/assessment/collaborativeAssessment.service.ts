@@ -16,15 +16,16 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Exam, ExamParticipation, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 
+import { Observable } from 'rxjs';
+import { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 interface Payload {
     id: number;
     state: string;
@@ -76,7 +77,7 @@ export class CollaborativeAssesmentService {
     saveFeedback(examId: number, examRef: string, participation: ExamParticipation): Observable<ExamParticipation> {
         const payload = {
             rev: participation._rev,
-            comment: participation.exam.examFeedback.comment,
+            comment: participation.exam.examFeedback?.comment,
         };
         const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.put<{ rev: string }>(url, payload).pipe(
@@ -103,7 +104,7 @@ export class CollaborativeAssesmentService {
             creditType: exam.creditType,
             answerLanguage: exam.answerLanguage,
             additionalInfo: exam.additionalInfo,
-            rev,
+            rev: rev,
         };
     }
 
@@ -211,7 +212,9 @@ export class CollaborativeAssesmentService {
         } else {
             const dialogNote = participation.exam.gradeless
                 ? this.translate.instant('sitnet_confirm_archiving_without_grade')
-                : this.Assessment.getRecordReviewConfirmationDialogContent(participation.exam.examFeedback.comment);
+                : this.Assessment.getRecordReviewConfirmationDialogContent(
+                      (participation.exam.examFeedback as Feedback).comment,
+                  );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs
                 .open(this.translate.instant('sitnet_confirm'), dialogNote)

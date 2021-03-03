@@ -96,6 +96,7 @@ export class ClaimChoiceEditorComponent {
     @Input() option: MultipleChoiceOption;
     @Input() question: Question;
     @Input() lotteryOn: boolean;
+    @Input() showWarning: boolean;
 
     missingOptions: string[];
 

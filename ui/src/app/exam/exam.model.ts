@@ -1,3 +1,4 @@
+import { Organisation } from '../calendar/calendar.component';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { LanguageInspection } from '../maturity/maturity.model';
 import { Reservation } from '../reservation/reservation.model';
@@ -36,6 +37,7 @@ export interface Course {
     code: string;
     credits: number;
     gradeScale: GradeScale | null;
+    organisation?: Organisation;
 }
 
 export interface ExamExecutionType {
@@ -97,6 +99,7 @@ export interface Question {
     options: MultipleChoiceOption[];
     tags: Tag[];
     questionOwners: User[];
+    parent?: Question;
     state: string;
     defaultMaxScore?: number;
     shared?: boolean;
@@ -107,7 +110,7 @@ export interface Question {
 }
 
 export interface EssayAnswer {
-    id?: number;
+    id: number;
     evaluatedScore?: number;
     answer?: string;
     objectVersion?: number;
@@ -148,19 +151,11 @@ interface BlankElement extends ContentElement {
 }
 export interface ClozeTestAnswer {
     id: number;
-    score: { correctAnswers: number; incorrectAnswers: number };
+    score?: { correctAnswers: number; incorrectAnswers: number };
     maxScore: number;
     answer: string;
     objectVersion: number;
     elements: ContentElement[];
-}
-
-export interface ReverseExamSection extends ExamSection {
-    exam: Exam;
-}
-
-export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
-    examSection: ReverseExamSection;
 }
 
 export interface ExamSectionQuestion {
@@ -176,6 +171,7 @@ export interface ExamSectionQuestion {
     evaluationCriteria: string;
     expectedWordCount?: number;
     sequenceNumber: number;
+    expanded: boolean;
 }
 
 export interface ExamMaterial {
@@ -188,7 +184,6 @@ export interface ExamMaterial {
 export interface ExamSection {
     id: number;
     name: string;
-    index: number;
     description: string;
     lotteryOn: boolean;
     lotteryItemCount: number;
@@ -213,6 +208,7 @@ export interface CollaborativeExam {
     state: CollaborativeExamState;
     examOwners: User[];
     executionType: ExamExecutionType;
+    enrollInstruction: string;
     examActiveStartDate: string | number;
     examActiveEndDate: string | number;
 }
@@ -221,7 +217,7 @@ export interface Feedback {
     comment: string;
     id?: number;
     attachment?: Attachment;
-    feedbackStatus: boolean;
+    feedbackStatus?: boolean;
 }
 
 export interface ExaminationEvent {
@@ -240,6 +236,7 @@ export interface ExaminationEventConfiguration {
 export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamInspection {
+    id?: number;
     user: User;
     ready: boolean;
 }
@@ -247,6 +244,13 @@ export interface ExamInspection {
 export interface Software {
     id: number;
     name: string;
+    turnedOn: boolean;
+}
+
+export interface ExamType {
+    id: number;
+    type: string;
+    name?: string;
 }
 
 export interface ExamImpl {
@@ -258,15 +262,16 @@ export interface ExamImpl {
     examActiveStartDate: string | number;
     examActiveEndDate: string | number;
     duration: number;
-    course: Course | null;
+    course?: Course;
     external: boolean;
     collaborative: boolean;
     hash: string;
     examOwners: User[];
     creator: User;
-    examType: { id: number; type: string; name?: string };
+    examType: ExamType;
     executionType: ExamExecutionType;
     examEnrolments: ExamEnrolment[];
+    examParticipations: ExamParticipation[];
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
     children: Exam[];
@@ -285,7 +290,7 @@ export interface ExamImpl {
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
-    examFeedback: Feedback;
+    examFeedback?: Feedback;
     grade?: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
@@ -301,7 +306,7 @@ export interface ExamImpl {
     instruction: string;
     autoEvaluationNotified: boolean;
     languageInspection?: LanguageInspection;
-    inspectionComments: { comment: string }[];
+    inspectionComments: { comment: string; creator: User; created: Date }[];
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
@@ -331,11 +336,4 @@ export enum ClaimChoiceOptionType {
     CorrectOption = 'CorrectOption',
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
-}
-
-export interface ExamSectionQuestionOption {
-    id: number;
-    option: MultipleChoiceOption;
-    answered: boolean;
-    score: number;
 }

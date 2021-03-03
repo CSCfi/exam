@@ -13,8 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,11 +21,14 @@ import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ExamType, GradeScale } from '../../exam.model';
+import { StateService } from '@uirouter/core';
+import { ExamTabService } from '../examTabs.service';
 export type UpdateProps = {
     props: {
         code: string | null;
@@ -43,12 +45,11 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Output() onUpdate = new EventEmitter<UpdateProps>();
-    @Output() onNextTabSelected = new EventEmitter<void>();
 
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
     gradeScaleSetting: { overridable: boolean };
-    examTypes: ExamExecutionType[] = [];
+    examTypes: (ExamType & { name: string })[] = [];
     gradeScales: GradeScale[] = [];
     pwdInputType = 'password';
 
@@ -56,13 +57,13 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     constructor(
         private http: HttpClient,
+        private state: StateService,
         private translate: TranslateService,
         private Exam: ExamService,
-        private modal: NgbModal,
-        private Confirmation: ConfirmationDialogService,
         private Attachment: AttachmentService,
         private Files: FileService,
         private Session: SessionService,
+        private Tabs: ExamTabService,
     ) {
         this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
             this.refreshExamTypes();
@@ -83,6 +84,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe(setting => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
         this.initGradeScale();
+        this.Tabs.notifyTabChange(1);
     }
 
     ngOnChanges = (changes: SimpleChanges) => {
@@ -107,7 +109,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                 this.onUpdate.emit({
                     props: {
                         name: this.exam.name,
-                        code,
+                        code: code,
                         scaleChange: resetAutoEvaluationConfig,
                     },
                 });
@@ -120,7 +122,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.initGradeScale(); //  Grade scale might need changing based on new course
         const code = this.exam.course ? this.exam.course.code : null;
         this.onUpdate.emit({
-            props: { name: this.exam.name, code, scaleChange: false },
+            props: { name: this.exam.name, code: code, scaleChange: false },
         });
     };
 
@@ -192,7 +194,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then(data => {
             const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id }, this.exam);
+            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
     };
 
@@ -204,7 +206,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
 
-    nextTab = () => this.onNextTabSelected.emit();
+    nextTab = () => {
+        this.Tabs.notifyTabChange(3);
+        this.state.go('examEditor.sections');
+    };
 
     showDelete = () => {
         if (this.collaborative) {
@@ -214,7 +219,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes().subscribe((types: ExamExecutionType[]) => {
+        this.Exam.refreshExamTypes$().subscribe(types => {
             // Maturity can only have a FINAL type
             if (this.exam.executionType.type === 'MATURITY') {
                 types = types.filter(t => t.type === 'FINAL');
@@ -224,7 +229,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     private refreshGradeScales = () => {
-        this.Exam.refreshGradeScales(this.collaborative).subscribe((scales: GradeScale[]) => {
+        this.Exam.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
             this.gradeScales = scales;
         });
     };

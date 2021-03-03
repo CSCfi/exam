@@ -15,13 +15,15 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Option } from '../../utility/select/dropDownSelect.component';
-import { ExamMachine, Reservation } from '../reservation.model';
+import { ExamMachine } from '../reservation.model';
+import { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'change-machine-dialog',

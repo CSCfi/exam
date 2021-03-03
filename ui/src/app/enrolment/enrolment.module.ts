@@ -13,16 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
 import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
-import { CollaborativeExamParticipationsComponent } from './finished/collaborativeExamParticipations.component';
+import { CollaborativeParticipationsComponent } from './finished/collaborativeExamParticipations.component';
 import { ExamFeedbackComponent } from './finished/examFeedback.component';
 import { ExamParticipationComponent } from './finished/examParticipation.component';
 import { ExamParticipationsComponent } from './finished/examParticipations.component';
@@ -34,13 +37,13 @@ import { WrongLocationComponent } from './wrong-location/wrongLocation.component
 import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UIRouterModule, UtilityModule],
+    imports: [BrowserAnimationsModule, NgbModule, OrderModule, UIRouterModule, UtilityModule],
     exports: [ActiveEnrolmentComponent],
     declarations: [
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
         ExamEnrolmentsComponent,
-        CollaborativeExamParticipationsComponent,
+        CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,
@@ -49,12 +52,14 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchResultComponent,
         WaitingRoomComponent,
         WrongLocationComponent,
+        AddEnrolmentInformationDialogComponent,
+        ActiveEnrolmentMenuComponent,
     ],
     entryComponents: [
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
         ExamEnrolmentsComponent,
-        CollaborativeExamParticipationsComponent,
+        CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,
@@ -63,6 +68,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamSearchResultComponent,
         WaitingRoomComponent,
         WrongLocationComponent,
+        AddEnrolmentInformationDialogComponent,
     ],
     providers: [EnrolmentService, WrongLocationService],
 })

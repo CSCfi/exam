@@ -18,7 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import { defer, from, iif, interval, Observable, of, Subject, throwError, Unsubscribable } from 'rxjs';
+import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
 
@@ -26,6 +26,8 @@ import { WindowRef } from '../utility/window/window.service';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
+import { OnDestroy } from '@angular/core';
+import { Observable, Unsubscribable } from 'rxjs';
 export interface Role {
     name: string;
     displayName?: string;
@@ -49,6 +51,8 @@ export interface User {
     isStudent: boolean;
     isTeacher: boolean;
     isLanguageInspector: boolean;
+    employeeNumber: string | null;
+    lastLogin: string | null;
 }
 
 interface Env {
@@ -56,7 +60,17 @@ interface Env {
 }
 
 @Injectable()
-export class SessionService {
+export class SessionService implements OnDestroy {
+    private PING_INTERVAL: number = 30 * 1000;
+    private user: User;
+    private env: { isProd: boolean };
+    private sessionCheckSubscription: Unsubscribable;
+    private userChangeSubscription = new Subject<User>();
+    private devLogoutSubscription = new Subject<void>();
+
+    public userChange$: Observable<User>;
+    public devLogoutChange$: Observable<void>;
+
     constructor(
         private http: HttpClient,
         private i18n: TranslateService,
@@ -68,25 +82,9 @@ export class SessionService {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
     }
-    private PING_INTERVAL: number = 30 * 1000;
-    private user: User;
-    private env: { isProd: boolean };
-    private sessionCheckSubscription: Unsubscribable;
-    private userChangeSubscription = new Subject<User>();
-    private devLogoutSubscription = new Subject<void>();
 
-    public userChange$: Observable<User>;
-    public devLogoutChange$: Observable<void>;
-
-    private static hasPermission(user: User, permission: string) {
-        if (!user) {
-            return false;
-        }
-        return user.permissions.some(p => p.type === permission);
-    }
-
-    static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole !== null && user.loginRole === role;
+    ngOnDestroy() {
+        this.sessionCheckSubscription.unsubscribe();
     }
 
     getUser = () => this.user;
@@ -104,6 +102,17 @@ export class SessionService {
             return of(this.env);
         }
         return this.http.get<Env>('/app/settings/environment');
+    }
+
+    private static hasPermission(user: User, permission: string) {
+        if (!user) {
+            return false;
+        }
+        return user.permissions.some(p => p.type === permission);
+    }
+
+    static hasRole(user: User, role: string): boolean {
+        return user && user.loginRole !== null && user.loginRole === role;
     }
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
@@ -158,7 +167,7 @@ export class SessionService {
         if (!this.user) {
             this.translate(lang);
         } else {
-            this.http.put('/app/user/lang', { lang }).subscribe(
+            this.http.put('/app/user/lang', { lang: lang }).subscribe(
                 () => {
                     this.user.lang = lang;
                     this.webStorageService.set('EXAM_USER', this.user);
@@ -214,6 +223,7 @@ export class SessionService {
         const modalRef = this.modal.open(EulaDialogComponent, {
             backdrop: 'static',
             keyboard: true,
+            size: 'lg',
         });
         return from(modalRef.result).pipe(
             switchMap(() => this.http.put('/app/users/agreement', {})),
@@ -264,8 +274,8 @@ export class SessionService {
 
         return {
             ...user,
-            loginRole,
-            isTeacher,
+            loginRole: loginRole,
+            isTeacher: isTeacher,
             isAdmin: loginRole != null && loginRole === 'ADMIN',
             isStudent: loginRole != null && loginRole === 'STUDENT',
             isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
@@ -275,8 +285,8 @@ export class SessionService {
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/login', {
-                username,
-                password,
+                username: username,
+                password: password,
             })
             .pipe(
                 map(u => this.prepareUser(u)),
@@ -297,7 +307,7 @@ export class SessionService {
                     this.redirect();
                 }),
                 catchError(resp => {
-                    toastr.error(resp);
+                    toastr.error(this.i18n.instant(resp));
                     this.logout();
                     return throwError(resp);
                 }),
@@ -305,11 +315,8 @@ export class SessionService {
 
     private processLogin$(user: User): Observable<User> {
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
-            iif(
-                () => u.isStudent && !u.userAgreementAccepted,
-                defer(() => this.openUserAgreementModal$(u)),
-                of(u),
-            );
+            //    switchMap((u: User) => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
+            defer(() => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
         return user.loginRole
             ? userAgreementConfirmation$(user)
             : this.openRoleSelectModal$(user).pipe(switchMap(u => userAgreementConfirmation$(u)));

@@ -12,16 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import * as _ from 'lodash';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
-import { CollaborativeExam } from '../../exam/exam.model';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentService } from '../enrolment.service';
-import { tap, finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 
+import { OnInit } from '@angular/core';
+import { CollaborativeExam } from '../../exam/exam.model';
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
     reservationMade: boolean;
@@ -33,22 +34,30 @@ interface CollaborativeExamInfo extends CollaborativeExam {
     templateUrl: './collaborativeExamSearch.component.html',
 })
 export class CollaborativeExamSearchComponent implements OnInit {
-    exams: CollaborativeExamInfo[];
+    exams: CollaborativeExamInfo[] = [];
     filter: { text: string };
     loader: { loading: boolean };
     filterChanged: Subject<string> = new Subject<string>();
+    ngUnsubscribe = new Subject();
 
     constructor(
         private Enrolment: EnrolmentService,
         private Language: LanguageService,
         private CollaborativeExam: CollaborativeExamService,
     ) {
-        this.filterChanged.pipe(debounceTime(500), distinctUntilChanged()).subscribe(this.doSearch);
+        this.filterChanged
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe(this.doSearch);
     }
 
     ngOnInit() {
         this.filter = { text: '' };
         this.loader = { loading: false };
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     search = (text: string) => this.filterChanged.next(text);

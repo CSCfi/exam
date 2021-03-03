@@ -65,6 +65,7 @@ export class EssayQuestionComponent {
     };
 
     insertEssayScore = () => {
+        console.log(this.sectionQuestion.essayAnswer?.evaluatedScore);
         if (this.collaborative) {
             return this.Assessment.saveCollaborativeEssayScore(
                 this.sectionQuestion as ExaminationQuestion,
@@ -76,9 +77,9 @@ export class EssayQuestionComponent {
                 this.onScore.emit(resp.rev);
             });
         } else {
-            return this.Assessment.saveEssayScore(this.sectionQuestion as ExaminationQuestion).subscribe(() =>
-                toast.info(this.translate.instant('sitnet_graded')),
-            );
+            return this.Assessment.saveEssayScore(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
+                toast.info(this.translate.instant('sitnet_graded')), this.onScore.emit();
+            });
         }
     };
 

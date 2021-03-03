@@ -3,7 +3,6 @@ package util.xml
 import java.io.File
 import java.nio.file.Files
 import java.util.Base64
-
 import models.Tag
 import models.questions.{MultipleChoiceOption, Question}
 import org.jsoup.Jsoup

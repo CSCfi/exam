@@ -39,7 +39,6 @@ import sanitizers.Attrs;
 import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.AppUtil;
 
 public class ExamInspectionController extends BaseController {
 

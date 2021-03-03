@@ -1,6 +1,6 @@
-<div class="row col-md-12">
+<div class="row ml-3 mt-3 mr-3">
     <div class="col-md-6">
-        <div class="form-group search question-search padl20">
+        <div class="form-group search">
             <div class="input-group">
                 <input
                     class="form-control hgt40 wdt400"
@@ -9,11 +9,11 @@
                     placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
                 />
                 <div class="input-group-append">
-                    <img class="nopad" src="assets/images/icon_search.png" width="49" height="40" />
+                    <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
-        <div class="form-group search question-search padl20" *ngIf="user.isAdmin">
+        <div class="form-group search" *ngIf="user.isAdmin">
             <div class="input-group">
                 <input
                     class="form-control hgt40 wdt400"
@@ -22,14 +22,14 @@
                     placeholder="{{ 'sitnet_search_by_owner' | translate }}"
                 />
                 <div class="input-group-append search">
-                    <img class="nopad" src="assets/images/icon_search.png" width="49" height="40" />
+                    <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div id="filters" class="form-group question-search">
-            <span class="m-1" ngbDropdown>
+        <div id="filters" class="float-right form-group">
+            <span ngbDropdown [autoClose]="'outside'">
                 <button
                     class="btn btn-outline-secondary btn-sm"
                     type="button"
@@ -47,12 +47,11 @@
                     aria-labelledby="dropDownMenu1"
                     ngbDropdownMenu
                 >
-                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
+                    <li ngbDropdownItem role="presentation" class="input-group">
                         <input
                             [(ngModel)]="limitations.course"
                             (ngModelChange)="filterCourses()"
                             class="form-control"
-                            (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
                             aria-describedby="search-icon-1"
                         />
@@ -73,7 +72,7 @@
                     </li>
                 </ul>
             </span>
-            <span class="m-1" ngbDropdown>
+            <span class="m-1" ngbDropdown [autoClose]="'outside'">
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-secondary btn-sm"
@@ -82,15 +81,13 @@
                     (click)="listExams()"
                 >
                     {{ 'sitnet_exam' | translate }}&nbsp;
-                    <span class="caret"></span>
                 </button>
                 <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
+                    <li ngbDropdownItem role="presentation" class="input-group">
                         <input
                             [(ngModel)]="limitations.exam"
                             (ngModelChange)="filterExams()"
                             class="form-control"
-                            (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
                             aria-describedby="search-icon-2"
                         />
@@ -112,7 +109,7 @@
                 </ul>
             </span>
 
-            <span class="m-1" ngbDropdown>
+            <span class="m-1" ngbDropdown [autoClose]="'outside'">
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-secondary btn-sm"
@@ -124,12 +121,11 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                    <li role="presentation" class="input-group" style="padding: 0.25rem 0.7rem;">
+                    <li ngbDropdownItem role="presentation" class="input-group" style="padding: 0.25rem 0.7rem">
                         <input
                             [(ngModel)]="limitations.tag"
                             (ngModelChange)="filterTags()"
                             class="form-control"
-                            (click)="$event.stopPropagation()"
                             placeholder="{{ 'sitnet_search' | translate }}"
                             aria-describedby="search-icon-3"
                         />
@@ -166,9 +162,9 @@
                 {{ tag.name }}
                 <button class="reviewer-remove" (click)="applyFilter(tag)" title="{{ 'sitnet_remove' | translate }}">
                     <img
-                        src="assets/images/icon_remove.svg"
+                        src="/assets/assets/images/icon_remove.svg"
                         alt="exam"
-                        onerror="this.onerror=null;this.src='assets/images/icon_remove.png';"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"
                     />
                 </button>
             </li>

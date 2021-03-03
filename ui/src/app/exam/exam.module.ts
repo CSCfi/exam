@@ -30,11 +30,13 @@ import { ExamOwnerSelectorComponent } from './editor/basic/examOwnerSelector.com
 import { SoftwareSelectorComponent } from './editor/basic/softwareSelector.component';
 import { CoursePickerComponent } from './editor/common/coursePicker.component';
 import { CoursePickerService } from './editor/common/coursePicker.service';
+import { ExaminationTypeSelectorComponent } from './editor/common/examinationTypeSelector.component';
 import { LanguageSelectorComponent } from './editor/common/languageSelector.component';
 import { CourseSelectionComponent } from './editor/creation/courseSelection.component';
 import { NewExamComponent } from './editor/creation/newExam.component';
 import { ExaminationEventDialogComponent } from './editor/events/examinationEventDialog.component';
 import { ExamTabsComponent } from './editor/examTabs.component';
+import { ExamTabService } from './editor/examTabs.service';
 import { AutoEvaluationComponent } from './editor/publication/autoEvaluation.component';
 import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborativeExamOwnerSelector.component';
 import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
@@ -85,6 +87,7 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         ExamListingComponent,
         PrintoutComponent,
         PrintoutListingComponent,
+        ExaminationTypeSelectorComponent,
     ],
     entryComponents: [
         ExamTabsComponent,
@@ -93,7 +96,9 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         CollaborativeExamListingComponent,
         PrintoutComponent,
         PrintoutListingComponent,
+        ExaminationTypeSelectorComponent,
+        ExaminationEventDialogComponent,
     ],
-    providers: [ExamService, CoursePickerService, CollaborativeExamService],
+    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })
 export class ExamModule {}

@@ -3,10 +3,7 @@
         <div class="student-enroll-dialog-wrap">
             <div class="student-enroll-title">{{ title | translate }}</div>
         </div>
-        <div>
-            <!-- TODO: mathjax -->
-            <p [innerHtml]="instructions"></p>
-        </div>
+        <div [MathJax]="instructions"></div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="ok()">

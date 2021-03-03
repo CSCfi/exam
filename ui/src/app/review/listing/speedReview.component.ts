@@ -16,32 +16,24 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import * as moment from 'moment';
-import { forkJoin, Observable, throwError } from 'rxjs';
+import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import {
-    Course,
-    Exam,
-    ExamParticipation,
-    Grade,
-    GradeScale,
-    isRealGrade,
-    NoGrade,
-    SelectableGrade,
-} from '../../exam/exam.model';
+import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import { User } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../utility/file/file.service';
-import { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
-import { ReviewListService } from './reviewList.service';
 
+import { Observable } from 'rxjs';
+import { Course, Exam, ExamParticipation, Grade, GradeScale, NoGrade, SelectableGrade } from '../../exam/exam.model';
+import { User } from '../../session/session.service';
+import { Review } from '../review.model';
 @Component({
     selector: 'speed-review',
     templateUrl: './speedReview.component.html',
@@ -50,6 +42,7 @@ export class SpeedReviewComponent {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
+    reverse: false;
     examId: number;
     examInfo: { examOwners: User[]; title: string; anonymous: boolean };
     toggleReviews = false;
@@ -58,10 +51,10 @@ export class SpeedReviewComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
-        private ReviewList: ReviewListService,
         private Confirmation: ConfirmationDialogService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -89,8 +82,7 @@ export class SpeedReviewComponent {
                     type: grade.name,
                 };
             })
-            .filter(g => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id);
-
+            .filter(isRealGrade);
         // The "no grade" option
         const noGrade: NoGrade = {
             name: this.Exam.getExamGradeDisplayName('NONE'),
@@ -144,6 +136,8 @@ export class SpeedReviewComponent {
 
     isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
 
+    setPredicate = (predicate: string) => (this.reviewPredicate = predicate);
+
     private getErrors = (review: Review) => {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
@@ -162,9 +156,9 @@ export class SpeedReviewComponent {
     private getAnswerLanguage = (review: Review) =>
         review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
 
-    private isGradeable = (review: Review) => this.getErrors(review).length === 0;
+    isGradeable = (review: Review) => this.getErrors(review).length === 0;
 
-    private hasModifications = () => {
+    hasModifications = () => {
         if (this.examReviews) {
             return (
                 this.examReviews.filter(
@@ -195,7 +189,7 @@ export class SpeedReviewComponent {
             forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_saved'));
                 if (this.examReviews.length === 0) {
-                    this.state.go('examEditor', { id: this.state.params.id, tab: 4 });
+                    this.state.go('examEditor.assessments', { id: this.routing.params.id });
                 }
             });
         });
@@ -239,9 +233,11 @@ export class SpeedReviewComponent {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv').then(result =>
-            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, null, this.state.reload),
-        );
+        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
+            .then(result =>
+                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
+            )
+            .catch(noop);
     };
 
     createGradingTemplate = () => {

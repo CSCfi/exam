@@ -15,12 +15,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
+import { Observable } from 'rxjs';
+import { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
     displayedMaxScore: number | string;
@@ -74,8 +74,8 @@ export class LibraryService {
         return entry && entry[category] ? JSON.parse(entry[category]) : {};
     };
 
-    storeFilters = (filters: any, category: string) => {
-        const data = { filters };
+    storeFilters = (filters: unknown, category: string) => {
+        const data = { filters: filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('questionFilters', filter);

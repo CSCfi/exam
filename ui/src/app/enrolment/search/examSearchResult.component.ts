@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { Exam } from '../../exam/exam.model';
+import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
@@ -23,7 +23,7 @@ import { EnrolmentService } from '../enrolment.service';
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
-    @Input() exam: Exam;
+    @Input() exam: EnrolmentInfo;
     @Input() collaborative: boolean;
 
     enrolling: boolean;

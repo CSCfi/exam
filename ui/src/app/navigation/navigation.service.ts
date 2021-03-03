@@ -14,23 +14,25 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
+
+import { SessionService } from '../session/session.service';
+
 import { Observable } from 'rxjs';
 
-import { SessionService, User } from '../session/session.service';
-
+import { User } from '../session/session.service';
 export interface Link {
     state: string;
     visible: boolean;
     name: string;
     iconSvg?: string;
     iconPng?: string;
-    submenu?: { hidden: boolean; items: Link[] };
+    submenu: { hidden: boolean; items: Link[] };
 }
 
 @Injectable()
 export class NavigationService {
-    constructor(private http: HttpClient, private state: StateService, private Session: SessionService) {}
+    constructor(private http: HttpClient, private state: UIRouterGlobals, private Session: SessionService) {}
 
     getAppVersion(): Observable<{ appVersion: string }> {
         return this.http.get<{ appVersion: string }>('/app/settings/appVersion');
@@ -67,6 +69,7 @@ export class NavigationService {
                     visible: true,
                     name: 'sitnet_collaborative_exams',
                     iconPng: 'icon_admin_exams.png',
+                    submenu: { hidden: true, items: [] },
                 },
             ],
         };
@@ -77,6 +80,7 @@ export class NavigationService {
                 : {
                       hidden: true,
                       items: [],
+                      submenu: { hidden: true, items: [] },
                   };
         const studentCollaborativeExamsSubmenu =
             student && interoperable
@@ -84,6 +88,7 @@ export class NavigationService {
                 : {
                       hidden: true,
                       items: [],
+                      submenu: { hidden: true, items: [] },
                   };
 
         return [
@@ -99,10 +104,7 @@ export class NavigationService {
                 visible: languageInspector,
                 name: 'sitnet_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: { hidden: true, items: [] },
             },
             {
                 state: 'exams',
@@ -117,24 +119,28 @@ export class NavigationService {
                             visible: true,
                             name: 'sitnet_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png',
+                            submenu: { hidden: true, items: [] },
                         },
                         {
                             state: 'printouts',
                             visible: true,
                             name: 'sitnet_printout_exams',
                             iconPng: 'icon_printouts.png',
+                            submenu: { hidden: true, items: [] },
                         },
                         {
                             state: 'collaborativeExams',
                             visible: interoperable,
                             name: 'sitnet_collaborative_exams',
                             iconPng: 'icon_admin_exams.png',
+                            submenu: { hidden: true, items: [] },
                         },
                         {
                             state: 'library',
                             visible: true,
                             name: 'sitnet_library_new',
                             iconPng: 'icon_questions.png',
+                            submenu: { hidden: true, items: [] },
                         },
                     ],
                 },
@@ -152,18 +158,21 @@ export class NavigationService {
                             visible: true,
                             name: 'sitnet_reports',
                             iconPng: 'icon_reports.png',
+                            submenu: { hidden: true, items: [] },
                         },
                         {
                             state: 'statistics',
                             visible: true,
                             name: 'sitnet_statistics',
                             iconPng: 'icon_statistics.png',
+                            submenu: { hidden: true, items: [] },
                         },
                         {
                             state: 'settings',
                             visible: true,
                             name: 'sitnet_settings',
                             iconPng: 'icon_settings.png',
+                            submenu: { hidden: true, items: [] },
                         },
                     ],
                 },
@@ -219,6 +228,7 @@ export class NavigationService {
                             visible: true,
                             name: 'sitnet_collaborative_exam_responses',
                             iconPng: 'icon_finished.png',
+                            submenu: { hidden: true, items: [] },
                         },
                     ],
                 },

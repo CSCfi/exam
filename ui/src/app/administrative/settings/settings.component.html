@@ -146,8 +146,8 @@
                 </li>
                 <li>
                     <strong>{{ 'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
-                    <span *ngIf="config.gradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
-                    <span *ngIf="!config.gradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
+                    <span *ngIf="config.isGradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.isGradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{ 'sitnet_attachment_max_size' | translate }}:</strong>&nbsp;{{

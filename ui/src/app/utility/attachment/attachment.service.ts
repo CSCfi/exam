@@ -18,24 +18,16 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../file/file.service';
+import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.component';
+
 import { Observable } from 'rxjs';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
 import { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { Examination } from '../../examination/examination.service';
 import { ReviewQuestion } from '../../review/review.model';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../file/file.service';
-import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
-
-interface ExamWithFeedback {
-    id: number;
-    examFeedback: { attachment: any };
-}
-
-interface ExamWithStatement {
-    id: number;
-    languageInspection: { statement: { attachment: any } };
-}
+import { FileResult } from './dialogs/attachmentSelector.component';
 
 export interface AnsweredQuestion {
     id: number;
@@ -76,7 +68,7 @@ export class AttachmentService {
         }
     }
 
-    private toPromise = (observable: Observable<any>) =>
+    private toPromise = (observable: Observable<void>) =>
         new Promise<void>((resolve, reject) => {
             observable.subscribe(
                 () => resolve(),
@@ -85,9 +77,9 @@ export class AttachmentService {
         });
 
     eraseQuestionAttachment = (question: Question) =>
-        this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)));
+        this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)));
 
-    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
+    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
                 () => resolve(),
@@ -147,7 +139,7 @@ export class AttachmentService {
             this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    delete exam.examFeedback.attachment;
+                    delete exam.examFeedback?.attachment;
                 },
                 err => toast.error(err),
             );
@@ -164,7 +156,7 @@ export class AttachmentService {
                 resp => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     participation._rev = resp.rev;
-                    delete participation.exam.examFeedback.attachment;
+                    delete participation.exam.examFeedback?.attachment;
                 },
                 resp => toast.error(resp),
             );
@@ -239,7 +231,7 @@ export class AttachmentService {
     }
 
     downloadFeedbackAttachment(exam: Exam | ReviewedExam) {
-        if (exam.examFeedback.attachment) {
+        if (exam.examFeedback?.attachment) {
             this.Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
         }
     }
@@ -258,7 +250,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, params?: any, title = 'sitnet_attachment_selection'): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params?: unknown, title = 'sitnet_attachment_selection'): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false,

@@ -12,14 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as base64 from 'base64-js';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
+import * as base64 from 'base64-js';
 import { tap } from 'rxjs/operators';
+
 import { WrongLocationService } from '../enrolment/wrong-location/wrongLocation.service';
 import { ExaminationStatusService } from '../examination/examinationStatus.service';
-import { Observable } from 'rxjs';
+
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 @Injectable()
 export class ExaminationInterceptor implements HttpInterceptor {
@@ -28,15 +30,15 @@ export class ExaminationInterceptor implements HttpInterceptor {
         private WrongLocation: WrongLocationService,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         return next.handle(req).pipe(
-            tap((event: HttpEvent<any>) => {
+            tap((event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
                     const b64ToUtf8 = (str: string, encoding = 'utf-8'): string => {
                         const bytes = base64.toByteArray(str);
                         return new TextDecoder(encoding).decode(bytes);
                     };
-                    const response = event as HttpResponse<any>;
+                    const response = event as HttpResponse<unknown>;
                     const unknownMachine = response.headers.get('x-exam-unknown-machine');
                     const wrongRoom = response.headers.get('x-exam-wrong-room');
                     const wrongMachine = response.headers.get('x-exam-wrong-machine');
@@ -66,14 +68,14 @@ export class ExaminationInterceptor implements HttpInterceptor {
                             // No upcoming exams
                             this.state.go('waitingRoomNoExam');
                         } else {
-                            this.state.go('waitingRoom', { id });
+                            this.state.go('waitingRoom', { id: id });
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.state.go('examination', { hash });
+                        this.state.go('examination', { hash: hash });
                     }
-                    return response.clone();
+                    return response;
                 }
             }),
         );

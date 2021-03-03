@@ -19,33 +19,35 @@ import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
-import { Exam, ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+
+import { ExamParticipation } from '../../../exam/exam.model';
 @Component({
     selector: 'exam-summary',
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
     @Input() exam: Exam;
-    @Input() reviews: ExamParticipation[];
+    @Input() reviews: ExamParticipation[] = [];
     @Input() collaborative: boolean;
 
-    gradeDistribution: _.Dictionary<number>;
+    gradeDistribution: Record<string, number>;
     gradedCount: number;
     gradeTimeData: Array<{ x: string; y: number }>;
-    gradeDistributionData: number[];
-    gradeDistributionLabels: string[];
-    abortedExams: ExamParticipation[];
-    noShows: ExamEnrolment[];
+    gradeDistributionData: number[] = [];
+    gradeDistributionLabels: string[] = [];
+    abortedExams: ExamParticipation[] = [];
+    noShows: ExamEnrolment[] = [];
     gradeDistributionChart: Chart;
     gradeTimeChart: Chart;
-    sectionScores: _.Dictionary<{ max: number; totals: number[] }>;
+    sectionScores: Record<string, { max: number; totals: number[] }>;
 
     constructor(
         private http: HttpClient,
@@ -140,7 +142,7 @@ export class ExamSummaryComponent {
     getNoShows = () => {
         // No-shows
         if (this.collaborative) {
-            // TODO: Fetch collaborative no-shows from xm.
+            //TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http
@@ -232,7 +234,7 @@ export class ExamSummaryComponent {
             this.Files.download(
                 url,
                 this.translate.instant('sitnet_grading_info') + '_' + moment().format('dd-MM-yyyy') + '.xlsx',
-                { childIds: ids },
+                { childIds: ids.map(i => i.toString()) },
                 true,
             );
         }

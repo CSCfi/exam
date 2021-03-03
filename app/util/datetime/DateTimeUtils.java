@@ -194,11 +194,18 @@ public class DateTimeUtils {
             dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
-        } // jos ollaan kesäajassa, lisätään tunti?
+        }
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
             result = dateTime.plusHours(1);
         }
         return result;
+    }
+
+    public static DateTime normalize(DateTime dateTime, Reservation reservation) {
+        DateTimeZone dtz = reservation.getMachine() == null
+            ? getDefaultTimeZone()
+            : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
     public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {

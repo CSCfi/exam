@@ -1,7 +1,7 @@
 package security
 
-import models.User
 import io.ebean.Ebean
+import models.User
 import play.api.mvc.{AnyContent, Request, Result, Results}
 
 trait Authenticator {

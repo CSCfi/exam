@@ -18,7 +18,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -216,7 +217,7 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information }).subscribe(
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
                 () => {
                     toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
@@ -249,5 +250,24 @@ export class EnrolmentService {
             modalRef.componentInstance.title = 'sitnet_maturity_instructions';
             modalRef.result.catch(err => toast.error(err));
         });
+    };
+
+    hasUpcomingAlternativeEvents = (enrolment: ExamEnrolment) =>
+        enrolment.exam &&
+        enrolment.exam.examinationEventConfigurations.some(
+            eec =>
+                new Date(eec.examinationEvent.start) > new Date() &&
+                (!enrolment.examinationEventConfiguration || eec.id !== enrolment.examinationEventConfiguration.id),
+        );
+
+    makeReservation = (enrolment: ExamEnrolment) => {
+        if (enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM') {
+            this.selectExaminationEvent(enrolment.exam, enrolment);
+        } else {
+            const params = {
+                id: enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id,
+            };
+            this.State.go(enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
+        }
     };
 }

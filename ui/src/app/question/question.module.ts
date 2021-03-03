@@ -68,6 +68,7 @@ import { TagPickerComponent } from './tags/tagPicker.component';
         QuestionComponent,
         BaseQuestionEditorComponent,
         QuestionSelectorComponent,
+        ExamQuestionEditorComponent,
     ],
     providers: [LibraryService, QuestionService],
 })

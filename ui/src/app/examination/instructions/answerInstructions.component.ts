@@ -21,40 +21,32 @@ import { Examination } from '../examination.service';
     selector: 'answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
-        <div class="studentexam-header">
-            <h1>
-                <span class="exam-title">{{ 'sitnet_exam_guide' | translate }}</span>
-            </h1>
+        <div class="row">
+            <div class="col-md-12" class="studentexam-header">
+                <h2 class="exam-title">{{ 'sitnet_exam_guide' | translate }}</h2>
+            </div>
         </div>
-        <div class="guide-wrapper marr0 pad-15 col-md-12">
-            <div class="guide-column">
-                <span class="header col-md-4"
-                    ><span>{{ 'sitnet_course_name' | translate }}:</span></span
-                ><span class="text col-md-8">{{ exam.course.name }}&nbsp;</span>
-            </div>
-            <div class="guide-column">
-                <span class="header col-md-4"
-                    ><span>{{ 'sitnet_course_code' | translate }}:</span></span
-                ><span class="text col-md-8"><course-code [course]="exam?.course"></course-code>&nbsp;</span>'
-            </div>
-            <div class="guide-column">
-                <span class="header col-md-4"
-                    ><span>{{ 'sitnet_exam_name' | translate }}:</span></span
-                ><span class="text col-md-8">{{ exam.name }}&nbsp;</span>
-            </div>
-            <div class="guide-column">
-                <span class="header col-md-4"
-                    ><span>{{ 'sitnet_exam_duration' | translate }}:</span></span
-                ><span class="text col-md-8">{{ printExamDuration() }}&nbsp;</span>
-            </div>
-            <div class="guide-column padtop">
-                <span>{{ 'sitnet_exam_guide' | translate }}:</span>
-            </div>
-            <div class="guide-column">
-                <div class="list-group">
-                    <form class="form-inline pad-15">
-                        <div class="guide-instruction col-md-12" [innerHtml]="exam.instruction"></div>
-                    </form>
+        <div class="row ml-2 guide-wrapper">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</div>
+                    <div class="text col-md-8">{{ exam.course.name }}</div>
+                </div>
+                <div class="row">
+                    <div class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</div>
+                    <div class="text col-md-8"><course-code [course]="exam?.course"></course-code></div>
+                </div>
+                <div class="row">
+                    <div class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</div>
+                    <div class="text col-md-8">{{ exam.name }}</div>
+                </div>
+                <div class="row">
+                    <div class="header col-md-4">{{ 'sitnet_exam_duration' | translate }}:</div>
+                    <div class="text col-md-8">{{ printExamDuration() }}</div>
+                </div>
+                <div class="row">
+                    <div class="header col-md-4">{{ 'sitnet_exam_guide' | translate }}:</div>
+                    <div class="text col-md-8" [innerHtml]="exam.instruction"></div>
                 </div>
             </div>
         </div>

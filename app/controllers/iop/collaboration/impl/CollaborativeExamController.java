@@ -52,7 +52,6 @@ import sanitizers.EmailSanitizer;
 import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.AppUtil;
 import util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
@@ -248,7 +247,7 @@ public class CollaborativeExamController extends CollaborationController {
                         .deleteExam(ce)
                         .thenApplyAsync(
                             result -> {
-                                if (result.status() == Http.Status.OK) {
+                                if (result.status() == OK) {
                                     ce.delete();
                                 }
                                 return result;
@@ -293,7 +292,7 @@ public class CollaborativeExamController extends CollaborationController {
                                         return uploadExam(ce, exam, user)
                                             .thenApplyAsync(
                                                 result2 -> {
-                                                    if (result2.status() == Http.Status.OK && isPrePublication) {
+                                                    if (result2.status() == OK && isPrePublication) {
                                                         Set<String> receivers = exam
                                                             .getExamOwners()
                                                             .stream()

@@ -6,14 +6,14 @@
                 ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
                 placement="right"
                 triggers="mouseenter:mouseleave"
-                src="assets/images/icon_tooltip.svg"
+                src="/assets/assets/images/icon_tooltip.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='assets/images/icon_tooltip.png'"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
             />
         </sup>
     </div>
     <div class="col-md-9">
-        <form name="myForm">
+        <form #myForm name="myForm">
             <input
                 type="email"
                 name="email"
@@ -46,9 +46,9 @@
                     >
                         <img
                             [hidden]="exam.state === 'PUBLISHED'"
-                            src="assets/images/icon_remove.svg"
+                            src="/assets/assets/images/icon_remove.svg"
                             alt="exam"
-                            onerror="this.onerror=null;this.src='assets/images/icon_remove.png'"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
                         />
                     </button>
                 </li>

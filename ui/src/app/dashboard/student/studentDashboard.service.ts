@@ -15,9 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { Observable } from 'rxjs';
 import { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { Reservation } from '../../reservation/reservation.model';
 
@@ -28,7 +28,7 @@ interface Occasion {
 
 export interface DashboardEnrolment extends ExamEnrolment {
     occasion?: Occasion;
-    startAtAggregate: any;
+    startAtAggregate: string;
 }
 
 @Injectable()
@@ -44,7 +44,7 @@ export class StudentDashboardService {
                     return {
                         ...e,
                         occasion,
-                        startAtAggregate: startAt,
+                        startAtAggregate: startAt.toString(),
                     };
                 }),
             ),

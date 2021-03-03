@@ -13,12 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../../utility/language/language.service';
-import { Exam, ExamLanguage } from '../../exam.model';
+import { ExamLanguage } from '../../exam.model';
+import { Exam } from '../../exam.model';
 
 @Component({
     selector: 'language-selector',

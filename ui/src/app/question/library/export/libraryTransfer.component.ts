@@ -13,14 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { OnInit } from '@angular/core';
 type Organisation = {
     _id: string;
     name: string;
     homeOrg: boolean;
+    code: string;
 };
 
 @Component({
@@ -28,11 +30,12 @@ type Organisation = {
     templateUrl: './libraryTransfer.component.html',
 })
 export class LibraryTransferComponent implements OnInit {
-    @Input() selections: number[];
-    organisations: Organisation[];
-    filteredOrganisations: Organisation[];
+    @Input() selections: number[] = [];
+    organisations: Organisation[] = [];
+    filteredOrganisations: (Organisation & { filtered: boolean })[] = [];
     organisation: Organisation;
-    filter: string;
+    filter = '';
+    showOrganisationSelection = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
@@ -44,7 +47,9 @@ export class LibraryTransferComponent implements OnInit {
     }
 
     filterOrganisations = () =>
-        (this.filteredOrganisations = this.organisations.filter(o => o.name.startsWith(this.filter)));
+        (this.filteredOrganisations = this.organisations
+            .filter(o => this.filter.length == 0 || o.name.startsWith(this.filter))
+            .map(o => ({ ...o, filtered: false })));
 
     transfer = () => {
         if (this.selections.length == 0) {

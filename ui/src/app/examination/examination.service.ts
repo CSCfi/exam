@@ -17,37 +17,39 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { from, Observable, throwError } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { isBlankElement, isTextElement } from '../exam/exam.model';
+import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
+import { WindowRef } from '../utility/window/window.service';
+
+import { Observable } from 'rxjs';
 import {
     ClozeTestAnswer,
     EssayAnswer,
     Exam,
     ExamSection,
     ExamSectionQuestion,
-    isBlankElement,
-    isTextElement,
-    MultipleChoiceOption,
+    ExamSectionQuestionOption,
 } from '../exam/exam.model';
-import { BlankQuestion, QuestionBase, TextPart } from '../utility/forms/questionTypes';
-import { WindowRef } from '../utility/window/window.service';
-
+import { QuestionBase } from '../utility/forms/questionTypes';
 export interface Examination extends Exam {
     cloned: boolean;
     external: boolean;
     examSections: ExaminationSection[];
 }
-
 export interface ExaminationQuestion extends ExamSectionQuestion {
     questionStatus: string;
     autosaved: Date;
     derivedMaxScore: number;
-    selectedOption: MultipleChoiceOption | number;
+    derivedMinScore: number;
+    selectedOption: number;
     answered: boolean;
     selectedAnsweredState: string;
     expanded: boolean;
+    options: ExamSectionQuestionOption[];
 }
 
 export interface ExaminationSection extends ExamSection {
@@ -84,7 +86,7 @@ export class ExaminationService {
         );
     }
 
-    saveTextualAnswer = (
+    saveTextualAnswer$ = (
         esq: ExaminationQuestion,
         hash: string,
         autosave: boolean,
@@ -111,7 +113,6 @@ export class ExaminationService {
                 if (autosave) {
                     esq.autosaved = new Date();
                 } else {
-                    toast.info(this.translate.instant('sitnet_answer_saved'));
                     if (!canFail) {
                         toast.info(this.translate.instant('sitnet_answer_saved'));
                     }
@@ -140,7 +141,7 @@ export class ExaminationService {
         }
     };
 
-    saveAllTextualAnswersOfSection = (
+    saveAllTextualAnswersOfSection$ = (
         section: ExaminationSection,
         hash: string,
         autosave: boolean,
@@ -149,14 +150,14 @@ export class ExaminationService {
     ): Observable<ExaminationQuestion[]> => {
         const questions = section.sectionQuestions.filter(esq => this.isTextualAnswer(esq, allowEmpty));
         return from(questions).pipe(
-            concatMap(q => this.saveTextualAnswer(q, hash, autosave, canFail)),
+            concatMap(q => this.saveTextualAnswer$(q, hash, autosave, canFail)),
             toArray(),
         );
     };
 
-    saveAllTextualAnswersOfExam = (exam: Examination, canFail: boolean): Observable<unknown> =>
+    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<unknown> =>
         from(exam.examSections).pipe(
-            concatMap(es => this.saveAllTextualAnswersOfSection(es, exam.hash, false, true, canFail)),
+            concatMap(es => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
         );
 
     private stripHtml = (text: string) => {
@@ -175,7 +176,7 @@ export class ExaminationService {
                 break;
             }
             case 'MultipleChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some(o => o.answered);
+                isAnswered = sq.selectedOption || sq.options.some(o => o.answered);
                 break;
             case 'WeightedMultipleChoiceQuestion':
                 isAnswered = sq.options.some(o => o.answered);
@@ -186,7 +187,7 @@ export class ExaminationService {
                 break;
             }
             case 'ClaimChoiceQuestion':
-                isAnswered = _.isObject(sq.selectedOption) || sq.options.some(o => o.answered);
+                isAnswered = sq.selectedOption || sq.options.some(o => o.answered);
                 break;
             default:
                 isAnswered = false;
@@ -211,7 +212,7 @@ export class ExaminationService {
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
             ids = sq.options.filter(o => o.answered).map(o => o.id);
         } else {
-            ids = [sq.selectedOption as number];
+            ids = [sq.selectedOption];
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
@@ -250,15 +251,12 @@ export class ExaminationService {
         const ok = () => {
             toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled });
+            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put(url, {}).subscribe(ok, resp => {
-            if (!canFail) {
-                toast.error(this.translate.instant(resp.data));
-            } else {
-                ok();
-            }
+        this.http.put<void>(url, {}).subscribe(ok, resp => {
+            if (!canFail) toast.error(this.translate.instant(resp));
+            else ok();
         });
     };
 

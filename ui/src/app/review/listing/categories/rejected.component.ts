@@ -18,7 +18,8 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { Review } from '../../review.model';
-import { ReviewListService, ReviewListView } from '../reviewList.service';
+import { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
 
 @Component({
     selector: 'rl-rejected',

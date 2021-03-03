@@ -42,7 +42,6 @@ import models.Tag;
 import models.User;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
-import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -306,8 +305,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 .stream(options.spliterator(), false)
                 .filter(
                     n -> {
-                        ClaimChoiceOptionType type = SanitizingHelper
-                            .parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class)
+                        MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper
+                            .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
                             .orElse(null);
                         double defaultScore = n.get("defaultScore").asDouble();
                         String option = n.get("option").asText();
@@ -317,13 +316,30 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         }
 
                         return (
-                            (type == ClaimChoiceOptionType.CorrectOption && defaultScore > 0 && !option.isEmpty()) ||
-                            (type == ClaimChoiceOptionType.IncorrectOption && defaultScore <= 0 && !option.isEmpty()) ||
-                            (type == ClaimChoiceOptionType.SkipOption && defaultScore == 0 && !option.isEmpty())
+                            (
+                                type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                                defaultScore > 0 &&
+                                !option.isEmpty()
+                            ) ||
+                            (
+                                type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                                defaultScore <= 0 &&
+                                !option.isEmpty()
+                            ) ||
+                            (
+                                type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                                defaultScore == 0 &&
+                                !option.isEmpty()
+                            )
                         );
                     }
                 )
-                .map(n -> SanitizingHelper.parseEnum("claimChoiceType", n, ClaimChoiceOptionType.class).orElse(null))
+                .map(
+                    n ->
+                        SanitizingHelper
+                            .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                            .orElse(null)
+                )
                 .filter(Objects::nonNull)
                 .distinct()
                 .limit(3)

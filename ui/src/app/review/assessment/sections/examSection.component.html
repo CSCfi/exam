@@ -6,12 +6,12 @@
                 <span class="score-details">
                     <span *ngIf="getSectionMaxScore() > 0">
                         {{ 'sitnet_word_points' | translate }}:&nbsp;
-                        <span style="color:#2C2C2C">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
+                        <span style="color: #2c2c2c">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
                     </span>
                     &nbsp;
                     <span *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
                         {{ 'sitnet_section_accepted_and_rejected' | translate }}:&nbsp;
-                        <span style="color:#2C2C2C"
+                        <span style="color: #2c2c2c"
                             >{{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}</span
                         >
                     </span>
@@ -22,19 +22,16 @@
             <div class="col-md-12 padr0 padl0">
                 <div class="padl30 mart20">
                     <img
-                        src="assets/images/icon_info.svg"
+                        src="/assets/assets/images/icon_info.svg"
                         alt="exam"
-                        onerror="this.onerror=null;this.src='assets/images/icon_info.png'"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
                     />
                     <span class="padl10 notice-text">{{ section.description }}</span>
                 </div>
             </div>
         </div>
-        <div class="detail-row padr0 padl0 mar0">
-            <div
-                class="col-md-12 padr0 padl0 mar0"
-                *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
-            >
+        <div class="detail-row">
+            <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'">
                 <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
                     <r-multi-choice-question
                         [sectionQuestion]="sq"
@@ -91,20 +88,15 @@
                 </div>
             </div>
         </div>
-        <div class="detail-row padt20 padr30">
+        <div class="detail-row padt20 padr30 d-flex justify-content-end">
             <div class="review-list-footer">
-                <div class="score-label" *ngIf="getSectionMaxScore() > 0">
+                <div *ngIf="getSectionMaxScore() > 0">
                     {{ 'sitnet_word_points' | translate }}:
-                    <span class="score-value"> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
+                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
                 </div>
-                <div
-                    class="score-label"
-                    *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0"
-                >
+                <div *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
                     {{ 'sitnet_section_accepted_and_rejected' | translate }}:
-                    <span class="score-value">
-                        {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}
-                    </span>
+                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
                 </div>
             </div>
         </div>

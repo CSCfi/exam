@@ -18,12 +18,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
 
-import { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
+import { Observable } from 'rxjs';
+
+import { Accessibility, DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../reservation/reservation.model';
 type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 export interface Slot {
@@ -54,32 +55,14 @@ export class CalendarService {
         private Session: SessionService,
     ) {}
 
-    private static formatExceptionEvent(
-        event: ExceptionWorkingHours,
-        tz: string,
-    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
-        const startDate = moment.tz(event.startDate, tz);
-        const endDate = moment.tz(event.endDate, tz);
-        return {
-            ...event,
-            start: startDate.format('DD.MM.YYYY HH:mm'),
-            end: endDate.format('DD.MM.YYYY HH:mm'),
-            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
-        };
-    }
-
     private adjustBack(date: moment.Moment, tz: string): string {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? 1 : 0;
         return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
-    private reserveInternal$ = (
-        slot: Slot,
-        accs: { filtered: boolean; id: number }[],
-        collaborative: boolean,
-    ): Observable<void> => {
-        slot.aids = accs.filter(item => item.filtered).map(item => item.id);
+    private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
+        slot.aids = accs.map(item => item.id);
         const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
         return this.http.post<void>(url, slot);
     };
@@ -95,7 +78,7 @@ export class CalendarService {
         start: moment.Moment,
         end: moment.Moment,
         room: ExamRoom,
-        accs: { filtered: boolean; id: number }[],
+        accs: Accessibility[],
         org: { _id: string | null },
         collaborative = false,
         sectionIds: number[] = [],
@@ -107,7 +90,7 @@ export class CalendarService {
             examId: parseInt(this.state.params.id),
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
-            sectionIds,
+            sectionIds: sectionIds,
         };
         if (org._id !== null) {
             return this.reserveExternal$(slot, collaborative);
@@ -148,7 +131,7 @@ export class CalendarService {
     getWeekdayNames(): WeekdayNames {
         const lang = this.Session.getUser().lang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        const options = { weekday: 'short' };
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short' };
         const weekday = this.DateTime.getDateForWeekday;
         return {
             SUNDAY: { ord: 7, name: weekday(0).toLocaleDateString(locale, options) },
@@ -189,10 +172,24 @@ export class CalendarService {
         return openingHours.sort((a, b) => a.ord - b.ord);
     }
 
-    getExceptionHours(room: ExamRoom, start: moment.Moment, end: moment.Moment) {
-        const maxStart = moment.max(moment(), start);
+    private static formatExceptionEvent(
+        event: ExceptionWorkingHours,
+        tz: string,
+    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
+        const startDate = moment.tz(event.startDate, tz);
+        const endDate = moment.tz(event.endDate, tz);
+        return {
+            ...event,
+            start: startDate.format('DD.MM.YYYY HH:mm'),
+            end: endDate.format('DD.MM.YYYY HH:mm'),
+            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
+        };
+    }
+
+    getExceptionHours(room: ExamRoom, start: Date, end: Date) {
+        const maxStart = moment.max(moment(), moment(start));
         const events = room.calendarExceptionEvents.filter(e => {
-            return moment(e.startDate) > maxStart && moment(e.endDate) < end;
+            return moment(e.startDate) > maxStart && moment(e.endDate) < moment(end);
         });
         return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }

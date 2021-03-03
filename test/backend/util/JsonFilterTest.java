@@ -14,7 +14,7 @@
  *
  */
 
-package util;
+package backend.util;
 
 import static org.fest.assertions.Assertions.assertThat;
 

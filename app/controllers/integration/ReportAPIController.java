@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import models.Exam;
 import models.ExamEnrolment;
 import models.Software;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
@@ -67,7 +68,7 @@ public class ReportAPIController extends BaseController {
             .idIn(parentExamIds)
             .findList()
             .stream()
-            .collect(Collectors.toMap(exam -> exam.getId(), exam -> exam.getSoftwareInfo()));
+            .collect(Collectors.toMap(GeneratedIdentityModel::getId, Exam::getSoftwareInfo));
 
         /* Set software lists to child exams */
         participations

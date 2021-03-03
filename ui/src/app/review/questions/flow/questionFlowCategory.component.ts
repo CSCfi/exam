@@ -28,6 +28,8 @@ export class QuestionFlowCategoryComponent {
     @Input() allDone: boolean;
     @Output() onSelection = new EventEmitter<QuestionReview>();
 
+    hideCategory = false;
+
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);

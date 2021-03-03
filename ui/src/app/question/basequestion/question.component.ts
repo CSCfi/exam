@@ -12,17 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
 import { ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { User } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { QuestionDraft, QuestionService } from '../question.service';
+import { QuestionService } from '../question.service';
+
+import { OnInit } from '@angular/core';
+import { User } from '../../session/session.service';
+import { QuestionDraft } from '../question.service';
 
 @Component({
     selector: 'question',
@@ -43,7 +46,7 @@ export class QuestionComponent implements OnInit {
 
     currentOwners: User[];
     question: Question | QuestionDraft;
-    transitionWatcher?: Function;
+    transitionWatcher?: unknown;
 
     constructor(
         private state: StateService,
@@ -97,6 +100,10 @@ export class QuestionComponent implements OnInit {
                 error => toast.error(error),
             );
         }
+    }
+
+    ngOnDestroy() {
+        this.clearListeners();
     }
 
     clearListeners = () => {

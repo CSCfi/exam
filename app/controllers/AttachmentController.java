@@ -129,7 +129,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
-        return wrapAsPromise(ok(answer));
+        return wrapAsPromise(ok(attachment));
     }
 
     private CompletionStage<Result> replaceAndFinish(

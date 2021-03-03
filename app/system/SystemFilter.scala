@@ -5,7 +5,6 @@ import javax.inject.Inject
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.mvc.{Filter, RequestHeader, Result}
-import play.api.{Logging, mvc}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,9 +15,7 @@ object ResultImplicits {
   }
 }
 
-class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext)
-    extends Filter
-    with Logging {
+class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
   val Headers = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
@@ -65,12 +62,14 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
     }
   }
 
-  override def apply(next: RequestHeader => Future[mvc.Result])(
-      rh: RequestHeader): Future[mvc.Result] = rh.path match {
-    case "/app/logout" => next.apply(rh)
-    case p if p.startsWith("/app") | p.startsWith("/integration") =>
-      next.apply(rh).map(processResult(_)(rh))
-    case _ => next.apply(rh)
-  }
+  override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
+    rh.path match {
+      case "/app/logout" => next.apply(rh)
+      // Disable caching for index page so that CSRF cookie can be injected without worries
+      case "/" => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
+      case p if p.startsWith("/app") | p.startsWith("/integration") =>
+        next.apply(rh).map(processResult(_)(rh))
+      case _ => next.apply(rh)
+    }
 
 }

@@ -17,9 +17,16 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from, Observable } from 'rxjs';
+import { from } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { SessionService } from '../session/session.service';
+import { AttachmentService } from '../utility/attachment/attachment.service';
+import { FileService } from '../utility/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+
+import { Observable } from 'rxjs';
 import {
     Exam,
     ExamSection,
@@ -29,12 +36,7 @@ import {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
-
-export type QuestionDraft = Omit<ReverseQuestion, 'id'>;
+export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
     rejected: number;
@@ -81,6 +83,7 @@ export class QuestionService {
 
     getQuestionDraft(): QuestionDraft {
         return {
+            id: undefined,
             question: '',
             type: '',
             examSectionQuestions: [],
@@ -161,6 +164,7 @@ export class QuestionService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
+        if (!score) return 0;
         const proportion =
             (score.correctAnswers * sectionQuestion.maxScore) / (score.correctAnswers + score.incorrectAnswers);
         return parseFloat(proportion.toFixed(2));
@@ -213,8 +217,8 @@ export class QuestionService {
         return 0;
     };
 
-    private getQuestionData(question: Partial<Question>): Question {
-        const questionToUpdate: any = {
+    private getQuestionData(question: Partial<Question>): Partial<Question> {
+        const questionToUpdate: Partial<Question> = {
             type: question.type,
             defaultMaxScore: question.defaultMaxScore,
             question: question.question,
@@ -254,7 +258,7 @@ export class QuestionService {
                         this.Files.upload(
                             '/app/attachment/question',
                             question.attachment.file,
-                            { questionId: response.id },
+                            { questionId: response.id.toString() },
                             question,
                             () => resolve(response),
                         );
@@ -276,7 +280,7 @@ export class QuestionService {
                     this.Files.upload(
                         '/app/attachment/question',
                         question.attachment.file,
-                        { questionId: question.id },
+                        { questionId: question.id.toString() },
                         question,
                         () => resolve,
                     );
@@ -291,19 +295,19 @@ export class QuestionService {
         });
     };
 
-    updateDistributedExamQuestion = (
+    updateDistributedExamQuestion$ = (
         question: Question,
         sectionQuestion: ExamSectionQuestion,
         examId: number,
         sectionId: number,
     ) => {
-        const data: any = {
+        const data: Partial<ExamSectionQuestion> = {
             id: sectionQuestion.id,
             maxScore: sectionQuestion.maxScore,
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
             options: sectionQuestion.options,
-            question,
+            question: question,
         };
 
         // update question specific attributes
@@ -313,41 +317,30 @@ export class QuestionService {
                 data.evaluationType = sectionQuestion.evaluationType;
                 break;
         }
-        return new Promise<ExamSectionQuestion>((resolve, reject) => {
-            this.http
-                .put<ExamSectionQuestion>(
-                    `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`,
-                    data,
-                )
-                .subscribe(
-                    response => {
-                        Object.assign(response.question, question);
-                        if (question.attachment && question.attachment.modified && question.attachment.file) {
-                            this.Files.upload(
-                                '/app/attachment/question',
-                                question.attachment.file,
-                                { questionId: question.id },
-                                question,
-                                function() {
-                                    response.question.attachment = question.attachment;
-                                    resolve(response);
-                                },
-                            );
-                        } else if (question.attachment && question.attachment.removed) {
-                            this.Attachment.eraseQuestionAttachment(question).then(() => {
-                                delete response.question.attachment;
-                                resolve(response);
-                            });
-                        } else {
-                            resolve(response);
-                        }
-                    },
-                    err => {
-                        toast.error(err.data);
-                        reject();
-                    },
-                );
-        });
+        return this.http
+            .put<ExamSectionQuestion>(
+                `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`,
+                data,
+            )
+            .pipe(
+                map(response => {
+                    Object.assign(response.question, question);
+                    if (question.attachment && question.attachment.modified && question.attachment.file) {
+                        this.Files.upload(
+                            '/app/attachment/question',
+                            question.attachment.file,
+                            { questionId: question.id.toString() },
+                            question,
+                            () => (response.question.attachment = question.attachment),
+                        );
+                    } else if (question.attachment && question.attachment.removed) {
+                        this.Attachment.eraseQuestionAttachment(question).then(() => {
+                            delete response.question.attachment;
+                        });
+                    }
+                    return response;
+                }),
+            );
     };
 
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
@@ -471,12 +464,12 @@ export class QuestionService {
         return invalidOptions;
     };
 
-    addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
+    addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<void> => {
         const data = {
-            uid,
+            uid: uid,
             questionIds: qids.join(),
         };
-        return this.http.post(this.questionOwnerApi(uid), data);
+        return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
 
     openBaseQuestionEditor = (newQuestion: boolean, collaborative: boolean): Observable<Question> => {
@@ -484,7 +477,7 @@ export class QuestionService {
             backdrop: 'static',
             keyboard: false,
             windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modal.componentInstance.newQuestion = newQuestion;
         modal.componentInstance.collaborative = collaborative;

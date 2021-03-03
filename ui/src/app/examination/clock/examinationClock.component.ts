@@ -27,7 +27,7 @@ export class ExaminationClockComponent {
     syncInterval = 15;
     secondsSinceSync = this.syncInterval + 1;
     alarmThreshold = 300;
-    remainingTime?: number;
+    remainingTime = this.alarmThreshold + 1;
     showRemainingTime = true;
     pollerId: number;
 
@@ -35,6 +35,12 @@ export class ExaminationClockComponent {
 
     ngOnInit() {
         this.checkRemainingTime();
+    }
+
+    ngOnDestroy() {
+        if (this.pollerId) {
+            this.Window.nativeWindow.clearTimeout(this.pollerId);
+        }
     }
 
     private checkRemainingTime = () => {

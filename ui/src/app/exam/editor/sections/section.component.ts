@@ -12,20 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
 import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import { ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,
@@ -33,6 +36,7 @@ import { ExamService } from '../../exam.service';
 })
 export class SectionComponent {
     @Input() section: ExamSection;
+    @Input() index: number;
     @Input() examId: number;
     @Input() canBeOptional: boolean;
     @Input() collaborative: boolean;
@@ -112,10 +116,7 @@ export class SectionComponent {
         const resource = this.collaborative
             ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
             : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-        const data: any = { sequenceNumber: seq };
-        if (this.collaborative) {
-            data.question = question;
-        }
+        const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
         this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
             resp => {
                 // Add new section question to existing section
@@ -151,7 +152,7 @@ export class SectionComponent {
             this.Files.upload(
                 '/integration/iop/attachment/question',
                 attachment.file,
-                { examId: this.examId, questionId: data.id },
+                { examId: this.examId.toString(), questionId: data.id.toString() },
                 question,
                 callback,
             );
@@ -235,8 +236,8 @@ export class SectionComponent {
         if (from >= 0 && to >= 0 && from !== to) {
             this.http
                 .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
-                    from,
-                    to,
+                    from: from,
+                    to: to,
                 })
                 .subscribe(() => {
                     toast.info(this.translate.instant('sitnet_questions_reordered'));
@@ -283,17 +284,17 @@ export class SectionComponent {
         const modal = this.modal.open(QuestionSelectorComponent, {
             backdrop: 'static',
             keyboard: true,
-            windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;
         modal.componentInstance.questionCount = this.section.sectionQuestions.length;
-        modal.result.then((modalValue: ExamSectionQuestion[] | undefined) => {
-            if (modalValue && Array.isArray(modalValue)) {
-                this.section.sectionQuestions = [...this.section.sectionQuestions, ...modalValue];
-            }
-        });
+        modal.result
+            .then(
+                (questions: ExamSectionQuestion[]) =>
+                    (this.section.sectionQuestions = [...this.section.sectionQuestions, ...questions]),
+            )
+            .catch(noop);
     };
 
     getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);

@@ -13,15 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { SessionService, User } from '../../../session/session.service';
+import { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { LibraryQuestion, LibraryService } from '../library.service';
+import { LibraryQuestion } from '../library.service';
+import { LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
@@ -186,7 +189,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.questionSelected();
     };
 
-    private showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
+    showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
         if (_.isNumber(scoreColumnValue)) {
             return scoreColumnValue;
         } else {

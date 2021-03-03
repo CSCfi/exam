@@ -49,7 +49,7 @@ export class QuestionReviewService {
         !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
 
     getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
-        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids } });
+        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
 
     getProcessedAnswerCount = (review: QuestionReview, user: User) => {
         if (!review) {

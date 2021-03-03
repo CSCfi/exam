@@ -12,17 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { registerLocaleData } from '@angular/common';
+import localeEn from '@angular/common/locales/en';
+import localeFi from '@angular/common/locales/fi';
+import localeSv from '@angular/common/locales/sv';
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ExaminationStatusService } from './examination/examinationStatus.service';
-import { SessionService, User } from './session/session.service';
+import { SessionService } from './session/session.service';
 import { WindowRef } from './utility/window/window.service';
 
+import { User } from './session/session.service';
 @Component({
-    selector: 'app-root',
+    selector: 'app',
     template: `
         <div *ngIf="!user && devLoginRequired">
             <dev-login (onLoggedIn)="setUser($event)"></dev-login>
@@ -33,8 +38,8 @@ import { WindowRef } from './utility/window/window.service';
                 id="mainView"
                 class="container-fluid"
                 [ngClass]="{
-                    'vmenu-on': !hideNavBar && !user.isAdmin,
-                    'vmenu-on-admin': user.isAdmin
+                    'vmenu-on': !hideNavBar && !user?.isAdmin,
+                    'vmenu-on-admin': user?.isAdmin
                 }"
             >
                 <ui-view></ui-view>
@@ -55,19 +60,22 @@ export class AppComponent {
         private ExaminationStatus: ExaminationStatusService,
     ) {
         this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.hideNavBar = false;
+            this.hideNavBar = true;
         });
         this.ExaminationStatus.examinationEnding$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.hideNavBar = false;
         });
         this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             delete this.user;
-            this.state.go('dashboard');
+            this.state.go('app');
         });
+        registerLocaleData(localeSv);
+        registerLocaleData(localeFi);
+        registerLocaleData(localeEn);
     }
 
     ngOnInit() {
-        const storedUser: string = this.Window.nativeWindow.sessionStorage.EXAM_USER;
+        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
         if (storedUser) {
             const user = JSON.parse(storedUser);
             if (!user.loginRole) {
@@ -100,7 +108,7 @@ export class AppComponent {
         this.ngUnsubscribe.complete();
     }
 
-    setUser(user: any) {
+    setUser(user: User) {
         this.user = user;
     }
 }

@@ -1,22 +1,16 @@
+import { isRealGrade } from '../../../exam/exam.model';
+
 import { HttpClient } from '@angular/common/http';
 
-import {
-    Exam,
-    ExamExecutionType,
-    ExamLanguage,
-    GradeScale,
-    isRealGrade,
-    NoGrade,
-    SelectableGrade,
-} from '../../../exam/exam.model';
+import { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { AssessmentService } from '../assessment.service';
 
 export abstract class GradingBaseComponent {
-    selections: { grade: SelectableGrade; type: ExamExecutionType; language: ExamLanguage };
+    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
-    creditTypes: ExamExecutionType[];
+    creditTypes: (ExamType & { name: string })[];
     languages: (ExamLanguage & { name: string })[];
 
     constructor(
@@ -24,7 +18,13 @@ export abstract class GradingBaseComponent {
         protected Assessment: AssessmentService,
         protected Exam: ExamService,
         protected Language: LanguageService,
-    ) {}
+    ) {
+        this.selections = {
+            grade: null,
+            type: null,
+            language: null,
+        };
+    }
 
     protected abstract getExam(): Exam;
 
@@ -73,7 +73,7 @@ export abstract class GradingBaseComponent {
 
     protected initCreditTypes = () => {
         const exam = this.getExam();
-        this.Exam.refreshExamTypes().subscribe(types => {
+        this.Exam.refreshExamTypes$().subscribe(types => {
             const creditType = exam.creditType || exam.examType;
             this.creditTypes = types;
             types.forEach(type => {

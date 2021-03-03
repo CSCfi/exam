@@ -13,13 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { NgbModal, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExamMaterial, ExamSection } from '../../exam.model';
+import { ExamMaterial } from '../../exam.model';
+import { ExamSection } from '../../exam.model';
 import { ExamMaterialComponent } from './examMaterial.component';
 
 @Component({
@@ -66,9 +69,7 @@ export class ExamMaterialSelectorComponent {
     nameFormat = (m: ExamMaterial) => m.name;
 
     addMaterial = () => {
-        if (!this.selectedMaterial) {
-            return;
-        }
+        if (!this.selectedMaterial) return;
         this.http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).subscribe(
             () => {
                 this.section.examMaterials.push(this.selectedMaterial as ExamMaterial);

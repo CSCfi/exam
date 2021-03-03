@@ -39,7 +39,6 @@ import models.api.Sortable;
 import models.base.OwnedModel;
 import models.questions.Question;
 import org.springframework.beans.BeanUtils;
-import util.AppUtil;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {

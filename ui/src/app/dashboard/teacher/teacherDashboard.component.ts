@@ -13,20 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { StateService } from '@uirouter/core';
 
 import { ExamExecutionType } from '../../exam/exam.model';
-import { SessionService, User } from '../../session/session.service';
+import { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
-import {
-    ActiveExam,
-    ArchivedExam,
-    DraftExam,
-    FinalizedExam,
-    TeacherDashboardService,
-} from './teacherDashboard.service';
+import { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
+import { TeacherDashboardService } from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;
@@ -127,7 +124,7 @@ export class TeacherDashboardComponent implements OnInit {
                                   { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
                               ]
                             : [];
-                    return { ...t, examinationTypes };
+                    return { ...t, examinationTypes: examinationTypes };
                 });
             });
         });

@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { ExamSection } from '../exam/exam.model';
 import { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
@@ -22,9 +23,11 @@ export type DefaultWorkingHours = {
 };
 
 export type ExceptionWorkingHours = {
-    startDate: Date;
-    endDate: Date;
+    id: number;
+    startDate: Date | string;
+    endDate: Date | string;
     outOfService: boolean;
+    massEdited: boolean;
 };
 
 export type Accessibility = {
@@ -41,17 +44,32 @@ export interface ExamRoom {
     roomInstruction: string;
     roomInstructionEN: string;
     roomInstructionSV: string;
+    roomCode: string;
     defaultWorkingHours: DefaultWorkingHours[];
     calendarExceptionEvents: ExceptionWorkingHours[];
     accessibilities: Accessibility[];
     outOfService: boolean;
     statusComment: string;
+    buildingName: string;
+    mailAddress: { street: string; zip: string; city: string };
+    state: 'ACTIVE' | 'INACTIVE';
+    campus: string;
+    contactPerson: string;
 }
 
 export interface ExamMachine {
     id: number;
     name: string;
     room: ExamRoom;
+    outOfService: boolean;
+    statusComment: string;
+    archived: boolean;
+    softwareInfo: {
+        id: number;
+        status: string;
+    }[];
+    otherIdentifier: string;
+    accessibilityInfo: string;
 }
 
 export interface ExternalReservation {
@@ -77,4 +95,5 @@ export interface Reservation {
     endAt: string;
     user: User;
     retrialPermitted: boolean;
+    optionalSections: ExamSection[];
 }

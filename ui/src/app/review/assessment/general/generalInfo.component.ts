@@ -18,7 +18,8 @@ import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { Exam, ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
 import { Reservation } from '../../../reservation/reservation.model';
 import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -74,7 +75,6 @@ export class GeneralInfoComponent {
             duration.add(1, 'minutes');
         }
         this.participation.duration = duration.format();
-
         this.student = this.participation.user as User;
         this.studentName = this.student
             ? `${this.student.lastName} ${this.student.firstName}`
@@ -86,12 +86,12 @@ export class GeneralInfoComponent {
         if (this.collaborative) {
             this.http
                 .get<Participation[]>(
-                    `/integration/iop/reviews/${this.state.params.eid}/participations/${this.state.params.ref}`,
+                    `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {
             this.http
-                .get<Participation[]>(`app/examparticipations/${this.state.params.eid}`)
+                .get<Participation[]>(`app/examparticipations/${this.state.params.id}`)
                 .subscribe(this.handleParticipations);
         }
     }

@@ -79,8 +79,8 @@ public class RoomController extends BaseController {
         if (room.getExternalRef() != null && examVisitActivated) {
             return externalApi
                 .updateFacility(room)
-                .thenApplyAsync(x -> ok("updated"))
-                .exceptionally(throwable -> internalServerError(throwable.getMessage()));
+                .thenApplyAsync(x -> ok(Json.newObject()))
+                .exceptionally(throwable -> internalServerError(Json.newObject().put("error", throwable.getMessage())));
         } else {
             return wrapAsPromise(ok());
         }
