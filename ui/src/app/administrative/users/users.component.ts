@@ -1,16 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../session/session.service';
-import { PermissionType, UserManagementService } from './users.service';
-
-import { OnInit } from '@angular/core';
-import { User } from '../../session/session.service';
-import { Permission } from './users.service';
+import { SessionService, User } from '../../session/session.service';
+import { Permission, PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -34,9 +30,9 @@ interface UserWithOptions extends User {
 
 @Component({
     templateUrl: './users.component.html',
-    selector: 'users',
+    selector: 'app-users',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];
     filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
@@ -93,7 +89,7 @@ export class UsersComponent implements OnInit {
     search = () => {
         this.loader.loading = true;
         this.initSearch();
-    };
+    }
 
     hasRole = (user: User, role: string) => user.roles.some(r => r.name === role);
 
@@ -117,7 +113,7 @@ export class UsersComponent implements OnInit {
             return { ...p, filtered: false };
         });
         this.filterUsers();
-    };
+    }
 
     isUnfiltered = (user: User) => {
         // Do not show logged in user in results
@@ -147,47 +143,43 @@ export class UsersComponent implements OnInit {
                 }
             });
         return result;
-    };
+    }
 
     addRole = (user: UserWithOptions, role: RoleOption) => {
         this.userManagement.addRole(user.id, role.type).subscribe(() => {
             user.roles.push({ name: role.type });
             this.updateEditOptions(user);
         });
-    };
+    }
 
     addPermission = (user: UserWithOptions, permission: Permission) => {
         this.userManagement.addPermission(user.id, permission.type).subscribe(() => {
             user.permissions.push({ type: permission.type });
             this.updateEditOptions(user);
         });
-    };
+    }
 
     removeRole = (user: UserWithOptions, role: RoleOption) => {
         this.userManagement.removeRole(user.id, role.type).subscribe(() => {
             const i = user.roles
-                .map(function(r) {
-                    return r.name;
-                })
+                .map((r) => r.name)
                 .indexOf(role.type);
             user.roles.splice(i, 1);
             this.updateEditOptions(user);
             this.filterUsers();
         });
-    };
+    }
 
     removePermission = (user: UserWithOptions, permission: PermissionOption) => {
         this.userManagement.removePermission(user.id, permission.type).subscribe(() => {
             const i = user.permissions
-                .map(function(p) {
-                    return p.type;
-                })
+                .map((p) => p.type)
                 .indexOf(permission.type);
             user.permissions.splice(i, 1);
             this.updateEditOptions(user);
             this.filterUsers();
         });
-    };
+    }
 
     filterUsers = () => (this.filteredUsers = this.users.filter(this.isUnfiltered));
 
@@ -210,7 +202,7 @@ export class UsersComponent implements OnInit {
                 user.removablePermissions.push(cloneDeep(permission));
             }
         });
-    };
+    }
 
     initSearch = () => {
         this.userManagement.getUsers(this.filter.text).subscribe(
@@ -227,5 +219,5 @@ export class UsersComponent implements OnInit {
                 toast.error(this.translate.instant(err.data));
             },
         );
-    };
+    }
 }

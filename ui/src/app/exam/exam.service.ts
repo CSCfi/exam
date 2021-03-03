@@ -17,15 +17,14 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as moment from 'moment';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-
-import { Observable } from 'rxjs';
-import { ReviewedExam } from '../enrolment/enrolment.model';
 import {
     Exam,
     ExamExecutionType,
@@ -50,16 +49,16 @@ export class ExamService {
     ) {}
 
     getReviewablesCount = (exam: Exam) =>
-        exam.children.filter(child => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;
+        exam.children.filter(child => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length
 
     getGradedCount = (exam: Exam) => exam.children.filter(child => child.state === 'GRADED').length;
 
     getProcessedCount = (exam: Exam) =>
-        exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
+        exam.children.filter(child => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType, implementation: examinationType })
             .subscribe(
                 response => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
@@ -67,7 +66,7 @@ export class ExamService {
                 },
                 err => toast.error(err.data),
             );
-    };
+    }
 
     updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
         const data = {
@@ -96,7 +95,7 @@ export class ExamService {
         Object.assign(data, overrides);
         const url = collaborative ? '/integration/iop/exams' : '/app/exams';
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
-    };
+    }
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';
@@ -111,7 +110,7 @@ export class ExamService {
                 break;
         }
         return this.translate.instant(name);
-    };
+    }
 
     getExamGradeDisplayName = (grade: string): string => {
         let name;
@@ -154,7 +153,7 @@ export class ExamService {
                 break;
         }
         return name;
-    };
+    }
 
     refreshExamTypes$ = (): Observable<(ExamType & { name: string })[]> =>
         this.http.get<ExamType[]>('/app/examtypes').pipe(
@@ -164,7 +163,7 @@ export class ExamService {
                     name: this.getExamTypeDisplayName(et.type),
                 })),
             ),
-        );
+        )
 
     getScaleDisplayName = (gs: GradeScale | null): string => {
         if (!gs) {
@@ -186,7 +185,7 @@ export class ExamService {
                 name = gs.displayName;
         }
         return name;
-    };
+    }
 
     refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
         const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
@@ -199,7 +198,7 @@ export class ExamService {
                 ),
             ),
         );
-    };
+    }
 
     getCredit = (exam: Exam | ReviewedExam) => {
         if (this.hasCustomCredit(exam)) {
@@ -207,14 +206,14 @@ export class ExamService {
         } else {
             return exam.course && exam.course.credits ? exam.course.credits : 0;
         }
-    };
+    }
 
     hasCustomCredit = (exam: Exam | ReviewedExam) => !isNaN(exam.customCredit) && exam.customCredit >= 0;
 
     getExamDisplayCredit = (exam: Exam) => {
         const courseCredit = exam.course ? exam.course.credits : 0;
         return this.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
-    };
+    }
 
     getExecutionTypeTranslation = (et: ExamExecutionType) => {
         switch (et.type) {
@@ -229,7 +228,7 @@ export class ExamService {
             default:
                 return '';
         }
-    };
+    }
 
     listExecutionTypes$ = (): Observable<(ExamExecutionType & { name: string })[]> =>
         this.http.get<ExamExecutionType[]>('/app/executiontypes').pipe(
@@ -240,7 +239,7 @@ export class ExamService {
                     }),
                 ),
             ),
-        );
+        )
 
     getExamImplementationTranslation = (impl: Implementation) => {
         switch (impl) {
@@ -251,37 +250,37 @@ export class ExamService {
             case 'WHATEVER':
                 return 'sitnet_examination_type_home_exam';
         }
-    };
+    }
 
     private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            let score = 0;
+            let val = 0;
             switch (sq.question.type) {
                 case 'MultipleChoiceQuestion':
-                    score = this.Question.scoreMultipleChoiceAnswer(sq, false);
+                    val = this.Question.scoreMultipleChoiceAnswer(sq, false);
                     break;
                 case 'WeightedMultipleChoiceQuestion':
-                    score = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
+                    val = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
                     break;
                 case 'ClozeTestQuestion':
-                    score = this.Question.scoreClozeTestAnswer(sq);
+                    val = this.Question.scoreClozeTestAnswer(sq);
                     break;
                 case 'EssayQuestion':
                     if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
-                        score = sq.essayAnswer.evaluatedScore;
+                        val = sq.essayAnswer.evaluatedScore;
                     }
                     break;
                 case 'ClaimChoiceQuestion':
-                    score += this.Question.scoreClaimChoiceAnswer(sq, false);
+                    val += this.Question.scoreClaimChoiceAnswer(sq, false);
                     break;
             }
-            return n + score;
+            return n + val;
         }, 0);
 
         return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
-    };
+    }
 
     getSectionMaxScore = (section: ExamSection): number => {
         let maxScore = section.sectionQuestions.reduce((n, sq) => {
@@ -313,19 +312,19 @@ export class ExamService {
         }
 
         return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
-    };
+    }
 
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
 
     hasEssayQuestions = (exam: SectionContainer) =>
-        exam.examSections.filter(es => es.sectionQuestions.some(sq => sq.question.type === 'EssayQuestion')).length > 0;
+        exam.examSections.filter(es => es.sectionQuestions.some(sq => sq.question.type === 'EssayQuestion')).length > 0
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
     getTotalScore = (exam: SectionContainer): string => {
         const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2);
         return parseFloat(score) > 0 ? score : '0';
-    };
+    }
 
     isOwner = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
@@ -336,12 +335,12 @@ export class ExamService {
                 o => o.id === user.id || (collaborative && (o.eppn === user.eppn || o.email === user.email)),
             ).length > 0
         );
-    };
+    }
 
     isOwnerOrAdmin = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
-    };
+    }
 
     removeExam = (exam: Exam, collaborative = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
@@ -361,10 +360,10 @@ export class ExamService {
         } else {
             toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
         }
-    };
+    }
 
     getResource = (url: string, collaborative = false) =>
-        collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+        collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url
 
     isAllowedToUnpublishOrRemove = (exam: Exam, collaborative = false) => {
         if (collaborative) {
@@ -372,7 +371,7 @@ export class ExamService {
         }
         // allowed if no upcoming reservations and if no one has taken this yet
         return !exam.hasEnrolmentsInEffect && (!exam.children || exam.children.length === 0);
-    };
+    }
 
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
         const params = { id: exam.id, tab: fromTab };
@@ -383,31 +382,31 @@ export class ExamService {
         } else {
             this.State.go('examPreview', params);
         }
-    };
+    }
 
-    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
-        this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
+    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean) =>
+        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from, to })
 
     addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
-        this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
+        this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {})
 
     removeSection$ = (exam: Exam, section: ExamSection): Observable<void> =>
-        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
+        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`))
 
     addExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
-        this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
+        this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config)
 
     updateExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfiguration,
     ): Observable<ExaminationEventConfiguration> =>
-        this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
+        this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config)
 
     removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
-        this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
+        this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`)
 
     downloadExam = (id: number) => {
         return this.http
@@ -417,8 +416,8 @@ export class ExamService {
                 exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
                 return exam;
             });
-    };
+    }
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some(ee => ee.reservation && moment(ee.reservation.endAt) > moment());
+        exam.examEnrolments.some(ee => ee.reservation && moment(ee.reservation.endAt) > moment())
 }

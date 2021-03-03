@@ -24,7 +24,7 @@ import { Week } from './room.service';
 
 @Component({
     templateUrl: './exceptionListAll.component.html',
-    selector: 'exception-list-all',
+    selector: 'app-exception-list-all',
 })
 export class ExceptionListAllComponent implements OnInit {
     week: Week;
@@ -42,21 +42,21 @@ export class ExceptionListAllComponent implements OnInit {
         this.room.addException(this.getRoomIds(), exception).then(() => {
             this.loadRooms();
         });
-    };
+    }
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.room.deleteException(this.rooms[0].id, exception.id).then(() => {
             this.loadRooms();
         });
-    };
+    }
 
     addMultiRoomException = () => {
         this.room.openExceptionDialog(this.addException);
-    };
+    }
 
     updateWorkingHours = () => {
         this.room.updateWorkingHours(this.week, this.getRoomIds());
-    };
+    }
 
     massEditedRoomFilter = (room: ExamRoom) => room.calendarExceptionEvents.some(e => e.massEdited);
 
@@ -72,7 +72,7 @@ export class ExceptionListAllComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     private getRoomIds = () => this.rooms.map(room => room.id);
 }

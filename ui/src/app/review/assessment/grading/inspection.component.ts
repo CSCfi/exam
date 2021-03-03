@@ -21,7 +21,7 @@ import * as toast from 'toastr';
 import { User } from '../../../session/session.service';
 
 @Component({
-    selector: 'r-inspection',
+    selector: 'app-r-inspection',
     templateUrl: './inspection.component.html',
 })
 export class InspectionComponent implements OnInit {
@@ -57,5 +57,5 @@ export class InspectionComponent implements OnInit {
                 err => toast.error(err.data),
             );
         }
-    };
+    }
 }

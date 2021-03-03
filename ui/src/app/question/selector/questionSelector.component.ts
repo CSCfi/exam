@@ -21,7 +21,7 @@ import * as toast from 'toastr';
 import { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
-    selector: 'question-selector',
+    selector: 'app-question-selector',
     templateUrl: './questionSelector.component.html',
 })
 export class QuestionSelectorComponent {
@@ -71,5 +71,5 @@ export class QuestionSelectorComponent {
         // is not in use here
         const to = this.questionCount + 1;
         insertQuestion(this.sectionId, to, this.examId);
-    };
+    }
 }

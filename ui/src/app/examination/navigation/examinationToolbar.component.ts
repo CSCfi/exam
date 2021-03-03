@@ -27,7 +27,7 @@ import { Examination, ExaminationSection, ExaminationService } from '../examinat
 
 import { ExamRoom } from '../../reservation/reservation.model';
 @Component({
-    selector: 'examination-toolbar',
+    selector: 'app-examination-toolbar',
     templateUrl: './examinationToolbar.component.html',
 })
 export class ExaminationToolbarComponent {
@@ -65,7 +65,7 @@ export class ExaminationToolbarComponent {
         }
         const userId = user.userIdentifier ? ' (' + user.userIdentifier + ')' : '';
         return `${user.firstName} ${user.lastName} ${userId}`;
-    };
+    }
 
     turnExam = () => {
         const dialog = this.Confirmation.open(
@@ -83,7 +83,7 @@ export class ExaminationToolbarComponent {
                 ),
             ),
         );
-    };
+    }
 
     abortExam = () => {
         const dialog = this.Confirmation.open(
@@ -103,14 +103,14 @@ export class ExaminationToolbarComponent {
                 err => toast.error(err.data),
             ),
         );
-    };
+    }
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 
     selectGuidePage = () => this.onPageSelect.emit({ page: { type: 'guide' } });
 
     selectSection = (section: ExaminationSection) =>
-        this.onPageSelect.emit({ page: { id: section.id, type: 'section' } });
+        this.onPageSelect.emit({ page: { id: section.id, type: 'section' } })
 
     getQuestionAmount = (section: ExaminationSection, type: string) => {
         if (type === 'total') {
@@ -122,7 +122,7 @@ export class ExaminationToolbarComponent {
                 section.sectionQuestions.length - section.sectionQuestions.filter(this.Examination.isAnswered).length
             );
         }
-    };
+    }
 
     displayRoomInstructions = () => {
         if (this.room) {
@@ -137,7 +137,7 @@ export class ExaminationToolbarComponent {
                     return this.room.roomInstructionEN;
             }
         }
-    };
+    }
 
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });
 
@@ -153,5 +153,5 @@ export class ExaminationToolbarComponent {
         } else if (tab == 4) {
             this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: collab });
         }
-    };
+    }
 }

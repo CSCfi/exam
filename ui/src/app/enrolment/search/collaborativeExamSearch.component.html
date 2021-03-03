@@ -52,6 +52,6 @@
     </div>
 
     <div class="exams-list marr30 list-item" [hidden]="loader.loading" *ngFor="let exam of exams">
-        <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
+        <app-exam-search-result [exam]="exam" [collaborative]="true"></app-exam-search-result>
     </div>
 </div>

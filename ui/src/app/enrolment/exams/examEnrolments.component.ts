@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, OnInit } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
+import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-import { OnInit } from '@angular/core';
-import { EnrolmentInfo } from '../enrolment.model';
 @Component({
-    selector: 'exam-enrolments',
+    selector: 'app-exam-enrolments',
     template: `
         <div id="dashboard">
             <div class="row mt-2 ml-2" *ngIf="exam?.noTrialsLeft">
@@ -30,7 +29,7 @@ import { EnrolmentInfo } from '../enrolment.model';
                     <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
                 </div>
             </div>
-            <enrolment-details *ngIf="exam" [exam]="exam"></enrolment-details>
+            <app-enrolment-details *ngIf="exam" [exam]="exam"></app-enrolment-details>
             <div *ngIf="exams?.length > 0">
                 <div class="row mt-2 ml-4">
                     <div class="col-md-12 mt-2 ml-4">
@@ -39,7 +38,7 @@ import { EnrolmentInfo } from '../enrolment.model';
                 </div>
                 <div class="row mt-2 ml-4" *ngFor="let exam of exams">
                     <div class="col-md-12">
-                        <exam-search-result [exam]="exam"></exam-search-result>
+                        <app-exam-search-result [exam]="exam"></app-exam-search-result>
                     </div>
                 </div>
             </div>
@@ -50,7 +49,7 @@ export class ExamEnrolmentsComponent implements OnInit {
     exam: EnrolmentInfo;
     exams: EnrolmentInfo[];
 
-    constructor(private state: StateService, private Enrolment: EnrolmentService, private Session: SessionService) {}
+    constructor(private routing: UIRouterGlobals, private Enrolment: EnrolmentService, private Session: SessionService) {}
 
     ngOnInit() {
         const user = this.Session.getUser();
@@ -58,11 +57,11 @@ export class ExamEnrolmentsComponent implements OnInit {
             // We can not load resources before role is known.
             return;
         }
-        this.Enrolment.getEnrolmentInfo(this.state.params.code, parseInt(this.state.params.id)).subscribe(
+        this.Enrolment.getEnrolmentInfo(this.routing.params.code, parseInt(this.routing.params.id, 10)).subscribe(
             exam => (this.exam = exam),
             err => toast.error(err.data),
         );
-        this.Enrolment.listEnrolments(this.state.params.code, parseInt(this.state.params.id)).subscribe(
+        this.Enrolment.listEnrolments(this.routing.params.code, parseInt(this.routing.params.id, 10)).subscribe(
             exams => (this.exams = exams),
             err => toast.error(err.data),
         );

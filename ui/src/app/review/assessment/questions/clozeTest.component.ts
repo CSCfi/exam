@@ -23,7 +23,7 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-cloze-test',
+    selector: 'app-r-cloze-test',
     templateUrl: './clozeTest.component.html',
 })
 export class ClozeTestComponent {
@@ -52,7 +52,7 @@ export class ClozeTestComponent {
             );
         }
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
-    };
+    }
 
     displayAchievedScore = function() {
         const max = this.sectionQuestion.maxScore;
@@ -74,5 +74,5 @@ export class ClozeTestComponent {
               })
             : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
                   toast.info(this.translate.instant('sitnet_graded')),
-              );
+              )
 }

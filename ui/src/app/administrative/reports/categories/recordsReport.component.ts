@@ -53,7 +53,7 @@ import { FileService } from '../../../utility/file/file.service';
             </div>
         </div>
     `,
-    selector: 'records-report',
+    selector: 'app-app-records-report',
 })
 export class RecordsReportComponent {
     startDate: Date;
@@ -70,13 +70,13 @@ export class RecordsReportComponent {
             startDate: start.toString(),
             endDate: end.toString(),
         });
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
-    };
+    }
 }

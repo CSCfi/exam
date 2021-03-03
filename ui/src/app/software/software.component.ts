@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { Software } from '../exam/exam.model';
 
 @Component({
-    selector: 'software',
+    selector: 'app-software',
     templateUrl: './software.component.html',
 })
 export class SoftwareComponent {
@@ -38,7 +38,7 @@ export class SoftwareComponent {
         this.http.put(`/app/softares/${software.id}/${software.name}`, {}).subscribe(
             () => toast.info(this.translate.instant('sitnet_software_updated')),
             err => toast.error(err),
-        );
+        )
 
     addSoftware = () =>
         this.http.post<Software>(`/app/softwares/add/${this.newSoftware.name}`, {}).subscribe(
@@ -48,7 +48,7 @@ export class SoftwareComponent {
                 this.newSoftware.name = '';
             },
             err => toast.error(err),
-        );
+        )
 
     removeSoftware = (software: Software) =>
         this.http.delete(`/app/softwares/${software.id}`).subscribe(
@@ -57,5 +57,5 @@ export class SoftwareComponent {
                 this.software.splice(this.software.indexOf(software), 1);
             },
             err => toast.error(err),
-        );
+        )
 }

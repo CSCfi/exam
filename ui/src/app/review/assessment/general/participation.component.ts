@@ -21,7 +21,7 @@ import { SessionService } from '../../../session/session.service';
 import { WindowRef } from '../../../utility/window/window.service';
 
 @Component({
-    selector: 'r-participation',
+    selector: 'app-r-participation',
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
@@ -40,7 +40,7 @@ export class ParticipationComponent {
             ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
             : `/assessments/${this.participation.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
-    };
+    }
 
     hideGrade = () => this.participation.noShow || !this.participation.exam.grade;
 
@@ -53,12 +53,12 @@ export class ParticipationComponent {
             this.participation.noShow ||
             (anonymous && !this.Session.getUser().isAdmin)
         );
-    };
+    }
 
     translateGrade = () => {
         if (!this.participation.exam.grade) {
             return;
         }
         return this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);
-    };
+    }
 }

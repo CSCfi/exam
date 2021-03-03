@@ -52,7 +52,7 @@ import { ExamName } from '../reports.service';
             </div>
         </div>
     `,
-    selector: 'enrolments-report',
+    selector: 'app-enrolments-report',
 })
 export class EnrolmentsReportComponent {
     @Input() examNames: ExamName[];
@@ -66,9 +66,9 @@ export class EnrolmentsReportComponent {
         } else {
             toast.error(this.translate.instant('sitnet_choose_exam'));
         }
-    };
+    }
 
     enrolmentSelected = (event: { value: ExamName }) => {
         this.enrolment = event.value;
-    };
+    }
 }

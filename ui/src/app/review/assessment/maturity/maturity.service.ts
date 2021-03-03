@@ -51,14 +51,6 @@ type States = {
 
 @Injectable()
 export class MaturityService {
-    isMissingStatement = (exam: Exam) => {
-        if (!this.isUnderLanguageInspection(exam)) {
-            return false;
-        }
-        return !exam.languageInspection?.statement.comment;
-    };
-    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
-
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: { id: 1, text: 'sitnet_not_reviewed', canProceed: false, warn: false },
         [StateName.REJECT_STRAIGHTAWAY]: { id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true },
@@ -74,8 +66,8 @@ export class MaturityService {
             text: 'sitnet_reject_maturity',
             canProceed: true,
             warn: true,
-            validate: this.canFinalizeInspection,
-            showHint: this.isMissingStatement,
+            validate: (exam: Exam) => this.canFinalizeInspection(exam),
+            showHint: (exam: Exam) => this.isMissingStatement(exam),
             hint: 'sitnet_missing_statement',
         },
         [StateName.APPROVE_LANGUAGE]: {
@@ -83,13 +75,14 @@ export class MaturityService {
             text: 'sitnet_approve_maturity',
             canProceed: true,
             warn: false,
-            validate: this.canFinalizeInspection,
-            showHint: this.isMissingStatement,
+            validate: (exam: Exam) => this.canFinalizeInspection(exam),
+            showHint: (exam: Exam) => this.isMissingStatement(exam),
             hint: 'sitnet_missing_statement',
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: { id: 9, text: 'sitnet_missing_statement', canProceed: false, warn: false },
     };
+
 
     constructor(
         private http: HttpClient,
@@ -100,8 +93,16 @@ export class MaturityService {
         private Session: SessionService,
     ) {}
 
+    isMissingStatement = (exam: Exam) => {
+        if (!this.isUnderLanguageInspection(exam)) {
+            return false;
+        }
+        return !exam.languageInspection?.statement.comment;
+    }
+    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
+
     private isUnderLanguageInspection = (exam: Exam) =>
-        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
+        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt
 
     isMissingFeedback = (exam: Exam) => !exam.examFeedback || !exam.examFeedback.comment;
 
@@ -116,7 +117,7 @@ export class MaturityService {
             comment: inspection.statement.comment,
         };
         return this.http.put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement);
-    };
+    }
 
     private getNextStateName = (exam: Exam): StateName => {
         if (!this.isGraded(exam)) {
@@ -135,7 +136,7 @@ export class MaturityService {
         const disapproved = !grade || grade.marksRejection;
 
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
-    };
+    }
 
     getNextState = (exam: Exam): State => this.MATURITY_STATES[this.getNextStateName(exam)];
     getState = (state: StateName): State => this.MATURITY_STATES[state];
@@ -166,7 +167,7 @@ export class MaturityService {
                 // Nothing to do
                 break;
         }
-    };
+    }
 
     private sendForLanguageInspection = (exam: Exam) =>
         from(
@@ -187,7 +188,7 @@ export class MaturityService {
             .subscribe(() => {
                 toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
                 this.location.go(this.Assessment.getExitUrl(exam));
-            });
+            })
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
         from(
@@ -214,5 +215,5 @@ export class MaturityService {
                     this.location.go('/inspections');
                 }
             });
-    };
+    }
 }

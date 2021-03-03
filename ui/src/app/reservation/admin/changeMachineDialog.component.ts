@@ -26,7 +26,7 @@ import { ExamMachine } from '../reservation.model';
 import { Reservation } from '../reservation.model';
 
 @Component({
-    selector: 'change-machine-dialog',
+    selector: 'app-change-machine-dialog',
     templateUrl: './changeMachineDialog.component.html',
 })
 export class ChangeMachineDialogComponent implements OnInit {
@@ -60,7 +60,7 @@ export class ChangeMachineDialogComponent implements OnInit {
                     this.activeModal.close(resp);
                 },
                 err => toast.error(err.data),
-            );
+            )
 
     cancel = () => this.activeModal.dismiss();
 }

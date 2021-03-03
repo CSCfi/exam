@@ -23,7 +23,7 @@ import { Question } from '../../exam/exam.model';
 
 // This component is used for editing distributed exam questions.
 @Component({
-    selector: 'exam-question-editor',
+    selector: 'app-exam-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">

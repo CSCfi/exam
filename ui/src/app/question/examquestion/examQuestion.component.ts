@@ -41,7 +41,7 @@ type EditableExamSectionQuestion = Omit<ExamSectionQuestion, 'options'> & {
 
 // This component depicts a distributed exam question
 @Component({
-    selector: 'exam-question',
+    selector: 'app-exam-question',
     templateUrl: './examQuestion.component.html',
 })
 export class ExamQuestionComponent {
@@ -101,12 +101,12 @@ export class ExamQuestionComponent {
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
-    };
+    }
 
     cancel = () => {
         this.Window.nativeWindow.onbeforeunload = null;
         this.onCancel.emit();
-    };
+    }
 
     private init = () =>
         this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe(question => {
@@ -123,7 +123,7 @@ export class ExamQuestionComponent {
             this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             this.validate();
-        });
+        })
 
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
@@ -147,7 +147,7 @@ export class ExamQuestionComponent {
         } else {
             toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
-    };
+    }
 
     addNewOption = () => {
         if (this.lotteryOn) {
@@ -155,13 +155,13 @@ export class ExamQuestionComponent {
             return;
         }
         this.examQuestion.options.push({ option: { correctOption: false } });
-    };
+    }
 
     correctAnswerToggled = (option: ExamSectionQuestionOption) =>
         this.Question.toggleCorrectOption(
             option.option,
             this.examQuestion.options.map(o => o.option) as MultipleChoiceOption[],
-        );
+        )
 
     optionDisabled = (option: ExamSectionQuestionOption) => option.option.correctOption;
 
@@ -169,7 +169,7 @@ export class ExamQuestionComponent {
         if (this.examQuestion.evaluationType && this.examQuestion.evaluationType === 'Selection') {
             this.examQuestion.maxScore = 0;
         }
-    };
+    }
 
     selectFile = () =>
         this.Attachment.selectFile(true).then(data => {
@@ -184,14 +184,14 @@ export class ExamQuestionComponent {
                 file: data.$value.attachmentFile,
                 removed: false,
             };
-        });
+        })
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.question as ReverseQuestion);
 
     removeQuestionAttachment = () => this.Attachment.removeQuestionAttachment(this.question as ReverseQuestion);
 
     getFileSize = () =>
-        !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
+        !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size)
 
     calculateMaxPoints = () => this.Question.calculateMaxPoints(this.examQuestion as ExamSectionQuestion);
 
@@ -201,10 +201,10 @@ export class ExamQuestionComponent {
             return;
         }
         return this.Question.returnClaimChoiceOptionClass(optionType);
-    };
+    }
 
     determineOptionType = (option: ExamSectionQuestionOption) =>
-        this.Question.determineClaimOptionTypeForExamQuestionOption(option);
+        this.Question.determineClaimOptionTypeForExamQuestionOption(option)
 
     returnOptionDescriptionTranslation = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);
@@ -212,7 +212,7 @@ export class ExamQuestionComponent {
             return;
         }
         return this.Question.returnOptionDescriptionTranslation(optionType);
-    };
+    }
 
     validate = () => {
         this.missingOptions = this.Question.getInvalidDistributedClaimOptionTypes(
@@ -220,14 +220,14 @@ export class ExamQuestionComponent {
         )
             .filter(type => type !== 'SkipOption')
             .map(optionType => this.Question.getOptionTypeTranslation(optionType));
-    };
+    }
 
     errors = (status: unknown) => {
         return JSON.stringify(status);
-    };
+    }
 
     hasInvalidClaimChoiceOptions = () =>
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
-            .length > 0;
+            .length > 0
 }

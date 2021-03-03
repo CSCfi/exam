@@ -26,7 +26,7 @@ import { ExamParticipation } from '../../exam/exam.model';
 import { Review } from '../review.model';
 import { ExamTabService } from '../../exam/editor/examTabs.service';
 @Component({
-    selector: 'review-list',
+    selector: 'app-review-list',
     templateUrl: './reviewList.component.html',
 })
 export class ReviewListComponent {
@@ -54,7 +54,7 @@ export class ReviewListComponent {
         this.refreshLists();
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe(resp => (this.noShows = resp));
@@ -64,7 +64,7 @@ export class ReviewListComponent {
 
     ngOnChanges = () => {
         this.refreshLists();
-    };
+    }
 
     refreshLists = () => {
         this.abortedExams = this.filterByState(['ABORTED'], this.reviews);
@@ -82,12 +82,12 @@ export class ReviewListComponent {
             ),
         );
         this.rejectedReviews = this.filterByState(['REJECTED'], this.reviews);
-    };
+    }
 
     private diffInMinutes = (from: string, to: string) => {
         const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
         return Math.round(diff);
-    };
+    }
 
     filterByState = (states: string[], reviews: ExamParticipation[]): Review[] =>
         reviews
@@ -100,14 +100,14 @@ export class ReviewListComponent {
                 isUnderLanguageInspection: (r.exam.languageInspection &&
                     !r.exam.languageInspection.finishedAt) as boolean,
                 selected: false,
-            }));
+            }))
 
     onArchive = (reviews: Review[]) => {
         const ids = reviews.map(r => r.examParticipation.id);
         const archived = this.gradedLoggedReviews.filter(glr => ids.indexOf(glr.examParticipation.id) > -1);
         this.archivedReviews = this.archivedReviews.concat(archived);
         this.gradedLoggedReviews = this.gradedLoggedReviews.filter(glr => ids.indexOf(glr.examParticipation.id) === -1);
-    };
+    }
 
     onRegistration = (reviews: Review[]) => {
         reviews.forEach(r => {
@@ -121,7 +121,7 @@ export class ReviewListComponent {
         });
         this.gradedReviews = Object.assign([], this.gradedReviews); // not sure if necessary to clone these
         this.gradedLoggedReviews = Object.assign([], this.gradedLoggedReviews);
-    };
+    }
 
     openAborted = () => {
         const modalRef = this.modal.open(AbortedExamsComponent, {
@@ -132,7 +132,7 @@ export class ReviewListComponent {
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
-    };
+    }
 
     openNoShows = () => {
         const modalRef = this.modal.open(NoShowsComponent, {
@@ -142,5 +142,5 @@ export class ReviewListComponent {
             size: 'lg',
         });
         modalRef.componentInstance.noShows = this.noShows;
-    };
+    }
 }

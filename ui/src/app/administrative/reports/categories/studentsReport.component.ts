@@ -66,7 +66,7 @@ import { User } from '../../../session/session.service';
             </div>
         </div>
     `,
-    selector: 'students-report',
+    selector: 'app-students-report',
 })
 export class StudentsReportComponent {
     @Input() students: User[];
@@ -84,17 +84,17 @@ export class StudentsReportComponent {
         } else {
             toast.error(this.translate.instant('sitnet_choose_student'));
         }
-    };
+    }
 
     studentSelected = (event: { value: User }) => {
         this.student = event.value;
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
-    };
+    }
 }

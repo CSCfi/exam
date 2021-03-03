@@ -39,11 +39,11 @@ export abstract class GradingBaseComponent {
         } else {
             throw Error('No GradeScale for Assessment!');
         }
-    };
+    }
 
     private _setGrade = (grade: SelectableGrade) => {
         this.selections.grade = grade;
-    };
+    }
 
     protected initGrade = () => {
         const scale = this.resolveGradeScale();
@@ -69,7 +69,7 @@ export abstract class GradingBaseComponent {
             this.selections.grade = noGrade;
         }
         this.grades.push(noGrade);
-    };
+    }
 
     protected initCreditTypes = () => {
         const exam = this.getExam();
@@ -87,7 +87,7 @@ export abstract class GradingBaseComponent {
         if (exam.course && !this.Exam.hasCustomCredit(exam)) {
             exam.customCredit = exam.course.credits;
         }
-    };
+    }
 
     protected initLanguages = () => {
         const exam = this.getExam();
@@ -104,7 +104,7 @@ export abstract class GradingBaseComponent {
                 return language;
             });
         });
-    };
+    }
 
     setGrade = () => {
         const exam = this.getExam();
@@ -115,7 +115,7 @@ export abstract class GradingBaseComponent {
             delete exam.grade;
             exam.gradeless = false;
         }
-    };
+    }
 
     setCreditType = () => {
         const exam = this.getExam();
@@ -124,8 +124,8 @@ export abstract class GradingBaseComponent {
         } else {
             delete exam.creditType;
         }
-    };
+    }
 
     setLanguage = () =>
-        (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined);
+        (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined)
 }

@@ -19,7 +19,7 @@ import { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 
 @Component({
-    selector: 'dashboard',
+    selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {

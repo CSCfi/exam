@@ -21,7 +21,7 @@ import { LanguageInspectionService } from '../languageInspections.service';
 import { LanguageInspection } from '../maturity.model';
 
 @Component({
-    selector: 'maturity-reporting',
+    selector: 'app-maturity-reporting',
     templateUrl: './maturityReporting.component.html',
 })
 export class MaturityReportingComponent implements OnInit {
@@ -46,9 +46,9 @@ export class MaturityReportingComponent implements OnInit {
         this.LanguageInspection.query(params).subscribe(
             inspections => (this.processedInspections = inspections.filter(i => i.finishedAt)),
         );
-    };
+    }
 
     showStatement = (statement: { comment: string }) => {
         this.LanguageInspection.showStatement(statement);
-    };
+    }
 }

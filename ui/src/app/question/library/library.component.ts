@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { LibraryQuestion } from './library.service';
 
 @Component({
-    selector: 'library',
+    selector: 'app-library',
     templateUrl: './library.component.html',
 })
 export class LibraryComponent {

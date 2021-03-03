@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { OnInit } from '@angular/core';
 import { ExamParticipation } from '../../exam/exam.model';
 
 @Component({
-    selector: 'exam-participations',
+    selector: 'app-exam-participations',
     templateUrl: './examParticipations.component.html',
 })
-export class ExamParticipationsComponent implements OnInit {
+export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
@@ -42,7 +41,7 @@ export class ExamParticipationsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.search('');
+        this.search();
     }
 
     ngOnDestroy() {
@@ -50,7 +49,7 @@ export class ExamParticipationsComponent implements OnInit {
         this.ngUnsubscribe.complete();
     }
 
-    search = (text: string) => this.filterChanged.next(text);
+    search = () => this.filterChanged.next(this.filter.text);
 
     private doSearch = (text: string) => {
         this.filter.text = text;
@@ -70,7 +69,7 @@ export class ExamParticipationsComponent implements OnInit {
                 },
                 err => toast.error(err.data),
             );
-    };
+    }
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 }

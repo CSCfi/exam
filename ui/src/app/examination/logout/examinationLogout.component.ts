@@ -20,7 +20,7 @@ import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationStatusService } from '../examinationStatus.service';
 
 @Component({
-    selector: 'examination-logout',
+    selector: 'app-examination-logout',
     template: `
         <div class="jumbotron">
             <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>
@@ -51,7 +51,7 @@ export class ExaminationLogoutComponent {
         this.Window.nativeWindow.setTimeout(() => {
             this.ExaminationStatus.notifyEndOfExamination();
             this.state.go('logout');
-        }, 8000);
+        }, 8000)
 
     ngOnInit() {
         this.reasonPhrase = this.state.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';

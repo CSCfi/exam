@@ -68,12 +68,12 @@ export class ExaminationInterceptor implements HttpInterceptor {
                             // No upcoming exams
                             this.state.go('waitingRoomNoExam');
                         } else {
-                            this.state.go('waitingRoom', { id: id });
+                            this.state.go('waitingRoom', { id });
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.state.go('examination', { hash: hash });
+                        this.state.go('examination', { hash });
                     }
                     return response;
                 }

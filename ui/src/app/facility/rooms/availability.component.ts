@@ -39,7 +39,7 @@ type RefreshCallBackFn = (events: AvailableEvent[]) => void;
 
 @Component({
     templateUrl: './availability.component.html',
-    selector: 'availability',
+    selector: 'app-availability',
 })
 export class AvailabilityComponent implements OnInit {
     loader: { loading: boolean };
@@ -64,20 +64,20 @@ export class AvailabilityComponent implements OnInit {
 
     query = (successFn: SuccessFunction, date: string) => {
         this.roomService.getAvailability(this.state.params.id, date).subscribe(successFn, error => toast.error(error));
-    };
+    }
 
     adjust = (date: string, tz: string) => {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? -1 : 0;
         return adjusted.add(offset, 'hour').format();
-    };
+    }
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
-        if (ratio <= 0.5) return '#A6E9B2';
-        if (ratio <= 0.9) return '#FCF8E3';
+        if (ratio <= 0.5) { return '#A6E9B2'; }
+        if (ratio <= 0.9) { return '#FCF8E3'; }
         return '#266B99';
-    };
+    }
 
     refresh = (start: moment.Moment, callback: RefreshCallBackFn) => {
         if (!this.room) {
@@ -100,5 +100,5 @@ export class AvailabilityComponent implements OnInit {
             this.loader.loading = false;
         };
         this.query(successFn, date);
-    };
+    }
 }

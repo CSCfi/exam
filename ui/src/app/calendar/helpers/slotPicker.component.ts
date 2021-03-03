@@ -1,27 +1,34 @@
 import { WeekDay } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewEncapsulation,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
+import { CalendarEvent } from 'angular-calendar';
 import { startOfWeek } from 'date-fns';
 import * as moment from 'moment';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
-import { Organisation } from '../calendar.component';
-
-import { SimpleChanges } from '@angular/core';
 import { Accessibility, ExamRoom } from '../../reservation/reservation.model';
-import { CalendarEvent } from 'angular-calendar';
 import { SlotMeta } from '../bookingCalendar.component';
+import { Organisation } from '../calendar.component';
 import { Slot } from '../calendar.service';
-import { Observable } from 'rxjs';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
-    selector: 'calendar-slot-picker',
+    selector: 'app-calendar-slot-picker',
     template: `
         <div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
             <div class="col-md-12">
@@ -135,24 +142,24 @@ type AvailableSlot = Slot & { availableMachines: number };
                 </div>
                 <div class="row mart10" *ngIf="selectedRoom">
                     <div class="col-md-12">
-                        <calendar-selected-room
+                        <app-calendar-selected-room
                             [room]="selectedRoom"
                             [viewStart]="currentWeek"
-                        ></calendar-selected-room>
+                        ></app-calendar-selected-room>
                     </div>
                 </div>
                 <div class="row mart10" *ngIf="selectedRoom">
                     <div class="col-md-12">
-                        <booking-calendar
-                            (onEventSelected)="eventSelected($event)"
-                            (onNeedMoreEvents)="refresh($event)"
+                        <app-booking-calendar
+                            (eventSelected)="selectEvent($event)"
+                            (needMoreEvents)="refresh($event)"
                             [minDate]="minDate"
                             [maxDate]="maxDate"
                             [room]="selectedRoom"
                             [visible]="selectedRoom !== undefined"
                             [events]="events"
                         >
-                        </booking-calendar>
+                        </app-booking-calendar>
                     </div>
                 </div>
             </div>
@@ -167,7 +174,7 @@ type AvailableSlot = Slot & { availableMachines: number };
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class SlotPickerComponent {
+export class SlotPickerComponent implements OnInit, OnChanges {
     @Input() sequenceNumber: number;
     @Input() isInteroperable: boolean;
     @Input() isCollaborative: boolean;
@@ -176,8 +183,8 @@ export class SlotPickerComponent {
     @Input() disabled: boolean;
     @Input() minDate: Date;
     @Input() maxDate: Date;
-    @Output() onCancel = new EventEmitter<void>();
-    @Output() onEventSelected = new EventEmitter<{
+    @Output() cancel = new EventEmitter<void>();
+    @Output() eventSelected = new EventEmitter<{
         start: Date;
         end: Date;
         room: ExamRoom;
@@ -210,13 +217,13 @@ export class SlotPickerComponent {
         }
     }
 
-    eventSelected = ($event: CalendarEvent<SlotMeta>) =>
-        this.onEventSelected.emit({
+    selectEvent = ($event: CalendarEvent<SlotMeta>) =>
+        this.eventSelected.emit({
             start: $event.start,
             end: $event.end as Date,
             room: this.selectedRoom as ExamRoom,
             accessibilities: [], // todo
-        });
+        })
 
     private adjust(date: string, tz: string): Date {
         const adjusted: moment.Moment = moment.tz(date, tz);
@@ -245,7 +252,7 @@ export class SlotPickerComponent {
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
-                    date: date,
+                    date,
                 },
             });
         } else {
@@ -256,7 +263,7 @@ export class SlotPickerComponent {
                 fromObject: { day: date, aids: accessibilityIds.map(i => i.toString()) },
             });
             return this.http.get<AvailableSlot[]>(url, {
-                params: params,
+                params,
             });
         }
     }
@@ -298,13 +305,13 @@ export class SlotPickerComponent {
     makeExternalReservation = () => {
         delete this.selectedRoom;
         this.events = [];
-        this.onCancel.emit();
-    };
+        this.cancel.emit();
+    }
 
     selectAccessibility = (accessibility: FilterableAccessibility) => {
         accessibility.filtered = !accessibility.filtered;
         this.refresh({ date: this.currentWeek });
-    };
+    }
 
     selectRoom = (room: FilterableRoom) => {
         if (!room.outOfService) {
@@ -313,7 +320,7 @@ export class SlotPickerComponent {
             room.filtered = true;
             this.refresh({ date: this.currentWeek });
         }
-    };
+    }
 
     getDescription(room: ExamRoom): string {
         if (room.outOfService) {

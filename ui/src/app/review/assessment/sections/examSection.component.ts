@@ -19,7 +19,7 @@ import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-exam-section',
+    selector: 'app-r-exam-section',
     templateUrl: './examSection.component.html',
 })
 export class ExamSectionComponent {
@@ -42,7 +42,7 @@ export class ExamSectionComponent {
     scoreSet = (revision: string) => {
         this.onScore.emit(revision);
         this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
-    };
+    }
 
     getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);
 

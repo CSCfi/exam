@@ -13,8 +13,8 @@ export class AccessibilityService {
     getAccessibilities = () => this.http.get<Accessibility[]>(this.accessibilityApi());
     addAccessibility = (body: { name: string }) => this.http.post<Accessibility>(this.accessibilityApi(), body);
     updateAccessibility = (accessibility: Accessibility) =>
-        this.http.put<Accessibility>(this.accessibilityApi(), accessibility);
+        this.http.put<Accessibility>(this.accessibilityApi(), accessibility)
     removeAccessibility = (accessibilityId: number) => this.http.delete<void>(this.accessibilityApi(accessibilityId));
     updateRoomAccessibilities = (roomId: number, body: { ids: string }) =>
-        this.http.post<void>(this.roomAccessibilityApi(roomId), body);
+        this.http.post<void>(this.roomAccessibilityApi(roomId), body)
 }

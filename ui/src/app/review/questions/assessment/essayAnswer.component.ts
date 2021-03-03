@@ -20,14 +20,14 @@ import { AssessmentService } from '../../assessment/assessment.service';
 import { ReviewQuestion } from '../../review.model';
 
 @Component({
-    selector: 'essay-answer',
+    selector: 'app-essay-answer',
     templateUrl: './essayAnswer.component.html',
 })
 export class EssayAnswerComponent {
     @Input() answer: ReviewQuestion;
     @Input() editable: boolean;
     @Input() action: string;
-    @Output() onSelection = new EventEmitter<ReviewQuestion>();
+    @Output() selection = new EventEmitter<ReviewQuestion>();
 
     name: string;
 
@@ -38,7 +38,6 @@ export class EssayAnswerComponent {
             ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
             : this.answer.examSection.exam.id.toString();
         this.answer.expanded = true;
-        this.answer.essayAnswer = this.answer.essayAnswer || {};
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
         if (this.answer.evaluationType === 'Selection') {
             this.answer.essayAnswer.textualScore = this.answer.essayAnswer.evaluatedScore
@@ -55,13 +54,13 @@ export class EssayAnswerComponent {
         if (this.answer.essayAnswer.textualScore) {
             this.answer.essayAnswer.temporaryScore = parseFloat(this.answer.essayAnswer.textualScore);
         }
-        this.onSelection.emit(this.answer);
+        this.selection.emit(this.answer);
         this.answer.selected = false;
-    };
+    }
 
     isAssessed = () =>
         this.answer.essayAnswer &&
-        (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore);
+        (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore)
 
     displayMaxScore = () => (this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1);
 

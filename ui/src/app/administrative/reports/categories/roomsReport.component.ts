@@ -17,9 +17,8 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { FileService } from '../../../utility/file/file.service';
-
 import { ExamRoom } from '../../../reservation/reservation.model';
+import { FileService } from '../../../utility/file/file.service';
 
 @Component({
     template: `
@@ -31,23 +30,23 @@ import { ExamRoom } from '../../../reservation/reservation.model';
         <div class="bottom-row">
             <div class="col-lg-4 mb-2">
                 <label for="roomPick">{{ 'sitnet_select_room' | translate }}</label>
-                <dropdown-select
+                <app-dropdown-select
                     id="roomPick"
                     *ngIf="rooms"
                     [options]="rooms"
                     (onSelect)="roomSelected($event)"
-                ></dropdown-select>
+                ></app-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                    <app-date-picker (onUpdate)="startDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                    <app-date-picker (onUpdate)="endDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -66,7 +65,7 @@ import { ExamRoom } from '../../../reservation/reservation.model';
             </div>
         </div>
     `,
-    selector: 'rooms-report',
+    selector: 'app-rooms-report',
 })
 export class RoomsReportComponent {
     room: ExamRoom;
@@ -78,7 +77,7 @@ export class RoomsReportComponent {
 
     roomSelected = (event: { value: ExamRoom }) => {
         this.room = event.value;
-    };
+    }
 
     getRoomReservationsByDate = () => {
         const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
@@ -88,13 +87,13 @@ export class RoomsReportComponent {
         } else {
             toast.error(this.translate.instant('sitnet_choose_room'));
         }
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
-    };
+    }
 }

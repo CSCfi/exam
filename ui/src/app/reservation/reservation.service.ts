@@ -43,7 +43,7 @@ export class ReservationService {
             ? 'NO_SHOW'
             : reservation.enrolment.exam
             ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
+            : reservation.enrolment.collaborativeExam.state
 
     removeReservation(enrolment: ExamEnrolment) {
         if (!enrolment.reservation) {
@@ -72,7 +72,7 @@ export class ReservationService {
                 (enrolment.reservation && moment(enrolment.reservation.endAt) > moment()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
-        ).length;
+        ).length
 
     changeMachine = (reservation: Reservation): void => {
         const modalRef = this.modal.open(ChangeMachineDialogComponent, {
@@ -87,7 +87,7 @@ export class ReservationService {
                 }
             })
             .catch(err => toast.error(err));
-    };
+    }
 
     cancelReservation = (reservation: Reservation): Promise<void> => {
         const modalRef = this.modal.open(RemoveReservationDialogComponent, {
@@ -96,5 +96,5 @@ export class ReservationService {
         });
         modalRef.componentInstance.reservation = reservation;
         return modalRef.result;
-    };
+    }
 }

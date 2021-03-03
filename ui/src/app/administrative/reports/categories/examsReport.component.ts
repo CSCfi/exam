@@ -16,11 +16,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { FileService } from '../../../utility/file/file.service';
-import { FileType } from '../reports.service';
-
 import { Exam } from '../../../exam/exam.model';
-import { ExamName } from '../reports.service';
+import { FileService } from '../../../utility/file/file.service';
+import { ExamName, FileType } from '../reports.service';
 
 @Component({
     template: `
@@ -58,7 +56,7 @@ import { ExamName } from '../reports.service';
             </div>
         </div>
     `,
-    selector: 'exams-report',
+    selector: 'app-exams-report',
 })
 export class ExamsReportComponent {
     exam: Exam;
@@ -69,7 +67,7 @@ export class ExamsReportComponent {
 
     examSelected = (event: { value: Exam }) => {
         this.exam = event.value;
-    };
+    }
 
     getExams = () => {
         if (this.exam) {
@@ -79,5 +77,5 @@ export class ExamsReportComponent {
         } else {
             toast.error(this.translate.instant('sitnet_choose_exam'));
         }
-    };
+    }
 }

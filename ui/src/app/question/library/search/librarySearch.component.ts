@@ -32,7 +32,7 @@ interface Filterable<T> {
 }
 
 @Component({
-    selector: 'library-search',
+    selector: 'app-library-search',
     templateUrl: './librarySearch.component.html',
 })
 export class LibrarySearchComponent implements OnInit {
@@ -60,7 +60,7 @@ export class LibrarySearchComponent implements OnInit {
             owner: this.filter.owner,
         };
         this.Library.storeFilters(filters, 'search');
-    };
+    }
 
     private getCourseIds = () => this.courses.filter(course => course.filtered).map(course => course.id);
     private getExamIds = () => this.exams.filter(exam => exam.filtered).map(exam => exam.id);
@@ -78,14 +78,14 @@ export class LibrarySearchComponent implements OnInit {
                 this.questions = questions;
                 this.saveFilters();
             }),
-        );
+        )
 
     applySearchFilter = () => {
         let results = this.Library.applyFreeSearchFilter(this.filter.text, this.questions);
         results = this.Library.applyOwnerSearchFilter(this.filter.owner, results);
         this.onUpdate.emit(results);
         this.saveFilters();
-    };
+    }
 
     ngOnInit() {
         this.user = this.Session.getUser();
@@ -126,7 +126,7 @@ export class LibrarySearchComponent implements OnInit {
                 }),
             )
             .subscribe();
-    };
+    }
 
     listExams = (): Observable<Exam[]> => {
         const exams = this.exams.filter(e => e.filtered);
@@ -144,7 +144,7 @@ export class LibrarySearchComponent implements OnInit {
                 );
             }),
         );
-    };
+    }
 
     listTags = () => {
         const tags = this.tags.filter(_ => _.filtered && !_.isSectionTag);
@@ -154,7 +154,7 @@ export class LibrarySearchComponent implements OnInit {
         } else {
             return this.doListTags(tags, sections);
         }
-    };
+    }
 
     getTags = (): (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] => {
         const courses = this.courses.filter(_ => _.filtered);
@@ -165,30 +165,30 @@ export class LibrarySearchComponent implements OnInit {
             .concat(courses)
             .concat(exams)
             .concat(tags);
-    };
+    }
 
     applyFilter = (tag: Filterable<Tag>) => {
         tag.filtered = !tag.filtered;
         this.query().subscribe(() => this.applySearchFilter());
-    };
+    }
 
     filterExams = () => {
         this.filteredExams = this.exams.filter(
             e => e.name.toLowerCase().indexOf(this.limitations.exam.toLowerCase()) > -1,
         );
-    };
+    }
 
     filterCourses = () => {
         this.filteredCourses = this.courses.filter(
             c => c.name.toLowerCase().indexOf(this.limitations.course.toLowerCase()) > -1,
         );
-    };
+    }
 
     filterTags = () => {
         this.filteredTags = this.tags.filter(
             t => t.name.toLowerCase().indexOf(this.limitations.tag.toLowerCase()) > -1,
         );
-    };
+    }
 
     private doListTags = (tags: Filterable<Tag>[], sections: Filterable<Tag | ExamSection>[]) => {
         const examIds = this.getExamIds();
@@ -225,5 +225,5 @@ export class LibrarySearchComponent implements OnInit {
                 });
             this.tags = this.filteredTags = tags.concat(this.union(sections, examSections));
         });
-    };
+    }
 }

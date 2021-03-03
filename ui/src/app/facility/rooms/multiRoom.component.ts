@@ -24,7 +24,7 @@ import { Week } from './room.service';
 
 @Component({
     templateUrl: './multiRoom.component.html',
-    selector: 'multi-room',
+    selector: 'app-multi-room',
 })
 export class MultiRoomComponent implements OnInit {
     week: Week;
@@ -42,21 +42,21 @@ export class MultiRoomComponent implements OnInit {
     addException = (exception: ExceptionWorkingHours) =>
         this.room.addException(this.getRoomIds(), exception).then(() => {
             this.loadRooms();
-        });
+        })
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.room.deleteException(this.allRooms[0].id, exception.id).then(() => {
             this.loadRooms();
         });
-    };
+    }
 
     addMultiRoomException = () => {
         this.room.openExceptionDialog(this.addException);
-    };
+    }
 
     updateWorkingHours = () => {
         this.room.updateWorkingHours(this.week, this.getRoomIds());
-    };
+    }
 
     massEditedRoomFilter = (room: ExamRoom) => room.calendarExceptionEvents.some(e => e.massEdited);
 
@@ -73,7 +73,7 @@ export class MultiRoomComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     private getRoomIds = () => this.allRooms.map(room => room.id);
 }

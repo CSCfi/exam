@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import { cloneDeep } from 'lodash';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import { cloneDeep } from 'lodash';
-import { TranslateService } from '@ngx-translate/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    template: require('./exceptionDialog.component.html'),
-    selector: 'exception-dialog',
+    templateUrl: './exceptionDialog.component.html',
+    selector: 'app-exception-dialog',
 })
 export class ExceptionDialogComponent {
     dateOptions = {
@@ -43,17 +43,17 @@ export class ExceptionDialogComponent {
             endDate: end,
             outOfService: this.exception.outOfService,
         });
-    };
+    }
 
     cancel = () => {
         this.activeModal.dismiss();
-    };
+    }
 
     onStartDateChange = (e: { date: Date }) => {
         this.exception.startDate = e.date;
-    };
+    }
 
     onEndDateChange = (e: { date: Date }) => {
         this.exception.endDate = e.date;
-    };
+    }
 }

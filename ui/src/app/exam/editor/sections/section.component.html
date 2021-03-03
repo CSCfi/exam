@@ -223,7 +223,7 @@
                 <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                     <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
-                    <section-question
+                    <app-section-question
                         class="section-question"
                         [section]="section"
                         [examId]="examId"
@@ -231,7 +231,7 @@
                         [lotteryOn]="section.lotteryOn"
                         (onDelete)="removeQuestion($event)"
                     >
-                    </section-question>
+                    </app-section-question>
                 </div>
             </div>
 

@@ -29,7 +29,7 @@ import { InteroperableRoom, Week, Weekday } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
-    selector: 'room',
+    selector: 'app-room',
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm: NgForm;
@@ -76,28 +76,28 @@ export class RoomComponent implements OnInit {
 
     updateWorkingHours = () => {
         this.roomService.updateWorkingHours(this.week, [this.room.id]);
-    };
+    }
 
     addException = (exception: ExceptionWorkingHours) => {
         this.roomService.addException([this.room.id], exception).then(data => {
             this.roomService.formatExceptionEvent(data);
             this.room.calendarExceptionEvents.push(data);
         });
-    };
+    }
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.roomService.deleteException(this.room.id, exception.id).then(() => {
             this.remove(this.room.calendarExceptionEvents, exception);
         });
-    };
+    }
 
     disableRoom = () => {
         this.roomService.disableRoom(this.room);
-    };
+    }
 
     enableRoom = () => {
         this.roomService.enableRoom(this.room);
-    };
+    }
 
     validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
         const { name } = event.target;
@@ -105,13 +105,13 @@ export class RoomComponent implements OnInit {
         if (ctrl.valid) {
             this.updateRoom();
         }
-    };
+    }
 
     validateAndUpdateRoom = () => {
         if (this.roomForm.valid) {
             this.updateRoom();
         }
-    };
+    }
 
     updateRoom = () => {
         this.roomService.updateRoom(this.room).subscribe(
@@ -122,7 +122,7 @@ export class RoomComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     saveRoom = () => {
         if (!this.roomService.isSomethingSelected(this.week)) {
@@ -130,8 +130,9 @@ export class RoomComponent implements OnInit {
             return;
         }
 
-        if (!this.roomService.isAnyExamMachines(this.room))
+        if (!this.roomService.isAnyExamMachines(this.room)) {
             toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
+        }
 
         this.roomService.updateRoom(this.room).subscribe(
             () => {
@@ -142,7 +143,7 @@ export class RoomComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     updateInteroperability = () => {
         this.interoperability.updateFacility(this.room).subscribe(
@@ -155,12 +156,12 @@ export class RoomComponent implements OnInit {
                 toast.error(err.data.message);
             },
         );
-    };
+    }
 
     private remove = (arr: unknown[], item: unknown) => {
         const index = arr.indexOf(item);
         arr.splice(index, 1);
-    };
+    }
 
     private setSelected = (day: Weekday, slots: number[]) => {
         for (let i = 0; i < slots.length; ++i) {
@@ -168,7 +169,7 @@ export class RoomComponent implements OnInit {
                 this.week[day][slots[i]].type = 'selected';
             }
         }
-    };
+    }
 
     private slotToTimes = (slot: DefaultWorkingHours) => {
         const arr = [];
@@ -183,5 +184,5 @@ export class RoomComponent implements OnInit {
             arr.push(i);
         }
         return arr;
-    };
+    }
 }

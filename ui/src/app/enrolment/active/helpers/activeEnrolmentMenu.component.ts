@@ -8,12 +8,12 @@ import { ExamEnrolment } from '../../enrolment.model';
 import { EnrolmentService } from '../../enrolment.service';
 
 @Component({
-    selector: 'active-enrolment-menu',
+    selector: 'app-active-enrolment-menu',
     templateUrl: './activeEnrolmentMenu.component.html',
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment: ExamEnrolment;
-    @Output() onRemoval = new EventEmitter<ExamEnrolment>();
+    @Output() removal = new EventEmitter<ExamEnrolment>();
 
     constructor(
         private translate: TranslateService,
@@ -30,7 +30,7 @@ export class ActiveEnrolmentMenuComponent {
         } else {
             this.Enrolment.removeExaminationEvent(this.enrolment);
         }
-    };
+    }
 
     removeEnrolment = () => {
         if (this.enrolment.reservation) {
@@ -40,10 +40,10 @@ export class ActiveEnrolmentMenuComponent {
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_are_you_sure'),
             ).result.then(() =>
-                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment)),
+                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.removal.emit(this.enrolment)),
             );
         }
-    };
+    }
 
     hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
 }

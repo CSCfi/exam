@@ -20,7 +20,7 @@ import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-flow',
+    selector: 'app-question-flow',
     templateUrl: './questionFlow.component.html',
 })
 export class QuestionFlowComponent {
@@ -35,10 +35,10 @@ export class QuestionFlowComponent {
     private init = () => {
         this.unfinished = this.reviews.filter(r => this.getAssessedAnswerCount(r) < r.answers.length);
         this.finished = this.reviews.filter(r => this.getAssessedAnswerCount(r) === r.answers.length);
-    };
+    }
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+        this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
 
     ngOnInit() {
         this.init();
@@ -53,5 +53,5 @@ export class QuestionFlowComponent {
     questionSelected = (review: QuestionReview) => {
         this.unfinished.concat(this.finished).forEach(r => (r.selected = r.question.id === review.question.id));
         this.onSelection.emit(this.reviews.indexOf(review));
-    };
+    }
 }

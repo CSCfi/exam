@@ -78,49 +78,49 @@
                 <thead>
                     <tr>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 by="name"
                                 text="sitnet_exam_name"
                                 [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('name')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 by="stateTranslation"
                                 text="sitnet_exam_state_translation"
                                 [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('stateTranslation')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 by="ownerAggregate"
                                 text="sitnet_teachers"
                                 [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('ownerAggregate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 by="examActiveStartDate"
                                 text="sitnet_start_time"
                                 [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('examActiveStartDate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 by="examActiveEndDate"
                                 text="sitnet_end_time"
                                 [predicate]="examsPredicate"
                                 [reverse]="reverse"
                                 (click)="setPredicate('examActiveEndDate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                     </tr>
                 </thead>

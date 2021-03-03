@@ -22,7 +22,7 @@ import { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-archived',
+    selector: 'app-rl-archived',
     templateUrl: './archived.component.html',
 })
 export class ArchivedReviewsComponent {
@@ -46,7 +46,7 @@ export class ArchivedReviewsComponent {
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
         return this.Exam.getExamGradeDisplayName(grade);
-    };
+    }
 
     handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
@@ -54,12 +54,12 @@ export class ArchivedReviewsComponent {
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 
     setPredicate = (predicate: string) => {
         if (this.view.predicate === predicate) {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
-    };
+    }
 }

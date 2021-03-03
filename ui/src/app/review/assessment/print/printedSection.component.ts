@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { ExamSection } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'printed-section',
+    selector: 'app-printed-section',
     template: `
         <blockquote>
             <h4>{{ index + 1 }}.&nbsp; &nbsp;{{ section.name }}</h4>

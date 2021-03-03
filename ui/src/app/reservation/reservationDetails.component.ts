@@ -23,7 +23,7 @@ import { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
 @Component({
-    selector: 'reservation-details',
+    selector: 'app-reservation-details',
     templateUrl: './reservationDetails.component.html',
 })
 export class ReservationDetailsComponent {
@@ -42,7 +42,7 @@ export class ReservationDetailsComponent {
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
     getStateClass = (reservation: Reservation) =>
-        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
+        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase()
 
     removeReservation(reservation: Reservation) {
         this.Reservation.cancelReservation(reservation)
@@ -70,5 +70,5 @@ export class ReservationDetailsComponent {
             this.reverse = !this.reverse;
         }
         this.predicate = predicate;
-    };
+    }
 }

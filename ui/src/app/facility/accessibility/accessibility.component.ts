@@ -23,7 +23,7 @@ import { Accessibility } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './accessibility.component.html',
-    selector: 'accessibility',
+    selector: 'app-accessibility',
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string };
@@ -41,23 +41,23 @@ export class AccessibilityComponent implements OnInit {
 
     initItem = () => {
         this.newItem = { name: '' };
-    };
+    }
 
     add = () =>
         this.accessibilityService.addAccessibility(this.newItem).subscribe(resp => {
             this.accessibilities.push(resp);
             toast.info(this.translate.instant('sitnet_accessibility_added'));
             this.initItem();
-        });
+        })
 
     update = (accessibility: Accessibility) =>
         this.accessibilityService.updateAccessibility(accessibility).subscribe(() => {
             toast.info(this.translate.instant('sitnet_accessibility_updated'));
-        });
+        })
 
     remove = (accessibility: Accessibility) =>
         this.accessibilityService.removeAccessibility(accessibility.id).subscribe(() => {
             this.accessibilities.splice(this.accessibilities.indexOf(accessibility), 1);
             toast.info(this.translate.instant('sitnet_accessibility_removed'));
-        });
+        })
 }

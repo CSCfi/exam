@@ -13,24 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { Course, Exam, ExamSection } from '../exam/exam.model';
+import { Accessibility, ExamRoom } from '../reservation/reservation.model';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { CalendarService } from './calendar.service';
 
-import { OnInit } from '@angular/core';
-import { Course, Exam, ExamSection } from '../exam/exam.model';
-import { Accessibility, ExamRoom } from '../reservation/reservation.model';
-
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
-    examSections: (ExamSection & { selected: boolean })[];
+    duration: number, examSections: (ExamSection & { selected: boolean })[];
 };
 type ReservationInfo = {
     id: number;
@@ -46,7 +44,7 @@ export type Organisation = {
 };
 
 @Component({
-    selector: 'calendar',
+    selector: 'app-calendar',
     templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
@@ -58,6 +56,7 @@ export class CalendarComponent implements OnInit {
     examInfo: ExamInfo = {
         examActiveStartDate: 0,
         examActiveEndDate: 0,
+        duration: 0,
         name: '',
         anonymous: false,
         examSections: [],
@@ -94,7 +93,7 @@ export class CalendarComponent implements OnInit {
                     (data?.optionalSections && data.optionalSections.map(os => os.id).indexOf(es.id) > -1) ||
                     (this.uiRouter.params.selected && this.uiRouter.params.selected.indexOf(es.id) > -1);
             });
-    };
+    }
 
     ngOnInit() {
         if (this.uiRouter.params.isCollaborative === 'true') {
@@ -170,7 +169,7 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).result.then(() =>
             this.state.go('externalCalendar', {
-                id: this.state.params.id,
+                id: this.uiRouter.params.id,
                 selected: this.examInfo.examSections.filter(es => es.selected).map(es => es.id),
                 isCollaborative: this.isCollaborative,
             }),
@@ -204,7 +203,7 @@ export class CalendarComponent implements OnInit {
             // delete this.selectedRoom;
             delete this.reservation;
         }
-    };
+    }
 
     sectionSelectionOk = () => this.examInfo.examSections.some(es => !es.optional || es.selected);
 
@@ -241,7 +240,7 @@ export class CalendarComponent implements OnInit {
         this.selectedOrganisation = org;
     }
 
-    printExamDuration(exam: Exam) {
+    printExamDuration(exam: ExamInfo) {
         return this.DateTime.printExamDuration(exam);
     }
 }

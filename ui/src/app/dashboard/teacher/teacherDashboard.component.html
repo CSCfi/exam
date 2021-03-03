@@ -33,7 +33,7 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category
+                    <app-exam-list-category
                         *ngIf="filteredActive"
                         [items]="filteredActive"
                         default-predicate="examActiveEndDate"
@@ -41,7 +41,7 @@
                         [extraColumns]="activeExtraColumns"
                         (onFilterChange)="search($event)"
                     >
-                    </exam-list-category>
+                    </app-exam-list-category>
                 </ng-template>
             </ngb-tab>
             <ngb-tab id="2">
@@ -52,7 +52,7 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category
+                    <app-exam-list-category
                         *ngIf="filteredFinished"
                         [items]="filteredFinished"
                         default-predicate="unassessedCount"
@@ -61,7 +61,7 @@
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >
-                    </exam-list-category>
+                    </app-exam-list-category>
                 </ng-template>
             </ngb-tab>
             <ngb-tab id="3">
@@ -72,7 +72,7 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category
+                    <app-exam-list-category
                         *ngIf="filteredArchived"
                         [items]="filteredArchived"
                         default-predicate="examActiveEndDate"
@@ -81,7 +81,7 @@
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >
-                    </exam-list-category>
+                    </app-exam-list-category>
                 </ng-template>
             </ngb-tab>
             <ngb-tab id="4">
@@ -92,7 +92,7 @@
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
-                    <exam-list-category
+                    <app-exam-list-category
                         *ngIf="filteredDrafts"
                         [items]="filteredDrafts"
                         default-predicate="examActiveEndDate"
@@ -100,7 +100,7 @@
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >
-                    </exam-list-category>
+                    </app-exam-list-category>
                 </ng-template>
             </ngb-tab>
         </ngb-tabset>

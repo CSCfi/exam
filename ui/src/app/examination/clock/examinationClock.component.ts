@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 
 @Component({
-    selector: 'examination-clock',
+    selector: 'app-examination-clock',
     templateUrl: './examinationClock.component.html',
 })
-export class ExaminationClockComponent {
+export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash: string;
-    @Output() onTimeout = new EventEmitter<void>();
+    @Output() outOfTime = new EventEmitter<void>();
     syncInterval = 15;
     secondsSinceSync = this.syncInterval + 1;
     alarmThreshold = 300;
@@ -58,15 +58,15 @@ export class ExaminationClockComponent {
         }
 
         this.pollerId = this.Window.nativeWindow.setTimeout(this.checkRemainingTime, 1000);
-    };
+    }
 
     private setRemainingTime = () =>
-        this.http.get<number>('/app/time/' + this.examHash).subscribe(resp => (this.remainingTime = resp));
+        this.http.get<number>('/app/time/' + this.examHash).subscribe(resp => (this.remainingTime = resp))
 
     private notifyTimeout = () => {
         this.Window.nativeWindow.clearTimeout(this.pollerId);
-        this.onTimeout.emit();
-    };
+        this.outOfTime.emit();
+    }
 
     private zeroPad = (n: number): string => ('0' + n).slice(-2);
 
@@ -78,5 +78,5 @@ export class ExaminationClockComponent {
         const minutes = Math.floor(this.remainingTime / 60) % 60;
         const seconds = this.remainingTime % 60;
         return `${hours}:${this.zeroPad(minutes)}:${this.zeroPad(seconds)}`;
-    };
+    }
 }

@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { Question } from '../../exam/exam.model';
 
 @Component({
-    selector: 'essay-editor',
+    selector: 'app-essay-editor',
     template: `
         <form name="essayForm">
             <div class="row mt-3">

@@ -12,20 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../session/session.service';
-import { CollaborativeExamState } from '../exam.model';
+import { SessionService, User } from '../../session/session.service';
+import { CollaborativeExam, CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
 
-import { OnInit } from '@angular/core';
-import { User } from '../../session/session.service';
-import { CollaborativeExam } from '../exam.model';
 enum ListingView {
     PUBLISHED = 'PUBLISHED',
     EXPIRED = 'EXPIRED',
@@ -40,10 +37,10 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 }
 
 @Component({
-    selector: 'collaborative-exam-listing',
+    selector: 'app-collaborative-exam-listing',
     templateUrl: './collaborativeExamListing.component.html',
 })
-export class CollaborativeExamListingComponent implements OnInit {
+export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     exams: ListedCollaborativeExam[] = [];
     user: User;
     view: ListingView;
@@ -58,7 +55,7 @@ export class CollaborativeExamListingComponent implements OnInit {
         private state: StateService,
         private translate: TranslateService,
         private Session: SessionService,
-        private CollaborativeExam: CollaborativeExamService,
+        private CollaborativeExamSrv: CollaborativeExamService,
     ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
@@ -81,12 +78,12 @@ export class CollaborativeExamListingComponent implements OnInit {
     }
 
     listAllExams = () =>
-        this.CollaborativeExam.listExams()
+        this.CollaborativeExamSrv.listExams()
             .pipe(
                 tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
                 finalize(() => (this.loader.loading = false)),
             )
-            .subscribe();
+            .subscribe()
 
     returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
         const listedExams: ListedCollaborativeExam[] = exams
@@ -129,10 +126,10 @@ export class CollaborativeExamListingComponent implements OnInit {
             this.reverse = !this.reverse;
         }
         this.examsPredicate = predicate;
-    };
+    }
 
     createExam() {
-        this.CollaborativeExam.createExam().subscribe(
+        this.CollaborativeExamSrv.createExam().subscribe(
             (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.state.go('examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
@@ -142,7 +139,7 @@ export class CollaborativeExamListingComponent implements OnInit {
     }
 
     getStateTranslation(exam: CollaborativeExam): string {
-        const translationStr = this.CollaborativeExam.getExamStateTranslation(exam);
+        const translationStr = this.CollaborativeExamSrv.getExamStateTranslation(exam);
         if (translationStr) {
             return this.translate.instant(translationStr);
         }
@@ -164,11 +161,11 @@ export class CollaborativeExamListingComponent implements OnInit {
             return;
         }
 
-        this.CollaborativeExam.searchExams(text)
+        this.CollaborativeExamSrv.searchExams(text)
             .pipe(
                 tap(exams => (this.exams = this.returnListedCollaborativeExams(exams))),
                 finalize(() => (this.loader.loading = false)),
             )
             .subscribe();
-    };
+    }
 }

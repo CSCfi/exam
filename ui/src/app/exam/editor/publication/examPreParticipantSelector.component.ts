@@ -23,7 +23,7 @@ import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-pre-participant-selector',
+    selector: 'app-exam-pre-participant-selector',
     templateUrl: './examPreParticipantSelector.component.html',
 })
 export class ExamPreParticipantSelectorComponent implements OnInit {
@@ -50,7 +50,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
                 error => toast.error(error),
             );
         }
-    };
+    }
 
     removeParticipant = (id: number) => {
         this.http.delete(`/app/enrolments/student/${id}`).subscribe(
@@ -60,10 +60,10 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
             },
             err => toast.error(err.data),
         );
-    };
+    }
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>
         enrolment.preEnrolledUserEmail
             ? enrolment.preEnrolledUserEmail
-            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
+            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName
 }

@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
@@ -31,7 +30,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 };
 
 @Component({
-    selector: 'waiting-room',
+    selector: 'app-waiting-room',
     templateUrl: './waitingRoom.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
@@ -42,7 +41,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
         private Window: WindowRef,
@@ -57,12 +56,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             default:
                 return room.roomInstructionEN;
         }
-    };
+    }
 
     ngOnInit() {
-        if (this.state.params.id) {
+        if (this.routing.params.id) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe(
                 enrolment => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -103,7 +102,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             startAt: start.format('HH:mm'),
             endAt: end.format('HH:mm'),
         };
-    };
+    }
 
     private calculateOffset = () => {
         const startsAt = moment(this.enrolment.reservation.startAt);
@@ -112,5 +111,5 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             startsAt.add(-1, 'hour');
         }
         return Date.parse(startsAt.format()) - new Date().getTime();
-    };
+    }
 }

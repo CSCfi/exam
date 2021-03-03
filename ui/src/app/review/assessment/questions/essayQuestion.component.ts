@@ -24,7 +24,7 @@ import { ReviewQuestion } from '../../review.model';
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-essay-question',
+    selector: 'app-r-essay-question',
     templateUrl: './essayQuestion.component.html',
 })
 export class EssayQuestionComponent {
@@ -52,7 +52,7 @@ export class EssayQuestionComponent {
             );
         }
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
-    };
+    }
 
     downloadQuestionAnswerAttachment = () => {
         if (this.collaborative && this.sectionQuestion?.essayAnswer?.attachment?.externalId) {
@@ -62,7 +62,7 @@ export class EssayQuestionComponent {
             );
         }
         return this.Attachment.downloadQuestionAnswerAttachment(this.sectionQuestion as ReviewQuestion);
-    };
+    }
 
     insertEssayScore = () => {
         console.log(this.sectionQuestion.essayAnswer?.evaluatedScore);
@@ -81,19 +81,19 @@ export class EssayQuestionComponent {
                 toast.info(this.translate.instant('sitnet_graded')), this.onScore.emit();
             });
         }
-    };
+    }
 
     getWordCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countWords(this.sectionQuestion.essayAnswer.answer);
-    };
+    }
 
     getCharacterCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countCharacters(this.sectionQuestion.essayAnswer.answer);
-    };
+    }
 }

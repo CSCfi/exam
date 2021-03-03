@@ -22,7 +22,7 @@ import { ExaminationQuestion } from '../examination.service';
 import { AnsweredQuestion } from '../../utility/attachment/attachment.service';
 import { EssayAnswer } from '../../exam/exam.model';
 @Component({
-    selector: 'examination-essay-question',
+    selector: 'app-examination-essay-question',
     templateUrl: './examinationEssayQuestion.component.html',
 })
 export class ExaminationEssayQuestionComponent {
@@ -43,14 +43,14 @@ export class ExaminationEssayQuestionComponent {
     }
     saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
     removeQuestionAnswerAttachment = () => {
-        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) return;
+        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) { return; }
         const answeredQuestion = this.sq as AnsweredQuestion; // TODO: no casting
         if (this.exam.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);
             return;
         }
         this.Attachment.removeQuestionAnswerAttachment(answeredQuestion);
-    };
+    }
 
     selectFile = () => {
         if (this.isPreview) {
@@ -74,5 +74,5 @@ export class ExaminationEssayQuestionComponent {
                 this.sq.essayAnswer,
             );
         });
-    };
+    }
 }

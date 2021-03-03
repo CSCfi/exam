@@ -44,7 +44,7 @@ import { Exam } from '../../../exam/exam.model';
             <div class="col-md-10">{{ abortedExams.length }}</div>
         </div>
     `,
-    selector: 'response-statistics',
+    selector: 'app-response-statistics',
 })
 export class ResponseStatisticsComponent implements OnInit {
     @Input() queryParams: { start: string; end: string };
@@ -69,5 +69,5 @@ export class ResponseStatisticsComponent implements OnInit {
                     e => ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1,
                 );
                 this.abortedExams = resp.filter(e => e.state === 'ABORTED');
-            });
+            })
 }

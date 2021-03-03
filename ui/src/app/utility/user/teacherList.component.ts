@@ -18,7 +18,7 @@ import { Exam } from '../../exam/exam.model';
 
 import { OnInit } from '@angular/core';
 @Component({
-    selector: 'teacher-list',
+    selector: 'app-teacher-list',
     template: `
         <span>
             <strong>{{ owners }}</strong

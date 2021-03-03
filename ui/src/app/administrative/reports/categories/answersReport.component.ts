@@ -54,7 +54,7 @@ import { FileService } from '../../../utility/file/file.service';
             </div>
         </div>
     `,
-    selector: 'answers-report',
+    selector: 'app-answers-report',
 })
 export class AnswersReportComponent {
     startDate: Date;
@@ -66,13 +66,13 @@ export class AnswersReportComponent {
         const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
         const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
         this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
-    };
+    }
 }

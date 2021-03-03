@@ -17,7 +17,7 @@ import * as _ from 'lodash';
 
 import { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
-    selector: 'paginator',
+    selector: 'app-paginator',
     template: `
         <ul class="paginator">
             <li [ngClass]="previousPageDisabled()"><a (click)="previousPage()">&#60;</a></li>
@@ -52,7 +52,7 @@ export class PaginatorComponent implements OnChanges {
             this.currentPage--;
             this.onSelectPage.emit({ page: this.currentPage });
         }
-    };
+    }
 
     isCurrent = (n: number) => n === this.currentPage;
 
@@ -63,7 +63,7 @@ export class PaginatorComponent implements OnChanges {
             this.currentPage++;
             this.onSelectPage.emit({ page: this.currentPage });
         }
-    };
+    }
 
     nextPageDisabled = () => (this.currentPage === this.pageCount ? 'disabled' : '');
 
@@ -72,5 +72,5 @@ export class PaginatorComponent implements OnChanges {
     setPage = (n: number) => {
         this.currentPage = n;
         this.onSelectPage.emit({ page: n });
-    };
+    }
 }

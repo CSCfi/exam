@@ -27,7 +27,7 @@ import { QuestionReview, ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-assessment',
+    selector: 'app-question-assessment',
     templateUrl: './questionAssessment.component.html',
 })
 export class QuestionAssessmentComponent {
@@ -70,7 +70,7 @@ export class QuestionAssessmentComponent {
             return this.assessedAnswers.length + this.lockedAnswers.length;
         }
         return this.assessedAnswers.length;
-    };
+    }
 
     getUnassessedAnswerCount = () => this.unassessedAnswers.length;
 
@@ -111,10 +111,10 @@ export class QuestionAssessmentComponent {
                     resolve();
                 };
         });
-    };
+    }
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = _.cloneDeep(this.reviews)));
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = _.cloneDeep(this.reviews)))
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
@@ -127,7 +127,7 @@ export class QuestionAssessmentComponent {
             a => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
         );
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
-    };
+    }
 
     private isLocked = (answer: ReviewQuestion) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
@@ -137,5 +137,5 @@ export class QuestionAssessmentComponent {
             states.push('GRADED');
         }
         return states.indexOf(exam.state) === -1;
-    };
+    }
 }

@@ -26,7 +26,7 @@ import { AssessmentService } from '../assessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
 @Component({
-    selector: 'r-maturity-grading',
+    selector: 'app-r-maturity-grading',
     templateUrl: './grading.component.html',
 })
 export class MaturityGradingComponent extends GradingBaseComponent {
@@ -62,7 +62,7 @@ export class MaturityGradingComponent extends GradingBaseComponent {
     getExam = () => this.exam;
 
     isUnderLanguageInspection = () =>
-        this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt;
+        this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection && this.exam.languageInspection.finishedAt;
     isAwaitingInspection = () => this.exam.languageInspection && !this.exam.languageInspection.finishedAt;
     canFinalizeInspection = () => this.exam.languageInspection?.statement.comment;
@@ -77,7 +77,7 @@ export class MaturityGradingComponent extends GradingBaseComponent {
         this.exam.executionType.type === 'MATURITY' &&
         !this.exam.subjectToLanguageInspection &&
         this.exam.grade &&
-        this.exam.grade.marksRejection;
+        this.exam.grade.marksRejection
 
     sendEmailMessage = () => {
         if (!this.message.text) {
@@ -88,5 +88,5 @@ export class MaturityGradingComponent extends GradingBaseComponent {
             toast.info(this.translate.instant('sitnet_email_sent'));
             delete this.message.text;
         }, toast.error);
-    };
+    }
 }

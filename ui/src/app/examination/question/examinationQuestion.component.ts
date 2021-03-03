@@ -20,7 +20,7 @@ import { Examination, ExaminationQuestion, ExaminationService } from '../examina
 import { AfterViewInit } from '@angular/core';
 import { QuestionBase } from '../../utility/forms/questionTypes';
 @Component({
-    selector: 'examination-question',
+    selector: 'app-examination-question',
     templateUrl: './examinationQuestion.component.html',
 })
 export class ExaminationQuestionComponent implements AfterViewInit {
@@ -43,7 +43,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         const answerData = this.sq.clozeTestAnswer;
         if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
             this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
-            //answerData.answer = JSON.parse(answerData.answer);
+            // answerData.answer = JSON.parse(answerData.answer);
         }
     }
 
@@ -56,7 +56,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
             const dictionary = Object.assign({}, ...event.payload.map(x => ({ [x.id]: x.answer })));
             this.sq.clozeTestAnswer.answer = JSON.stringify(dictionary);
         }
-    };
+    }
 
     downloadQuestionAttachment = () => {
         if (this.exam.external) {
@@ -66,7 +66,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         } else {
             this.Attachment.downloadQuestionAttachment(this.sq.question);
         }
-    };
+    }
 
     isAnswered = () => this.Examination.isAnswered(this.sq);
 }

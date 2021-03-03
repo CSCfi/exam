@@ -20,7 +20,7 @@ import { QuestionService } from '../question.service';
 
 import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
-    selector: 'multiple-choice-editor',
+    selector: 'app-multiple-choice-editor',
     template: `
         <div class="row mt-2" *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
             <div class="col-md-6">
@@ -104,7 +104,7 @@ export class MultipleChoiceEditorComponent {
             return;
         }
         this.question.options.push({ correctOption: false });
-    };
+    }
 
     calculateDefaultMaxPoints = () => this.Question.calculateDefaultMaxPoints(this.question as Question);
 }

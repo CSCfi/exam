@@ -22,7 +22,7 @@
         <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
         <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
         <div class="row">
-            <section
+            <app-section
                 class="col-md-12 padt40"
                 [section]="section"
                 [index]="i + 1"
@@ -30,7 +30,7 @@
                 [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
                 (onDelete)="removeSection(section)"
                 (onMaterialsChanged)="loadMaterials()"
-            ></section>
+            ></app-section>
         </div>
     </div>
 </div>

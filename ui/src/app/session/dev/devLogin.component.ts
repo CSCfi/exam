@@ -18,7 +18,7 @@ import { SessionService } from '../session.service';
 
 import { User } from '../session.service';
 @Component({
-    selector: 'dev-login',
+    selector: 'app-dev-login',
     template: `
         <div class="container-fluid">
             <div class="row mart20">
@@ -78,5 +78,5 @@ export class DevLoginComponent {
             user => this.onLoggedIn.emit(user),
             err => console.log(JSON.stringify(err)),
         );
-    };
+    }
 }

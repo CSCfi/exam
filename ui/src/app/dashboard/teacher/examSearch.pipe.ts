@@ -23,7 +23,7 @@ export class ExamSearchPipe implements PipeTransform {
         const code = exam.course ? exam.course.code : '';
         const owners = exam.examOwners.map(eo => `${eo.firstName} ${eo.lastName}`).join(' ');
         return `${code} ${owners} ${exam.name}`;
-    };
+    }
 
     transform<T extends Exam>(exams: T[], filter: string): T[] {
         return !filter

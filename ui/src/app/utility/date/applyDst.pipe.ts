@@ -25,5 +25,5 @@ export class ApplyDstPipe implements PipeTransform {
                 .format();
         }
         return moment(input).format();
-    };
+    }
 }

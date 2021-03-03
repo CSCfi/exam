@@ -289,12 +289,12 @@
                 </tbody>
             </table>
             <div *ngIf="filteredUsers && filteredUsers.length > pageSize">
-                <paginator
+                <app-paginator
                     [items]="filteredUsers"
                     (onSelectPage)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
-                ></paginator>
+                ></app-paginator>
             </div>
         </div>
     </div>

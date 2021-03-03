@@ -22,7 +22,7 @@ import { WorkingHour } from '../rooms/room.service';
 
 @Component({
     templateUrl: './startingTime.component.html',
-    selector: 'starting-time',
+    selector: 'app-starting-time',
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[];
@@ -57,7 +57,7 @@ export class StartingTimeComponent implements OnInit {
                 this.startingHours = this.examStartingHours;
             }
         });
-    };
+    }
 
     toggleAllExamStartingHours = () => {
         const anySelected = this.examStartingHours.some(hours => {
@@ -66,14 +66,14 @@ export class StartingTimeComponent implements OnInit {
         this.examStartingHours.forEach(hours => {
             hours.selected = !anySelected;
         });
-    };
+    }
 
     setStartingHourOffset = () => {
         this.examStartingHourOffset = this.examStartingHourOffset || 0;
         this.examStartingHours.forEach(hours => {
             hours.startingHour = hours.startingHour.split(':')[0] + ':' + this.zeropad(this.examStartingHourOffset);
         });
-    };
+    }
 
     anyStartingHoursSelected = () => this.examStartingHours.some(hours => hours.selected);
 

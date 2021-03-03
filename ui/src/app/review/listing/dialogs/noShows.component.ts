@@ -25,7 +25,7 @@ interface NoShow {
 }
 
 @Component({
-    selector: 'no-shows-component',
+    selector: 'app-no-shows-component',
     templateUrl: './noShows.component.html',
 })
 export class NoShowsComponent {
@@ -36,7 +36,7 @@ export class NoShowsComponent {
 
     constructor(private modal: NgbActiveModal) {}
 
-    //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
+    // TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
         this.noShows.forEach(r => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
     }
@@ -48,5 +48,5 @@ export class NoShowsComponent {
             this.reverse = !this.reverse;
         }
         this.noShowPredicate = predicate;
-    };
+    }
 }

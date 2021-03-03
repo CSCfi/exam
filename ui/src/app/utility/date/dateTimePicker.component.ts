@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-    selector: 'date-time-picker',
+    selector: 'app-date-time-picker',
     template: `
         <div class="row align-items-center">
             <div class="col-auto">
@@ -55,7 +55,7 @@ export class DateTimePickerComponent {
         this.time.minute = dt.getMinutes();
         this.time.second = 0;
         this.time.millisecond = 0;
-    };
+    }
 
     ngOnInit() {
         const now = new Date();

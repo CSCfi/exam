@@ -42,7 +42,7 @@ export class LanguageInspectionService {
     ) {}
 
     query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
-        this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
+        this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams })
 
     showStatement = (statement: { comment: string }) => {
         const modalRef = this.modal.open(InspectionStatementDialogComponent, {
@@ -50,7 +50,7 @@ export class LanguageInspectionService {
             keyboard: true,
         });
         modalRef.componentInstance.statement = statement.comment;
-    };
+    }
 
     assignInspection = (inspection: LanguageInspection) => {
         const dialog = this.dialogs.open(
@@ -63,5 +63,5 @@ export class LanguageInspectionService {
                 err => toast.error(err.data),
             );
         });
-    };
+    }
 }

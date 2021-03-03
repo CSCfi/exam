@@ -18,7 +18,7 @@ import { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'essay-answers',
+    selector: 'app-essay-answers',
     template: `
         <div class="top-row">
             <div class="col-md-12" *ngFor="let answer of answers">
@@ -56,7 +56,7 @@ export class EssayAnswerListComponent {
             return 0;
         }
         return this.answers.filter(this.QuestionReview.isAssessed).length;
-    };
+    }
 
     assessSelected = () => this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
 
@@ -64,5 +64,5 @@ export class EssayAnswerListComponent {
         if (this.QuestionReview.isAssessed(answer)) {
             this.onAssessed.emit([answer]);
         }
-    };
+    }
 }

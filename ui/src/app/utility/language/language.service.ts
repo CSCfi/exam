@@ -41,13 +41,13 @@ export class LanguageService {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang.name;
-    };
+    }
 
     getLanguageNativeName = (code: string) => {
         const key = code.slice(0, 2);
         const lang = this.isoLangs[key];
         return lang.nativeName;
-    };
+    }
 
     getExamLanguages(): Promise<ExamLanguage[]> {
         return new Promise((resolve, reject) => {

@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
  */
 
 @Component({
-    selector: 'table-sort',
+    selector: 'app-table-sort',
     template: `
         <span class="pointer"
             >{{ text | translate }}&nbsp;
@@ -31,5 +31,5 @@ export class TableSortComponent {
     @Input() reverse: boolean;
 
     getSortClass = () =>
-        this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up';
+        this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up'
 }

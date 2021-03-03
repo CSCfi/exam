@@ -13,19 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
+import { Exam, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AssessmentService } from '../../review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
-
-import { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
-import { ExamParticipation } from '../../exam/exam.model';
-import { OnInit } from '@angular/core';
-import { Exam } from '../../exam/exam.model';
 import { ReviewedExam } from '../enrolment.model';
 
 type Scores = {
@@ -36,7 +33,7 @@ type Scores = {
     hasApprovedRejectedAnswers: boolean;
 };
 @Component({
-    selector: 'exam-participation',
+    selector: 'app-exam-participation',
     templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit {
@@ -52,7 +49,7 @@ export class ExamParticipationComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private http: HttpClient,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
     ) {}
@@ -74,7 +71,7 @@ export class ExamParticipationComponent implements OnInit {
         }
         this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             if (this.participation.exam.grade) {
-                this.gradeDisplayName = this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);
+                this.gradeDisplayName = this.ExamSrv.getExamGradeDisplayName(this.participation.exam.grade.name);
             }
         });
     }
@@ -82,7 +79,7 @@ export class ExamParticipationComponent implements OnInit {
     ngOnDestroy = () => {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
-    };
+    }
 
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (
@@ -103,10 +100,10 @@ export class ExamParticipationComponent implements OnInit {
         } else {
             this.Assessment.setCommentRead(exam);
         }
-    };
+    }
 
     private loadReview = (exam: Exam) =>
-        this.http.get<ReviewedExam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview);
+        this.http.get<ReviewedExam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview)
 
     private prepareReview = (exam: ReviewedExam) => {
         if (!exam.grade) {
@@ -119,15 +116,15 @@ export class ExamParticipationComponent implements OnInit {
             exam.grade.displayName = this.translate.instant(
                 exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected',
             );
-            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.contentGrade = this.ExamSrv.getExamGradeDisplayName(exam.grade.name);
             exam.gradedTime = exam.languageInspection.finishedAt;
         } else {
-            exam.grade.displayName = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.grade.displayName = this.ExamSrv.getExamGradeDisplayName(exam.grade.name);
         }
-        const credit = this.Exam.getCredit(exam);
+        const credit = this.ExamSrv.getCredit(exam);
         exam.credit = credit;
         if (exam.creditType) {
-            exam.creditType.displayName = this.Exam.getExamTypeDisplayName(exam.creditType.type);
+            exam.creditType.displayName = this.ExamSrv.getExamTypeDisplayName(exam.creditType.type);
         }
 
         this.reviewedExam = exam;
@@ -139,7 +136,7 @@ export class ExamParticipationComponent implements OnInit {
         this.http
             .get<ReviewedExam>(`/app/feedback/exams/${this.participation.exam.id}/score`)
             .subscribe(this.prepareScores, err => toastr.error(err.data));
-    };
+    }
 
     private prepareScores = (exam: ReviewedExam) => {
         this.scores = {
@@ -149,5 +146,5 @@ export class ExamParticipationComponent implements OnInit {
             rejectedAnswerCount: exam.rejectedAnswerCount,
             hasApprovedRejectedAnswers: exam.approvedAnswerCount + exam.rejectedAnswerCount > 0,
         };
-    };
+    }
 }

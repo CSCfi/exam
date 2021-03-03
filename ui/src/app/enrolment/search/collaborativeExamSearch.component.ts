@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
+import { CollaborativeExam } from '../../exam/exam.model';
 import { LanguageService } from '../../utility/language/language.service';
 import { EnrolmentService } from '../enrolment.service';
 
-import { OnInit } from '@angular/core';
-import { CollaborativeExam } from '../../exam/exam.model';
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
     reservationMade: boolean;
@@ -30,10 +29,10 @@ interface CollaborativeExamInfo extends CollaborativeExam {
 }
 
 @Component({
-    selector: 'collaborative-exam-search',
+    selector: 'app-collaborative-exam-search',
     templateUrl: './collaborativeExamSearch.component.html',
 })
-export class CollaborativeExamSearchComponent implements OnInit {
+export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     exams: CollaborativeExamInfo[] = [];
     filter: { text: string };
     loader: { loading: boolean };
@@ -43,7 +42,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
     constructor(
         private Enrolment: EnrolmentService,
         private Language: LanguageService,
-        private CollaborativeExam: CollaborativeExamService,
+        private CollaborativeExamSrv: CollaborativeExamService,
     ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
@@ -69,13 +68,13 @@ export class CollaborativeExamSearchComponent implements OnInit {
         this.filter.text = text;
         this.loader = { loading: true };
 
-        this.CollaborativeExam.searchExams(text)
+        this.CollaborativeExamSrv.searchExams(text)
             .pipe(
                 tap(exams => this.updateExamList(exams)),
                 finalize(() => (this.loader = { loading: false })),
             )
             .subscribe();
-    };
+    }
 
     updateExamList(exams: CollaborativeExam[]) {
         this.exams = exams.map(e =>
@@ -87,7 +86,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
         );
         this.exams.forEach(e => {
             this.Enrolment.getEnrolments(e.id, true).subscribe(enrolments => {
-                e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+                e.reservationMade = enrolments.some(ee => _.isObject(ee.reservation));
                 e.enrolled = enrolments.length > 0;
             });
         });

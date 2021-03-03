@@ -19,7 +19,7 @@ import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'exam-search-result',
+    selector: 'app-exam-search-result',
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
@@ -36,7 +36,7 @@ export class ExamSearchResultComponent {
         }
         this.enrolling = true;
         this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(() => (this.enrolling = false));
-    };
+    }
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {
@@ -44,5 +44,5 @@ export class ExamSearchResultComponent {
         } else {
             this.State.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
         }
-    };
+    }
 }

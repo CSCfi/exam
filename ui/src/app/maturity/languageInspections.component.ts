@@ -32,7 +32,7 @@ export interface LanguageInspectionData extends LanguageInspection {
 }
 
 @Component({
-    selector: 'language-inspections',
+    selector: 'app-language-inspections',
     templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
@@ -80,15 +80,15 @@ export class LanguageInspectionsComponent implements OnInit {
             }
             this.processedInspections = inspections.filter(i => i.finishedAt);
         });
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
         this.query();
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
         this.query();
-    };
+    }
 }

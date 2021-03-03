@@ -22,7 +22,7 @@ import { SessionService } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'collaborative-exam-owner-selector',
+    selector: 'app-collaborative-exam-owner-selector',
     templateUrl: './collaborativeExamOwnerSelector.component.html',
 })
 export class CollaborativeExamOwnerSelectorComponent implements OnInit {
@@ -48,12 +48,12 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
                 resp => toast.error(resp.data),
             );
         }
-    };
+    }
 
     removeOwner = (id: number) => {
         this.http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
             () => (this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)),
             resp => toast.error(resp.data),
         );
-    };
+    }
 }

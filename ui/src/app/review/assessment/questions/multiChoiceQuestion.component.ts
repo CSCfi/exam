@@ -24,7 +24,7 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-multi-choice-question',
+    selector: 'app-r-multi-choice-question',
     templateUrl: './multiChoiceQuestion.component.html',
 })
 export class MultiChoiceQuestionComponent {
@@ -51,26 +51,26 @@ export class MultiChoiceQuestionComponent {
             return 0;
         }
         return this.Question.scoreWeightedMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     scoreMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
             return 0;
         }
         return this.Question.scoreMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     scoreClaimChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
             return 0;
         }
         return this.Question.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     displayMaxScore = () =>
         _.isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
-            : this.sectionQuestion.maxScore.toFixed(2);
+            : this.sectionQuestion.maxScore.toFixed(2)
 
     calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
 
@@ -98,7 +98,7 @@ export class MultiChoiceQuestionComponent {
                 err => toast.error(err.data),
             );
         }
-    };
+    }
 
     downloadQuestionAttachment = () => {
         if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
@@ -108,5 +108,5 @@ export class MultiChoiceQuestionComponent {
             );
         }
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
-    };
+    }
 }

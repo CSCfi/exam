@@ -27,7 +27,7 @@ import { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-graded',
+    selector: 'app-rl-graded',
     templateUrl: './graded.component.html',
 })
 export class GradedReviewsComponent {
@@ -81,12 +81,12 @@ export class GradedReviewsComponent {
                 toast.info(this.translate.instant('sitnet_results_send_ok'));
             }),
         );
-    };
+    }
 
     getLinkToAssessment = (review: Review) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review.examParticipation._id}`
-            : `/assessments/${review.examParticipation.exam.id}`;
+            : `/assessments/${review.examParticipation.exam.id}`
 
     pageSelected = (event: { page: number }) => (this.view.page = event.page);
 
@@ -99,12 +99,12 @@ export class GradedReviewsComponent {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
-    };
+    }
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
         return this.Exam.getExamGradeDisplayName(grade);
-    };
+    }
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
@@ -112,5 +112,5 @@ export class GradedReviewsComponent {
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

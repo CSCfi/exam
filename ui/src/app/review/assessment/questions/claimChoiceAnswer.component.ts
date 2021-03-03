@@ -19,7 +19,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-claim-choice-answer',
+    selector: 'app-r-claim-choice-answer',
     templateUrl: './claimChoiceAnswer.component.html',
 })
 export class ClaimChoiceAnswerComponent {
@@ -30,7 +30,7 @@ export class ClaimChoiceAnswerComponent {
     constructor(private Question: QuestionService) {}
 
     determineClaimOptionType = (option: ExamSectionQuestionOption) =>
-        this.Question.determineClaimOptionTypeForExamQuestionOption(option);
+        this.Question.determineClaimOptionTypeForExamQuestionOption(option)
 
     getSelectedOptionClass = (option: ExamSectionQuestionOption) => {
         if (!option.answered) {
@@ -46,5 +46,5 @@ export class ClaimChoiceAnswerComponent {
             default:
                 return 'exam-not-answered';
         }
-    };
+    }
 }

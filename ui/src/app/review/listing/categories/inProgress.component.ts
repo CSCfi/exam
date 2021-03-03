@@ -27,7 +27,7 @@ import { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-in-progress',
+    selector: 'app-rl-in-progress',
     templateUrl: './inProgress.component.html',
 })
 export class InProgressReviewsComponent {
@@ -54,7 +54,7 @@ export class InProgressReviewsComponent {
     getLinkToAssessment = (review: ExamParticipation) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-            : `/assessments/${review.exam?.id}`;
+            : `/assessments/${review.exam?.id}`
 
     pageSelected = (page: number) => (this.view.page = page);
 
@@ -65,7 +65,7 @@ export class InProgressReviewsComponent {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
-    };
+    }
 
     getAnswerAttachments = () =>
         this.modal
@@ -76,5 +76,5 @@ export class InProgressReviewsComponent {
             .result.then(params =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
             )
-            .catch(noop);
+            .catch(noop)
 }

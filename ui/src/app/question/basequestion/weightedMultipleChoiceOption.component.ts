@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 
 @Component({
-    selector: 'wmc-option-editor',
+    selector: 'app-wmc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">
@@ -74,5 +74,5 @@ export class WeightedMultipleChoiceOptionEditorComponent {
         } else {
             toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
-    };
+    }
 }

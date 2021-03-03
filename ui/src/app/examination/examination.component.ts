@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { WindowRef } from '../utility/window/window.service';
-import { ExaminationService } from './examination.service';
+import { Examination, ExaminationSection, ExaminationService } from './examination.service';
 
-import { Examination, ExaminationSection } from './examination.service';
 @Component({
-    selector: 'examination',
+    selector: 'app-examination',
     templateUrl: './examination.component.html',
 })
-export class ExaminationComponent {
+export class ExaminationComponent implements OnInit, OnDestroy {
     @Input() isCollaborative: boolean;
     exam: Examination;
     activeSection?: ExaminationSection;
@@ -35,7 +34,7 @@ export class ExaminationComponent {
         private state: StateService,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
-        private Examination: ExaminationService,
+        private ExaminationSrv: ExaminationService,
         private Enrolment: EnrolmentService,
         private Window: WindowRef,
     ) {}
@@ -45,7 +44,7 @@ export class ExaminationComponent {
         if (!this.isPreview) {
             this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
-        this.Examination.startExam$(
+        this.ExaminationSrv.startExam$(
             this.routing.params.hash,
             this.isPreview,
             this.isCollaborative,
@@ -74,16 +73,16 @@ export class ExaminationComponent {
 
     timedOut = () =>
         // Save all textual answers regardless of empty or not
-        this.Examination.saveAllTextualAnswersOfExam$(this.exam, true).subscribe(() =>
+        this.ExaminationSrv.saveAllTextualAnswersOfExam$(this.exam, true).subscribe(() =>
             this.logout('sitnet_exam_time_is_up', true),
-        );
+        )
 
     private logout = (msg: string, canFail: boolean) =>
-        this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);
+        this.ExaminationSrv.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail)
 
     private setActiveSection = (page: { type: string; id?: number }) => {
         if (this.activeSection) {
-            this.Examination.saveAllTextualAnswersOfSection$(
+            this.ExaminationSrv.saveAllTextualAnswersOfSection$(
                 this.activeSection,
                 this.exam.hash,
                 true,
@@ -96,12 +95,12 @@ export class ExaminationComponent {
             this.activeSection = this.findSection(page.id as number);
         }
         this.Window.nativeWindow.scrollTo(0, 0);
-    };
+    }
 
     private findSection = (sectionId: number) => {
         const i = this.exam.examSections.map(es => es.id).indexOf(sectionId);
         if (i >= 0) {
             return this.exam.examSections[i];
         }
-    };
+    }
 }

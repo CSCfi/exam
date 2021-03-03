@@ -35,12 +35,12 @@ export class CollaborativeExamService {
     constructor(private http: HttpClient, private Session: SessionService) {}
 
     listStudentParticipations = (): Observable<CollaborativeParticipation[]> =>
-        this.http.get<CollaborativeParticipation[]>('/integration/iop/student/finishedExams');
+        this.http.get<CollaborativeParticipation[]>('/integration/iop/student/finishedExams')
 
     listExams = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
         return this.http.get<CollaborativeExam[]>(path);
-    };
+    }
 
     createExam = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/integration/iop/exams', {});
 
@@ -51,7 +51,7 @@ export class CollaborativeExamService {
             ? `/integration/iop/enrolment/search${paramStr}`
             : `/integration/iop/exams/search${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
-    };
+    }
 
     getExamStateTranslation = (exam: CollaborativeExam): string | null => {
         switch (exam.state) {
@@ -64,9 +64,9 @@ export class CollaborativeExamService {
             default:
                 return null;
         }
-    };
+    }
 
     download = (id: number) => {
         return this.http.get<Exam>(`/integration/iop/exams/${id}`).toPromise();
-    };
+    }
 }

@@ -38,5 +38,5 @@ export class FixedPrecisionValidatorDirective {
             return this.ngModel.toFixed(2);
         }
         return this.ngModel.toString();
-    };
+    }
 }

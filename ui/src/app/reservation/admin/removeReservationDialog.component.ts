@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { Reservation } from '../reservation.model';
 
 @Component({
-    selector: 'remove-reservation-dialog',
+    selector: 'app-remove-reservation-dialog',
     templateUrl: './removeReservationDialog.component.html',
 })
 export class RemoveReservationDialogComponent {
@@ -38,7 +38,7 @@ export class RemoveReservationDialogComponent {
             .subscribe(
                 () => this.activeModal.close(),
                 err => toast.error(err),
-            );
+            )
 
     cancel = () => this.activeModal.dismiss();
 }

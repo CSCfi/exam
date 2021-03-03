@@ -22,7 +22,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './exceptionList.component.html',
-    selector: 'exception-list',
+    selector: 'app-exception-list',
 })
 export class ExceptionListComponent {
     @Input() room: ExamRoom;
@@ -39,17 +39,17 @@ export class ExceptionListComponent {
         const start = moment(exception.startDate);
         const end = moment(exception.endDate);
         return start.format(fmt) + ' - ' + end.format(fmt);
-    };
+    }
 
     addException = () => {
         this.roomService.openExceptionDialog(this.createExceptionCallback);
-    };
+    }
 
     createExceptionCallback = (exception: ExceptionWorkingHours) => {
         this.onCreate.emit(exception);
-    };
+    }
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.onDelete.emit(exception);
-    };
+    }
 }

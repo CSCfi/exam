@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { Organisation } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-organisation-picker',
+    selector: 'app-calendar-organisation-picker',
     template: `
         <div class="row student-enrolment-wrapper details-view row" [ngClass]="selectedOrganisation ? '' : 'notactive'">
             <div class="col-md-12">
@@ -72,11 +72,11 @@ import { Organisation } from '../calendar.component';
         </div>
     `,
 })
-export class OrganisationPickerComponent {
+export class OrganisationPickerComponent implements OnInit {
     @Input() sequenceNumber: number;
     @Input() disabled: boolean;
-    @Output() onSelection = new EventEmitter<Organisation>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() selection = new EventEmitter<Organisation>();
+    @Output() cancel = new EventEmitter<void>();
 
     organisations: Organisation[] = [];
     selectedOrganisation?: Organisation;
@@ -93,8 +93,8 @@ export class OrganisationPickerComponent {
         this.organisations.forEach(o => (o.filtered = false));
         organisation.filtered = true;
         this.selectedOrganisation = organisation;
-        this.onSelection.emit(organisation);
-    };
+        this.selection.emit(organisation);
+    }
 
-    makeInternalReservation = () => this.onCancel.emit();
+    makeInternalReservation = () => this.cancel.emit();
 }

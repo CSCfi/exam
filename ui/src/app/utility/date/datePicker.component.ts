@@ -19,7 +19,7 @@ import * as moment from 'moment';
 import { OnInit } from '@angular/core';
 
 @Component({
-    selector: 'date-picker',
+    selector: 'app-date-picker',
     templateUrl: './datePicker.component.html',
 })
 export class DatePickerComponent implements OnInit {
@@ -45,7 +45,7 @@ export class DatePickerComponent implements OnInit {
     }
 
     transform(value: NgbDate | null): Date | null {
-        if (!value) return null;
+        if (!value) { return null; }
         return new Date(value.year, value.month - 1, value.day);
     }
 

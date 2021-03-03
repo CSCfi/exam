@@ -81,6 +81,10 @@ export interface ExternalReservation {
     roomInstructionEN: string;
     roomInstruction: string;
     roomInstructionSV: string;
+    campus: string;
+    buildingName: string;
+    roomCode: string;
+    mailAddress: { street: string; zip: string; city: string };
 }
 
 export interface Reservation {

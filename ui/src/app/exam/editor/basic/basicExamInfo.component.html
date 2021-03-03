@@ -9,7 +9,7 @@
             <!-- General info section container -->
             <div class="col-md-12">
                 <!-- Course data -->
-                <exam-course *ngIf="!collaborative" [exam]="exam" (onUpdate)="onCourseChange($event)"></exam-course>
+                <app-exam-course *ngIf="!collaborative" [exam]="exam" (onUpdate)="onCourseChange()"></app-exam-course>
                 <!-- Exam name and language -->
                 <div class="row marr30">
                     <div class="col-md-12 margin-20">
@@ -56,7 +56,7 @@
                                 </sup>
                             </div>
                             <div class="col">
-                                <language-selector [exam]="exam" [collaborative]="collaborative"></language-selector>
+                                <app-language-selector [exam]="exam" [collaborative]="collaborative"></app-language-selector>
                             </div>
                         </div>
                     </div>
@@ -200,7 +200,7 @@
                 <!-- Exam owners -->
                 <div class="row">
                     <div class="col-md-12 margin-20">
-                        <exam-owner-selector *ngIf="!collaborative" [exam]="exam"></exam-owner-selector>
+                        <app-exam-owner-selector *ngIf="!collaborative" [exam]="exam"></app-exam-owner-selector>
                     </div>
                 </div>
 
@@ -236,11 +236,11 @@
                 <!-- Exam inspectors -->
                 <div class="row">
                     <div class="col-md-12 margin-20">
-                        <exam-inspector-selector
+                        <app-exam-inspector-selector
                             [exam]="exam"
                             *ngIf="exam.executionType.type !== 'MATURITY' && !collaborative"
                         >
-                        </exam-inspector-selector>
+                        </app-exam-inspector-selector>
                     </div>
                 </div>
 
@@ -254,7 +254,7 @@
                         </div>
                     </div>
                 </div>
-                <software-selector [exam]="exam" *ngIf="exam && !collaborative"></software-selector>
+                <app-software-selector [exam]="exam" *ngIf="exam && !collaborative"></app-software-selector>
 
                 <!-- EXAM ATTACHMENT -->
                 <div class="row" *ngIf="exam.implementation !== 'CLIENT_AUTH'">
@@ -325,7 +325,7 @@
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <ckeditor
+                                <app-ckeditor
                                     rows="4"
                                     cols="150"
                                     [enableClozeTest]="false"
@@ -333,7 +333,7 @@
                                     (onBlur)="updateExam()"
                                     #ck="ngModel"
                                     name="ck"
-                                ></ckeditor>
+                                ></app-ckeditor>
                             </div>
                         </div>
                     </div>
@@ -359,7 +359,7 @@
                                 {{ 'sitnet_allowed_tools' | translate }}
                             </div>
                             <div class="col-md-9">
-                                <ckeditor
+                                <app-ckeditor
                                     rows="4"
                                     cols="150"
                                     [enableClozeTest]="false"
@@ -367,7 +367,7 @@
                                     (onBlur)="updateExam()"
                                     #ck="ngModel"
                                     name="ck"
-                                ></ckeditor>
+                                ></app-ckeditor>
                             </div>
                         </div>
                     </div>

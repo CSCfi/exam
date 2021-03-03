@@ -26,7 +26,7 @@ import { OnDestroy, OnInit } from '@angular/core';
 import { User } from '../session/session.service';
 import { Link } from './navigation.service';
 @Component({
-    selector: 'navigation',
+    selector: 'app-navigation',
     templateUrl: './navigation.component.html',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
@@ -94,5 +94,5 @@ export class NavigationComponent implements OnInit, OnDestroy {
         } else {
             this.links = this.Navigation.getLinks(false);
         }
-    };
+    }
 }

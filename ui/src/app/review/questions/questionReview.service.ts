@@ -27,13 +27,13 @@ export class QuestionReviewService {
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 
     isFinalized = (review: QuestionReview) =>
-        !review ? false : review.answers.length === this.getAssessedAnswerCount(review);
+        !review ? false : review.answers.length === this.getAssessedAnswerCount(review)
 
     isAssessed = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.temporaryScore);
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.temporaryScore)
 
     isEvaluated = (answer: ReviewQuestion) =>
-        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.evaluatedScore);
+        answer.selected && answer.essayAnswer && _.isNumber(answer.essayAnswer.evaluatedScore)
 
     isLocked = (answer: ReviewQuestion, user: User) => {
         const states = ['REVIEW', 'REVIEW_STARTED'];
@@ -43,13 +43,13 @@ export class QuestionReviewService {
             states.push('GRADED');
         }
         return states.indexOf(exam.state) === -1;
-    };
+    }
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
+        !review ? 0 : review.answers.filter(a => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length
 
     getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
-        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
+        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids } })
 
     getProcessedAnswerCount = (review: QuestionReview, user: User) => {
         if (!review) {
@@ -58,5 +58,5 @@ export class QuestionReviewService {
         return review.answers.filter(
             a => this.isLocked(a, user) || (a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)),
         ).length;
-    };
+    }
 }

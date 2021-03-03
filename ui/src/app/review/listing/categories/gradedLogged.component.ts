@@ -28,7 +28,7 @@ import { SimpleChanges } from '@angular/core';
 import { Review } from '../../review.model';
 import { ReviewListView } from '../reviewList.service';
 @Component({
-    selector: 'rl-graded-logged',
+    selector: 'app-rl-graded-logged',
     templateUrl: './gradedLogged.component.html',
 })
 export class GradedLoggedReviewsComponent {
@@ -54,7 +54,7 @@ export class GradedLoggedReviewsComponent {
             reverse: true,
         };
         this.selections = { all: false, page: false };
-    };
+    }
 
     ngOnInit() {
         this.init();
@@ -65,7 +65,7 @@ export class GradedLoggedReviewsComponent {
             this.init();
             this.applyFreeSearchFilter();
         }
-    };
+    }
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 
@@ -78,12 +78,12 @@ export class GradedLoggedReviewsComponent {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
-    };
+    }
 
     getLinkToAssessment = (review: Review) =>
         this.collaborative
             ? `/assessments/collaborative/${this.exam.id}/${review.examParticipation._id}`
-            : `/assessments/${review.examParticipation.exam.id}`;
+            : `/assessments/${review.examParticipation.exam.id}`
 
     archiveSelected = () => {
         const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
@@ -96,7 +96,7 @@ export class GradedLoggedReviewsComponent {
         };
         const ids = selection.map(r => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
-    };
+    }
 
     printSelected = (asReport: boolean) => {
         const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
@@ -118,7 +118,7 @@ export class GradedLoggedReviewsComponent {
             { childIds: ids.map(i => i.toString()) },
             true,
         );
-    };
+    }
 
     selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
 
@@ -127,7 +127,7 @@ export class GradedLoggedReviewsComponent {
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
         return this.Exam.getExamGradeDisplayName(grade);
-    };
+    }
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
@@ -135,5 +135,5 @@ export class GradedLoggedReviewsComponent {
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

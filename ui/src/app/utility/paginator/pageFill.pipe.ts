@@ -25,5 +25,5 @@ export class PageFillPipe implements PipeTransform {
             return input.concat(range(0, amount));
         }
         return input;
-    };
+    }
 }

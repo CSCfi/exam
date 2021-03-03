@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { Transition, UIRouterModule } from '@uirouter/angular';
+import { RootModule, Transition, UIRouter, UIRouterModule } from '@uirouter/angular';
 
 import { ReportsComponent } from './administrative/reports/reports.component';
 import { SettingsComponent } from './administrative/settings/settings.component';
@@ -37,6 +37,7 @@ import { NewExamComponent } from './exam/editor/creation/newExam.component';
 import { ExamTabsComponent } from './exam/editor/examTabs.component';
 import { ExamPublicationComponent } from './exam/editor/publication/examPublication.component';
 import { SectionsListComponent } from './exam/editor/sections/sectionsList.component';
+import { Exam } from './exam/exam.model';
 import { ExamService } from './exam/exam.service';
 import { ExamListingComponent } from './exam/listing/examList.component';
 import { PrintoutComponent } from './exam/printout/printout.component';
@@ -64,8 +65,6 @@ import { QuestionReviewsComponent } from './review/questions/listing/questionRev
 import { LogoutComponent } from './session/logout/logout.component';
 import { SoftwareComponent } from './software/software.component';
 
-import { RootModule, UIRouter } from '@uirouter/angular';
-import { Exam } from './exam/exam.model';
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
     // If the browser URL doesn't matches any state when the router starts,
@@ -123,14 +122,14 @@ const rootModule: RootModule = {
                         transition: Transition,
                     ) => {
                         const id = transition.params().id;
-                        const isCollab = transition.params().collaborative == 'collaborative';
+                        const isCollab = transition.params().collaborative === 'collaborative';
                         return isCollab ? collabService.download(id) : examService.downloadExam(id);
                     },
                 },
                 {
                     token: 'collaborative',
                     deps: [Transition],
-                    resolveFn: (transition: Transition) => transition.params().collaborative == 'collaborative',
+                    resolveFn: (transition: Transition) => transition.params().collaborative === 'collaborative',
                 },
             ],
         },
@@ -493,7 +492,7 @@ const rootModule: RootModule = {
         },
     ],
     useHash: false,
-    //otherwise: 'dashboard',
+    // otherwise: 'dashboard',
     config: uiRouterConfigFn,
 };
 

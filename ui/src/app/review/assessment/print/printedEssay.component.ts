@@ -18,7 +18,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'printed-essay',
+    selector: 'app-printed-essay',
     templateUrl: './templates/essay.component.html',
 })
 export class PrintedEssayComponent {
@@ -31,19 +31,19 @@ export class PrintedEssayComponent {
             return 0;
         }
         return this.sectionQuestion.essayAnswer.evaluatedScore || 0;
-    };
+    }
 
     getWordCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countWords(this.sectionQuestion.essayAnswer.answer);
-    };
+    }
 
     getCharacterCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
         return this.Assessment.countCharacters(this.sectionQuestion.essayAnswer.answer);
-    };
+    }
 }

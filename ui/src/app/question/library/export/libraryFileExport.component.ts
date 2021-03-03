@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
-    selector: 'library-file-export',
+    selector: 'app-library-file-export',
     template: `
         <div *ngIf="selections.length > 0" class="padl30 questions-selections-box">
             <div class="make-inline">

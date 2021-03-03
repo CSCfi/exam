@@ -24,7 +24,7 @@ import { Accessibility } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './accessibilitySelector.component.html',
-    selector: 'accessibility-selector',
+    selector: 'app-accessibility-selector',
 })
 export class AccessibilitySelectorComponent implements OnInit {
     @Input() room: ExamRoom;
@@ -46,11 +46,11 @@ export class AccessibilitySelectorComponent implements OnInit {
                       return ac.name;
                   })
                   .join(', ');
-    };
+    }
 
     isSelected = (ac: Accessibility) => {
         return this.getIndexOf(ac) > -1;
-    };
+    }
 
     updateAccessibility = (ac: Accessibility) => {
         const index = this.getIndexOf(ac);
@@ -61,10 +61,10 @@ export class AccessibilitySelectorComponent implements OnInit {
         }
         const ids = this.room.accessibilities.map(item => item.id).join(', ');
 
-        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
+        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids }).subscribe(() => {
             toast.info(this.translate.instant('sitnet_room_updated'));
         });
-    };
+    }
 
     getIndexOf = (ac: Accessibility) => this.room.accessibilities.map(a => a.id).indexOf(ac.id);
 }

@@ -71,7 +71,7 @@ export class AssessmentService {
                 return exam;
             }),
         );
-    };
+    }
 
     isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
     isGraded = (exam: Exam) => exam?.state === 'GRADED';
@@ -84,7 +84,7 @@ export class AssessmentService {
             return { code: exam.examLanguages[0].code };
         }
         throw Error('No Exam Language to pick!');
-    };
+    }
 
     checkCredit<T extends Exam>(exam: T, silent = false) {
         const valid = this.Exam.hasCustomCredit(exam);
@@ -104,7 +104,7 @@ export class AssessmentService {
         `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4>
         ${feedback}<br/>
         <strong>${this.translate.instant('sitnet_confirm_record_review')}</strong>
-        `;
+        `
 
     countCharacters = (text: string) => {
         let normalizedText = text
@@ -114,7 +114,7 @@ export class AssessmentService {
             .replace(/&nbsp;/gi, ' ');
         normalizedText = this.strip(normalizedText).replace(/^([\t\r\n]*)$/, '');
         return normalizedText.length;
-    };
+    }
 
     private strip = (html: string) => {
         const tmp = this.document.createElement('div');
@@ -123,7 +123,7 @@ export class AssessmentService {
             return '';
         }
         return tmp.textContent || tmp.innerText;
-    };
+    }
 
     countWords = (text: string) => {
         let normalizedText = text
@@ -138,11 +138,11 @@ export class AssessmentService {
             }
         }
         return words.length;
-    };
+    }
 
     getExitUrlById = (id: number, collaborative: boolean): string => {
         return collaborative ? `/exams/collaborative/${id}/4` : `/exams/${id}/4`;
-    };
+    }
 
     getExitUrl = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
@@ -151,7 +151,7 @@ export class AssessmentService {
         }
         const id = exam.parent ? exam.parent.id : exam.id; // CHECK THIS, need to get from URL!
         return this.getExitUrlById(id, collaborative);
-    };
+    }
 
     createExamRecord$ = (exam: Exam, needsConfirmation: boolean): Observable<void> => {
         if (!this.checkCredit(exam)) {
@@ -178,7 +178,7 @@ export class AssessmentService {
                 return this.sendToRegistry$(payload, res);
             }
         }
-    };
+    }
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
@@ -193,7 +193,7 @@ export class AssessmentService {
                 }
             });
         }
-    };
+    }
 
     saveEssayScore = (question: ExamSectionQuestion): Observable<void> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
@@ -201,7 +201,7 @@ export class AssessmentService {
         }
         const url = `/app/review/examquestion/${question.id}/score`;
         return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
-    };
+    }
 
     saveCollaborativeEssayScore = (
         question: ExamSectionQuestion,
@@ -213,8 +213,8 @@ export class AssessmentService {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`;
-        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
-    };
+        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev });
+    }
 
     saveAssessmentInfo = (exam: Exam): Observable<void> => {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
@@ -223,7 +223,7 @@ export class AssessmentService {
                 .pipe(tap(() => toast.info(this.translate.instant('sitnet_saved'))));
         }
         return of();
-    };
+    }
 
     saveAssessment = (exam: Exam, modifiable: boolean) => {
         if (!modifiable) {
@@ -256,16 +256,16 @@ export class AssessmentService {
                 }
             }
         }
-    };
+    }
 
     saveForcedScore = (question: ExamSectionQuestion) => {
         const url = `/app/review/examquestion/${question.id}/score/force`;
         return this.http.put<void>(url, { forcedScore: question.forcedScore });
-    };
+    }
     saveCollaborativeForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
-        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
-    };
+        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev });
+    }
 
     rejectMaturity$ = (exam: Exam, askConfirmation = false): Observable<void> => {
         const reject: Observable<void> = this.saveFeedback$(exam).pipe(
@@ -282,7 +282,7 @@ export class AssessmentService {
         } else {
             return reject;
         }
-    };
+    }
 
     getPayload = (exam: Exam, state?: string): Payload => ({
         id: exam.id,
@@ -293,7 +293,7 @@ export class AssessmentService {
         creditType: exam.creditType ? exam.creditType.type : undefined,
         answerLanguage: exam.answerLanguage,
         additionalInfo: exam.additionalInfo,
-    });
+    })
 
     sendAssessment = (newState: string, payload: Payload, messages: string[], exam: Exam) => {
         this.http
@@ -317,7 +317,7 @@ export class AssessmentService {
                 catchError(resp => toast.error(resp)),
             )
             .subscribe();
-    };
+    }
 
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
@@ -331,10 +331,10 @@ export class AssessmentService {
             messages.push('sitnet_exam_choose_response_language');
         }
         return messages;
-    };
+    }
 
     sendToRegistry$ = (payload: Payload, res: string): Observable<void> =>
-        this.http.post<void>(res, { ...payload, state: 'GRADED_LOGGED' });
+        this.http.post<void>(res, { ...payload, state: 'GRADED_LOGGED' })
 
     register$ = (exam: Exam, res: string, payload: Payload): Observable<void> => {
         return this.saveFeedback$(exam).pipe(
@@ -346,5 +346,5 @@ export class AssessmentService {
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),
         );
-    };
+    }
 }

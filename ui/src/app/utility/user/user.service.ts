@@ -24,10 +24,10 @@ export class UserService {
 
     // was filterUsersByExam
     filterInspectorsByExam$ = (examId: number, role: string) =>
-        this.http.get<User[]>(`/app/users/filter/${role}/${examId}`);
+        this.http.get<User[]>(`/app/users/filter/${role}/${examId}`)
 
     filterOwnersByExam$ = (examId: number, role: string) =>
-        this.http.get<User[]>(`/app/users/exam/owners/${role}/${examId}`);
+        this.http.get<User[]>(`/app/users/exam/owners/${role}/${examId}`)
 
     filterOwnersByQuestion$ = (role: string) => this.http.get<User[]>(`/app/users/question/owners/${role}`);
 

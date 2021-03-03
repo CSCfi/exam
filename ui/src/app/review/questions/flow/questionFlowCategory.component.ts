@@ -19,7 +19,7 @@ import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-flow-category',
+    selector: 'app-question-flow-category',
     templateUrl: './questionFlowCategory.component.html',
 })
 export class QuestionFlowCategoryComponent {
@@ -35,7 +35,7 @@ export class QuestionFlowCategoryComponent {
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+        this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser())
 
     selectQuestion = (review: QuestionReview) => this.onSelection.emit(review);
 }

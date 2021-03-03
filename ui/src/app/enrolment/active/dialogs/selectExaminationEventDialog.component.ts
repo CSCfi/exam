@@ -22,7 +22,7 @@ import { ExaminationEventConfiguration } from '../../../exam/exam.model';
 import { Exam } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'select-examination-event-dialog',
+    selector: 'app-select-examination-event-dialog',
     templateUrl: './selectExaminationEventDialog.component.html',
 })
 export class SelectExaminationEventDialogComponent implements OnInit {

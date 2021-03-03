@@ -23,7 +23,7 @@ import { Weekday } from '../rooms/room.service';
 
 @Component({
     templateUrl: './openHours.component.html',
-    selector: 'open-hours',
+    selector: 'app-open-hours',
 })
 export class OpenHoursComponent implements OnInit {
     @Input() week: Week;
@@ -43,19 +43,19 @@ export class OpenHoursComponent implements OnInit {
 
     timeRange = () => {
         return [...new Array(this.times.length - 1)].map((x: undefined, i: number) => i);
-    };
+    }
 
     getWeekdays = () => {
         return Object.keys(this.week);
-    };
+    }
 
     getType = (day: Weekday, time: number) => {
         return this.week[day][time].type;
-    };
+    }
 
     calculateTime = (index: number) => {
         return (this.times[index] || '0:00') + ' - ' + this.times[index + 1];
-    };
+    }
 
     selectSlot = (day: Weekday, time: number) => {
         const status = this.week[day][time].type;
@@ -101,5 +101,5 @@ export class OpenHoursComponent implements OnInit {
         }
 
         this.onSelect.emit();
-    };
+    }
 }

@@ -30,7 +30,7 @@ import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 import { ExamParticipation } from '../../../exam/exam.model';
 @Component({
-    selector: 'exam-summary',
+    selector: 'app-exam-summary',
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
@@ -65,14 +65,14 @@ export class ExamSummaryComponent {
         this.abortedExams = this.reviews.filter(r => r.exam.state === 'ABORTED');
         this.calculateGradeTimeValues();
         this.renderGradeTimeChart();
-    };
+    }
 
     $onInit = () => {
         this.refresh();
         // Had to manually update chart locales
         this.translate.onLangChange.subscribe(this.updateChartLocale);
         this.calcSectionMaxAndAverages();
-    };
+    }
 
     $onChanges = () => this.refresh();
 
@@ -81,14 +81,14 @@ export class ExamSummaryComponent {
     getRegisteredCount = () => this.reviews.length;
 
     getReadFeedback = () =>
-        this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length;
+        this.reviews.filter(r => r.exam.examFeedback && r.exam.examFeedback.feedbackStatus === true).length
 
     getTotalFeedback = () =>
         this.reviews.filter(
             r =>
                 r.exam.examFeedback &&
                 (r.exam.state === 'GRADED_LOGGED' || r.exam.state === 'ARCHIVED' || r.exam.state === 'REJECTED'),
-        ).length;
+        ).length
 
     getFeedbackPercentage = () => (this.getReadFeedback() / this.getTotalFeedback()) * 100;
 
@@ -99,7 +99,7 @@ export class ExamSummaryComponent {
         );
         const totalCount = this.exam.examSections.reduce((sum, es) => sum + es.sectionQuestions.length, 0);
         return `${effectiveCount} (${totalCount})`;
-    };
+    }
 
     calculateGradeDistribution = () => {
         const grades: string[] = this.reviews
@@ -108,7 +108,7 @@ export class ExamSummaryComponent {
         this.gradeDistribution = _.countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
         this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
-    };
+    }
 
     renderGradeDistributionChart = () => {
         const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
@@ -130,32 +130,32 @@ export class ExamSummaryComponent {
                 maintainAspectRatio: false,
             },
         });
-    };
+    }
 
     calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
 
     getAverageTime = () => {
         const durations = this.reviews.map(r => parseInt(r.duration));
         return this.calcAverage(durations);
-    };
+    }
 
     getNoShows = () => {
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http
                 .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
                 .subscribe(enrolments => (this.noShows = enrolments));
         }
-    };
+    }
 
     calculateGradeTimeValues = () => {
         this.gradeTimeData = this.reviews
             .sort((a, b) => (a.duration > b.duration ? 1 : -1))
             .map(r => ({ x: r.duration, y: r.exam.totalScore }));
-    };
+    }
 
     renderGradeTimeChart = () => {
         const { duration } = this.exam;
@@ -212,7 +212,7 @@ export class ExamSummaryComponent {
                 },
             },
         });
-    };
+    }
 
     updateChartLocale() {
         if (this.gradeTimeChart.options?.scales) {
@@ -238,7 +238,7 @@ export class ExamSummaryComponent {
                 true,
             );
         }
-    };
+    }
 
     openAborted = () => {
         const modalRef = this.modal.open(AbortedExamsComponent, {
@@ -248,7 +248,7 @@ export class ExamSummaryComponent {
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
-    };
+    }
 
     openNoShows = () => {
         const modalRef = this.modal.open(NoShowsComponent, {
@@ -257,7 +257,7 @@ export class ExamSummaryComponent {
             windowClass: 'question-editor-modal',
         });
         modalRef.componentInstance.noShows = this.noShows;
-    };
+    }
 
     calcSectionMaxAndAverages = () => {
         const parentSectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
@@ -299,5 +299,5 @@ export class ExamSummaryComponent {
             }),
             {},
         );
-    };
+    }
 }

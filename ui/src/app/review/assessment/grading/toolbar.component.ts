@@ -26,7 +26,7 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
 @Component({
-    selector: 'r-toolbar',
+    selector: 'app-r-toolbar',
     templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
@@ -51,7 +51,7 @@ export class ToolbarComponent {
         this.exam?.executionType.type === 'MATURITY' &&
         !this.exam.subjectToLanguageInspection &&
         this.exam.grade &&
-        this.exam.grade.marksRejection;
+        this.exam.grade.marksRejection
 
     saveAssessment = () => {
         if (this.collaborative) {
@@ -64,7 +64,7 @@ export class ToolbarComponent {
         } else {
             this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
         }
-    };
+    }
 
     createExamRecord = () => {
         if (this.collaborative) {
@@ -79,13 +79,13 @@ export class ToolbarComponent {
                 this.location.go(this.getExitUrl());
             }, noop);
         }
-    };
+    }
 
     rejectMaturity = () =>
         this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
             toast.info(this.translate.instant('sitnet_maturity_rejected'));
             this.location.go(this.getExitUrl());
-        });
+        })
 
     getExitUrl = () => this.Assessment.getExitUrl(this.exam, this.collaborative);
 }

@@ -30,7 +30,7 @@ interface SoftwareWithClass extends Software {
 
 @Component({
     templateUrl: './machine.component.html',
-    selector: 'machine',
+    selector: 'app-machine',
 })
 export class MachineComponent implements OnInit {
     machine: ExamMachine;
@@ -83,7 +83,7 @@ export class MachineComponent implements OnInit {
                 },
             );
         });
-    };
+    }
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe(
@@ -94,7 +94,7 @@ export class MachineComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     updateMachine = () => {
         return new Promise((resolve, reject) => {
@@ -109,11 +109,11 @@ export class MachineComponent implements OnInit {
                 },
             );
         });
-    };
+    }
 
     updateMachineAndExit = () => {
         this.updateMachine().then(() => {
             this.state.go('rooms');
         });
-    };
+    }
 }

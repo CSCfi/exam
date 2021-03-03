@@ -18,7 +18,7 @@ import { DateTimeService } from '../../utility/date/date.service';
 import { Examination } from '../examination.service';
 
 @Component({
-    selector: 'answer-instructions',
+    selector: 'app-answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
         <div class="row">

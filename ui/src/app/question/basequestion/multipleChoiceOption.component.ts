@@ -20,7 +20,7 @@ import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
 @Component({
-    selector: 'mc-option-editor',
+    selector: 'app-mc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">
@@ -75,5 +75,5 @@ export class MultipleChoiceOptionEditorComponent {
         } else {
             toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
-    };
+    }
 }

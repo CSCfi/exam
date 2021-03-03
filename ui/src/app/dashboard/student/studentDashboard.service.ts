@@ -48,7 +48,7 @@ export class StudentDashboardService {
                     };
                 }),
             ),
-        );
+        )
 
     private getOccasion(reservation: Reservation): Occasion {
         const machine = reservation.machine;

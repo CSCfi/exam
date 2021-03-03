@@ -26,7 +26,7 @@ type Organisation = {
 };
 
 @Component({
-    selector: 'library-transfer',
+    selector: 'app-library-transfer',
     templateUrl: './libraryTransfer.component.html',
 })
 export class LibraryTransferComponent implements OnInit {
@@ -49,7 +49,7 @@ export class LibraryTransferComponent implements OnInit {
     filterOrganisations = () =>
         (this.filteredOrganisations = this.organisations
             .filter(o => this.filter.length == 0 || o.name.startsWith(this.filter))
-            .map(o => ({ ...o, filtered: false })));
+            .map(o => ({ ...o, filtered: false })))
 
     transfer = () => {
         if (this.selections.length == 0) {
@@ -66,5 +66,5 @@ export class LibraryTransferComponent implements OnInit {
                     err => toast.error(err.data),
                 );
         }
-    };
+    }
 }

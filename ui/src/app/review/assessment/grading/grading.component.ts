@@ -32,7 +32,7 @@ import { GradingBaseComponent } from '../common/gradingBase.component';
 import { OnInit } from '@angular/core';
 import { Exam, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
-    selector: 'r-grading',
+    selector: 'app-r-grading',
     templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
@@ -88,7 +88,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
             owner => this.exam.examInspections.map(inspection => inspection.user?.id).indexOf(owner.id) === -1,
         );
         return this.exam.examInspections.length + owners.length;
-    };
+    }
 
     sendEmailMessage = () => {
         if (!this.message.text) {
@@ -113,7 +113,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
                 delete this.message.text;
             }, toast.error);
         }
-    };
+    }
 
     saveAssessmentInfo = () => {
         if (this.collaborative) {
@@ -125,7 +125,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         } else {
             this.Assessment.saveAssessmentInfo(this.exam);
         }
-    };
+    }
 
     downloadFeedbackAttachment = () => {
         const attachment = this.exam.examFeedback?.attachment;
@@ -134,7 +134,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         } else {
             this.Attachment.downloadFeedbackAttachment(this.exam);
         }
-    };
+    }
 
     isCommentRead = () => this.Assessment.isCommentRead(this.exam);
 }

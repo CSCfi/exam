@@ -22,7 +22,7 @@ import { WindowRef } from '../../utility/window/window.service';
 import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'base-question-editor',
+    selector: 'app-base-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">

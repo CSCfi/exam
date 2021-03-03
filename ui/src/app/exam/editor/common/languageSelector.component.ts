@@ -23,7 +23,7 @@ import { ExamLanguage } from '../../exam.model';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'language-selector',
+    selector: 'app-language-selector',
     templateUrl: './languageSelector.component.html',
 })
 export class LanguageSelectorComponent implements OnInit {
@@ -46,7 +46,7 @@ export class LanguageSelectorComponent implements OnInit {
     selectedLanguages = () =>
         this.exam.examLanguages.length === 0
             ? this.translate.instant('sitnet_select')
-            : this.exam.examLanguages.map(language => this.Language.getLanguageNativeName(language.code)).join(', ');
+            : this.exam.examLanguages.map(language => this.Language.getLanguageNativeName(language.code)).join(', ')
 
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1;
 
@@ -64,5 +64,5 @@ export class LanguageSelectorComponent implements OnInit {
             },
             resp => toast.error(resp.data),
         );
-    };
+    }
 }

@@ -23,7 +23,7 @@ import { OnInit } from '@angular/core';
 import { Software } from '../../exam.model';
 
 @Component({
-    selector: 'software-selector',
+    selector: 'app-software-selector',
     templateUrl: './softwareSelector.component.html',
 })
 export class SoftwareSelectorComponent implements OnInit {
@@ -40,7 +40,7 @@ export class SoftwareSelectorComponent implements OnInit {
     selectedSoftware = () =>
         this.exam.softwares.length === 0
             ? this.translate.instant('sitnet_select')
-            : this.exam.softwares.map(s => s.name).join(', ');
+            : this.exam.softwares.map(s => s.name).join(', ')
 
     isSelected = (sw: Software) => this.exam.softwares.some(es => es.id === sw.id);
 
@@ -57,5 +57,5 @@ export class SoftwareSelectorComponent implements OnInit {
             },
             err => toast.error(err.data),
         );
-    };
+    }
 }

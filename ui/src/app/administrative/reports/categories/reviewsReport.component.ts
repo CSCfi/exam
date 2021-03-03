@@ -14,6 +14,7 @@
  */
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
@@ -52,7 +53,7 @@ import { FileService } from '../../../utility/file/file.service';
             </div>
         </div>
     `,
-    selector: 'reviews-report',
+    selector: 'app-app-reviews-report',
 })
 export class ReviewsReportComponent {
     startDate: Date;
@@ -64,13 +65,13 @@ export class ReviewsReportComponent {
         const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
         const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
-    };
+    }
 }

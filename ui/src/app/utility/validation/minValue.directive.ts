@@ -2,7 +2,7 @@ import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, Validators } from '@angular/forms';
 
 @Directive({
-    selector: '[min]',
+    selector: '[appMin]',
     /* eslint-disable-next-line */
     providers: [{ provide: NG_VALIDATORS, useExisting: MinDirective, multi: true }],
 })

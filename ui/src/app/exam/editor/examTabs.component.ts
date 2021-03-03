@@ -12,26 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { NgbNav, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService, User } from '../../session/session.service';
 import { Exam } from '../exam.model';
 import { ExamTabService } from './examTabs.service';
 
-import { OnInit } from '@angular/core';
-import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { User } from '../../session/session.service';
 @Component({
-    selector: 'exam-tabs',
+    selector: 'app-exam-tabs',
     templateUrl: './examTabs.component.html',
 })
-export class ExamTabsComponent implements OnInit {
+export class ExamTabsComponent implements OnInit, OnDestroy {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 
@@ -75,12 +72,12 @@ export class ExamTabsComponent implements OnInit {
         } else {
             this.examInfo.title = name;
         }
-    };
+    }
 
     isOwner = () =>
         this.exam?.examOwners.some(
             x => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
-        );
+        )
 
     navChanged = (event: NgbNavChangeEvent, forceRegularExam = false) => {
         const params = forceRegularExam ? { collaborative: 'false', id: this.exam.id } : undefined;
@@ -97,7 +94,7 @@ export class ExamTabsComponent implements OnInit {
         } else if (event.nextId === 6) {
             this.state.go('examEditor.summary', params);
         }
-    };
+    }
 
     examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
         this.updateTitle(props.code, props.name);
@@ -105,5 +102,5 @@ export class ExamTabsComponent implements OnInit {
             // Propagate a change so that children (namely auto eval component) can act based on scale change
             this.exam = _.cloneDeep(this.exam);
         }
-    };
+    }
 }

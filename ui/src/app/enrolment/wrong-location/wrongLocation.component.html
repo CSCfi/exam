@@ -35,7 +35,7 @@
             <span class="exams-list-title-text pull-left"
                 >{{ 'sitnet_reserved_exam' | translate }}:&nbsp {{ enrolment.exam.name }} -
             </span>
-            <course-code [course]="enrolment.exam.course"></course-code>
+            <app-course-code [course]="enrolment.exam.course"></app-course-code>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
     <div class="bottom-row">
         <div class="col-md-3 header text">{{ 'sitnet_teachers' | translate }}:</div>
         <div class="col-md-9 light-text">
-            <teacher-list *ngIf="enrolment.exam" [exam]="enrolment.exam"></teacher-list>
+            <app-teacher-list *ngIf="enrolment.exam" [exam]="enrolment.exam"></app-teacher-list>
         </div>
     </div>
 

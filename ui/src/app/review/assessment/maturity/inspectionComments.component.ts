@@ -23,7 +23,7 @@ import { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
 
 @Component({
-    selector: 'r-inspection-comments',
+    selector: 'app-r-inspection-comments',
     templateUrl: './inspectionComments.component.html',
 })
 export class InspectionCommentsComponent {
@@ -50,5 +50,5 @@ export class InspectionCommentsComponent {
                     ),
                 ),
             )
-            .subscribe(comment => this.exam.inspectionComments.unshift(comment));
+            .subscribe(comment => this.exam.inspectionComments.unshift(comment))
 }

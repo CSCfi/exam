@@ -58,28 +58,28 @@ export class LibraryService {
         }
 
         return params;
-    };
+    }
 
     listExams = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
-        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) })
 
     listCourses = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Course[]> =>
-        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams(courseIds, sectionIds, tagIds) })
 
     listTags = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Tag[]> =>
-        this.http.get<Course[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+        this.http.get<Course[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, tagIds) })
 
     loadFilters = (category: string) => {
         const entry = this.webStorageService.get('questionFilters');
         return entry && entry[category] ? JSON.parse(entry[category]) : {};
-    };
+    }
 
     storeFilters = (filters: unknown, category: string) => {
-        const data = { filters: filters };
+        const data = { filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('questionFilters', filter);
-    };
+    }
 
     applyFreeSearchFilter = (text: string | undefined, questions: LibraryQuestion[]) => {
         if (text) {
@@ -103,7 +103,7 @@ export class LibraryService {
         } else {
             return questions;
         }
-    };
+    }
 
     applyOwnerSearchFilter = (text: string, questions: LibraryQuestion[]) => {
         if (text) {
@@ -115,7 +115,7 @@ export class LibraryService {
         } else {
             return questions;
         }
-    };
+    }
 
     private getIcon = (question: LibraryQuestion) => {
         switch (question.type) {
@@ -132,7 +132,7 @@ export class LibraryService {
             default:
                 return '';
         }
-    };
+    }
 
     private getDisplayedMaxScore = (q: LibraryQuestion): number | string => {
         if (
@@ -149,10 +149,10 @@ export class LibraryService {
             return this.Question.getCorrectClaimChoiceOptionDefaultScore(q);
         }
         return '';
-    };
+    }
 
     private getOwnerAggregate = (q: LibraryQuestion): string =>
-        q.questionOwners.reduce((acc, owner) => acc + owner.lastName + owner.firstName, '');
+        q.questionOwners.reduce((acc, owner) => acc + owner.lastName + owner.firstName, '')
 
     search = (
         examIds: number[],
@@ -188,11 +188,11 @@ export class LibraryService {
                     });
                     return questions;
                 }),
-            );
+            )
 
     private htmlDecode = (text: string) => {
         const el = document.createElement('html');
         el.innerHTML = text;
         return el.textContent ? el.textContent : '';
-    };
+    }
 }

@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { ExaminationQuestion, ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-weighted-multi-choice-question',
+    selector: 'app-examination-weighted-multi-choice-question',
     template: `
         <div class="bottom-padding-2">
             <fieldset>

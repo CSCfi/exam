@@ -128,7 +128,7 @@ export class ExaminationService {
                 return throwError(resp);
             }),
         );
-    };
+    }
 
     private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
         switch (esq.question.type) {
@@ -139,7 +139,7 @@ export class ExaminationService {
             default:
                 return false;
         }
-    };
+    }
 
     saveAllTextualAnswersOfSection$ = (
         section: ExaminationSection,
@@ -153,19 +153,19 @@ export class ExaminationService {
             concatMap(q => this.saveTextualAnswer$(q, hash, autosave, canFail)),
             toArray(),
         );
-    };
+    }
 
     saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<unknown> =>
         from(exam.examSections).pipe(
             concatMap(es => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        );
+        )
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {
             return String(text).replace(/<[^>]+>/gm, '');
         }
         return text;
-    };
+    }
 
     isAnswered = (sq: ExaminationQuestion) => {
         let isAnswered;
@@ -193,7 +193,7 @@ export class ExaminationService {
                 isAnswered = false;
         }
         return isAnswered;
-    };
+    }
 
     setQuestionColors = (sectionQuestion: ExaminationQuestion) => {
         if (this.isAnswered(sectionQuestion)) {
@@ -205,7 +205,7 @@ export class ExaminationService {
             sectionQuestion.questionStatus = this.translate.instant('sitnet_question_unanswered');
             sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
         }
-    };
+    }
 
     saveOption = (hash: string, sq: ExaminationQuestion, preview: boolean) => {
         let ids: number[];
@@ -227,7 +227,7 @@ export class ExaminationService {
         } else {
             this.setQuestionColors(sq);
         }
-    };
+    }
 
     getSectionMaxScore = (section: ExaminationSection) => {
         if (!section || !section.sectionQuestions) {
@@ -240,25 +240,25 @@ export class ExaminationService {
             .reduce((acc, current) => acc + current, 0);
 
         return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
-    };
+    }
 
     abort$ = (hash: string): Observable<void> => {
         const url = this.getResource('/app/student/exam/abort/' + hash);
         return this.http.put<void>(url, {});
-    };
+    }
 
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
             toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put<void>(url, {}).subscribe(ok, resp => {
-            if (!canFail) toast.error(this.translate.instant(resp));
-            else ok();
+            if (!canFail) { toast.error(this.translate.instant(resp)); }
+            else { ok(); }
         });
-    };
+    }
 
     parseClozeTestQuestion = (data: ClozeTestAnswer): QuestionBase<string>[] => {
         const questions: QuestionBase<string>[] = data.elements.map(ce => {
@@ -279,5 +279,5 @@ export class ExaminationService {
         });
 
         return questions.sort((a, b) => a.order - b.order);
-    };
+    }
 }

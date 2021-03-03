@@ -45,10 +45,10 @@ export class AttachmentService {
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
-        `/integration/iop/attachment/exam/${eid}/question/${qid}`;
+        `/integration/iop/attachment/exam/${eid}/question/${qid}`
     private answerAttachmentApi = (qid: number) => `/app/attachment/question/${qid}/answer`;
     private externalAnswerAttachmentApi = (qid: number, hash: string) =>
-        `/app/iop/attachment/question/${qid}/answer/${hash}`;
+        `/app/iop/attachment/question/${qid}/answer/${hash}`
     private examAttachmentApi = (id: number) => `/app/attachment/exam/${id}`;
     private collaborativeExamAttachmentApi = (id: number) => `/integration/iop/attachment/exam/${id}`;
     private feedbackAttachmentApi = (id: number) => `/app/attachment/exam/${id}/feedback`;
@@ -74,10 +74,10 @@ export class AttachmentService {
                 () => resolve(),
                 err => reject(err),
             );
-        });
+        })
 
     eraseQuestionAttachment = (question: Question) =>
-        this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)));
+        this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)))
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
@@ -161,7 +161,7 @@ export class AttachmentService {
                 resp => toast.error(resp),
             );
         });
-    };
+    }
 
     removeStatementAttachment(exam: Exam) {
         const dialog = this.dialogs.open(

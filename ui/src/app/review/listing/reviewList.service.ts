@@ -42,10 +42,10 @@ export class ReviewListService {
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
-        if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
-        else if (collaborative && review._id) return review._id;
-        else return review.exam.id.toString();
-    };
+        if (review.user) { return `${review.user.lastName} ${review.user.firstName}`; }
+        else if (collaborative && review._id) { return review._id; }
+        else { return review.exam.id.toString(); }
+    }
 
     filterReview = (filter: string, review: Review): boolean => {
         if (!filter) {
@@ -62,25 +62,25 @@ export class ReviewListService {
                 .toLowerCase()
                 .indexOf(s) > -1
         );
-    };
+    }
     filterByState = (reviews: ExamParticipation[], states: string[]) => {
         return reviews.filter(r => {
             return states.indexOf(r.exam.state) > -1;
         });
-    };
+    }
     prepareView = (items: Review[], setup: (p: Review) => void, predicate: string): ReviewListView => {
         items.forEach(setup);
         return {
-            items: items,
+            items,
             filtered: items,
             toggle: items.length > 0,
             pageSize: 30,
-            predicate: predicate,
+            predicate,
             reverse: false,
             page: 0,
             filter: '',
         };
-    };
+    }
     applyFilter = (filter: string, items: Review[]) => {
         if (!filter) {
             return items;
@@ -88,7 +88,7 @@ export class ReviewListService {
         return items.filter(i => {
             return this.filterReview(filter, i);
         });
-    };
+    }
 
     private resetSelections = (scope: Selection, view: string) => {
         let [prev, next] = [false, false];
@@ -106,11 +106,11 @@ export class ReviewListService {
             }
         }
         return prev && next;
-    };
+    }
     selectAll = (scope: Selection, items: Review[]) => {
         const override = this.resetSelections(scope, 'all');
         items.forEach(i => (i.selected = !i.selected || override));
-    };
+    }
     selectPage = (scope: Selection, items: Review[], selector: string) => {
         const override = this.resetSelections(scope, 'page');
         const boxes = document.querySelectorAll<HTMLInputElement>('.' + selector);
@@ -127,21 +127,21 @@ export class ReviewListService {
                     (i.examParticipation._id && ids.indexOf(i.examParticipation._id) > -1),
             )
             .forEach(pi => (pi.selected = !pi.selected || override));
-    };
+    }
     getSelectedReviews = (items: Review[]) => {
         const objects = items.filter(i => i.selected);
         if (objects.length === 0) {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         }
         return objects;
-    };
+    }
 
     private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
         const exam = review.exam;
         if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
             const examToRecord = {
                 id: exam.id,
-                state: state,
+                state,
                 grade: exam.grade,
                 customCredit: exam.customCredit,
                 totalScore: exam.totalScore,
@@ -162,16 +162,16 @@ export class ReviewListService {
             toast.error(this.translate.instant('sitnet_failed_to_record_review'));
             return of();
         }
-    };
+    }
 
     sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
     sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
 
     getReviews = (examId: number, collaborative = false) => {
         return this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
-        //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
-    };
+        // this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
+    }
 
     private getResource = (examId: number, collaborative: boolean) =>
-        collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
+        collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`
 }

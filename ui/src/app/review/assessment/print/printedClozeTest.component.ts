@@ -18,7 +18,7 @@ import * as _ from 'lodash';
 import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'printed-cloze-test',
+    selector: 'app-printed-cloze-test',
     templateUrl: './templates/clozeTest.component.html',
 })
 export class PrintedClozeTestComponent {
@@ -30,9 +30,9 @@ export class PrintedClozeTestComponent {
         const max = this.sectionQuestion.maxScore;
         if (this.sectionQuestion.clozeTestAnswer) {
             const score = this.sectionQuestion.clozeTestAnswer.score;
-            if (!score) return 0;
+            if (!score) { return 0; }
             return ((score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers)).toFixed(2);
         }
         return 0;
-    };
+    }
 }

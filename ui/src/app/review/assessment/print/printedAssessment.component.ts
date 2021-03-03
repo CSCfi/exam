@@ -32,7 +32,7 @@ import { AssessmentService } from '../assessment.service';
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
-    selector: 'printed-assessment',
+    selector: 'app-printed-assessment',
     templateUrl: './printedAssessment.component.html',
 })
 export class PrintedAssessmentComponent {
@@ -62,7 +62,7 @@ export class PrintedAssessmentComponent {
         const url = this.getResource(path);
 
         this.http.get<ExamParticipation>(url).subscribe(participation => {
-            //TODO: Some duplicates here, refactor some more
+            // TODO: Some duplicates here, refactor some more
             const exam = participation.exam;
             exam.examSections.forEach(es =>
                 es.sectionQuestions
@@ -104,7 +104,7 @@ export class PrintedAssessmentComponent {
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
-            //TODO: Add collaborative support for noshows.
+            // TODO: Add collaborative support for noshows.
             this.previousParticipations = data;
             this.printPage();
             return;
@@ -120,7 +120,7 @@ export class PrintedAssessmentComponent {
             this.previousParticipations = previousParticipations.concat(noShows);
             this.printPage();
         });
-    };
+    }
 
     private printPage = () => {
         // FIXME: check how to do this angular-style
@@ -130,23 +130,23 @@ export class PrintedAssessmentComponent {
         // mainView.css('max-width', '1000px');
         MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
         this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
-    };
+    }
 
     private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`
 
     translateGrade = (participation: ExamParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(participation.exam.grade.name);
+        !participation.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(participation.exam.grade.name)
 
     getGrade = () => (!this.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(this.exam.grade.name));
 
     getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
-        if (!this.exam) return 'N/A';
+        if (!this.exam) { return 'N/A'; }
         const lang = this.Assessment.pickExamLanguage(this.exam);
         return !lang ? 'N/A' : this.Language.getLanguageNativeName(lang.code);
-    };
+    }
 
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
 
@@ -159,7 +159,7 @@ export class PrintedAssessmentComponent {
             owner => this.exam.examInspections.map(i => i.user.id).indexOf(owner.id) === -1,
         );
         return this.exam.examInspections.length + owners.length;
-    };
+    }
 
     translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

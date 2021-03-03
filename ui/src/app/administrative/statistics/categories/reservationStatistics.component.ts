@@ -42,7 +42,7 @@ interface Reservation {
             <div class="col-md-10">{{ noShows.length }}</div>
         </div>
     `,
-    selector: 'reservation-statistics',
+    selector: 'app-reservation-statistics',
 })
 export class ReservationStatisticsComponent implements OnInit {
     reservations: Reservation[] = [];
@@ -61,5 +61,5 @@ export class ReservationStatisticsComponent implements OnInit {
             .subscribe(resp => {
                 this.reservations = resp.filter(r => !r.noShow);
                 this.noShows = resp.filter(r => r.noShow);
-            });
+            })
 }

@@ -9,7 +9,7 @@
     <!-- examination dates -->
     <div class="col-md-3 exam-basic-title padl0">{{ 'sitnet_examination_dates' | translate }}</div>
     <div class="col-md-4">
-        <date-picker [extra]="true" extraText="sitnet_add" (onExtraAction)="addExaminationDate($event)"> </date-picker>
+        <app-date-picker [extra]="true" extraText="sitnet_add" (onExtraAction)="addExaminationDate($event)"> </app-date-picker>
     </div>
 </div>
 <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
@@ -61,12 +61,12 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveStartDate" (onUpdate)="startDateChanged($event)">
-                    </date-picker>
+                    <app-date-picker [initialDate]="exam.examActiveStartDate" (onUpdate)="startDateChanged($event)">
+                    </app-date-picker>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveEndDate" (onUpdate)="endDateChanged($event)">
-                    </date-picker>
+                    <app-date-picker [initialDate]="exam.examActiveEndDate" (onUpdate)="endDateChanged($event)">
+                    </app-date-picker>
                 </div>
                 <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
                     <span class="text-info">
@@ -179,7 +179,7 @@
         <button
             *ngIf="exam.executionType.type === 'PUBLIC'"
             class="btn btn-publish"
-            [ngClass]="checkTrialCount(null)"
+            [ngClass]="checkTrialCount()"
             (click)="setTrialCount(null)"
         >
             &infin;
@@ -233,19 +233,19 @@
 </div>
 
 <!-- Exam participants -->
-<exam-participant-selector
+<app-exam-participant-selector
     *ngIf="exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'participant'"
     [exam]="exam"
-></exam-participant-selector>
+></app-exam-participant-selector>
 
 <!-- Exam pre-participants -->
-<exam-pre-participant-selector
+<app-exam-pre-participant-selector
     *ngIf="exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'pre-participant'"
     [exam]="exam"
-></exam-pre-participant-selector>
+></app-exam-pre-participant-selector>
 
 <!-- Collaborative exam owners -->
-<collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </collaborative-exam-owner-selector>
+<app-collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </app-collaborative-exam-owner-selector>
 
 <!-- Link to enrolment -->
 <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
@@ -275,13 +275,13 @@
 
 <!-- Autoevaluation -->
 <div *ngIf="canBeAutoEvaluated()">
-    <auto-evaluation
+    <app-auto-evaluation
         [exam]="exam"
-        (onDisabled)="autoEvaluationDisabled($event)"
-        (onEnabled)="autoEvaluationEnabled($event)"
+        (onDisabled)="autoEvaluationDisabled()"
+        (onEnabled)="autoEvaluationEnabled()"
         (onUpdate)="autoEvaluationConfigChanged($event)"
     >
-    </auto-evaluation>
+    </app-auto-evaluation>
 </div>
 
 <!-- Buttons -->

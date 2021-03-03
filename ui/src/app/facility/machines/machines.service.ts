@@ -28,7 +28,7 @@ export class MachineService {
 
     getSoftware = () => this.http.get<Software[]>(this.softwareApi());
     toggleMachineSoftware = (mid: number, sid: number) =>
-        this.http.post<Software>(this.machineSoftwareApi(mid, sid), {});
+        this.http.post<Software>(this.machineSoftwareApi(mid, sid), {})
     getMachine = (id: number) => this.http.get<ExamMachine>(this.machineApi(id));
     updateMachine = (body: ExamMachine) => this.http.put<ExamMachine>(this.machineApi(body.id), body);
     insertMachine = (id: number, body: ExamMachine) => this.http.post<ExamMachine>(this.machineApi(id), body);

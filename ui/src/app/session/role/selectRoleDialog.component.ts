@@ -19,7 +19,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { User } from '../session.service';
 
 @Component({
-    selector: 'role-selector-dialog',
+    selector: 'app-role-selector-dialog',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">

@@ -19,7 +19,7 @@ import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
-    selector: 'speed-review-feedback',
+    selector: 'app-speed-review-feedback',
     templateUrl: './feedback.component.html',
 })
 export class SpeedReviewFeedbackComponent {
@@ -37,7 +37,7 @@ export class SpeedReviewFeedbackComponent {
             this.exam.examFeedback = { comment: '', feedbackStatus: false };
         }
         this.Assessment.saveFeedback$(this.exam).subscribe(this.modal.close);
-    };
+    }
 
     cancel = () => this.modal.dismiss();
 }

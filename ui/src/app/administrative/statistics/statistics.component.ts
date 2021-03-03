@@ -30,7 +30,7 @@ enum Tab {
 
 @Component({
     templateUrl: './statistics.component.html',
-    selector: 'statistics',
+    selector: 'app-statistics',
 })
 export class StatisticsComponent implements OnInit {
     view: Tab = Tab.RESPONSES;
@@ -67,22 +67,22 @@ export class StatisticsComponent implements OnInit {
             params.dept = departments.map(d => d.name).join();
         }
         this.queryParams = params;
-    };
+    }
 
     setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
         dept.filtered = !dept.filtered;
         this.setQueryParams();
-    };
+    }
 
     startDateChanged = (event: { date: Date }) => {
         this.startDate = event.date;
         this.setQueryParams();
-    };
+    }
 
     endDateChanged = (event: { date: Date }) => {
         this.endDate = event.date;
         this.setQueryParams();
-    };
+    }
 
     handleDepartmentInputChange = () => {
         if (this.limitations.department === '') {
@@ -92,5 +92,5 @@ export class StatisticsComponent implements OnInit {
                 d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
             );
         }
-    };
+    }
 }

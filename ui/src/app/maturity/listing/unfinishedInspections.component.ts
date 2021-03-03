@@ -24,7 +24,7 @@ import { LanguageInspection } from '../maturity.model';
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 @Component({
-    selector: 'unfinished-inspections',
+    selector: 'app-unfinished-inspections',
     templateUrl: './unfinishedInspections.component.html',
 })
 export class UnfinishedInspectionsComponent implements OnChanges {
@@ -58,7 +58,7 @@ export class UnfinishedInspectionsComponent implements OnChanges {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
-    };
+    }
 
     private examToString = (li: LanguageInspectionData) => {
         const code = li.exam.course ? li.exam.course.code : '';
@@ -66,19 +66,19 @@ export class UnfinishedInspectionsComponent implements OnChanges {
         const student = li.studentNameAggregate;
         const teacher = li.ownerAggregate;
         return code + name + student + teacher;
-    };
+    }
 
     filterTextChanged = () =>
         (this.filteredInspections = this.inspections.filter(i =>
             this.examToString(i)
                 .toLowerCase()
                 .match(this.filterText.toLowerCase()),
-        ));
+        ))
 
     getInspectionAmounts = () =>
         this.translate
             .instant('sitnet_ongoing_language_inspections_detail')
-            .replace('{0}', this.inspections.length.toString());
+            .replace('{0}', this.inspections.length.toString())
 
     assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);
 }

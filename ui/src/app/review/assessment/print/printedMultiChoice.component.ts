@@ -19,7 +19,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'printed-multi-choice',
+    selector: 'app-printed-multi-choice',
     templateUrl: './templates/multiChoice.component.html',
 })
 export class PrintedMultiChoiceComponent {
@@ -32,21 +32,21 @@ export class PrintedMultiChoiceComponent {
             return 0;
         }
         return this.Question.scoreWeightedMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     scoreMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
             return 0;
         }
         return this.Question.scoreMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     scoreClaimChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
             return 0;
         }
         return this.Question.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
-    };
+    }
 
     calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
 

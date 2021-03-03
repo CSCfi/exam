@@ -20,7 +20,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 import { QuestionReview } from '../../review.model';
 @Component({
-    selector: 'question-reviews',
+    selector: 'app-question-reviews',
     templateUrl: './questionReviews.component.html',
 })
 export class QuestionReviewsComponent {
@@ -45,20 +45,20 @@ export class QuestionReviewsComponent {
         } else if (index > -1) {
             this.selectedReviews.splice(index, 1);
         }
-    };
+    }
 
     removeSelections = () => {
         this.reviews.forEach(r => (r.selected = false));
         this.selectedReviews = [];
-    };
+    }
 
     addSelections = () => {
         this.reviews.forEach(r => (r.selected = true));
         this.selectedReviews = this.reviews.map(r => r.question.id);
-    };
+    }
 
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
     startReview = () =>
-        this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map(r => r.toString()) });
+        this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map(r => r.toString()) })
 }

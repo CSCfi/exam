@@ -76,13 +76,8 @@
     "@types/lodash": "^4.14.149",
     "@types/mathjax": "^0.0.32",
     "@types/toastr": "^2.1.37",
-    "@typescript-eslint/eslint-plugin": "^4.2.0",
-    "@typescript-eslint/parser": "^4.2.0",
     "codelyzer": "~5.1.0",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
-    "eslint-plugin-prettier": "^3.3.1",
-    "husky": "^4.5.0",
+    "husky": "^4.0.0",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~5.0.0",
@@ -118,7 +113,7 @@
       "prettier --write --print-width=120 --tab-width=4"
     ],
     "*.{ts,js}": [
-      "eslint --fix"
+      "ng lint --fix"
     ]
   }
 }

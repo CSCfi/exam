@@ -35,7 +35,7 @@ import { Course, Exam, ExamParticipation, Grade, GradeScale, NoGrade, Selectable
 import { User } from '../../session/session.service';
 import { Review } from '../review.model';
 @Component({
-    selector: 'speed-review',
+    selector: 'app-speed-review',
     templateUrl: './speedReview.component.html',
 })
 export class SpeedReviewComponent {
@@ -70,7 +70,7 @@ export class SpeedReviewComponent {
         } else {
             throw Error('No GradeScale for Assessment!');
         }
-    };
+    }
 
     private initGrades = (exam: Exam): SelectableGrade[] => {
         const scale = this.resolveGradeScale(exam);
@@ -90,7 +90,7 @@ export class SpeedReviewComponent {
             marksRejection: false,
         };
         return [...grades, noGrade];
-    };
+    }
 
     ngOnInit() {
         this.examId = this.state.params.id;
@@ -132,7 +132,7 @@ export class SpeedReviewComponent {
             keyboard: true,
         });
         modalRef.componentInstance.exam = review.examParticipation.exam;
-    };
+    }
 
     isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
 
@@ -151,10 +151,10 @@ export class SpeedReviewComponent {
             messages.push('sitnet_exam_choose_response_language');
         }
         return messages;
-    };
+    }
 
     private getAnswerLanguage = (review: Review) =>
-        review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
+        review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code
 
     isGradeable = (review: Review) => this.getErrors(review).length === 0;
 
@@ -169,7 +169,7 @@ export class SpeedReviewComponent {
                 ).length > 0
             );
         }
-    };
+    }
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 
@@ -178,7 +178,7 @@ export class SpeedReviewComponent {
             return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
         }
         return false;
-    };
+    }
 
     gradeExams = () => {
         const reviews = this.examReviews.filter(r => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
@@ -193,7 +193,7 @@ export class SpeedReviewComponent {
                 }
             });
         });
-    };
+    }
 
     private gradeExam$ = (review: Review): Observable<void> => {
         const messages = this.getErrors(review);
@@ -230,7 +230,7 @@ export class SpeedReviewComponent {
         } else {
             return throwError(() => 'no can do');
         }
-    };
+    }
 
     importGrades = () => {
         this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
@@ -238,7 +238,7 @@ export class SpeedReviewComponent {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
             )
             .catch(noop);
-    };
+    }
 
     createGradingTemplate = () => {
         const rows = this.examReviews
@@ -258,5 +258,5 @@ export class SpeedReviewComponent {
         const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
         FileSaver.saveAs(blob, 'grading.csv');
-    };
+    }
 }

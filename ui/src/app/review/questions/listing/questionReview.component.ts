@@ -19,7 +19,7 @@ import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-review',
+    selector: 'app-question-review',
     templateUrl: './questionReview.component.html',
 })
 export class QuestionReviewComponent {

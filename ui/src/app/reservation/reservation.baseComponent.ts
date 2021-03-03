@@ -19,17 +19,15 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import { OrderPipe } from 'ngx-order-pipe';
 import { forkJoin } from 'rxjs';
-import { map, tap, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
-
-import { SessionService } from '../session/session.service';
-import { ReservationService } from './reservation.service';
 
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
-import { User } from '../session/session.service';
+import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
 import { ExamMachine, ExamRoom, Reservation } from './reservation.model';
+import { ReservationService } from './reservation.service';
 
 interface Selection {
     [data: string]: string;
@@ -136,21 +134,21 @@ export class ReservationComponentBase {
             params.end = this.endDate.toISOString();
         }
         return params;
-    };
+    }
 
     private isLocalTransfer = (reservation: AnyReservation): reservation is LocalTransferExamReservation =>
-        !reservation.enrolment || _.isObject(reservation.enrolment.externalExam);
+        !reservation.enrolment || _.isObject(reservation.enrolment.externalExam)
     private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
-        _.isObject(reservation.externalReservation);
+        _.isObject(reservation.externalReservation)
     private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
-        _.isObject(reservation.enrolment.collaborativeExam);
+        _.isObject(reservation.enrolment.collaborativeExam)
 
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
             forkJoin([
-                this.http.get<Reservation[]>('/app/reservations', { params: params }),
-                this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
+                this.http.get<Reservation[]>('/app/reservations', { params }),
+                this.http.get<ExamEnrolment[]>('/app/events', { params }),
             ])
                 .pipe(
                     map(([reservations, enrolments]) => {
@@ -183,7 +181,6 @@ export class ReservationComponentBase {
                     map((reservations: AnyReservation[]) => {
                         // Transfer exams taken here
                         reservations.filter(this.isLocalTransfer).forEach((r: LocalTransferExamReservation) => {
-                            r.enrolment = r.enrolment || {};
                             const state =
                                 r.enrolment.externalExam && r.enrolment.externalExam.finished
                                     ? 'EXTERNAL_FINISHED'
@@ -192,7 +189,7 @@ export class ReservationComponentBase {
                                 id: r.enrolment?.externalExam?.id as number,
                                 external: true,
                                 examOwners: [],
-                                state: state,
+                                state,
                                 parent: null,
                             };
                         });
@@ -324,7 +321,7 @@ export class ReservationComponentBase {
                 }),
             )
             .subscribe();
-    };
+    }
 
     private roomContains = (room: ExamRoom, machine: ExamMachine) => room.examMachines.some(m => m.id === machine.id);
 
@@ -347,7 +344,7 @@ export class ReservationComponentBase {
     }
 
     private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option[] =>
-        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
+        rooms.map(r => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), [])
 
     roomChanged(event?: { value: ExamRoom }) {
         if (event?.value === undefined) {

@@ -20,7 +20,7 @@ import { FileService } from '../../utility/file/file.service';
 import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
-    selector: 'exam-feedback',
+    selector: 'app-exam-feedback',
     templateUrl: './examFeedback.component.html',
 })
 export class ExamFeedbackComponent {
@@ -37,11 +37,11 @@ export class ExamFeedbackComponent {
         } else {
             this.Attachment.downloadFeedbackAttachment(this.assessment);
         }
-    };
+    }
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
         this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, undefined, false);
-    };
+    }
 }

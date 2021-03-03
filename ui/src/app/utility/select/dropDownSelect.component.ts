@@ -30,14 +30,14 @@ export interface Option {
 }
 
 @Component({
-    selector: 'dropdown-select',
+    selector: 'app-dropdown-select',
     templateUrl: './dropDownSelect.component.html',
 })
 export class DropdownSelectComponent implements OnInit {
     @Input() options: Option[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
-    @Input() fullWidth?: boolean = false;
+    @Input() fullWidth = false;
     @Output() onSelect = new EventEmitter<Selection>();
     filteredOptions: Option[]; // filtered
     searchFilter = '';
@@ -49,7 +49,7 @@ export class DropdownSelectComponent implements OnInit {
     }
 
     labelFilter = (option: Option): boolean =>
-        option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+        option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase())
 
     filterOptions = () => {
         // Show all options, if limit is set to 0
@@ -58,12 +58,12 @@ export class DropdownSelectComponent implements OnInit {
         } else {
             this.filteredOptions = this.options.filter(this.labelFilter).slice(0, this.limitTo);
         }
-    };
+    }
 
     selectOption = (option: Option) => {
         this.selected = option;
         this.onSelect.emit({ value: option.value || option.id });
-    };
+    }
 
     getClasses = (option: Option): string[] => {
         const classes: string[] = [];
@@ -74,10 +74,10 @@ export class DropdownSelectComponent implements OnInit {
             classes.push('dropdown-header');
         }
         return classes;
-    };
+    }
 
     clearSelection = () => {
         delete this.selected;
         this.onSelect.emit();
-    };
+    }
 }

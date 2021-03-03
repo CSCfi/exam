@@ -22,7 +22,7 @@ import { StateName } from './maturity.service';
 import { MaturityService } from './maturity.service';
 
 @Component({
-    selector: 'r-maturity-toolbar',
+    selector: 'app-r-maturity-toolbar',
     templateUrl: './toolbar.component.html',
 })
 export class MaturityToolbarComponent {
@@ -42,7 +42,7 @@ export class MaturityToolbarComponent {
     isUnderLanguageInspection = () =>
         this.Session.getUser().isLanguageInspector &&
         this.exam.languageInspection &&
-        !this.exam.languageInspection.finishedAt;
+        !this.exam.languageInspection.finishedAt
 
     saveAssessment = () => this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
     getNextState = () => this.Maturity.getNextState(this.exam);
@@ -52,5 +52,5 @@ export class MaturityToolbarComponent {
     isDisabled = (name?: StateName) => {
         const state = name ? this.getAlternateState(name) : this.getNextState();
         return !state.canProceed || !this.valid || (state.validate && !state.validate(this.exam));
-    };
+    }
 }

@@ -79,7 +79,7 @@ export class QuestionService {
                 throw Error('question type not found!');
         }
         return questionType;
-    };
+    }
 
     getQuestionDraft(): QuestionDraft {
         return {
@@ -114,23 +114,23 @@ export class QuestionService {
             });
         });
         return data;
-    };
+    }
 
     getQuestionAmountsBySection = (section: ExamSection) => {
         const scores = section.sectionQuestions
             .filter(sq => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
             .map(sq => sq.essayAnswer?.evaluatedScore);
         return { accepted: scores.filter(s => s === 1).length, rejected: scores.filter(s => s === 0).length };
-    };
+    }
 
     calculateDefaultMaxPoints = (question: Question) =>
-        question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
+        question.options.filter(o => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0)
 
     // For weighted mcq
     calculateMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
         const points = sectionQuestion.options.filter(o => o.score > 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
-    };
+    }
 
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         const optionScores = sectionQuestion.options.map(o => o.score);
@@ -138,7 +138,7 @@ export class QuestionService {
         return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
             ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
             : Math.min(...scores);
-    };
+    }
 
     getCorrectClaimChoiceOptionDefaultScore = (question: Question): number => {
         if (!question.options) {
@@ -146,7 +146,7 @@ export class QuestionService {
         }
         const correctOption = question.options.filter(o => o.correctOption && o.claimChoiceType === 'CorrectOption');
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
-    };
+    }
 
     getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         if (!sectionQuestion.options) {
@@ -154,7 +154,7 @@ export class QuestionService {
         }
         const optionScores = sectionQuestion.options.map(o => o.score);
         return Math.max(0, ...optionScores);
-    };
+    }
 
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
         if (!sectionQuestion.clozeTestAnswer) {
@@ -164,11 +164,11 @@ export class QuestionService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
-        if (!score) return 0;
+        if (!score) { return 0; }
         const proportion =
             (score.correctAnswers * sectionQuestion.maxScore) / (score.correctAnswers + score.incorrectAnswers);
         return parseFloat(proportion.toFixed(2));
-    };
+    }
 
     scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
@@ -176,7 +176,7 @@ export class QuestionService {
         }
         const score = sectionQuestion.options.filter(o => o.answered).reduce((a, b) => a + b.score, 0);
         return Math.max(0, score);
-    };
+    }
 
     // For non-weighted mcq
     scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
@@ -193,7 +193,7 @@ export class QuestionService {
         }
 
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
-    };
+    }
 
     scoreClaimChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
         if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
@@ -215,7 +215,7 @@ export class QuestionService {
             return selected[0].score;
         }
         return 0;
-    };
+    }
 
     private getQuestionData(question: Partial<Question>): Partial<Question> {
         const questionToUpdate: Partial<Question> = {
@@ -269,7 +269,7 @@ export class QuestionService {
                 error => reject(error),
             );
         });
-    };
+    }
 
     updateQuestion = (question: Question): Promise<Question> => {
         const body = this.getQuestionData(question);
@@ -293,7 +293,7 @@ export class QuestionService {
                 }
             });
         });
-    };
+    }
 
     updateDistributedExamQuestion$ = (
         question: Question,
@@ -307,7 +307,7 @@ export class QuestionService {
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
             options: sectionQuestion.options,
-            question: question,
+            question,
         };
 
         // update question specific attributes
@@ -341,12 +341,12 @@ export class QuestionService {
                     return response;
                 }),
             );
-    };
+    }
 
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
         option.correctOption = true;
         options.forEach(o => (o.correctOption = o === option));
-    };
+    }
 
     getInvalidClaimOptionTypes = (options: MultipleChoiceOption[]) => {
         const invalidOptions: string[] = [];
@@ -374,7 +374,7 @@ export class QuestionService {
         }
 
         return invalidOptions;
-    };
+    }
 
     getOptionTypeTranslation = (type: string) => {
         switch (type) {
@@ -387,7 +387,7 @@ export class QuestionService {
             default:
                 return '';
         }
-    };
+    }
 
     returnClaimChoiceOptionClass = (optionType: string): string => {
         switch (optionType) {
@@ -400,7 +400,7 @@ export class QuestionService {
             default:
                 return '';
         }
-    };
+    }
 
     returnOptionDescriptionTranslation = (optionType: string) => {
         switch (optionType) {
@@ -411,7 +411,7 @@ export class QuestionService {
             default:
                 return '';
         }
-    };
+    }
 
     determineClaimOptionTypeForExamQuestionOption = (examOption: ExamSectionQuestionOption) => {
         const parentOption = examOption.option;
@@ -428,7 +428,7 @@ export class QuestionService {
         }
 
         return null;
-    };
+    }
 
     getInvalidDistributedClaimOptionTypes = (options: ExamSectionQuestionOption[]) => {
         const invalidOptions = [];
@@ -462,15 +462,15 @@ export class QuestionService {
         }
 
         return invalidOptions;
-    };
+    }
 
     addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<void> => {
         const data = {
-            uid: uid,
+            uid,
             questionIds: qids.join(),
         };
         return this.http.post<void>(this.questionOwnerApi(uid), data);
-    };
+    }
 
     openBaseQuestionEditor = (newQuestion: boolean, collaborative: boolean): Observable<Question> => {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
@@ -482,5 +482,5 @@ export class QuestionService {
         modal.componentInstance.newQuestion = newQuestion;
         modal.componentInstance.collaborative = collaborative;
         return from(modal.result);
-    };
+    }
 }

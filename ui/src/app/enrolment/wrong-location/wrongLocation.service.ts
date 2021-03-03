@@ -55,7 +55,7 @@ export class WrongLocationService {
                 ),
             );
         }
-    };
+    }
 
     displayWrongUserAgent = (startsAtTxt: string) => {
         const opts = {
@@ -73,5 +73,5 @@ export class WrongLocationService {
         } else {
             toast.error(this.translate.instant('sitnet_seb_exam_ongoing'), '', opts);
         }
-    };
+    }
 }

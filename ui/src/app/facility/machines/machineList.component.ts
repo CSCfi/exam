@@ -24,7 +24,7 @@ import { ExamMachine } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './machineList.component.html',
-    selector: 'machine-list',
+    selector: 'app-machine-list',
 })
 export class MachineListComponent implements OnInit {
     @Input() room: ExamRoom;
@@ -41,7 +41,7 @@ export class MachineListComponent implements OnInit {
     countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter(m => m.outOfService).length : 0);
 
     countMachineNotices = (): number =>
-        this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0;
+        this.room ? this.room.examMachines.filter(m => !m.outOfService && m.statusComment).length : 0
 
     addNewMachine = () =>
         this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe(
@@ -50,5 +50,5 @@ export class MachineListComponent implements OnInit {
                 this.room.examMachines.push(resp);
             },
             err => toast.error(err.data),
-        );
+        )
 }

@@ -26,7 +26,7 @@ import { User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-owner-selector',
+    selector: 'app-exam-owner-selector',
     templateUrl: './examOwnerSelector.component.html',
 })
 export class ExamOwnerSelectorComponent implements OnInit {
@@ -63,7 +63,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                 toast.error(err.data);
                 return throwError(err);
             }),
-        );
+        )
 
     nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
 
@@ -84,17 +84,17 @@ export class ExamOwnerSelectorComponent implements OnInit {
         } else {
             toast.error(this.translate.instant('sitnet_teacher_not_found'));
         }
-    };
+    }
 
     removeOwner = (id: number) =>
         this.http.delete(`/app/exam/${this.exam.id}/owner/${id}`).subscribe(
             () => this.getExamOwners(),
             err => toast.error(err.data),
-        );
+        )
 
     private getExamOwners = () =>
         this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(
             owners => (this.examOwners = owners),
             err => toast.error(err.data),
-        );
+        )
 }

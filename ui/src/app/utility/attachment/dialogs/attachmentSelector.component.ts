@@ -23,7 +23,7 @@ export interface FileResult {
 }
 
 @Component({
-    selector: 'attachment-selector',
+    selector: 'app-attachment-selector',
     templateUrl: './attachmentSelector.component.html',
 })
 export class AttachmentSelectorComponent implements OnInit {

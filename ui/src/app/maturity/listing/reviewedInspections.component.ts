@@ -19,7 +19,7 @@ import { LanguageInspectionService } from '../languageInspections.service';
 import { SimpleChanges, OnChanges } from '@angular/core';
 import { LanguageInspectionData } from '../languageInspections.component';
 @Component({
-    selector: 'reviewed-inspections',
+    selector: 'app-reviewed-inspections',
     templateUrl: './reviewedInspections.component.html',
 })
 export class ReviewedInspectionsComponent implements OnChanges {
@@ -50,7 +50,7 @@ export class ReviewedInspectionsComponent implements OnChanges {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
-    };
+    }
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
@@ -60,14 +60,14 @@ export class ReviewedInspectionsComponent implements OnChanges {
         const student = li.studentNameAggregate;
         const teacher = li.ownerAggregate;
         return code + name + student + teacher;
-    };
+    }
 
     filterTextChanged = () =>
         (this.filteredInspections = this.inspections.filter(i =>
             this.examToString(i)
                 .toLowerCase()
                 .match(this.filterText.toLowerCase()),
-        ));
+        ))
 
     startDateChanged = (event: { date: Date }) => this.onStartDateChange.emit({ date: event.date });
 

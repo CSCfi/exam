@@ -21,7 +21,7 @@ import { MaturityService } from '../maturity/maturity.service';
 
 import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
-    selector: 'r-statement',
+    selector: 'app-r-statement',
     templateUrl: './statement.component.html',
 })
 export class StatementComponent {
@@ -44,10 +44,10 @@ export class StatementComponent {
         } else {
             this.exam.languageInspection.statement.comment = value;
         }
-    };
+    }
 
     saveInspectionStatement = () =>
-        this.Maturity.saveInspectionStatement$(this.exam).subscribe(resp => (this.exam.languageInspection = resp));
+        this.Maturity.saveInspectionStatement$(this.exam).subscribe(resp => (this.exam.languageInspection = resp))
 
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
 
@@ -64,5 +64,5 @@ export class StatementComponent {
                 );
             }),
         );
-    };
+    }
 }

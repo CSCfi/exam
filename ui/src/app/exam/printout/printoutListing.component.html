@@ -10,47 +10,47 @@
                 <thead>
                     <tr>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 [reverse]="reverse"
                                 [predicate]="predicate"
                                 by="examinationDatesAggregate"
                                 text="sitnet_examination_dates"
                                 (click)="setPredicate('examinationDatesAggregate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 [reverse]="reverse"
                                 [predicate]="predicate"
                                 by="course.code"
                                 text="sitnet_examcode"
                                 (click)="setPredicate('course.code')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 [reverse]="reverse"
                                 [predicate]="predicate"
                                 by="name"
                                 text="sitnet_exam_name"
                                 (click)="setPredicate('name')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>
-                            <table-sort
+                            <app-table-sort
                                 [reverse]="reverse"
                                 [predicate]="predicate"
                                 by="ownerAggregate"
                                 text="sitnet_teachers"
                                 (click)="setPredicate('ownerAggregate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let exam of printouts | orderBy: predicate:reverse">
                         <td>{{ exam.examinationDatesAggregate }}</td>
-                        <td><course-code [course]="exam.course"></course-code></td>
+                        <td><app-course-code [course]="exam.course"></app-course-code></td>
                         <td>
                             <a
                                 class="exams-info-title bold-button"
@@ -60,7 +60,7 @@
                             >
                         </td>
                         <td>
-                            <teacher-list [exam]="exam"></teacher-list>
+                            <app-teacher-list [exam]="exam"></app-teacher-list>
                         </td>
                     </tr>
                 </tbody>

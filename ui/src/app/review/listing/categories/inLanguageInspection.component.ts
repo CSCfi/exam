@@ -22,7 +22,7 @@ import { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-in-language-inspection',
+    selector: 'app-rl-in-language-inspection',
     templateUrl: './inLanguageInspection.component.html',
 })
 export class InLanguageInspectionReviewsComponent {
@@ -42,19 +42,19 @@ export class InLanguageInspectionReviewsComponent {
 
     pageSelected = (event: { page: number }) => {
         this.view.page = event.page;
-    };
+    }
 
     setPredicate = (predicate: string) => {
         if (this.view.predicate === predicate) {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
-    };
+    }
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
         return this.Exam.getExamGradeDisplayName(grade);
-    };
+    }
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
@@ -62,5 +62,5 @@ export class InLanguageInspectionReviewsComponent {
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

@@ -20,7 +20,7 @@ import { ExamService } from '../../exam.service';
 import { OnInit } from '@angular/core';
 import { ExamExecutionType, Implementation } from '../../exam.model';
 @Component({
-    selector: 'new-exam',
+    selector: 'app-new-exam',
     templateUrl: './newExam.component.html',
 })
 export class NewExamComponent implements OnInit {
@@ -45,11 +45,11 @@ export class NewExamComponent implements OnInit {
         if (!this.byodExaminationSupported && this.type) {
             this.Exam.createExam(this.type.type, this.examinationType);
         }
-    };
+    }
 
     createExam = () => {
         if (this.type) {
             this.Exam.createExam(this.type.type, this.examinationType);
         }
-    };
+    }
 }

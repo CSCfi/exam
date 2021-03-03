@@ -26,7 +26,7 @@ import { ExamInspection } from '../../exam.model';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-inspector-selector',
+    selector: 'app-exam-inspector-selector',
     templateUrl: './examInspectorSelector.component.html',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
@@ -54,7 +54,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
         this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe(
             inspections => (this.examInspections = inspections),
             err => toast.error(err.data),
-        );
+        )
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -71,7 +71,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
                 toast.error(err.data);
                 return throwError(err);
             }),
-        );
+        )
 
     nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
 
@@ -88,11 +88,11 @@ export class ExamInspectorSelectorComponent implements OnInit {
                     this.newInspector = {};
                 });
         }
-    };
+    }
 
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe(
             () => this.getInspectors(),
             err => toast.error(err.data),
-        );
+        )
 }

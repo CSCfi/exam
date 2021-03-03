@@ -28,7 +28,7 @@ import { ControlValueAccessor } from '@angular/forms';
 declare let CKEDITOR: any;
 
 @Component({
-    selector: 'ckeditor',
+    selector: 'app-ckeditor',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -79,7 +79,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     }
 
     private documentContains = (n: Node) =>
-        this.document.contains ? this.document.contains(n) : this.document.body.contains(n);
+        this.document.contains ? this.document.contains(n) : this.document.body.contains(n)
 
     editorInit() {
         if (typeof CKEDITOR === 'undefined') {

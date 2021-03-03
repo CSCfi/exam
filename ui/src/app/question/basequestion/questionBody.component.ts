@@ -29,7 +29,7 @@ import { ReverseQuestion, Tag } from '../../exam/exam.model';
 import { User } from '../../session/session.service';
 import { QuestionDraft } from '../question.service';
 @Component({
-    selector: 'question-body',
+    selector: 'app-question-body',
     templateUrl: './questionBody.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
@@ -69,7 +69,7 @@ export class QuestionBodyComponent {
         // remove duplicates
         this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
-    };
+    }
 
     ngOnInit() {
         this.questionTypes = [
@@ -87,7 +87,7 @@ export class QuestionBodyComponent {
         this.question.type = this.Question.getQuestionType(this.newType);
         this.init();
         this.cdr.detectChanges();
-    };
+    }
 
     showWarning = () => this.examNames.length > 1;
 
@@ -101,15 +101,15 @@ export class QuestionBodyComponent {
                     : this.http.get<User[]>('/app/users/question/owners/TEACHER', { params: { q: term } }),
             ),
             map(users => users.filter(u => this.currentOwners.map(o => o.id).indexOf(u.id) === -1).slice(0, 15)),
-        );
+        )
 
     nameFormat = (u: User & { name: string }) => {
         return u.name;
-    };
+    }
 
     setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) =>
         // Using template to store the selected user
-        (this.newOwnerTemplate = event.item);
+        (this.newOwnerTemplate = event.item)
 
     addQuestionOwner = () => {
         if (this.newOwnerTemplate && this.newOwnerTemplate.id) {
@@ -119,17 +119,17 @@ export class QuestionBodyComponent {
             delete this.newOwner.name;
             delete this.newOwnerTemplate;
         }
-    };
+    }
 
     removeOwnerDisabled = (user: User) =>
-        this.currentOwners.length === 1 || (this.question.state === 'NEW' && this.Session.getUser().id === user.id);
+        this.currentOwners.length === 1 || (this.question.state === 'NEW' && this.Session.getUser().id === user.id)
 
     removeOwner = (user: User) => {
         if (this.removeOwnerDisabled(user)) {
             return;
         }
         this.currentOwners.splice(this.currentOwners.indexOf(user), 1);
-    };
+    }
 
     selectFile = () =>
         this.Attachment.selectFile(true).then(data => {
@@ -141,7 +141,7 @@ export class QuestionBodyComponent {
                 file: data.$value.attachmentFile,
                 removed: false,
             };
-        });
+        })
 
     downloadQuestionAttachment = () => {
         if (this.question.attachment && this.question.attachment.externalId) {
@@ -149,30 +149,30 @@ export class QuestionBodyComponent {
             return;
         }
         this.Attachment.downloadQuestionAttachment(this.question);
-    };
+    }
 
     removeQuestionAttachment = () => {
         if (this.question.attachment) {
             this.Attachment.removeQuestionAttachment(this.question);
         }
-    };
+    }
 
     getFileSize = () => {
         if (this.question.attachment) {
             this.Attachment.getFileSize(this.question.attachment.size);
         }
-    };
+    }
 
     hasUploadedAttachment = () => {
         const a = this.question.attachment;
         return a && (a.id || a.externalId);
-    };
+    }
 
     updateEvaluationType = () => {
         if (this.question.defaultEvaluationType === 'Selection') {
             delete this.question.defaultMaxScore;
         }
-    };
+    }
 
     removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
 
@@ -182,5 +182,5 @@ export class QuestionBodyComponent {
             this.question.questionOwners &&
             (user.isAdmin || this.question.questionOwners.map(o => o.id).indexOf(user.id) > -1)
         );
-    };
+    }
 }

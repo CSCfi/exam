@@ -13,22 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ExaminationTypeSelectorComponent } from '../../../exam/editor/common/examinationTypeSelector.component';
+import { Exam, ExamExecutionType } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 
-import { OnInit } from '@angular/core';
-import { Exam, ExamExecutionType } from '../../../exam/exam.model';
 export interface ExtraColumn {
     text: string;
     property: string;
@@ -37,16 +36,16 @@ export interface ExtraColumn {
 }
 type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: { type: string; name: string }[] };
 @Component({
-    selector: 'exam-list-category',
+    selector: 'app-exam-list-category',
     templateUrl: './examListCategory.component.html',
 })
-export class ExamListCategoryComponent implements OnInit {
+export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: Exam[];
     @Input() examTypes: ExecutionType[];
     @Input() extraColumns: ExtraColumn[];
     @Input() defaultPredicate: string;
     @Input() defaultReverse: boolean;
-    @Output() onFilterChange = new EventEmitter<string>();
+    @Output() filterChange = new EventEmitter<string>();
 
     userId: number;
     pageSize = 10;
@@ -62,9 +61,10 @@ export class ExamListCategoryComponent implements OnInit {
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private modal: NgbModal,
         private Dialog: ConfirmationDialogService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
@@ -72,8 +72,8 @@ export class ExamListCategoryComponent implements OnInit {
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(text => {
                 this.filterText = text;
-                this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
-                this.onFilterChange.emit(this.filterText);
+                this.state.go('dashboard', { tab: this.routing.params.tab, filter: this.filterText });
+                this.filterChange.emit(this.filterText);
             });
     }
 
@@ -88,7 +88,7 @@ export class ExamListCategoryComponent implements OnInit {
             predicate: this.defaultPredicate,
             reverse: this.defaultReverse,
         };
-        this.filterText = this.state.params.filter;
+        this.filterText = this.routing.params.filter;
         if (this.filterText) {
             this.search(this.filterText);
         }
@@ -99,7 +99,7 @@ export class ExamListCategoryComponent implements OnInit {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
-    };
+    }
 
     search = (text: string) => this.filterChanged.next(text);
 
@@ -108,10 +108,10 @@ export class ExamListCategoryComponent implements OnInit {
     getUsername = () => this.Session.getUserName();
 
     getExecutionTypeTranslation = (exam: Exam) => {
-        const type = this.Exam.getExecutionTypeTranslation(exam.executionType);
-        const impl = this.Exam.getExamImplementationTranslation(exam.implementation);
+        const type = this.ExamSrv.getExecutionTypeTranslation(exam.executionType);
+        const impl = this.ExamSrv.getExamImplementationTranslation(exam.implementation);
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
-    };
+    }
 
     copyExam = (exam: Exam) =>
         from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
@@ -126,7 +126,7 @@ export class ExamListCategoryComponent implements OnInit {
                     this.state.go('examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
                 err => toast.error(err.data),
-            );
+            )
 
     deleteExam = (exam: Exam) => {
         const dialog = this.Dialog.open(
@@ -142,7 +142,7 @@ export class ExamListCategoryComponent implements OnInit {
                 resp => toast.error(resp.data),
             );
         });
-    };
+    }
 
     isOwner = (exam: Exam) => exam.examOwners.some(eo => eo.id === this.userId);
 }

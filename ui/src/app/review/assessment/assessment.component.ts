@@ -28,7 +28,7 @@ import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
 @Component({
-    selector: 'assessment',
+    selector: 'app-assessment',
     templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent {
@@ -81,24 +81,24 @@ export class AssessmentComponent {
     }
 
     isUnderLanguageInspection = () => {
-        if (!this.user) return false;
+        if (!this.user) { return false; }
         return (
             this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
         );
-    };
+    }
 
     print = () => {
         const url = this.collaborative
             ? `/print/exam/${this.state.params.id}/${this.state.params.ref}`
             : `/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
-    };
+    }
 
     scoreSet = (revision: string) => {
         this.participation._rev = revision;
         this.questionSummary = this.Question.getQuestionAmounts(this.exam);
         this.startReview();
-    };
+    }
 
     gradingUpdated = () => this.startReview();
 
@@ -112,7 +112,7 @@ export class AssessmentComponent {
         this.state.go('examEditor.assessments', {
             id: this.exam.parent?.id,
             collaborative: this.collaborative ? 'collaborative' : 'false',
-        });
+        })
 
     // Set review status as started if not already done so
     private startReview = () => {
@@ -134,8 +134,8 @@ export class AssessmentComponent {
                 });
             }
         }
-    };
+    }
 
     private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`
 }

@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -22,13 +23,10 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam } from '../../exam.model';
+import { Exam, ExamType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
-
-import { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { ExamType, GradeScale } from '../../exam.model';
-import { StateService } from '@uirouter/core';
 import { ExamTabService } from '../examTabs.service';
+
 export type UpdateProps = {
     props: {
         code: string | null;
@@ -38,13 +36,13 @@ export type UpdateProps = {
 };
 
 @Component({
-    selector: 'basic-exam-info',
+    selector: 'app-basic-exam-info',
     templateUrl: './basicExamInfo.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onUpdate = new EventEmitter<UpdateProps>();
+    @Output() update = new EventEmitter<UpdateProps>();
 
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
@@ -59,7 +57,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         private http: HttpClient,
         private state: StateService,
         private translate: TranslateService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Attachment: AttachmentService,
         private Files: FileService,
         private Session: SessionService,
@@ -91,42 +89,42 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         if (changes.exam) {
             this.initGradeScale();
         }
-    };
+    }
 
     ngOnDestroy = () => {
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    };
+    }
 
-    updateExam = (resetAutoEvaluationConfig: boolean) => {
-        this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(
+    updateExam = (resetAutoEvaluationConfig = false) => {
+        this.ExamSrv.updateExam$(this.exam, {}, this.collaborative).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_exam_saved'));
                 if (resetAutoEvaluationConfig) {
                     delete this.exam.autoEvaluationConfig;
                 }
                 const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate.emit({
+                this.update.emit({
                     props: {
                         name: this.exam.name,
-                        code: code,
+                        code,
                         scaleChange: resetAutoEvaluationConfig,
                     },
                 });
             },
             resp => toast.error(resp),
         );
-    };
+    }
 
     onCourseChange = () => {
         this.initGradeScale(); //  Grade scale might need changing based on new course
         const code = this.exam.course ? this.exam.course.code : null;
-        this.onUpdate.emit({
-            props: { name: this.exam.name, code: code, scaleChange: false },
+        this.update.emit({
+            props: { name: this.exam.name, code, scaleChange: false },
         });
-    };
+    }
 
-    getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
+    getExecutionTypeTranslation = () => this.ExamSrv.getExecutionTypeTranslation(this.exam.executionType);
 
     getExaminationTypeName = () => {
         switch (this.exam.implementation) {
@@ -137,14 +135,14 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
             case 'WHATEVER':
                 return 'sitnet_examination_type_home_exam';
         }
-    };
+    }
 
     checkExamType = (type: string) => (this.exam.examType.type === type ? 'btn-primary' : '');
 
     setExamType = (type: string) => {
         this.exam.examType.type = type;
         this.updateExam(false);
-    };
+    }
 
     getSelectableScales = () => {
         if (!this.gradeScales || !this.exam || !this.gradeScaleSetting) {
@@ -160,43 +158,43 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                 return true;
             }
         });
-    };
+    }
 
     checkScale = (scale: GradeScale) => {
         if (!this.exam.gradeScale) {
             return '';
         }
         return this.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
-    };
+    }
 
     toggleAnonymous = () => this.updateExam(false);
 
     toggleAnonymousDisabled = () =>
         !this.Session.getUser().isAdmin ||
-        !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
-        this.collaborative;
+        !this.ExamSrv.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
+        this.collaborative
 
     checkScaleDisabled = (scale: GradeScale) => {
         if (!scale || !this.exam.course || !this.exam.course.gradeScale) {
             return false;
         }
         return !this.gradeScaleSetting.overridable && this.exam.course.gradeScale.id === scale.id;
-    };
+    }
 
     setScale = (grading: GradeScale) => {
         this.exam.gradeScale = grading;
         this.updateExam(true);
-    };
+    }
 
     showAnonymousReview = () =>
-        this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
+        this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled)
 
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then(data => {
             const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
             this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
-    };
+    }
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
 
@@ -204,40 +202,40 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
 
     removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam, this.collaborative);
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
+    removeExam = () => this.ExamSrv.removeExam(this.exam, this.collaborative);
 
     nextTab = () => {
         this.Tabs.notifyTabChange(3);
         this.state.go('examEditor.sections');
-    };
+    }
 
     showDelete = () => {
         if (this.collaborative) {
             return this.Session.getUser().isAdmin;
         }
         return this.exam.executionType.type === 'PUBLIC';
-    };
+    }
 
     private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes$().subscribe(types => {
+        this.ExamSrv.refreshExamTypes$().subscribe(types => {
             // Maturity can only have a FINAL type
             if (this.exam.executionType.type === 'MATURITY') {
                 types = types.filter(t => t.type === 'FINAL');
             }
             this.examTypes = types;
         });
-    };
+    }
 
     private refreshGradeScales = () => {
-        this.Exam.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
+        this.ExamSrv.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
             this.gradeScales = scales;
         });
-    };
+    }
 
     private initGradeScale = () => {
         // Set exam grade scale from course default if not specifically set for exam
         if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
             this.exam.gradeScale = this.exam.course.gradeScale;
         }
-    };
+    }
 }

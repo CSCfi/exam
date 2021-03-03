@@ -29,7 +29,7 @@ import { User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-participant-selector',
+    selector: 'app-exam-participant-selector',
     templateUrl: './examParticipantSelector.component.html',
 })
 export class ExamParticipantSelectorComponent implements OnInit {
@@ -46,7 +46,7 @@ export class ExamParticipantSelectorComponent implements OnInit {
     }
 
     private findUsers$ = (criteria: string) =>
-        this.http.get<User[]>(`/app/students/${this.exam.id}`, { params: { q: criteria } });
+        this.http.get<User[]>(`/app/students/${this.exam.id}`, { params: { q: criteria } })
 
     listStudents$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -55,16 +55,16 @@ export class ExamParticipantSelectorComponent implements OnInit {
             distinctUntilChanged(),
             exhaustMap(s => (s.length < 2 ? from([]) : this.findUsers$(s))),
             take(15),
-        );
+        )
 
     idFormat = (u: User) => u.id;
     nameFormat = (u: User & { name: string }) => {
         return u.name;
-    };
+    }
 
     setExamParticipant = (event: NgbTypeaheadSelectItemEvent) => {
         this.newParticipant.id = event.item.id;
-    };
+    }
 
     addParticipant = () =>
         this.Enrolment.enrollStudent(this.exam, this.newParticipant).subscribe(
@@ -76,7 +76,7 @@ export class ExamParticipantSelectorComponent implements OnInit {
                 delete this.newParticipant.id;
             },
             err => toast.error(err.data),
-        );
+        )
 
     removeParticipant = (id: number) =>
         this.http.delete(`/app/enrolments/student/${id}`).subscribe(
@@ -85,10 +85,10 @@ export class ExamParticipantSelectorComponent implements OnInit {
                 toast.info(this.translate.instant('sitnet_participant_removed'));
             },
             err => toast.error(err.data),
-        );
+        )
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>
         enrolment.preEnrolledUserEmail
             ? enrolment.preEnrolledUserEmail
-            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
+            : enrolment.user?.firstName + ' ' + enrolment?.user.lastName
 }

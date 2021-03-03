@@ -22,7 +22,7 @@ import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operat
 import { Question, Tag } from '../../exam/exam.model';
 
 @Component({
-    selector: 'tag-picker',
+    selector: 'app-tag-picker',
     templateUrl: './tagPicker.component.html',
 })
 export class TagPickerComponent {
@@ -36,11 +36,11 @@ export class TagPickerComponent {
             debounceTime(200),
             distinctUntilChanged(),
             exhaustMap(term => {
-                if (term.length < 2) return from([]);
+                if (term.length < 2) { return from([]); }
                 else {
                     return this.http
                         .get<Tag[]>('/app/tags', { params: { filter: term } })
-                        .pipe(map(tags => ({ filter: term, tags: tags })));
+                        .pipe(map(tags => ({ filter: term, tags })));
                 }
             }),
             map(resp => {
@@ -53,16 +53,16 @@ export class TagPickerComponent {
                     .filter(tag => !this.question.tags || this.question.tags.every(qt => qt.name !== tag.name))
                     .slice(0, 15);
             }),
-        );
+        )
 
     onTagSelect = (event: NgbTypeaheadSelectItemEvent) => (this.question.newTag = event.item);
     nameFormat = (tag: Tag) => tag.name;
 
     addTag = () => {
-        if (this.question.newTag) this.question.tags.push(this.question.newTag);
+        if (this.question.newTag) { this.question.tags.push(this.question.newTag); }
         delete this.question.newTag;
         this.tagName = '';
-    };
+    }
 
     removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
 }

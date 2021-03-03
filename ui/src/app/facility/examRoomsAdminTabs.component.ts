@@ -28,7 +28,7 @@ import { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     templateUrl: './examRoomsAdminTabs.component.html',
-    selector: 'exam-rooms-admin-tabs',
+    selector: 'app-exam-rooms-admin-tabs',
 })
 export class ExamRoomsAdminTabsComponent implements OnInit {
     user: User;
@@ -58,11 +58,11 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     tabChanged = (event: NgbTabChangeEvent) => {
         this.activeTab = event.nextId;
-    };
+    }
 
     editMultipleRooms = function() {
         this.state.go('multiRoom');
@@ -71,7 +71,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
     goBack = (event: Event) => {
         event.preventDefault();
         this.window.nativeWindow.history.back();
-    };
+    }
 
     getHeadingTranslation = (translation: string) => this.translate.instant(translation);
 }

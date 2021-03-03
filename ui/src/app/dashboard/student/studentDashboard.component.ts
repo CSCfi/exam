@@ -25,7 +25,7 @@ import { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { Exam } from '../../exam/exam.model';
 import { DashboardEnrolment } from './studentDashboard.service';
 @Component({
-    selector: 'student-dashboard',
+    selector: 'app-student-dashboard',
     templateUrl: './studentDashboard.component.html',
 })
 export class StudentDashboardComponent implements OnInit {

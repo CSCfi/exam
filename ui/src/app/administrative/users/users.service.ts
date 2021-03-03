@@ -21,9 +21,9 @@ export class UserManagementService {
 
     getPermissions = () => this.http.get<Permission[]>(this.permissionsApi());
     addPermission = (id: number, permission: PermissionType) =>
-        this.http.post<void>(this.permissionsApi(), { id, permission });
+        this.http.post<void>(this.permissionsApi(), { id, permission })
     removePermission = (id: number, permission: PermissionType) =>
-        this.http.request<void>('delete', this.permissionsApi(), { body: { id, permission } });
+        this.http.request<void>('delete', this.permissionsApi(), { body: { id, permission } })
     getUsers = (filter: string) => this.http.get<User[]>(this.usersApi(), { params: { filter } });
     addRole = (id: number, role: string) => this.http.post<Role>(this.rolesApi(id, role), null);
     updateRole = (id: number, role: string) => this.http.put<Role>(this.rolesApi(id, role), null);

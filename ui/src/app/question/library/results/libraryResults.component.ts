@@ -29,7 +29,7 @@ import { LibraryService } from '../library.service';
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
-    selector: 'library-results',
+    selector: 'app-library-results',
     templateUrl: './libraryResults.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
@@ -75,12 +75,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     selectAll = () => {
         this.questions.forEach(q => (q.selected = this.allSelected));
         this.questionSelected();
-    };
+    }
 
     questionSelected = () => {
         const selections = this.questions.filter(q => q.selected).map(q => q.id);
         this.onSelection.emit(selections);
-    };
+    }
 
     deleteQuestion = (question: SelectableQuestion) => {
         const dialog = this.Confirmation.open(
@@ -93,7 +93,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                 toast.info(this.translate.instant('sitnet_question_removed'));
             }),
         );
-    };
+    }
 
     copyQuestion = (question: SelectableQuestion) => {
         const dialog = this.Confirmation.open(
@@ -106,7 +106,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                 this.onCopy.emit(copy);
             }),
         );
-    };
+    }
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
 
@@ -118,7 +118,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         }
 
         return `mailto:${owner.email}`;
-    };
+    }
 
     printOwner = (owner: User, showId: boolean): string => {
         if (!owner) {
@@ -130,7 +130,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             user += ' (' + owner.userIdentifier + ')';
         }
         return user;
-    };
+    }
 
     printTags = (question: LibraryQuestion) => question.tags.map(t => t.name.toUpperCase()).join(', ');
 
@@ -142,7 +142,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         }
         this.questionsPredicate = predicate;
         this.saveFilters();
-    };
+    }
 
     getQuestionTypeIcon = (question: LibraryQuestion) => {
         switch (question.type) {
@@ -158,7 +158,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                 return 'bi-file-binary';
         }
         return '';
-    };
+    }
 
     getQuestionTypeText = (question: LibraryQuestion) => {
         switch (question.type) {
@@ -174,7 +174,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                 return 'sitnet_toolbar_claim_choice_question';
         }
         return '';
-    };
+    }
 
     private saveFilters = () => {
         const filters = {
@@ -182,12 +182,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             reverse: this.reverse,
         };
         this.Library.storeFilters(filters, 'sorting');
-    };
+    }
 
     private resetSelections = () => {
         this.questions.forEach(q => (q.selected = false));
         this.questionSelected();
-    };
+    }
 
     showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
         if (_.isNumber(scoreColumnValue)) {
@@ -195,5 +195,5 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         } else {
             return this.translate.instant(scoreColumnValue);
         }
-    };
+    }
 }

@@ -62,7 +62,7 @@ interface Participations {
             </div>
         </div>
     `,
-    selector: 'room-statistics',
+    selector: 'app-room-statistics',
 })
 export class RoomStatisticsComponent {
     @Input() queryParams: { start: string; end: string };
@@ -85,10 +85,10 @@ export class RoomStatisticsComponent {
                     this.months = [];
                 }
             });
-    };
+    }
 
     totalParticipations = (month: Date, room: string) => {
-        if (!this.participations) return 0;
+        if (!this.participations) { return 0; }
         const isWithinBounds = (p: ExamParticipation) => {
             const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
             const current = new Date(month);
@@ -98,7 +98,7 @@ export class RoomStatisticsComponent {
         };
         const rp = room ? this.participations[room] : Object.values(this.participations).flat();
         return month ? rp.filter(isWithinBounds).length : rp.length;
-    };
+    }
 
     private groupByMonths = () => {
         if (Object.keys(this.participations).length === 0) {
@@ -119,10 +119,10 @@ export class RoomStatisticsComponent {
             months.push(limits.max);
         }
         this.months = months;
-    };
+    }
 
     private isBefore = (a: Date, b: Date) =>
-        a.getFullYear() < b.getFullYear() || (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth());
+        a.getFullYear() < b.getFullYear() || (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth())
 
     private getMinAndMaxDates = (): { min: Date; max: Date } => {
         const dates: Date[] = Object.values(this.participations)
@@ -146,5 +146,5 @@ export class RoomStatisticsComponent {
         }
         const maxDate = dates[dates.length - 1];
         return { min: minDate, max: maxDate };
-    };
+    }
 }

@@ -27,7 +27,7 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
 
 @Component({
-    selector: 'r-general-info',
+    selector: 'app-r-general-info',
     templateUrl: './generalInfo.component.html',
 })
 export class GeneralInfoComponent {
@@ -67,7 +67,7 @@ export class GeneralInfoComponent {
             });
             this.previousParticipations = previousParticipations.concat(noShows);
         });
-    };
+    }
 
     ngOnInit() {
         const duration = moment.utc(new Date(this.participation.duration as string));
@@ -103,5 +103,5 @@ export class GeneralInfoComponent {
         } else {
             this.Attachment.downloadExamAttachment(this.exam);
         }
-    };
+    }
 }

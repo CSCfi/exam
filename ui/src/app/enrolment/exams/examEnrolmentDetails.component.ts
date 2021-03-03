@@ -21,7 +21,7 @@ import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'enrolment-details',
+    selector: 'app-enrolment-details',
     templateUrl: './examEnrolmentDetails.component.html',
 })
 export class EnrolmentDetailsComponent {
@@ -39,7 +39,7 @@ export class EnrolmentDetailsComponent {
     translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
 
     translateGradeScale = () =>
-        this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null));
+        this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null))
 
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
 
@@ -49,5 +49,5 @@ export class EnrolmentDetailsComponent {
         } else {
             this.state.go('calendar', { id: this.exam.id });
         }
-    };
+    }
 }

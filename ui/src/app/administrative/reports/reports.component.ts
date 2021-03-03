@@ -27,7 +27,7 @@ interface Category {
 }
 
 @Component({
-    selector: 'reports',
+    selector: 'app-reports',
     template: `
         <div>
             <div id="sitnet-header" class="header">

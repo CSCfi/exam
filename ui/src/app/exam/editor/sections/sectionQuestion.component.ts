@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { noop, of } from 'rxjs';
+import { noop, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -27,12 +27,10 @@ import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection, ExamSectionQuestion } from '../../exam.model';
+import { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
 
-import { Observable } from 'rxjs';
-import { ExamSectionQuestionOption, Question } from '../../exam.model';
 @Component({
-    selector: 'section-question',
+    selector: 'app-section-question',
     templateUrl: './sectionQuestion.component.html',
 })
 export class SectionQuestionComponent {
@@ -41,23 +39,23 @@ export class SectionQuestionComponent {
     @Input() collaborative: boolean;
     @Input() section: ExamSection;
     @Input() examId: number;
-    @Output() onDelete = new EventEmitter<ExamSectionQuestion>();
+    @Output() deleted = new EventEmitter<ExamSectionQuestion>();
 
     constructor(
         private http: HttpClient,
         private modal: NgbModal,
         private translate: TranslateService,
         private Confirmation: ConfirmationDialogService,
-        private Question: QuestionService,
+        private QuestionSrv: QuestionService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+    calculateMaxPoints = () => this.QuestionSrv.calculateMaxPoints(this.sectionQuestion);
 
-    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () => this.QuestionSrv.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+    getMinimumOptionScore = () => this.QuestionSrv.getMinimumOptionScore(this.sectionQuestion);
 
     editQuestion = () => this.openExamQuestionEditor();
 
@@ -66,13 +64,13 @@ export class SectionQuestionComponent {
             this.Attachment.downloadCollaborativeQuestionAttachment(this.examId, this.sectionQuestion);
         }
         this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
-    };
+    }
 
     removeQuestion = () =>
         this.Confirmation.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
-        ).result.then(() => this.onDelete.emit(this.sectionQuestion));
+        ).result.then(() => this.deleted.emit(this.sectionQuestion))
 
     private getQuestionDistribution(): Observable<boolean> {
         if (this.collaborative) {
@@ -92,10 +90,10 @@ export class SectionQuestionComponent {
             } else {
                 this.openDistributedQuestionEditor();
             }
-        });
+        })
 
     private getResource = (url: string) =>
-        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url
 
     private openBaseQuestionEditor = () => {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
@@ -113,7 +111,7 @@ export class SectionQuestionComponent {
             const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
             this.http
                 .put<ExamSectionQuestion>(this.getResource(resource), {
-                    question: question,
+                    question,
                 })
                 .subscribe(
                     resp => {
@@ -147,7 +145,7 @@ export class SectionQuestionComponent {
                     },
                 );
         });
-    };
+    }
 
     private openDistributedQuestionEditor = () => {
         const modal = this.modal.open(ExamQuestionEditorComponent, {
@@ -160,7 +158,7 @@ export class SectionQuestionComponent {
         modal.componentInstance.lotteryOn = this.lotteryOn;
         modal.result
             .then((data: { question: Question; examQuestion: ExamSectionQuestion }) => {
-                this.Question.updateDistributedExamQuestion$(
+                this.QuestionSrv.updateDistributedExamQuestion$(
                     data.question,
                     data.examQuestion,
                     this.examId,
@@ -175,9 +173,9 @@ export class SectionQuestionComponent {
                 );
             })
             .catch(noop);
-    };
+    }
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
-        return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
+        return this.QuestionSrv.determineClaimOptionTypeForExamQuestionOption(examOption);
     }
 }

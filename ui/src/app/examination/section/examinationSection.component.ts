@@ -19,7 +19,7 @@ import { Examination, ExaminationSection, ExaminationService } from '../examinat
 
 import { SimpleChanges } from '@angular/core';
 @Component({
-    selector: 'examination-section',
+    selector: 'app-examination-section',
     templateUrl: './examinationSection.component.html',
 })
 export class ExaminationSectionComponent {
@@ -41,14 +41,14 @@ export class ExaminationSectionComponent {
         if (changes.section) {
             this.resetAutosaver();
         }
-    };
+    }
 
     ngOnDestroy = () => this.cancelAutosaver();
 
     getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
 
     getAmountOfSelectionEvaluatedQuestions = () =>
-        this.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length;
+        this.section.sectionQuestions.filter(esq => esq.evaluationType === 'Selection').length
 
     private resetAutosaver = () => {
         this.cancelAutosaver();
@@ -65,12 +65,12 @@ export class ExaminationSectionComponent {
                 1000 * 60,
             );
         }
-    };
+    }
 
     private cancelAutosaver = () => {
         if (this.autosaver) {
             this.Window.nativeWindow.clearInterval(this.autosaver);
             delete this.autosaver;
         }
-    };
+    }
 }

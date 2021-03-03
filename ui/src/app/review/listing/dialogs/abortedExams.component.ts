@@ -24,7 +24,7 @@ import { SessionService } from '../../../session/session.service';
 import { Review } from '../../review.model';
 
 @Component({
-    selector: 'aborted-exams',
+    selector: 'app-aborted-exams',
     templateUrl: './abortedExams.component.html',
 })
 export class AbortedExamsComponent {
@@ -48,7 +48,7 @@ export class AbortedExamsComponent {
             reservation.retrialPermitted = true;
             toast.info(this.translate.instant('sitnet_retrial_permitted'));
         });
-    };
+    }
 
     cancel = () => this.modal.dismiss();
 
@@ -57,5 +57,5 @@ export class AbortedExamsComponent {
             this.reverse = !this.reverse;
         }
         this.abortedPredicate = predicate;
-    };
+    }
 }

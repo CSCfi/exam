@@ -27,7 +27,7 @@ export interface AppConfig {
 
 @Component({
     templateUrl: './settings.component.html',
-    selector: 'settings',
+    selector: 'app-settings',
 })
 export class SettingsComponent implements OnInit {
     config: AppConfig;
@@ -36,7 +36,7 @@ export class SettingsComponent implements OnInit {
     constructor(private translate: TranslateService, private http: HttpClient) {}
 
     private onSuccess = () =>
-        toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
+        toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'))
 
     private onError = (error: string) => toast.error(error);
 
@@ -47,17 +47,17 @@ export class SettingsComponent implements OnInit {
     }
 
     updateAgreement = () =>
-        this.http.put('/app/settings/agreement', { value: this.config.eula }).subscribe(this.onSuccess, this.onError);
+        this.http.put('/app/settings/agreement', { value: this.config.eula }).subscribe(this.onSuccess, this.onError)
 
     updateDeadline = () =>
         this.http
             .put('/app/settings/deadline', { value: this.config.reviewDeadline })
-            .subscribe(this.onSuccess, this.onError);
+            .subscribe(this.onSuccess, this.onError)
 
     updateReservationWindow = () =>
         this.http
             .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
-            .subscribe(this.onSuccess, this.onError);
+            .subscribe(this.onSuccess, this.onError)
 
     showAttributes = () => this.http.get('/attributes').subscribe((resp: string[]) => (this.attributes = resp));
 }

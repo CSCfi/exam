@@ -52,7 +52,7 @@ interface ExamInfo {
             </div>
         </div>
     `,
-    selector: 'exam-statistics',
+    selector: 'app-exam-statistics',
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: { start: string; end: string };
@@ -88,7 +88,7 @@ export class ExamStatisticsComponent implements OnInit {
 
                     return 0;
                 });
-            });
+            })
 
     getRank = (index: number, items: ExamInfo[]) => {
         const prev = Math.max(0, index - 1);
@@ -98,5 +98,5 @@ export class ExamStatisticsComponent implements OnInit {
         }
         items[index].rank = index;
         return index + 1;
-    };
+    }
 }

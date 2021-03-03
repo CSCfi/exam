@@ -25,7 +25,7 @@ interface NavigationPage {
 }
 
 @Component({
-    selector: 'examination-navigation',
+    selector: 'app-examination-navigation',
     templateUrl: './examinationNavigation.component.html',
 })
 export class ExaminationNavigationComponent {
@@ -60,17 +60,17 @@ export class ExaminationNavigationComponent {
             const prevIndex = this.prevPageIndex();
             this.prev = prevIndex > -1 ? this.pages[prevIndex] : { valid: false };
         }
-    };
+    }
 
     private activePageIndex = () => {
         const page = this.pages.filter(p => this.activeSection.id === p.id)[0];
         return this.pages.indexOf(page);
-    };
+    }
 
     private nextPageIndex = () => {
         const activeIndex = this.activePageIndex();
         return activeIndex + 1 === this.pages.length ? -1 : activeIndex + 1;
-    };
+    }
 
     private prevPageIndex = () => this.activePageIndex() - 1;
 

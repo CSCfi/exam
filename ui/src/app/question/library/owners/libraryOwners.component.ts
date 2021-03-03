@@ -26,7 +26,7 @@ import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { User } from '../../../session/session.service';
 @Component({
-    selector: 'library-owner-selection',
+    selector: 'app-library-owner-selection',
     template: `
         <div class="make-inline">
             <div class="question-add-owners-box">
@@ -76,9 +76,9 @@ export class LibraryOwnersComponent implements OnInit {
     }
 
     private filterByName = (src: User[], q: string): User[] => {
-        if (!q) return src;
+        if (!q) { return src; }
         return src.filter(u => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
-    };
+    }
 
     listTeachers$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -90,7 +90,7 @@ export class LibraryOwnersComponent implements OnInit {
                 toast.error(err.data);
                 return throwError(err);
             }),
-        );
+        )
 
     nameFormatter = (data: { name: string; email: string }) => `${data.name}${data.email ? ' ' + data.email : ''}`;
 
@@ -113,5 +113,5 @@ export class LibraryOwnersComponent implements OnInit {
             },
             () => toast.info(this.translate.instant('sitnet_update_failed')),
         );
-    };
+    }
 }

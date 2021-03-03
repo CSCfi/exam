@@ -31,7 +31,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
 
 @Component({
     templateUrl: './roomList.component.html',
-    selector: 'room-list',
+    selector: 'app-room-list',
 })
 export class RoomListComponent implements OnInit {
     user: User;
@@ -68,11 +68,11 @@ export class RoomListComponent implements OnInit {
 
     disableRoom = (room: ExamRoom) => {
         this.room.disableRoom(room);
-    };
+    }
 
     enableRoom = (room: ExamRoom) => {
         this.room.enableRoom(room);
-    };
+    }
 
     // Called when create exam button is clicked
     createExamRoom = () => {
@@ -85,16 +85,16 @@ export class RoomListComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
+    }
 
     isArchived = (machine: ExamMachine) => {
         return machine.archived === false;
-    };
+    }
 
     displayAddress = (address: Address) => {
-        if (!address || (!address.street && !address.city && !address.zip)) return 'N/A';
+        if (!address || (!address.street && !address.city && !address.zip)) { return 'N/A'; }
         const street = address.street ? address.street + ', ' : '';
         const city = (address.city || '').toUpperCase();
         return street + address.zip + ' ' + city;
-    };
+    }
 }

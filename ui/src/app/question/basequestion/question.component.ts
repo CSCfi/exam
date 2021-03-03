@@ -28,7 +28,7 @@ import { User } from '../../session/session.service';
 import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'question',
+    selector: 'app-question',
     templateUrl: './question.component.html',
 })
 export class QuestionComponent implements OnInit {
@@ -109,14 +109,14 @@ export class QuestionComponent implements OnInit {
     clearListeners = () => {
         this.window.nativeWindow.onbeforeunload = null;
         delete this.transitionWatcher;
-    };
+    }
 
     hasNoCorrectOption = () =>
-        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every(o => !o.correctOption);
+        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every(o => !o.correctOption)
 
     hasInvalidClaimChoiceOptions = () =>
         this.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
+        this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0
 
     saveQuestion = () => {
         this.question.questionOwners = this.currentOwners;
@@ -139,7 +139,7 @@ export class QuestionComponent implements OnInit {
                 error => toast.error(error),
             );
         }
-    };
+    }
 
     cancel = () => {
         toast.info(this.translate.instant('sitnet_canceled'));
@@ -150,5 +150,5 @@ export class QuestionComponent implements OnInit {
         } else if (this.onSave) {
             this.onCancel.emit();
         }
-    };
+    }
 }

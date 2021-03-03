@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as toast from 'toastr';
 
 import { ExamMaterial } from '../../exam.model';
 
 @Component({
-    selector: 'exam-material',
+    selector: 'app-exam-material',
     templateUrl: './examMaterial.component.html',
 })
-export class ExamMaterialComponent {
+export class ExamMaterialComponent implements OnInit {
     constructor(private activeModal: NgbActiveModal, private http: HttpClient) {}
 
     materials: ExamMaterial[] = [];
@@ -41,7 +41,7 @@ export class ExamMaterialComponent {
     filterMaterials = () =>
         (this.filteredMaterials = this.materials.filter(
             m => m.name.startsWith(this.filter) || m.author?.startsWith(this.filter) || m.isbn?.startsWith(this.filter),
-        ));
+        ))
 
     createMaterial = () => {
         this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe(
@@ -53,7 +53,7 @@ export class ExamMaterialComponent {
             },
             err => toast.error(err),
         );
-    };
+    }
 
     removeMaterial = (material: ExamMaterial) => {
         this.http.delete(`/app/materials/${material.id}`).subscribe(
@@ -64,7 +64,7 @@ export class ExamMaterialComponent {
             },
             err => toast.error(err),
         );
-    };
+    }
 
     ok = () => this.activeModal.close();
 }

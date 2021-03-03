@@ -146,28 +146,28 @@ export class RoomService {
 
     /* TODO, check these text response APIs on backend side, doesn't seem legit */
     updateRoom = (room: ExamRoom) =>
-        this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' });
+        this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' })
 
     inactivateRoom = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
 
     activateRoom = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
 
     updateAddress = (address: Address) =>
-        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' });
+        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' })
 
     getAvailability = (roomId: number, date: string) =>
-        this.http.get<Availability[]>(this.availabilityApi(roomId, date));
+        this.http.get<Availability[]>(this.availabilityApi(roomId, date))
 
     updateWorkingHoursData = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
 
     updateExamStartingHours = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
-        this.http.put(this.examStartingHoursApi(), data);
+        this.http.put(this.examStartingHoursApi(), data)
 
     updateExceptions = (roomIds: number[], exception: ExceptionWorkingHours) =>
-        this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
+        this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception })
 
     private removeException = (roomId: number, exceptionId: number) =>
-        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
+        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' })
 
     getDraft = () => this.http.get<ExamRoom>(this.draftApi());
 
@@ -182,7 +182,7 @@ export class RoomService {
             }
         }
         return false;
-    };
+    }
 
     isEmpty = (week: Week, day: Weekday) => {
         for (let i = 0; i < week[day].length; ++i) {
@@ -191,15 +191,15 @@ export class RoomService {
             }
         }
         return true;
-    };
+    }
 
     getTimes = () => {
         return cloneDeep(this.times);
-    };
+    }
 
     getWeek = () => {
         return cloneDeep(this.week);
-    };
+    }
 
     disableRoom = (room: ExamRoom) => {
         const dialog = this.dialogs.open(
@@ -217,7 +217,7 @@ export class RoomService {
                     toast.error(error.data);
                 }),
         );
-    };
+    }
 
     enableRoom = (room: ExamRoom) =>
         this.activateRoom(room.id)
@@ -227,7 +227,7 @@ export class RoomService {
             })
             .catch(error => {
                 toast.error(error.data);
-            });
+            })
 
     addException = (ids: number[], exception: ExceptionWorkingHours) =>
         new Promise<ExceptionWorkingHours>((resolve, reject) => {
@@ -241,7 +241,7 @@ export class RoomService {
                     reject();
                 },
             );
-        });
+        })
 
     openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) => {
         this.ngbModal
@@ -254,7 +254,7 @@ export class RoomService {
             })
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
-    };
+    }
 
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
@@ -268,12 +268,12 @@ export class RoomService {
                     reject(error);
                 },
             );
-        });
+        })
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
         event.startDate = moment(event.startDate).format();
         event.endDate = moment(event.endDate).format();
-    };
+    }
 
     updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
         new Promise<void>((resolve, reject) => {
@@ -290,7 +290,7 @@ export class RoomService {
                     reject();
                 },
             );
-        });
+        })
 
     updateWorkingHours = (week: Week, ids: number[]) => {
         const data: WorkingHoursObject = {};
@@ -304,7 +304,7 @@ export class RoomService {
                     const block = blocks[i];
                     const start = formatTime(times[block[0]] || '0:00');
                     const end = formatTime(times[block[block.length - 1] + 1]);
-                    weekdayBlocks.blocks.push({ start: start, end: end });
+                    weekdayBlocks.blocks.push({ start, end });
                 }
                 workingHours.push(weekdayBlocks);
             }
@@ -319,5 +319,5 @@ export class RoomService {
                 toast.error(error.data);
             },
         );
-    };
+    }
 }

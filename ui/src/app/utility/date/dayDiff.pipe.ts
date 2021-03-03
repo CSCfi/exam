@@ -25,5 +25,5 @@ export class DiffInDaysPipe implements PipeTransform {
             return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
         }
         return '<span>' + Math.floor(diff) + '</span>';
-    };
+    }
 }

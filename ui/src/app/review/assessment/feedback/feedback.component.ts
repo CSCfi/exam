@@ -26,7 +26,7 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 
 import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
-    selector: 'r-feedback',
+    selector: 'app-r-feedback',
     templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent implements OnInit {
@@ -59,7 +59,7 @@ export class FeedbackComponent implements OnInit {
         } else {
             this.Assessment.saveFeedback$(this.exam).subscribe();
         }
-    };
+    }
 
     selectFile = () => {
         this.Attachment.selectFile(true, {}).then(
@@ -74,7 +74,7 @@ export class FeedbackComponent implements OnInit {
                 }),
             noop,
         );
-    };
+    }
 
     downloadFeedbackAttachment = () => {
         const attachment = this.exam.examFeedback?.attachment;
@@ -84,7 +84,7 @@ export class FeedbackComponent implements OnInit {
         this.collaborative && attachment.externalId
             ? this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName)
             : this.Attachment.downloadFeedbackAttachment(this.exam);
-    };
+    }
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
@@ -96,5 +96,5 @@ export class FeedbackComponent implements OnInit {
         } else {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
-    };
+    }
 }
