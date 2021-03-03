@@ -1,4 +1,4 @@
-<div id="dashboard" class="marl20">
+<div id="dashboard" class="ml-2 mr-2 mt-2">
     <!-- Finished exams list -->
     <div class="top-row">
         <div class="col-md-12">
@@ -9,9 +9,9 @@
                 </h1>
             </div>
         </div>
-        <div class="row marl20 mart10">
+        <div class="row ml-2 mr-2 mt-1">
             <div class="col-md-12">
-                <div class="row mart10 align-items-center">
+                <div class="row mt-1 align-items-center">
                     <div class="col-auto p-1">
                         <img class="nopad" src="/assets/assets/images/icon_info.png" class="padr10" alt="info-icon" />
                         &nbsp;
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="row mart20 marl20">
+    <div class="row mt-2">
         <div class="col-6">
             <div class="form-group input-group search">
                 <input
@@ -35,7 +35,7 @@
                     [(ngModel)]="filter.text"
                     type="text"
                     (ngModelChange)="search($event)"
-                    class="form-control hgt40 marl15"
+                    class="form-control hgt40"
                     placeholder="{{ 'sitnet_search' | translate }}"
                 />
                 <div class="input-group-addon search">
@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="col-6" ngbDropdown>
-            <button class="btn btn-outline-dark" type="button" ngbDropdownToggle aria-expanded="true">
+            <button class="float-right btn btn-outline-dark" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ 'sitnet_set_ordering' | translate }}
             </button>
             <div ngbDropdownMenu role="menu">

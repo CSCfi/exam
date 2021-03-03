@@ -2,9 +2,9 @@
     class="student-enrolment-wrapper row align-items-center"
     [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
 >
-    <div class="col-xs-12 col-sm-12 col-md-10">
+    <div class="col-12 col-sm-12 col-md-10">
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 pad5">
+            <div class="col-12 col-sm-12 col-md-2 col-lg-2 pad5">
                 <span class="student-exam-row-title-blue">
                     <a
                         *ngIf="!collaborative"
@@ -21,16 +21,16 @@
                     {{ 'sitnet_state_needs_reservation_title' | translate }}
                 </span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
+            <div class="col-6 col-sm-6 col-md-2 col-lg-2 pad5">
                 <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3 pad5">
                 <course-code (hidden)="(collaborative)" [course]="exam.course"></course-code> {{ exam.course.name }}
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
+            <div class="col-6 col-sm-6 col-md-2 col-lg-2 pad5">
                 <span>{{ 'sitnet_exam_validity' | translate }}:</span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3 pad5">
                 <span
                     >{{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} &ndash;
                     {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}</span
@@ -38,24 +38,24 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 pad5"></div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
+            <div class="col-12 col-sm-12 col-md-2 col-lg-2 pad5"></div>
+            <div class="col-6 col-sm-6 col-md-2 col-lg-2 pad5">
                 <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}:</span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3 pad5">
                 <span [hidden]="collaborative">
                     <teacher-list [exam]="exam"></teacher-list>
                 </span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 pad5">
+            <div class="col-6 col-sm-6 col-md-2 col-lg-2 pad5">
                 <span>{{ 'sitnet_exam_language' | translate }}:</span>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 pad5">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3 pad5">
                 <span>{{ exam.languages.join(', ') }}</span>
             </div>
         </div>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 float-right">
+    <div class="col-12 col-sm-12 col-md-2 col-lg-2 float-right">
         <div class="student-message-dialog-button-save" *ngIf="!exam.alreadyEnrolled">
             <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling">
                 {{ 'sitnet_enroll_to_exam' | translate }}

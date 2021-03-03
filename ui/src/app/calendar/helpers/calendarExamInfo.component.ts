@@ -2,10 +2,10 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import type { Exam } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamInfo } from '../calendar.component';
 
+import type { Exam } from '../../exam/exam.model';
 @Component({
     selector: 'calendar-exam-info',
     template: `
@@ -30,26 +30,24 @@ import { ExamInfo } from '../calendar.component';
                 <div class="row mart10">
                     <div class="col-md-12">
                         <div class="row">
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                                {{ 'sitnet_course_name' | translate }}:
-                            </div>
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 <course-code [course]="examInfo.course"></course-code>
                                 {{ examInfo.course.name }}
                             </div>
                             <div class="clearfix visible-xs"></div>
                             <div class="clearfix visible-sm"></div>
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 {{ 'sitnet_exam_validity' | translate }}:
                             </div>
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
                                 {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
                             </div>
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 {{ 'sitnet_exam_duration' | translate }}:
                             </div>
-                            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 {{ printExamDuration(examInfo) }}
                             </div>
                         </div>

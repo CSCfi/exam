@@ -114,7 +114,7 @@
                                 <span *ngIf="disableLinks">#{{ question.id }}</span>
                                 <i
                                     *ngIf="question.questionOwners.length > 1"
-                                    class="bi-people text-primary"
+                                    class="bi-people pl-2 text-primary"
                                     ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
                                     popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
@@ -188,7 +188,7 @@
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
                 <tr *ngIf="questions.length == 0">
-                    <td colspan="9">{{ 'sitnet_exam_library_no_results' | translate }}</td>
+                    <td colspan="10">{{ 'sitnet_exam_library_no_results' | translate }}</td>
                 </tr>
             </tbody>
         </table>

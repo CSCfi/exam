@@ -14,9 +14,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ${SED} -i "s/version := .*/version := \"$1\"/g" "${DIR}/../../build.sbt"
 ${SED} -i "s/exam.release.version = .*/exam.release.version = \"$1\"/g" "${DIR}/../../conf/application.conf"
-${SED} -i "s/\"version\": .*/\"version\": \"$1\",/g" "${DIR}/../../app/frontend/package.json"
+${SED} -i "s/\"version\": .*/\"version\": \"$1\",/g" "${DIR}/../../ui/package.json"
 
-npm i --prefix app/frontend
+npm i --prefix ui
 
 echo "Version bumped to $1"
 exit 0;

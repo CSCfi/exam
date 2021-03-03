@@ -9,16 +9,17 @@ import type { Organisation } from '../calendar.component';
         <div class="row student-enrolment-wrapper details-view row" [ngClass]="selectedOrganisation ? '' : 'notactive'">
             <div class="col-md-12">
                 <div class="row">
-                    <span class="col-md-12">
+                    <span class="col-md-11 col-9">
                         <span class="calendar-phase-title">
                             {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
-                            <small>
-                                <button class="btn btn-sm btn-link infolink" (click)="makeInternalReservation()">
+                            <small class="col-12 pl-0">
+                                <button class="btn btn-sm btn-outline-dark" (click)="makeInternalReservation()">
                                     {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                                    <i class="bi-chevron-double-right"></i>
                                 </button>
                             </small>
                         </span>
+                    </span>
+                    <span class="col-md-1 col-3">
                         <span class="calendar-phase-icon float-right" *ngIf="selectedOrganisation">
                             <img
                                 class="arrow_icon"
