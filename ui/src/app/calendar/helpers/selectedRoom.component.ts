@@ -12,43 +12,46 @@ import type { OpeningHours } from '../calendar.service';
     selector: 'calendar-selected-room',
     template: `
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-3 col-12">
                 <strong>{{ room.name }}</strong>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-9 col-12">
                 {{ room.mailAddress.street }} {{ room.mailAddress.zip }}
                 {{ room.mailAddress.city }}
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-3">{{ 'sitnet_room_default_working_hours' | translate }}:</div>
-            <div class="col-md-9">
-                <span *ngFor="let oh of openingHours; let isLast = last">
-                    {{ oh.name }}: {{ oh.periodText }}<span *ngIf="!isLast"> | </span>
-                </span>
-                <span> ({{ room.localTimezone }})</span>
+        <div class="row mt-2">
+            <div class="col-md-3 col-12">
+                <div>{{ 'sitnet_room_default_working_hours' | translate }}</div>
+                <div>
+                    <small class="text-muted">({{ room.localTimezone }})</small>
+                </div>
+            </div>
+            <div class="col-md-9 col-12">
+                <div *ngFor="let oh of openingHours">{{ oh.name | uppercase }}: {{ oh.periodText }}</div>
+                <div></div>
             </div>
         </div>
-        <div class="row" *ngIf="exceptionHours?.length > 0">
-            <div class="col-md-3">{{ 'sitnet_exception_datetimes' | translate }}:</div>
-            <div class="col-md-9">
-                <span
-                    *ngFor="let eh of exceptionHours; let isLast = last"
+        <div class="row mt-2" *ngIf="exceptionHours?.length > 0">
+            <div class="col-md-3 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
+            <div class="col-md-9 col-12">
+                <div
+                    *ngFor="let eh of exceptionHours"
                     [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ eh.description | translate }}"
                 >
-                    {{ eh.start }} - {{ eh.end }}<span *ngIf="!isLast"> | </span>
-                </span>
+                    {{ eh.start }} - {{ eh.end }}
+                </div>
             </div>
         </div>
-        <div class="row" *ngIf="getRoomInstructions()">
-            <div class="col-md-3">{{ 'sitnet_instructions' | translate }}:</div>
-            <div class="col-md-9">{{ getRoomInstructions() }}</div>
+        <div class="row mt-2" *ngIf="getRoomInstructions()">
+            <div class="col-md-3 col-12">{{ 'sitnet_instructions' | translate }}:</div>
+            <div class="col-md-9 col-12">{{ getRoomInstructions() }}</div>
         </div>
-        <div class="row" *ngIf="getRoomAccessibility()">
-            <div class="col-md-3">{{ 'sitnet_accessibility' | translate }}:</div>
-            <div class="col-md-9">{{ getRoomAccessibility() }}</div>
+        <div class="row mt-2" *ngIf="getRoomAccessibility()">
+            <div class="col-md-3 col-12">{{ 'sitnet_accessibility' | translate }}:</div>
+            <div class="col-md-9 col-12">{{ getRoomAccessibility() }}</div>
         </div>
     `,
 })

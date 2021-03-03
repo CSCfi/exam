@@ -11,8 +11,10 @@
   .detail-row {
     @extend .row;
     margin: 0;
-    padding-left: 1em;
-    padding-right: 1em;
+    @media (min-width: $sitnet-mobile) {
+      padding-left: 1em;
+      padding-right: 1em;
+    }  
   }
 
   .student-enrolment-wrapper {
@@ -22,8 +24,10 @@
     border-left: $sitnet-medium-green-new 4px solid;
     margin-left: 1.4em;
     margin-right: 1.4em;
+    @media (max-width: $sitnet-mobile) {
+      padding: 10px;
+    }
     padding: 30px;
-    //margin-bottom: 10px;
 
     &.details-view {
       margin-left: 3.7em;

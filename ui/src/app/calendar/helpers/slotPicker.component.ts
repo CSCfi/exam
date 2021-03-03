@@ -25,26 +25,27 @@ type AvailableSlot = Slot & { availableMachines: number };
     template: `<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
         <div class="col-md-12">
             <div class="row">
-                <span class="col-md-12">
+                <span class="col-md-11 col-9">
                     <span class="calendar-phase-title">
                         {{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}
-                        <small>
+                        <small class="col-12 pl-0">
                             <button
-                                class="btn btn-sm btn-link infolink"
+                                class="btn btn-sm btn-outline-dark"
                                 (click)="makeExternalReservation()"
                                 *ngIf="isInteroperable && !isExternal"
                             >
                                 {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                                <i class="bi-chevron-double-right"></i>
                             </button>
                         </small>
                     </span>
-                    <span class="calendar-phase-icon pull-right" *ngIf="selectedRoom">
+                </span>
+                <span class="col-md-1 col-3">
+                    <span class="calendar-phase-icon float-right" *ngIf="selectedRoom">
                         <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose room" />
                     </span>
                 </span>
             </div>
-            <div class="row">
+            <div class="row mt-2 mb-2">
                 <!-- todo: make this a component -->
                 <div class="col-md-12" [hidden]="isExternal">
                     <div class="row">

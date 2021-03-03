@@ -1,28 +1,28 @@
-<div id="dashboard" class="marl20">
-    <div class="top-row">
+<div id="dashboard">
+    <div class="top-row ml-2 mr-2">
         <div class="col-md-12">
             <div class="student-title-wrap">
                 <h1 class="student-enroll-title">{{ 'sitnet_exams' | translate }}</h1>
             </div>
         </div>
-        <div class="row marl20 mart10">
-            <div class="col-md-12">
-                <div class="row mart10 align-items-center">
-                    <div class="col-auto p-1">
-                        <img class="nopad" src="/assets/assets/images/icon_info.png" class="padr10" alt="info-icon" />
-                        &nbsp;
+    </div>
+    <div class="row ml-2 mr-2 mt-1">
+        <div class="col-md-12">
+            <div class="row mt-1 align-items-center">
+                <div class="col-1">
+                    <img class="nopad" src="/assets/assets/images/icon_info.png" class="pr-1" alt="info-icon" />
+                    &nbsp;
+                </div>
+                <div class="col">
+                    <div *ngIf="permissionCheck.active === false">
+                        {{ 'sitnet_exam_search_description' | translate }}
                     </div>
-                    <div class="col">
-                        <div *ngIf="permissionCheck.active === false">
-                            {{ 'sitnet_exam_search_description' | translate }}
-                        </div>
-                        <div *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</div>
-                    </div>
+                    <div *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row mart20 marl20" *ngIf="permissionCheck.active === false">
+    <div class="row ml-2 mr-2 mt-2" *ngIf="permissionCheck.active === false">
         <div class="col-md-12">
             <div class="form-group input-group search">
                 <input
@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    <div class="row mart20 marl20" *ngIf="exams.length > 0">
+    <div class="row mt-2 mr-2 ml-2" *ngIf="exams.length > 0">
         <div class="col-md-12">
             {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
             {{ 'sitnet_student_exam_search_result_continues' | translate }}
@@ -55,7 +55,7 @@
     </div>
 
     <div [@listAnimation]="exams.length">
-        <div class="row mart10" *ngFor="let exam of exams">
+        <div class="row ml-2 mr-2 mt-1" *ngFor="let exam of exams">
             <div class="col-md-12">
                 <exam-search-result [exam]="exam"></exam-search-result>
             </div>

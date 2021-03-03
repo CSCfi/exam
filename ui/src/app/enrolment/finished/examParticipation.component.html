@@ -16,15 +16,13 @@
         <div *ngIf="!collaborative" class="row">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
-                    <div *ngIf="participation.exam.course" class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+                    <div *ngIf="participation.exam.course" class="col-6 col-sm-6 col-md-3 col-lg-3">
                         <course-code [course]="participation.exam.course"></course-code>
                         {{ participation.exam.course?.name }}
                     </div>
-                    <div class="clearfix visible-xs"></div>
-                    <div class="clearfix visible-sm"></div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
-                    <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-5 col-lg-5">
                         <div>
                             <teacher-list [exam]="participation.exam" [useParent]="true"></teacher-list>
                         </div>
@@ -35,14 +33,12 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_endtime' | translate }}:</div>
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_endtime' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-3 col-lg-3">
                         {{ participation.ended | applyDst | date: 'dd.MM.yyyy' }}
                     </div>
-                    <div class="clearfix visible-xs"></div>
-                    <div class="clearfix visible-sm"></div>
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
-                    <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">&nbsp;</div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
+                    <div class="col-6 col-sm-6 col-md-5 col-lg-5">&nbsp;</div>
                 </div>
             </div>
         </div>
