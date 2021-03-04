@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { noop } from 'rxjs';
@@ -24,17 +24,15 @@ import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection } from '../../exam.model';
+import { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
 @Component({
-    selector: 'section',
+    selector: 'app-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
 })
-export class SectionComponent {
+export class SectionComponent implements OnInit {
     @Input() section: ExamSection;
     @Input() index: number;
     @Input() examId: number;
@@ -42,15 +40,15 @@ export class SectionComponent {
     @Input() collaborative: boolean;
     @Input() materials: ExamMaterial[];
 
-    @Output() onDelete = new EventEmitter<ExamSection>();
-    @Output() onMaterialsChanged = new EventEmitter<void>();
+    @Output() deleted = new EventEmitter<ExamSection>();
+    @Output() materialsChanged = new EventEmitter<void>();
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
         private dialogs: ConfirmationDialogService,
-        private Question: QuestionService,
+        private QuestionSrv: QuestionService,
         private Files: FileService,
         private Exam: ExamService,
     ) {}
@@ -79,10 +77,10 @@ export class SectionComponent {
             return question.maxScore;
         }
         if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.Question.calculateMaxPoints(question);
+            return this.QuestionSrv.calculateMaxPoints(question);
         }
         if (type === 'ClaimChoiceQuestion') {
-            return this.Question.getCorrectClaimChoiceOptionScore(question);
+            return this.QuestionSrv.getCorrectClaimChoiceOptionScore(question);
         }
         return null;
     };
@@ -160,7 +158,7 @@ export class SectionComponent {
     };
 
     private openBaseQuestionEditor = () =>
-        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
+        this.QuestionSrv.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
             this.insertExamQuestion(resp, this.section.sectionQuestions.length),
         );
 
@@ -188,7 +186,7 @@ export class SectionComponent {
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_section'),
         );
-        dialog.result.then(() => this.onDelete.emit(this.section));
+        dialog.result.then(() => this.deleted.emit(this.section));
     };
 
     renameSection = () => this.updateSection(false);
@@ -196,7 +194,7 @@ export class SectionComponent {
 
     toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
 
-    materialsChanged = () => this.onMaterialsChanged.emit();
+    materialChange = () => this.materialsChanged.emit();
 
     toggleLottery = () => {
         if (this.toggleDisabled()) {
@@ -236,8 +234,8 @@ export class SectionComponent {
         if (from >= 0 && to >= 0 && from !== to) {
             this.http
                 .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/reorder`), {
-                    from: from,
-                    to: to,
+                    from,
+                    to,
                 })
                 .subscribe(() => {
                     toast.info(this.translate.instant('sitnet_questions_reordered'));

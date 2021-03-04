@@ -16,23 +16,10 @@
 package controllers.iop.collaboration.impl;
 
 import akka.actor.ActorSystem;
-import impl.EmailComposer;
-import models.Exam;
-import models.ExamExecutionType;
-import models.ExamType;
-import models.GradeScale;
-import models.Language;
-import models.User;
-import models.json.CollaborativeExam;
-import models.sections.ExamSection;
-import sanitizers.Attrs;
-import sanitizers.EmailSanitizer;
-import sanitizers.ExamUpdateSanitizer;
-import security.Authenticated;
-import util.config.ConfigReader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import java.net.URL;
 import java.util.List;
@@ -45,6 +32,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamExecutionType;
+import models.ExamType;
+import models.GradeScale;
+import models.Language;
+import models.User;
+import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
@@ -52,7 +47,12 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.EmailSanitizer;
+import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
 

@@ -7,10 +7,9 @@ import { cloneDeep } from 'lodash';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
-
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
@@ -49,7 +48,7 @@ export interface Availability {
 }
 
 export interface Address {
-    id: number;
+    id?: number;
     city: string;
     zip: string;
     street: string;
@@ -58,6 +57,8 @@ export interface Address {
 export interface InteroperableRoom extends ExamRoom {
     availableForExternals: boolean;
     externalRef: string | null;
+    videoRecordingsURL: string;
+    examStartingHours: WorkingHour[];
 }
 
 const blocksForDay = (week: Week, day: Weekday) => {
@@ -81,8 +82,8 @@ const blocksForDay = (week: Week, day: Weekday) => {
 const formatTime = (time: string) => {
     const hours = moment().isDST() ? 1 : 0;
     return moment()
-        .set('hour', parseInt(time.split(':')[0]) + hours)
-        .set('minute', parseInt(time.split(':')[1]))
+        .set('hour', parseInt(time.split(':')[0], 10) + hours)
+        .set('minute', parseInt(time.split(':')[1], 10))
         .format('DD.MM.YYYY HH:mmZZ');
 };
 
@@ -155,7 +156,7 @@ export class RoomService {
     updateAddress = (address: Address) =>
         this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' });
 
-    getAvailability = (roomId: number, date: string) =>
+    getAvailability$ = (roomId: number, date: string) =>
         this.http.get<Availability[]>(this.availabilityApi(roomId, date));
 
     updateWorkingHoursData = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
@@ -185,8 +186,8 @@ export class RoomService {
     };
 
     isEmpty = (week: Week, day: Weekday) => {
-        for (let i = 0; i < week[day].length; ++i) {
-            if (week[day][i].type !== '') {
+        for (const d of week[day]) {
+            if (d.type !== '') {
                 return false;
             }
         }
@@ -300,11 +301,10 @@ export class RoomService {
             if (Object.prototype.hasOwnProperty.call(week, day)) {
                 const blocks = blocksForDay(week, day as Weekday);
                 const weekdayBlocks: WeekdayBlock = { weekday: day as Weekday, blocks: [] };
-                for (let i = 0; i < blocks.length; ++i) {
-                    const block = blocks[i];
+                for (const block of blocks) {
                     const start = formatTime(times[block[0]] || '0:00');
                     const end = formatTime(times[block[block.length - 1] + 1]);
-                    weekdayBlocks.blocks.push({ start: start, end: end });
+                    weekdayBlocks.blocks.push({ start, end });
                 }
                 workingHours.push(weekdayBlocks);
             }

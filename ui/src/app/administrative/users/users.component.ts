@@ -1,16 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../session/session.service';
-import { PermissionType, UserManagementService } from './users.service';
-
-import type { OnInit } from '@angular/core';
-import type { User } from '../../session/session.service';
-import type { Permission } from './users.service';
+import { SessionService, User } from '../../session/session.service';
+import { Permission, PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -34,9 +30,9 @@ interface UserWithOptions extends User {
 
 @Component({
     templateUrl: './users.component.html',
-    selector: 'users',
+    selector: 'app-users',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];
     filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
@@ -165,11 +161,7 @@ export class UsersComponent implements OnInit {
 
     removeRole = (user: UserWithOptions, role: RoleOption) => {
         this.userManagement.removeRole(user.id, role.type).subscribe(() => {
-            const i = user.roles
-                .map(function (r) {
-                    return r.name;
-                })
-                .indexOf(role.type);
+            const i = user.roles.map((r) => r.name).indexOf(role.type);
             user.roles.splice(i, 1);
             this.updateEditOptions(user);
             this.filterUsers();
@@ -178,11 +170,7 @@ export class UsersComponent implements OnInit {
 
     removePermission = (user: UserWithOptions, permission: PermissionOption) => {
         this.userManagement.removePermission(user.id, permission.type).subscribe(() => {
-            const i = user.permissions
-                .map(function (p) {
-                    return p.type;
-                })
-                .indexOf(permission.type);
+            const i = user.permissions.map((p) => p.type).indexOf(permission.type);
             user.permissions.splice(i, 1);
             this.updateEditOptions(user);
             this.filterUsers();

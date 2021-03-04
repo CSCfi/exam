@@ -14,20 +14,20 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import type { ReviewQuestion } from '../../review.model';
+import { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'essay-answers',
+    selector: 'app-essay-answers',
     template: `
         <div class="top-row">
             <div class="col-md-12" *ngFor="let answer of answers">
-                <essay-answer
+                <app-essay-answer
                     [answer]="answer"
                     [editable]="editable"
                     [action]="actionText"
                     (onSelection)="assessEssay(answer)"
-                ></essay-answer>
+                ></app-essay-answer>
             </div>
             <div *ngIf="answers.length === 0" class="col-md-12">
                 <div class="jumbotron padl20">
@@ -47,7 +47,7 @@ export class EssayAnswerListComponent {
     @Input() editable: boolean;
     @Input() isPremature: boolean;
     @Input() actionText: string;
-    @Output() onAssessed = new EventEmitter<ReviewQuestion[]>();
+    @Output() assessed = new EventEmitter<ReviewQuestion[]>();
 
     constructor(private QuestionReview: QuestionReviewService) {}
 
@@ -58,11 +58,11 @@ export class EssayAnswerListComponent {
         return this.answers.filter(this.QuestionReview.isAssessed).length;
     };
 
-    assessSelected = () => this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
+    assessSelected = () => this.assessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
 
     assessEssay = (answer: ReviewQuestion) => {
         if (this.QuestionReview.isAssessed(answer)) {
-            this.onAssessed.emit([answer]);
+            this.assessed.emit([answer]);
         }
     };
 }

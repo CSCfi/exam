@@ -1,11 +1,7 @@
 package controllers.integration;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExamEnrolment;
-import models.Software;
-import models.base.GeneratedIdentityModel;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
@@ -15,6 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.ExamEnrolment;
+import models.Software;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;

@@ -10,19 +10,19 @@
     <div class="tab-wrapper-exams">
         <div class="review-border">
             <!-- Under review language inspection -->
-            <unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
-            </unfinished-inspections>
+            <app-unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
+            </app-unfinished-inspections>
         </div>
 
         <div class="review-border">
             <!-- Reviewed language inspection -->
-            <reviewed-inspections
+            <app-reviewed-inspections
                 *ngIf="processedInspections"
                 [inspections]="processedInspections"
-                (onEndDateChange)="endDateChanged($event)"
-                (onStartDateChange)="startDateChanged($event)"
+                (endDateChanged)="endDateChanged($event)"
+                (startDateChanged)="startDateChanged($event)"
             >
-            </reviewed-inspections>
+            </app-reviewed-inspections>
         </div>
     </div>
 </div>

@@ -44,8 +44,12 @@
             </span>
         </span>
         <div class="col-md-12">
-            <question-review *ngFor="let review of reviews" [review]="review" (onSelection)="onReviewSelection($event)">
-            </question-review>
+            <app-question-review
+                *ngFor="let review of reviews"
+                [review]="review"
+                (onSelection)="onReviewSelection($event)"
+            >
+            </app-question-review>
         </div>
 
         <div class="col-md-12 mart20">

@@ -116,7 +116,7 @@
                 </sup>
             </div>
             <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
-                <ckeditor
+                <app-ckeditor
                     id="editor"
                     name="editor"
                     rows="10"
@@ -124,9 +124,9 @@
                     #ck="ngModel"
                     [enableClozeTest]="question.type === 'ClozeTestQuestion'"
                     [(ngModel)]="question.question"
-                    required
+                    [required]
                 >
-                </ckeditor>
+                </app-ckeditor>
             </div>
         </div>
 
@@ -150,29 +150,29 @@
 
         <!-- Type specific content -->
         <div [ngSwitch]="question.type">
-            <essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></essay-editor>
-            <multiple-choice-editor
+            <app-essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></app-essay-editor>
+            <app-multiple-choice-editor
                 *ngSwitchCase="'MultipleChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
                 [lotteryOn]="lotteryOn"
                 [allowOptionRemoval]="!isInPublishedExam"
             >
-            </multiple-choice-editor>
-            <multiple-choice-editor
+            </app-multiple-choice-editor>
+            <app-multiple-choice-editor
                 *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
                 [lotteryOn]="lotteryOn"
                 [allowOptionRemoval]="!isInPublishedExam"
             >
-            </multiple-choice-editor>
-            <claim-choice-editor
+            </app-multiple-choice-editor>
+            <app-claim-choice-editor
                 *ngSwitchCase="'ClaimChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
             >
-            </claim-choice-editor>
+            </app-claim-choice-editor>
         </div>
 
         <!-- Evaluation type - not allowed if question is in use in other published exam. -->
@@ -215,8 +215,8 @@
                     lang="en"
                     class="form-control wdt100"
                     [(ngModel)]="question.defaultMaxScore"
-                    min="0"
-                    max="1000"
+                    [min]="0"
+                    [max]="1000"
                     required
                     [disabled]="lotteryOn"
                 />
@@ -398,7 +398,7 @@
         </div>
 
         <!-- Tags -->
-        <tag-picker *ngIf="!collaborative" [question]="question"></tag-picker>
+        <app-tag-picker *ngIf="!collaborative" [question]="question"></app-tag-picker>
 
         <!-- Categories -->
         <div class="row mt-2">

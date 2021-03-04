@@ -16,24 +16,23 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ExaminationStatusService } from './examination/examinationStatus.service';
-import { SessionService } from './session/session.service';
+import { SessionService, User } from './session/session.service';
 import { WindowRef } from './utility/window/window.service';
 
-import type { User } from './session/session.service';
 @Component({
-    selector: 'app',
+    selector: 'app-root',
     template: `
         <div *ngIf="!user && devLoginRequired">
-            <dev-login (onLoggedIn)="setUser($event)"></dev-login>
+            <app-dev-login (onLoggedIn)="setUser($event)"></app-dev-login>
         </div>
         <div *ngIf="user">
-            <navigation [hidden]="hideNavBar"></navigation>
+            <app-navigation [hidden]="hideNavBar"></app-navigation>
             <main
                 id="mainView"
                 class="container-fluid"
@@ -47,7 +46,7 @@ import type { User } from './session/session.service';
         </div>
     `,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
     user?: User;
     hideNavBar = false;
     devLoginRequired: boolean;
@@ -75,7 +74,7 @@ export class AppComponent {
     }
 
     ngOnInit() {
-        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
+        const storedUser: string = this.Window.nativeWindow.sessionStorage.EXAM_USER;
         if (storedUser) {
             const user = JSON.parse(storedUser);
             if (!user.loginRole) {

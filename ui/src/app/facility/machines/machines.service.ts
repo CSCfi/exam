@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import type { Software } from '../../exam/exam.model';
-import type { ExamMachine } from '../../reservation/reservation.model';
+import { Software } from '../../exam/exam.model';
+import { ExamMachine } from '../../reservation/reservation.model';
 
 @Injectable()
 export class MachineService {

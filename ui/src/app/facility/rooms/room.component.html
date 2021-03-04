@@ -34,7 +34,7 @@
                                     [(ngModel)]="room.name"
                                     required
                                     pattern="/^(?!\s*$).+/"
-                                    (blur)="showName = !showName; validateInputAndUpdateRoom($event)"
+                                    (blur)="showName = !showName; validateInputAndUpdateRoom('name')"
                                 />
                                 <div class="input-group-append">
                                     <button
@@ -59,7 +59,7 @@
                                 class="form-control"
                                 [(ngModel)]="room.roomCode"
                                 required
-                                (blur)="validateInputAndUpdateRoom($event)"
+                                (blur)="validateInputAndUpdateRoom('roomCode')"
                             />
                             <span class="input-group-append">
                                 <span class="input-group-text">
@@ -129,7 +129,7 @@
         </div>
     </div>
     <!-- IOP -->
-    <div class="row" [hidden]="editingMultipleRooms || !isInteroperable">
+    <div class="row" [hidden]="!isInteroperable">
         <div class="col">
             <div class="form-check">
                 <div class="col">
@@ -158,20 +158,20 @@
         <h3 class="col-md-12 header-text">{{ 'sitnet_room_default_working_hours' | translate }}</h3>
     </div>
     <div class="bottom-row">
-        <open-hours *ngIf="room" class="col-md-12" [week]="week" (onSelect)="updateWorkingHours()"></open-hours>
+        <app-open-hours *ngIf="room" class="col-md-12" [week]="week" (selected)="updateWorkingHours()"></app-open-hours>
     </div>
 
-    <starting-time *ngIf="room" [startingHours]="room.examStartingHours" [roomIds]="[room.id]"></starting-time>
+    <app-starting-time *ngIf="room" [startingHours]="room.examStartingHours" [roomIds]="[room.id]"></app-starting-time>
 
-    <exception-list
+    <app-exception-list
         *ngIf="room"
         [room]="room"
-        (onCreate)="addException($event)"
-        (onDelete)="deleteException($event)"
-    ></exception-list>
+        (created)="addException($event)"
+        (deleted)="deleteException($event)"
+    ></app-exception-list>
     <!-- Accessibility information -->
     <div class="detail-row">
-        <accessibility-selector *ngIf="room" [room]="room"></accessibility-selector>
+        <app-accessibility-selector *ngIf="room" [room]="room"></app-accessibility-selector>
     </div>
 
     <!-- Guidance & Contact person information -->
@@ -257,7 +257,7 @@
             <!-- Address -->
             <h3>{{ 'sitnet_exam_room_address' | translate }}</h3>
 
-            <exam-address [address]="room.mailAddress"></exam-address>
+            <app-exam-address [address]="room.mailAddress"></app-exam-address>
         </div>
     </div>
 

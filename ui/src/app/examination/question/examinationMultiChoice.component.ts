@@ -12,12 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { ExaminationQuestion, ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-multi-choice-question',
+    selector: 'app-examination-multi-choice-question',
     template: `
         <div class="bottom-padding-2">
             <fieldset>
@@ -48,7 +48,7 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
         </div>
     `,
 })
-export class ExaminationMultiChoiceComponent {
+export class ExaminationMultiChoiceComponent implements OnInit {
     @Input() sq: ExaminationQuestion;
     @Input() examHash: string;
     @Input() isPreview: boolean;

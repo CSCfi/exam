@@ -12,8 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
@@ -22,19 +21,18 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
-import { ReviewListService } from '../reviewList.service';
+import { Review } from '../../review.model';
+import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-graded',
+    selector: 'app-rl-graded',
     templateUrl: './graded.component.html',
 })
-export class GradedReviewsComponent {
+export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam: Exam;
     @Input() reviews: Review[];
     @Input() collaborative: boolean;
-    @Output() onRegistered = new EventEmitter<Review[]>();
+    @Output() registered = new EventEmitter<Review[]>();
     view: ReviewListView;
     selections: { all: boolean; page: boolean };
 
@@ -42,7 +40,7 @@ export class GradedReviewsComponent {
         private translate: TranslateService,
         private Confirmation: ConfirmationDialogService,
         private ReviewList: ReviewListService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Session: SessionService,
     ) {}
 
@@ -68,7 +66,7 @@ export class GradedReviewsComponent {
 
     sendSelectedToRegistry = () => {
         const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
-        if (selection.length == 0) {
+        if (selection.length === 0) {
             return;
         }
         const examId = this.collaborative ? this.exam.id : undefined;
@@ -78,7 +76,7 @@ export class GradedReviewsComponent {
         ).result.then(() =>
             forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
                 () => {
-                    this.onRegistered.emit(selection);
+                    this.registered.emit(selection);
                     toast.info(this.translate.instant('sitnet_results_send_ok'));
                 },
             ),
@@ -105,7 +103,7 @@ export class GradedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.ExamSrv.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -113,6 +111,6 @@ export class GradedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.ExamSrv.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

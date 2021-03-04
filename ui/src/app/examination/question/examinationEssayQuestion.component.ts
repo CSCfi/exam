@@ -12,25 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
-import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { AnsweredQuestion, AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { Examination, ExaminationService } from '../examination.service';
+import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
-import type { ExaminationQuestion } from '../examination.service';
-import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
-import type { EssayAnswer } from '../../exam/exam.model';
 @Component({
-    selector: 'examination-essay-question',
+    selector: 'app-examination-essay-question',
     templateUrl: './examinationEssayQuestion.component.html',
 })
-export class ExaminationEssayQuestionComponent {
-    @Input() sq: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
+export class ExaminationEssayQuestionComponent implements OnInit {
+    @Input() sq: ExaminationQuestion;
     @Input() exam: Examination;
     @Input() isPreview: boolean;
     constructor(
-        private Examination: ExaminationService,
+        private ExaminationSrv: ExaminationService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
@@ -39,11 +36,13 @@ export class ExaminationEssayQuestionComponent {
         if (!this.sq.essayAnswer) {
             Object.assign(this.sq, { essayAnswer: {} });
         }
-        this.Examination.setQuestionColors(this.sq);
+        this.ExaminationSrv.setQuestionColors(this.sq);
     }
-    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
+    saveAnswer = () => this.ExaminationSrv.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
     removeQuestionAnswerAttachment = () => {
-        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) return;
+        if (!this.sq.essayAnswer?.id || !this.sq.essayAnswer?.objectVersion) {
+            return;
+        }
         const answeredQuestion = this.sq as AnsweredQuestion; // TODO: no casting
         if (this.exam.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);

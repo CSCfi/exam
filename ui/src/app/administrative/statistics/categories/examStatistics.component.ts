@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 interface ExamInfo {
     name: string;
@@ -52,10 +51,10 @@ interface ExamInfo {
             </div>
         </div>
     `,
-    selector: 'exam-statistics',
+    selector: 'app-exam-statistics',
 })
 export class ExamStatisticsComponent implements OnInit {
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: { start?: string; end?: string; dept?: string };
     exams: ExamInfo[] = [];
 
     constructor(private http: HttpClient) {}
@@ -74,11 +73,17 @@ export class ExamStatisticsComponent implements OnInit {
                     return;
                 }
                 this.exams = resp.sort((a, b) => {
-                    if (a.participations > b.participations) return -1;
-                    else if (a.participations < b.participations) return 1;
+                    if (a.participations > b.participations) {
+                        return -1;
+                    } else if (a.participations < b.participations) {
+                        return 1;
+                    }
 
-                    if (a.name > b.name) return 1;
-                    else if (a.name < b.name) return -1;
+                    if (a.name > b.name) {
+                        return 1;
+                    } else if (a.name < b.name) {
+                        return -1;
+                    }
 
                     return 0;
                 });

@@ -4,7 +4,7 @@
             <!-- question text -->
             <div class="d-flex justify-content-between">
                 <!-- question title -->
-                <div class="review-question-title marr20" [MathJax]="sectionQuestion.question.question"></div>
+                <div class="review-question-title marr20" [appMathJax]="sectionQuestion.question.question"></div>
                 <!--chevron -->
                 <a (click)="reviewExpanded = !reviewExpanded">
                     <img
@@ -50,7 +50,7 @@
                 <div class="points-title">
                     <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <span [MathJax]="sectionQuestion.essayAnswer?.answer"></span>
+                <span [appMathJax]="sectionQuestion.essayAnswer?.answer"></span>
             </div>
 
             <!-- answer attachment -->

@@ -21,6 +21,8 @@ import { OrderModule } from 'ngx-order-pipe';
 import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
+import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
 import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
@@ -54,20 +56,12 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         WrongLocationComponent,
         AddEnrolmentInformationDialogComponent,
         ActiveEnrolmentMenuComponent,
+        SelectExaminationEventDialogComponent,
+        ShowInstructionsDialogComponent,
     ],
     entryComponents: [
-        ActiveEnrolmentComponent,
-        EnrolmentDetailsComponent,
-        ExamEnrolmentsComponent,
-        CollaborativeParticipationsComponent,
-        ExamFeedbackComponent,
-        ExamParticipationComponent,
-        ExamParticipationsComponent,
-        CollaborativeExamSearchComponent,
-        ExamSearchComponent,
-        ExamSearchResultComponent,
-        WaitingRoomComponent,
-        WrongLocationComponent,
+        SelectExaminationEventDialogComponent,
+        ShowInstructionsDialogComponent,
         AddEnrolmentInformationDialogComponent,
     ],
     providers: [EnrolmentService, WrongLocationService],

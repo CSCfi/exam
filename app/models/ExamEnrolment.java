@@ -15,11 +15,6 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
-import models.json.CollaborativeExam;
-import models.json.ExternalExam;
-import util.datetime.DateTimeAdapter;
-import util.datetime.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.annotation.Nonnull;
@@ -30,9 +25,14 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.json.CollaborativeExam;
+import models.json.ExternalExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
+import util.datetime.DateTimeUtils;
 
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {

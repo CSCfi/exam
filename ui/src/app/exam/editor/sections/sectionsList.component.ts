@@ -12,27 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam } from '../../exam.model';
+import { Exam, ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
-
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import type { ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamTabService } from '../examTabs.service';
-import { StateService } from '@uirouter/core';
+
 @Component({
-    selector: 'sections',
+    selector: 'app-sections',
     templateUrl: './sectionsList.component.html',
 })
-export class SectionsListComponent implements OnChanges {
+export class SectionsListComponent implements OnInit, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 
@@ -42,7 +39,7 @@ export class SectionsListComponent implements OnChanges {
         private http: HttpClient,
         private translate: TranslateService,
         private State: StateService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Session: SessionService,
         private Tabs: ExamTabService,
     ) {}
@@ -69,7 +66,7 @@ export class SectionsListComponent implements OnChanges {
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
         const [from, to] = [event.previousIndex, event.currentIndex];
         if (from >= 0 && to >= 0 && from !== to) {
-            this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
+            this.ExamSrv.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
                 () => {
                     moveItemInArray(this.exam.examSections, from, to);
                     toast.info(this.translate.instant('sitnet_sections_reordered'));
@@ -80,7 +77,7 @@ export class SectionsListComponent implements OnChanges {
     };
 
     addNewSection = () => {
-        this.Exam.addSection$(this.exam, this.collaborative)
+        this.ExamSrv.addSection$(this.exam, this.collaborative)
             .pipe(
                 tap((es) => {
                     toast.success(this.translate.instant('sitnet_section_added'));
@@ -92,7 +89,7 @@ export class SectionsListComponent implements OnChanges {
     };
 
     updateExam = (silent: boolean) =>
-        this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
+        this.ExamSrv.updateExam$(this.exam, {}, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_exam_saved'));
@@ -101,13 +98,13 @@ export class SectionsListComponent implements OnChanges {
             catchError((resp) => toast.error(this.translate.instant(resp))),
         );
 
-    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
+    previewExam = (fromTab: number) => this.ExamSrv.previewExam(this.exam, fromTab, this.collaborative);
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
+    removeExam = () => this.ExamSrv.removeExam(this.exam, this.collaborative);
 
     removeSection = (section: ExamSection) => {
         this.http
-            .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
+            .delete(this.ExamSrv.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
             .subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_section_removed'));
@@ -117,7 +114,7 @@ export class SectionsListComponent implements OnChanges {
             );
     };
 
-    calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
+    calculateExamMaxScore = () => this.ExamSrv.getMaxScore(this.exam);
 
     nextTab = () => {
         this.Tabs.notifyTabChange(3);

@@ -1,6 +1,6 @@
 import { Pipe } from '@angular/core';
 
-import type { PipeTransform } from '@angular/core';
+import { PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'filterBy',

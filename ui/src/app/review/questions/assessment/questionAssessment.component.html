@@ -5,7 +5,7 @@
                 <div class="top-row">
                     <div class="col-md-8">
                         <div class="student-details-title-wrap">
-                            <history-back></history-back>
+                            <app-history-back></app-history-back>
                             <div class="student-exam-details-title">
                                 {{ 'sitnet_question_based_review' | translate }}
                             </div>
@@ -35,7 +35,7 @@
                         [ngClass]="selectedReview?.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
                         class="col-md-offset-1"
                     >
-                        <div class="review-question-title" [MathJax]="selectedReview?.question.question"></div>
+                        <div class="review-question-title" [appMathJax]="selectedReview?.question.question"></div>
                     </div>
                     <div *ngIf="selectedReview?.question.defaultAnswerInstructions" class="col-md-1">
                         <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
@@ -99,28 +99,28 @@
                                 <span class="badge badge-danger">{{ getUnassessedAnswerCount() }}</span>
                             </ng-template>
                             <ng-template ngbTabContent>
-                                <essay-answers
+                                <app-essay-answers
                                     [answers]="unassessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_move_to_assessed"
-                                    (onAssessed)="saveAssessments($event)"
+                                    (assessed)="saveAssessments($event)"
                                 >
-                                </essay-answers>
+                                </app-essay-answers>
                             </ng-template>
                         </ngb-tab>
                         <ngb-tab id="2">
                             <ng-template ngbTabTitle>
                                 {{ 'sitnet_assessed_exams' | translate }}
-                                <span class="badge badge-danger">{{ getAssessedAnswerCount() }}</span>
+                                <span class="badge badge-danger">{{ getAssessedAnswerCount(false) }}</span>
                             </ng-template>
                             <ng-template ngbTabContent>
-                                <essay-answers
+                                <app-essay-answers
                                     [answers]="assessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_grade_exams"
-                                    (onAssessed)="saveAssessments($event)"
+                                    (assessed)="saveAssessments($event)"
                                 >
-                                </essay-answers>
+                                </app-essay-answers>
                             </ng-template>
                         </ngb-tab>
                         <ngb-tab id="2">
@@ -129,12 +129,12 @@
                                 <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
                             </ng-template>
                             <ng-template ngbTabContent>
-                                <essay-answers
+                                <app-essay-answers
                                     [answers]="lockedAnswers"
                                     [editable]="false"
                                     actionText="sitnet_grade_exams"
                                 >
-                                </essay-answers>
+                                </app-essay-answers>
                             </ng-template>
                         </ngb-tab>
                     </ngb-tabset>
@@ -145,8 +145,8 @@
         <!-- END OF RIGHT COL -->
 
         <div class="col-md-4">
-            <question-flow *ngIf="reviews" [reviews]="reviews" (onSelection)="questionSelected($event)">
-            </question-flow>
+            <app-question-flow *ngIf="reviews" [reviews]="reviews" (selected)="questionSelected($event)">
+            </app-question-flow>
         </div>
     </div>
 </div>

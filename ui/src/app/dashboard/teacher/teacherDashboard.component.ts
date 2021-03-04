@@ -13,17 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { StateService } from '@uirouter/core';
+import { Component, OnInit } from '@angular/core';
+import { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 
-import type { ExamExecutionType } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
+import { ExamExecutionType } from '../../exam/exam.model';
+import { SessionService, User } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
-import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
-import { TeacherDashboardService } from './teacherDashboard.service';
+import {
+    ActiveExam,
+    ArchivedExam,
+    DraftExam,
+    FinalizedExam,
+    TeacherDashboardService,
+} from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;
@@ -32,7 +35,7 @@ interface ExtraColumn {
     checkOwnership: boolean;
 }
 @Component({
-    selector: 'teacher-dashboard',
+    selector: 'app-teacher-dashboard',
     templateUrl: './teacherDashboard.component.html',
 })
 export class TeacherDashboardComponent implements OnInit {
@@ -57,6 +60,7 @@ export class TeacherDashboardComponent implements OnInit {
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private searchFilter: ExamSearchPipe,
     ) {
         this.activeExtraColumns = [
@@ -105,7 +109,7 @@ export class TeacherDashboardComponent implements OnInit {
     }
 
     ngOnInit() {
-        const activeTab = this.state.params.tab;
+        const activeTab = this.routing.params.tab;
         this.activeTab = activeTab || '1';
         this.userId = this.Session.getUser().id;
         this.TeacherDashboard.populate().subscribe((dashboard) => {
@@ -124,13 +128,13 @@ export class TeacherDashboardComponent implements OnInit {
                                   { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
                               ]
                             : [];
-                    return { ...t, examinationTypes: examinationTypes };
+                    return { ...t, examinationTypes };
                 });
             });
         });
     }
 
-    changeTab = (event: NgbTabChangeEvent) => {
+    changeTab = (event: NgbNavChangeEvent) => {
         this.activeTab = event.nextId;
         this.state.go('dashboard', { tab: event.nextId });
     };

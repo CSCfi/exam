@@ -14,15 +14,15 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import type { Question, Tag } from '../../exam/exam.model';
+import { Question, Tag } from '../../exam/exam.model';
 
 @Component({
-    selector: 'tag-picker',
+    selector: 'app-tag-picker',
     templateUrl: './tagPicker.component.html',
 })
 export class TagPickerComponent {
@@ -36,11 +36,12 @@ export class TagPickerComponent {
             debounceTime(200),
             distinctUntilChanged(),
             exhaustMap((term) => {
-                if (term.length < 2) return from([]);
-                else {
+                if (term.length < 2) {
+                    return from([]);
+                } else {
                     return this.http
                         .get<Tag[]>('/app/tags', { params: { filter: term } })
-                        .pipe(map((tags) => ({ filter: term, tags: tags })));
+                        .pipe(map((tags) => ({ filter: term, tags })));
                 }
             }),
             map((resp) => {
@@ -59,7 +60,9 @@ export class TagPickerComponent {
     nameFormat = (tag: Tag) => tag.name;
 
     addTag = () => {
-        if (this.question.newTag) this.question.tags.push(this.question.newTag);
+        if (this.question.newTag) {
+            this.question.tags.push(this.question.newTag);
+        }
         delete this.question.newTag;
         this.tagName = '';
     };

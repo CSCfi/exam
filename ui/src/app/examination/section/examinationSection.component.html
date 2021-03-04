@@ -37,12 +37,12 @@
                 </span>
             </div>
         </div>
-        <examination-question
+        <app-examination-question
             *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
             [sq]="sq"
             [exam]="exam"
             [isPreview]="isPreview"
             [isCollaborative]="isCollaborative"
-        ></examination-question>
+        ></app-examination-question>
     </div>
 </div>

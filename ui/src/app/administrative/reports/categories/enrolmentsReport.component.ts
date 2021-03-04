@@ -17,7 +17,8 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
-import type { ExamName } from '../reports.service';
+import { Category } from '../reports.component';
+import { ExamName } from '../reports.service';
 
 @Component({
     template: `
@@ -29,12 +30,12 @@ import type { ExamName } from '../reports.service';
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
                 <label for="enrolment">{{ 'sitnet_select_exam' | translate }}</label>
-                <dropdown-select
+                <app-dropdown-select
                     id="enrolment"
                     *ngIf="examNames"
                     [options]="examNames"
-                    (onSelect)="enrolmentSelected($event)"
-                ></dropdown-select>
+                    (optionSelected)="enrolmentSelected($event)"
+                ></app-dropdown-select>
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="link"></label>
@@ -52,10 +53,10 @@ import type { ExamName } from '../reports.service';
             </div>
         </div>
     `,
-    selector: 'enrolments-report',
+    selector: 'app-enrolments-report',
 })
 export class EnrolmentsReportComponent {
-    @Input() examNames: ExamName[];
+    @Input() examNames: Category[];
     enrolment: ExamName;
 
     constructor(private translate: TranslateService, private files: FileService) {}

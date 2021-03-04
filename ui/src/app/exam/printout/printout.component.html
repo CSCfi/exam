@@ -25,7 +25,7 @@
                             >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
                             course:</strong
                         ><br />
-                        <h4><course-code [course]="exam.course"></course-code></h4>
+                        <h4><app-course-code [course]="exam.course"></app-course-code></h4>
                         <h4>{{ exam.course.name }}</h4>
                     </td>
                 </tr>
@@ -54,7 +54,7 @@
                 <tr>
                     <td rowspan="2" class="multirow">
                         <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
-                        <teacher-list [exam]="exam"></teacher-list>
+                        <app-teacher-list [exam]="exam"></app-teacher-list>
                     </td>
                     <td>
                         <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
@@ -141,12 +141,12 @@
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type !== 'ClozeTestQuestion'"
-                [MathJax]="esq.question.question"
+                [appMathJax]="esq.question.question"
             ></span>
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type === 'ClozeTestQuestion'"
-                [MathJax]="esq.clozeTestAnswer.question"
+                [appMathJax]="esq.clozeTestAnswer.question"
             ></span>
             <span
                 *ngIf="

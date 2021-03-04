@@ -29,7 +29,7 @@
     </div>
     <div class="col-md-6">
         <div id="filters" class="float-right form-group">
-            <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <span ngbDropdown [autoClose]="'outside'">
                 <button
                     class="btn btn-outline-secondary btn-sm"
                     type="button"
@@ -40,7 +40,13 @@
                     {{ 'sitnet_course' | translate }}&nbsp;
                     <span class="caret"></span>
                 </button>
-                <ul class="scrollable-menu" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                <ul
+                    class="scrollable-menu"
+                    style="padding-left: 0; min-width: 17em"
+                    role="menu"
+                    aria-labelledby="dropDownMenu1"
+                    ngbDropdownMenu
+                >
                     <li ngbDropdownItem role="presentation" class="input-group">
                         <input
                             [(ngModel)]="limitations.course"
@@ -62,7 +68,7 @@
                         (click)="applyFilter(course)"
                         ngbDropdownItem
                     >
-                        <a role="menuitem">{{ course.name }}</a>
+                        <a role="menuitem">{{ course.name | slice: 0:30 }}</a>
                     </li>
                 </ul>
             </span>
@@ -98,7 +104,7 @@
                         (click)="applyFilter(exam)"
                         ngbDropdownItem
                     >
-                        <a role="menuitem">{{ exam.name }}</a>
+                        <a role="menuitem">{{ exam.name | slice: 0:30 }}</a>
                     </li>
                 </ul>
             </span>
@@ -115,7 +121,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                    <li ngbDropdownItem role="presentation" class="input-group">
+                    <li ngbDropdownItem role="presentation" class="input-group" style="padding: 0.25rem 0.7rem">
                         <input
                             [(ngModel)]="limitations.tag"
                             (ngModelChange)="filterTags()"
@@ -136,13 +142,13 @@
                         (click)="applyFilter(tag)"
                         ngbDropdownItem
                     >
-                        <div
+                        <a
                             role="menuitem"
                             [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'"
                             title="{{ tag.isSectionTag ? 'sitnet_exam_section' : ('sitnet_category' | translate) }}"
                         >
-                            {{ tag.name }}
-                        </div>
+                            {{ tag.name | slice: 0:30 }}
+                        </a>
                     </li>
                 </ul>
             </span>

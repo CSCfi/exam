@@ -20,7 +20,7 @@ import { FileService } from '../../utility/file/file.service';
 import { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
-    selector: 'exam-feedback',
+    selector: 'app-exam-feedback',
     templateUrl: './examFeedback.component.html',
 })
 export class ExamFeedbackComponent {

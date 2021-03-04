@@ -15,13 +15,6 @@
 
 package models.sections;
 
-import models.api.Scorable;
-import models.api.Sortable;
-import models.base.OwnedModel;
-import models.questions.ClozeTestAnswer;
-import models.questions.EssayAnswer;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
@@ -45,6 +38,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import models.api.Scorable;
+import models.api.Sortable;
+import models.base.OwnedModel;
+import models.questions.ClozeTestAnswer;
+import models.questions.EssayAnswer;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;

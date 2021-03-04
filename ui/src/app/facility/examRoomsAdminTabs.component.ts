@@ -12,28 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, ViewChild } from '@angular/core';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgbNav, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as toast from 'toastr';
 
-import { SessionService } from '../session/session.service';
+import { SessionService, User } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
 import { RoomService } from './rooms/room.service';
 
-import type { OnInit } from '@angular/core';
-import type { User } from '../session/session.service';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-
 @Component({
     templateUrl: './examRoomsAdminTabs.component.html',
-    selector: 'exam-rooms-admin-tabs',
+    selector: 'app-exam-rooms-admin-tabs',
 })
 export class ExamRoomsAdminTabsComponent implements OnInit {
     user: User;
     activeTab: string;
-    @ViewChild('tabs', { static: false }) tabs: NgbTabset;
+    @ViewChild('tabs', { static: false }) tabs: NgbNav;
 
     constructor(
         private translate: TranslateService,
@@ -60,7 +56,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         );
     };
 
-    tabChanged = (event: NgbTabChangeEvent) => {
+    tabChanged = (event: NgbNavChangeEvent) => {
         this.activeTab = event.nextId;
     };
 

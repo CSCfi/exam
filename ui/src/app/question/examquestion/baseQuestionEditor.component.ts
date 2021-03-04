@@ -16,27 +16,26 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import { WindowRef } from '../../utility/window/window.service';
-
-import type { QuestionDraft } from '../question.service';
+import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'base-question-editor',
+    selector: 'app-base-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">
-                <question
+                <app-question
                     [newQuestion]="newQuestion"
                     [questionId]="questionId"
-                    (onSave)="onSave($event)"
+                    (saved)="onSave($event)"
                     (onCancel)="cancel()"
                     [questionDraft]="questionDraft"
                     [collaborative]="collaborative"
                     [lotteryOn]="lotteryOn"
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
-                ></question>
+                ></app-question>
             </div>
             <div class="modal-footer"></div>
         </div>
@@ -44,7 +43,7 @@ import type { QuestionDraft } from '../question.service';
 })
 export class BaseQuestionEditorComponent {
     @Input() newQuestion: boolean;
-    @Input() questionDraft: Question;
+    @Input() questionDraft: ReverseQuestion;
     @Input() questionId: number;
     @Input() collaborative: boolean;
     @Input() lotteryOn: boolean;

@@ -12,49 +12,47 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, TransitionService } from '@uirouter/core';
+import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
+import { User } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { QuestionService } from '../question.service';
-
-import type { OnInit } from '@angular/core';
-import type { User } from '../../session/session.service';
-import type { QuestionDraft } from '../question.service';
+import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
-    selector: 'question',
+    selector: 'app-question',
     templateUrl: './question.component.html',
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent implements OnInit, OnDestroy {
     @Input() newQuestion: boolean;
     @Input() questionId: number;
-    @Input() questionDraft: Question;
+    @Input() questionDraft: ReverseQuestion;
     @Input() lotteryOn: boolean;
     @Input() collaborative: boolean;
     @Input() examId: number;
     @Input() sectionQuestion: ExamSectionQuestion;
     @Input() nextState?: string;
 
-    @Output() onSave = new EventEmitter<Question | QuestionDraft>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<Question | QuestionDraft>();
+    @Output() canceled = new EventEmitter<void>();
 
     currentOwners: User[];
-    question: Question | QuestionDraft;
+    question: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
 
     constructor(
         private state: StateService,
+        private routing: UIRouterGlobals,
         private transition: TransitionService,
         private translate: TranslateService,
         private window: WindowRef,
         private dialogs: ConfirmationDialogService,
-        private Question: QuestionService,
+        private QuestionSrv: QuestionService,
     ) {
         this.transitionWatcher = this.transition.onStart({ to: '*' }, (t) => {
             if (this.window.nativeWindow.onbeforeunload) {
@@ -80,18 +78,18 @@ export class QuestionComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.nextState = this.nextState || this.state.params.next;
+        this.nextState = this.nextState || this.routing.params.next;
         this.currentOwners = [];
         if (this.newQuestion) {
-            this.question = this.Question.getQuestionDraft();
+            this.question = this.QuestionSrv.getQuestionDraft();
             this.currentOwners = _.clone(this.question.questionOwners);
         } else if (this.questionDraft && this.collaborative) {
             this.question = this.questionDraft;
             this.currentOwners = _.clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
-            this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
-                (question: Question) => {
+            this.QuestionSrv.getQuestion(this.questionId || this.routing.params.id).subscribe(
+                (question: ReverseQuestion) => {
                     this.question = question;
                     this.currentOwners = _.clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>
@@ -116,7 +114,7 @@ export class QuestionComponent implements OnInit {
 
     hasInvalidClaimChoiceOptions = () =>
         this.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
+        this.QuestionSrv.getInvalidClaimOptionTypes(this.question.options).length > 0;
 
     saveQuestion = () => {
         this.question.questionOwners = this.currentOwners;
@@ -124,17 +122,18 @@ export class QuestionComponent implements OnInit {
             this.clearListeners();
             if (this.nextState) {
                 this.state.go(this.nextState);
-            } else if (this.onSave) {
-                this.onSave.emit(q);
+            } else if (this.saved) {
+                // TODO: Check this condition weirdness
+                this.saved.emit(q);
             }
         };
 
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => toast.error(error));
+            this.QuestionSrv.createQuestion(this.question as QuestionDraft).then(fn, (error) => toast.error(error));
         } else {
-            this.Question.updateQuestion(this.question as Question).then(
+            this.QuestionSrv.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
                 (error) => toast.error(error),
             );
@@ -147,8 +146,9 @@ export class QuestionComponent implements OnInit {
         this.clearListeners();
         if (this.nextState) {
             this.state.go(this.nextState);
-        } else if (this.onSave) {
-            this.onCancel.emit();
+        } else if (this.saved) {
+            // TODO: check
+            this.canceled.emit();
         }
     };
 }

@@ -17,9 +17,9 @@ import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 
-import type { Observable } from 'rxjs';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { Reservation } from '../../reservation/reservation.model';
+import { Observable } from 'rxjs';
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { Reservation } from '../../reservation/reservation.model';
 
 interface Occasion {
     startAt: string;

@@ -19,16 +19,16 @@ import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-review',
+    selector: 'app-question-review',
     templateUrl: './questionReview.component.html',
 })
 export class QuestionReviewComponent {
     @Input() review: QuestionReview;
-    @Output() onSelection = new EventEmitter<{ id: number; selected: boolean }>();
+    @Output() selected = new EventEmitter<{ id: number; selected: boolean }>();
 
-    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
+    constructor(private QuestionReviewSrv: QuestionReviewService, private Session: SessionService) {}
 
-    getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
+    getAssessedAnswerCount = () => this.QuestionReviewSrv.getProcessedAnswerCount(this.review, this.Session.getUser());
 
-    reviewSelected = () => this.onSelection.emit({ id: this.review.question.id, selected: this.review.selected });
+    reviewSelected = () => this.selected.emit({ id: this.review.question.id, selected: this.review.selected });
 }

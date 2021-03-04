@@ -17,12 +17,12 @@ package system.actors;
 
 import akka.actor.AbstractActor;
 import impl.EmailComposer;
-import models.Reservation;
-import util.datetime.DateTimeUtils;
 import io.ebean.Ebean;
 import javax.inject.Inject;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.datetime.DateTimeUtils;
 
 public class ReservationReminderActor extends AbstractActor {
 

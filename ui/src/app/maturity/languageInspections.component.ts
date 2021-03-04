@@ -12,15 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
 import { LanguageService } from '../utility/language/language.service';
-import type { QueryParams } from './languageInspections.service';
-import { LanguageInspectionService } from './languageInspections.service';
-import type { LanguageInspection } from './maturity.model';
+import { LanguageInspectionService, QueryParams } from './languageInspections.service';
+import { LanguageInspection } from './maturity.model';
 
 export interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
@@ -29,10 +27,11 @@ export interface LanguageInspectionData extends LanguageInspection {
     inspectorName: string;
     inspectorNameAggregate: string;
     answerLanguage?: string;
+    created: Date;
 }
 
 @Component({
-    selector: 'language-inspections',
+    selector: 'app-language-inspections',
     templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
@@ -41,7 +40,7 @@ export class LanguageInspectionsComponent implements OnInit {
     public ongoingInspections: LanguageInspectionData[];
     public processedInspections: LanguageInspectionData[];
 
-    constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
+    constructor(private Language: LanguageService, private LanguageInspectionSrv: LanguageInspectionService) {}
 
     ngOnInit() {
         this.query();
@@ -58,7 +57,7 @@ export class LanguageInspectionsComponent implements OnInit {
             params.end = Date.parse(m.format());
         }
         const refreshAll = _.isEmpty(params);
-        this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {
+        this.LanguageInspectionSrv.query(params).subscribe((resp: LanguageInspection[]) => {
             const inspections: LanguageInspectionData[] = resp.map((i) =>
                 _.assign(i, {
                     ownerAggregate: i.exam.parent
@@ -73,6 +72,7 @@ export class LanguageInspectionsComponent implements OnInit {
                     answerLanguage: i.exam.answerLanguage
                         ? this.Language.getLanguageNativeName(i.exam.answerLanguage)
                         : undefined,
+                    created: i.finishedAt,
                 }),
             );
             if (refreshAll) {

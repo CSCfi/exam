@@ -1,13 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import type { Exam } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamInfo } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-exam-info',
+    selector: 'app-calendar-exam-info',
     template: `
         <div class="row student-enrolment-wrapper details-view">
             <div class="col-md-12">
@@ -34,7 +33,7 @@ import { ExamInfo } from '../calendar.component';
                                 {{ 'sitnet_course_name' | translate }}:
                             </div>
                             <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                                <course-code [course]="examInfo.course"></course-code>
+                                <app-course-code [course]="examInfo.course"></app-course-code>
                                 {{ examInfo.course.name }}
                             </div>
                             <div class="clearfix visible-xs"></div>
@@ -75,7 +74,7 @@ import { ExamInfo } from '../calendar.component';
         </div>
     `,
 })
-export class CalendarExamInfoComponent {
+export class CalendarExamInfoComponent implements OnInit {
     @Input() examInfo: ExamInfo;
     @Input() reservationWindowSize: number;
 
@@ -87,7 +86,7 @@ export class CalendarExamInfoComponent {
         this.reservationWindowEndDate = moment().add(this.reservationWindowSize, 'days');
     }
 
-    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
+    printExamDuration = (exam: ExamInfo) => this.DateTime.printExamDuration(exam);
 
     getReservationWindowDescription(): string {
         const text = this.translate

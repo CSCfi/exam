@@ -13,35 +13,32 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { NgbModal, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { ExamMaterial } from '../../exam.model';
-import { ExamSection } from '../../exam.model';
+import { ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamMaterialComponent } from './examMaterial.component';
 
 @Component({
-    selector: 'exam-material-selector',
+    selector: 'app-exam-material-selector',
     templateUrl: './examMaterialSelector.component.html',
 })
-export class ExamMaterialSelectorComponent {
+export class ExamMaterialSelectorComponent implements OnInit {
     @Input() section: ExamSection;
     @Input() allMaterials: ExamMaterial[];
-    @Output() onChanges = new EventEmitter<void>();
-    materials: ExamMaterial[];
+    @Output() changes = new EventEmitter<void>();
+    materials: ExamMaterial[] = [];
     selectedMaterial?: ExamMaterial;
-    filter: string;
+    filter = '';
 
     constructor(private http: HttpClient, private modal: NgbModal) {}
 
     private filterOutExisting = () => {
         this.materials = this.allMaterials.filter(
-            (m) => this.section.examMaterials.map((em) => em.id).indexOf(m.id) == -1,
+            (m) => this.section.examMaterials.map((em) => em.id).indexOf(m.id) === -1,
         );
     };
 
@@ -71,7 +68,9 @@ export class ExamMaterialSelectorComponent {
     nameFormat = (m: ExamMaterial) => m.name;
 
     addMaterial = () => {
-        if (!this.selectedMaterial) return;
+        if (!this.selectedMaterial) {
+            return;
+        }
         this.http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).subscribe(
             () => {
                 this.section.examMaterials.push(this.selectedMaterial as ExamMaterial);
@@ -102,7 +101,7 @@ export class ExamMaterialSelectorComponent {
             })
             .result.then(() =>
                 // this.filterOutExisting();
-                this.onChanges.emit(),
+                this.changes.emit(),
             );
     };
 }

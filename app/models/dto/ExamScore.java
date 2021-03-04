@@ -15,11 +15,6 @@
 
 package models.dto;
 
-import models.Exam;
-import models.ExamRecord;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import util.excel.ExcelBuilder.CellType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vavr.Tuple;
@@ -29,6 +24,11 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import models.Exam;
+import models.ExamRecord;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import util.excel.ExcelBuilder.CellType;
 
 @Entity
 public class ExamScore extends GeneratedIdentityModel {

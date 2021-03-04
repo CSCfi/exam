@@ -20,7 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'publication-dialog',
+    selector: 'app-publication-dialog',
     templateUrl: './publicationDialog.component.html',
 })
 export class PublicationDialogComponent {

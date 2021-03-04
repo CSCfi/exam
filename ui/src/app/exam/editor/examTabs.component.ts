@@ -12,26 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { NgbNav, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService, User } from '../../session/session.service';
 import { Exam } from '../exam.model';
 import { ExamTabService } from './examTabs.service';
 
-import type { OnInit } from '@angular/core';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { User } from '../../session/session.service';
 @Component({
-    selector: 'exam-tabs',
+    selector: 'app-exam-tabs',
     templateUrl: './examTabs.component.html',
 })
-export class ExamTabsComponent implements OnInit {
+export class ExamTabsComponent implements OnInit, OnDestroy {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 

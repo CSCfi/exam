@@ -21,42 +21,44 @@ import * as toast from 'toastr';
 import { UserService } from '../../../utility/user/user.service';
 import { QuestionService } from '../../question.service';
 
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
-import type { User } from '../../../session/session.service';
+import { OnInit } from '@angular/core';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { User } from '../../../session/session.service';
 @Component({
-    selector: 'library-owner-selection',
-    template: ` <div class="make-inline">
-        <div class="question-add-owners-box">
-            <span class="padl10">
-                <i class="bi-person-circle" style="color: #266b99"></i>&nbsp;
-                <a class="infolink pointer" (click)="showOwnerSelection = !showOwnerSelection">
-                    {{ 'sitnet_add_question_owner' | translate }}</a
-                >
-            </span>
-            <div [hidden]="!showOwnerSelection">
-                <div class="input-group">
-                    <input
-                        class="form-control question-add-owners"
-                        placeholder="{{ 'sitnet_add_question_owner' | translate }}"
-                        [ngbTypeahead]="listTeachers$"
-                        (selectItem)="setQuestionOwner($event)"
-                        [inputFormatter]="nameFormatter"
-                        [resultFormatter]="nameFormatter"
-                    />
-                </div>
-                <div class="col-md-2 bottom-padding-2 padl10">
-                    <input
-                        type="button"
-                        class="btn green border-green whitetext"
-                        (click)="addOwnerForSelected()"
-                        value="{{ 'sitnet_add' | translate }}"
-                    />
+    selector: 'app-library-owner-selection',
+    template: `
+        <div class="make-inline">
+            <div class="question-add-owners-box">
+                <span class="padl10">
+                    <i class="bi-person-circle" style="color: #266b99"></i>&nbsp;
+                    <a class="infolink pointer" (click)="showOwnerSelection = !showOwnerSelection">
+                        {{ 'sitnet_add_question_owner' | translate }}</a
+                    >
+                </span>
+                <div [hidden]="!showOwnerSelection">
+                    <div class="input-group">
+                        <input
+                            class="form-control question-add-owners"
+                            placeholder="{{ 'sitnet_add_question_owner' | translate }}"
+                            [ngbTypeahead]="listTeachers$"
+                            (selectItem)="setQuestionOwner($event)"
+                            [inputFormatter]="nameFormatter"
+                            [resultFormatter]="nameFormatter"
+                        />
+                    </div>
+                    <div class="col-md-2 bottom-padding-2 padl10">
+                        <input
+                            type="button"
+                            class="btn green border-green whitetext"
+                            (click)="addOwnerForSelected()"
+                            value="{{ 'sitnet_add' | translate }}"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>`,
+    `,
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[];
@@ -74,7 +76,9 @@ export class LibraryOwnersComponent implements OnInit {
     }
 
     private filterByName = (src: User[], q: string): User[] => {
-        if (!q) return src;
+        if (!q) {
+            return src;
+        }
         return src.filter((u) => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
     };
 

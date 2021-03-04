@@ -13,37 +13,36 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
-import { Exam } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { Exam, ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import { Reservation } from '../../../reservation/reservation.model';
+import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
-export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
-
+// export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
+export type Participation = Partial<ExamParticipation> & { noShow: boolean };
 @Component({
-    selector: 'r-general-info',
+    selector: 'app-r-general-info',
     templateUrl: './generalInfo.component.html',
 })
-export class GeneralInfoComponent {
+export class GeneralInfoComponent implements OnInit {
     @Input() exam: Exam;
-    @Input() participation: Participation;
+    @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
 
     student: User;
     studentName: string;
     enrolment: ExamEnrolment;
     reservation: Reservation;
-    previousParticipations: Partial<Participation>[];
+    previousParticipations: Participation[];
 
-    constructor(private http: HttpClient, private state: StateService, private Attachment: AttachmentService) {}
+    constructor(private http: HttpClient, private routing: UIRouterGlobals, private Attachment: AttachmentService) {}
 
-    private handleParticipations = (data: Partial<Participation>[]) => {
+    private handleParticipations = (data: Participation[]) => {
         if (this.collaborative) {
             // TODO: Add collaborative support for noshows.
             this.previousParticipations = data;
@@ -54,7 +53,7 @@ export class GeneralInfoComponent {
             return p.id !== this.participation.id;
         });
         this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
-            const noShows: Partial<Participation>[] = enrolments.map((ee) => {
+            const noShows: Participation[] = enrolments.map((ee) => {
                 return {
                     id: ee.id,
                     noShow: true,
@@ -62,7 +61,7 @@ export class GeneralInfoComponent {
                     started: ee.reservation
                         ? ee.reservation.startAt
                         : (ee.examinationEventConfiguration as ExaminationEventConfiguration).examinationEvent.start,
-                    exam: { state: 'no_show' },
+                    exam: { ...ee.exam, state: 'no_show' },
                 };
             });
             this.previousParticipations = previousParticipations.concat(noShows);
@@ -86,12 +85,12 @@ export class GeneralInfoComponent {
         if (this.collaborative) {
             this.http
                 .get<Participation[]>(
-                    `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                    `/integration/iop/reviews/${this.routing.params.id}/participations/${this.routing.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {
             this.http
-                .get<Participation[]>(`app/examparticipations/${this.state.params.id}`)
+                .get<Participation[]>(`app/examparticipations/${this.routing.params.id}`)
                 .subscribe(this.handleParticipations);
         }
     }

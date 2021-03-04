@@ -17,8 +17,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { User } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-import type { User } from '../../../session/session.service';
+import { Category } from '../reports.component';
 
 @Component({
     template: `
@@ -30,23 +31,23 @@ import type { User } from '../../../session/session.service';
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-4 mb-2">
                 <label for="teacher">{{ 'sitnet_teacher' | translate }}</label>
-                <dropdown-select
+                <app-dropdown-select
                     id="teacher"
                     *ngIf="teachers"
                     [options]="teachers"
-                    (onSelect)="teacherSelected($event)"
-                ></dropdown-select>
+                    (optionSelected)="teacherSelected($event)"
+                ></app-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="answerStartDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="answerStartDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="answerEndDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="answerEndDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -65,10 +66,10 @@ import type { User } from '../../../session/session.service';
             </div>
         </div>
     `,
-    selector: 'teachers-report',
+    selector: 'app-teachers-report',
 })
 export class TeachersReportComponent {
-    @Input() teachers: User[];
+    @Input() teachers: Category[];
     teacher: User;
     answerStartDate: Date;
     answerEndDate: Date;

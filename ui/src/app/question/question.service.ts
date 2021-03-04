@@ -17,17 +17,11 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
-
-import type { Observable } from 'rxjs';
-import type {
+import {
     Exam,
     ExamSection,
     ExamSectionQuestion,
@@ -36,6 +30,11 @@ import type {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
+import { SessionService } from '../session/session.service';
+import { AttachmentService } from '../utility/attachment/attachment.service';
+import { FileService } from '../utility/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
@@ -94,7 +93,7 @@ export class QuestionService {
         };
     }
 
-    getQuestion = (id: number): Observable<Question> => this.http.get<Question>(this.questionsApi(id));
+    getQuestion = (id: number): Observable<Question> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };
@@ -164,7 +163,9 @@ export class QuestionService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
-        if (!score) return 0;
+        if (!score) {
+            return 0;
+        }
         const proportion =
             (score.correctAnswers * sectionQuestion.maxScore) / (score.correctAnswers + score.incorrectAnswers);
         return parseFloat(proportion.toFixed(2));
@@ -285,9 +286,7 @@ export class QuestionService {
                         () => resolve,
                     );
                 } else if (question.attachment && question.attachment.removed) {
-                    this.Attachment.eraseQuestionAttachment(question).then(function () {
-                        resolve(response);
-                    });
+                    this.Attachment.eraseQuestionAttachment(question).then(() => resolve(response));
                 } else {
                     resolve(response);
                 }
@@ -307,7 +306,7 @@ export class QuestionService {
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
             options: sectionQuestion.options,
-            question: question,
+            question,
         };
 
         // update question specific attributes
@@ -466,7 +465,7 @@ export class QuestionService {
 
     addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<void> => {
         const data = {
-            uid: uid,
+            uid,
             questionIds: qids.join(),
         };
         return this.http.post<void>(this.questionOwnerApi(uid), data);

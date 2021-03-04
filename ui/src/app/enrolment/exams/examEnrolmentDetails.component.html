@@ -1,7 +1,7 @@
 <div class="row mt-4 ml-2">
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
-            <history-back></history-back>
+            <app-history-back></app-history-back>
             <h1 class="student-exam-details-title">{{ exam.name }}</h1>
         </div>
     </div>
@@ -37,13 +37,13 @@
     <div class="row ml-2 mt-1">
         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-            <course-code [course]="exam.course"></course-code> {{ exam.course.name }}
+            <app-course-code [course]="exam.course"></app-course-code> {{ exam.course.name }}
         </div>
         <div class="clearfix visible-xs"></div>
         <div class="clearfix visible-sm"></div>
         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_teachers' | translate }}:</div>
         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-            <teacher-list [exam]="exam"></teacher-list>
+            <app-teacher-list [exam]="exam"></app-teacher-list>
         </div>
     </div>
 

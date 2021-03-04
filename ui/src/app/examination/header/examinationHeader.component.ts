@@ -18,16 +18,16 @@ import { SessionService } from '../../session/session.service';
 import { Examination } from '../examination.service';
 
 @Component({
-    selector: 'examination-header',
+    selector: 'app-examination-header',
     templateUrl: './examinationHeader.component.html',
 })
 export class ExaminationHeaderComponent {
     @Input() exam: Examination;
     @Input() isPreview: boolean;
-    @Output() onTimeout = new EventEmitter<void>();
+    @Output() timedOut = new EventEmitter<void>();
 
     constructor(private Session: SessionService) {}
 
-    notifyTimeout = () => this.onTimeout.emit();
+    notifyTimeout = () => this.timedOut.emit();
     switchLanguage = (key: string) => this.Session.switchLanguage(key);
 }

@@ -1,6 +1,6 @@
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
-import type { Reservation } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
+import { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import { Reservation } from '../reservation/reservation.model';
+import { User } from '../session/session.service';
 
 export interface Scores {
     maxScore: number;

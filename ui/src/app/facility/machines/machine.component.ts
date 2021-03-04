@@ -12,17 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as toast from 'toastr';
 
+import { Software } from '../../exam/exam.model';
+import { ExamMachine } from '../../reservation/reservation.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { MachineService } from './machines.service';
-
-import type { OnInit } from '@angular/core';
-import type { Software } from '../../exam/exam.model';
-import type { ExamMachine } from '../../reservation/reservation.model';
 
 interface SoftwareWithClass extends Software {
     class: string;
@@ -30,7 +28,7 @@ interface SoftwareWithClass extends Software {
 
 @Component({
     templateUrl: './machine.component.html',
-    selector: 'machine',
+    selector: 'app-machine',
 })
 export class MachineComponent implements OnInit {
     machine: ExamMachine;
@@ -41,10 +39,11 @@ export class MachineComponent implements OnInit {
         private machines: MachineService,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.state.params.id).subscribe(
+        this.machines.getMachine(this.routing.params.id).subscribe(
             (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {

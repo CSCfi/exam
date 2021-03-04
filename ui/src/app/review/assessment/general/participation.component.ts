@@ -13,23 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 
-import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { WindowRef } from '../../../utility/window/window.service';
+import { Participation } from './generalInfo.component';
 
 @Component({
-    selector: 'r-participation',
+    selector: 'app-r-participation',
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
-    @Input() participation: ExamParticipation & { noShow: boolean };
+    @Input() participation: Participation;
     @Input() collaborative: boolean;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private Exam: ExamService,
         private Session: SessionService,
         private Window: WindowRef,
@@ -37,7 +37,7 @@ export class ParticipationComponent {
 
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
+            ? `/assessments/collaborative/${this.routing.params.id}/${this.participation._id}`
             : `/assessments/${this.participation.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };

@@ -12,27 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-import type { QuestionReview } from '../../review.model';
 @Component({
-    selector: 'question-reviews',
+    selector: 'app-question-reviews',
     templateUrl: './questionReviews.component.html',
 })
-export class QuestionReviewsComponent {
+export class QuestionReviewsComponent implements OnInit {
     @Input() examId: number;
     reviews: QuestionReview[] = [];
     selectedReviews: number[] = [];
     selectionToggle = false;
 
-    constructor(private state: StateService, private QuestionReview: QuestionReviewService) {}
+    constructor(private state: StateService, private QuestionReviewSrv: QuestionReviewService) {}
 
     ngOnInit() {
-        this.QuestionReview.getReviews$(this.examId).subscribe(
+        this.QuestionReviewSrv.getReviews$(this.examId).subscribe(
             (resp) => (this.reviews = resp),
             (err) => toast.error(err),
         );

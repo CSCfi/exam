@@ -16,8 +16,6 @@
 package system.actors;
 
 import akka.actor.AbstractActor;
-import models.ExamEnrolment;
-import models.json.ExternalExam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
@@ -29,6 +27,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.ExamEnrolment;
+import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;

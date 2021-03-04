@@ -15,7 +15,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import type { Course } from '../../exam.model';
+import { Course } from '../../exam.model';
 
 @Injectable()
 export class CoursePickerService {
@@ -23,6 +23,6 @@ export class CoursePickerService {
 
     getCourses$ = (filter: string, criteria: string) =>
         this.http.get<Course[]>('/app/courses', {
-            params: { filter: filter, q: criteria },
+            params: { filter, q: criteria },
         });
 }

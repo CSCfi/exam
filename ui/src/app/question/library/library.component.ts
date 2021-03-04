@@ -17,10 +17,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { LibraryQuestion } from './library.service';
+import { LibraryQuestion } from './library.service';
 
 @Component({
-    selector: 'library',
+    selector: 'app-library',
     templateUrl: './library.component.html',
 })
 export class LibraryComponent {

@@ -16,13 +16,11 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 
-import type { Exam } from '../../exam/exam.model';
-
 @Injectable()
 export class DateTimeService {
     constructor(private translate: TranslateService) {}
 
-    printExamDuration(exam: Exam): string {
+    printExamDuration(exam: { duration: number }): string {
         if (exam.duration) {
             const h = Math.floor(exam.duration / 60);
             const m = exam.duration % 60;

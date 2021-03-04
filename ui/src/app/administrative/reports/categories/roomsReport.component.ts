@@ -17,9 +17,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ExamRoom } from '../../../reservation/reservation.model';
 import { FileService } from '../../../utility/file/file.service';
-
-import type { ExamRoom } from '../../../reservation/reservation.model';
+import { Category } from '../reports.component';
 
 @Component({
     template: `
@@ -31,23 +31,23 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
         <div class="bottom-row">
             <div class="col-lg-4 mb-2">
                 <label for="roomPick">{{ 'sitnet_select_room' | translate }}</label>
-                <dropdown-select
+                <app-dropdown-select
                     id="roomPick"
                     *ngIf="rooms"
                     [options]="rooms"
-                    (onSelect)="roomSelected($event)"
-                ></dropdown-select>
+                    (optionSelected)="roomSelected($event)"
+                ></app-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="startDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="endDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -66,13 +66,13 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
             </div>
         </div>
     `,
-    selector: 'rooms-report',
+    selector: 'app-rooms-report',
 })
 export class RoomsReportComponent {
     room: ExamRoom;
     startDate: Date;
     endDate: Date;
-    @Input() rooms: ExamRoom[];
+    @Input() rooms: Category[];
 
     constructor(private translate: TranslateService, private datePipe: DatePipe, private files: FileService) {}
 

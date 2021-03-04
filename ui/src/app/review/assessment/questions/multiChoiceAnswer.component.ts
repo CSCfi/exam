@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'r-multi-choice-answer',
+    selector: 'app-r-multi-choice-answer',
     templateUrl: './multiChoiceAnswer.component.html',
 })
 export class MultiChoiceAnswerComponent {

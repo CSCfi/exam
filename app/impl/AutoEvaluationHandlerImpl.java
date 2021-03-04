@@ -16,12 +16,6 @@
 package impl;
 
 import akka.actor.ActorSystem;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.Grade;
-import models.GradeEvaluation;
-import models.GradeScale;
-import models.User;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,6 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import models.AutoEvaluationConfig;
+import models.Exam;
+import models.Grade;
+import models.GradeEvaluation;
+import models.GradeScale;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import scala.concurrent.duration.Duration;

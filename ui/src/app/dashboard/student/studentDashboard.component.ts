@@ -20,12 +20,12 @@ import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { StudentDashboardService } from './studentDashboard.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { Exam } from '../../exam/exam.model';
-import type { DashboardEnrolment } from './studentDashboard.service';
+import { OnInit } from '@angular/core';
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { Exam } from '../../exam/exam.model';
+import { DashboardEnrolment } from './studentDashboard.service';
 @Component({
-    selector: 'student-dashboard',
+    selector: 'app-student-dashboard',
     templateUrl: './studentDashboard.component.html',
 })
 export class StudentDashboardComponent implements OnInit {

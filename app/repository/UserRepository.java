@@ -1,12 +1,12 @@
 package repository;
 
-import models.User;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.User;
 import play.db.ebean.EbeanConfig;
 
 public class UserRepository {

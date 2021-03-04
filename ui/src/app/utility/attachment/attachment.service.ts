@@ -16,18 +16,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
+import { ReviewedExam } from '../../enrolment/enrolment.model';
+import { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ReviewQuestion } from '../../review/review.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../file/file.service';
-import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.component';
-
-import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import type { Examination } from '../../examination/examination.service';
-import type { ReviewQuestion } from '../../review/review.model';
-import type { FileResult } from './dialogs/attachmentSelector.component';
+import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
 
 export interface AnsweredQuestion {
     id: number;
@@ -130,7 +127,7 @@ export class AttachmentService {
         });
     }
 
-    removeFeedbackAttachment(exam: Examination) {
+    removeFeedbackAttachment(exam: Exam) {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),

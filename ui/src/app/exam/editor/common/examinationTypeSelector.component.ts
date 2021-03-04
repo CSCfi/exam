@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbAccordion, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ExamService } from '../../exam.service';
@@ -7,7 +7,7 @@ import { ExamService } from '../../exam.service';
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    selector: 'examinatino-type-selector',
+    selector: 'app-examinatino-type-selector',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">
@@ -54,7 +54,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
         </div>
     `,
 })
-export class ExaminationTypeSelectorComponent {
+export class ExaminationTypeSelectorComponent implements OnInit {
     executionTypes: ExamConfig[] = [];
     selectedType: ExamConfig;
 
@@ -68,7 +68,7 @@ export class ExaminationTypeSelectorComponent {
             this.Exam.listExecutionTypes$().subscribe((types) => {
                 this.executionTypes = types.map((t) => {
                     const implementations =
-                        t.type != 'PRINTOUT' && byodSupported
+                        t.type !== 'PRINTOUT' && byodSupported
                             ? [
                                   { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
                                   { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
@@ -87,8 +87,7 @@ export class ExaminationTypeSelectorComponent {
         setTimeout(() => this.acc.expand('toggle-2'), 100);
     };
 
-    selectConfig = (type: string, examinationType = 'AQUARIUM') =>
-        this.modal.close({ type: type, examinationType: examinationType });
+    selectConfig = (type: string, examinationType = 'AQUARIUM') => this.modal.close({ type, examinationType });
 
     cancel = () => this.modal.dismiss();
 }

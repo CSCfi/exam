@@ -13,40 +13,39 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import * as moment from 'moment';
-import { forkJoin, noop, throwError } from 'rxjs';
+import { forkJoin, noop, Observable, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { isRealGrade } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../../utility/file/file.service';
-import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
-
-import type { Observable } from 'rxjs';
-import type {
+import {
     Course,
     Exam,
     ExamParticipation,
     Grade,
     GradeScale,
+    isRealGrade,
     NoGrade,
     SelectableGrade,
 } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
-import type { Review } from '../review.model';
+import { ExamService } from '../../exam/exam.service';
+import { User } from '../../session/session.service';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../../utility/file/file.service';
+import { Review } from '../review.model';
+import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
+
 @Component({
-    selector: 'speed-review',
+    selector: 'app-speed-review',
     templateUrl: './speedReview.component.html',
 })
-export class SpeedReviewComponent {
+export class SpeedReviewComponent implements OnInit {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
@@ -62,7 +61,7 @@ export class SpeedReviewComponent {
         private routing: UIRouterGlobals,
         private translate: TranslateService,
         private modal: NgbModal,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -86,14 +85,14 @@ export class SpeedReviewComponent {
             .map((grade) => {
                 return {
                     ...grade,
-                    name: this.Exam.getExamGradeDisplayName(grade.name),
+                    name: this.ExamSrv.getExamGradeDisplayName(grade.name),
                     type: grade.name,
                 };
             })
             .filter(isRealGrade);
         // The "no grade" option
         const noGrade: NoGrade = {
-            name: this.Exam.getExamGradeDisplayName('NONE'),
+            name: this.ExamSrv.getExamGradeDisplayName('NONE'),
             type: 'NONE',
             marksRejection: false,
         };
@@ -101,7 +100,7 @@ export class SpeedReviewComponent {
     };
 
     ngOnInit() {
-        this.examId = this.state.params.id;
+        this.examId = this.routing.params.id;
         this.http
             .get<Exam>(`/app/exams/${this.examId}`)
             .pipe(
@@ -142,7 +141,7 @@ export class SpeedReviewComponent {
         modalRef.componentInstance.exam = review.examParticipation.exam;
     };
 
-    isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
+    isAllowedToGrade = (review: Review) => this.ExamSrv.isOwnerOrAdmin(review.examParticipation.exam);
 
     setPredicate = (predicate: string) => (this.reviewPredicate = predicate);
 

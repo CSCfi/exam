@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
@@ -27,7 +27,7 @@ export interface AppConfig {
 
 @Component({
     templateUrl: './settings.component.html',
-    selector: 'settings',
+    selector: 'app-settings',
 })
 export class SettingsComponent implements OnInit {
     config: AppConfig;

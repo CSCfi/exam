@@ -13,32 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
+import { SessionService, User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import type { LibraryQuestion } from '../library.service';
-import { LibraryService } from '../library.service';
+import { LibraryQuestion, LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
-    selector: 'library-results',
+    selector: 'app-library-results',
     templateUrl: './libraryResults.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
-    @Input() questions: SelectableQuestion[];
+    @Input() results: LibraryQuestion[] = [];
     @Input() disableLinks: boolean;
     @Input() tableClass: string;
-    @Output() onSelection = new EventEmitter<number[]>();
-    @Output() onCopy = new EventEmitter<LibraryQuestion>();
+    @Output() selected = new EventEmitter<number[]>();
+    @Output() copied = new EventEmitter<LibraryQuestion>();
 
+    questions: SelectableQuestion[] = [];
     user: User;
     allSelected = false;
     pageSize = 25;
@@ -59,6 +57,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.user = this.Session.getUser();
         this.tableClass = this.tableClass || 'exams-table';
         const storedData = this.Library.loadFilters('sorting');
+        this.questions = this.results.map((r) => ({ ...r, selected: false }));
         if (storedData.filters) {
             this.questionsPredicate = storedData.filters.predicate;
             this.reverse = storedData.filters.reverse;
@@ -66,7 +65,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.questions) {
+        if (changes.results) {
             this.currentPage = 0;
             this.resetSelections();
         }
@@ -79,7 +78,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     questionSelected = () => {
         const selections = this.questions.filter((q) => q.selected).map((q) => q.id);
-        this.onSelection.emit(selections);
+        this.selected.emit(selections);
     };
 
     deleteQuestion = (question: SelectableQuestion) => {
@@ -103,7 +102,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         dialog.result.then(() =>
             this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe((copy) => {
                 this.questions.splice(this.questions.indexOf(question), 0, copy);
-                this.onCopy.emit(copy);
+                this.copied.emit(copy);
             }),
         );
     };

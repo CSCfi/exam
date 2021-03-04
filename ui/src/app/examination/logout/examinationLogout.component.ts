@@ -13,14 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, OnInit } from '@angular/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationStatusService } from '../examinationStatus.service';
 
 @Component({
-    selector: 'examination-logout',
+    selector: 'app-examination-logout',
     template: `
         <div class="jumbotron">
             <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>
@@ -35,7 +35,7 @@ import { ExaminationStatusService } from '../examinationStatus.service';
         </div>
     `,
 })
-export class ExaminationLogoutComponent {
+export class ExaminationLogoutComponent implements OnInit {
     quitLinkEnabled: boolean;
     reasonPhrase: string;
     quitLink?: string;
@@ -43,6 +43,7 @@ export class ExaminationLogoutComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private Window: WindowRef,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
@@ -54,8 +55,8 @@ export class ExaminationLogoutComponent {
         }, 8000);
 
     ngOnInit() {
-        this.reasonPhrase = this.state.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-        this.quitLinkEnabled = this.state.params.quitLinkEnabled === 'true';
+        this.reasonPhrase = this.routing.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
+        this.quitLinkEnabled = this.routing.params.quitLinkEnabled === 'true';
 
         if (this.quitLinkEnabled) {
             this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(

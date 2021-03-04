@@ -13,29 +13,29 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import type { QuestionAmounts } from '../../../question/question.service';
-import { QuestionService } from '../../../question/question.service';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
+import { QuestionAmounts, QuestionService } from '../../../question/question.service';
+import { Reservation } from '../../../reservation/reservation.model';
+import { SessionService, User } from '../../../session/session.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
+declare var MathJax;
+
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
-    selector: 'printed-assessment',
+    selector: 'app-printed-assessment',
     templateUrl: './printedAssessment.component.html',
 })
-export class PrintedAssessmentComponent {
+export class PrintedAssessmentComponent implements AfterViewInit {
     @Input() collaborative: boolean;
     questionSummary: QuestionAmounts;
     exam: Exam;
@@ -47,22 +47,24 @@ export class PrintedAssessmentComponent {
     reservation: Reservation;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private http: HttpClient,
         private Window: WindowRef,
         private Question: QuestionService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Assessment: AssessmentService,
         private Session: SessionService,
         private Language: LanguageService,
     ) {}
 
     ngAfterViewInit() {
-        const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
+        const path = this.collaborative
+            ? `${this.routing.params.id}/${this.routing.params.ref}`
+            : this.routing.params.id;
         const url = this.getResource(path);
 
         this.http.get<ExamParticipation>(url).subscribe((participation) => {
-            //TODO: Some duplicates here, refactor some more
+            // TODO: Some duplicates here, refactor some more
             const exam = participation.exam;
             exam.examSections.forEach((es) =>
                 es.sectionQuestions
@@ -95,7 +97,7 @@ export class PrintedAssessmentComponent {
             } else {
                 this.http
                     .get<ExamParticipation[]>(
-                        `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                        `/integration/iop/reviews/${this.routing.params.id}/participations/${this.routing.params.ref}`,
                     )
                     .subscribe(this.handleParticipations);
             }
@@ -104,7 +106,7 @@ export class PrintedAssessmentComponent {
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
-            //TODO: Add collaborative support for noshows.
+            // TODO: Add collaborative support for noshows.
             this.previousParticipations = data;
             this.printPage();
             return;
@@ -135,22 +137,24 @@ export class PrintedAssessmentComponent {
     private getResource = (path: string) =>
         this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
 
-    translateGrade = (participation: ExamParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(participation.exam.grade.name);
+    translateGrade = (participation: PreviousParticipation) =>
+        !participation.exam.grade ? 'N/A' : this.ExamSrv.getExamGradeDisplayName(participation.exam.grade.name);
 
-    getGrade = () => (!this.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(this.exam.grade.name));
+    getGrade = () => (!this.exam.grade ? 'N/A' : this.ExamSrv.getExamGradeDisplayName(this.exam.grade.name));
 
-    getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
+    getCreditType = () => (!this.exam ? 'N/A' : this.ExamSrv.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
-        if (!this.exam) return 'N/A';
+        if (!this.exam) {
+            return 'N/A';
+        }
         const lang = this.Assessment.pickExamLanguage(this.exam);
         return !lang ? 'N/A' : this.Language.getLanguageNativeName(lang.code);
     };
 
-    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
+    getExamMaxPossibleScore = () => this.ExamSrv.getMaxScore(this.exam);
 
-    getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
+    getExamTotalScore = () => this.ExamSrv.getTotalScore(this.exam);
 
     getTeacherCount = () => {
         // Do not add up if user exists in both groups
@@ -161,5 +165,5 @@ export class PrintedAssessmentComponent {
         return this.exam.examInspections.length + owners.length;
     };
 
-    translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
+    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

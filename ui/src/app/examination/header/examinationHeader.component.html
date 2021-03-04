@@ -11,7 +11,7 @@
             <div class="exam-header-title divider"></div>
             <div class="exam-header-title">
                 {{ exam.course?.name }}
-                <course-code [course]="exam.course"></course-code>
+                <app-course-code [course]="exam.course"></app-course-code>
             </div>
             <div class="language-selector">
                 <a
@@ -40,8 +40,8 @@
                 </a>
                 <span class="exam-header-title divider"></span>
             </div>
-            <examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
-            </examination-clock>
+            <app-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
+            </app-examination-clock>
         </div>
     </div>
 </div>

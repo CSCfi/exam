@@ -15,14 +15,13 @@
 
 package controllers.iop.transfer.impl;
 
-import controllers.base.BaseController;
-import controllers.iop.transfer.api.ExternalFacilityAPI;
-import models.ExamRoom;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
+import controllers.iop.transfer.api.ExternalFacilityAPI;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
@@ -32,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.ExamRoom;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;

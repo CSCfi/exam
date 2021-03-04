@@ -19,9 +19,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import impl.EmailComposer;
-import models.User;
-import repository.DatabaseExecutionContext;
-import util.config.ConfigReader;
 import io.ebean.Ebean;
 import java.util.HashMap;
 import java.util.List;
@@ -33,14 +30,17 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
+import repository.DatabaseExecutionContext;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import util.config.ConfigReader;
 
 @Singleton
 class SystemInitializer {

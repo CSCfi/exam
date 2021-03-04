@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { ExamSection } from '../exam/exam.model';
-import type { User } from '../session/session.service';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { ExamSection } from '../exam/exam.model';
+import { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
     startTime: Date;
@@ -27,6 +27,7 @@ export type ExceptionWorkingHours = {
     startDate: Date | string;
     endDate: Date | string;
     outOfService: boolean;
+    description: string;
     massEdited: boolean;
 };
 
@@ -51,7 +52,7 @@ export interface ExamRoom {
     outOfService: boolean;
     statusComment: string;
     buildingName: string;
-    mailAddress: { street: string; zip: string; city: string };
+    mailAddress: { street: string; zip: string; city: string; id?: number };
     state: 'ACTIVE' | 'INACTIVE';
     campus: string;
     contactPerson: string;
@@ -81,6 +82,10 @@ export interface ExternalReservation {
     roomInstructionEN: string;
     roomInstruction: string;
     roomInstructionSV: string;
+    campus: string;
+    buildingName: string;
+    roomCode: string;
+    mailAddress: { street: string; zip: string; city: string };
 }
 
 export interface Reservation {

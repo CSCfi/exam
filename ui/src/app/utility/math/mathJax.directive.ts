@@ -12,13 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Directive, ElementRef, Input } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+
+declare var MathJax;
 
 @Directive({
-    selector: '[MathJax]',
+    selector: '[appMathJax]',
 })
-export class MathJaxDirective {
-    @Input('MathJax') src: string;
+export class MathJaxDirective implements OnChanges {
+    @Input('appMathJax') src: string;
 
     constructor(private el: ElementRef) {}
 

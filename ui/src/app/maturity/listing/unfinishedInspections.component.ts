@@ -1,13 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService, User } from '../../session/session.service';
+import { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
-
-import type { OnChanges } from '@angular/core';
-import type { User } from '../../session/session.service';
-import type { LanguageInspectionData } from '../languageInspections.component';
-import type { LanguageInspection } from '../maturity.model';
+import { LanguageInspection } from '../maturity.model';
 
 /*
  * Copyright (c) 2018 Exam Consortium
@@ -24,7 +21,7 @@ import type { LanguageInspection } from '../maturity.model';
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 @Component({
-    selector: 'unfinished-inspections',
+    selector: 'app-unfinished-inspections',
     templateUrl: './unfinishedInspections.component.html',
 })
 export class UnfinishedInspectionsComponent implements OnChanges {
@@ -43,7 +40,7 @@ export class UnfinishedInspectionsComponent implements OnChanges {
 
     constructor(
         private translate: TranslateService,
-        private LanguageInspection: LanguageInspectionService,
+        private LanguageInspectionSrv: LanguageInspectionService,
         Session: SessionService,
     ) {
         this.user = Session.getUser();
@@ -78,5 +75,5 @@ export class UnfinishedInspectionsComponent implements OnChanges {
             .instant('sitnet_ongoing_language_inspections_detail')
             .replace('{0}', this.inspections.length.toString());
 
-    assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);
+    assignInspection = (inspection: LanguageInspection) => this.LanguageInspectionSrv.assignInspection(inspection);
 }

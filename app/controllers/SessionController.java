@@ -15,25 +15,15 @@
 
 package controllers;
 
-import controllers.base.ActionMethod;
-import controllers.base.BaseController;
-import controllers.iop.transfer.api.ExternalExamAPI;
-import exceptions.NotFoundException;
-import models.ExamEnrolment;
-import models.Language;
-import models.Organisation;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.dto.Credentials;
-import repository.EnrolmentRepository;
-import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
+import controllers.iop.transfer.api.ExternalExamAPI;
+import exceptions.NotFoundException;
 import io.ebean.Ebean;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
@@ -53,6 +43,13 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import models.ExamEnrolment;
+import models.Language;
+import models.Organisation;
+import models.Reservation;
+import models.Role;
+import models.User;
+import models.dto.Credentials;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -62,6 +59,9 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.EnrolmentRepository;
+import util.config.ConfigReader;
+import util.datetime.DateTimeUtils;
 
 public class SessionController extends BaseController {
 

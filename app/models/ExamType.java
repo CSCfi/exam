@@ -15,9 +15,9 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class ExamType extends GeneratedIdentityModel {

@@ -1,19 +1,17 @@
-import play.sbt.PlayRunHook
-
-import scala.sys.process.Process
-import scala.util.Properties
-
 name := "exam"
 
 version := "5.3.0"
-
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
 scalaVersion := "2.13.4"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+lazy val root = (project in file("."))
+  .enablePlugins(PlayJava, PlayEbean)
+  .settings(
+    watchSources ++= (baseDirectory.value / "ui/src" ** "*").get
+  )
 
 libraryDependencies += javaJdbc
 libraryDependencies += ws
@@ -56,104 +54,3 @@ routesImport += "util.scala.Binders._"
 routesGenerator := InjectedRoutesGenerator
 
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
-
-sources in (Compile, doc) := Seq.empty
-publishArtifact in (Compile, packageDoc) := false
-
-lazy val frontendDirectory = baseDirectory {
-  _ / "ui"
-}
-
-lazy val protractorDirectory = baseDirectory {
-  _ / "ui/protractor"
-}
-
-/**
-  * Webpack dev server task
-  */
-def withoutWebpackServer = Properties.propOrEmpty("withoutWebpackServer")
-
-def webpackTask = Def.taskDyn[PlayRunHook] {
-  if (withoutWebpackServer.equals("true"))
-    Def.task {
-      NoOp()
-    } else {
-    val webpackBuild = taskKey[Unit]("Webpack build task.")
-
-    webpackBuild := {
-      Process("npm start", frontendDirectory.value).run
-    }
-
-    (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
-
-    Def.task {
-      frontendDirectory.map(WebpackServer(_)).value
-    }
-  }
-}
-
-PlayKeys.playRunHooks += webpackTask.value
-
-/**
-  * Karma test task.
-  */
-def skipUiTests = Properties.propOrEmpty("skipUiTests")
-
-def protractorConf = Properties.propOrEmpty("config.file")
-
-lazy val npmInstall = taskKey[Option[Process]]("Npm install task")
-npmInstall := {
-  Some(Process("npm install", frontendDirectory.value).run())
-}
-
-lazy val protractorInstall = taskKey[Option[Process]]("Protractor install task")
-protractorInstall := {
-  Some(Process("npm install", protractorDirectory.value).run())
-}
-
-lazy val karmaTest = taskKey[Option[Process]]("Karma test task")
-karmaTest := {
-  Some(
-    Process("node_modules/karma/bin/karma start ./test/karma.conf.ci.js", frontendDirectory.value)
-      .run())
-}
-
-lazy val webDriverUpdate = taskKey[Option[Process]]("Web driver update task")
-webDriverUpdate := {
-  Some(
-    Process("node_modules/protractor/bin/webdriver-manager update", protractorDirectory.value)
-      .run())
-}
-
-/*test in Test := {
-  if (karmaTest.value.get.exitValue() != 0)
-    sys.error("Karma tests failed!")
-  (test in Test).value
-}*/
-
-def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
-  if (!skipUiTests.equals("true") && npmInstall.value.get
-        .exitValue() == 0 && protractorInstall.value.get.exitValue() == 0) {
-    def bdval = baseDirectory.value
-
-    def fdval = frontendDirectory.value
-
-    Def.task {
-      Seq(
-        if (protractorConf
-              .equals("conf/protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
-          Protractor(bdval,
-                     Properties.propOrElse("protractor.config", "conf.js"),
-                     Properties.propOrElse("protractor.args", " "))
-        else {
-          Karma(fdval)
-        })
-    }
-  } else {
-    Def.task {
-      Seq(NoOp())
-    }
-  }
-}
-
-// PlayKeys.playRunHooks ++= uiTestTask.value

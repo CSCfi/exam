@@ -16,15 +16,10 @@
 package controllers.iop.transfer.impl;
 
 import akka.actor.ActorSystem;
-import controllers.iop.transfer.api.ExternalReservationHandler;
-import impl.EmailComposer;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
-import util.datetime.DateTimeUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.iop.transfer.api.ExternalReservationHandler;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,6 +30,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.ExamEnrolment;
+import models.Reservation;
+import models.User;
+import models.iop.ExternalReservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -44,6 +43,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import util.datetime.DateTimeUtils;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 

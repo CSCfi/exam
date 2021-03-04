@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import type { DateFormatterParams } from 'angular-calendar';
+import { DateFormatterParams } from 'angular-calendar';
 import { CalendarDateFormatter } from 'angular-calendar';
 
 export class DateFormatter extends CalendarDateFormatter {

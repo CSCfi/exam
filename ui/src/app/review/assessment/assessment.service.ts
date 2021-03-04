@@ -27,9 +27,9 @@ import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import { Observable } from 'rxjs';
+import { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import { ReviewedExam } from '../../enrolment/enrolment.model';
 
 type Payload = {
     id: number;
@@ -213,7 +213,7 @@ export class AssessmentService {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`;
-        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
+        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev });
     };
 
     saveAssessmentInfo = (exam: Exam): Observable<void> => {
@@ -264,7 +264,7 @@ export class AssessmentService {
     };
     saveCollaborativeForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
         const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
-        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
+        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev });
     };
 
     rejectMaturity$ = (exam: Exam, askConfirmation = false): Observable<void> => {

@@ -15,10 +15,6 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
-import models.iop.ExternalReservation;
-import models.sections.ExamSection;
-import util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Set;
@@ -33,10 +29,14 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.iop.ExternalReservation;
+import models.sections.ExamSection;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {

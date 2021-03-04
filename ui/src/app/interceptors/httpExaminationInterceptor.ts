@@ -21,7 +21,7 @@ import { tap } from 'rxjs/operators';
 import { WrongLocationService } from '../enrolment/wrong-location/wrongLocation.service';
 import { ExaminationStatusService } from '../examination/examinationStatus.service';
 
-import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 @Injectable()
 export class ExaminationInterceptor implements HttpInterceptor {
@@ -68,12 +68,12 @@ export class ExaminationInterceptor implements HttpInterceptor {
                             // No upcoming exams
                             this.state.go('waitingRoomNoExam');
                         } else {
-                            this.state.go('waitingRoom', { id: id });
+                            this.state.go('waitingRoom', { id });
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.state.go('examination', { hash: hash });
+                        this.state.go('examination', { hash });
                     }
                     return response;
                 }

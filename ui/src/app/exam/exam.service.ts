@@ -17,16 +17,15 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as moment from 'moment';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { ReviewedExam } from '../enrolment/enrolment.model';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-
-import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../enrolment/enrolment.model';
-import type {
+import {
     Exam,
     ExamExecutionType,
     ExaminationEventConfiguration,
@@ -59,7 +58,7 @@ export class ExamService {
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType, implementation: examinationType })
             .subscribe(
                 (response) => {
                     toast.info(this.translate.instant('sitnet_exam_added'));
@@ -257,27 +256,27 @@ export class ExamService {
 
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            let score = 0;
+            let val = 0;
             switch (sq.question.type) {
                 case 'MultipleChoiceQuestion':
-                    score = this.Question.scoreMultipleChoiceAnswer(sq, false);
+                    val = this.Question.scoreMultipleChoiceAnswer(sq, false);
                     break;
                 case 'WeightedMultipleChoiceQuestion':
-                    score = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
+                    val = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
                     break;
                 case 'ClozeTestQuestion':
-                    score = this.Question.scoreClozeTestAnswer(sq);
+                    val = this.Question.scoreClozeTestAnswer(sq);
                     break;
                 case 'EssayQuestion':
                     if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
-                        score = sq.essayAnswer.evaluatedScore;
+                        val = sq.essayAnswer.evaluatedScore;
                     }
                     break;
                 case 'ClaimChoiceQuestion':
-                    score += this.Question.scoreClaimChoiceAnswer(sq, false);
+                    val += this.Question.scoreClaimChoiceAnswer(sq, false);
                     break;
             }
-            return n + score;
+            return n + val;
         }, 0);
 
         return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
@@ -386,8 +385,8 @@ export class ExamService {
         }
     };
 
-    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
-        this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
+    reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean) =>
+        this.http.put(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from, to });
 
     addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
         this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});

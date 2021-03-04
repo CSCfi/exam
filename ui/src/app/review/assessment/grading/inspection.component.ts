@@ -13,22 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ExamInspection } from '../../../exam/exam.model';
 import { User } from '../../../session/session.service';
 
 @Component({
-    selector: 'r-inspection',
+    selector: 'app-r-inspection',
     templateUrl: './inspection.component.html',
 })
 export class InspectionComponent implements OnInit {
-    @Input() inspection: { id: number; user: User; ready: boolean };
+    @Input() inspection: ExamInspection;
     @Input() user: User;
     @Input() disabled: boolean;
-    @Output() onInspection = new EventEmitter<void>();
+    @Output() inspected = new EventEmitter<void>();
 
     reviewStatuses: { key: boolean; value: string }[];
 
@@ -52,7 +52,7 @@ export class InspectionComponent implements OnInit {
             this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_exam_updated'));
-                    this.onInspection.emit();
+                    this.inspected.emit();
                 },
                 (err) => toast.error(err.data),
             );

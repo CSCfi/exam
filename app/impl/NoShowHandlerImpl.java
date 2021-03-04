@@ -15,10 +15,6 @@
 
 package impl;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.Reservation;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,6 +23,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.Reservation;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;

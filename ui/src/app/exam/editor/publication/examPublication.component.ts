@@ -13,34 +13,29 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../../../session/session.service';
+import { SessionService, User } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
-import { Exam } from '../../exam.model';
+import { AutoEvaluationConfig, Exam, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
+import { ExamTabService } from '../examTabs.service';
 import { PublicationDialogComponent } from './publicationDialog.component';
 import { PublicationErrorDialogComponent } from './publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './publicationRevocationDialog.component';
 
-import type { OnInit } from '@angular/core';
-import type { Observable } from 'rxjs';
-import type { User } from '../../../session/session.service';
-import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
-import { ExamTabService } from '../examTabs.service';
-
 @Component({
-    selector: 'exam-publication',
+    selector: 'app-exam-publication',
     templateUrl: './examPublication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
@@ -60,7 +55,7 @@ export class ExamPublicationComponent implements OnInit {
         private modal: NgbModal,
         private windowRef: WindowRef,
         private Session: SessionService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
     ) {}
@@ -89,7 +84,7 @@ export class ExamPublicationComponent implements OnInit {
                 .post<ExaminationDate>(`/app/exam/${this.exam.id}/examinationdate`, {
                     date: formattedDate,
                 })
-                .subscribe((date) => this.exam.examinationDates.push(date));
+                .subscribe((resp) => this.exam.examinationDates.push(resp));
         }
     };
 
@@ -107,8 +102,8 @@ export class ExamPublicationComponent implements OnInit {
         Object.assign(this.exam.autoEvaluationConfig, config);
 
     canBeAutoEvaluated = () =>
-        this.Exam.hasQuestions(this.exam) &&
-        !this.Exam.hasEssayQuestions(this.exam) &&
+        this.ExamSrv.hasQuestions(this.exam) &&
+        !this.ExamSrv.hasEssayQuestions(this.exam) &&
         this.exam.gradeScale &&
         this.exam.executionType.type !== 'MATURITY';
 
@@ -128,7 +123,7 @@ export class ExamPublicationComponent implements OnInit {
         };
 
         Object.assign(config, overrides);
-        return this.Exam.updateExam$(this.exam, config, this.collaborative).pipe(
+        return this.ExamSrv.updateExam$(this.exam, config, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_exam_saved'));
@@ -158,14 +153,14 @@ export class ExamPublicationComponent implements OnInit {
         return input;
     };
 
-    checkTrialCount = (x: number) => (this.exam.trialCount === x ? 'btn-primary' : '');
+    checkTrialCount = (x?: number) => (this.exam.trialCount === x ? 'btn-primary' : '');
 
-    setTrialCount = (x: number) => {
+    setTrialCount = (x: number | null) => {
         this.exam.trialCount = x;
         this.updateExam$().subscribe();
     };
 
-    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
+    previewExam = (fromTab: number) => this.ExamSrv.previewExam(this.exam, fromTab, this.collaborative);
 
     nextTab = () => {
         this.Tabs.notifyTabChange(4);
@@ -250,7 +245,7 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
+            this.ExamSrv.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
                 this.exam.examinationEventConfigurations.push(config);
             });
         });
@@ -265,7 +260,7 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
+            this.ExamSrv.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
                 (config: ExaminationEventConfiguration) => {
                     const index = this.exam.examinationEventConfigurations.indexOf(configuration);
                     console.log(index);
@@ -285,7 +280,7 @@ export class ExamPublicationComponent implements OnInit {
             this.translate.instant('sitnet_are_you_sure'),
         )
             .result.then(() =>
-                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe(
+                this.ExamSrv.removeExaminationEvent$(this.exam.id, configuration).subscribe(
                     () => {
                         this.exam.examinationEventConfigurations.splice(
                             this.exam.examinationEventConfigurations.indexOf(configuration),
@@ -305,7 +300,9 @@ export class ExamPublicationComponent implements OnInit {
     private countQuestions = () => this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
 
     private hasDuplicatePercentages = () => {
-        if (!this.exam.autoEvaluationConfig) return false;
+        if (!this.exam.autoEvaluationConfig) {
+            return false;
+        }
         const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map((e) => e.percentage).sort();
         for (let i = 0; i < percentages.length - 1; ++i) {
             if (percentages[i + 1] === percentages[i]) {
@@ -348,7 +345,7 @@ export class ExamPublicationComponent implements OnInit {
         if (!this.exam.examType) {
             errors.push('sitnet_exam_credit_type_missing');
         }
-        if (this.exam.examOwners.length == 0) {
+        if (this.exam.examOwners.length === 0) {
             errors.push('sitnet_exam_owner_missing');
         }
 

@@ -12,24 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
-
-import type { OnInit } from '@angular/core';
-import type { LanguageInspection } from '../maturity.model';
+import { LanguageInspection } from '../maturity.model';
 
 @Component({
-    selector: 'maturity-reporting',
+    selector: 'app-maturity-reporting',
     templateUrl: './maturityReporting.component.html',
 })
 export class MaturityReportingComponent implements OnInit {
     month: Date;
     processedInspections: LanguageInspection[];
 
-    constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
+    constructor(private LanguageInspectionSrv: LanguageInspectionService, private Window: WindowRef) {}
 
     ngOnInit() {
         this.month = new Date();
@@ -38,18 +36,18 @@ export class MaturityReportingComponent implements OnInit {
 
     printReport = () => this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 500);
 
-    query = (event?: { date: Date | null }) => {
+    query = (event?: { date: Date }) => {
         const params: { month?: string } = {};
-        if (event?.date) {
+        if (event) {
             params.month = moment(event.date).toISOString();
             this.month = event.date;
         }
-        this.LanguageInspection.query(params).subscribe(
+        this.LanguageInspectionSrv.query(params).subscribe(
             (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
         );
     };
 
-    showStatement = (statement: { comment: string }) => {
-        this.LanguageInspection.showStatement(statement);
+    showStatement = (inspection: LanguageInspection) => {
+        this.LanguageInspectionSrv.showStatement(inspection.statement.comment);
     };
 }

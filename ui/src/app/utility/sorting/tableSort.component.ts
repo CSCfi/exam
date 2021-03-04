@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
  */
 
 @Component({
-    selector: 'table-sort',
+    selector: 'app-table-sort',
     template: `
         <span class="pointer"
             >{{ text | translate }}&nbsp;

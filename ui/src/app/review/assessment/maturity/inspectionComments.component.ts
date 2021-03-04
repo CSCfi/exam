@@ -19,11 +19,11 @@ import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
+import { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
 
 @Component({
-    selector: 'r-inspection-comments',
+    selector: 'app-r-inspection-comments',
     templateUrl: './inspectionComments.component.html',
 })
 export class InspectionCommentsComponent {

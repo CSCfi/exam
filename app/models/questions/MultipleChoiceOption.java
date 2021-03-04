@@ -15,8 +15,6 @@
 
 package models.questions;
 
-import models.base.GeneratedIdentityModel;
-import models.sections.ExamSectionQuestionOption;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.annotation.EnumValue;
 import java.util.Set;
@@ -25,6 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
+import models.base.GeneratedIdentityModel;
+import models.sections.ExamSectionQuestionOption;
 import org.springframework.beans.BeanUtils;
 
 @Entity

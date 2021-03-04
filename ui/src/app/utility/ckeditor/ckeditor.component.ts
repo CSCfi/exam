@@ -21,14 +21,14 @@ import * as _ from 'lodash';
 
 import { WindowRef } from '../window/window.service';
 
-import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import type { ControlValueAccessor } from '@angular/forms';
+import { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let CKEDITOR: any;
 
 @Component({
-    selector: 'ckeditor',
+    selector: 'app-ckeditor',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

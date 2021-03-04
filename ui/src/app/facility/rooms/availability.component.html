@@ -29,7 +29,7 @@
             <div class="calendar-room-info-content">
                 <div *ngFor="let eh of exceptionHours">
                     <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
-                        {{ eh.start }} - {{ eh.end }}
+                        {{ eh.startDate }} - {{ eh.endDate }}
                         <small>({{ eh.description | translate }})</small>
                     </span>
                 </div>
@@ -48,10 +48,11 @@
                 </button>
             </div>
         </div>
-        <booking-calendar
-            (onRefresh)="refresh(start, callback)"
+        <app-booking-calendar
+            (needMoreEvents)="refresh($event)"
             [room]="room"
             [visible]="showCalendar"
-        ></booking-calendar>
+            [events]="events"
+        ></app-booking-calendar>
     </div>
 </div>

@@ -19,11 +19,11 @@ import * as toast from 'toastr';
 
 import { Exam } from '../../exam.model';
 
-import type { OnInit } from '@angular/core';
-import type { Software } from '../../exam.model';
+import { OnInit } from '@angular/core';
+import { Software } from '../../exam.model';
 
 @Component({
-    selector: 'software-selector',
+    selector: 'app-software-selector',
     templateUrl: './softwareSelector.component.html',
 })
 export class SoftwareSelectorComponent implements OnInit {

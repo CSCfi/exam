@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import type { Observable } from 'rxjs';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -30,17 +28,17 @@ interface CourseFilter {
 }
 
 @Component({
-    selector: 'course-picker',
+    selector: 'app-course-picker',
     templateUrl: './coursePicker.component.html',
 })
 export class CoursePickerComponent implements OnInit {
     @Input() course: Course;
-    @Output() onUpdate = new EventEmitter<Course>();
+    @Output() update = new EventEmitter<Course>();
 
     public filter: CourseFilter;
     loader: { name: { isOn: boolean }; code: { isOn: boolean } };
 
-    constructor(private translate: TranslateService, private Course: CoursePickerService) {}
+    constructor(private translate: TranslateService, private CourseSrv: CoursePickerService) {}
 
     ngOnInit() {
         this.filter = {
@@ -64,7 +62,7 @@ export class CoursePickerComponent implements OnInit {
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap((term) => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
+            exhaustMap((term) => (term.length < 2 ? from([]) : this.CourseSrv.getCourses$(category, term))),
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
@@ -81,7 +79,7 @@ export class CoursePickerComponent implements OnInit {
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
         this.filter = { name: event.item.name, code: event.item.code.split('_')[0] };
-        this.onUpdate.emit(event.item);
+        this.update.emit(event.item);
     };
 
     private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);

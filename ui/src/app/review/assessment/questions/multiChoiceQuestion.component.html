@@ -3,14 +3,14 @@
         <div class="col-md-12">
             <!-- question text -->
             <div class="d-flex justify-content-between">
-                <div class="review-question-title marr110" [MathJax]="sectionQuestion.question.question"></div>
+                <div class="review-question-title marr110" [appMathJax]="sectionQuestion.question.question"></div>
                 <div>
                     <!-- grade -->
                     <div
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="{ 'text-decoration': hasForcedScore() ? 'line-through' : '' }">
                             {{ scoreMultipleChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -22,7 +22,7 @@
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="{ 'text-decoration': hasForcedScore() ? 'line-through' : '' }">
                             {{ scoreWeightedMultipleChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -34,7 +34,7 @@
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="{ 'text-decoration': hasForcedScore() ? 'line-through' : '' }">
                             {{ scoreClaimChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -70,14 +70,14 @@
             <div class="mart20" *ngIf="reviewExpanded">
                 <hr />
                 <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
-                    <r-multi-choice-answer [sectionQuestion]="sectionQuestion"></r-multi-choice-answer>
+                    <app-r-multi-choice-answer [sectionQuestion]="sectionQuestion"></app-r-multi-choice-answer>
                 </div>
                 <div *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
-                    </r-weighted-multi-choice-answer>
+                    <app-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
+                    </app-r-weighted-multi-choice-answer>
                 </div>
                 <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-                    <r-claim-choice-answer [sectionQuestion]="sectionQuestion"></r-claim-choice-answer>
+                    <app-r-claim-choice-answer [sectionQuestion]="sectionQuestion"></app-r-claim-choice-answer>
                 </div>
                 <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
@@ -99,8 +99,8 @@
                             fixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             [disabled]="!isScorable"
-                            min="{{ getMinimumOptionScore() }}"
-                            max="{{ sectionQuestion.maxScore || calculateMaxPoints() }}"
+                            [min]="getMinimumOptionScore()"
+                            [max]="sectionQuestion.maxScore || calculateMaxPoints()"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

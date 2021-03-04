@@ -20,8 +20,8 @@ import { from, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { LanguageInspection } from '../../../maturity/maturity.model';
+import { Exam } from '../../../exam/exam.model';
+import { LanguageInspection } from '../../../maturity/maturity.model';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { AssessmentService } from '../assessment.service';
@@ -51,14 +51,6 @@ type States = {
 
 @Injectable()
 export class MaturityService {
-    isMissingStatement = (exam: Exam) => {
-        if (!this.isUnderLanguageInspection(exam)) {
-            return false;
-        }
-        return !exam.languageInspection?.statement.comment;
-    };
-    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
-
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: { id: 1, text: 'sitnet_not_reviewed', canProceed: false, warn: false },
         [StateName.REJECT_STRAIGHTAWAY]: { id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true },
@@ -74,8 +66,8 @@ export class MaturityService {
             text: 'sitnet_reject_maturity',
             canProceed: true,
             warn: true,
-            validate: this.canFinalizeInspection,
-            showHint: this.isMissingStatement,
+            validate: (exam: Exam) => this.canFinalizeInspection(exam),
+            showHint: (exam: Exam) => this.isMissingStatement(exam),
             hint: 'sitnet_missing_statement',
         },
         [StateName.APPROVE_LANGUAGE]: {
@@ -83,8 +75,8 @@ export class MaturityService {
             text: 'sitnet_approve_maturity',
             canProceed: true,
             warn: false,
-            validate: this.canFinalizeInspection,
-            showHint: this.isMissingStatement,
+            validate: (exam: Exam) => this.canFinalizeInspection(exam),
+            showHint: (exam: Exam) => this.isMissingStatement(exam),
             hint: 'sitnet_missing_statement',
             alternateState: StateName.REJECT_LANGUAGE,
         },
@@ -99,6 +91,14 @@ export class MaturityService {
         private Assessment: AssessmentService,
         private Session: SessionService,
     ) {}
+
+    isMissingStatement = (exam: Exam) => {
+        if (!this.isUnderLanguageInspection(exam)) {
+            return false;
+        }
+        return !exam.languageInspection?.statement.comment;
+    };
+    private canFinalizeInspection = (exam: Exam) => typeof exam.languageInspection?.statement.comment === 'string';
 
     private isUnderLanguageInspection = (exam: Exam) =>
         this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;

@@ -15,13 +15,13 @@
 
 package impl;
 
-import models.Course;
-import models.User;
 import com.google.inject.ImplementedBy;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import models.Course;
+import models.User;
 
 @ImplementedBy(ExternalCourseHandlerImpl.class)
 public interface ExternalCourseHandler {

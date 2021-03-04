@@ -19,7 +19,7 @@ import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'printed-multi-choice',
+    selector: 'app-printed-multi-choice',
     templateUrl: './templates/multiChoice.component.html',
 })
 export class PrintedMultiChoiceComponent {

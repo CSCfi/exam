@@ -15,12 +15,12 @@
 
 package models;
 
-import models.api.AttachmentContainer;
-import models.base.OwnedModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
+import models.api.AttachmentContainer;
+import models.base.OwnedModel;
 
 @Entity
 public class Comment extends OwnedModel implements AttachmentContainer {

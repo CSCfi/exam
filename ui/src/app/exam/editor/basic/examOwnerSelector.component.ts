@@ -13,20 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
+import { User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-owner-selector',
+    selector: 'app-exam-owner-selector',
     templateUrl: './examOwnerSelector.component.html',
 })
 export class ExamOwnerSelectorComponent implements OnInit {

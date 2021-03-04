@@ -1,16 +1,16 @@
 <div class="review-grade-row mart20">
     <div class="col-md-2 general-info-title">{{ 'sitnet_total_score' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ getExamTotalScore(exam) }} / {{ getExamMaxPossibleScore(exam) }}</div>
+    <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspection_status' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngFor="let inspection of exam.examInspections">
-            <r-inspection
+            <app-r-inspection
                 [inspection]="inspection"
                 [user]="user"
                 [disabled]="isGraded() || isReadOnly()"
                 (onInspection)="inspectionDone()"
             >
-            </r-inspection>
+            </app-r-inspection>
         </div>
     </div>
 </div>
@@ -130,10 +130,10 @@
     <div
         class="col-md-10"
         [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        [MathJax]="exam.examFeedback?.comment"
+        [appMathJax]="exam.examFeedback?.comment"
     ></div>
     <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
+        <a class="pointer" (click)="downloadFeedbackAttachment()">
             {{ exam.examFeedback.attachment?.fileName }}
         </a>
     </div>
@@ -207,9 +207,9 @@
 </div>
 
 <!-- Bottom toolbar -->
-<r-toolbar
+<app-r-toolbar
     [valid]="gradingForm.valid"
     [exam]="exam"
     [participation]="participation"
     [collaborative]="collaborative"
-></r-toolbar>
+></app-r-toolbar>

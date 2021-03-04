@@ -13,32 +13,33 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, OnInit } from '@angular/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { map } from 'rxjs/operators';
 
 import { FileService } from '../../utility/file/file.service';
 import { WindowRef } from '../../utility/window/window.service';
-import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
+import { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
 
 @Component({
-    selector: 'printout',
+    selector: 'app-printout',
     templateUrl: './printout.component.html',
 })
-export class PrintoutComponent {
+export class PrintoutComponent implements OnInit {
     exam: Printout;
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private Window: WindowRef,
         private Files: FileService,
     ) {}
 
     ngOnInit() {
         this.http
-            .get<Exam>(`/app/exams/${this.state.params.id}/preview`)
+            .get<Exam>(`/app/exams/${this.routing.params.id}/preview`)
             .pipe(
                 map((exam) => {
                     exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
@@ -108,10 +109,10 @@ export class PrintoutComponent {
     };
 
     exitPreview = () => {
-        if (this.state.params.tab) {
+        if (this.routing.params.tab) {
             this.state.go('examEditor', {
-                id: this.state.params.id,
-                tab: this.state.params.tab,
+                id: this.routing.params.id,
+                tab: this.routing.params.tab,
             });
         } else {
             this.state.go('printouts');
@@ -122,7 +123,7 @@ export class PrintoutComponent {
 
     printAttachment = () =>
         this.Files.download(
-            '/app/attachment/exam/' + this.state.params.id,
+            '/app/attachment/exam/' + this.routing.params.id,
             (this.exam.attachment as Attachment).fileName,
         );
 }

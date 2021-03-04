@@ -15,8 +15,8 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
 import javax.persistence.Entity;
+import models.base.GeneratedIdentityModel;
 
 @Entity
 public class MailAddress extends GeneratedIdentityModel {

@@ -18,13 +18,9 @@ package controllers.iop.collaboration.impl;
 
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
-import models.Exam;
-import models.User;
-import models.json.CollaborativeExam;
-import util.config.ConfigReader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.net.URL;
@@ -34,6 +30,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.Exam;
+import models.User;
+import models.json.CollaborativeExam;
 import play.libs.Files;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -42,6 +41,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import util.config.ConfigReader;
 
 public class CollaborativeAttachmentController
     extends CollaborationController

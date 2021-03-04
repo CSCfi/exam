@@ -15,36 +15,35 @@
 import { Location } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../../exam/exam.model';
+import { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { Examination } from '../../../examination/examination.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
 @Component({
-    selector: 'r-toolbar',
+    selector: 'app-r-toolbar',
     templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
     @Input() valid: boolean;
     @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
-    @Input() exam: Examination;
+    @Input() exam: Exam;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private location: Location,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
     ) {}
 
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
+    isOwnerOrAdmin = () => this.ExamSrv.isOwnerOrAdmin(this.exam, this.collaborative);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
     isMaturityRejection = () =>
@@ -58,8 +57,8 @@ export class ToolbarComponent {
             this.CollaborativeAssessment.saveAssessment(
                 this.participation,
                 this.isOwnerOrAdmin(),
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
             );
         } else {
             this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
@@ -70,8 +69,8 @@ export class ToolbarComponent {
         if (this.collaborative) {
             this.CollaborativeAssessment.createExamRecord(
                 this.participation,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
             );
         } else {
             this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {

@@ -39,7 +39,7 @@
         <div class="review-border">
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title d-flex justify-content-between">
-                    <span *ngIf="exam.course"><course-code [course]="exam.course"></course-code> - </span
+                    <span *ngIf="exam.course"><app-course-code [course]="exam.course"></app-course-code> - </span
                     >{{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
                         <img
@@ -58,27 +58,27 @@
                 </div>
             </div>
             <!-- General Information -->
-            <r-general-info
+            <app-r-general-info
                 *ngIf="exam && !hideGeneralInfo"
                 [participation]="participation"
                 [exam]="exam"
                 [collaborative]="collaborative"
-            ></r-general-info>
+            ></app-r-general-info>
         </div>
     </div>
 
     <!-- Sections -->
     <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
-        <r-exam-section
+        <app-r-exam-section
             [section]="section"
             [participation]="participation"
             [exam]="exam"
             [collaborative]="collaborative"
-            (onScore)="scoreSet($event)"
+            (scored)="scoreSet($event)"
             [index]="index + 1"
             [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
         >
-        </r-exam-section>
+        </app-r-exam-section>
     </div>
 
     <div class="tab-wrapper-exams review">
@@ -105,7 +105,7 @@
 
             <!-- Grading -->
             <div [hidden]="hideGradeInfo" class="padl15 padr15">
-                <r-grading
+                <app-r-grading
                     [exam]="exam"
                     [questionSummary]="questionSummary"
                     [participation]="participation"
@@ -114,27 +114,27 @@
                     *ngIf="exam && !exam.subjectToLanguageInspection"
                     (onUpdate)="gradingUpdated()"
                 >
-                </r-grading>
-                <r-maturity-grading
+                </app-r-grading>
+                <app-r-maturity-grading
                     *ngIf="exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection"
                     (onUpdate)="gradingUpdated()"
                     [user]="user"
                     [exam]="exam"
                     [questionSummary]="questionSummary"
                 >
-                </r-maturity-grading>
+                </app-r-maturity-grading>
             </div>
 
             <!-- Floating feedback window -->
-            <r-feedback
+            <app-r-feedback
                 *ngIf="exam && !isUnderLanguageInspection()"
                 [exam]="exam"
                 [collaborative]="collaborative"
                 [participation]="participation"
                 [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
             >
-            </r-feedback>
-            <r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></r-statement>
+            </app-r-feedback>
+            <app-r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></app-r-statement>
         </div>
     </div>
 </div>

@@ -18,22 +18,23 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { ExamSection, Question } from '../../exam/exam.model';
+import { ExamSection } from '../../exam/exam.model';
+import { LibraryQuestion } from '../library/library.service';
 
 @Component({
-    selector: 'question-selector',
+    selector: 'app-question-selector',
     templateUrl: './questionSelector.component.html',
 })
 export class QuestionSelectorComponent {
     @Input() questionCount: number;
     @Input() sectionId: number;
     @Input() examId: number;
-    questions: Question[] = [];
+    questions: LibraryQuestion[] = [];
     selections: number[];
 
     constructor(private modal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 
-    resultsUpdated = (event: Question[]) => (this.questions = event);
+    resultsUpdated = (event: LibraryQuestion[]) => (this.questions = event);
     questionSelected = (event: number[]) => (this.selections = event);
     questionCopied = () => toast.info(this.translate.instant('sitnet_question_copied'));
     cancel = () => this.modal.dismiss();
@@ -69,7 +70,7 @@ export class QuestionSelectorComponent {
         // calculate the new order number for question sequence
         // always add question to last spot, because dragndrop
         // is not in use here
-        const to = this.questionCount + 1;
-        insertQuestion(this.sectionId, to, this.examId);
+        const index = this.questionCount + 1;
+        insertQuestion(this.sectionId, index, this.examId);
     };
 }

@@ -17,12 +17,12 @@ import * as moment from 'moment';
 
 import { RoomService } from '../rooms/room.service';
 
-import type { OnInit } from '@angular/core';
-import type { WorkingHour } from '../rooms/room.service';
+import { OnInit } from '@angular/core';
+import { WorkingHour } from '../rooms/room.service';
 
 @Component({
     templateUrl: './startingTime.component.html',
-    selector: 'starting-time',
+    selector: 'app-starting-time',
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[];

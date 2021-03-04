@@ -15,8 +15,6 @@
 
 package models.base;
 
-import models.User;
-import util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -24,7 +22,9 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.User;
 import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {

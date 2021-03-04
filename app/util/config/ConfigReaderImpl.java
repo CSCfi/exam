@@ -15,8 +15,6 @@
 
 package util.config;
 
-import models.ExamExecutionType;
-import models.Role;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
@@ -26,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import models.ExamExecutionType;
+import models.Role;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;

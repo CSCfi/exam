@@ -15,11 +15,9 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.ExamRoom;
-import models.Reservation;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -28,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import models.ExamRoom;
+import models.Reservation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;

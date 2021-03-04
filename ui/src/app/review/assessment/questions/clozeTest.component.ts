@@ -14,29 +14,29 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
+import { ClozeTestAnswer, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-cloze-test',
+    selector: 'app-r-cloze-test',
     templateUrl: './clozeTest.component.html',
 })
 export class ClozeTestComponent {
     @Input() participation: ExamParticipation;
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion: ExamSectionQuestion & { clozeTestAnswer: ClozeTestAnswer & { question: string } };
     @Input() isScorable: boolean;
     @Input() collaborative: boolean;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
 
     reviewExpanded = true;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -65,12 +65,12 @@ export class ClozeTestComponent {
         this.collaborative
             ? this.Assessment.saveCollaborativeForcedScore(
                   this.sectionQuestion,
-                  this.state.params.id,
-                  this.state.params.ref,
+                  this.routing.params.id,
+                  this.routing.params.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
                   toast.info(this.translate.instant('sitnet_graded'));
-                  this.onScore.emit(resp.rev);
+                  this.scored.emit(resp.rev);
               })
             : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
                   toast.info(this.translate.instant('sitnet_graded')),

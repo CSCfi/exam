@@ -19,7 +19,7 @@ import * as moment from 'moment';
 import * as toast from 'toastr';
 
 @Component({
-    selector: 'archive-download',
+    selector: 'app-archive-download',
     templateUrl: './archiveDownload.component.html',
 })
 export class ArchiveDownloadComponent {

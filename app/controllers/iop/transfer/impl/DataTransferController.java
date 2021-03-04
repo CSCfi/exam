@@ -1,14 +1,5 @@
 package controllers.iop.transfer.impl;
 
-import controllers.base.BaseController;
-import models.Attachment;
-import models.User;
-import models.questions.Question;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.config.ConfigReader;
-import util.file.FileHandler;
-import util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -18,6 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
@@ -39,6 +31,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Attachment;
+import models.User;
+import models.questions.Question;
 import play.Logger;
 import play.http.HttpErrorHandler;
 import play.libs.Json;
@@ -47,6 +42,11 @@ import play.libs.ws.WSRequest;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import util.config.ConfigReader;
+import util.file.FileHandler;
+import util.json.JsonDeserializer;
 
 public class DataTransferController extends BaseController {
 

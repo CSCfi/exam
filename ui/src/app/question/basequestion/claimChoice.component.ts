@@ -12,14 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
 @Component({
-    selector: 'claim-choice-editor',
+    selector: 'app-claim-choice-editor',
     template: `
         <div>
             <div class="col-md-9 col-md-offset-3">
@@ -92,13 +92,13 @@ import { QuestionService } from '../question.service';
         </div>
     `,
 })
-export class ClaimChoiceEditorComponent {
+export class ClaimChoiceEditorComponent implements OnInit {
     @Input() option: MultipleChoiceOption;
     @Input() question: Question;
     @Input() lotteryOn: boolean;
     @Input() showWarning: boolean;
 
-    missingOptions: string[];
+    missingOptions: string[] = [];
 
     defaultOptions = {
         correct: {
@@ -124,7 +124,7 @@ export class ClaimChoiceEditorComponent {
         },
     };
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(private translate: TranslateService, private QuestionSrv: QuestionService) {}
 
     ngOnInit() {
         const { state, question } = this.question;
@@ -141,15 +141,15 @@ export class ClaimChoiceEditorComponent {
     };
 
     returnOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
-        this.Question.returnOptionDescriptionTranslation(option.claimChoiceType as string);
+        this.QuestionSrv.returnOptionDescriptionTranslation(option.claimChoiceType as string);
 
     returnOptionClass = (option: MultipleChoiceOption) =>
-        this.Question.returnClaimChoiceOptionClass(option.claimChoiceType as string);
+        this.QuestionSrv.returnClaimChoiceOptionClass(option.claimChoiceType as string);
 
     private validate = () =>
-        (this.missingOptions = this.Question.getInvalidClaimOptionTypes(this.question.options)
+        (this.missingOptions = this.QuestionSrv.getInvalidClaimOptionTypes(this.question.options)
             .filter((type) => type !== 'SkipOption')
-            .map((optionType) => this.Question.getOptionTypeTranslation(optionType)));
+            .map((optionType) => this.QuestionSrv.getOptionTypeTranslation(optionType)));
 
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {

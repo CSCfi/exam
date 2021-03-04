@@ -13,17 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
+import { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
-import type { ExamEnrolment } from '../enrolment.model';
+import { ExamEnrolment } from '../enrolment.model';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
@@ -31,7 +30,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 };
 
 @Component({
-    selector: 'waiting-room',
+    selector: 'app-waiting-room',
     templateUrl: './waitingRoom.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
@@ -42,7 +41,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
         private Window: WindowRef,
@@ -60,9 +59,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     };
 
     ngOnInit() {
-        if (this.state.params.id) {
+        if (this.routing.params.id) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe(
                 (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');

@@ -1,17 +1,5 @@
 package repository;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExaminationEvent;
-import models.ExaminationEventConfiguration;
-import models.Reservation;
-import models.User;
-import models.json.CollaborativeExam;
-import models.sections.ExamSection;
-import util.config.ByodConfigHandler;
-import util.datetime.DateTimeUtils;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Collections;
@@ -26,6 +14,16 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExaminationEvent;
+import models.ExaminationEventConfiguration;
+import models.Reservation;
+import models.User;
+import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -35,6 +33,8 @@ import play.Logger;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.config.ByodConfigHandler;
+import util.datetime.DateTimeUtils;
 
 public class EnrolmentRepository {
 

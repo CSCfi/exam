@@ -18,11 +18,11 @@ import { tap } from 'rxjs/operators';
 import { SessionService } from '../../../session/session.service';
 import { LibraryService } from '../library.service';
 
-import type { OnInit } from '@angular/core';
-import type { Observable } from 'rxjs';
-import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
-import type { LibraryQuestion } from '../library.service';
+import { OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
+import { User } from '../../../session/session.service';
+import { LibraryQuestion } from '../library.service';
 interface Filterable<T> {
     id: number;
     filtered: boolean;
@@ -32,7 +32,7 @@ interface Filterable<T> {
 }
 
 @Component({
-    selector: 'library-search',
+    selector: 'app-library-search',
     templateUrl: './librarySearch.component.html',
 })
 export class LibrarySearchComponent implements OnInit {

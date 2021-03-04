@@ -20,9 +20,9 @@ import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Observable } from 'rxjs';
-import type { ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
+import { Observable } from 'rxjs';
+import { ExamParticipation } from '../../exam/exam.model';
+import { Review } from '../review.model';
 
 type Selection = { [k: string]: boolean };
 
@@ -42,9 +42,13 @@ export class ReviewListService {
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
-        if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
-        else if (collaborative && review._id) return review._id;
-        else return review.exam.id.toString();
+        if (review.user) {
+            return `${review.user.lastName} ${review.user.firstName}`;
+        } else if (collaborative && review._id) {
+            return review._id;
+        } else {
+            return review.exam.id.toString();
+        }
     };
 
     filterReview = (filter: string, review: Review): boolean => {
@@ -69,11 +73,11 @@ export class ReviewListService {
     prepareView = (items: Review[], setup: (p: Review) => void, predicate: string): ReviewListView => {
         items.forEach(setup);
         return {
-            items: items,
+            items,
             filtered: items,
             toggle: items.length > 0,
             pageSize: 30,
-            predicate: predicate,
+            predicate,
             reverse: false,
             page: 0,
             filter: '',
@@ -139,7 +143,7 @@ export class ReviewListService {
         if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
             const examToRecord = {
                 id: exam.id,
-                state: state,
+                state,
                 grade: exam.grade,
                 customCredit: exam.customCredit,
                 totalScore: exam.totalScore,
@@ -167,7 +171,7 @@ export class ReviewListService {
 
     getReviews = (examId: number, collaborative = false) => {
         return this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
-        //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
+        // this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
     };
 
     private getResource = (examId: number, collaborative: boolean) =>

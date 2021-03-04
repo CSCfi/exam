@@ -19,9 +19,9 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
+import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
-    selector: 'r-statement',
+    selector: 'app-r-statement',
     templateUrl: './statement.component.html',
 })
 export class StatementComponent {

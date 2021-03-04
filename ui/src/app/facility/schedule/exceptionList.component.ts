@@ -15,22 +15,20 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import * as moment from 'moment';
 
-import { ExamRoom } from '../../reservation/reservation.model';
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { RoomService } from '../rooms/room.service';
-
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './exceptionList.component.html',
-    selector: 'exception-list',
+    selector: 'app-exception-list',
 })
 export class ExceptionListComponent {
     @Input() room: ExamRoom;
     @Input() hideButton: boolean;
     @Input() hideTitle: boolean;
     @Input() filter: (exception: ExceptionWorkingHours) => boolean;
-    @Output() onCreate = new EventEmitter<ExceptionWorkingHours>();
-    @Output() onDelete = new EventEmitter<ExceptionWorkingHours>();
+    @Output() created = new EventEmitter<ExceptionWorkingHours>();
+    @Output() deleted = new EventEmitter<ExceptionWorkingHours>();
 
     constructor(private roomService: RoomService) {}
 
@@ -46,10 +44,10 @@ export class ExceptionListComponent {
     };
 
     createExceptionCallback = (exception: ExceptionWorkingHours) => {
-        this.onCreate.emit(exception);
+        this.created.emit(exception);
     };
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        this.onDelete.emit(exception);
+        this.deleted.emit(exception);
     };
 }

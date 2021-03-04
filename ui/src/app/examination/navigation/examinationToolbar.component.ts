@@ -13,29 +13,29 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
+import { ExamRoom } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
 
-import type { ExamRoom } from '../../reservation/reservation.model';
 @Component({
-    selector: 'examination-toolbar',
+    selector: 'app-examination-toolbar',
     templateUrl: './examinationToolbar.component.html',
 })
-export class ExaminationToolbarComponent {
+export class ExaminationToolbarComponent implements OnInit {
     @Input() exam: Examination;
     @Input() activeSection: ExaminationSection;
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
-    @Output() onPageSelect = new EventEmitter<{ page: { id?: number; type: string } }>();
+    @Output() pageSelected = new EventEmitter<{ page: { id?: number; type: string } }>();
 
     room: ExamRoom;
 
@@ -47,7 +47,7 @@ export class ExaminationToolbarComponent {
         private Window: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
-        private Examination: ExaminationService,
+        private ExaminationSrv: ExaminationService,
         private Attachment: AttachmentService,
         private Enrolment: EnrolmentService,
     ) {}
@@ -74,8 +74,8 @@ export class ExaminationToolbarComponent {
         );
         dialog.result.then(() =>
             // Save all textual answers regardless of empty or not
-            this.Examination.saveAllTextualAnswersOfExam$(this.exam, false).subscribe(() =>
-                this.Examination.logout(
+            this.ExaminationSrv.saveAllTextualAnswersOfExam$(this.exam, false).subscribe(() =>
+                this.ExaminationSrv.logout(
                     'sitnet_exam_returned',
                     this.exam.hash,
                     this.exam.implementation === 'CLIENT_AUTH',
@@ -91,7 +91,7 @@ export class ExaminationToolbarComponent {
             this.translate.instant('sitnet_confirm_abort_exam'),
         );
         dialog.result.then(() =>
-            this.Examination.abort$(this.exam.hash).subscribe(
+            this.ExaminationSrv.abort$(this.exam.hash).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                     this.Window.nativeWindow.onbeforeunload = null;
@@ -107,19 +107,19 @@ export class ExaminationToolbarComponent {
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 
-    selectGuidePage = () => this.onPageSelect.emit({ page: { type: 'guide' } });
+    selectGuidePage = () => this.pageSelected.emit({ page: { type: 'guide' } });
 
     selectSection = (section: ExaminationSection) =>
-        this.onPageSelect.emit({ page: { id: section.id, type: 'section' } });
+        this.pageSelected.emit({ page: { id: section.id, type: 'section' } });
 
     getQuestionAmount = (section: ExaminationSection, type: string) => {
         if (type === 'total') {
             return section.sectionQuestions.length;
         } else if (type === 'answered') {
-            return section.sectionQuestions.filter(this.Examination.isAnswered).length;
+            return section.sectionQuestions.filter(this.ExaminationSrv.isAnswered).length;
         } else if (type === 'unanswered') {
             return (
-                section.sectionQuestions.length - section.sectionQuestions.filter(this.Examination.isAnswered).length
+                section.sectionQuestions.length - section.sectionQuestions.filter(this.ExaminationSrv.isAnswered).length
             );
         }
     };
@@ -142,15 +142,15 @@ export class ExaminationToolbarComponent {
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });
 
     exitPreview = () => {
-        const tab = parseInt(this.routing.params.tab || 1);
+        const tab = parseInt(this.routing.params.tab || 1, 10);
         const collab = this.isCollaborative ? 'collaborative' : 'false';
-        if (tab == 1) {
+        if (tab === 1) {
             this.state.go('examEditor.basic', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 2) {
+        } else if (tab === 2) {
             this.state.go('examEditor.sections', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 3) {
+        } else if (tab === 3) {
             this.state.go('examEditor.publication', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 4) {
+        } else if (tab === 4) {
             this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: collab });
         }
     };

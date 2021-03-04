@@ -15,20 +15,6 @@
 
 package controllers.iop.transfer.impl;
 
-import controllers.CalendarController;
-import exceptions.NotFoundException;
-import impl.CalendarHandler;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import sanitizers.Attrs;
-import sanitizers.ExternalCalendarReservationSanitizer;
-import security.Authenticated;
-import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -36,6 +22,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.CalendarController;
+import exceptions.NotFoundException;
+import impl.CalendarHandler;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
@@ -52,6 +41,12 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -64,6 +59,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExternalCalendarReservationSanitizer;
+import security.Authenticated;
+import util.config.ConfigReader;
+import util.datetime.DateTimeUtils;
 
 public class ExternalCalendarController extends CalendarController {
 

@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'inspection-statement-dialog',
+    selector: 'app-inspection-statement-dialog',
     templateUrl: './inspectionStatementDialog.component.html',
 })
 export class InspectionStatementDialogComponent {

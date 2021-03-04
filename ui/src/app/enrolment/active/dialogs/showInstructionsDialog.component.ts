@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'show-instructions-dialog',
+    selector: 'app-show-instructions-dialog',
     templateUrl: './showInstructionsDialog.component.html',
 })
 export class ShowInstructionsDialogComponent {

@@ -18,12 +18,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { DateTimeService } from '../../utility/date/date.service';
 import { RoomService, Week } from '../rooms/room.service';
 
-import type { OnInit } from '@angular/core';
-import type { Weekday } from '../rooms/room.service';
+import { OnInit } from '@angular/core';
+import { Weekday } from '../rooms/room.service';
 
 @Component({
     templateUrl: './openHours.component.html',
-    selector: 'open-hours',
+    selector: 'app-open-hours',
 })
 export class OpenHoursComponent implements OnInit {
     @Input() week: Week;

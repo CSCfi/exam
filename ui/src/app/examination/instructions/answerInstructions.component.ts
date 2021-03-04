@@ -18,7 +18,7 @@ import { DateTimeService } from '../../utility/date/date.service';
 import { Examination } from '../examination.service';
 
 @Component({
-    selector: 'answer-instructions',
+    selector: 'app-answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
         <div class="row">
@@ -34,7 +34,7 @@ import { Examination } from '../examination.service';
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</div>
-                    <div class="text col-md-8"><course-code [course]="exam?.course"></course-code></div>
+                    <div class="text col-md-8"><app-course-code [course]="exam?.course"></app-course-code></div>
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</div>

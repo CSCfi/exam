@@ -1,16 +1,16 @@
 package controllers.iop.collaboration.api;
 
-import controllers.iop.collaboration.impl.CollaborativeExamLoaderImpl;
-import models.Exam;
-import models.ExamParticipation;
-import models.User;
-import models.json.CollaborativeExam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
+import controllers.iop.collaboration.impl.CollaborativeExamLoaderImpl;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.Exam;
+import models.ExamParticipation;
+import models.User;
+import models.json.CollaborativeExam;
 import play.mvc.Result;
 
 @ImplementedBy(CollaborativeExamLoaderImpl.class)

@@ -14,12 +14,12 @@
  */
 import { Component, Input } from '@angular/core';
 
-import type { ExamSectionQuestionOption } from '../../../exam/exam.model';
+import { ExamSectionQuestionOption } from '../../../exam/exam.model';
 import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-claim-choice-answer',
+    selector: 'app-r-claim-choice-answer',
     templateUrl: './claimChoiceAnswer.component.html',
 })
 export class ClaimChoiceAnswerComponent {

@@ -16,9 +16,9 @@ import { Component, Input } from '@angular/core';
 
 import { Exam } from '../../exam/exam.model';
 
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 @Component({
-    selector: 'teacher-list',
+    selector: 'app-teacher-list',
     template: `
         <span>
             <strong>{{ owners }}</strong

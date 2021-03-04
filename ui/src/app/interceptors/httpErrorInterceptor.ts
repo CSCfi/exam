@@ -18,8 +18,8 @@ import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import type { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {

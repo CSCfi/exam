@@ -12,22 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { RoomService } from '../../facility/rooms/room.service';
 import { ReportsService } from './reports.service';
 import { UserResourceService, UserRole } from './userResource.service';
 
-import type { OnInit } from '@angular/core';
-
-interface Category {
+export interface Category {
     id: number;
     label: string;
     value: Record<string, unknown>;
 }
 
 @Component({
-    selector: 'reports',
+    selector: 'app-reports',
     template: `
         <div>
             <div id="sitnet-header" class="header">
@@ -37,21 +35,21 @@ interface Category {
             </div>
 
             <div id="dashboard">
-                <div class="report-category" *ngIf="rooms"><rooms-report [rooms]="rooms"></rooms-report></div>
+                <div class="report-category" *ngIf="rooms"><app-rooms-report [rooms]="rooms"></app-rooms-report></div>
                 <div class="report-category" *ngIf="examNames">
-                    <exams-report [examNames]="examNames" fileType="xlsx"></exams-report>
+                    <app-exams-report [examNames]="examNames" fileType="xlsx"></app-exams-report>
                 </div>
                 <div class="report-category" *ngIf="students">
-                    <students-report [students]="students"></students-report>
+                    <app-students-report [students]="students"></app-students-report>
                 </div>
                 <div class="report-category" *ngIf="examNames">
-                    <enrolments-report [examNames]="examNames"></enrolments-report>
+                    <app-enrolments-report [examNames]="examNames"></app-enrolments-report>
                 </div>
-                <div class="report-category"><answers-report></answers-report></div>
-                <div class="report-category"><reviews-report></reviews-report></div>
-                <div class="report-category"><records-report></records-report></div>
+                <div class="report-category"><app-answers-report></app-answers-report></div>
+                <div class="report-category"><app-reviews-report></app-reviews-report></div>
+                <div class="report-category"><app-records-report></app-records-report></div>
                 <div class="report-category" *ngIf="teachers">
-                    <teachers-report [teachers]="teachers"></teachers-report>
+                    <app-teachers-report [teachers]="teachers"></app-teachers-report>
                 </div>
             </div>
         </div>

@@ -12,24 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
+import { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { InteroperabilityResourceService } from './interoperabilityResource.service';
-import { RoomService } from './room.service';
+import { InteroperableRoom, RoomService, Week, Weekday } from './room.service';
 import { SettingsResourceService } from './settingsResource';
-
-import type { OnInit } from '@angular/core';
-import type { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { InteroperableRoom, Week, Weekday } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
-    selector: 'room',
+    selector: 'app-room',
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm: NgForm;
@@ -41,6 +38,7 @@ export class RoomComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private roomService: RoomService,
         private settings: SettingsResourceService,
         private interoperability: InteroperabilityResourceService,
@@ -53,7 +51,7 @@ export class RoomComponent implements OnInit {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
-        this.roomService.getRoom(this.state.params.id).subscribe(
+        this.roomService.getRoom(this.routing.params.id).subscribe(
             (room: InteroperableRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
@@ -99,8 +97,7 @@ export class RoomComponent implements OnInit {
         this.roomService.enableRoom(this.room);
     };
 
-    validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
-        const { name } = event.target;
+    validateInputAndUpdateRoom = (name: string) => {
         const ctrl = this.roomForm.controls[name];
         if (ctrl.valid) {
             this.updateRoom();
@@ -130,8 +127,9 @@ export class RoomComponent implements OnInit {
             return;
         }
 
-        if (!this.roomService.isAnyExamMachines(this.room))
+        if (!this.roomService.isAnyExamMachines(this.room)) {
             toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
+        }
 
         this.roomService.updateRoom(this.room).subscribe(
             () => {
@@ -163,9 +161,9 @@ export class RoomComponent implements OnInit {
     };
 
     private setSelected = (day: Weekday, slots: number[]) => {
-        for (let i = 0; i < slots.length; ++i) {
-            if (this.week[day][slots[i]]) {
-                this.week[day][slots[i]].type = 'selected';
+        for (const slot of slots) {
+            if (this.week[day][slot]) {
+                this.week[day][slot].type = 'selected';
             }
         }
     };

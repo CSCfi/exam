@@ -15,28 +15,28 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExaminationDate;
-import models.ExaminationEvent;
-import models.ExaminationEventConfiguration;
-import sanitizers.Attrs;
-import sanitizers.ExaminationDateSanitizer;
-import sanitizers.ExaminationEventSanitizer;
-import util.config.ByodConfigHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExaminationDate;
+import models.ExaminationEvent;
+import models.ExaminationEventConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExaminationDateSanitizer;
+import sanitizers.ExaminationEventSanitizer;
+import util.config.ByodConfigHandler;
 
 public class ExaminationEventController extends BaseController {
 

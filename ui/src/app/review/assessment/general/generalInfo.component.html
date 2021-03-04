@@ -67,7 +67,7 @@
             [hidden]="previousParticipations?.length === 0"
             *ngFor="let participation of previousParticipations"
         >
-            <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
+            <app-r-participation [participation]="participation" [collaborative]="collaborative"></app-r-participation>
         </div>
     </div>
 
@@ -83,7 +83,7 @@
     </div>
     <div class="detail-row marb20" *ngIf="exam.instruction">
         <div class="col-md-12 general-info-content">
-            <p [MathJax]="exam.instruction"></p>
+            <p [appMathJax]="exam.instruction"></p>
         </div>
     </div>
 

@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import type { User } from '../../session/session.service';
+import { User } from '../../session/session.service';
 
 @Injectable()
 export class UserService {

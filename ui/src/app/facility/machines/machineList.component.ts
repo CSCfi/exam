@@ -19,12 +19,12 @@ import * as toast from 'toastr';
 
 import { ExamRoom } from '../../reservation/reservation.model';
 
-import type { OnInit } from '@angular/core';
-import type { ExamMachine } from '../../reservation/reservation.model';
+import { OnInit } from '@angular/core';
+import { ExamMachine } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './machineList.component.html',
-    selector: 'machine-list',
+    selector: 'app-machine-list',
 })
 export class MachineListComponent implements OnInit {
     @Input() room: ExamRoom;

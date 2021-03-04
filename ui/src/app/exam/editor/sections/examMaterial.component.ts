@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as toast from 'toastr';
 
-import type { ExamMaterial } from '../../exam.model';
+import { ExamMaterial } from '../../exam.model';
 
 @Component({
-    selector: 'exam-material',
+    selector: 'app-exam-material',
     templateUrl: './examMaterial.component.html',
 })
-export class ExamMaterialComponent {
+export class ExamMaterialComponent implements OnInit {
     constructor(private activeModal: NgbActiveModal, private http: HttpClient) {}
 
     materials: ExamMaterial[] = [];

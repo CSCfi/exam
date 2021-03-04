@@ -13,42 +13,33 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { WindowRef } from '../../utility/window/window.service';
-import { QuestionService } from '../question.service';
-
-import type {
+import {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
 } from '../../exam/exam.model';
-
-type EditableExamSectionQuestionOption = Omit<ExamSectionQuestionOption, 'option'> & {
-    option: Partial<MultipleChoiceOption>;
-};
-
-type EditableExamSectionQuestion = Omit<ExamSectionQuestion, 'options'> & {
-    options: Partial<EditableExamSectionQuestionOption>[];
-};
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { WindowRef } from '../../utility/window/window.service';
+import { QuestionService } from '../question.service';
 
 // This component depicts a distributed exam question
 @Component({
-    selector: 'exam-question',
+    selector: 'app-exam-question',
     templateUrl: './examQuestion.component.html',
 })
-export class ExamQuestionComponent {
-    @Input() examQuestion: EditableExamSectionQuestion;
+export class ExamQuestionComponent implements OnInit {
+    @Input() examQuestion: ExamSectionQuestion;
     @Input() lotteryOn: boolean;
-    @Output() onSave = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
+    @Output() canceled = new EventEmitter<void>();
 
     question?: ReverseQuestion;
     transitionWatcher?: unknown;
@@ -62,7 +53,7 @@ export class ExamQuestionComponent {
         private state: StateService,
         private transition: TransitionService,
         private translate: TranslateService,
-        private Question: QuestionService,
+        private QuestionSrv: QuestionService,
         private Window: WindowRef,
         private Attachment: AttachmentService,
         private Confirmation: ConfirmationDialogService,
@@ -97,7 +88,7 @@ export class ExamQuestionComponent {
 
     save = () => {
         this.Window.nativeWindow.onbeforeunload = null;
-        this.onSave.emit({
+        this.saved.emit({
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
@@ -105,7 +96,7 @@ export class ExamQuestionComponent {
 
     cancel = () => {
         this.Window.nativeWindow.onbeforeunload = null;
-        this.onCancel.emit();
+        this.canceled.emit();
     };
 
     private init = () =>
@@ -154,11 +145,16 @@ export class ExamQuestionComponent {
             toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
-        this.examQuestion.options.push({ option: { correctOption: false } });
+        this.examQuestion.options.push({
+            id: 0,
+            score: 0,
+            answered: false,
+            option: { correctOption: false, id: 0, option: '', defaultScore: 0 },
+        });
     };
 
     correctAnswerToggled = (option: ExamSectionQuestionOption) =>
-        this.Question.toggleCorrectOption(
+        this.QuestionSrv.toggleCorrectOption(
             option.option,
             this.examQuestion.options.map((o) => o.option) as MultipleChoiceOption[],
         );
@@ -193,33 +189,33 @@ export class ExamQuestionComponent {
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.examQuestion as ExamSectionQuestion);
+    calculateMaxPoints = () => this.QuestionSrv.calculateMaxPoints(this.examQuestion as ExamSectionQuestion);
 
     returnOptionClass = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);
         if (!optionType) {
             return;
         }
-        return this.Question.returnClaimChoiceOptionClass(optionType);
+        return this.QuestionSrv.returnClaimChoiceOptionClass(optionType);
     };
 
     determineOptionType = (option: ExamSectionQuestionOption) =>
-        this.Question.determineClaimOptionTypeForExamQuestionOption(option);
+        this.QuestionSrv.determineClaimOptionTypeForExamQuestionOption(option);
 
     returnOptionDescriptionTranslation = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);
         if (!optionType) {
             return;
         }
-        return this.Question.returnOptionDescriptionTranslation(optionType);
+        return this.QuestionSrv.returnOptionDescriptionTranslation(optionType);
     };
 
     validate = () => {
-        this.missingOptions = this.Question.getInvalidDistributedClaimOptionTypes(
+        this.missingOptions = this.QuestionSrv.getInvalidDistributedClaimOptionTypes(
             this.examQuestion.options as ExamSectionQuestionOption[],
         )
             .filter((type) => type !== 'SkipOption')
-            .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
+            .map((optionType) => this.QuestionSrv.getOptionTypeTranslation(optionType));
     };
 
     errors = (status: unknown) => {
@@ -228,6 +224,6 @@ export class ExamQuestionComponent {
 
     hasInvalidClaimChoiceOptions = () =>
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
+        this.QuestionSrv.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
             .length > 0;
 }

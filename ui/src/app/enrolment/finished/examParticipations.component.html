@@ -34,7 +34,7 @@
                     aria-label="search"
                     [(ngModel)]="filter.text"
                     type="text"
-                    (ngModelChange)="search($event)"
+                    (ngModelChange)="search()"
                     class="form-control hgt40 marl15"
                     placeholder="{{ 'sitnet_search' | translate }}"
                 />
@@ -98,19 +98,22 @@
         "
     >
         <div class="col-md-12">
-            <exam-participation [participation]="participation" [collaborative]="collaborative"></exam-participation>
+            <app-exam-participation
+                [participation]="participation"
+                [collaborative]="collaborative"
+            ></app-exam-participation>
         </div>
     </div>
 
     <div class="row mt-2" *ngIf="participations">
         <div class="col-md-12" *ngIf="participations.length > pageSize">
-            <paginator
+            <app-paginator
                 [items]="participations"
-                (onSelectPage)="pageSelected($event)"
+                (selectedPage)="pageSelected($event)"
                 [pageSize]="pageSize"
                 [currentPage]="currentPage"
             >
-            </paginator>
+            </app-paginator>
         </div>
     </div>
 </div>

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -26,14 +26,14 @@ import { AssessmentService } from '../assessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
 @Component({
-    selector: 'r-maturity-grading',
+    selector: 'app-r-maturity-grading',
     templateUrl: './grading.component.html',
 })
-export class MaturityGradingComponent extends GradingBaseComponent {
+export class MaturityGradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam: Exam;
     @Input() user: User;
     @Input() questionSummary: unknown;
-    @Output() onUpdate = new EventEmitter<void>();
+    @Output() updated = new EventEmitter<void>();
 
     message: { text?: string };
 
@@ -41,11 +41,11 @@ export class MaturityGradingComponent extends GradingBaseComponent {
         private translate: TranslateService,
         http: HttpClient,
         Assessment: AssessmentService,
-        Exam: ExamService,
+        ExamSrv: ExamService,
         private Attachment: AttachmentService,
         Language: LanguageService,
     ) {
-        super(http, Assessment, Exam, Language);
+        super(http, Assessment, ExamSrv, Language);
     }
 
     ngOnInit() {
@@ -71,7 +71,7 @@ export class MaturityGradingComponent extends GradingBaseComponent {
     downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
-    inspectionDone = () => this.onUpdate.emit();
+    inspectionDone = () => this.updated.emit();
     isGraded = () => this.Assessment.isGraded(this.exam);
     isMaturityRejection = () =>
         this.exam.executionType.type === 'MATURITY' &&

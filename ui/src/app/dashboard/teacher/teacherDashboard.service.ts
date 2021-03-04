@@ -14,14 +14,13 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { Exam, ExamExecutionType } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { ReservationService } from '../../reservation/reservation.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamExecutionType } from '../../exam/exam.model';
 export interface DraftExam extends Exam {
     ownerAggregate: string;
 }
@@ -46,7 +45,7 @@ export class Dashboard {
 
 @Injectable()
 export class TeacherDashboardService {
-    constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
+    constructor(private http: HttpClient, private ExamSrv: ExamService, private Reservation: ReservationService) {}
 
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>
@@ -64,7 +63,7 @@ export class TeacherDashboardService {
     }
 
     populate = (): Observable<Dashboard> =>
-        forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
+        forkJoin([this.ExamSrv.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
             map((resp) => {
                 const dashboard = new Dashboard();
                 dashboard.executionTypes = resp[0];
@@ -74,7 +73,7 @@ export class TeacherDashboardService {
                 }));
 
                 const draftExams = reviews.filter(
-                    (r) => (r.state === 'DRAFT' || r.state === 'SAVED') && this.Exam.isOwner(r),
+                    (r) => (r.state === 'DRAFT' || r.state === 'SAVED') && this.ExamSrv.isOwner(r),
                 );
                 dashboard.draftExams = draftExams.map((de) => {
                     return {
@@ -100,8 +99,8 @@ export class TeacherDashboardService {
                     }
                     return {
                         ...ae,
-                        unassessedCount: this.Exam.getReviewablesCount(ae),
-                        unfinishedCount: this.Exam.getGradedCount(ae),
+                        unassessedCount: this.ExamSrv.getReviewablesCount(ae),
+                        unfinishedCount: this.ExamSrv.getGradedCount(ae),
                         reservationCount: this.Reservation.getReservationCount(ae),
                         ownerAggregate: ae.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(),
                     };
@@ -120,14 +119,14 @@ export class TeacherDashboardService {
 
                 endedExams.forEach((ee) => {
                     const ownerAggregate = ee.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
-                    const unassessedCount = this.Exam.getReviewablesCount(ee);
-                    const unfinishedCount = this.Exam.getGradedCount(ee);
+                    const unassessedCount = this.ExamSrv.getReviewablesCount(ee);
+                    const unfinishedCount = this.ExamSrv.getGradedCount(ee);
                     if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                         dashboard.finishedExams.push({
                             ...ee,
-                            ownerAggregate: ownerAggregate,
-                            unassessedCount: unassessedCount,
-                            unfinishedCount: unfinishedCount,
+                            ownerAggregate,
+                            unassessedCount,
+                            unfinishedCount,
                         });
                     } else {
                         if (ee.executionType.type === 'PRINTOUT') {
@@ -135,8 +134,8 @@ export class TeacherDashboardService {
                         }
                         dashboard.archivedExams.push({
                             ...ee,
-                            ownerAggregate: ownerAggregate,
-                            assessedCount: this.Exam.getProcessedCount(ee),
+                            ownerAggregate,
+                            assessedCount: this.ExamSrv.getProcessedCount(ee),
                         });
                     }
                 });

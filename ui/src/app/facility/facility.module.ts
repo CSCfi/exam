@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbModule, NgbTabsetModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { UIRouterModule } from '@uirouter/angular';
 
@@ -31,7 +31,6 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         MachineModule,
         TranslateModule,
         NgbModule,
-        NgbTabsetModule,
         UtilityModule,
         CommonModule,
         UIRouterModule,

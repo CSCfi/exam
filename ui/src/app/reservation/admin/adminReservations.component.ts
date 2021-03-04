@@ -14,10 +14,10 @@
  */
 import { Component } from '@angular/core';
 
-import { ReservationComponentBase } from '../reservation.baseComponent';
+import { ReservationComponentBaseDirective } from '../reservation.baseComponent';
 
 @Component({
-    selector: 'admin-reservations',
+    selector: 'app-admin-reservations',
     templateUrl: './adminReservations.component.html',
 })
-export class AdminReservationComponent extends ReservationComponentBase {}
+export class AdminReservationComponent extends ReservationComponentBaseDirective {}

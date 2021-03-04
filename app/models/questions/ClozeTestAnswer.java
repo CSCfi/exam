@@ -15,8 +15,6 @@
 
 package models.questions;
 
-import models.base.GeneratedIdentityModel;
-import models.sections.ExamSectionQuestion;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -33,6 +31,8 @@ import java.util.stream.Stream;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;

@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
 
-import type { SimpleChanges } from '@angular/core';
 @Component({
-    selector: 'examination-section',
+    selector: 'app-examination-section',
     templateUrl: './examinationSection.component.html',
 })
-export class ExaminationSectionComponent {
+export class ExaminationSectionComponent implements OnInit, OnChanges {
     @Input() exam: Examination;
     @Input() section: ExaminationSection;
     @Input() index?: number;
@@ -31,7 +30,7 @@ export class ExaminationSectionComponent {
 
     autosaver?: number;
 
-    constructor(private Examination: ExaminationService, private Window: WindowRef) {}
+    constructor(private ExaminationSrv: ExaminationService, private Window: WindowRef) {}
 
     ngOnInit() {
         this.resetAutosaver();
@@ -45,7 +44,7 @@ export class ExaminationSectionComponent {
 
     ngOnDestroy = () => this.cancelAutosaver();
 
-    getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
+    getSectionMaxScore = () => this.ExaminationSrv.getSectionMaxScore(this.section);
 
     getAmountOfSelectionEvaluatedQuestions = () =>
         this.section.sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
@@ -55,7 +54,7 @@ export class ExaminationSectionComponent {
         if (this.section) {
             this.autosaver = this.Window.nativeWindow.setInterval(
                 () =>
-                    this.Examination.saveAllTextualAnswersOfSection$(
+                    this.ExaminationSrv.saveAllTextualAnswersOfSection$(
                         this.section,
                         this.exam.hash,
                         true,

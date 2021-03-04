@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'r-weighted-multi-choice-answer',
+    selector: 'app-r-weighted-multi-choice-answer',
     templateUrl: './weightedMultiChoiceAnswer.component.html',
 })
 export class WeightedMultiChoiceAnswerComponent {

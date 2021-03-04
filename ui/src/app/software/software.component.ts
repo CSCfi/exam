@@ -17,10 +17,10 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { Software } from '../exam/exam.model';
+import { Software } from '../exam/exam.model';
 
 @Component({
-    selector: 'software',
+    selector: 'app-software',
     templateUrl: './software.component.html',
 })
 export class SoftwareComponent {

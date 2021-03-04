@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash';
 
-import { Exam } from '../../exam.model';
+import { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 /*
@@ -18,8 +18,6 @@ import { ExamService } from '../../exam.service';
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit, SimpleChanges } from '@angular/core';
-import type { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -28,19 +26,19 @@ type AutoEvaluationConfigurationTemplate = {
 };
 
 @Component({
-    selector: 'auto-evaluation',
+    selector: 'app-auto-evaluation',
     templateUrl: './autoEvaluation.component.html',
 })
 export class AutoEvaluationComponent implements OnInit {
     @Input() exam: Exam;
-    @Output() onEnabled = new EventEmitter<void>();
-    @Output() onDisabled = new EventEmitter<void>();
-    @Output() onUpdate = new EventEmitter<{ config: AutoEvaluationConfig }>();
+    @Output() enabled = new EventEmitter<void>();
+    @Output() disabled = new EventEmitter<void>();
+    @Output() update = new EventEmitter<{ config: AutoEvaluationConfig }>();
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService) {}
+    constructor(private ExamSrv: ExamService) {}
 
     ngOnInit() {
         this.autoevaluation = {
@@ -67,8 +65,8 @@ export class AutoEvaluationComponent implements OnInit {
         }
     };
 
-    disable = () => this.onDisabled.emit();
-    enable = () => this.onEnabled.emit();
+    disable = () => this.disabled.emit();
+    enable = () => this.enabled.emit();
 
     private prepareAutoEvaluationConfig = () => {
         this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
@@ -76,9 +74,7 @@ export class AutoEvaluationComponent implements OnInit {
             const releaseType = this.selectedReleaseType();
             this.exam.autoEvaluationConfig = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map(function (g) {
-                    return { grade: _.cloneDeep(g), percentage: 0 };
-                }),
+                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: _.cloneDeep(g), percentage: 0 })),
                 amountDays: 0,
                 releaseDate: new Date(),
             };
@@ -93,21 +89,23 @@ export class AutoEvaluationComponent implements OnInit {
     private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
 
     applyFilter = (type?: ReleaseType) => {
-        if (!this.exam.autoEvaluationConfig) return;
+        if (!this.exam.autoEvaluationConfig) {
+            return;
+        }
         this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
         }
-        const rt = this.selectedReleaseType();
-        this.exam.autoEvaluationConfig.releaseType = rt ? rt.name : undefined;
-        this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        const srt = this.selectedReleaseType();
+        this.exam.autoEvaluationConfig.releaseType = srt ? srt.name : undefined;
+        this.update.emit({ config: this.exam.autoEvaluationConfig });
     };
 
     selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
 
-    calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
+    calculateExamMaxScore = () => this.ExamSrv.getMaxScore(this.exam);
 
-    getGradeDisplayName = (grade: Grade) => this.Exam.getExamGradeDisplayName(grade.name);
+    getGradeDisplayName = (grade: Grade) => this.ExamSrv.getExamGradeDisplayName(grade.name);
 
     calculatePointLimit = (evaluation: GradeEvaluation) => {
         const max = this.calculateExamMaxScore();
@@ -119,12 +117,16 @@ export class AutoEvaluationComponent implements OnInit {
     };
 
     releaseDateChanged = (date: Date) => {
-        if (!this.exam.autoEvaluationConfig) return;
+        if (!this.exam.autoEvaluationConfig) {
+            return;
+        }
         this.exam.autoEvaluationConfig.releaseDate = date;
-        this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        this.update.emit({ config: this.exam.autoEvaluationConfig });
     };
 
     propertyChanged = () => {
-        if (this.exam.autoEvaluationConfig) this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        if (this.exam.autoEvaluationConfig) {
+            this.update.emit({ config: this.exam.autoEvaluationConfig });
+        }
     };
 }

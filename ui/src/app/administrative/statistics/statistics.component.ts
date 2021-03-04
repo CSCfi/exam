@@ -13,9 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import type { OnInit } from '@angular/core';
 interface Departments {
     name: string;
     filtered: boolean;
@@ -30,10 +29,10 @@ enum Tab {
 
 @Component({
     templateUrl: './statistics.component.html',
-    selector: 'statistics',
+    selector: 'app-statistics',
 })
 export class StatisticsComponent implements OnInit {
-    view: Tab = Tab.RESPONSES;
+    view = 'RESPONSES';
     departments: Departments[];
     filteredDepartments: Departments[];
     limitations: { department: string };

@@ -21,7 +21,7 @@ import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'enrolment-details',
+    selector: 'app-enrolment-details',
     templateUrl: './examEnrolmentDetails.component.html',
 })
 export class EnrolmentDetailsComponent {

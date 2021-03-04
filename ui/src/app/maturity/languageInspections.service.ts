@@ -12,18 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { HttpParams } from '@angular/common/http';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspectionStatementDialog.component';
-import type { LanguageInspection } from './maturity.model';
+import { LanguageInspection } from './maturity.model';
 
 export interface QueryParams {
     text?: string;
@@ -44,12 +43,12 @@ export class LanguageInspectionService {
     query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
         this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
 
-    showStatement = (statement: { comment: string }) => {
+    showStatement = (comment: string) => {
         const modalRef = this.modal.open(InspectionStatementDialogComponent, {
             backdrop: 'static',
             keyboard: true,
         });
-        modalRef.componentInstance.statement = statement.comment;
+        modalRef.componentInstance.statement = comment;
     };
 
     assignInspection = (inspection: LanguageInspection) => {

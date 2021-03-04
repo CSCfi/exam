@@ -26,8 +26,8 @@ import { WindowRef } from '../utility/window/window.service';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
-import type { OnDestroy } from '@angular/core';
-import type { Observable, Unsubscribable } from 'rxjs';
+import { OnDestroy } from '@angular/core';
+import { Observable, Unsubscribable } from 'rxjs';
 export interface Role {
     name: string;
     displayName?: string;
@@ -61,16 +61,6 @@ interface Env {
 
 @Injectable()
 export class SessionService implements OnDestroy {
-    private PING_INTERVAL: number = 30 * 1000;
-    private user: User;
-    private env: { isProd: boolean };
-    private sessionCheckSubscription: Unsubscribable;
-    private userChangeSubscription = new Subject<User>();
-    private devLogoutSubscription = new Subject<void>();
-
-    public userChange$: Observable<User>;
-    public devLogoutChange$: Observable<void>;
-
     constructor(
         private http: HttpClient,
         private i18n: TranslateService,
@@ -81,6 +71,26 @@ export class SessionService implements OnDestroy {
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
+    }
+    private PING_INTERVAL: number = 30 * 1000;
+    private user: User;
+    private env: { isProd: boolean };
+    private sessionCheckSubscription: Unsubscribable;
+    private userChangeSubscription = new Subject<User>();
+    private devLogoutSubscription = new Subject<void>();
+
+    public userChange$: Observable<User>;
+    public devLogoutChange$: Observable<void>;
+
+    private static hasPermission(user: User, permission: string) {
+        if (!user) {
+            return false;
+        }
+        return user.permissions.some((p) => p.type === permission);
+    }
+
+    static hasRole(user: User, role: string): boolean {
+        return user && user.loginRole !== null && user.loginRole === role;
     }
 
     ngOnDestroy() {
@@ -102,17 +112,6 @@ export class SessionService implements OnDestroy {
             return of(this.env);
         }
         return this.http.get<Env>('/app/settings/environment');
-    }
-
-    private static hasPermission(user: User, permission: string) {
-        if (!user) {
-            return false;
-        }
-        return user.permissions.some((p) => p.type === permission);
-    }
-
-    static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole !== null && user.loginRole === role;
     }
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
@@ -167,7 +166,7 @@ export class SessionService implements OnDestroy {
         if (!this.user) {
             this.translate(lang);
         } else {
-            this.http.put('/app/user/lang', { lang: lang }).subscribe(
+            this.http.put('/app/user/lang', { lang }).subscribe(
                 () => {
                     this.user.lang = lang;
                     this.webStorageService.set('EXAM_USER', this.user);
@@ -274,8 +273,8 @@ export class SessionService implements OnDestroy {
 
         return {
             ...user,
-            loginRole: loginRole,
-            isTeacher: isTeacher,
+            loginRole,
+            isTeacher,
             isAdmin: loginRole != null && loginRole === 'ADMIN',
             isStudent: loginRole != null && loginRole === 'STUDENT',
             isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
@@ -285,8 +284,8 @@ export class SessionService implements OnDestroy {
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/login', {
-                username: username,
-                password: password,
+                username,
+                password,
             })
             .pipe(
                 map((u) => this.prepareUser(u)),

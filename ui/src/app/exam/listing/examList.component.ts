@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
@@ -23,16 +23,16 @@ import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExaminationTypeSelectorComponent } from '../editor/common/examinationTypeSelector.component';
+import { Exam, Implementation } from '../exam.model';
 import { ExamService } from '../exam.service';
 
-import type { Exam, Implementation } from '../exam.model';
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
-    selector: 'exam-list',
+    selector: 'app-exam-list',
     templateUrl: './examList.component.html',
 })
-export class ExamListingComponent {
+export class ExamListingComponent implements OnInit, OnDestroy {
     view: string;
     showExpired: boolean;
     examsPredicate: string;
@@ -49,7 +49,7 @@ export class ExamListingComponent {
         private http: HttpClient,
         private modal: NgbModal,
         private Confirmation: ConfirmationDialogService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
     ) {}
 
     ngOnDestroy() {
@@ -95,9 +95,9 @@ export class ExamListingComponent {
             .subscribe();
     }
 
-    search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
+    search = (event: KeyboardEvent) => this.subject.next(event.key);
 
-    createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
+    createExam = (executionType: Implementation) => this.ExamSrv.createExam(executionType);
 
     copyExam = (exam: Exam) =>
         from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
@@ -131,10 +131,10 @@ export class ExamListingComponent {
     };
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>
-        this.exams.filter((e) => e.state === state && e.expired == expired);
+        this.exams.filter((e) => e.state === state && e.expired === expired);
     filterByState = (state: string) => this.exams.filter((e) => e.state === state);
 
-    getExecutionTypeTranslation = (exam: ExamListExam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
+    getExecutionTypeTranslation = (exam: ExamListExam) => this.ExamSrv.getExecutionTypeTranslation(exam.executionType);
 
     setPredicate = (predicate: string) => {
         if (this.examsPredicate === predicate) {

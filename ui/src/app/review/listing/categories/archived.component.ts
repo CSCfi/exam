@@ -12,26 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
-import { ReviewListService } from '../reviewList.service';
+import { Review } from '../../review.model';
+import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-archived',
+    selector: 'app-rl-archived',
     templateUrl: './archived.component.html',
 })
-export class ArchivedReviewsComponent {
+export class ArchivedReviewsComponent implements OnInit {
     @Input() reviews: Review[];
     @Input() exam: Exam;
 
     view: ReviewListView;
 
-    constructor(private ReviewList: ReviewListService, private Exam: ExamService, private Session: SessionService) {}
+    constructor(private ReviewList: ReviewListService, private ExamSrv: ExamService, private Session: SessionService) {}
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
@@ -45,7 +44,7 @@ export class ArchivedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.ExamSrv.getExamGradeDisplayName(grade);
     };
 
     handleGradedReviews = (r: Review) => {
@@ -53,7 +52,7 @@ export class ArchivedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.ExamSrv.getExamDisplayCredit(r.examParticipation.exam);
     };
 
     setPredicate = (predicate: string) => {

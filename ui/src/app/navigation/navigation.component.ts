@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
@@ -22,11 +22,11 @@ import { ExaminationStatusService } from '../examination/examinationStatus.servi
 import { SessionService } from '../session/session.service';
 import { NavigationService } from './navigation.service';
 
-import type { OnDestroy, OnInit } from '@angular/core';
-import type { User } from '../session/session.service';
-import type { Link } from './navigation.service';
+import { OnDestroy, OnInit } from '@angular/core';
+import { User } from '../session/session.service';
+import { Link } from './navigation.service';
 @Component({
-    selector: 'navigation',
+    selector: 'app-navigation',
     templateUrl: './navigation.component.html',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
@@ -38,7 +38,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private routing: UIRouterGlobals,
+        private state: StateService,
         private Navigation: NavigationService,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
@@ -76,7 +76,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    isActive = (link: Link): boolean => link.state === this.routing.current.name;
+    isActive = (link: Link): boolean => link.state === this.state.current.name;
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

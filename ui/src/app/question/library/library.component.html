@@ -17,7 +17,7 @@
     </div>
 
     <div class="reservation-border">
-        <library-search (onUpdate)="resultsUpdated($event)"></library-search>
+        <app-library-search (onUpdate)="resultsUpdated($event)"></app-library-search>
         <div *ngIf="selections.length > 0" class="padl30 padr30 questions-selections-box">
             <div class="make-inline">
                 <span class="padr10">{{ selections.length }} {{ 'sitnet_questions_selected' | translate }}</span>
@@ -25,20 +25,20 @@
 
             <div class="row margin-20">
                 <div class="col-md-12 d-flex justify-content-between">
-                    <library-owner-selection [selections]="selections"></library-owner-selection>
-                    <library-transfer [selections]="selections"></library-transfer>
-                    <library-file-export [selections]="selections"></library-file-export>
+                    <app-library-owner-selection [selections]="selections"></app-library-owner-selection>
+                    <app-library-transfer [selections]="selections"></app-library-transfer>
+                    <app-library-file-export [selections]="selections"></app-library-file-export>
                 </div>
             </div>
         </div>
 
         <div class="margin-20">
-            <library-results
-                [questions]="questions"
-                (onCopy)="questionCopied($event)"
-                (onSelection)="questionSelected($event)"
+            <app-library-results
+                [results]="questions"
+                (copied)="questionCopied($event)"
+                (selected)="questionSelected($event)"
             >
-            </library-results>
+            </app-library-results>
         </div>
     </div>
 </div>

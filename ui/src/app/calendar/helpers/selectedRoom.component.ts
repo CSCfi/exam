@@ -1,15 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addWeeks } from 'date-fns';
 
-import { ExamRoom } from '../../reservation/reservation.model';
-import { CalendarService } from '../calendar.service';
-
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { OpeningHours } from '../calendar.service';
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { CalendarService, OpeningHours } from '../calendar.service';
 
 @Component({
-    selector: 'calendar-selected-room',
+    selector: 'app-calendar-selected-room',
     template: `
         <div class="row">
             <div class="col-md-3">
@@ -52,7 +49,7 @@ import type { OpeningHours } from '../calendar.service';
         </div>
     `,
 })
-export class SelectedRoomComponent {
+export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room: ExamRoom;
     @Input() viewStart: Date;
 

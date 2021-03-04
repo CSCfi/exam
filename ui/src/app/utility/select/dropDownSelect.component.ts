@@ -14,9 +14,7 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 interface Selection {
     value: unknown;
@@ -30,15 +28,15 @@ export interface Option {
 }
 
 @Component({
-    selector: 'dropdown-select',
+    selector: 'app-dropdown-select',
     templateUrl: './dropDownSelect.component.html',
 })
 export class DropdownSelectComponent implements OnInit {
     @Input() options: Option[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
-    @Input() fullWidth?: boolean = false;
-    @Output() onSelect = new EventEmitter<Selection>();
+    @Input() fullWidth = false;
+    @Output() optionSelected = new EventEmitter<Selection>();
     filteredOptions: Option[]; // filtered
     searchFilter = '';
     selected?: Option;
@@ -62,7 +60,7 @@ export class DropdownSelectComponent implements OnInit {
 
     selectOption = (option: Option) => {
         this.selected = option;
-        this.onSelect.emit({ value: option.value || option.id });
+        this.optionSelected.emit({ value: option.value || option.id });
     };
 
     getClasses = (option: Option): string[] => {
@@ -78,6 +76,6 @@ export class DropdownSelectComponent implements OnInit {
 
     clearSelection = () => {
         delete this.selected;
-        this.onSelect.emit();
+        this.optionSelected.emit();
     };
 }

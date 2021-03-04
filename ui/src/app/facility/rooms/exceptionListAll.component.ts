@@ -18,13 +18,13 @@ import * as toast from 'toastr';
 
 import { RoomService } from './room.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { Week } from './room.service';
+import { OnInit } from '@angular/core';
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { Week } from './room.service';
 
 @Component({
     templateUrl: './exceptionListAll.component.html',
-    selector: 'exception-list-all',
+    selector: 'app-exception-list-all',
 })
 export class ExceptionListAllComponent implements OnInit {
     week: Week;

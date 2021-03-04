@@ -17,7 +17,7 @@
                         [(ngModel)]="newItem.name"
                     />
                 </div>
-                <button type="button" [disabled]="!newItem.name" (click)="add(newItem)" class="btn btn-primary mt-2">
+                <button type="button" [disabled]="!newItem.name" (click)="add()" class="btn btn-primary mt-2">
                     {{ 'sitnet_create_new' | translate }}
                 </button>
             </form>

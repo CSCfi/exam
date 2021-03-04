@@ -15,17 +15,17 @@
 
 package controllers.integration;
 
-import controllers.base.BaseController;
-import models.ExamRecord;
-import models.dto.ExamScore;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import java.util.List;
 import java.util.stream.Collectors;
+import models.ExamRecord;
+import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;

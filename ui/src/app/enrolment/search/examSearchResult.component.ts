@@ -19,7 +19,7 @@ import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'exam-search-result',
+    selector: 'app-exam-search-result',
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {

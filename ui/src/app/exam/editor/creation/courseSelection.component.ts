@@ -13,17 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { Course, Exam } from '../../exam.model';
+import { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
-    selector: 'course-selection',
+    selector: 'app-course-selection',
     templateUrl: './courseSelection.component.html',
 })
 export class CourseSelectionComponent implements OnInit {
@@ -32,18 +31,19 @@ export class CourseSelectionComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private http: HttpClient,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe((exam) => (this.exam = exam));
+        this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe((exam) => (this.exam = exam));
     }
 
-    getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
+    getExecutionTypeTranslation = () => this.ExamSrv.getExecutionTypeTranslation(this.exam.executionType);
 
     updateExamName = () =>
-        this.Exam.updateExam$(this.exam).subscribe(
+        this.ExamSrv.updateExam$(this.exam).subscribe(
             () => toast.info(this.translate.instant('sitnet_exam_saved')),
             (error) => {
                 if (error.data) {

@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { ExaminationQuestion, ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-cloze-test',
+    selector: 'app-examination-cloze-test',
     templateUrl: './examinationClozeTest.component.html',
 })
 export class ExaminationClozeTestComponent {

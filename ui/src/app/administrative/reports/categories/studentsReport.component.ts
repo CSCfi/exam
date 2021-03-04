@@ -17,9 +17,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { User } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-
-import type { User } from '../../../session/session.service';
+import { Category } from '../reports.component';
 
 @Component({
     template: `
@@ -31,23 +31,23 @@ import type { User } from '../../../session/session.service';
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-4 mb-2">
                 <label for="student">{{ 'sitnet_student' | translate }}</label>
-                <dropdown-select
+                <app-dropdown-select
                     id="student"
                     *ngIf="students"
                     [options]="students"
-                    (onSelect)="studentSelected($event)"
-                ></dropdown-select>
+                    (optionSelected)="studentSelected($event)"
+                ></app-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="startDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                    <app-date-picker (updated)="endDateChanged($event)"></app-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -66,10 +66,10 @@ import type { User } from '../../../session/session.service';
             </div>
         </div>
     `,
-    selector: 'students-report',
+    selector: 'app-students-report',
 })
 export class StudentsReportComponent {
-    @Input() students: User[];
+    @Input() students: Category[];
     student: User;
     startDate: Date;
     endDate: Date;

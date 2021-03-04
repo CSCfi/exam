@@ -15,12 +15,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
-import type { Observable } from 'rxjs';
-import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
     displayedMaxScore: number | string;
@@ -75,7 +75,7 @@ export class LibraryService {
     };
 
     storeFilters = (filters: unknown, category: string) => {
-        const data = { filters: filters };
+        const data = { filters };
         const filter = this.webStorageService.get('questionFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('questionFilters', filter);
@@ -178,7 +178,7 @@ export class LibraryService {
                         ].indexOf(q.type);
                         q.ownerAggregate = this.getOwnerAggregate(q);
                         q.allowedToRemove =
-                            q.examSectionQuestions.filter(function (esq) {
+                            q.examSectionQuestions.filter((esq) => {
                                 const exam = esq.examSection.exam;
                                 return (
                                     exam.state === 'PUBLISHED' &&

@@ -13,8 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 interface Reservation {
     noShow: boolean;
@@ -42,12 +41,12 @@ interface Reservation {
             <div class="col-md-10">{{ noShows.length }}</div>
         </div>
     `,
-    selector: 'reservation-statistics',
+    selector: 'app-reservation-statistics',
 })
 export class ReservationStatisticsComponent implements OnInit {
     reservations: Reservation[] = [];
     noShows: Reservation[] = [];
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: { start?: string; end?: string; dept?: string };
 
     constructor(private http: HttpClient) {}
 

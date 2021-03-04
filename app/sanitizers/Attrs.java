@@ -15,10 +15,10 @@
 
 package sanitizers;
 
+import java.util.Collection;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.User;
-import java.util.Collection;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;

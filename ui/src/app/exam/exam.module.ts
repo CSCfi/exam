@@ -90,12 +90,14 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         ExaminationTypeSelectorComponent,
     ],
     entryComponents: [
-        PublicationDialogComponent,
-        PublicationErrorDialogComponent,
-        PublicationRevocationDialogComponent,
+        ExamTabsComponent,
+        NewExamComponent,
+        ExamListingComponent,
+        CollaborativeExamListingComponent,
+        PrintoutComponent,
+        PrintoutListingComponent,
         ExaminationTypeSelectorComponent,
         ExaminationEventDialogComponent,
-        ExamMaterialSelectorComponent,
     ],
     providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })

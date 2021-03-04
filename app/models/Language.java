@@ -15,9 +15,9 @@
 
 package models;
 
-import models.base.VersionedModel;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import models.base.VersionedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

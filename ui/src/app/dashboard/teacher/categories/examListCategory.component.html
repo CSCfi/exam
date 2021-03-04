@@ -17,59 +17,59 @@
                 <thead>
                     <tr>
                         <th class="with-top">
-                            <table-sort
+                            <app-table-sort
                                 [reverse]="sorting.reverse"
                                 [predicate]="sorting.predicate"
                                 by="name"
                                 text="sitnet_exam_name"
                                 (click)="setPredicate('name')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <app-table-sort
                                 by="course.code"
                                 text="sitnet_course_code"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('course.code')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <app-table-sort
                                 by="executionType.type"
                                 text="sitnet_exam_type"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('executionType.type')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <app-table-sort
                                 by="examActiveEndDate"
                                 text="sitnet_exam_validity"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('examActiveEndDate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
 
                         <th *ngFor="let column of extraColumns" class="with-top with-space">
-                            <table-sort
+                            <app-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate(column.property)"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <app-table-sort
                                 by="ownerAggregate"
                                 text="sitnet_teachers"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('ownerAggregate')"
-                            ></table-sort>
+                            ></app-table-sort>
                         </th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
@@ -77,7 +77,7 @@
                 </thead>
 
                 <tbody>
-                    <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'">
+                    <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse:true">
                         <td *ngIf="exam.name" class="table-column-examname">
                             <a *ngIf="isOwner(exam)" uiSref="examEditor.basic" [uiParams]="{ id: exam.id }">{{
                                 exam.name
@@ -95,7 +95,7 @@
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>
-                            <course-code class="exam-code" [course]="exam.course"></course-code>
+                            <app-course-code class="exam-code" [course]="exam.course"></app-course-code>
                         </td>
                         <td>
                             <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
@@ -131,7 +131,7 @@
                         </td>
 
                         <td class="table-column-teachers">
-                            <teacher-list [exam]="exam"></teacher-list>
+                            <app-teacher-list [exam]="exam"></app-teacher-list>
                         </td>
                         <td class="text-center">
                             <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">

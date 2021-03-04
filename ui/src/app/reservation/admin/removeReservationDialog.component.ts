@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { Reservation } from '../reservation.model';
 
 @Component({
-    selector: 'remove-reservation-dialog',
+    selector: 'app-remove-reservation-dialog',
     templateUrl: './removeReservationDialog.component.html',
 })
 export class RemoveReservationDialogComponent {

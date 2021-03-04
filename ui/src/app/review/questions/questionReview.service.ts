@@ -15,10 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import type { User } from '../../session/session.service';
-import type { QuestionReview, ReviewQuestion } from '../review.model';
+import { User } from '../../session/session.service';
+import { QuestionReview, ReviewQuestion } from '../review.model';
 
 @Injectable()
 export class QuestionReviewService {
@@ -49,7 +49,7 @@ export class QuestionReviewService {
         !review ? 0 : review.answers.filter((a) => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore)).length;
 
     getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
-        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
+        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids } });
 
     getProcessedAnswerCount = (review: QuestionReview, user: User) => {
         if (!review) {

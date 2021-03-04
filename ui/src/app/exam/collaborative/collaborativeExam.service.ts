@@ -18,10 +18,10 @@ import { Injectable } from '@angular/core';
 import { SessionService } from '../../session/session.service';
 import { CollaborativeExamState } from '../exam.model';
 
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import type { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
+import { ReviewedExam } from '../../enrolment/enrolment.model';
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
     _id: string;

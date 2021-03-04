@@ -13,23 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { Exam } from '../../exam/exam.model';
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
+import { ExamTabService } from '../../exam/editor/examTabs.service';
+import { Exam, ExamParticipation } from '../../exam/exam.model';
+import { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
 
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
-import { ExamTabService } from '../../exam/editor/examTabs.service';
 @Component({
-    selector: 'review-list',
+    selector: 'app-review-list',
     templateUrl: './reviewList.component.html',
 })
-export class ReviewListComponent {
+export class ReviewListComponent implements OnInit, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Input() reviews: ExamParticipation[] = [];
@@ -54,7 +53,7 @@ export class ReviewListComponent {
         this.refreshLists();
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe((resp) => (this.noShows = resp));

@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
-import type { Exam } from '../../../exam/exam.model';
+import { Exam } from '../../../exam/exam.model';
 
 @Component({
     template: `
@@ -44,10 +43,10 @@ import type { Exam } from '../../../exam/exam.model';
             <div class="col-md-10">{{ abortedExams.length }}</div>
         </div>
     `,
-    selector: 'response-statistics',
+    selector: 'app-response-statistics',
 })
 export class ResponseStatisticsComponent implements OnInit {
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: { start?: string; end?: string; dept?: string };
     assessedExams: Exam[] = [];
     unassessedExams: Exam[] = [];
     abortedExams: Exam[] = [];

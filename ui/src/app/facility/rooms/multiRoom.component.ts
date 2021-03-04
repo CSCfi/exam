@@ -18,13 +18,13 @@ import * as toast from 'toastr';
 
 import { RoomService } from './room.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { Week } from './room.service';
+import { OnInit } from '@angular/core';
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { Week } from './room.service';
 
 @Component({
     templateUrl: './multiRoom.component.html',
-    selector: 'multi-room',
+    selector: 'app-multi-room',
 })
 export class MultiRoomComponent implements OnInit {
     week: Week;

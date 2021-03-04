@@ -18,20 +18,19 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import type { Observable } from 'rxjs';
-import { forkJoin, of, throwError } from 'rxjs';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
-import type { ExamRoom } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
+import { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import { ExamRoom } from '../reservation/reservation.model';
+import { User } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { LanguageService } from '../utility/language/language.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
-import type { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
 
 @Injectable()
 export class EnrolmentService {
@@ -120,7 +119,7 @@ export class EnrolmentService {
     checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> => {
         return this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
             switchMap((resp) =>
-                resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
+                resp.length === 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
             ),
             catchError((err) => {
                 toast.error(err);
@@ -217,7 +216,7 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information }).subscribe(
                 () => {
                     toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;

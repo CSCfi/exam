@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ExamInfo } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-optional-sections',
+    selector: 'app-calendar-optional-sections',
     template: `
         <div class="student-enrolment-wrapper details-view">
             <div class="row mb-3" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
@@ -73,9 +73,9 @@ import { ExamInfo } from '../calendar.component';
 })
 export class OptionalSectionsComponent {
     @Input() examInfo: ExamInfo;
-    @Output() onSelection = new EventEmitter<{ valid: boolean }>();
+    @Output() selection = new EventEmitter<{ valid: boolean }>();
 
-    checkSectionSelections = () => this.onSelection.emit({ valid: this.sectionSelectionOk() });
+    checkSectionSelections = () => this.selection.emit({ valid: this.sectionSelectionOk() });
 
     sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 }

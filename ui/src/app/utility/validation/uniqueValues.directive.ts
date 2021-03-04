@@ -13,8 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Directive, Input } from '@angular/core';
-import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
-import { NG_VALIDATORS } from '@angular/forms';
+import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
 export function uniqueValuesValidator(property: string, values: { [key: string]: unknown }[]): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -28,7 +27,7 @@ export function uniqueValuesValidator(property: string, values: { [key: string]:
     providers: [{ provide: NG_VALIDATORS, useExisting: UniqueValuesValidatorDirective, multi: true }],
 })
 export class UniqueValuesValidatorDirective implements Validator {
-    @Input('appUniqueValues') items: { [key: string]: unknown }[];
+    @Input('appUniqueValues') items: Record<string, any>[];
     @Input() property: string;
 
     validate(control: AbstractControl): ValidationErrors | null {

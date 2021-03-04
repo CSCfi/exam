@@ -15,12 +15,12 @@
 
 package impl;
 
+import com.google.inject.ImplementedBy;
+import java.util.Optional;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.Role;
 import models.User;
-import com.google.inject.ImplementedBy;
-import java.util.Optional;
 import play.mvc.Http;
 import play.mvc.Result;
 

@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 
 @Component({
-    selector: 'wmc-option-editor',
+    selector: 'app-wmc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">

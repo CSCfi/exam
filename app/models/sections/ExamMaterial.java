@@ -15,11 +15,11 @@
 
 package models.sections;
 
-import models.User;
-import models.base.OwnedModel;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import models.User;
+import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;

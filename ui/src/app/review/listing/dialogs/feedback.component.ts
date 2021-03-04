@@ -19,7 +19,7 @@ import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
-    selector: 'speed-review-feedback',
+    selector: 'app-speed-review-feedback',
     templateUrl: './feedback.component.html',
 })
 export class SpeedReviewFeedbackComponent {

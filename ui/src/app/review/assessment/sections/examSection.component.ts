@@ -12,39 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-exam-section',
+    selector: 'app-r-exam-section',
     templateUrl: './examSection.component.html',
 })
-export class ExamSectionComponent {
+export class ExamSectionComponent implements OnInit {
     @Input() section: ExamSection;
     @Input() isScorable: boolean;
     @Input() index: number;
     @Input() exam: Exam;
     @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
 
     selectionEvaluatedAmounts: { accepted: number; rejected: number };
 
-    constructor(private Exam: ExamService, private Question: QuestionService) {}
+    constructor(private ExamSrv: ExamService, private Question: QuestionService) {}
 
     ngOnInit() {
         this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
     }
 
     scoreSet = (revision: string) => {
-        this.onScore.emit(revision);
+        this.scored.emit(revision);
         this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
     };
 
-    getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);
+    getSectionMaxScore = () => this.ExamSrv.getSectionMaxScore(this.section);
 
-    getSectionTotalScore = () => this.Exam.getSectionTotalScore(this.section);
+    getSectionTotalScore = () => this.ExamSrv.getSectionTotalScore(this.section);
 }

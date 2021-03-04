@@ -26,13 +26,13 @@
         <div [hidden]="hideEditor" class="body">
             <div class="row editor">
                 <div class="col-md-12">
-                    <ckeditor
+                    <app-ckeditor
                         [enableClozeTest]="false"
                         [(ngModel)]="statement"
                         (ngModelChange)="onChange($event)"
                         #ck="ngModel"
                         name="ck"
-                    ></ckeditor>
+                    ></app-ckeditor>
                 </div>
             </div>
             <div class="d-flex justify-content-between">

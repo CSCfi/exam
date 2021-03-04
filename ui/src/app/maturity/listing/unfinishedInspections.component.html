@@ -55,104 +55,104 @@
             <thead>
                 <tr>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="exam.course.code"
                             text="sitnet_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.course.code')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="answerLanguage"
                             text="sitnet_language"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('answerLanguage')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="exam.name"
                             text="sitnet_exam_name"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.name')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="ownerAggregate"
                             text="sitnet_teachers"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('ownerAggregate')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="created"
                             text="sitnet_arrived"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('created')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="studentNameAggregate"
                             text="sitnet_student"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('studentNameAggregate')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="exam.created"
                             text="sitnet_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.created')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <app-table-sort
                             by="inspectorNameAggregate"
                             text="sitnet_language_inspector"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('inspectorNameAggregate')"
                         >
-                        </table-sort>
+                        </app-table-sort>
                     </th>
                     <th class="with-top">{{ 'sitnet_language_inspections' | translate }}</th>
                 </tr>
             </thead>
 
             <tbody>
+                <!--| orderBy: sorting.predicate:sorting.reverse:true-->
                 <tr
                     *ngFor="
                         let inspection of filteredInspections
-                            | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'
                             | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                     "
                 >
                     <td>
                         {{ inspection.exam.course.code }}
                     </td>
-                    <td>
+                    <td class="table-column-bold">
                         {{ inspection.answerLanguage }}
                     </td>
-                    <td>
+                    <td class="table-column-bold">
                         <span class="exam-basic-title">
                             {{ inspection.exam.name }}
                         </span>
@@ -189,7 +189,7 @@
                         <span class="text-danger">{{ 'sitnet_undefined' | translate }}</span>
                     </td>
                     <td *ngIf="inspection.modifier">
-                        <a class="pointer" uiSref="assessment" [uiParams]="{ id: inspection.exam.id }">{{
+                        <a class="pointer" uiSref="assessment({id: {{ inspection.exam.id }} })">{{
                             'sitnet_view' | translate
                         }}</a>
                     </td>
@@ -203,7 +203,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="filteredInspections.length === 0">
-                    <td colspan="9">{{ 'sitnet_review_no_result' | translate }}</td>
+                    <td colspan="8">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
             </tbody>
         </table>

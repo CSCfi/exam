@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import type { ExamLanguage } from '../../exam/exam.model';
+import { ExamLanguage } from '../../exam/exam.model';
 
 export interface IsoLang {
     name: string;

@@ -19,12 +19,12 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 import * as moment from 'moment';
 
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { Exam } from '../exam/exam.model';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { Exam } from '../exam/exam.model';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-import type { ExamMachine, Reservation } from './reservation.model';
+import { ExamMachine, Reservation } from './reservation.model';
 
 @Injectable()
 export class ReservationService {

@@ -11,12 +11,12 @@
 </div>
 
 <!-- inspector comments -->
-<r-inspection-comments
+<app-r-inspection-comments
     [exam]="exam"
     [addingDisabled]="!isOwnerOrAdmin() || !examForm.valid"
     [addingVisible]="!isMaturityRejection()"
 >
-</r-inspection-comments>
+</app-r-inspection-comments>
 
 <!-- language inspection - inspector -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
@@ -30,7 +30,7 @@
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_statement' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div [MathJax]="exam.languageInspection.statement.comment"></div>
+        <div [appMathJax]="exam.languageInspection.statement.comment"></div>
     </div>
 </div>
 <!-- language inspection - statement attachment -->
@@ -58,7 +58,7 @@
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_teachers_comment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div [MathJax]="exam.examFeedback.comment"></div>
+        <div [appMathJax]="exam.examFeedback.comment"></div>
     </div>
 </div>
 
@@ -161,6 +161,6 @@
 
     <!-- Bottom toolbar for maturity -->
     <div class="detail-row">
-        <r-maturity-toolbar [exam]="exam" [valid]="examForm.valid"></r-maturity-toolbar>
+        <app-r-maturity-toolbar [exam]="exam" [valid]="examForm.valid"></app-r-maturity-toolbar>
     </div>
 </form>

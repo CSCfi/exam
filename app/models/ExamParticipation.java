@@ -15,9 +15,6 @@
 
 package models;
 
-import models.base.GeneratedIdentityModel;
-import models.json.CollaborativeExam;
-import util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.persistence.CascadeType;
@@ -27,9 +24,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.json.CollaborativeExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel {

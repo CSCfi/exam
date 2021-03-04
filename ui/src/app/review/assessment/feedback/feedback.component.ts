@@ -12,25 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 
-import { ExamParticipation } from '../../../exam/exam.model';
-import { Examination } from '../../../examination/examination.service';
+import { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
-    selector: 'r-feedback',
+    selector: 'app-r-feedback',
     templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent implements OnInit {
-    @Input() exam: Examination;
+    @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Input() participation: ExamParticipation;
     feedbackComment = '';
@@ -38,7 +36,7 @@ export class FeedbackComponent implements OnInit {
     hideEditor = false;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
@@ -89,8 +87,8 @@ export class FeedbackComponent implements OnInit {
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
             this.Attachment.removeExternalFeedbackAttachment(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation,
             );
         } else {

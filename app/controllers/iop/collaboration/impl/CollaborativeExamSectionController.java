@@ -15,19 +15,10 @@
 
 package controllers.iop.collaboration.impl;
 
-import controllers.base.SectionQuestionHandler;
-import models.Exam;
-import models.User;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
-import models.sections.ExamSection;
-import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.SectionQuestionHandler;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import java.util.ArrayList;
@@ -41,10 +32,19 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import models.Exam;
+import models.User;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import util.json.JsonDeserializer;
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {
 

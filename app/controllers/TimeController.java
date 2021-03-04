@@ -15,21 +15,21 @@
 
 package controllers;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import java.io.IOException;
 import models.Exam;
 import models.ExamEnrolment;
 import models.User;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.datetime.DateTimeUtils;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import java.io.IOException;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import util.datetime.DateTimeUtils;
 
 public class TimeController extends BaseController {
 

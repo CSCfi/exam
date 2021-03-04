@@ -18,31 +18,31 @@
             <thead>
                 <tr>
                     <th>
-                        <table-sort
+                        <app-table-sort
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="displayName"
                             text="sitnet_student"
                             (click)="setPredicate('displayName')"
-                        ></table-sort>
+                        ></app-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <app-table-sort
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="user.email"
                             text="sitnet_email"
                             (click)="setPredicate('user.email')"
-                        ></table-sort>
+                        ></app-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <app-table-sort
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="reservation.startAt"
                             text="sitnet_reservation"
                             (click)="setPredicate('reservation.startAt')"
-                        ></table-sort>
+                        ></app-table-sort>
                     </th>
                     <th>{{ 'sitnet_exam_state' | translate }}</th>
                 </tr>

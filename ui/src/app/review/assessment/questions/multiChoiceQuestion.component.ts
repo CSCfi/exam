@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
@@ -24,7 +24,7 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-multi-choice-question',
+    selector: 'app-r-multi-choice-question',
     templateUrl: './multiChoiceQuestion.component.html',
 })
 export class MultiChoiceQuestionComponent {
@@ -32,12 +32,12 @@ export class MultiChoiceQuestionComponent {
     @Input() participation: ExamParticipation;
     @Input() isScorable: boolean;
     @Input() collaborative: boolean;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
 
     reviewExpanded = true;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -82,13 +82,13 @@ export class MultiChoiceQuestionComponent {
         if (this.collaborative && this.participation._rev) {
             this.Assessment.saveCollaborativeForcedScore(
                 this.sectionQuestion,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation._rev,
             ).subscribe(
                 (resp) => {
                     toast.info(this.translate.instant('sitnet_graded'));
-                    this.onScore.emit(resp.rev);
+                    this.scored.emit(resp.rev);
                 },
                 (err) => toast.error(err.data),
             );

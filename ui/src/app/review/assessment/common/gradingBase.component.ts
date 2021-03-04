@@ -1,11 +1,11 @@
 import { isRealGrade } from '../../../exam/exam.model';
 
-import type { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
-import type { ExamService } from '../../../exam/exam.service';
-import type { LanguageService } from '../../../utility/language/language.service';
-import type { AssessmentService } from '../assessment.service';
+import { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
+import { ExamService } from '../../../exam/exam.service';
+import { LanguageService } from '../../../utility/language/language.service';
+import { AssessmentService } from '../assessment.service';
 
 export abstract class GradingBaseComponent {
     selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };

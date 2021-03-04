@@ -15,17 +15,9 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import models.questions.Question;
-import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import security.Authenticated;
-import system.interceptors.Anonymous;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.util.Arrays;
@@ -36,8 +28,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import system.interceptors.Anonymous;
 
 public class QuestionReviewController extends BaseController {
 

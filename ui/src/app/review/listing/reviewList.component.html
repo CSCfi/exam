@@ -46,36 +46,37 @@
     <div *ngIf="reviews" class="mb-3">
         <div class="review-border">
             <!-- Ready for review-->
-            <rl-in-progress [exam]="exam" [reviews]="inProgressReviews"></rl-in-progress>
+            <app-rl-in-progress [exam]="exam" [reviews]="inProgressReviews"></app-rl-in-progress>
         </div>
 
         <div class="review-border" *ngIf="languageInspectedReviews.length > 0">
             <!-- Under language inspection -->
-            <rl-in-language-inspection [reviews]="languageInspectedReviews"></rl-in-language-inspection>
+            <app-rl-in-language-inspection [reviews]="languageInspectedReviews"></app-rl-in-language-inspection>
         </div>
 
         <div class="review-border">
             <!-- Graded -->
-            <rl-graded exam="exam" [reviews]="gradedReviews" (onRegistered)="onRegistration($event)"> </rl-graded>
+            <app-rl-graded [exam]="exam" [reviews]="gradedReviews" (onRegistered)="onRegistration($event)">
+            </app-rl-graded>
         </div>
 
         <div class="review-border">
             <!-- Graded and Logged -->
-            <rl-graded-logged
+            <app-rl-graded-logged
                 [exam]="exam"
                 [reviews]="gradedLoggedReviews"
-                (onArchive)="onArchive($event)"
-            ></rl-graded-logged>
+                (archived)="onArchive($event)"
+            ></app-rl-graded-logged>
         </div>
 
         <div class="review-border" *ngIf="rejectedReviews.length > 0">
             <!-- Rejected -->
-            <rl-rejected [reviews]="rejectedReviews"></rl-rejected>
+            <app-rl-rejected [reviews]="rejectedReviews"></app-rl-rejected>
         </div>
 
         <div class="review-border" *ngIf="archivedReviews.length > 0">
             <!-- Archived -->
-            <rl-archived [reviews]="archivedReviews"></rl-archived>
+            <app-rl-archived [reviews]="archivedReviews"></app-rl-archived>
         </div>
     </div>
 </div>

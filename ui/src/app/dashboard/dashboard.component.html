@@ -1,12 +1,12 @@
 <div style="min-height: 700px">
     <div *ngIf="user.isStudent">
-        <student-dashboard></student-dashboard>
+        <app-student-dashboard></app-student-dashboard>
     </div>
     <div *ngIf="user.isTeacher">
-        <teacher-dashboard></teacher-dashboard>
+        <app-teacher-dashboard></app-teacher-dashboard>
     </div>
     <div *ngIf="user.isAdmin">
-        <admin-dashboard></admin-dashboard>
+        <app-admin-dashboard></app-admin-dashboard>
     </div>
 </div>
 <!-- throw this away at some point, just route directly to above modules using lazy loading -->

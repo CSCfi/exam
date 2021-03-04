@@ -12,18 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, OnInit } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
+import { CalendarEvent } from 'angular-calendar';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { CalendarService } from '../../calendar/calendar.service';
-import { RoomService } from './room.service';
-
-import type { OnInit } from '@angular/core';
-import type { OpeningHours } from '../../calendar/calendar.service';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { Availability } from './room.service';
+import { SlotMeta } from '../../calendar/bookingCalendar.component';
+import { CalendarService, OpeningHours } from '../../calendar/calendar.service';
+import { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { Availability, RoomService } from './room.service';
 
 type SuccessFunction = (response: Availability[]) => void;
 
@@ -39,7 +37,7 @@ type RefreshCallBackFn = (events: AvailableEvent[]) => void;
 
 @Component({
     templateUrl: './availability.component.html',
-    selector: 'availability',
+    selector: 'app-availability',
 })
 export class AvailabilityComponent implements OnInit {
     loader: { loading: boolean };
@@ -47,14 +45,19 @@ export class AvailabilityComponent implements OnInit {
     exceptionHours: ExceptionWorkingHours[];
     room: ExamRoom;
     showCalendar = false;
+    events: CalendarEvent<SlotMeta>[] = [];
 
-    constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}
+    constructor(
+        private routing: UIRouterGlobals,
+        private roomService: RoomService,
+        private calendar: CalendarService,
+    ) {}
 
     ngOnInit() {
         this.loader = {
             loading: false,
         };
-        this.roomService.getRoom(this.state.params.id).subscribe((room) => {
+        this.roomService.getRoom(this.routing.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
@@ -64,11 +67,11 @@ export class AvailabilityComponent implements OnInit {
 
     query = (successFn: SuccessFunction, date: string) => {
         this.roomService
-            .getAvailability(this.state.params.id, date)
+            .getAvailability$(this.routing.params.id, date)
             .subscribe(successFn, (error) => toast.error(error));
     };
 
-    adjust = (date: string, tz: string) => {
+    adjust = (date: string, tz: string): string => {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? -1 : 0;
         return adjusted.add(offset, 'hour').format();
@@ -76,29 +79,32 @@ export class AvailabilityComponent implements OnInit {
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
-        if (ratio <= 0.5) return '#A6E9B2';
-        if (ratio <= 0.9) return '#FCF8E3';
-        return '#266B99';
+        if (ratio <= 0.5) {
+            return { primary: '#A6E9B2', secondary: '#A6E9B2' };
+        }
+        if (ratio <= 0.9) {
+            return { primary: '#FCF8E3', secondary: '#FCF8E3' };
+        }
+        return { primary: '#266B99', secondary: '#266B99' };
     };
 
-    refresh = (start: moment.Moment, callback: RefreshCallBackFn) => {
+    refresh = (event: { date: Date }) => {
         if (!this.room) {
             return;
         }
-        const date = start.format();
+        const date = moment(event.date).format();
         this.loader.loading = true;
         const tz = this.room.localTimezone;
         const successFn = (resp: Availability[]) => {
-            const events = resp.map((slot: Availability) => {
+            this.events = resp.map((slot: Availability) => {
                 return {
                     title: slot.reserved + ' / ' + slot.total,
                     color: this.getColor(slot),
-                    start: this.adjust(slot.start, tz),
-                    end: this.adjust(slot.end, tz),
+                    start: new Date(this.adjust(slot.start, tz)),
+                    end: new Date(this.adjust(slot.end, tz)),
                     availableMachines: 0,
                 };
             });
-            callback(events);
             this.loader.loading = false;
         };
         this.query(successFn, date);

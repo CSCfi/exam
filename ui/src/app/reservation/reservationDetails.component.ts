@@ -19,15 +19,16 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { Reservation } from './reservation.model';
+import { AnyReservation } from './reservation.baseComponent';
+import { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
 @Component({
-    selector: 'reservation-details',
+    selector: 'app-reservation-details',
     templateUrl: './reservationDetails.component.html',
 })
 export class ReservationDetailsComponent {
-    @Input() reservations: Reservation[];
+    @Input() reservations: AnyReservation[];
     @Input() isAdminView: boolean;
 
     predicate = 'reservation.startAt';
@@ -36,16 +37,16 @@ export class ReservationDetailsComponent {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private Reservation: ReservationService,
+        private ReservationSrv: ReservationService,
     ) {}
 
-    printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
+    printExamState = (reservation: Reservation) => this.ReservationSrv.printExamState(reservation);
 
     getStateClass = (reservation: Reservation) =>
         reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
 
-    removeReservation(reservation: Reservation) {
-        this.Reservation.cancelReservation(reservation)
+    removeReservation(reservation: AnyReservation) {
+        this.ReservationSrv.cancelReservation(reservation as Reservation)
             .then(() => {
                 this.reservations.splice(this.reservations.indexOf(reservation), 1);
                 toast.info(this.translate.instant('sitnet_reservation_removed'));
@@ -63,7 +64,7 @@ export class ReservationDetailsComponent {
         );
     }
 
-    changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
+    changeReservationMachine = (reservation: Reservation) => this.ReservationSrv.changeMachine(reservation);
 
     setPredicate = (predicate: string) => {
         if (this.predicate === predicate) {

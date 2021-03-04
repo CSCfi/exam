@@ -16,24 +16,22 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
 
-import { ExamSectionQuestion } from '../../exam/exam.model';
+import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { WindowRef } from '../../utility/window/window.service';
-
-import type { Question } from '../../exam/exam.model';
 
 // This component is used for editing distributed exam questions.
 @Component({
-    selector: 'exam-question-editor',
+    selector: 'app-exam-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">
-                <exam-question
+                <app-exam-question
                     *ngIf="examQuestion"
                     [examQuestion]="examQuestion"
-                    (onSave)="onSave($event)"
-                    (onCancel)="cancel()"
+                    (saved)="onSave($event)"
+                    (canceled)="cancel()"
                     [lotteryOn]="lotteryOn"
-                ></exam-question>
+                ></app-exam-question>
             </div>
             <div class="modal-footer"></div>
         </div>

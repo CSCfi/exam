@@ -19,12 +19,12 @@ import * as toast from 'toastr';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
 
-import type { OnInit } from '@angular/core';
-import type { Accessibility } from '../../reservation/reservation.model';
+import { OnInit } from '@angular/core';
+import { Accessibility } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './accessibilitySelector.component.html',
-    selector: 'accessibility-selector',
+    selector: 'app-accessibility-selector',
 })
 export class AccessibilitySelectorComponent implements OnInit {
     @Input() room: ExamRoom;
@@ -61,7 +61,7 @@ export class AccessibilitySelectorComponent implements OnInit {
         }
         const ids = this.room.accessibilities.map((item) => item.id).join(', ');
 
-        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
+        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids }).subscribe(() => {
             toast.info(this.translate.instant('sitnet_room_updated'));
         });
     };

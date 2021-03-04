@@ -13,14 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../../exam/exam.model';
+import { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { Examination } from '../../../examination/examination.service';
 import { QuestionAmounts } from '../../../question/question.service';
 import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -29,19 +28,17 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
-import type { OnInit } from '@angular/core';
-import type { Exam, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
-    selector: 'r-grading',
+    selector: 'app-r-grading',
     templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
-    @Input() exam: Examination;
+    @Input() exam: Exam;
     @Input() questionSummary: QuestionAmounts;
     @Input() participation: ExamParticipation;
     @Input() collaborative: boolean;
     @Input() user: User;
-    @Output() onUpdate = new EventEmitter<void>();
+    @Output() updated = new EventEmitter<void>();
     message: { text?: string } = { text: '' };
     selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
@@ -50,15 +47,15 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         http: HttpClient,
         Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
-        Exam: ExamService,
+        ExamSrv: ExamService,
         private Attachment: AttachmentService,
         Language: LanguageService,
     ) {
-        super(http, Assessment, Exam, Language);
+        super(http, Assessment, ExamSrv, Language);
     }
 
     getExam = () => this.exam;
@@ -76,7 +73,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
     getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
-    inspectionDone = () => this.onUpdate.emit();
+    inspectionDone = () => this.updated.emit();
     isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
@@ -97,8 +94,8 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         }
         if (this.collaborative) {
             this.CollaborativeAssessment.sendEmailMessage(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.message.text,
             ).subscribe(
                 () => {
@@ -118,8 +115,8 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     saveAssessmentInfo = () => {
         if (this.collaborative) {
             this.CollaborativeAssessment.saveAssessmentInfo(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation,
             );
         } else {

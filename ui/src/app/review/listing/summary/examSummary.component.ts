@@ -26,11 +26,11 @@ import { FileService } from '../../../utility/file/file.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
-import type { ExamParticipation } from '../../../exam/exam.model';
+import { ExamParticipation } from '../../../exam/exam.model';
 @Component({
-    selector: 'exam-summary',
+    selector: 'app-exam-summary',
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
@@ -142,7 +142,7 @@ export class ExamSummaryComponent {
     getNoShows = () => {
         // No-shows
         if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
+            // TODO: Fetch collaborative no-shows from xm.
             this.noShows = [];
         } else {
             this.http

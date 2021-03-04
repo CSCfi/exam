@@ -18,12 +18,12 @@ import * as toast from 'toastr';
 
 import { AccessibilityService } from './accessibility.service';
 
-import type { OnInit } from '@angular/core';
-import type { Accessibility } from '../../reservation/reservation.model';
+import { OnInit } from '@angular/core';
+import { Accessibility } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './accessibility.component.html',
-    selector: 'accessibility',
+    selector: 'app-accessibility',
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string };

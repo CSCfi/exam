@@ -15,13 +15,6 @@
 
 package util.csv;
 
-import models.Comment;
-import models.Exam;
-import models.ExamRecord;
-import models.Grade;
-import models.Role;
-import models.User;
-import models.dto.ExamScore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.opencsv.CSVReader;
@@ -37,6 +30,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import models.Comment;
+import models.Exam;
+import models.ExamRecord;
+import models.Grade;
+import models.Role;
+import models.User;
+import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

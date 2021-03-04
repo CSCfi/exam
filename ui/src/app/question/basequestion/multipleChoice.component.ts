@@ -12,15 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
-    selector: 'multiple-choice-editor',
+    selector: 'app-multiple-choice-editor',
     template: `
         <div class="row mt-2" *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
             <div class="col-md-6">
@@ -52,21 +52,21 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
         </div>
         <div class="row" id="question-editor" *ngFor="let option of question.options; let i = index">
             <div class="col-md-12">
-                <mc-option-editor
+                <app-mc-option-editor
                     *ngIf="question.type === 'MultipleChoiceQuestion'"
                     [option]="option"
                     [question]="question"
                     [index]="i"
                     [allowRemoval]="!lotteryOn && allowOptionRemoval"
                 >
-                </mc-option-editor>
-                <wmc-option-editor
+                </app-mc-option-editor>
+                <app-wmc-option-editor
                     *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
                     [option]="option"
                     [index]="i"
                     [question]="question"
                     [lotteryOn]="lotteryOn"
-                ></wmc-option-editor>
+                ></app-wmc-option-editor>
             </div>
         </div>
         <div *ngIf="question.type == 'WeightedMultipleChoiceQuestion'" class="row mt-3">
@@ -85,13 +85,13 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
         </div>
     `,
 })
-export class MultipleChoiceEditorComponent {
-    @Input() question: Omit<Question, 'options'> & { options: Partial<MultipleChoiceOption>[] };
+export class MultipleChoiceEditorComponent implements OnInit {
+    @Input() question: Question;
     @Input() showWarning: boolean;
     @Input() lotteryOn: boolean;
     @Input() allowOptionRemoval: boolean;
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(private translate: TranslateService, private QuestionSrv: QuestionService) {}
 
     ngOnInit() {
         if (this.question.type === 'WeightedMultipleChoiceQuestion') {
@@ -103,8 +103,8 @@ export class MultipleChoiceEditorComponent {
             toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
-        this.question.options.push({ correctOption: false });
+        this.question.options.push({ id: 0, option: '', defaultScore: 0, correctOption: false });
     };
 
-    calculateDefaultMaxPoints = () => this.Question.calculateDefaultMaxPoints(this.question as Question);
+    calculateDefaultMaxPoints = () => this.QuestionSrv.calculateDefaultMaxPoints(this.question as Question);
 }

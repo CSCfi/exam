@@ -13,23 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Directive, OnInit } from '@angular/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { OrderPipe } from 'ngx-order-pipe';
 import { forkJoin } from 'rxjs';
-import { map, tap, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { SessionService } from '../session/session.service';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
+import { SessionService, User } from '../session/session.service';
+import { Option } from '../utility/select/dropDownSelect.component';
+import { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
-
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
-import type { User } from '../session/session.service';
-import type { Option } from '../utility/select/dropDownSelect.component';
-import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 
 interface Selection {
     [data: string]: string;
@@ -60,14 +58,14 @@ type RemoteTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
 type CollaborativeExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
     enrolment: CollaborativeExamEnrolment;
 };
-type AnyReservation =
+export type AnyReservation =
     | ReservationDisplay
     | LocalTransferExamReservation
     | RemoteTransferExamReservation
     | CollaborativeExamReservation;
 
-@Injectable()
-export class ReservationComponentBase {
+@Directive()
+export class ReservationComponentBaseDirective implements OnInit {
     examId: string;
     user: User;
     startDate: Date = new Date();
@@ -99,12 +97,12 @@ export class ReservationComponentBase {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private orderPipe: OrderPipe,
         private Session: SessionService,
-        private Reservation: ReservationService,
+        private ReservationSrv: ReservationService,
     ) {
-        this.examId = this.state.params.eid;
+        this.examId = this.routing.params.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {
@@ -125,7 +123,7 @@ export class ReservationComponentBase {
     // TODO: check this out
     private createParams = (input: Selection) => {
         const params: Selection = { ...input };
-        if (params.examId && !_.isNumber(parseInt(params.examId as string))) {
+        if (params.examId && !_.isNumber(parseInt(params.examId as string, 10))) {
             params.externalRef = params.examId as string;
             delete params.examId;
         }
@@ -149,8 +147,8 @@ export class ReservationComponentBase {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
             forkJoin([
-                this.http.get<Reservation[]>('/app/reservations', { params: params }),
-                this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
+                this.http.get<Reservation[]>('/app/reservations', { params }),
+                this.http.get<ExamEnrolment[]>('/app/events', { params }),
             ])
                 .pipe(
                     map(([reservations, enrolments]) => {
@@ -183,7 +181,6 @@ export class ReservationComponentBase {
                     map((reservations: AnyReservation[]) => {
                         // Transfer exams taken here
                         reservations.filter(this.isLocalTransfer).forEach((r: LocalTransferExamReservation) => {
-                            r.enrolment = r.enrolment || {};
                             const state =
                                 r.enrolment.externalExam && r.enrolment.externalExam.finished
                                     ? 'EXTERNAL_FINISHED'
@@ -192,7 +189,7 @@ export class ReservationComponentBase {
                                 id: r.enrolment?.externalExam?.id as number,
                                 external: true,
                                 examOwners: [],
-                                state: state,
+                                state,
                                 parent: null,
                             };
                         });
@@ -227,7 +224,7 @@ export class ReservationComponentBase {
                         reservations.forEach((r) => {
                             const exam = r.enrolment.exam.parent || r.enrolment.exam;
                             r.enrolment.teacherAggregate = exam.examOwners.map((o) => o.lastName + o.firstName).join();
-                            const state = this.Reservation.printExamState(r);
+                            const state = this.ReservationSrv.printExamState(r);
                             r.stateOrd = [
                                 'PUBLISHED',
                                 'NO_SHOW',
@@ -294,8 +291,8 @@ export class ReservationComponentBase {
                     this.roomOptions = this.rooms.map((r) => {
                         return { id: r.id, value: r, label: r.name };
                     });
-                    this.http.get<ExamMachine>('/app/machines').subscribe((resp) => {
-                        this.machines = this.orderPipe.transform(resp, 'name');
+                    this.http.get<ExamMachine>('/app/machines').subscribe((resp2) => {
+                        this.machines = this.orderPipe.transform(resp2, 'name');
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                     });
                 },

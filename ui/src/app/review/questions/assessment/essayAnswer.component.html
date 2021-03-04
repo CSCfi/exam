@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="main-row">
-            <div class="col-md-12 essay-answer-item" [MathJax]="answer.essayAnswer.answer"></div>
+            <div class="col-md-12 essay-answer-item" [appMathJax]="answer.essayAnswer.answer"></div>
         </div>
 
         <div class="detail-row" *ngIf="answer.essayAnswer.attachment">
@@ -105,8 +105,8 @@
                                 size="5"
                                 onclick="this.focus();"
                                 [disabled]="!editable"
-                                min="0"
-                                max="{{ answer.maxScore }}"
+                                [min]="0"
+                                [max]="answer.maxScore"
                             />
                             <small *ngIf="essayPoints.invalid" class="alert-danger">
                                 <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

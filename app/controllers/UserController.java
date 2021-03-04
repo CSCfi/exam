@@ -15,24 +15,12 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.Language;
-import models.Permission;
-import models.Role;
-import models.User;
-import models.questions.Question;
-import sanitizers.Attrs;
-import sanitizers.UserLanguageSanitizer;
-import security.Authenticated;
-import validators.JsonValidator;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
@@ -42,11 +30,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.Language;
+import models.Permission;
+import models.Role;
+import models.User;
+import models.questions.Question;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.UserLanguageSanitizer;
+import security.Authenticated;
+import validators.JsonValidator;
 
 public class UserController extends BaseController {
 

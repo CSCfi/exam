@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                     <div *ngIf="participation.exam.course" class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        <course-code [course]="participation.exam.course"></course-code>
+                        <app-course-code [course]="participation.exam.course"></app-course-code>
                         {{ participation.exam.course?.name }}
                     </div>
                     <div class="clearfix visible-xs"></div>
@@ -26,7 +26,7 @@
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
                     <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                         <div>
-                            <teacher-list [exam]="participation.exam" [useParent]="true"></teacher-list>
+                            <app-teacher-list [exam]="participation.exam" [useParent]="true"></app-teacher-list>
                         </div>
                     </div>
                 </div>
@@ -73,14 +73,14 @@
                                 src="/assets/assets/images/arrow_down.png"
                             />
                         </a>
-                        <exam-feedback
+                        <app-exam-feedback
                             class="student-exam-row-infobox"
                             [hidden]="!showEvaluation"
                             [assessment]="reviewedExam"
                             [collaborative]="collaborative"
                             [scores]="scores"
                         >
-                        </exam-feedback>
+                        </app-exam-feedback>
                     </div>
                 </div>
             </div>

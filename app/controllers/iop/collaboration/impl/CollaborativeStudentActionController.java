@@ -16,9 +16,6 @@
 
 package controllers.iop.collaboration.impl;
 
-import models.User;
-import sanitizers.Attrs;
-import security.Authenticated;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,12 +25,15 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.User;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import sanitizers.Attrs;
+import security.Authenticated;
 
 public class CollaborativeStudentActionController extends CollaborationController {
 

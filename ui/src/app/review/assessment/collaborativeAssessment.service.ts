@@ -24,8 +24,8 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
+import { Observable } from 'rxjs';
+import { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 interface Payload {
     id: number;
     state: string;
@@ -104,7 +104,7 @@ export class CollaborativeAssesmentService {
             creditType: exam.creditType,
             answerLanguage: exam.answerLanguage,
             additionalInfo: exam.additionalInfo,
-            rev: rev,
+            rev,
         };
     }
 

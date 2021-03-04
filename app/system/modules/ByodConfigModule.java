@@ -1,8 +1,8 @@
 package system.modules;
 
+import com.google.inject.AbstractModule;
 import util.config.ByodConfigHandler;
 import util.config.ByodConfigHandlerImpl;
-import com.google.inject.AbstractModule;
 
 public class ByodConfigModule extends AbstractModule {
 

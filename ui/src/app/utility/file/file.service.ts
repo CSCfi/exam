@@ -18,8 +18,8 @@ import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
 
-import type { HttpResponse } from '@angular/common/http';
-import type { Attachment } from '../../exam/exam.model';
+import { HttpResponse } from '@angular/common/http';
+import { Attachment } from '../../exam/exam.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 

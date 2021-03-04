@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
-import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
-
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
-import type { OnInit } from '@angular/core';
+import {
+    CollaborativeExamService,
+    CollaborativeParticipation,
+} from '../../exam/collaborative/collaborativeExam.service';
 
 @Component({
-    selector: 'collaborative-exam-participations',
+    selector: 'app-collaborative-exam-participations',
     templateUrl: './examParticipations.component.html',
 })
-export class CollaborativeParticipationsComponent implements OnInit {
+export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
     collaborative = true;
     originals: CollaborativeParticipation[] = [];
     participations: CollaborativeParticipation[];

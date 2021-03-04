@@ -20,9 +20,9 @@ import * as toast from 'toastr';
 
 import { ExaminationEventConfiguration } from '../../exam.model';
 
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 @Component({
-    selector: 'examination-event-dialog',
+    selector: 'app-examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {

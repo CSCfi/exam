@@ -1,9 +1,9 @@
 import { Directive, Input } from '@angular/core';
-import { NG_VALIDATORS, Validators } from '@angular/forms';
+import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, Validators } from '@angular/forms';
 
-import type { Validator, AbstractControl, ValidationErrors } from '@angular/forms';
 @Directive({
     selector: '[max]',
+    /* eslint-disable-next-line */
     providers: [{ provide: NG_VALIDATORS, useExisting: MaxDirective, multi: true }],
 })
 export class MaxDirective implements Validator {

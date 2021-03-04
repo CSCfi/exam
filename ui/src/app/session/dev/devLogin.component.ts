@@ -16,9 +16,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 
 import { SessionService } from '../session.service';
 
-import type { User } from '../session.service';
+import { User } from '../session.service';
 @Component({
-    selector: 'dev-login',
+    selector: 'app-dev-login',
     template: `
         <div class="container-fluid">
             <div class="row mart20">

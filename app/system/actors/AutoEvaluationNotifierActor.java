@@ -17,15 +17,15 @@ package system.actors;
 
 import akka.actor.AbstractActor;
 import impl.EmailComposer;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.User;
-import util.datetime.DateTimeUtils;
 import io.ebean.Ebean;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.AutoEvaluationConfig;
+import models.Exam;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.datetime.DateTimeUtils;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 

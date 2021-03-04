@@ -22,25 +22,25 @@
         <div class="row">
             <div class="col">
                 <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
-                <date-time-picker
+                <app-date-time-picker
                     id="startDate"
                     [initialTime]="exception.startDate"
                     [hourStep]="1"
                     [minuteStep]="15"
-                    (onUpdate)="onStartDateChange($event)"
+                    (updated)="onStartDateChange($event)"
                 >
-                </date-time-picker>
+                </app-date-time-picker>
             </div>
             <div class="col">
                 <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
-                <date-time-picker
+                <app-date-time-picker
                     id="endDate"
                     [initialTime]="exception.endDate"
                     [hourStep]="1"
                     [minuteStep]="15"
-                    (onUpdate)="onEndDateChange($event)"
+                    (updated)="onEndDateChange($event)"
                 >
-                </date-time-picker>
+                </app-date-time-picker>
             </div>
         </div>
     </div>

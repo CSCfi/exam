@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
-import { ReviewListService } from '../reviewList.service';
+import { Review } from '../../review.model';
+import { ReviewListService, ReviewListView } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-in-language-inspection',
+    selector: 'app-rl-in-language-inspection',
     templateUrl: './inLanguageInspection.component.html',
 })
-export class InLanguageInspectionReviewsComponent {
+export class InLanguageInspectionReviewsComponent implements OnInit {
     @Input() reviews: Review[];
     @Input() exam: Exam;
     view: ReviewListView;

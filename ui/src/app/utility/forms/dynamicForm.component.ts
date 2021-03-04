@@ -1,13 +1,13 @@
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { tap } from 'rxjs/operators';
 
 import { QuestionControlService } from './questionControl.service';
-import type { QuestionBase } from './questionTypes';
+import { QuestionBase } from './questionTypes';
 
 @Component({
-    selector: 'dynamic-form',
+    selector: 'app-dynamic-form',
     templateUrl: './dynamicForm.component.html',
 })
 export class DynamicFormComponent implements OnInit {

@@ -15,27 +15,27 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../../session/session.service';
-import type { QuestionReview } from '../../review.model';
+import { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
-    selector: 'question-flow-category',
+    selector: 'app-question-flow-category',
     templateUrl: './questionFlowCategory.component.html',
 })
 export class QuestionFlowCategoryComponent {
     @Input() categoryTitle: string;
     @Input() reviews: QuestionReview[] = [];
     @Input() allDone: boolean;
-    @Output() onSelection = new EventEmitter<QuestionReview>();
+    @Output() selected = new EventEmitter<QuestionReview>();
 
     hideCategory = false;
 
-    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
+    constructor(private QuestionReviewSrv: QuestionReviewService, private Session: SessionService) {}
 
-    isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
+    isFinalized = (review: QuestionReview) => this.QuestionReviewSrv.isFinalized(review);
 
     getAssessedAnswerCount = (review: QuestionReview) =>
-        this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
+        this.allDone ? 0 : this.QuestionReviewSrv.getProcessedAnswerCount(review, this.Session.getUser());
 
-    selectQuestion = (review: QuestionReview) => this.onSelection.emit(review);
+    selectQuestion = (review: QuestionReview) => this.selected.emit(review);
 }

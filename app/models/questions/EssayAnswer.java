@@ -15,14 +15,14 @@
 
 package models.questions;
 
-import models.Attachment;
-import models.api.AttachmentContainer;
-import models.base.OwnedModel;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import models.Attachment;
+import models.api.AttachmentContainer;
+import models.base.OwnedModel;
 
 @Entity
 public class EssayAnswer extends OwnedModel implements AttachmentContainer {

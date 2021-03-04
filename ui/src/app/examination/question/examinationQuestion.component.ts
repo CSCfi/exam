@@ -12,18 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { QuestionBase } from '../../utility/forms/questionTypes';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
-import type { AfterViewInit } from '@angular/core';
-import type { QuestionBase } from '../../utility/forms/questionTypes';
 @Component({
-    selector: 'examination-question',
+    selector: 'app-examination-question',
     templateUrl: './examinationQuestion.component.html',
 })
-export class ExaminationQuestionComponent implements AfterViewInit {
+export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     @Input() exam: Examination;
     @Input() sq: ExaminationQuestion;
     @Input() isPreview: boolean;
@@ -34,7 +33,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
 
     constructor(
         private cdr: ChangeDetectorRef,
-        private Examination: ExaminationService,
+        private ExaminationSrv: ExaminationService,
         private Attachment: AttachmentService,
     ) {}
 
@@ -42,21 +41,14 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         this.sq.expanded = true;
         const answerData = this.sq.clozeTestAnswer;
         if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
-            this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
-            //answerData.answer = JSON.parse(answerData.answer);
+            this.clozeTestFormQuestions = this.ExaminationSrv.parseClozeTestQuestion(answerData);
+            // answerData.answer = JSON.parse(answerData.answer);
         }
     }
 
     ngAfterViewInit() {
         this.cdr.detectChanges();
     }
-
-    answered = (event: { payload: { id: string; answer: string }[] }) => {
-        if (this.sq.clozeTestAnswer) {
-            const dictionary = Object.assign({}, ...event.payload.map((x) => ({ [x.id]: x.answer })));
-            this.sq.clozeTestAnswer.answer = JSON.stringify(dictionary);
-        }
-    };
 
     downloadQuestionAttachment = () => {
         if (this.exam.external) {
@@ -68,5 +60,5 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         }
     };
 
-    isAnswered = () => this.Examination.isAnswered(this.sq);
+    isAnswered = () => this.ExaminationSrv.isAnswered(this.sq);
 }

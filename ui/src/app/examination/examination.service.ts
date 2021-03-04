@@ -25,8 +25,8 @@ import { isBlankElement, isTextElement } from '../exam/exam.model';
 import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
 import { WindowRef } from '../utility/window/window.service';
 
-import type { Observable } from 'rxjs';
-import type {
+import { Observable } from 'rxjs';
+import {
     ClozeTestAnswer,
     EssayAnswer,
     Exam,
@@ -34,7 +34,7 @@ import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
 } from '../exam/exam.model';
-import type { QuestionBase } from '../utility/forms/questionTypes';
+import { QuestionBase } from '../utility/forms/questionTypes';
 export interface Examination extends Exam {
     cloned: boolean;
     external: boolean;
@@ -251,12 +251,15 @@ export class ExaminationService {
         const ok = () => {
             toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put<void>(url, {}).subscribe(ok, (resp) => {
-            if (!canFail) toast.error(this.translate.instant(resp));
-            else ok();
+            if (!canFail) {
+                toast.error(this.translate.instant(resp));
+            } else {
+                ok();
+            }
         });
     };
 

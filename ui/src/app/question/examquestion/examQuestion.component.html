@@ -125,7 +125,7 @@
                             </sup>
                         </div>
                         <div class="col-md-9" *ngIf="question?.type">
-                            <ckeditor
+                            <app-ckeditor
                                 id="editor"
                                 name="editor"
                                 #ck="ngModel"
@@ -133,9 +133,9 @@
                                 rows="10"
                                 cols="60"
                                 [(ngModel)]="question!.question"
-                                required
+                                [required]
                             >
-                            </ckeditor>
+                            </app-ckeditor>
                         </div>
                     </div>
 
@@ -441,8 +441,8 @@
                                 lang="en"
                                 class="form-control wdt100"
                                 [(ngModel)]="examQuestion.maxScore"
-                                min="0"
-                                max="1000"
+                                [min]="0"
+                                [max]="1000"
                                 fixedPrecision
                                 required
                                 [disabled]="lotteryOn"

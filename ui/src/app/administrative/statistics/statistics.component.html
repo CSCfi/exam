@@ -28,20 +28,20 @@
         <!-- Start & End time datepickers, department selection -->
         <div class="col-md">
             <h4>{{ 'sitnet_begin' | translate }}</h4>
-            <date-picker
-                (onUpdate)="startDateChanged($event)"
+            <app-date-picker
+                (updated)="startDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></app-date-picker>
         </div>
 
         <div class="col-md">
             <h4>{{ 'sitnet_end' | translate }}</h4>
-            <date-picker
-                (onUpdate)="endDateChanged($event)"
+            <app-date-picker
+                (updated)="endDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></app-date-picker>
         </div>
 
         <div class="col-md">
@@ -110,8 +110,9 @@
     </div>
 
     <!-- TAB CONTENT -->
-    <room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></room-statistics>
-    <reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </reservation-statistics>
-    <response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></response-statistics>
-    <exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></exam-statistics>
+    <app-room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></app-room-statistics>
+    <app-reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams">
+    </app-reservation-statistics>
+    <app-response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></app-response-statistics>
+    <app-exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></app-exam-statistics>
 </div>

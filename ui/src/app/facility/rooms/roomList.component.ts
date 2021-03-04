@@ -20,10 +20,10 @@ import * as toast from 'toastr';
 import { SessionService } from '../../session/session.service';
 import { RoomService } from './room.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
-import type { User } from '../../session/session.service';
-import type { Address } from './room.service';
+import { OnInit } from '@angular/core';
+import { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
+import { User } from '../../session/session.service';
+import { Address } from './room.service';
 
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
@@ -31,7 +31,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
 
 @Component({
     templateUrl: './roomList.component.html',
-    selector: 'room-list',
+    selector: 'app-room-list',
 })
 export class RoomListComponent implements OnInit {
     user: User;
@@ -92,7 +92,9 @@ export class RoomListComponent implements OnInit {
     };
 
     displayAddress = (address: Address) => {
-        if (!address || (!address.street && !address.city && !address.zip)) return 'N/A';
+        if (!address || (!address.street && !address.city && !address.zip)) {
+            return 'N/A';
+        }
         const street = address.street ? address.street + ', ' : '';
         const city = (address.city || '').toUpperCase();
         return street + address.zip + ' ' + city;

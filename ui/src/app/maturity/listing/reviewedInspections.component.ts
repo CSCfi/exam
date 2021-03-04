@@ -12,20 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
+import { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
+import { LanguageInspection } from '../maturity.model';
 
-import type { SimpleChanges, OnChanges } from '@angular/core';
-import type { LanguageInspectionData } from '../languageInspections.component';
 @Component({
-    selector: 'reviewed-inspections',
+    selector: 'app-reviewed-inspections',
     templateUrl: './reviewedInspections.component.html',
 })
 export class ReviewedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];
-    @Output() onStartDateChange = new EventEmitter<{ date: Date }>();
-    @Output() onEndDateChange = new EventEmitter<{ date: Date }>();
+    @Output() startDateChanged = new EventEmitter<{ date: Date }>();
+    @Output() endDateChanged = new EventEmitter<{ date: Date }>();
 
     filteredInspections: LanguageInspectionData[] = [];
     sorting = {
@@ -67,9 +67,10 @@ export class ReviewedInspectionsComponent implements OnChanges {
             this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
         ));
 
-    startDateChanged = (event: { date: Date }) => this.onStartDateChange.emit({ date: event.date });
+    startDateChange = (event: { date: Date }) => this.startDateChanged.emit({ date: event.date });
 
-    endDateChanged = (event: { date: Date }) => this.onEndDateChange.emit({ date: event.date });
+    endDateChange = (event: { date: Date }) => this.endDateChanged.emit({ date: event.date });
 
-    showStatement = (statement: { comment: string }) => this.LanguageInspections.showStatement(statement);
+    showStatement = (inspection: LanguageInspection) =>
+        this.LanguageInspections.showStatement(inspection.statement.comment);
 }

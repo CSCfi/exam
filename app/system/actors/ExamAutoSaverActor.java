@@ -18,6 +18,13 @@ package system.actors;
 import akka.actor.AbstractActor;
 import controllers.SettingsController;
 import impl.EmailComposer;
+import io.ebean.Ebean;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
@@ -27,17 +34,10 @@ import models.GeneralSettings;
 import models.Reservation;
 import models.User;
 import models.json.ExternalExam;
-import util.AppUtil;
-import util.datetime.DateTimeUtils;
-import io.ebean.Ebean;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.AppUtil;
+import util.datetime.DateTimeUtils;
 
 public class ExamAutoSaverActor extends AbstractActor {
 

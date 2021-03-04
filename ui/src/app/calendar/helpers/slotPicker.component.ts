@@ -1,154 +1,170 @@
 import { WeekDay } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewEncapsulation,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
+import { CalendarEvent } from 'angular-calendar';
 import { startOfWeek } from 'date-fns';
 import * as moment from 'moment';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
+import { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import { SlotMeta } from '../bookingCalendar.component';
 import { Organisation } from '../calendar.component';
-
-import type { SimpleChanges } from '@angular/core';
-import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
-import type { CalendarEvent } from 'angular-calendar';
-import type { SlotMeta } from '../bookingCalendar.component';
-import type { Slot } from '../calendar.service';
-import type { Observable } from 'rxjs';
+import { Slot } from '../calendar.service';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
-    selector: 'calendar-slot-picker',
-    template: `<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
-        <div class="col-md-12">
-            <div class="row">
-                <span class="col-md-12">
-                    <span class="calendar-phase-title">
-                        {{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}
-                        <small>
-                            <button
-                                class="btn btn-sm btn-link infolink"
-                                (click)="makeExternalReservation()"
-                                *ngIf="isInteroperable && !isExternal"
-                            >
-                                {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                                <i class="bi-chevron-double-right"></i>
-                            </button>
-                        </small>
+    selector: 'app-calendar-slot-picker',
+    template: `
+        <div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
+            <div class="col-md-12">
+                <div class="row">
+                    <span class="col-md-12">
+                        <span class="calendar-phase-title">
+                            {{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}
+                            <small>
+                                <button
+                                    class="btn btn-sm btn-link infolink"
+                                    (click)="makeExternalReservation()"
+                                    *ngIf="isInteroperable && !isExternal"
+                                >
+                                    {{ 'sitnet_external_reservation' | translate }}&nbsp;
+                                    <i class="bi-chevron-double-right"></i>
+                                </button>
+                            </small>
+                        </span>
+                        <span class="calendar-phase-icon pull-right" *ngIf="selectedRoom">
+                            <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose room" />
+                        </span>
                     </span>
-                    <span class="calendar-phase-icon pull-right" *ngIf="selectedRoom">
-                        <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose room" />
-                    </span>
-                </span>
-            </div>
-            <div class="row">
-                <!-- todo: make this a component -->
-                <div class="col-md-12" [hidden]="isExternal">
-                    <div class="row">
-                        <span class="col-md-12">
-                            <a
-                                class="infolink pointer"
-                                *ngIf="!disabled"
-                                tabindex="0"
-                                (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
-                            >
-                                {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                                <img
-                                    class="arrow_icon"
-                                    *ngIf="!showAccessibilityMenu"
-                                    alt="show accessibility selection"
-                                    src="/assets/assets/images/arrow_right.png"
-                                />
-                                <img
-                                    class="arrow_icon"
-                                    *ngIf="showAccessibilityMenu"
-                                    alt="hide accessibility selection"
-                                    src="/assets/assets/images/arrow_down.png"
-                                />
-                            </a>
-                            <span *ngIf="disabled" class="text text-muted">
-                                {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                            </span>
-                            <div class="row" [hidden]="!showAccessibilityMenu">
-                                <div class="col-md-12">
-                                    <div class="calendar-accs-title">
-                                        {{ 'sitnet_exam_room_accessibility' | translate }}
+                </div>
+                <div class="row">
+                    <!-- todo: make this a component -->
+                    <div class="col-md-12" [hidden]="isExternal">
+                        <div class="row">
+                            <span class="col-md-12">
+                                <a
+                                    class="infolink pointer"
+                                    *ngIf="!disabled"
+                                    tabindex="0"
+                                    (click)="showAccessibilityMenu = !showAccessibilityMenu"
+                                    (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
+                                >
+                                    {{ 'sitnet_calendar_room_accessibility_info' | translate }}
+                                    <img
+                                        class="arrow_icon"
+                                        *ngIf="!showAccessibilityMenu"
+                                        alt="show accessibility selection"
+                                        src="/assets/assets/images/arrow_right.png"
+                                    />
+                                    <img
+                                        class="arrow_icon"
+                                        *ngIf="showAccessibilityMenu"
+                                        alt="hide accessibility selection"
+                                        src="/assets/assets/images/arrow_down.png"
+                                    />
+                                </a>
+                                <span *ngIf="disabled" class="text text-muted">
+                                    {{ 'sitnet_calendar_room_accessibility_info' | translate }}
+                                </span>
+                                <div class="row" [hidden]="!showAccessibilityMenu">
+                                    <div class="col-md-12">
+                                        <div class="calendar-accs-title">
+                                            {{ 'sitnet_exam_room_accessibility' | translate }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row" [hidden]="!showAccessibilityMenu">
-                                <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10" *ngFor="let accessibility of accessibilities">
-                                        <input
-                                            aria-label="search for accessibility criteria"
-                                            type="checkbox"
-                                            role="presentation"
-                                            (click)="selectAccessibility(accessibility)"
-                                            value="{{ accessibility.name | slice: 0:30 }}"
-                                        />
-                                        {{ accessibility.name | slice: 0:30 }}
-                                    </span>
+                                <div class="row" [hidden]="!showAccessibilityMenu">
+                                    <div class="col-md-12 calendar-accs-checkboxes">
+                                        <span class="marr10" *ngFor="let accessibility of accessibilities">
+                                            <input
+                                                aria-label="search for accessibility criteria"
+                                                type="checkbox"
+                                                role="presentation"
+                                                (click)="selectAccessibility(accessibility)"
+                                                value="{{ accessibility.name | slice: 0:30 }}"
+                                            />
+                                            {{ accessibility.name | slice: 0:30 }}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mart10">
+                    <div class="col student-exam-row-title" ngbDropdown>
+                        <button
+                            ngbDropdownToggle
+                            class="btn btn-outline-dark"
+                            type="button"
+                            id="dropDownMenu1"
+                            [disabled]="(isExternal && !organisation) || disabled"
+                        >
+                            {{ 'sitnet_room' | translate }}&nbsp;
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
+                            <li
+                                ngbDropdownItem
+                                *ngFor="let room of rooms"
+                                [hidden]="room.filtered"
+                                role="presentation"
+                                [ngClass]="room.outOfService ? 'disabled' : ''"
+                                (click)="selectRoom(room)"
+                                tabindex="0"
+                                (ngEnter)="selectRoom(room)"
+                            >
+                                <a
+                                    role="menuitem"
+                                    ngbPopover="{{ getDescription(room) }}"
+                                    triggers="mouseenter:mouseleave"
+                                >
+                                    {{ room.name | slice: 0:30 }}</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mart10" *ngIf="selectedRoom">
+                    <div class="col-md-12">
+                        <app-calendar-selected-room
+                            [room]="selectedRoom"
+                            [viewStart]="currentWeek"
+                        ></app-calendar-selected-room>
+                    </div>
+                </div>
+                <div class="row mart10" *ngIf="selectedRoom">
+                    <div class="col-md-12">
+                        <app-booking-calendar
+                            (eventSelected)="selectEvent($event)"
+                            (needMoreEvents)="refresh($event)"
+                            [minDate]="minDate"
+                            [maxDate]="maxDate"
+                            [room]="selectedRoom"
+                            [visible]="selectedRoom !== undefined"
+                            [events]="events"
+                        >
+                        </app-booking-calendar>
                     </div>
                 </div>
             </div>
-            <div class="row mart10">
-                <div class="col student-exam-row-title" ngbDropdown>
-                    <button
-                        ngbDropdownToggle
-                        class="btn btn-outline-dark"
-                        type="button"
-                        id="dropDownMenu1"
-                        [disabled]="(isExternal && !organisation) || disabled"
-                    >
-                        {{ 'sitnet_room' | translate }}&nbsp;
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <li
-                            ngbDropdownItem
-                            *ngFor="let room of rooms"
-                            [hidden]="room.filtered"
-                            role="presentation"
-                            [ngClass]="room.outOfService ? 'disabled' : ''"
-                            (click)="selectRoom(room)"
-                            tabindex="0"
-                            (ngEnter)="selectRoom(room)"
-                        >
-                            <a role="menuitem" ngbPopover="{{ getDescription(room) }}" triggers="mouseenter:mouseleave">
-                                {{ room.name | slice: 0:30 }}</a
-                            >
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row mart10" *ngIf="selectedRoom">
-                <div class="col-md-12">
-                    <calendar-selected-room [room]="selectedRoom" [viewStart]="currentWeek"></calendar-selected-room>
-                </div>
-            </div>
-            <div class="row mart10" *ngIf="selectedRoom">
-                <div class="col-md-12">
-                    <booking-calendar
-                        (onEventSelected)="eventSelected($event)"
-                        (onNeedMoreEvents)="refresh($event)"
-                        [minDate]="minDate"
-                        [maxDate]="maxDate"
-                        [room]="selectedRoom"
-                        [visible]="selectedRoom !== undefined"
-                        [events]="events"
-                    >
-                    </booking-calendar>
-                </div>
-            </div>
         </div>
-    </div>`,
+    `,
     styles: [
         `
             .black-event-text span {
@@ -158,7 +174,7 @@ type AvailableSlot = Slot & { availableMachines: number };
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class SlotPickerComponent {
+export class SlotPickerComponent implements OnInit, OnChanges {
     @Input() sequenceNumber: number;
     @Input() isInteroperable: boolean;
     @Input() isCollaborative: boolean;
@@ -167,8 +183,8 @@ export class SlotPickerComponent {
     @Input() disabled: boolean;
     @Input() minDate: Date;
     @Input() maxDate: Date;
-    @Output() onCancel = new EventEmitter<void>();
-    @Output() onEventSelected = new EventEmitter<{
+    @Output() cancel = new EventEmitter<void>();
+    @Output() eventSelected = new EventEmitter<{
         start: Date;
         end: Date;
         room: ExamRoom;
@@ -201,8 +217,8 @@ export class SlotPickerComponent {
         }
     }
 
-    eventSelected = ($event: CalendarEvent<SlotMeta>) =>
-        this.onEventSelected.emit({
+    selectEvent = ($event: CalendarEvent<SlotMeta>) =>
+        this.eventSelected.emit({
             start: $event.start,
             end: $event.end as Date,
             room: this.selectedRoom as ExamRoom,
@@ -236,7 +252,7 @@ export class SlotPickerComponent {
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
-                    date: date,
+                    date,
                 },
             });
         } else {
@@ -247,7 +263,7 @@ export class SlotPickerComponent {
                 fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
             });
             return this.http.get<AvailableSlot[]>(url, {
-                params: params,
+                params,
             });
         }
     }
@@ -289,7 +305,7 @@ export class SlotPickerComponent {
     makeExternalReservation = () => {
         delete this.selectedRoom;
         this.events = [];
-        this.onCancel.emit();
+        this.cancel.emit();
     };
 
     selectAccessibility = (accessibility: FilterableAccessibility) => {

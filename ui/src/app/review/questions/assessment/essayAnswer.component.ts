@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as _ from 'lodash';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -20,14 +20,14 @@ import { AssessmentService } from '../../assessment/assessment.service';
 import { ReviewQuestion } from '../../review.model';
 
 @Component({
-    selector: 'essay-answer',
+    selector: 'app-essay-answer',
     templateUrl: './essayAnswer.component.html',
 })
-export class EssayAnswerComponent {
+export class EssayAnswerComponent implements OnInit {
     @Input() answer: ReviewQuestion;
     @Input() editable: boolean;
     @Input() action: string;
-    @Output() onSelection = new EventEmitter<ReviewQuestion>();
+    @Output() selection = new EventEmitter<ReviewQuestion>();
 
     name: string;
 
@@ -38,7 +38,6 @@ export class EssayAnswerComponent {
             ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
             : this.answer.examSection.exam.id.toString();
         this.answer.expanded = true;
-        this.answer.essayAnswer = this.answer.essayAnswer || {};
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
         if (this.answer.evaluationType === 'Selection') {
             this.answer.essayAnswer.textualScore = this.answer.essayAnswer.evaluatedScore
@@ -55,7 +54,7 @@ export class EssayAnswerComponent {
         if (this.answer.essayAnswer.textualScore) {
             this.answer.essayAnswer.temporaryScore = parseFloat(this.answer.essayAnswer.textualScore);
         }
-        this.onSelection.emit(this.answer);
+        this.selection.emit(this.answer);
         this.answer.selected = false;
     };
 

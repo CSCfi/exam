@@ -19,12 +19,12 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { Exam } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
+import { Reservation } from '../../../reservation/reservation.model';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
+import { Review } from '../../review.model';
 
 @Component({
-    selector: 'aborted-exams',
+    selector: 'app-aborted-exams',
     templateUrl: './abortedExams.component.html',
 })
 export class AbortedExamsComponent {

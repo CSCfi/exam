@@ -4,11 +4,11 @@
     </div>
     <div class="modal-body">
         <strong>{{ 'sitnet_exam_machine' | translate }}</strong>
-        <dropdown-select
+        <app-dropdown-select
             [options]="availableMachineOptions"
-            (onSelect)="machineChanged($event)"
+            (optionSelected)="machineChanged($event)"
             (limitTo)="(0)"
-        ></dropdown-select>
+        ></app-dropdown-select>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">

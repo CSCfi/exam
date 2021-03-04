@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import type { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogComponent } from './confirmationDialog.component';
 

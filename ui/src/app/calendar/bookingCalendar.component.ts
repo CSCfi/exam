@@ -12,28 +12,34 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { CalendarDateFormatter, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
+import { CalendarDateFormatter, CalendarEvent, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
 import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
 import { ExamRoom } from '../reservation/reservation.model';
 import { DateFormatter } from './bookingCalendarDateFormatter';
 import { CalendarService } from './calendar.service';
 
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import type { CalendarEvent } from 'angular-calendar';
 export type SlotMeta = { availableMachines: number };
 
 @Component({
-    selector: 'booking-calendar',
+    selector: 'app-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './bookingCalendar.component.html',
     providers: [{ provide: CalendarDateFormatter, useClass: DateFormatter }],
 })
 export class BookingCalendarComponent implements OnChanges {
-    @Output() onEventSelected = new EventEmitter<CalendarEvent>();
-    @Output() onNeedMoreEvents = new EventEmitter<{ date: Date }>();
+    @Output() eventSelected = new EventEmitter<CalendarEvent>();
+    @Output() needMoreEvents = new EventEmitter<{ date: Date }>();
 
     @Input() events: CalendarEvent<SlotMeta>[];
     @Input() visible: boolean;
@@ -93,7 +99,7 @@ export class BookingCalendarComponent implements OnChanges {
         }
     }
 
-    refetch = () => this.onNeedMoreEvents.emit({ date: this.viewDate });
+    refetch = () => this.needMoreEvents.emit({ date: this.viewDate });
 
     eventClicked(event: CalendarEvent<SlotMeta>): void {
         if (event.meta && event.meta.availableMachines > 0) {
@@ -104,7 +110,7 @@ export class BookingCalendarComponent implements OnChanges {
                 this.clickedEvent.color = { primary: '#add2eb', secondary: '#a6e9b2' };
                 this.clickedEvent = event;
             }
-            this.onEventSelected.emit(event);
+            this.eventSelected.emit(event);
         }
     }
 }

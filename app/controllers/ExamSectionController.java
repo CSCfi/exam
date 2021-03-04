@@ -15,27 +15,14 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import controllers.base.SectionQuestionHandler;
-import impl.ExamUpdaterImpl;
-import models.Exam;
-import models.Role;
-import models.User;
-import models.questions.MultipleChoiceOption;
-import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
-import models.questions.Question;
-import models.sections.ExamSection;
-import models.sections.ExamSectionQuestion;
-import models.sections.ExamSectionQuestionOption;
-import sanitizers.Attrs;
-import sanitizers.SanitizingHelper;
-import sanitizers.SectionQuestionSanitizer;
-import security.Authenticated;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
+import controllers.base.SectionQuestionHandler;
+import impl.ExamUpdaterImpl;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
@@ -48,6 +35,15 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Exam;
+import models.Role;
+import models.User;
+import models.questions.MultipleChoiceOption;
+import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
@@ -55,6 +51,10 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.SanitizingHelper;
+import sanitizers.SectionQuestionSanitizer;
+import security.Authenticated;
 
 public class ExamSectionController extends BaseController implements SectionQuestionHandler {
 

@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { OnInit } from '@angular/core';
+import { OnInit } from '@angular/core';
 type Organisation = {
     _id: string;
     name: string;
@@ -26,7 +26,7 @@ type Organisation = {
 };
 
 @Component({
-    selector: 'library-transfer',
+    selector: 'app-library-transfer',
     templateUrl: './libraryTransfer.component.html',
 })
 export class LibraryTransferComponent implements OnInit {

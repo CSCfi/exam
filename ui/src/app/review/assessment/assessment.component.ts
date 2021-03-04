@@ -13,25 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
+import { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import type { QuestionAmounts } from '../../question/question.service';
-import { QuestionService } from '../../question/question.service';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
+import { QuestionAmounts, QuestionService } from '../../question/question.service';
+import { SessionService, User } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
 @Component({
-    selector: 'assessment',
+    selector: 'app-assessment',
     templateUrl: './assessment.component.html',
 })
-export class AssessmentComponent {
+export class AssessmentComponent implements OnInit {
     @Input() collaborative: boolean;
 
     questionSummary: QuestionAmounts;
@@ -44,17 +42,20 @@ export class AssessmentComponent {
 
     constructor(
         private state: StateService,
+        private routing: UIRouterGlobals,
         private http: HttpClient,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Question: QuestionService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Session: SessionService,
         private Window: WindowRef,
     ) {}
 
     ngOnInit() {
-        const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
+        const path = this.collaborative
+            ? `${this.routing.params.id}/${this.routing.params.ref}`
+            : this.routing.params.id;
         const url = this.getResource(path);
         this.http.get<ExamParticipation>(url).subscribe(
             (participation) => {
@@ -81,7 +82,9 @@ export class AssessmentComponent {
     }
 
     isUnderLanguageInspection = () => {
-        if (!this.user) return false;
+        if (!this.user) {
+            return false;
+        }
         return (
             this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
         );
@@ -89,7 +92,7 @@ export class AssessmentComponent {
 
     print = () => {
         const url = this.collaborative
-            ? `/print/exam/${this.state.params.id}/${this.state.params.ref}`
+            ? `/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
             : `/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
@@ -102,7 +105,7 @@ export class AssessmentComponent {
 
     gradingUpdated = () => this.startReview();
 
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
+    isOwnerOrAdmin = () => this.ExamSrv.isOwnerOrAdmin(this.exam, this.collaborative);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
 
@@ -127,7 +130,7 @@ export class AssessmentComponent {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/integration/iop/reviews/${this.state.params.id}/${this.state.params.ref}`;
+                const url = `/integration/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;

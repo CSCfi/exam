@@ -1,8 +1,8 @@
-import type { Organisation } from '../calendar/calendar.component';
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { LanguageInspection } from '../maturity/maturity.model';
-import type { Reservation } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
+import { Organisation } from '../calendar/calendar.component';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { LanguageInspection } from '../maturity/maturity.model';
+import { Reservation } from '../reservation/reservation.model';
+import { User } from '../session/session.service';
 
 export interface Grade {
     id: number;

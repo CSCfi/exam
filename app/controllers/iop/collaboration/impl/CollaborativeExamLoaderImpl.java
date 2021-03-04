@@ -1,15 +1,11 @@
 package controllers.iop.collaboration.impl;
 
-import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import controllers.iop.transfer.api.ExternalAttachmentLoader;
-import models.Exam;
-import models.ExamParticipation;
-import models.User;
-import models.json.CollaborativeExam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.iop.collaboration.api.CollaborativeExamLoader;
+import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import io.ebean.Ebean;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
@@ -21,6 +17,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamParticipation;
+import models.User;
+import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;

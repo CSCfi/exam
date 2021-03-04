@@ -17,10 +17,10 @@ import { Component } from '@angular/core';
 
 import { ExamService } from '../../exam.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamExecutionType, Implementation } from '../../exam.model';
+import { OnInit } from '@angular/core';
+import { ExamExecutionType, Implementation } from '../../exam.model';
 @Component({
-    selector: 'new-exam',
+    selector: 'app-new-exam',
     templateUrl: './newExam.component.html',
 })
 export class NewExamComponent implements OnInit {

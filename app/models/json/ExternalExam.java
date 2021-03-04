@@ -15,10 +15,6 @@
 
 package models.json;
 
-import models.Exam;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import util.json.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.annotation.DbJsonB;
@@ -31,7 +27,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import models.Exam;
+import models.User;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
+import util.json.JsonDeserializer;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {

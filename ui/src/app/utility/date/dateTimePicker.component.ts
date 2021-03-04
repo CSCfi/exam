@@ -12,25 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-    selector: 'date-time-picker',
+    selector: 'app-date-time-picker',
     template: `
         <div class="row align-items-center">
             <div class="col-auto">
-                <date-picker
+                <app-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
                     (onUpdate)="onDateUpdate($event)"
-                ></date-picker>
+                ></app-date-picker>
             </div>
             <div class="col">
                 <ngb-timepicker
                     name="timepicker"
                     [disabled]="disabled"
                     [(ngModel)]="time"
-                    (ngModelChange)="onTimeUpdate($event)"
+                    (ngModelChange)="onTimeUpdate()"
                     [minuteStep]="minuteStep"
                     [hourStep]="hourStep"
                 ></ngb-timepicker>
@@ -38,12 +38,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </div>
     `,
 })
-export class DateTimePickerComponent {
+export class DateTimePickerComponent implements OnInit {
     @Input() initialTime: Date;
     @Input() hourStep: number;
     @Input() minuteStep: number;
     @Input() disabled: boolean;
-    @Output() onUpdate = new EventEmitter<{ date: Date }>();
+    @Output() updated = new EventEmitter<{ date: Date }>();
 
     date: Date;
     time: { hour: number; minute: number; second: number; millisecond?: number };
@@ -71,7 +71,7 @@ export class DateTimePickerComponent {
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
-        this.onUpdate.emit({ date: this.date });
+        this.updated.emit({ date: this.date });
     }
 
     onDateUpdate(event: { date: Date }) {
@@ -81,6 +81,6 @@ export class DateTimePickerComponent {
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);
-        this.onUpdate.emit({ date: this.date });
+        this.updated.emit({ date: this.date });
     }
 }

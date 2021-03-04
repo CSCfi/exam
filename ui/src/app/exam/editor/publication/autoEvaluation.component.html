@@ -87,7 +87,7 @@
                             [min]="0"
                             [max]="100"
                             required
-                            [appUniqueValues]="exam.autoEvaluationConfig?.gradeEvaluations"
+                            [appUniqueValues]="exam.autoEvaluationConfig!.gradeEvaluations"
                             property="percentage"
                         />
                         <span>%</span>
@@ -134,10 +134,10 @@
         <form role="form">
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
                 <div class="col-md-6">
-                    <date-picker
-                        (onUpdate)="releaseDateChanged($event)"
+                    <app-date-picker
+                        (updated)="releaseDateChanged($event)"
                         [initialDate]="exam.autoEvaluationConfig.releaseDate"
-                    ></date-picker>
+                    ></app-date-picker>
                 </div>
             </div>
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS'">

@@ -18,9 +18,9 @@ import { UIRouterGlobals } from '@uirouter/core';
 
 import { SessionService } from '../session/session.service';
 
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import type { User } from '../session/session.service';
+import { User } from '../session/session.service';
 export interface Link {
     state: string;
     visible: boolean;

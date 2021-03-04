@@ -21,7 +21,7 @@ import { Address, RoomService } from '../rooms/room.service';
 
 @Component({
     templateUrl: './address.component.html',
-    selector: 'exam-address',
+    selector: 'app-exam-address',
 })
 export class AddressComponent {
     @Input() address: Address;

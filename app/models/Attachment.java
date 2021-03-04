@@ -15,9 +15,9 @@
 
 package models;
 
-import models.base.OwnedModel;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import models.base.OwnedModel;
 
 @Entity
 public class Attachment extends OwnedModel {

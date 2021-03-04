@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
@@ -22,20 +22,18 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ReviewListService } from '../reviewList.service';
+import { Review } from '../../review.model';
+import { ReviewListService, ReviewListView } from '../reviewList.service';
 
-import type { SimpleChanges } from '@angular/core';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
 @Component({
-    selector: 'rl-graded-logged',
+    selector: 'app-rl-graded-logged',
     templateUrl: './gradedLogged.component.html',
 })
-export class GradedLoggedReviewsComponent {
-    @Input() reviews: Review[];
+export class GradedLoggedReviewsComponent implements OnInit {
+    @Input() reviews: Review[] = [];
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onArchive = new EventEmitter<Review[]>();
+    @Output() archived = new EventEmitter<Review[]>();
     view: ReviewListView;
     selections: { all: boolean; page: boolean };
 
@@ -44,7 +42,7 @@ export class GradedLoggedReviewsComponent {
         private translate: TranslateService,
         private ReviewList: ReviewListService,
         private Files: FileService,
-        private Exam: ExamService,
+        private ExamSrv: ExamService,
         private Session: SessionService,
     ) {}
 
@@ -87,20 +85,20 @@ export class GradedLoggedReviewsComponent {
 
     archiveSelected = () => {
         const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
-        if (selection.length == 0) {
+        if (selection.length === 0) {
             return;
         }
         const ok = () => {
-            this.onArchive.emit(selection);
+            this.archived.emit(selection);
             toast.info(this.translate.instant('sitnet_exams_archived'));
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
     };
 
-    printSelected = (asReport: boolean) => {
+    printSelected = (asReport = false) => {
         const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
-        if (selection.length == 0) {
+        if (selection.length === 0) {
             return;
         }
         let url = this.collaborative ? '/integration/iop/reviews/' : '/app/exam/record/export/';
@@ -126,7 +124,7 @@ export class GradedLoggedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.ExamSrv.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -134,6 +132,6 @@ export class GradedLoggedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.ExamSrv.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

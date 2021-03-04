@@ -20,7 +20,7 @@ import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
 @Component({
-    selector: 'mc-option-editor',
+    selector: 'app-mc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">
@@ -64,9 +64,9 @@ export class MultipleChoiceOptionEditorComponent {
     @Input() question: Question;
     @Input() allowRemoval: boolean; // !lotteryOn && !inPublishedExam
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(private translate: TranslateService, private QuestionSrv: QuestionService) {}
 
-    correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
+    correctAnswerToggled = () => this.QuestionSrv.toggleCorrectOption(this.option, this.question.options);
 
     removeOption = () => {
         const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.correctOption);
