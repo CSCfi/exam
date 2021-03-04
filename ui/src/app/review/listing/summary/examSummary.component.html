@@ -1,4 +1,4 @@
-<div class="exam-border col-md-12">
+<div class="col-md-12">
     <div class="col-md-12 mart40" *ngIf="!collaborative">
         <div class="review-list-title">
             {{ 'sitnet_exam_basic_information' | translate }}
@@ -91,7 +91,7 @@
                 </div>
                 <div class="col-md-6" *ngIf="reviews">
                     {{ gradedCount }} / {{ getRegisteredCount() }} ({{
-                        (gradedCount / getRegisteredCount()) * 100 | number: 1
+                        (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
                     }}%)
                 </div>
             </div>
@@ -109,7 +109,7 @@
                         />
                     </sup>
                 </div>
-                <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number: 0 }} min</div>
+                <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number: '1.0-1' }} min</div>
             </div>
             <div class="row col-md-12 margin-20">
                 <div class="col-md-3 exam-basic-title">
@@ -175,7 +175,9 @@
                     </sup>
                 </div>
                 <div class="col-md-6" *ngIf="reviews">
-                    {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{ getFeedbackPercentage() | number: 1 }}%)
+                    {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{
+                        getFeedbackPercentage() | number: '1.0-1'
+                    }}%)
                 </div>
             </div>
         </div>
@@ -199,7 +201,7 @@
                 <div class="col-md-3 exam-basic-title">
                     {{ kv.key }}
                 </div>
-                <div class="col-md-9">{{ kv.value }} ({{ (kv.value / gradedCount) * 100 | number: 2 }} %)</div>
+                <div class="col-md-9">{{ kv.value }} ({{ (kv.value / gradedCount) * 100 | number: '1.2-2' }} %)</div>
             </div>
         </div>
         <div class="col-md-6" style="height: 370px; padding-top: 30px">
@@ -228,7 +230,7 @@
                     {{ kv.key }}
                 </div>
                 <div class="col-md-9" *ngIf="kv.value.max > 0">
-                    {{ calcAverage(kv.value.totals) | number: 2 }} / {{ kv.value.max | number: 2 }}
+                    {{ calcAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
                 </div>
             </div>
         </div>

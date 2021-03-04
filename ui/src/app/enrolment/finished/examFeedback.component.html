@@ -161,14 +161,14 @@
             <div class="row">
                 <div
                     class="col-md-12 general-info-content"
-                    [innerHtml]="assessment.languageInspection?.statement.comment"
+                    [innerHtml]="assessment.languageInspection?.statement?.comment"
                 ></div>
             </div>
         </div>
     </div>
 
     <!-- statement attachment: only show if attachment uploaded -->
-    <div class="row" *ngIf="assessment.languageInspection?.statement.attachment">
+    <div class="row" *ngIf="assessment.languageInspection?.statement?.attachment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_statement_attachment' | translate }}:</div>

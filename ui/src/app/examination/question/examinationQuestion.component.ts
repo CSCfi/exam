@@ -18,7 +18,6 @@ import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
 
 import type { AfterViewInit } from '@angular/core';
-import type { QuestionBase } from '../../utility/forms/questionTypes';
 @Component({
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',
@@ -29,7 +28,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
 
-    clozeTestFormQuestions: QuestionBase<string>[] = [];
+    clozeAnswer: { [key: string]: string } = {};
     expanded = true;
 
     constructor(
@@ -40,10 +39,9 @@ export class ExaminationQuestionComponent implements AfterViewInit {
 
     ngOnInit() {
         this.sq.expanded = true;
-        const answerData = this.sq.clozeTestAnswer;
-        if (this.sq.question.type === 'ClozeTestQuestion' && answerData) {
-            this.clozeTestFormQuestions = this.Examination.parseClozeTestQuestion(answerData);
-            //answerData.answer = JSON.parse(answerData.answer);
+        if (this.sq.question.type === 'ClozeTestQuestion' && this.sq.clozeTestAnswer?.answer) {
+            const { answer } = this.sq.clozeTestAnswer;
+            this.clozeAnswer = JSON.parse(answer);
         }
     }
 
@@ -51,10 +49,13 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         this.cdr.detectChanges();
     }
 
-    answered = (event: { payload: { id: string; answer: string }[] }) => {
+    answered = ({ id, value }: { id: string; value: string }) => {
         if (this.sq.clozeTestAnswer) {
-            const dictionary = Object.assign({}, ...event.payload.map((x) => ({ [x.id]: x.answer })));
-            this.sq.clozeTestAnswer.answer = JSON.stringify(dictionary);
+            this.clozeAnswer = {
+                ...this.clozeAnswer,
+                [id]: value,
+            };
+            this.sq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer);
         }
     };
 

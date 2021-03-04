@@ -14,6 +14,7 @@ import { AnswerInstructionsComponent } from './instructions/answerInstructions.c
 import { ExaminationLogoutComponent } from './logout/examinationLogout.component';
 import { ExaminationNavigationComponent } from './navigation/examinationNavigation.component';
 import { ExaminationToolbarComponent } from './navigation/examinationToolbar.component';
+import { ClozeTestDisplayComponent } from './question/clozeTestDisplay.component';
 import { ExaminationClozeTestComponent } from './question/examinationClozeTest.component';
 import { ExaminationEssayQuestionComponent } from './question/examinationEssayQuestion.component';
 import { ExaminationMultiChoiceComponent } from './question/examinationMultiChoice.component';
@@ -37,6 +38,7 @@ import { ExaminationSectionComponent } from './section/examinationSection.compon
         ExaminationSectionComponent,
         ExaminationToolbarComponent,
         ExaminationComponent,
+        ClozeTestDisplayComponent,
     ],
     entryComponents: [ExaminationComponent],
     providers: [ExaminationService, ExaminationStatusService],

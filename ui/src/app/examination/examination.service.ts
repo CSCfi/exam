@@ -21,8 +21,6 @@ import { from, throwError } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { isBlankElement, isTextElement } from '../exam/exam.model';
-import { BlankQuestion, TextPart } from '../utility/forms/questionTypes';
 import { WindowRef } from '../utility/window/window.service';
 
 import type { Observable } from 'rxjs';
@@ -34,7 +32,6 @@ import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
 } from '../exam/exam.model';
-import type { QuestionBase } from '../utility/forms/questionTypes';
 export interface Examination extends Exam {
     cloned: boolean;
     external: boolean;
@@ -258,26 +255,5 @@ export class ExaminationService {
             if (!canFail) toast.error(this.translate.instant(resp));
             else ok();
         });
-    };
-
-    parseClozeTestQuestion = (data: ClozeTestAnswer): QuestionBase<string>[] => {
-        const questions: QuestionBase<string>[] = data.elements.map((ce) => {
-            if (isTextElement(ce)) {
-                return new TextPart({
-                    value: ce.text,
-                    order: ce.order,
-                });
-            }
-            if (isBlankElement(ce)) {
-                return new BlankQuestion({
-                    key: ce.id,
-                    type: ce.numeric ? 'number' : 'text',
-                    order: ce.order,
-                });
-            }
-            throw Error('unknown type');
-        });
-
-        return questions.sort((a, b) => a.order - b.order);
     };
 }

@@ -34,7 +34,7 @@ export class EnrolmentDetailsComponent {
         private DateTime: DateTimeService,
     ) {}
 
-    enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam);
+    enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam).subscribe();
 
     translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
 
