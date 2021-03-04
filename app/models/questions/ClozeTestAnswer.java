@@ -15,8 +15,6 @@
 
 package models.questions;
 
-import models.base.GeneratedIdentityModel;
-import models.sections.ExamSectionQuestion;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -33,6 +31,8 @@ import java.util.stream.Stream;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import models.base.GeneratedIdentityModel;
+import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -86,37 +86,8 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return clozeTestAnswer;
     }
 
-    public void setQuestion(ExamSectionQuestion esq) {
-        String question = esq.getQuestion().getQuestion();
-        Document doc = Jsoup.parse(question);
-        Elements blanks = doc.select(CLOZE_SELECTOR);
-        String[] textParts = question.split("<span case-sensitive=[^>]*>[^>]*>");
-        List<ContentElement> blankElements = IntStream
-            .range(0, blanks.size())
-            .mapToObj(
-                i -> {
-                    Element blank = blanks.get(i);
-                    String id = blank.attr("id");
-                    String type = blank.attr("type");
-                    return new BlankElement(i * 2 + 1, type.equals("number"), id);
-                }
-            )
-            .collect(Collectors.toList());
-        List<ContentElement> textElements = IntStream
-            .range(0, textParts.length)
-            .mapToObj(
-                i -> {
-                    String text = textParts[i];
-                    return new TextElement(i * 2, text);
-                }
-            )
-            .collect(Collectors.toList());
-        this.elements = Stream.concat(blankElements.stream(), textElements.stream()).collect(Collectors.toList());
-        this.question = "";
-    }
-
     // This sets up the question so that it can be displayed to student
-    /*public void setQuestion(ExamSectionQuestion esq) {
+    public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         blanks.forEach(
@@ -142,7 +113,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             }
         );
         this.question = doc.body().children().toString();
-    }*/
+    }
 
     private void setQuestionWithResults(Document doc, String blankAnswerText) {
         Map<String, String> answers = asMap(new Gson());

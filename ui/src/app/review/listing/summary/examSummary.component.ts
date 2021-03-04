@@ -67,14 +67,16 @@ export class ExamSummaryComponent {
         this.renderGradeTimeChart();
     };
 
-    $onInit = () => {
+    ngOnInit() {
         this.refresh();
         // Had to manually update chart locales
         this.translate.onLangChange.subscribe(this.updateChartLocale);
         this.calcSectionMaxAndAverages();
-    };
+    }
 
-    $onChanges = () => this.refresh();
+    ngOnChanges() {
+        this.refresh();
+    }
 
     getGradeDistribution = () => this.gradeDistribution;
 

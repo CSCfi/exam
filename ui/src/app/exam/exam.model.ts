@@ -155,7 +155,7 @@ export interface ClozeTestAnswer {
     maxScore: number;
     answer: string;
     objectVersion: number;
-    elements: ContentElement[];
+    question: string;
 }
 
 export interface ExamSectionQuestion {

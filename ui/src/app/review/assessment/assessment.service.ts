@@ -187,11 +187,13 @@ export class AssessmentService {
             const examFeedback = {
                 feedbackStatus: true,
             };
-            this.http.put<void>(`/app/review/${exam.id}/comment/:cid/feedbackstatus`, examFeedback).subscribe(() => {
-                if (exam.examFeedback) {
-                    exam.examFeedback.feedbackStatus = true;
-                }
-            });
+            this.http
+                .put<void>(`/app/review/${exam.id}/comment/${exam.examFeedback?.id}/feedbackstatus`, examFeedback)
+                .subscribe(() => {
+                    if (exam.examFeedback) {
+                        exam.examFeedback.feedbackStatus = true;
+                    }
+                });
         }
     };
 

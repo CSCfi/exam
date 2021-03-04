@@ -443,6 +443,8 @@
     cursor: pointer;
     padding-left: 0;
     min-width: 17em;
+    max-height: 300px;
+    overflow-y: scroll;
   }
 
   .detail-row-tall {

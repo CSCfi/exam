@@ -86,7 +86,7 @@
 
             <li
                 tabindex="0"
-                class="row align-items-center pointer phase-box"
+                class="row d-flex align-items-center pointer phase-box"
                 *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
@@ -96,7 +96,7 @@
                  {{ getQuestionAmount(section, 'total') }}"
                 triggers="mouseenter:mouseleave"
             >
-                <div class="col-md-1">
+                <div class="mr-3">
                     <div
                         class="question-type-img-wrap"
                         *ngIf="getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')"
@@ -118,13 +118,13 @@
                         />
                     </div>
                 </div>
-                <div class="col-md-9">
+                <div class="flex-grow">
                     <span [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'">
                         {{ i + 1 }}. {{ section.name }}
                     </span>
                 </div>
-                <div class="col-md-2">
-                    <span class="float-right section-answered">
+                <div>
+                    <span class="section-answered">
                         {{ getQuestionAmount(section, 'answered') }}
                         <span class="horizontal-padding-05"> / </span>
                         {{ getQuestionAmount(section, 'total') }}
@@ -140,18 +140,18 @@
     <div class="col-md-12">
         <div
             tabindex="0"
-            class="row pointer"
+            class="row pointer d-flex align-items-center m-0"
             ngbPopover="{{ displayRoomInstructions() }}"
             triggers="mouseenter:mouseleave"
         >
-            <a class="col-md-1">
+            <a class="mr-2">
                 <img
                     src="/assets/assets/images/icon_info.svg"
                     alt="room guidance"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
                 />
             </a>
-            <div class="col question-text question-type-text info">
+            <div class="question-text question-type-text info">
                 {{ 'sitnet_room_guidance' | translate }}
             </div>
         </div>
@@ -167,8 +167,8 @@
         (keyup.enter)="showMaturityInstructions()"
         [hidden]="exam.executionType.type !== 'MATURITY'"
     >
-        <div class="row pointer">
-            <a class="col-md-1" style="margin-top: 7px">
+        <div class="row pointer d-flex align-items-center m-0">
+            <a class="mr-2">
                 <img
                     src="/assets/assets/images/icon_info.svg"
                     alt="maturity instructions"
@@ -183,15 +183,20 @@
 </div>
 <div class="row" [hidden]="!isPreview">
     <div class="col-md-12">
-        <div tabindex="0" class="row pointer" (click)="exitPreview()" (keyup.enter)="exitPreview()">
-            <a class="col-md-1" style="margin-top: 7px">
+        <div
+            tabindex="0"
+            class="row pointer d-flex align-items-center m-0"
+            (click)="exitPreview()"
+            (keyup.enter)="exitPreview()"
+        >
+            <a class="mr-2">
                 <img
                     src="/assets/assets/images/icon_info.svg"
                     alt="exit preview"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
                 />
             </a>
-            <div class="col-md-10 question-text question-type-text info">
+            <div class="question-text question-type-text info">
                 {{ 'sitnet_exit_preview' | translate }}
             </div>
         </div>
