@@ -159,8 +159,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             } else if (root.has("data")) {
                 return StreamSupport
                     .stream(root.get("data").spliterator(), false)
-                    .filter(c -> c.has("course_code"))
-                    .map(c -> c.get("course_code").asText())
+                    .filter(c -> c.has("course_code") || c.has("courseUnitCode"))
+                    .map(c -> c.has("course_code") ? c.get("course_code").asText() : c.get("courseUnitCode").asText())
                     .collect(Collectors.toSet());
             } else {
                 logger.warn("Unexpected content {}", root.asText());
@@ -257,7 +257,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private Optional<GradeScale> importScale(JsonNode node) {
-        Long externalRef = node.get("code").asLong();
+        String externalRef = node.get("code").asText();
         Optional<GradeScale> ogs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOneOrEmpty();
         if (ogs.isPresent()) {
             return ogs;
@@ -293,10 +293,15 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode scaleNode = src.path("gradeScale");
         if (!scaleNode.isMissingNode()) {
-            Set<JsonNode> scales = StreamSupport
-                .stream(scaleNode.spliterator(), false)
-                .filter(s -> s.has("type"))
-                .collect(Collectors.toSet());
+            Set<JsonNode> scales;
+            if (scaleNode.isArray()) {
+                scales = StreamSupport
+                        .stream(scaleNode.spliterator(), false)
+                        .filter(s -> s.has("type"))
+                        .collect(Collectors.toSet());
+            } else {
+                scales = Set.of(scaleNode);
+            }
             Stream<GradeScale> externals = scales
                 .stream()
                 .filter(
@@ -349,13 +354,10 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());
-            String code = node.get("courseUnitCode").asText();
-            if (node.has("courseImplementation")) {
-                String impl = node.get("courseImplementation").asText();
+            course.setCode(node.get("courseUnitCode").asText());
+            if (node.has("courseUnitImplementation") || node.has("courseImplementation"))  {
+                String impl = node.has("courseImplementation") ? node.get("courseImplementation").asText() : node.get("courseUnitImplementation").asText();
                 course.setCourseImplementation(impl);
-                course.setCode(String.format("%s_%s", code, impl));
-            } else {
-                course.setCode(code);
             }
             if (node.has("courseUnitLevel")) {
                 course.setLevel(node.get("courseUnitLevel").asText());
@@ -409,7 +411,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private String getFirstName(JsonNode json, String columnName) {
-        JsonNode node = json.path(columnName).path(0).path("name");
+        JsonNode node = json.isArray() ? json.path(columnName).path(0).path("name") : json.path(columnName).path("name");
         return node.isMissingNode() ? null : node.asText();
     }
 }
