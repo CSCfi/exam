@@ -91,7 +91,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getCode()).isEqualTo("2121219_abcdefghijklmnop");
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
-        assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
+        assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
         List<Grade> grades = Ebean
             .find(Grade.class)
             .where()
@@ -101,6 +101,33 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
         // Check that the imported course got into db
         assertThat(Ebean.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop")).isNotNull();
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testGetCourseDefaultOrganisation2() {
+        setUserOrg(null);
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo3.json"));
+        Result result = get("/app/courses?filter=code&q=MAT21014");
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).hasSize(1);
+        Course course = deserialize(Course.class, node.get(0));
+        assertThat(course.getCode()).isEqualTo("MAT21014_hy-CUR-136171287");
+        assertThat(course.getOrganisation().getName()).isEqualTo("Helsingin yliopisto");
+        assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
+        assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
+        assertThat(course.getGradeScale().getExternalRef()).isEqualTo("sis-0-5");
+        assertThat(course.getCreditsLanguage()).isEqualTo("en");
+        List<Grade> grades = Ebean
+                .find(Grade.class)
+                .where()
+                .eq("gradeScale.id", course.getGradeScale().getId())
+                .findList();
+        assertThat(grades).hasSize(6);
+        assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
+        // Check that the imported course got into db
+        assertThat(Ebean.find(Course.class).where().eq("code", "MAT21014_hy-CUR-136171287")).isNotNull();
     }
 
     @Test
@@ -163,7 +190,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getCode()).isEqualTo("2121220");
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
-        assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
+        assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
         List<Grade> grades = Ebean
             .find(Grade.class)
             .where()

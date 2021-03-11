@@ -69,7 +69,7 @@ public class GradeScale extends Model {
     private String description;
 
     @Column
-    private Long externalRef;
+    private String externalRef;
 
     @Column
     private String displayName;
@@ -93,11 +93,11 @@ public class GradeScale extends Model {
         this.description = description;
     }
 
-    public Long getExternalRef() {
+    public String getExternalRef() {
         return externalRef;
     }
 
-    public void setExternalRef(Long externalRef) {
+    public void setExternalRef(String externalRef) {
         this.externalRef = externalRef;
     }
 
