@@ -1,44 +1,42 @@
-<div class="main-row">
-    <div class="col-md-12">
-        <div class="review-list-title">
-            {{ 'sitnet_exam_graded_logged' | translate }}
-            <a (click)="view.toggle = !view.toggle" class="pointer">
-                <img
-                    *ngIf="!view.toggle"
-                    src="/assets/assets/images/icon_list_show_right.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
-                />
-                <img
-                    *ngIf="view.toggle"
-                    src="/assets/assets/images/icon_list_show_down.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
-                />
-            </a>
-            <sup class="padl05">
-                <img
-                    ngbPopover="{{ 'sitnet_graded_logged_description' | translate }}"
-                    placement="right"
-                    triggers="mouseenter:mouseleave"
-                    src="/assets/assets/images/icon_tooltip.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
-                />
-            </sup>
-        </div>
+<div>
+    <div class="review-list-title">
+        {{ 'sitnet_exam_graded_logged' | translate }}
+        <a (click)="view.toggle = !view.toggle" class="pointer">
+            <img
+                *ngIf="!view.toggle"
+                src="/assets/assets/images/icon_list_show_right.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
+            />
+            <img
+                *ngIf="view.toggle"
+                src="/assets/assets/images/icon_list_show_down.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
+            />
+        </a>
+        <sup class="padl05">
+            <img
+                ngbPopover="{{ 'sitnet_graded_logged_description' | translate }}"
+                placement="right"
+                triggers="mouseenter:mouseleave"
+                src="/assets/assets/images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+            />
+        </sup>
     </div>
 </div>
 
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
-        <i class="bi-exclamation-circle padl20 grayish"></i>
+        <i class="bi-exclamation-circle grayish"></i>
         {{ 'sitnet_exam_no_graded_logged' | translate }}
     </div>
 </div>
 
 <div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
-    <div class="col-lg-6 search input-group my-2">
+    <div class="py-3 search input-group my-2 max-w-350">
         <input
             (input)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
@@ -258,7 +256,7 @@
     </div>
 </div>
 
-<div class="main-row" *ngIf="view.toggle && view.filtered.length > 0">
+<div *ngIf="view.toggle && view.filtered.length > 0">
     <!-- Buttons -->
     <div class="padl0 padr0 marb20 w-100 d-flex justify-content-between align-items-center">
         <div *ngIf="!collaborative">
