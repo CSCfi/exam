@@ -136,8 +136,12 @@ export class ExamSummaryComponent {
 
     calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
 
+    getDurationAsMillis = (dateStr: string) => new Date(dateStr).getTime();
+
+    getDurationAsMinutes = (dateStr: string) => Math.round(this.getDurationAsMillis(dateStr) / 1000 / 60);
+
     getAverageTime = () => {
-        const durations = this.reviews.map((r) => parseInt(r.duration));
+        const durations = this.reviews.map((r) => this.getDurationAsMinutes(r.duration));
         return this.calcAverage(durations);
     };
 
@@ -155,8 +159,8 @@ export class ExamSummaryComponent {
 
     calculateGradeTimeValues = () => {
         this.gradeTimeData = this.reviews
-            .sort((a, b) => (a.duration > b.duration ? 1 : -1))
-            .map((r) => ({ x: r.duration, y: r.exam.totalScore }));
+            .sort((a, b) => (this.getDurationAsMillis(a.duration) > this.getDurationAsMillis(b.duration) ? 1 : -1))
+            .map((r) => ({ x: String(this.getDurationAsMinutes(r.duration)), y: r.exam.totalScore }));
     };
 
     renderGradeTimeChart = () => {

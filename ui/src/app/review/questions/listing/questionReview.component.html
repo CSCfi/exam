@@ -1,17 +1,20 @@
 <div class="student-enrolment-wrapper essay-review">
-    <div class="review-points-exam">
-        <img
-            *ngIf="getAssessedAnswerCount() === review.answers.length"
-            src="/assets/assets/images/icon_question_type_ready.png"
-        />
-        <img
-            *ngIf="getAssessedAnswerCount() !== review.answers.length"
-            src="/assets/assets/images/icon_question_type_ready_grey.png"
-        />
+    <div class="review-points-exam d-flex justify-content-between">
+        <div>
+            <img
+                *ngIf="getAssessedAnswerCount() === review.answers.length"
+                src="/assets/assets/images/icon_question_type_ready.png"
+            />
+            <img
+                *ngIf="getAssessedAnswerCount() !== review.answers.length"
+                src="/assets/assets/images/icon_question_type_ready_grey.png"
+            />
 
-        <span class="vcenter marl10">
-            {{ getAssessedAnswerCount() }} / {{ review.answers.length }} {{ 'sitnet_graded' | translate | lowercase }}
-        </span>
+            <span class="vcenter marl10">
+                {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
+                {{ 'sitnet_graded' | translate | lowercase }}
+            </span>
+        </div>
         <span class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
             <input type="checkbox" (change)="reviewSelected()" class="questionToUpdate" [(ngModel)]="review.selected" />
         </span>
@@ -50,7 +53,7 @@
         </a>
     </div>
 
-    <div class="col-md-12" *ngIf="review.expanded">
+    <div *ngIf="review.expanded">
         <img
             *ngIf="review.question.defaultAnswerInstructions?.length > 0"
             src="/assets/assets/images/icon_info.png"

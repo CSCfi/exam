@@ -1,5 +1,5 @@
-<div class="col-md-12">
-    <div class="review-list-title-row">
+<div>
+    <div class="mt-3 mb-3">
         <span class="review-list-subtitle">{{ 'sitnet_teachers' | translate }}:</span>
         <span class="review-list-subtitle" *ngFor="let owner of exam.examOwners; let isLast = last">
             {{ owner.firstName }} {{ owner.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
@@ -10,7 +10,7 @@
         </span>
     </div>
 
-    <div class="review-list-title-row">
+    <div class="mb-5">
         <span class="review-list-bluetitle">
             <!-- aborted-->
             <a class="pointer" (click)="openAborted()">
@@ -44,22 +44,22 @@
     </div>
 
     <div *ngIf="reviews" class="mb-3">
-        <div class="review-border">
+        <div class="review-border mb-5">
             <!-- Ready for review-->
             <rl-in-progress [exam]="exam" [reviews]="inProgressReviews"></rl-in-progress>
         </div>
 
-        <div class="review-border" *ngIf="languageInspectedReviews.length > 0">
+        <div class="review-border mb-5" *ngIf="languageInspectedReviews.length > 0">
             <!-- Under language inspection -->
             <rl-in-language-inspection [reviews]="languageInspectedReviews"></rl-in-language-inspection>
         </div>
 
-        <div class="review-border">
+        <div class="review-border mb-5">
             <!-- Graded -->
             <rl-graded exam="exam" [reviews]="gradedReviews" (onRegistered)="onRegistration($event)"> </rl-graded>
         </div>
 
-        <div class="review-border">
+        <div class="review-border mb-5">
             <!-- Graded and Logged -->
             <rl-graded-logged
                 [exam]="exam"
@@ -68,12 +68,12 @@
             ></rl-graded-logged>
         </div>
 
-        <div class="review-border" *ngIf="rejectedReviews.length > 0">
+        <div class="review-border mb-5" *ngIf="rejectedReviews.length > 0">
             <!-- Rejected -->
             <rl-rejected [reviews]="rejectedReviews"></rl-rejected>
         </div>
 
-        <div class="review-border" *ngIf="archivedReviews.length > 0">
+        <div class="review-border mb-5" *ngIf="archivedReviews.length > 0">
             <!-- Archived -->
             <rl-archived [reviews]="archivedReviews"></rl-archived>
         </div>
