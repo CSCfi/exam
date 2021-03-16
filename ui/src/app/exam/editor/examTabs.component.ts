@@ -15,7 +15,7 @@
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/angular';
+import { StateService } from '@uirouter/angular';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -24,6 +24,7 @@ import { SessionService } from '../../session/session.service';
 import { Exam } from '../exam.model';
 import { ExamTabService } from './examTabs.service';
 
+import type { UpdateProps } from './examTabs.service';
 import type { OnInit } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../../session/session.service';
@@ -45,7 +46,6 @@ export class ExamTabsComponent implements OnInit {
     constructor(
         private cdr: ChangeDetectorRef,
         private state: StateService,
-        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
         private Tabs: ExamTabService,
@@ -54,6 +54,9 @@ export class ExamTabsComponent implements OnInit {
         this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
             this.activeTab = tab;
             this.cdr.detectChanges();
+        });
+        this.Tabs.examUpdate$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((props: UpdateProps) => {
+            this.examUpdated(props);
         });
     }
 
@@ -72,13 +75,16 @@ export class ExamTabsComponent implements OnInit {
             this.examInfo.title = `${code.split('_')[0]} ${name}`;
         } else if (code) {
             this.examInfo.title = `${code.split('_')[0]} ${this.translate.instant('sitnet_no_name')}`;
-        } else {
+        } else if (name) {
             this.examInfo.title = name;
+        } else {
+            this.examInfo.title = this.translate.instant('sitnet_no_name');
         }
     };
 
     isOwner = () =>
-        this.exam?.examOwners.some(
+        this.exam.examOwners &&
+        this.exam.examOwners.some(
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
 
@@ -99,7 +105,7 @@ export class ExamTabsComponent implements OnInit {
         }
     };
 
-    examUpdated = (props: { code: string; name: string; scaleChange: boolean }) => {
+    examUpdated = (props: UpdateProps) => {
         this.updateTitle(props.code, props.name);
         if (props.scaleChange) {
             // Propagate a change so that children (namely auto eval component) can act based on scale change

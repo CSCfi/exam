@@ -143,9 +143,8 @@
             </td>
             <td class="reservation-search">
                 <span *ngIf="r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM'">
-                    {{ r.machine.room.name }}
-                    <span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
-                    <br />{{ r.machine.name }}
+                    {{ r.machine?.room.name }}<span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
+                    <br />{{ r.machine?.name }}
                 </span>
                 <span *ngIf="!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM'"
                     ><strong class="text text-primary">BYOD</strong></span

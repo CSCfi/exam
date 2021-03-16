@@ -28,7 +28,7 @@ export class DatePickerComponent implements OnInit {
     @Input() extraText: string;
     @Input() modelOptions: Record<string, string> = {};
     @Input() disabled: boolean;
-    @Input() optional: boolean;
+    @Input() optional = true;
 
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
     @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
@@ -38,10 +38,8 @@ export class DatePickerComponent implements OnInit {
     format = 'dd.MM.yyyy';
 
     ngOnInit() {
-        if (this.initialDate !== null) {
-            const d = moment(this.initialDate);
-            this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
-        }
+        const d = this.initialDate !== null ? moment(this.initialDate) : moment();
+        this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
     }
 
     transform(value: NgbDate | null): Date | null {

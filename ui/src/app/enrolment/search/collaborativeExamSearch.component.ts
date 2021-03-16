@@ -69,7 +69,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
         this.filter.text = text;
         this.loader = { loading: true };
 
-        this.CollaborativeExam.searchExams(text)
+        this.CollaborativeExam.searchExams$(text)
             .pipe(
                 tap((exams) => this.updateExamList(exams)),
                 finalize(() => (this.loader = { loading: false })),

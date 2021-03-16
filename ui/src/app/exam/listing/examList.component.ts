@@ -33,8 +33,13 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
     templateUrl: './examList.component.html',
 })
 export class ExamListingComponent {
-    view: string;
-    showExpired: boolean;
+    activeId = 0;
+    views = [
+        { view: 'PUBLISHED', showExpired: false },
+        { view: 'PUBLISHED', showExpired: true },
+        { view: 'SAVED', showExpired: false },
+        { view: 'DRAFT', showExpired: false },
+    ];
     examsPredicate: string;
     reverse: boolean;
     filter: { text: string };
@@ -58,8 +63,6 @@ export class ExamListingComponent {
     }
 
     ngOnInit() {
-        this.view = 'PUBLISHED';
-        this.showExpired = false;
         this.examsPredicate = 'examActiveEndDate';
         this.reverse = true;
         this.filter = { text: '' };
@@ -67,7 +70,6 @@ export class ExamListingComponent {
 
         this.subject
             .pipe(
-                tap(() => (this.loader.loading = true)),
                 debounceTime(500),
                 distinctUntilChanged(),
                 exhaustMap((term) =>
@@ -75,6 +77,7 @@ export class ExamListingComponent {
                         ? from([])
                         : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
                 ),
+                tap(() => (this.loader.loading = true)),
                 map((exams: ExamListExam[]) => {
                     exams.forEach((e) => {
                         e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
@@ -94,6 +97,8 @@ export class ExamListingComponent {
             )
             .subscribe();
     }
+
+    newExam = () => this.state.go('newExam');
 
     search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
 
