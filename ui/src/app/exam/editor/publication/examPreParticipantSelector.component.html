@@ -25,7 +25,7 @@
             <!-- Students not having finished the exam -->
             <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
                 {{ renderParticipantLabel(enrolment) }}
-                <span *ngIf="enrolment.user.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
+                <span *ngIf="enrolment.user?.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
                 <button
                     class="reviewer-remove"
                     [disabled]="exam.state === 'PUBLISHED'"

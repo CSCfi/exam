@@ -32,7 +32,11 @@
                 <div class="question-cancel">
                     <button
                         [disabled]="
-                            !question.type || hasNoCorrectOption() || hasInvalidClaimChoiceOptions() || form.invalid
+                            !question ||
+                            !question.type ||
+                            hasNoCorrectOption() ||
+                            hasInvalidClaimChoiceOptions() ||
+                            form.invalid
                         "
                         (click)="saveQuestion()"
                         type="submit"

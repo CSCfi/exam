@@ -8,6 +8,7 @@
                 <span
                     ngbPopover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
                     popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    class="ml-2"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -90,7 +91,7 @@
                             [appUniqueValues]="exam.autoEvaluationConfig?.gradeEvaluations"
                             property="percentage"
                         />
-                        <span>%</span>
+                        <span class="ml-2">%</span>
                     </div>
                     <div class="col-md-4 autoevaluation-numbers">
                         {{ calculatePointLimit(ge) }}

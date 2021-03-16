@@ -14,11 +14,12 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { map } from 'rxjs/operators';
 
 import { FileService } from '../../utility/file/file.service';
 import { WindowRef } from '../../utility/window/window.service';
+
 import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
@@ -32,6 +33,7 @@ export class PrintoutComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private Window: WindowRef,
         private Files: FileService,
     ) {}
@@ -108,11 +110,15 @@ export class PrintoutComponent {
     };
 
     exitPreview = () => {
-        if (this.state.params.tab) {
-            this.state.go('examEditor', {
-                id: this.state.params.id,
-                tab: this.state.params.tab,
-            });
+        const tab = parseInt(this.routing.params.tab);
+        if (tab == 1) {
+            this.state.go('examEditor.basic', { id: this.exam.id, collaborative: false });
+        } else if (tab == 2) {
+            this.state.go('examEditor.sections', { id: this.exam.id, collaborative: false });
+        } else if (tab == 3) {
+            this.state.go('examEditor.publication', { id: this.exam.id, collaborative: false });
+        } else if (tab == 4) {
+            this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: false });
         } else {
             this.state.go('printouts');
         }
