@@ -175,7 +175,7 @@
                         *ngIf="collaborative"
                         class="pointer"
                         uiSref="collaborativeAssessment"
-                        [uiParams]="{ id: this.exam.id, ref: review._id }"
+                        [uiParams]="{ id: this.exam.id, ref: review.examParticipation._id }"
                     >
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user?.userIdentifier">

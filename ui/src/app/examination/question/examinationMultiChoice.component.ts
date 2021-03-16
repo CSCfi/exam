@@ -59,7 +59,7 @@ export class ExaminationMultiChoiceComponent {
 
     ngOnInit() {
         if (this.sq.question.type === 'ClaimChoiceQuestion' && this.orderOptions) {
-            this.sq.options.sort((a, b) => a.option.id - b.option.id);
+            this.sq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
         } else if (this.orderOptions) {
             this.sq.options.sort((a, b) => a.id - b.id);
         }

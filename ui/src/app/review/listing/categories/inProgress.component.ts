@@ -16,16 +16,15 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { noop } from 'rxjs';
 
-import type { ExamParticipation } from '../../../exam/exam.model';
 import { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
-import type { Review } from '../../review.model';
 import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
-import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { User } from '../../../session/session.service';
+import type { Review } from '../../review.model';
+import type { ReviewListView } from '../reviewList.service';
 @Component({
     selector: 'rl-in-progress',
     templateUrl: './inProgress.component.html',
@@ -50,11 +49,6 @@ export class InProgressReviewsComponent {
     isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
-
-    getLinkToAssessment = (review: ExamParticipation) =>
-        this.collaborative
-            ? `/assessments/collaborative/${this.exam.id}/${review._id}`
-            : `/assessments/${review.exam?.id}`;
 
     pageSelected = (page: number) => (this.view.page = page);
 

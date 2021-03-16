@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -24,19 +25,10 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { FileService } from '../../../utility/file/file.service';
 import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { ExamTabService } from '../examTabs.service';
 
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import type { ExamType, GradeScale } from '../../exam.model';
-import { StateService } from '@uirouter/core';
-import { ExamTabService } from '../examTabs.service';
-export type UpdateProps = {
-    props: {
-        code: string | null;
-        name: string | null;
-        scaleChange: boolean;
-    };
-};
-
 @Component({
     selector: 'basic-exam-info',
     templateUrl: './basicExamInfo.component.html',
@@ -44,7 +36,6 @@ export type UpdateProps = {
 export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
-    @Output() onUpdate = new EventEmitter<UpdateProps>();
 
     byodExaminationSupported = false;
     anonymousReviewEnabled: boolean;
@@ -60,6 +51,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         private state: StateService,
         private translate: TranslateService,
         private Exam: ExamService,
+        private ExamTabs: ExamTabService,
         private Attachment: AttachmentService,
         private Files: FileService,
         private Session: SessionService,
@@ -106,12 +98,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
                     delete this.exam.autoEvaluationConfig;
                 }
                 const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate.emit({
-                    props: {
-                        name: this.exam.name,
-                        code: code,
-                        scaleChange: resetAutoEvaluationConfig,
-                    },
+                this.ExamTabs.notifyExamUpdate({
+                    name: this.exam.name,
+                    code: code,
+                    scaleChange: resetAutoEvaluationConfig,
                 });
             },
             (resp) => toast.error(resp),
@@ -121,8 +111,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     onCourseChange = () => {
         this.initGradeScale(); //  Grade scale might need changing based on new course
         const code = this.exam.course ? this.exam.course.code : null;
-        this.onUpdate.emit({
-            props: { name: this.exam.name, code: code, scaleChange: false },
+        this.ExamTabs.notifyExamUpdate({
+            name: this.exam.name,
+            code: code,
+            scaleChange: false,
         });
     };
 

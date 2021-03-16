@@ -46,7 +46,11 @@
     <div *ngIf="reviews" class="mb-3">
         <div class="review-border mb-5">
             <!-- Ready for review-->
-            <rl-in-progress [exam]="exam" [reviews]="inProgressReviews"></rl-in-progress>
+            <rl-in-progress
+                [exam]="exam"
+                [reviews]="inProgressReviews"
+                [collaborative]="collaborative"
+            ></rl-in-progress>
         </div>
 
         <div class="review-border mb-5" *ngIf="languageInspectedReviews.length > 0">
@@ -56,7 +60,13 @@
 
         <div class="review-border mb-5">
             <!-- Graded -->
-            <rl-graded exam="exam" [reviews]="gradedReviews" (onRegistered)="onRegistration($event)"> </rl-graded>
+            <rl-graded
+                exam="exam"
+                [reviews]="gradedReviews"
+                [collaborative]="collaborative"
+                (onRegistered)="onRegistration($event)"
+            >
+            </rl-graded>
         </div>
 
         <div class="review-border mb-5">
@@ -64,6 +74,7 @@
             <rl-graded-logged
                 [exam]="exam"
                 [reviews]="gradedLoggedReviews"
+                [collaborative]="collaborative"
                 (onArchive)="onArchive($event)"
             ></rl-graded-logged>
         </div>

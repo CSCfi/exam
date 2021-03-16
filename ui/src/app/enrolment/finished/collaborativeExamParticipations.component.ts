@@ -35,7 +35,7 @@ export class CollaborativeParticipationsComponent implements OnInit {
     constructor(private changeDetector: ChangeDetectorRef, private CollaborativeExam: CollaborativeExamService) {}
 
     ngOnInit() {
-        this.CollaborativeExam.listStudentParticipations().subscribe(
+        this.CollaborativeExam.listStudentParticipations$().subscribe(
             (participations: CollaborativeParticipation[]) => {
                 this.originals = participations;
                 this.search();
