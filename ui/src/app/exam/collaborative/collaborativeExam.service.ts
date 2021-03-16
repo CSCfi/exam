@@ -34,17 +34,17 @@ export class CollaborativeExamService {
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
-    listStudentParticipations = (): Observable<CollaborativeParticipation[]> =>
+    listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
         this.http.get<CollaborativeParticipation[]>('/integration/iop/student/finishedExams');
 
-    listExams = (): Observable<CollaborativeExam[]> => {
+    listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/integration/iop/enrolments' : '/integration/iop/exams';
         return this.http.get<CollaborativeExam[]>(path);
     };
 
-    createExam = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/integration/iop/exams', {});
+    createExam$ = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/integration/iop/exams', {});
 
-    searchExams = (searchTerm: string): Observable<CollaborativeExam[]> => {
+    searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
         const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
         // This path is used to search from student view only
         const path = this.Session.getUser().isStudent
@@ -66,7 +66,5 @@ export class CollaborativeExamService {
         }
     };
 
-    download = (id: number) => {
-        return this.http.get<Exam>(`/integration/iop/exams/${id}`).toPromise();
-    };
+    download$ = (id: number) => this.http.get<Exam>(`/integration/iop/exams/${id}`).toPromise();
 }

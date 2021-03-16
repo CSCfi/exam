@@ -124,7 +124,7 @@ const rootModule: RootModule = {
                     ) => {
                         const id = transition.params().id;
                         const isCollab = transition.params().collaborative == 'collaborative';
-                        return isCollab ? collabService.download(id) : examService.downloadExam(id);
+                        return isCollab ? collabService.download$(id) : examService.downloadExam(id);
                     },
                 },
                 {

@@ -13,14 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
 
+import type { OnInit } from '@angular/core';
+import type { User } from '../../../session/session.service';
 @Component({
     selector: 'collaborative-exam-owner-selector',
     templateUrl: './collaborativeExamOwnerSelector.component.html',
@@ -29,7 +29,7 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     @Input() exam: Exam;
 
     user: User;
-    newOwner: { email: string | undefined };
+    newOwner: { email: string | undefined } = { email: undefined };
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
