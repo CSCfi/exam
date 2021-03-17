@@ -156,7 +156,7 @@
         <div class="review-list-title">{{ 'sitnet_publish_settings' | translate }}</div>
     </div>
 </div>
-<div class="row mt-2" [hidden]="exam.executionType.type === 'PRINTOUT'">
+<div class="row mt-2" [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_publish_max_count' | translate }}
         <sup>

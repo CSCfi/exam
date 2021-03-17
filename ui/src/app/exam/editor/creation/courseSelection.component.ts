@@ -13,15 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
+import type { OnInit } from '@angular/core';
+import type { Course, Exam } from '../../exam.model';
 @Component({
     selector: 'course-selection',
     templateUrl: './courseSelection.component.html',
@@ -65,5 +65,5 @@ export class CourseSelectionComponent implements OnInit {
             this.state.go('dashboard');
         });
 
-    continueToExam = () => this.state.go('examEditor', { id: this.exam.id, tab: 1 });
+    continueToExam = () => this.state.go('examEditor.basic', { id: this.exam.id });
 }

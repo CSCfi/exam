@@ -98,25 +98,22 @@ export class ClaimChoiceEditorComponent {
     @Input() lotteryOn: boolean;
     @Input() showWarning: boolean;
 
-    missingOptions: string[];
+    missingOptions: string[] = [];
 
     defaultOptions = {
         correct: {
-            id: 0,
             option: this.translate.instant('sitnet_claim_choice_default_correct'),
             defaultScore: 1,
             correctOption: true,
             claimChoiceType: 'CorrectOption',
         },
         wrong: {
-            id: 0,
             option: this.translate.instant('sitnet_claim_choice_default_incorrect'),
             defaultScore: -1,
             correctOption: false,
             claimChoiceType: 'IncorrectOption',
         },
         skip: {
-            id: 0,
             option: this.translate.instant('sitnet_question_claim_skip'),
             defaultScore: 0,
             correctOption: false,
@@ -128,7 +125,7 @@ export class ClaimChoiceEditorComponent {
 
     ngOnInit() {
         const { state, question } = this.question;
-        if (state === 'NEW' && question === undefined) {
+        if (state === 'NEW' && question === '') {
             this.resetOptions();
         }
     }

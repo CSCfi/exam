@@ -118,7 +118,7 @@ export interface EssayAnswer {
 }
 
 export interface MultipleChoiceOption {
-    id: number;
+    id?: number;
     option: string;
     correctOption: boolean;
     defaultScore: number;
