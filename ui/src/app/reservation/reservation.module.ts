@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { AdminReservationComponent } from './admin/adminReservations.component';
@@ -26,7 +25,7 @@ import { ReservationDetailsComponent } from './reservationDetails.component';
 import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule, OrderModule, UIRouterModule],
+    imports: [NgbModule, UtilityModule, UIRouterModule],
     exports: [AdminReservationComponent],
     declarations: [
         ChangeMachineDialogComponent,

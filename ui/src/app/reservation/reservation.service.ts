@@ -16,16 +16,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
 import * as moment from 'moment';
+import { noop } from 'rxjs';
+import * as toast from 'toastr';
 
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { Exam } from '../exam/exam.model';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-import type { ExamMachine, Reservation } from './reservation.model';
 
+import type { ExamEnrolment } from '../enrolment/enrolment.model';
+import type { Exam } from '../exam/exam.model';
+import type { ExamMachine, Reservation } from './reservation.model';
 @Injectable()
 export class ReservationService {
     constructor(
@@ -86,7 +87,7 @@ export class ReservationService {
                     reservation.machine = machine;
                 }
             })
-            .catch((err) => toast.error(err));
+            .catch(noop);
     };
 
     cancelReservation = (reservation: Reservation): Promise<void> => {

@@ -46,7 +46,6 @@
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
     "moment-timezone": "0.5.31",
-    "ngx-order-pipe": "^2.0.2",
     "ngx-webstorage-service": "^4.1.0",
     "popper.js": "^1.16.1",
     "reflect-metadata": "^0.1.13",

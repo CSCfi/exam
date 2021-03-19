@@ -16,7 +16,7 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import type { OnInit } from '@angular/core';
+import type { OnInit, OnChanges } from '@angular/core';
 
 interface Selection {
     value: unknown;
@@ -33,18 +33,21 @@ export interface Option {
     selector: 'dropdown-select',
     templateUrl: './dropDownSelect.component.html',
 })
-export class DropdownSelectComponent implements OnInit {
+export class DropdownSelectComponent implements OnInit, OnChanges {
     @Input() options: Option[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
     @Input() fullWidth?: boolean = false;
     @Output() onSelect = new EventEmitter<Selection>();
-    filteredOptions: Option[]; // filtered
+    filteredOptions: Option[] = []; // filtered
     searchFilter = '';
     selected?: Option;
 
     ngOnInit() {
         this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
+    }
+
+    ngOnChanges() {
         this.filterOptions();
     }
 

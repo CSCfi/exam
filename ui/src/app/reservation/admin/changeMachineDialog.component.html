@@ -11,15 +11,12 @@
         ></dropdown-select>
     </div>
     <div class="modal-footer">
-        <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
-            </button>
-        </div>
-        <div class="col-md-6">
-            <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!selection.id">
-                {{ 'sitnet_button_save' | translate }}
-            </button>
-        </div>
+        <button class="btn btn-sm btn-danger" (click)="cancel()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
+
+        <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!selection?.id">
+            {{ 'sitnet_button_save' | translate }}
+        </button>
     </div>
 </div>

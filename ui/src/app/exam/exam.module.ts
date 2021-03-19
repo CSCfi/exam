@@ -16,7 +16,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
@@ -56,7 +55,7 @@ import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printoutListing.component';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
+    imports: [NgbModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
         ExamPublicationComponent,

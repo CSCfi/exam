@@ -17,12 +17,12 @@ import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { OrderPipe } from 'ngx-order-pipe';
 import { forkJoin } from 'rxjs';
-import { map, tap, mergeMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../session/session.service';
+import { OrderByPipe } from '../utility/sorting/orderBy.pipe';
 import { ReservationService } from './reservation.service';
 
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
@@ -100,7 +100,7 @@ export class ReservationComponentBase {
     constructor(
         private http: HttpClient,
         private state: StateService,
-        private orderPipe: OrderPipe,
+        private orderPipe: OrderByPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
@@ -260,9 +260,9 @@ export class ReservationComponentBase {
     isAdminView = () => this.user.isAdmin;
 
     private initOptions() {
-        this.http.get<{ id: number; name: string }[]>('/app/reservations/students').subscribe(
+        this.http.get<(User & { name: string })[]>('/app/reservations/students').subscribe(
             (resp) => {
-                const students: (User & { name: string })[] = this.orderPipe.transform(resp, ['lastName', 'firstName']);
+                const students: (User & { name: string })[] = this.orderPipe.transform(resp, 'lastName');
                 this.studentOptions = students.map((s) => {
                     return { id: s.id, value: s, label: s.name };
                 });
@@ -275,12 +275,9 @@ export class ReservationComponentBase {
         });
 
         if (this.isAdminView()) {
-            this.http.get<{ id: number; name: string }[]>('/app/reservations/teachers').subscribe(
+            this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe(
                 (resp) => {
-                    const teachers: (User & { name: string })[] = this.orderPipe.transform(resp, [
-                        'lastName',
-                        'firstName',
-                    ]);
+                    const teachers = this.orderPipe.transform(resp, 'lastName');
                     this.teacherOptions = teachers.map((t) => {
                         return { id: t.id, value: t, label: t.name };
                     });
@@ -288,13 +285,13 @@ export class ReservationComponentBase {
                 (resp) => toast.error(resp.data),
             );
 
-            this.http.get<ExamRoom>('/app/reservations/examrooms').subscribe(
+            this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe(
                 (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');
                     this.roomOptions = this.rooms.map((r) => {
                         return { id: r.id, value: r, label: r.name };
                     });
-                    this.http.get<ExamMachine>('/app/machines').subscribe((resp) => {
+                    this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
                         this.machines = this.orderPipe.transform(resp, 'name');
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                     });
@@ -315,7 +312,7 @@ export class ReservationComponentBase {
 
         forkJoin(examObservables)
             .pipe(
-                mergeMap((exams) => exams),
+                switchMap((exams) => exams),
                 map((exams) =>
                     (exams as Array<Exam | CollaborativeExam>).map((e) => ({ id: e.id, value: e, label: e.name })),
                 ),
@@ -398,10 +395,10 @@ export class ReservationComponentBase {
     stateChanged(event?: { value: string }) {
         if (event?.value) {
             this.selection.state = event.value;
-            this.query();
         } else {
             delete this.selection.state;
         }
+        this.query();
     }
 
     studentChanged(event?: { value: User }) {
@@ -425,9 +422,9 @@ export class ReservationComponentBase {
     examChanged(event?: { value: Exam }) {
         if (event?.value) {
             this.selection.examId = event.value.id.toString();
-            this.query();
         } else {
             delete this.selection.examId;
         }
+        this.query();
     }
 }
