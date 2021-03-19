@@ -14,13 +14,12 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { SoftwareComponent } from './software.component';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, UtilityModule],
+    imports: [NgbModule, UtilityModule],
     exports: [SoftwareComponent],
     declarations: [SoftwareComponent],
     entryComponents: [SoftwareComponent],

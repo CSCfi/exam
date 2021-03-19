@@ -16,7 +16,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { AssessmentComponent } from './assessment/assessment.component';
@@ -70,7 +69,7 @@ import { QuestionReviewsComponent } from './questions/listing/questionReviews.co
 import { QuestionReviewService } from './questions/questionReview.service';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, UtilityModule, DragDropModule, OrderModule],
+    imports: [NgbModule, UIRouterModule, UtilityModule, DragDropModule],
     exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
     declarations: [
         AssessmentComponent,

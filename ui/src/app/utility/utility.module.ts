@@ -42,6 +42,7 @@ import { CourseCodeComponent } from './miscellaneous/courseCode.component';
 import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropdownSelectComponent } from './select/dropDownSelect.component';
+import { OrderByPipe } from './sorting/orderBy.pipe';
 import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
@@ -78,6 +79,7 @@ import { WindowRef } from './window/window.service';
         FilterByPipe,
         MinDirective,
         MaxDirective,
+        OrderByPipe,
     ],
     declarations: [
         AttachmentSelectorComponent,
@@ -104,6 +106,7 @@ import { WindowRef } from './window/window.service';
         FilterByPipe,
         MinDirective,
         MaxDirective,
+        OrderByPipe,
     ],
     entryComponents: [
         AttachmentSelectorComponent,

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { QuestionModule } from '../question/question.module';
 import { UtilityModule } from '../utility/utility.module';
@@ -23,7 +22,7 @@ import { ExaminationWeightedMultiChoiceComponent } from './question/examinationW
 import { ExaminationSectionComponent } from './section/examinationSection.component';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, QuestionModule, UtilityModule, OrderModule],
+    imports: [NgbModule, UIRouterModule, QuestionModule, UtilityModule],
     declarations: [
         AnswerInstructionsComponent,
         ExaminationClockComponent,

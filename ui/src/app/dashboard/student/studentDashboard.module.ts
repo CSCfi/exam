@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { EnrolmentModule } from '../../enrolment/enrolment.module';
 import { UtilityModule } from '../../utility/utility.module';
@@ -21,7 +20,7 @@ import { StudentDashboardComponent } from './studentDashboard.component';
 import { StudentDashboardService } from './studentDashboard.service';
 
 @NgModule({
-    imports: [OrderModule, UtilityModule, EnrolmentModule],
+    imports: [UtilityModule, EnrolmentModule],
     exports: [StudentDashboardComponent],
     declarations: [StudentDashboardComponent],
     providers: [StudentDashboardService],

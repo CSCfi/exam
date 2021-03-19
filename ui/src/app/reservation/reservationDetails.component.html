@@ -37,7 +37,7 @@
                     text="sitnet_teachers"
                     [predicate]="predicate"
                     [reverse]="reverse"
-                    (click)="setPredicate('enrolment.teachereAggregate')"
+                    (click)="setPredicate('enrolment.teacherAggregate')"
                 >
                 </table-sort>
             </th>
@@ -78,10 +78,10 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let r of reservations | orderBy: predicate:reverse:'case-insensitive'">
+        <tr *ngFor="let r of reservations | orderBy: predicate:reverse">
             <td class="reservation-search">
                 <span>{{ r.userAggregate }}</span>
-                <span *ngIf="r.user.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
+                <span *ngIf="r.user?.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
                 <span *ngIf="r.user && !r.externalUserRef">
                     <br />
                     <a class="reservation" href="mailto:{{ r.user.email }}">{{ r.user.email }}</a>
@@ -162,7 +162,7 @@
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="removeReservation(r)"
-                    class="btn btn-primary pull-left"
+                    class="btn btn-sm btn-primary pull-left"
                 >
                     {{ 'sitnet_remove_reservation' | translate }}
                 </button>
@@ -170,7 +170,7 @@
                     *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
                     (click)="permitRetrial(r)"
                     [disabled]="!r.enrolment.exam.trialCount || r.retrialPermitted"
-                    class="btn btn-primary pull-left"
+                    class="btn btn-sm btn-primary pull-left"
                 >
                     {{ 'sitnet_permit_retrial' | translate }}
                 </button>
@@ -184,7 +184,7 @@
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="changeReservationMachine(r)"
-                    class="btn btn-primary pull-left"
+                    class="btn btn-sm btn-primary pull-left"
                 >
                     {{ 'sitnet_change_reservation_machine' | translate }}
                 </button>

@@ -15,24 +15,25 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { Option } from '../../utility/select/dropDownSelect.component';
-import type { ExamMachine } from '../reservation.model';
 import { Reservation } from '../reservation.model';
 
+import type { OnInit } from '@angular/core';
+import type { Option } from '../../utility/select/dropDownSelect.component';
+import type { ExamMachine } from '../reservation.model';
 @Component({
     selector: 'change-machine-dialog',
     templateUrl: './changeMachineDialog.component.html',
 })
 export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation: Reservation;
+
     selection: ExamMachine;
-    availableMachineOptions: Option[];
+    availableMachineOptions: Option[] = [];
 
     constructor(public activeModal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 
@@ -49,7 +50,7 @@ export class ChangeMachineDialogComponent implements OnInit {
         );
     }
 
-    machineChanged = (machine: ExamMachine) => (this.selection = machine);
+    machineChanged = (event: { value: ExamMachine }) => (this.selection = event.value);
 
     ok = () =>
         this.http

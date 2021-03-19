@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { ReservationModule } from '../../reservation/reservation.module';
 import { UtilityModule } from '../../utility/utility.module';
@@ -25,7 +24,7 @@ import { TeacherDashboardComponent } from './teacherDashboard.component';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
 @NgModule({
-    imports: [NgbModule, OrderModule, ReservationModule, UtilityModule, UIRouterModule],
+    imports: [NgbModule, ReservationModule, UtilityModule, UIRouterModule],
     exports: [TeacherDashboardComponent],
     declarations: [ExamListCategoryComponent, TeacherDashboardComponent],
     providers: [TeacherDashboardService, ExamSearchPipe],

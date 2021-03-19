@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { ClaimChoiceEditorComponent } from './basequestion/claimChoice.component';
@@ -40,7 +39,7 @@ import { QuestionSelectorComponent } from './selector/questionSelector.component
 import { TagPickerComponent } from './tags/tagPicker.component';
 
 @NgModule({
-    imports: [UtilityModule, NgbModule, OrderModule, UIRouterModule],
+    imports: [UtilityModule, NgbModule, UIRouterModule],
     declarations: [
         LibraryComponent,
         LibrarySearchComponent,

@@ -29,7 +29,7 @@ import type { DashboardEnrolment } from './studentDashboard.service';
     templateUrl: './studentDashboard.component.html',
 })
 export class StudentDashboardComponent implements OnInit {
-    userEnrolments: DashboardEnrolment[];
+    userEnrolments: DashboardEnrolment[] = [];
 
     constructor(
         private StudentDashboard: StudentDashboardService,

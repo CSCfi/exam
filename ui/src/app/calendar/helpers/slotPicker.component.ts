@@ -122,7 +122,13 @@ type AvailableSlot = Slot & { availableMachines: number };
                             tabindex="0"
                             (ngEnter)="selectRoom(room)"
                         >
-                            <a role="menuitem" ngbPopover="{{ getDescription(room) }}" triggers="mouseenter:mouseleave">
+                            <a
+                                role="menuitem"
+                                ngbPopover="{{ getDescription(room) }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                container="body"
+                                triggers="mouseenter:mouseleave"
+                            >
                                 {{ room.name | slice: 0:30 }}</a
                             >
                         </li>

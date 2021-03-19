@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { OrderModule } from 'ngx-order-pipe';
 
 import { UtilityModule } from '../utility/utility.module';
 import { InspectionStatementDialogComponent } from './dialogs/inspectionStatementDialog.component';
@@ -26,7 +25,7 @@ import { UnfinishedInspectionsComponent } from './listing/unfinishedInspections.
 import { MaturityReportingComponent } from './reporting/maturityReporting.component';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, UtilityModule, OrderModule],
+    imports: [NgbModule, UIRouterModule, UtilityModule],
     exports: [ReviewedInspectionsComponent],
     declarations: [
         LanguageInspectionsComponent,
