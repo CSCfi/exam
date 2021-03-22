@@ -2,7 +2,7 @@
     <span class="col-md-10">
         <strong>{{ categoryTitle | translate | uppercase }}</strong
         >&nbsp;
-        <span class="badge question-flow-badge">{{ reviews.length }}</span>
+        <span class="badge badge-danger">{{ reviews.length }}</span>
     </span>
     <div class="col-md-2">
         <a (click)="hideCategory = !hideCategory" class="pointer-hand pull-right">
@@ -22,7 +22,7 @@
 <div class="question-flow-category-questions">
     <div [hidden]="hideCategory" class="main-row question-flow-category-question-wrapper" *ngFor="let r of reviews">
         <div class="col-md-1">
-            <input type="radio" [(ngModel)]="r.selected" value="true" (change)="selectQuestion(r)" />
+            <input type="radio" [checked]="r.selected" (change)="selectQuestion(r)" />
         </div>
         <div class="col-md-9">
             <div [innerHtml]="r.question.question | slice: 0:50"></div>

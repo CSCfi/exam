@@ -1,27 +1,25 @@
 <div class="essay-answer-wrapper">
-    <div class="detail-row" *ngIf="answer.question.question !== answer.question.parent?.question">
+    <div class="detail-row p-0" *ngIf="answer.question.question !== answer.question.parent?.question">
         <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
             <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
         </span>
     </div>
     <div class="main-row">
-        <div class="col-md-12 marl5">
-            <strong>{{ 'sitnet_assessee_information' | translate | uppercase }}</strong>
-        </div>
+        <strong>{{ 'sitnet_assessee_information' | translate | uppercase }}</strong>
     </div>
-    <div class="main-row">
-        <div class="col-md-10 essay-answer-item">
+    <div class="main-row pt-0 px-3 w-100 d-flex justify-content-between essay-answer-item">
+        <div>
             <a uiSref="assessment" [uiParams]="{ id: answer.examSection.exam.id }" target="_blank">
                 <strong>
                     {{ name }}
-                    <span *ngIf="answer.examSection.exam.creator.userIdentifier">
+                    <span *ngIf="answer.examSection.exam.creator?.userIdentifier">
                         ({{ answer.examSection.exam.creator.userIdentifier }})
                     </span>
                 </strong>
             </a>
         </div>
-        <div class="col-md-2 essay-answer-item">
-            <a class="pull-right" (click)="answer.expanded = !answer.expanded" class="pointer-hand">
+        <div>
+            <a class="pointer-hand" (click)="answer.expanded = !answer.expanded">
                 <img
                     *ngIf="!answer.expanded"
                     src="/assets/assets/images/icon_list_show_right.svg"
@@ -37,22 +35,20 @@
             </a>
         </div>
     </div>
-    <div class="detail-row" *ngIf="!answer.expanded">
-        <div class="col-md-12">
+    <div class="main-row" *ngIf="!answer.expanded">
+        <div>
             <strong>&hellip;</strong>
         </div>
     </div>
     <div *ngIf="answer.expanded">
-        <div class="detail-row">
-            <div class="col-md-12">
-                <strong>{{ 'sitnet_exam_answer' | translate | uppercase }}</strong>
-            </div>
-        </div>
         <div class="main-row">
+            <strong>{{ 'sitnet_exam_answer' | translate | uppercase }}</strong>
+        </div>
+        <div class="main-row p-0">
             <div class="col-md-12 essay-answer-item" [MathJax]="answer.essayAnswer.answer"></div>
         </div>
 
-        <div class="detail-row" *ngIf="answer.essayAnswer.attachment">
+        <div class="detail-row p-0" *ngIf="answer.essayAnswer.attachment">
             <div class="detail-row">
                 <div class="col-md-12">
                     <strong>{{ 'sitnet_answer_attachment' | translate | uppercase }}</strong>
@@ -69,8 +65,8 @@
             </div>
         </div>
 
-        <div class="detail-row">
-            <div class="col-md-10 essay-answer-item">
+        <div class="detail-row px-0 d-flex justify-content-between essay-answer-item">
+            <div>
                 <div class="main-row">
                     <strong>{{ 'sitnet_answer_length' | translate | uppercase }}</strong>
                 </div>
@@ -85,7 +81,7 @@
                     {{ answer.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
                 </div>
             </div>
-            <div class="col-md-2 essay-answer-checkbox-item">
+            <div>
                 <div class="main-row">
                     <strong
                         >{{ 'sitnet_word_points' | translate | uppercase }} &nbsp;<small
@@ -132,14 +128,14 @@
         </div>
 
         <div class="main-row">
-            <span class="col-md-12 checkbox">
+            <span class="checkbox">
                 <label>
                     <input type="checkbox" [(ngModel)]="answer.selected" [disabled]="!editable || !isAssessed()" />
                     {{ action | translate }}
                 </label>
                 <i
                     *ngIf="editable && isAssessed() && answer.selected"
-                    class="marl10 pointer bi-share text-success"
+                    class="marl10 pointer bi bi-arrow-return-right text-success"
                     (click)="saveScore()"
                 ></i>
             </span>

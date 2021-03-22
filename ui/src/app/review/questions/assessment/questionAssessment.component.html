@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div class="row">
-        <div class="col-md-8 essay-question-review-column">
+        <div class="col-md-8 essay-question-review-column p-0">
             <div class="essay-question-review-wrapper">
                 <div class="top-row">
                     <div class="col-md-8">
@@ -54,7 +54,10 @@
                         </a>
                     </div>
                 </div>
-                <div class="main-row" *ngIf="selectedReview?.expanded">
+                <div
+                    class="main-row"
+                    *ngIf="selectedReview?.expanded && selectedReview?.question.defaultAnswerInstructions"
+                >
                     <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
                         <img
                             src="/assets/assets/images/icon_info.png"
@@ -87,7 +90,7 @@
                     </div>
                 </div>
             </div>
-            <div class="detail-row">
+            <div class="detail-row p-0">
                 <div class="triangle-line"></div>
             </div>
             <div class="top-row">
@@ -123,7 +126,7 @@
                                 </essay-answers>
                             </ng-template>
                         </ngb-tab>
-                        <ngb-tab id="2">
+                        <ngb-tab id="3">
                             <ng-template ngbTabTitle>
                                 {{ 'sitnet_graded_logged_exams' | translate }}
                                 <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
@@ -144,7 +147,7 @@
         </div>
         <!-- END OF RIGHT COL -->
 
-        <div class="col-md-4">
+        <div class="col-md-4 p-0">
             <question-flow *ngIf="reviews" [reviews]="reviews" (onSelection)="questionSelected($event)">
             </question-flow>
         </div>
