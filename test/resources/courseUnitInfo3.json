@@ -4,58 +4,62 @@
   "CourseUnitInfo": [
     {
       "identifier": "hy-CU-117377242-2020-08-01",
-      "courseUnitCode": "MAT21014_hy-CUR-136171287",
-      "courseUnitTitle": "Johdatus logiikkaan I, Johdatus logiikkaan I 18.1.2021–7.3.2021",
-      "courseUnitImplementation": "hy-CUR-136171287",
+      "courseUnitCode": "MAT21014_hy-CUR-138798147",
+      "courseUnitTitle": "Johdatus logiikkaan I, Johdatus logiikkaan I - Tenttiakvaario  1.8.2020–31.7.2021",
+      "courseImplementation": "hy-CUR-138798147",
       "credits": 5,
-      "creditsLanguage": {
-        "name": "en"
-      },
-      "gradeScale": {
-        "grades": {
-          "0": {
-            "grade": "0",
-            "description": "0",
-            "isFailed": true,
-            "scale": 0
+      "creditsLanguage": [
+        {
+          "name": "en"
+        }
+      ],
+      "gradeScale": [
+        {
+          "grades": {
+            "0": {
+              "grade": "0",
+              "description": "0",
+              "isFailed": true,
+              "scale": 0
+            },
+            "1": {
+              "grade": "1",
+              "description": "1",
+              "isFailed": false,
+              "scale": 1
+            },
+            "2": {
+              "grade": "2",
+              "description": "2",
+              "isFailed": false,
+              "scale": 2
+            },
+            "3": {
+              "grade": "3",
+              "description": "3",
+              "isFailed": false,
+              "scale": 3
+            },
+            "4": {
+              "grade": "4",
+              "description": "4",
+              "isFailed": false,
+              "scale": 4
+            },
+            "5": {
+              "grade": "5",
+              "description": "5",
+              "isFailed": false,
+              "scale": 5
+            }
           },
-          "1": {
-            "grade": "1",
-            "description": "1",
-            "isFailed": false,
-            "scale": 1
-          },
-          "2": {
-            "grade": "2",
-            "description": "2",
-            "isFailed": false,
-            "scale": 2
-          },
-          "3": {
-            "grade": "3",
-            "description": "3",
-            "isFailed": false,
-            "scale": 3
-          },
-          "4": {
-            "grade": "4",
-            "description": "4",
-            "isFailed": false,
-            "scale": 4
-          },
-          "5": {
-            "grade": "5",
-            "description": "5",
-            "isFailed": false,
-            "scale": 5
-          }
-        },
-        "name": "0-5",
-        "type": "OTHER",
-        "code": "sis-0-5"
-      },
-      "startDate" : "20110101",
-      "endDate" : "20991228",
+          "name": "0-5",
+          "type": "OTHER",
+          "code": "sis-0-5"
+        }
+      ],
+      "startDate": "20200801",
+      "endDate": "20210731",
       "department": [
         {
           "name": "01,500-K001"

@@ -290,7 +290,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (!scaleNode.isMissingNode()) {
             Set<JsonNode> scales;
             if (scaleNode.isArray()) {
-                scales = StreamSupport
+                scales =
+                    StreamSupport
                         .stream(scaleNode.spliterator(), false)
                         .filter(s -> s.has("type"))
                         .collect(Collectors.toSet());
@@ -350,8 +351,10 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());
             course.setCode(node.get("courseUnitCode").asText());
-            if (node.has("courseUnitImplementation") || node.has("courseImplementation"))  {
-                String impl = node.has("courseImplementation") ? node.get("courseImplementation").asText() : node.get("courseUnitImplementation").asText();
+            if (node.has("courseUnitImplementation") || node.has("courseImplementation")) {
+                String impl = node.has("courseImplementation")
+                    ? node.get("courseImplementation").asText()
+                    : node.get("courseUnitImplementation").asText();
                 course.setCourseImplementation(impl);
             }
             if (node.has("courseUnitLevel")) {
@@ -406,7 +409,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private String getFirstName(JsonNode json, String columnName) {
-        JsonNode node = json.isArray() ? json.path(columnName).path(0).path("name") : json.path(columnName).path("name");
-        return node.isMissingNode() ? null : node.asText();
+        JsonNode node = json.path(columnName);
+        JsonNode name = node.isArray() ? node.path(0).path("name") : node.path("name");
+        return name.isMissingNode() ? null : name.asText();
     }
 }
