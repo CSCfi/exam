@@ -67,6 +67,7 @@ export interface ExamMachine {
     softwareInfo: {
         id: number;
         status: string;
+        name: string;
     }[];
     otherIdentifier: string;
     accessibilityInfo: string;
