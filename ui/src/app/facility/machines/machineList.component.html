@@ -5,32 +5,17 @@
             <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
         </a>
         {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
-        <span
-            placement="top"
-            delay="500"
-            triggers="mouseenter:mouseleave"
-            ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
-        >
+        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_machine_available' | translate }}">
             <span class="badge badge-success">
                 {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
             </span>
         </span>
-        <span
-            placement="top"
-            delay="500"
-            triggers="mouseenter:mouseleave"
-            ngbPopover="{{ 'sitnet_status_notice' | translate }}"
-        >
+        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_notice' | translate }}">
             <span class="badge badge-warning marl10 sitnet-white">
                 {{ countMachineNotices() }}
             </span>
         </span>
-        <span
-            placement="top"
-            delay="500"
-            triggers="mouseenter:mouseleave"
-            ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
-        >
+        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_inservice' | translate }}">
             <span class="badge badge-danger marl10">
                 {{ countMachineAlerts() }}
             </span>
@@ -38,8 +23,6 @@
         <a
             class="fa-stack fa-lg"
             (click)="addNewMachine()"
-            placement="right"
-            delay="500"
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_add' | translate }}"
         >
@@ -75,21 +58,21 @@
                 <td>{{ machine.accessibilityInfo }}</td>
                 <td>
                     <ul>
-                        <li *ngFor="let software of machine.softwareInfo" class="pull-left">
+                        <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
                             <ng-template *ngIf="software.status !== 'DISABLED'">
-                                {{ software.name }}{{ $last ? '' : ',&nbsp;' }}
+                                {{ software.name }}{{ l ? '' : ',&nbsp;' }}
                             </ng-template>
                         </li>
                     </ul>
                 </td>
                 <td>
-                    <span class="status_red" [hidden]="!machine.outOfService">{{
+                    <span class="status_red" *ngIf="machine.outOfService">{{
                         'sitnet_status_inactive' | translate
                     }}</span>
-                    <span class="status_green" [hidden]="machine.outOfService && machine.statusComment">{{
+                    <span class="status_green" *ngIf="!machine.outOfService && !machine.statusComment">{{
                         'sitnet_status_active' | translate
                     }}</span>
-                    <span class="status_orange" [hidden]="machine.outOfService && !machine.statusComment">{{
+                    <span class="status_orange" *ngIf="!machine.outOfService && machine.statusComment">{{
                         'sitnet_status_notice' | translate
                     }}</span>
                     <span class="status_comment col-md-12">{{ machine.statusComment }}</span>

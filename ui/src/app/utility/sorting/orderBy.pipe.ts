@@ -1,9 +1,10 @@
-import { Pipe } from '@angular/core';
+import { Injectable, Pipe } from '@angular/core';
 import { get } from 'lodash';
 
 import type { PipeTransform } from '@angular/core';
 
 @Pipe({ name: 'orderBy' })
+@Injectable({ providedIn: 'root' })
 export class OrderByPipe implements PipeTransform {
     transform<T>(input: T[], path: string, reverse = false): T[] {
         return input.length < 2 ? input : input.sort((a, b) => this.compare(reverse, a, b, path));

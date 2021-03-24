@@ -8,14 +8,14 @@
                 {{ getConfirmationText() }}
             </p>
         </div>
-        <div class="student-message-dialog-footer">
+        <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
                     {{ 'sitnet_button_ok' | translate }}
                 </button>
             </div>
             <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-sm btn-danger pull-left" (click)="activeModal.dismiss()">
+                <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
                     {{ 'sitnet_button_cancel' | translate }}
                 </button>
             </div>

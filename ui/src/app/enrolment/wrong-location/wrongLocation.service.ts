@@ -32,27 +32,30 @@ export class WrongLocationService {
         if (now.isDST()) {
             startsAt.add(-1, 'hour');
         }
-        let parts: string[];
         if (startsAt.isAfter(now)) {
-            parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
-            this.translate.instant(parts).then((t: Record<string, string>) =>
-                toast.warning(
-                    `${t.sitnet_your_exam_will_start_at} ${startsAt.format('HH:mm')}
-                     ${t.sitnet_at_location} ${data[0]}: ${data[1]}, ${t.sitnet_at_room} ${data[2]}
-                    ${t.sitnet_at_machine} ${data[3]}`,
-                    '',
-                    this.opts,
-                ),
+            const [i18nTime, i18nLocation, i18nRoom, i18nMachine] = [
+                'sitnet_your_exam_will_start_at',
+                'sitnet_at_location',
+                'sitnet_at_room',
+                'sitnet_at_machine',
+            ].map(this.translate.instant);
+            toast.warning(
+                `${i18nTime} ${startsAt.format('HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
+                    data[2]
+                } ${i18nMachine} ${data[3]}`,
+                '',
+                this.opts,
             );
         } else {
-            parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
-            this.translate.instant(parts).then((t: Record<string, string>) =>
-                toast.error(
-                    `${t.sitnet_you_have_ongoing_exam_at_location}: ${data[0]}, ${data[1]}
-                    ${t.sitnet_at_room} ${data[2]} ${t.sitnet_at_machine} ${data[3]}`,
-                    '',
-                    this.opts,
-                ),
+            const [i18nLocation, i18nRoom, i18nMachine] = [
+                'sitnet_you_have_ongoing_exam_at_location',
+                'sitnet_at_room',
+                'sitnet_at_machine',
+            ].map(this.translate.instant);
+            toast.error(
+                `${i18nLocation}: ${data[0]}, ${data[1]} ${i18nRoom} ${data[2]} ${i18nMachine} ${data[3]}`,
+                '',
+                this.opts,
             );
         }
     };
