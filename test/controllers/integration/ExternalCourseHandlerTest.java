@@ -23,11 +23,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import models.Course;
-import models.Grade;
-import models.GradeScale;
-import models.Organisation;
-import models.User;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -39,6 +34,7 @@ import play.mvc.Result;
 public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
+
         private static File jsonFile;
 
         static void setFile(File file) {
