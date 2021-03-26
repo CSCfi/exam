@@ -6,7 +6,14 @@
 <div id="dashboard" *ngIf="room">
     <div class="main-row">
         <div class="col-md-12">
-            <form role="form" #roomForm="ngForm" name="roomForm" novalidate id="roomForm">
+            <form
+                role="form"
+                #roomForm="ngForm"
+                name="roomForm"
+                novalidate
+                id="roomForm"
+                (ngSubmit)="validateAndUpdateRoom()"
+            >
                 <div class="row">
                     <span class="col-md-6 font-6">
                         <span [hidden]="!showName" onclick="document.getElementById('name_field').select();">
@@ -17,7 +24,6 @@
                             <a
                                 class="room-name"
                                 (click)="disableRoom()"
-                                placement="left"
                                 triggers="mouseenter:mouseleave"
                                 ngbPopover="{{ 'sitnet_inactivate_room' | translate }}"
                             >
@@ -33,14 +39,10 @@
                                     class="form-control input-lg"
                                     [(ngModel)]="room.name"
                                     required
-                                    pattern="/^(?!\s*$).+/"
-                                    (blur)="showName = !showName; validateInputAndUpdateRoom($event)"
+                                    (blur)="showName = !showName"
                                 />
                                 <div class="input-group-append">
-                                    <button
-                                        class="btn btn-primary"
-                                        (click)="showName = !showName; validateAndUpdateRoom()"
-                                    >
+                                    <button class="btn btn-primary" (click)="showName = !showName">
                                         <i class="bi-check"></i>
                                     </button>
                                 </div>
@@ -59,13 +61,11 @@
                                 class="form-control"
                                 [(ngModel)]="room.roomCode"
                                 required
-                                (blur)="validateInputAndUpdateRoom($event)"
                             />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
                                         class="bi-question-circle"
-                                        placement="left"
                                         triggers="mouseenter:mouseleave"
                                         ngbPopover="{{ 'sitnet_exam_room_unique_code' | translate }}"
                                     ></i>
@@ -82,13 +82,11 @@
                                 name="buildingName"
                                 class="form-control"
                                 [(ngModel)]="room.buildingName"
-                                (blur)="updateRoom()"
                             />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
                                         class="bi-question-circle"
-                                        placement="left"
                                         triggers="mouseenter:mouseleave"
                                         ngbPopover="{{ 'sitnet_building_where_the_machine_is' | translate }}"
                                     ></i>
@@ -100,49 +98,45 @@
 
                 <div class="row">
                     <!-- Campus & Organization name -->
-                    <div class="bottom-padding-2">
-                        <div class="col-md-6">
-                            <div class="sitnet-info-text">{{ 'sitnet_room_campus' | translate }}</div>
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    name="campus"
-                                    class="form-control"
-                                    [(ngModel)]="room.campus"
-                                    (blur)="updateRoom()"
-                                />
-                                <span class="input-group-append">
-                                    <span class="input-group-text">
-                                        <i
-                                            class="bi-question-circle"
-                                            placement="left"
-                                            triggers="mouseenter:mouseleave"
-                                            ngbPopover="{{ 'sitnet_campus_where_room_is' | translate }}"
-                                        ></i>
-                                    </span>
+                    <div class="col-md-6">
+                        <div class="sitnet-info-text">{{ 'sitnet_room_campus' | translate }}</div>
+                        <div class="input-group">
+                            <input type="text" name="campus" class="form-control" [(ngModel)]="room.campus" />
+                            <span class="input-group-append">
+                                <span class="input-group-text">
+                                    <i
+                                        class="bi-question-circle"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'sitnet_campus_where_room_is' | translate }}"
+                                    ></i>
                                 </span>
-                            </div>
+                            </span>
                         </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-primary">
+                            {{ 'sitnet_save' | translate }}
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
     <!-- IOP -->
-    <div class="row" [hidden]="editingMultipleRooms || !isInteroperable">
+    <div class="main-row" [hidden]="editingMultipleRooms || !isInteroperable">
         <div class="col">
             <div class="form-check">
-                <div class="col">
-                    <label>
-                        <input
-                            type="checkbox"
-                            class="form-check-input"
-                            [(ngModel)]="room.availableForExternals"
-                            (change)="updateInteroperability()"
-                        />
-                        <strong>{{ 'sitnet_interoperable' | translate }}</strong>
-                    </label>
-                </div>
+                <label>
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [(ngModel)]="room.availableForExternals"
+                        (change)="updateInteroperability()"
+                    />
+                    <strong>{{ 'sitnet_interoperable' | translate }}</strong>
+                </label>
             </div>
         </div>
     </div>
@@ -169,6 +163,14 @@
         (onCreate)="addException($event)"
         (onDelete)="deleteException($event)"
     ></exception-list>
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <!-- Address -->
+            <h3>{{ 'sitnet_instructions' | translate }}</h3>
+        </div>
+    </div>
+
     <!-- Accessibility information -->
     <div class="detail-row">
         <accessibility-selector *ngIf="room" [room]="room"></accessibility-selector>
@@ -179,32 +181,13 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_room_guidance' | translate }}</div>
             <div class="input-group">
-                <textarea
-                    class="form-control"
-                    [(ngModel)]="room.roomInstruction"
-                    (blur)="updateRoom()"
-                    placeholder="fin"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [(ngModel)]="room.roomInstructionEN"
-                    (blur)="updateRoom()"
-                    placeholder="eng"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [(ngModel)]="room.roomInstructionSV"
-                    (blur)="updateRoom()"
-                    placeholder="swe"
-                >
-                </textarea>
+                <textarea class="form-control" [(ngModel)]="room.roomInstruction" placeholder="fin"> </textarea>
+                <textarea class="form-control" [(ngModel)]="room.roomInstructionEN" placeholder="eng"> </textarea>
+                <textarea class="form-control" [(ngModel)]="room.roomInstructionSV" placeholder="swe"> </textarea>
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
                             class="bi-question-circle"
-                            placement="left"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_instructions_for_use_of_room' | translate }}"
                         ></i>
@@ -216,12 +199,11 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_room_contact_person' | translate }}</div>
             <div class="input-group">
-                <input type="text" class="form-control" [(ngModel)]="room.contactPerson" (blur)="updateRoom()" />
+                <input type="text" class="form-control" [(ngModel)]="room.contactPerson" />
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
                             class="bi-question-circle"
-                            placement="left"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_person_to_contact_if_need_info' | translate }}"
                         ></i>
@@ -236,12 +218,11 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_room_videorecordings_url' | translate }}</div>
             <div class="input-group">
-                <input type="text" class="form-control" [(ngModel)]="room.videoRecordingsURL" (blur)="updateRoom()" />
+                <input type="text" class="form-control" [(ngModel)]="room.videoRecordingsURL" />
                 <span class="input-group-append">
                     <span class="input-group-text">
                         <i
                             class="bi-question-circle"
-                            placement="left"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_address_for_camera_footage_from_this_room' | translate }}"
                         ></i>
@@ -250,9 +231,14 @@
             </div>
         </div>
     </div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <button class="btn btn-primary" (click)="updateRoom()">{{ 'sitnet_save' | translate }}</button>
+        </div>
+    </div>
 
     <!-- Postal address-->
-    <div class="main-row">
+    <div class="top-row">
         <div class="col-md-12">
             <!-- Address -->
             <h3>{{ 'sitnet_exam_room_address' | translate }}</h3>

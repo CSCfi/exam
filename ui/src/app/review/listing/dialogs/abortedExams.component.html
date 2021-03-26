@@ -95,10 +95,10 @@
                         {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
-                        <div *ngIf="review.examParticipation.exam.trialCount && review.reservation">
+                        <div *ngIf="review.examParticipation.exam.trialCount && review.examParticipation.reservation">
                             <button
-                                [disabled]="review.reservation.retrialPermitted"
-                                (click)="permitRetrial(review.reservation)"
+                                [disabled]="review.examParticipation.reservation.retrialPermitted"
+                                (click)="permitRetrial(review.examParticipation.reservation)"
                                 class="btn btn-sm btn-primary"
                             >
                                 {{ 'sitnet_permit_retrial' | translate }}

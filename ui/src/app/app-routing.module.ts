@@ -91,10 +91,11 @@ const rootModule: RootModule = {
         },
         {
             name: 'newQuestion',
-            url: '/questions/newQuestion?{next}',
+            url: '/questions/newQuestion?{nextState}',
             component: QuestionComponent,
             resolve: {
                 newQuestion: () => true,
+                nextState: () => 'dashboard',
             },
         },
         {

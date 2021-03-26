@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { StateService } from '@uirouter/core';
 
-import type { ExamExecutionType } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
-import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
+import type { OnInit } from '@angular/core';
+import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { ExamExecutionType } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
+import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
 interface ExtraColumn {
     text: string;
     property: string;
@@ -38,19 +38,19 @@ interface ExtraColumn {
 export class TeacherDashboardComponent implements OnInit {
     activeTab: string;
     userId: number;
-    executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[];
-    activeExtraColumns: ExtraColumn[];
-    finishedExtraColumns: ExtraColumn[];
-    archivedExtraColumns: ExtraColumn[];
-    draftExtraColumns: ExtraColumn[];
-    finishedExams: FinalizedExam[];
-    filteredFinished: FinalizedExam[];
-    activeExams: ActiveExam[];
-    filteredActive: ActiveExam[];
-    archivedExams: ArchivedExam[];
-    filteredArchived: ArchivedExam[];
-    draftExams: DraftExam[];
-    filteredDrafts: DraftExam[];
+    executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
+    activeExtraColumns: ExtraColumn[] = [];
+    finishedExtraColumns: ExtraColumn[] = [];
+    archivedExtraColumns: ExtraColumn[] = [];
+    draftExtraColumns: ExtraColumn[] = [];
+    finishedExams: FinalizedExam[] = [];
+    filteredFinished: FinalizedExam[] = [];
+    activeExams: ActiveExam[] = [];
+    filteredActive: ActiveExam[] = [];
+    archivedExams: ArchivedExam[] = [];
+    filteredArchived: ArchivedExam[] = [];
+    draftExams: DraftExam[] = [];
+    filteredDrafts: DraftExam[] = [];
 
     constructor(
         private http: HttpClient,
@@ -105,8 +105,6 @@ export class TeacherDashboardComponent implements OnInit {
     }
 
     ngOnInit() {
-        const activeTab = this.state.params.tab;
-        this.activeTab = activeTab || '1';
         this.userId = this.Session.getUser().id;
         this.TeacherDashboard.populate().subscribe((dashboard) => {
             this.filteredFinished = this.finishedExams = dashboard.finishedExams;

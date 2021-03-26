@@ -191,7 +191,11 @@ export class CalendarService {
         };
     }
 
-    getExceptionHours(room: ExamRoom, start: Date, end: Date) {
+    getExceptionHours(
+        room: ExamRoom,
+        start: Date,
+        end: Date,
+    ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
         const maxStart = moment.max(moment(), moment(start));
         const events = room.calendarExceptionEvents.filter((e) => {
             return moment(e.startDate) > maxStart && moment(e.endDate) < moment(end);
@@ -199,7 +203,9 @@ export class CalendarService {
         return events.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
-    getExceptionalAvailability(room: ExamRoom) {
+    getExceptionalAvailability(
+        room: ExamRoom,
+    ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
         return room.calendarExceptionEvents.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 

@@ -37,8 +37,8 @@ export class BookingCalendarComponent implements OnChanges {
 
     @Input() events: CalendarEvent<SlotMeta>[];
     @Input() visible: boolean;
-    @Input() minDate: Date;
-    @Input() maxDate: Date;
+    @Input() minDate?: Date;
+    @Input() maxDate?: Date;
     @Input() room: ExamRoom;
     view: CalendarView = CalendarView.Week;
     minHour: number;
@@ -59,9 +59,9 @@ export class BookingCalendarComponent implements OnChanges {
     }
 
     private nextWeekValid = (date: Date): boolean =>
-        this.maxDate > startOfWeek(addWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+        !this.maxDate || this.maxDate > startOfWeek(addWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
     private prevWeekValid = (date: Date): boolean =>
-        this.minDate < endOfWeek(subWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+        !this.minDate || this.minDate < endOfWeek(subWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
 
     today = () => this.changeDate(new Date());
     nextWeek = () => this.changeDate(addWeeks(this.viewDate, 1));
@@ -75,10 +75,17 @@ export class BookingCalendarComponent implements OnChanges {
     private dateChanged() {
         this.prevWeekDisabled = !this.prevWeekValid(this.viewDate);
         this.nextWeekDisabled = !this.nextWeekValid(this.viewDate);
-        if (this.viewDate < this.minDate) {
+        if (this.minDate && this.viewDate < this.minDate) {
             this.changeDate(this.minDate);
-        } else if (this.viewDate > this.maxDate) {
+        } else if (this.maxDate && this.viewDate > this.maxDate) {
             this.changeDate(this.maxDate);
+        }
+    }
+
+    ngOnInit() {
+        if (!this.minDate) {
+            this.prevWeekDisabled = false;
+            this.refetch(); // TODO: how else to trigger initial search for availibility view
         }
     }
 

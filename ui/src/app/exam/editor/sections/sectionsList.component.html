@@ -17,20 +17,30 @@
     </div>
 </div>
 
-<div cdkDropList (cdkDropListDropped)="moveSection($event)" style="cursor: move">
-    <div *ngFor="let section of exam.examSections; let i = index" cdkDrag cdkDragLockAxis="y" class="section-handle">
-        <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-        <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
-        <div class="row">
-            <section
-                class="col-md-12 padt40"
-                [section]="section"
-                [index]="i + 1"
-                [examId]="exam.id"
-                [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                (onDelete)="removeSection(section)"
-                (onMaterialsChanged)="loadMaterials()"
-            ></section>
+<div class="row" id="exam" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
+    <div class="col-md-12">
+        <div *ngFor="let section of exam.examSections; let i = index" cdkDrag cdkDragLockAxis="y">
+            <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+            <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
+            <div class="row section-handle">
+                <section
+                    class="col-md-12 padt40"
+                    [section]="section"
+                    [index]="i + 1"
+                    [examId]="exam.id"
+                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
+                    (onDelete)="removeSection(section)"
+                    (onMaterialsChanged)="loadMaterials()"
+                >
+                    <i
+                        cdkDragHandle
+                        class="bi bi-arrows-move"
+                        ngbPopover="{{ 'sitnet_move_section' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    ></i>
+                </section>
+            </div>
         </div>
     </div>
 </div>

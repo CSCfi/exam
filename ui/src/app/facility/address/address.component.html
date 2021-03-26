@@ -1,22 +1,21 @@
 <div>
-    <form role="form" #addressForm="ngForm" name="addressForm" novalidate id="roomAddress">
+    <form
+        role="form"
+        #addressForm="ngForm"
+        name="addressForm"
+        novalidate
+        id="roomAddress"
+        (ngSubmit)="validateAndUpdateAddress()"
+    >
         <div class="row">
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_street' | translate }}</div>
                 <div class="input-group">
-                    <input
-                        type="text"
-                        name="street"
-                        class="form-control"
-                        [(ngModel)]="address.street"
-                        required
-                        (blur)="validateAndUpdateAddress()"
-                    />
+                    <input type="text" name="street" class="form-control" [(ngModel)]="address.street" required />
                     <span class="input-group-append">
                         <span class="input-group-text">
                             <i
                                 class="bi-question-circle"
-                                placement="left"
                                 triggers="mouseenter:mouseleave"
                                 ngbPopover="{{ 'sitnet_exam_room_address_street' | translate }}"
                             ></i>
@@ -28,19 +27,11 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_zip' | translate }}</div>
                 <div class="input-group">
-                    <input
-                        type="text"
-                        name="zip"
-                        class="form-control"
-                        [(ngModel)]="address.zip"
-                        required
-                        (blur)="validateAndUpdateAddress()"
-                    />
+                    <input type="text" name="zip" class="form-control" [(ngModel)]="address.zip" required />
                     <span class="input-group-append">
                         <span class="input-group-text">
                             <i
                                 class="bi-question-circle"
-                                placement="left"
                                 triggers="mouseenter:mouseleave"
                                 ngbPopover="{{ 'sitnet_exam_room_address_zip' | translate }}"
                             ></i>
@@ -53,14 +44,7 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_city' | translate }}</div>
                 <div class="input-group">
-                    <input
-                        type="text"
-                        name="city"
-                        class="form-control"
-                        [(ngModel)]="address.city"
-                        required
-                        (blur)="validateAndUpdateAddress()"
-                    />
+                    <input type="text" name="city" class="form-control" [(ngModel)]="address.city" required />
                     <span class="input-group-append">
                         <span class="input-group-text">
                             <i
@@ -72,6 +56,13 @@
                         </span>
                     </span>
                 </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <button type="submit" [disabled]="addressForm.invalid" class="btn btn-primary">
+                    {{ 'sitnet_save' | translate }}
+                </button>
             </div>
         </div>
     </form>

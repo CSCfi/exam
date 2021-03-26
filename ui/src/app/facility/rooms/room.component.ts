@@ -37,6 +37,7 @@ export class RoomComponent implements OnInit {
     week: Week;
     showName: boolean;
     isInteroperable: boolean;
+    editingMultipleRooms = false;
 
     constructor(
         private translate: TranslateService,

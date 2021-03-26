@@ -14,7 +14,7 @@
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a uiSref="newQuestion" [uiParams]="{ next: 'dashboard' }" class="pointer">
+                        <a uiSref="newQuestion" [uiParams]="{ nextState: 'dashboard' }" class="pointer">
                             {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>
@@ -34,9 +34,8 @@
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
-                        *ngIf="filteredActive"
                         [items]="filteredActive"
-                        default-predicate="examActiveEndDate"
+                        defaultPredicate="examActiveEndDate"
                         [examTypes]="executionTypes"
                         [extraColumns]="activeExtraColumns"
                         (onFilterChange)="search($event)"
@@ -47,16 +46,15 @@
             <ngb-tab id="2">
                 <ng-template ngbTabTitle>
                     <div class="make-inline marr10">{{ 'sitnet_finished_exams_title' | translate }}</div>
-                    <div *ngIf="finishedExams" class="make-inline tab-number">
+                    <div class="make-inline tab-number">
                         {{ filteredFinished.length }}
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
-                        *ngIf="filteredFinished"
                         [items]="filteredFinished"
-                        default-predicate="unassessedCount"
-                        default-reverse="true"
+                        defaultPredicate="unassessedCount"
+                        [defaultReverse]="true"
                         [extraColumns]="finishedExtraColumns"
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
@@ -67,16 +65,15 @@
             <ngb-tab id="3">
                 <ng-template ngbTabTitle>
                     <div class="make-inline marr10">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
-                    <div *ngIf="archivedExams" class="make-inline tab-number">
+                    <div class="make-inline tab-number">
                         {{ filteredArchived.length }}
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
-                        *ngIf="filteredArchived"
                         [items]="filteredArchived"
-                        default-predicate="examActiveEndDate"
-                        default-reverse="true"
+                        defaultPredicate="examActiveEndDate"
+                        [defaultReverse]="true"
                         [extraColumns]="archivedExtraColumns"
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
@@ -87,16 +84,15 @@
             <ngb-tab id="4">
                 <ng-template ngbTabTitle>
                     <div class="make-inline marr10">{{ 'sitnet_draft_exams' | translate }}</div>
-                    <div *ngIf="draftExams" class="make-inline tab-number">
+                    <div class="make-inline tab-number">
                         {{ filteredDrafts.length }}
                     </div>
                 </ng-template>
                 <ng-template ngbTabContent>
                     <exam-list-category
-                        *ngIf="filteredDrafts"
                         [items]="filteredDrafts"
-                        default-predicate="examActiveEndDate"
-                        default-reverse="true"
+                        defaultPredicate="examActiveEndDate"
+                        [defaultReverse]="true"
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >
