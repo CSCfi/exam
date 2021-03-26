@@ -66,7 +66,7 @@ export class SectionComponent {
         id: this.section.id,
         name: this.section.name,
         lotteryOn: this.section.lotteryOn,
-        lotteryItemCount: this.section.lotteryItemCount,
+        lotteryItemCount: this.section.lotteryOn ? this.section.lotteryItemCount : 0,
         description: this.section.description,
         expanded: this.section.expanded,
         optional: this.section.optional,
@@ -87,7 +87,7 @@ export class SectionComponent {
         return null;
     };
 
-    private questionPointsMatch = () => {
+    questionPointsMatch = () => {
         const sectionQuestions = this.section.sectionQuestions;
         if (!sectionQuestions || sectionQuestions.length < 2) {
             return true;
@@ -194,16 +194,16 @@ export class SectionComponent {
     renameSection = () => this.updateSection(false);
     expandSection = () => this.updateSection(true);
 
-    toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
+    lotteryDisabled = () =>
+        !this.section.sectionQuestions || this.section.sectionQuestions.length < 2 || !this.questionPointsMatch();
 
     materialsChanged = () => this.onMaterialsChanged.emit();
 
     toggleLottery = () => {
-        if (this.toggleDisabled()) {
+        if (this.lotteryDisabled()) {
             this.section.lotteryOn = false;
             return;
         }
-
         if (!this.questionPointsMatch()) {
             toast.error(this.translate.instant('sitnet_error_lottery_points_not_match'));
             this.section.lotteryOn = false;
@@ -213,8 +213,11 @@ export class SectionComponent {
             .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`), this.getSectionPayload())
             .subscribe(
                 () => {
-                    if (this.section.lotteryItemCount === undefined) {
+                    if (!this.section.lotteryItemCount) {
                         this.section.lotteryItemCount = 1;
+                    }
+                    if (!this.section.lotteryOn) {
+                        this.section.lotteryItemCount = 0;
                     }
                     toast.info(this.translate.instant('sitnet_section_updated'));
                 },
@@ -226,6 +229,9 @@ export class SectionComponent {
         if (!this.section.lotteryItemCount) {
             toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
             this.section.lotteryItemCount = 1;
+        } else if (this.section.lotteryItemCount > this.section.sectionQuestions.length) {
+            toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.section.lotteryItemCount = this.section.sectionQuestions.length;
         } else {
             this.updateSection(false);
         }

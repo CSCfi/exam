@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, TransitionService } from '@uirouter/core';
+import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
@@ -50,6 +50,7 @@ export class QuestionComponent implements OnInit {
 
     constructor(
         private state: StateService,
+        private routing: UIRouterGlobals,
         private transition: TransitionService,
         private translate: TranslateService,
         private window: WindowRef,
@@ -80,7 +81,7 @@ export class QuestionComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.nextState = this.nextState || this.state.params.next;
+        this.nextState = this.nextState || this.routing.params.nextState;
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();

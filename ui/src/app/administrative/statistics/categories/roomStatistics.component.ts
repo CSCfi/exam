@@ -12,11 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 
 import type { ExamParticipation } from '../../../exam/exam.model';
-import { HttpClient } from '@angular/common/http';
-
 interface Participations {
     [room: string]: ExamParticipation[];
 }
@@ -32,7 +31,7 @@ interface Participations {
         </div>
         <div class="main-row">
             <div class="col-md-12" style="overflow: auto">
-                <table class="table table-condensed table-bordered ">
+                <table class="table table-sm table-bordered ">
                     <thead>
                         <th class="warning">{{ 'sitnet_year' | translate }}</th>
                         <th class="warning">{{ 'sitnet_month' | translate }}</th>

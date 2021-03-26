@@ -24,83 +24,62 @@ import type { OnInit } from '@angular/core';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { Availability } from './room.service';
-
-type SuccessFunction = (response: Availability[]) => void;
-
-interface AvailableEvent {
-    title: string;
-    color: string;
-    start: string;
-    end: string;
-    availableMachines: number;
-}
-
-type RefreshCallBackFn = (events: AvailableEvent[]) => void;
+import type { SlotMeta } from '../../calendar/bookingCalendar.component';
+import type { CalendarEvent } from 'calendar-utils';
 
 @Component({
     templateUrl: './availability.component.html',
     selector: 'availability',
 })
 export class AvailabilityComponent implements OnInit {
-    loader: { loading: boolean };
     openingHours: OpeningHours[];
-    exceptionHours: ExceptionWorkingHours[];
+    exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[];
     room: ExamRoom;
-    showCalendar = false;
+    events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}
 
     ngOnInit() {
-        this.loader = {
-            loading: false,
-        };
         this.roomService.getRoom(this.state.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
-            this.showCalendar = true;
         });
     }
 
-    query = (successFn: SuccessFunction, date: string) => {
-        this.roomService
-            .getAvailability(this.state.params.id, date)
-            .subscribe(successFn, (error) => toast.error(error));
-    };
+    query$ = (date: string) => this.roomService.getAvailability(this.state.params.id, date);
 
     adjust = (date: string, tz: string) => {
         const adjusted = moment.tz(date, tz);
         const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').format();
+        return adjusted.add(offset, 'hour').toDate();
     };
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
-        if (ratio <= 0.5) return '#A6E9B2';
-        if (ratio <= 0.9) return '#FCF8E3';
-        return '#266B99';
+        if (ratio <= 0.5) return { primary: '#27542f', secondary: '#a6e9b2' }; // green;
+        if (ratio <= 0.9) return { primary: '#8f8f8f', secondary: '#d8d8d8' }; // grey
+        return { primary: '#f50f35', secondary: '#fc3858' }; // red
     };
 
-    refresh = (start: moment.Moment, callback: RefreshCallBackFn) => {
+    refresh = (event: { date: Date }) => {
         if (!this.room) {
             return;
         }
-        const date = start.format();
-        this.loader.loading = true;
+        const date = event.date;
         const tz = this.room.localTimezone;
         const successFn = (resp: Availability[]) => {
-            const events = resp.map((slot: Availability) => {
-                return {
-                    title: slot.reserved + ' / ' + slot.total,
-                    color: this.getColor(slot),
-                    start: this.adjust(slot.start, tz),
-                    end: this.adjust(slot.end, tz),
-                    availableMachines: 0,
-                };
-            });
-            callback(events);
-            this.loader.loading = false;
+            this.events = resp.map((slot: Availability, i) => ({
+                id: i,
+                title: slot.reserved + ' / ' + slot.total,
+                start: this.adjust(slot.start, tz),
+                end: this.adjust(slot.end, tz),
+                color: this.getColor(slot),
+                cssClass: 'black-event-text',
+                meta: { availableMachines: 0 },
+            }));
         };
-        this.query(successFn, date);
+        const errorFn = (resp: string) => toast.error(resp);
+        this.query$(moment(date).format('YYYY-MM-DD')).subscribe(successFn, errorFn);
     };
 }

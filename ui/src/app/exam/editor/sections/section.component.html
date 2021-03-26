@@ -17,6 +17,7 @@
                         </button>
                     </div>
                 </div>
+                <ng-content></ng-content>
             </div>
         </div>
     </div>
@@ -78,6 +79,7 @@
                         </sup>
                     </label>
                     <textarea
+                        (focus)="$event.stopPropagation()"
                         id="sectionDescription_{{ section.id }}"
                         class="form-control"
                         rows="4"
@@ -123,10 +125,9 @@
                         type="checkbox"
                         name="lottery"
                         class="form-check-input"
-                        value="On"
-                        [disabled]="toggleDisabled()"
-                        (change)="toggleLottery()"
                         [(ngModel)]="section.lotteryOn"
+                        [disabled]="lotteryDisabled()"
+                        (change)="toggleLottery()"
                     />
                     <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
                         {{ 'sitnet_randomize_questions' | translate }}
@@ -139,30 +140,33 @@
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
                             />
+                            <span class="text text-danger ml-2" *ngIf="!questionPointsMatch()">{{
+                                'sitnet_error_lottery_points_not_match' | translate
+                            }}</span>
                         </sup>
                     </label>
                 </div>
-                <div class="form-group">
-                    <label for="sectionLotteryCount_{{ section.id }}"> Arvottujen kysymysten määrä </label>
+                <span class="form-group" *ngIf="section.lotteryOn">
+                    <label for="sectionLotteryCount_{{ section.id }}">
+                        Arvottujen kysymysten määrä [1...{{ section.sectionQuestions.length }}]</label
+                    >
                     <input
                         id="sectionLotteryCount_{{ section.id }}"
-                        [disabled]="!section.lotteryOn || section.sectionQuestions.length < 2"
                         class="form-control col-1"
                         type="number"
                         lang="en"
                         name="lotteryItemCount"
-                        value="1"
                         [min]="1"
                         [max]="section.sectionQuestions.length"
                         [(ngModel)]="section.lotteryItemCount"
                         (change)="updateLotteryCount()"
                     />
-                </div>
+                </span>
             </form>
         </div>
     </div>
 
-    <div class="row" *ngIf="getSectionTotalScore() > 0">
+    <div class="row mt-2" *ngIf="getSectionTotalScore() > 0">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_section_max_score' | translate }}
         </div>

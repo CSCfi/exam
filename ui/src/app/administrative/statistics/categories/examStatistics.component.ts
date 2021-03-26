@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 
+import type { OnInit } from '@angular/core';
 interface ExamInfo {
     name: string;
     participations: number;
@@ -23,7 +23,7 @@ interface ExamInfo {
         </div>
         <div class="detail-row">
             <div class="col-md-12" *ngIf="exams.length > 0">
-                <table class="table table-striped table-condensed">
+                <table class="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th>{{ 'sitnet_rank' | translate }}</th>

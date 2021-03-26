@@ -999,5 +999,6 @@
   "sitnet_error_creating_excel_file": "Virhe raportin luomisessa FI",
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään",
   "sitnet_questions_transferred": "Kysymykset kopioitu",
-  "sitnet_exam_room_accessibility": "Tenttitilan esteettömyysvaatimukset"
+  "sitnet_exam_room_accessibility": "Tenttitilan esteettömyysvaatimukset",
+  "sitnet_move_section": "Vaihda aihealueiden järjestystä raahaamalla tästä"
 }
