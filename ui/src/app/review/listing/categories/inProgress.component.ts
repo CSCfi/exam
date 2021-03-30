@@ -31,7 +31,7 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class InProgressReviewsComponent {
     @Input() exam: Exam;
-    @Input() reviews: Review[];
+    @Input() reviews: Review[] = [];
     @Input() collaborative: boolean;
     view: ReviewListView;
 
@@ -43,14 +43,14 @@ export class InProgressReviewsComponent {
     ) {}
 
     ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'deadline');
+        this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'examParticipation.deadline');
     }
 
     isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
 
-    pageSelected = (page: number) => (this.view.page = page);
+    pageSelected = (event: { page: number }) => (this.view.page = event.page);
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 

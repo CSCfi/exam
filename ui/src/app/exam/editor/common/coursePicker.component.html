@@ -1,4 +1,4 @@
-<form class="form-inline" autocomplete="off">
+<form class="form-inline" novalidate autocomplete="off">
     <div>
         <label for="courseCode" class="exam-basic-selecttitle" style="display: block">{{
             'sitnet_course_code' | translate
@@ -7,7 +7,7 @@
             <input
                 id="courseCode"
                 class="form-control"
-                [(ngModel)]="filter"
+                [(ngModel)]="codeFilter"
                 name="code"
                 [ngbTypeahead]="getCoursesByCode$"
                 (selectItem)="onCourseSelect($event)"
@@ -39,7 +39,7 @@
             <input
                 id="courseName"
                 class="form-control"
-                [(ngModel)]="filter"
+                [(ngModel)]="nameFilter"
                 name="name"
                 [ngbTypeahead]="getCoursesByName$"
                 (selectItem)="onCourseSelect($event)"

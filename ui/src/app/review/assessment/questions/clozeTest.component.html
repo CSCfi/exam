@@ -22,10 +22,10 @@
                     <!-- grade -->
                     <div>
                         <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
-                        {{ sectionQuestion.clozeTestAnswer?.score.correctAnswers }} /
+                        {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
                         {{
-                            sectionQuestion.clozeTestAnswer?.score.correctAnswers +
-                                sectionQuestion.clozeTestAnswer?.score.incorrectAnswers
+                            sectionQuestion.clozeTestAnswer?.score?.correctAnswers +
+                                sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers
                         }}
                         &nbsp;<strong>{{ 'sitnet_word_points' | translate }}: </strong>
                         <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
@@ -88,8 +88,8 @@
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             onclick="this.focus()"
                             [disabled]="!isScorable"
-                            min="0"
-                            max="{{ sectionQuestion.maxScore }}"
+                            [min]="0"
+                            [max]="sectionQuestion.maxScore"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

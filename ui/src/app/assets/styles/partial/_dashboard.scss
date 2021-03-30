@@ -1243,7 +1243,7 @@
     color: #777777;
     font-size: 12px;
     text-transform: uppercase;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
   }
 
   .exam-button {
@@ -1328,7 +1328,7 @@
     margin-right: 30px;
 
     span.inspection-title {
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-size: 22px;
       color: #2C2C2C;
       font-weight: normal;
@@ -1444,7 +1444,7 @@
   .autoevaluation-info {
     color: #555555;
     font-size: 18px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     line-height: 26px;
   }
 

@@ -28,6 +28,7 @@
                     [section]="section"
                     [index]="i + 1"
                     [examId]="exam.id"
+                    [collaborative]="collaborative"
                     [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
                     (onDelete)="removeSection(section)"
                     (onMaterialsChanged)="loadMaterials()"

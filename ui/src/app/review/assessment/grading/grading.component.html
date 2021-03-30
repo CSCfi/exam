@@ -128,6 +128,7 @@
         <span *ngIf="!isCommentRead()">({{ 'sitnet_teachers_comment_notread' | translate | lowercase }})</span>:
     </div>
     <div
+        *ngIf="exam.examFeedback?.comment"
         class="col-md-10"
         [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
         [MathJax]="exam.examFeedback?.comment"

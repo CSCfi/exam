@@ -94,7 +94,7 @@
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
                 <!-- exam-material-selector [section]="section" [allMaterials]="materials"
                     (onChanges)="materialsChanged($event)"></exam-material-selector -->
-                <div class="form-group form-check">
+                <div class="form-group form-check" *ngIf="!collaborative && canBeOptional">
                     <input
                         id="sectionOptionality_{{ section.id }}"
                         class="form-check-input"
@@ -232,6 +232,7 @@
                         [section]="section"
                         [examId]="examId"
                         [sectionQuestion]="sectionQuestion"
+                        [collaborative]="collaborative"
                         [lotteryOn]="section.lotteryOn"
                         (onDelete)="removeQuestion($event)"
                     >

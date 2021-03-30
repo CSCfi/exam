@@ -127,7 +127,7 @@
 
             <!-- Floating feedback window -->
             <r-feedback
-                *ngIf="exam && !isUnderLanguageInspection()"
+                *ngIf="exam.examFeedback && !isUnderLanguageInspection()"
                 [exam]="exam"
                 [collaborative]="collaborative"
                 [participation]="participation"

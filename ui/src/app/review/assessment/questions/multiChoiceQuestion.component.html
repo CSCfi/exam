@@ -99,8 +99,8 @@
                             fixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             [disabled]="!isScorable"
-                            min="{{ getMinimumOptionScore() }}"
-                            max="{{ sectionQuestion.maxScore || calculateMaxPoints() }}"
+                            [min]="getMinimumOptionScore()"
+                            [max]="sectionQuestion.maxScore || calculateMaxPoints()"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

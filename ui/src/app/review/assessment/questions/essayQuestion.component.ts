@@ -18,11 +18,11 @@ import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import type { ExaminationQuestion } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import type { ReviewQuestion } from '../../review.model';
 import { AssessmentService } from '../assessment.service';
 
+import type { ExaminationQuestion } from '../../../examination/examination.service';
+import type { ReviewQuestion } from '../../review.model';
 @Component({
     selector: 'r-essay-question',
     templateUrl: './essayQuestion.component.html',
@@ -65,7 +65,6 @@ export class EssayQuestionComponent {
     };
 
     insertEssayScore = () => {
-        console.log(this.sectionQuestion.essayAnswer?.evaluatedScore);
         if (this.collaborative) {
             return this.Assessment.saveCollaborativeEssayScore(
                 this.sectionQuestion as ExaminationQuestion,
