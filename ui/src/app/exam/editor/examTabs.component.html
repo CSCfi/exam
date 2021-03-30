@@ -36,12 +36,12 @@
         <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="4">
             <a ngbNavLink>{{ 'sitnet_exam_responses' | translate }}</a>
         </li>
-        <li *ngIf="exam" [disabled]="exam.executionType?.type === 'PRINTOUT' || collaborative" [ngbNavItem]="5">
+        <li *ngIf="exam && !collaborative" [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'sitnet_question_review' | translate }}</a>
         </li>
         <li
-            *ngIf="exam"
-            [disabled]="collaborative || (!isOwner() && !user.isAdmin) || exam.executionType?.type === 'PRINTOUT'"
+            *ngIf="exam && !collaborative"
+            [disabled]="(!isOwner() && !user.isAdmin) || exam.executionType?.type === 'PRINTOUT'"
             [ngbNavItem]="6"
         >
             <a ngbNavLink>{{ 'sitnet_exam_summary_tab' | translate }}</a>

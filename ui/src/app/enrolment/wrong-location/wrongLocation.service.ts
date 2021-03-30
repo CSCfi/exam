@@ -32,13 +32,11 @@ export class WrongLocationService {
         if (now.isDST()) {
             startsAt.add(-1, 'hour');
         }
+        const i18nRoom = this.translate.instant('sitnet_at_room');
+        const i18nMachine = this.translate.instant('sitnet_at_machine');
         if (startsAt.isAfter(now)) {
-            const [i18nTime, i18nLocation, i18nRoom, i18nMachine] = [
-                'sitnet_your_exam_will_start_at',
-                'sitnet_at_location',
-                'sitnet_at_room',
-                'sitnet_at_machine',
-            ].map(this.translate.instant);
+            const i18nLocation = this.translate.instant('sitnet_at_location');
+            const i18nTime = this.translate.instant('sitnet_your_exam_will_start_at');
             toast.warning(
                 `${i18nTime} ${startsAt.format('HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
                     data[2]
@@ -47,11 +45,7 @@ export class WrongLocationService {
                 this.opts,
             );
         } else {
-            const [i18nLocation, i18nRoom, i18nMachine] = [
-                'sitnet_you_have_ongoing_exam_at_location',
-                'sitnet_at_room',
-                'sitnet_at_machine',
-            ].map(this.translate.instant);
+            const i18nLocation = this.translate.instant('sitnet_you_have_ongoing_exam_at_location');
             toast.error(
                 `${i18nLocation}: ${data[0]}, ${data[1]} ${i18nRoom} ${data[2]} ${i18nMachine} ${data[3]}`,
                 '',

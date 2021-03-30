@@ -12,11 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -24,10 +21,9 @@ import * as toast from 'toastr';
 import { Course } from '../../exam.model';
 import { CoursePickerService } from './coursePicker.service';
 
-interface CourseFilter {
-    name?: string;
-    code?: string;
-}
+import type { OnInit } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
 
 @Component({
     selector: 'course-picker',
@@ -37,20 +33,18 @@ export class CoursePickerComponent implements OnInit {
     @Input() course: Course;
     @Output() onUpdate = new EventEmitter<Course>();
 
-    public filter: CourseFilter;
-    loader: { name: { isOn: boolean }; code: { isOn: boolean } };
+    nameFilter: string;
+    codeFilter: string;
+    loader = {
+        name: { isOn: false },
+        code: { isOn: false },
+    };
 
     constructor(private translate: TranslateService, private Course: CoursePickerService) {}
 
     ngOnInit() {
-        this.filter = {
-            name: this.course ? this.course.name : '',
-            code: this.course ? this.course.code.split('_')[0] : '',
-        };
-        this.loader = {
-            name: { isOn: false },
-            code: { isOn: false },
-        };
+        this.nameFilter = this.course ? this.course.name : '';
+        this.codeFilter = this.course ? this.course.code.split('_')[0] : '';
     }
 
     private showError = (term: string) =>
@@ -68,28 +62,31 @@ export class CoursePickerComponent implements OnInit {
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
-                    this.showError(this.filter.code as string);
+                    this.showError(this.codeFilter);
                 }
             }),
         );
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: Course) => c.code;
-    nameFormat = (c: Course) => c.name;
+    codeFormat = (c: Course) => c.code || c;
+    nameFormat = (c: Course) => c.name || c;
     courseFormat = (c: Course) => (c.code.indexOf('_') === -1 ? `${c.code} ${c.name}` : `${c.code} <br /> ${c.name}`);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
-        this.filter = { name: event.item.name, code: event.item.code.split('_')[0] };
+        this.codeFilter = event.item.code.split('_')[0];
+        this.nameFilter = event.item.name;
         this.onUpdate.emit(event.item);
     };
 
     private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);
     private setInputValue = (filter: string, value: string) => {
         if (filter === 'code') {
-            this.filter = { code: value };
+            this.codeFilter = value;
+            this.nameFilter = '';
         } else if (filter === 'name') {
-            this.filter = { name: value };
+            this.nameFilter = value;
+            this.codeFilter = '';
         }
     };
 }

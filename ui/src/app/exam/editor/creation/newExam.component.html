@@ -40,6 +40,7 @@
                                 (change)="selectType()"
                                 required
                             >
+                                <option [ngValue]="undefined">{{ 'sitnet_choose' | translate }}</option>
                                 <option *ngFor="let type of executionTypes" [ngValue]="type">
                                     {{ type.name | translate }}
                                 </option>
@@ -63,7 +64,6 @@
                                 name="examinationType"
                                 id="examinationType"
                                 [(ngModel)]="examinationType"
-                                (change)="createExam()"
                                 required
                             >
                                 <option value="AQUARIUM">{{ 'sitnet_examination_type_aquarium' | translate }}</option>

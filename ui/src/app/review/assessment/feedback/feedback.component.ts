@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import { noop } from 'rxjs';
@@ -29,7 +28,7 @@ import type { FileResult } from '../../../utility/attachment/dialogs/attachmentS
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',
 })
-export class FeedbackComponent implements OnInit {
+export class FeedbackComponent {
     @Input() exam: Examination;
     @Input() collaborative: boolean;
     @Input() participation: ExamParticipation;
@@ -44,12 +43,6 @@ export class FeedbackComponent implements OnInit {
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
-
-    ngOnInit() {
-        if (!this.exam.examFeedback) {
-            this.exam.examFeedback = { id: undefined, comment: '' };
-        }
-    }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 

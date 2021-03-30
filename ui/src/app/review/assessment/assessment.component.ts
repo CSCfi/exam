@@ -17,16 +17,16 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
-import type { QuestionAmounts } from '../../question/question.service';
 import { QuestionService } from '../../question/question.service';
-import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
+import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
+import type { QuestionAmounts } from '../../question/question.service';
+import type { User } from '../../session/session.service';
 @Component({
     selector: 'assessment',
     templateUrl: './assessment.component.html',
@@ -69,7 +69,9 @@ export class AssessmentComponent {
                                 )),
                         ),
                 );
-
+                if (!exam.examFeedback) {
+                    exam.examFeedback = { id: undefined, comment: '' };
+                }
                 this.questionSummary = this.Question.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;

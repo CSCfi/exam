@@ -1,31 +1,29 @@
-<div>
-    <div class="review-list-title">
-        {{ 'sitnet_exam_in_review' | translate }}
-        <a (click)="view.toggle = !view.toggle" class="pointer">
-            <img
-                *ngIf="!view.toggle"
-                src="/assets/assets/images/icon_list_show_right.svg"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
-            />
-            <img
-                *ngIf="view.toggle"
-                src="/assets/assets/images/icon_list_show_down.svg"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
-            />
-        </a>
-        <sup class="padl05">
-            <img
-                ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
-                placement="right"
-                triggers="mouseenter:mouseleave"
-                src="/assets/assets/images/icon_tooltip.svg"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
-            />
-        </sup>
-    </div>
+<div class="review-list-title">
+    {{ 'sitnet_exam_in_review' | translate }}
+    <a (click)="view.toggle = !view.toggle" class="pointer">
+        <img
+            *ngIf="!view.toggle"
+            src="/assets/assets/images/icon_list_show_right.svg"
+            alt="exam"
+            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
+        />
+        <img
+            *ngIf="view.toggle"
+            src="/assets/assets/images/icon_list_show_down.svg"
+            alt="exam"
+            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
+        />
+    </a>
+    <sup class="padl05">
+        <img
+            ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
+            placement="right"
+            triggers="mouseenter:mouseleave"
+            src="/assets/assets/images/icon_tooltip.svg"
+            alt="exam"
+            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+        />
+    </sup>
 </div>
 
 <div *ngIf="view.items.length === 0">

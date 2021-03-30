@@ -95,7 +95,7 @@
                                 class="form-control"
                                 [(ngModel)]="sectionQuestion.essayAnswer.evaluatedScore"
                                 fixedPrecision
-                                (blur)="insertEssayScore()"
+                                (blur)="essayPoints.valid && insertEssayScore()"
                                 [disabled]="!isScorable"
                                 [min]="0"
                                 [max]="sectionQuestion.maxScore"

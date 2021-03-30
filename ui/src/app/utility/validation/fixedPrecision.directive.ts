@@ -25,7 +25,6 @@ export class FixedPrecisionValidatorDirective {
     @HostListener('change')
     onChange() {
         const fixed = this.toFixed();
-        console.log('fixed value: ' + fixed);
         (this.el.nativeElement as HTMLInputElement).value = fixed;
     }
 
