@@ -17,7 +17,6 @@ import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 
 import type { OnInit } from '@angular/core';
-
 @Component({
     selector: 'date-picker',
     templateUrl: './datePicker.component.html',
@@ -36,10 +35,13 @@ export class DatePickerComponent implements OnInit {
     date: NgbDate;
     showWeeks = true;
     format = 'dd.MM.yyyy';
+    today: NgbDate;
 
     ngOnInit() {
-        const d = this.initialDate !== null ? moment(this.initialDate) : moment();
+        const now = moment();
+        const d = this.initialDate !== null ? moment(this.initialDate) : now;
         this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
+        this.today = new NgbDate(now.get('year'), now.get('month') + 1, now.get('date'));
     }
 
     transform(value: NgbDate | null): Date | null {

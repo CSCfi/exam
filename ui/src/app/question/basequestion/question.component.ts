@@ -47,7 +47,6 @@ export class QuestionComponent implements OnInit {
     currentOwners: User[];
     question: Question | QuestionDraft;
     transitionWatcher?: unknown;
-
     constructor(
         private state: StateService,
         private routing: UIRouterGlobals,
@@ -57,11 +56,10 @@ export class QuestionComponent implements OnInit {
         private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
     ) {
-        this.transitionWatcher = this.transition.onStart({ to: '*' }, (t) => {
+        this.transitionWatcher = this.transition.onBefore({}, () => {
             if (this.window.nativeWindow.onbeforeunload) {
-                t.abort();
                 // we got changes in the model, ask confirmation
-                this.dialogs
+                return this.dialogs
                     .open(
                         this.translate.instant('sitnet_confirm_exit'),
                         this.translate.instant('sitnet_unsaved_question_data'),
@@ -70,12 +68,10 @@ export class QuestionComponent implements OnInit {
                         // ok to reroute
                         this.window.nativeWindow.onbeforeunload = null;
                         delete this.transitionWatcher;
-                        this.state.go(t.to());
                     });
             } else {
                 this.window.nativeWindow.onbeforeunload = null;
-                delete this.transitionWatcher;
-                this.state.go(t.to());
+                return true;
             }
         });
     }

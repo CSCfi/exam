@@ -28,11 +28,16 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
                         <label for="infoForm" class="student-enroll-dialog-subtitle">{{
                             'sitnet_inspection_comment_description' | translate
                         }}</label>
-                        <textarea rows="10" class="student-message-dialog-textarea" [(ngModel)]="data.comment">
+                        <textarea
+                            rows="10"
+                            name="message"
+                            class="student-message-dialog-textarea"
+                            [(ngModel)]="data.comment"
+                        >
                         </textarea>
                     </form>
                 </div>
-                <div class="student-message-dialog-footer">
+                <div class="modal-footer">
                     <div class="student-message-dialog-button-save">
                         <button class="btn btn-sm btn-primary" [disabled]="!data.comment" (click)="ok()">
                             {{ 'sitnet_add' | translate }}

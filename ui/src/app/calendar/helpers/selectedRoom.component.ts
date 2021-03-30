@@ -12,29 +12,31 @@ import type { OpeningHours } from '../calendar.service';
     selector: 'calendar-selected-room',
     template: `
         <div class="row">
-            <div class="col-md-3 col-12">
+            <div class="col-md-2 col-12">
                 <strong>{{ room.name }}</strong>
             </div>
-            <div class="col-md-9 col-12">
+            <div class="col-md-10 col-12">
                 {{ room.mailAddress.street }} {{ room.mailAddress.zip }}
                 {{ room.mailAddress.city }}
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col-md-3 col-12">
+            <div class="col-md-2 col-12">
                 <div>{{ 'sitnet_room_default_working_hours' | translate }}</div>
                 <div>
                     <small class="text-muted">({{ room.localTimezone }})</small>
                 </div>
             </div>
-            <div class="col-md-9 col-12">
-                <div *ngFor="let oh of openingHours">{{ oh.name | uppercase }}: {{ oh.periodText }}</div>
-                <div></div>
+            <div class="col-md-10 col-12">
+                <div class="row" *ngFor="let oh of openingHours">
+                    <div class="col-md-1 col-6">{{ oh.name | uppercase }}</div>
+                    <div class="col-md-11 col-6">{{ oh.periodText }}</div>
+                </div>
             </div>
         </div>
         <div class="row mt-2" *ngIf="exceptionHours?.length > 0">
-            <div class="col-md-3 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
-            <div class="col-md-9 col-12">
+            <div class="col-md-2 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
+            <div class="col-md-10 col-12">
                 <div
                     *ngFor="let eh of exceptionHours"
                     [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
@@ -46,12 +48,12 @@ import type { OpeningHours } from '../calendar.service';
             </div>
         </div>
         <div class="row mt-2" *ngIf="getRoomInstructions()">
-            <div class="col-md-3 col-12">{{ 'sitnet_instructions' | translate }}:</div>
-            <div class="col-md-9 col-12">{{ getRoomInstructions() }}</div>
+            <div class="col-md-2 col-12">{{ 'sitnet_instructions' | translate }}:</div>
+            <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
         </div>
         <div class="row mt-2" *ngIf="getRoomAccessibility()">
-            <div class="col-md-3 col-12">{{ 'sitnet_accessibility' | translate }}:</div>
-            <div class="col-md-9 col-12">{{ getRoomAccessibility() }}</div>
+            <div class="col-md-2 col-12">{{ 'sitnet_room_accessibility' | translate }}:</div>
+            <div class="col-md-10 col-12">{{ getRoomAccessibility() }}</div>
         </div>
     `,
 })
@@ -86,7 +88,6 @@ export class SelectedRoomComponent {
             case 'sv':
                 return this.room.roomInstructionSV;
             case 'en':
-            /* falls through */
             default:
                 return this.room.roomInstructionEN;
         }

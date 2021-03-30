@@ -3,10 +3,13 @@
     <div class="col-md-2 general-info-title">{{ 'sitnet_language_inspections' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
-            {{
-                exam.languageInspection.approved ? 'sitnet_approved' : ('sitnet_rejected' | translate | uppercase)
-            }}</span
-        >
+            <span *ngIf="exam.languageInspection.approved">
+                {{ 'sitnet_approved' | translate | uppercase }}
+            </span>
+            <span *ngIf="!exam.languageInspection.approved">
+                {{ 'sitnet_rejected' | translate | uppercase }}
+            </span>
+        </span>
     </div>
 </div>
 
@@ -62,8 +65,7 @@
     </div>
 </div>
 
-<!-- grading stuff -->
-<form #examForm name="examForm" role="form" novalidate>
+<form #examForm="ngForm" name="examForm" role="form" novalidate>
     <!-- extra info for registry -->
     <div class="detail-row mart20">
         <div class="col-md-2 general-info-title">
@@ -71,7 +73,6 @@
             <sup
                 ><img
                     ngbPopover="{{ 'sitnet_additional_info_for_registry_description' | translate }}"
-                    placement="right"
                     triggers="mouseenter:mouseleave"
                     src="/assets/assets/images/icon_tooltip.svg"
                     alt="exam"
@@ -81,6 +82,7 @@
         <div class="col-md-10 general-info-content">
             <textarea
                 id="infoForRegistry"
+                name="infoForRegistry"
                 class="form-control"
                 [(ngModel)]="exam.additionalInfo"
                 rows="3"
@@ -89,10 +91,9 @@
             </textarea>
         </div>
     </div>
-
-    <div class="padr15 marl15 mart30">
+    <div class="row padr15 marl15 mart30">
         <!-- This stuff could form a component of its own -->
-        <div class="col-md-3 grading-title padl0">
+        <div class="col-md-3 grading-title">
             {{ 'sitnet_exam_review_maturity_evaluation' | translate | uppercase }}
         </div>
         <div class="col-md-3 grading-title">{{ 'sitnet_exam_choose_credit_type' | translate | uppercase }}</div>
@@ -100,8 +101,8 @@
         <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
     </div>
 
-    <div class="review-grade-row marb20">
-        <div class="col-md-3 general-info-content padl0">
+    <div class="row padr15 marl15">
+        <div class="col-md-3 general-info-content">
             <select
                 id="examGrade"
                 name="examGrade"
@@ -146,6 +147,7 @@
         <div class="col-md-3 general-info-title">
             <input
                 id="customCredit"
+                name="customCredit"
                 type="number"
                 lang="en"
                 [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
@@ -160,7 +162,10 @@
     <!-- end of possible new component -->
 
     <!-- Bottom toolbar for maturity -->
-    <div class="detail-row">
-        <r-maturity-toolbar [exam]="exam" [valid]="examForm.valid"></r-maturity-toolbar>
+    <div class="row mart20 padr15">
+        <div class="col-md-12">
+            <span>{{ examForm.errors?.toString() }}</span>
+            <r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></r-maturity-toolbar>
+        </div>
     </div>
 </form>

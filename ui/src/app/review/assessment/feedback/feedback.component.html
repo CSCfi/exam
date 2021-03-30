@@ -3,7 +3,7 @@
         <div class="row">
             <div
                 class="col-md-1"
-                ngbPopover="{{ hideEditor ? 'sitnet_show' : ('sitnet_hide' | translate) }}"
+                ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
                 placement="right"
                 delay="500"
                 triggers="mouseenter:mouseleave"
@@ -30,7 +30,6 @@
                         id="feedback-editor"
                         [enableClozeTest]="false"
                         [(ngModel)]="exam.examFeedback.comment"
-                        ck-editor
                         #ck="ngModel"
                         name="ck"
                         rows="10"

@@ -919,9 +919,9 @@
     margin-right: 3.4em;
 
     .tab-content {
-      border-left: 1px solid $sitnet-border-color;
-      border-bottom: 1px solid $sitnet-border-color;
-      border-right: 1px solid $sitnet-border-color;
+      border-left: 1px solid #dee2e6;
+      border-bottom: 1px solid #dee2e6;
+      border-right: 1px solid #dee2e6;
 
     }
 
@@ -967,23 +967,12 @@
 
     font-family: $sitnet-family-helvetica;
     font-size: 16px;
-    border-bottom: 1px solid $sitnet-border-color;
-
-    li {
-      text-align: center;
-    }
-
-    li.active {
+    .nav-link.active {
       font-weight: bold;
-      a {
-        border: 1px solid $sitnet-border-color;
-        border-bottom-color: transparent;
-      }
     }
-
     a {
       color: #555555;
-      padding: 1em 2em 1em 2em;
+      
     }
   }
 
@@ -1478,7 +1467,7 @@
   .question-add-owners {
     margin-left: 10px;
     margin-top: 10px;
-    width: 210px;
+    width: 230px;
     margin-bottom: 10px;
   }
 

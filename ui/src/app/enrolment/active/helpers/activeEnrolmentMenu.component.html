@@ -71,7 +71,7 @@
             *ngIf="
                 !enrolment.reservation &&
                 !enrolment.examinationEventConfiguration &&
-                (enrolment.exam.executionType.type === 'PUBLIC' || enrolment.collaborativeExam)
+                (enrolment.exam?.executionType.type === 'PUBLIC' || enrolment.collaborativeExam)
             "
             ngbDropdownItem
         >
@@ -87,7 +87,7 @@
         <!-- enrolment without reservation, allow making reservation -->
         <li
             *ngIf="
-                (!enrolment.reservation && enrolment.exam.implementation === 'AQUARIUM') || enrolment.collaborativeExam
+                (!enrolment.reservation && enrolment.exam?.implementation === 'AQUARIUM') || enrolment.collaborativeExam
             "
             ngbDropdownItem
         >
@@ -104,7 +104,7 @@
         <li
             *ngIf="
                 !enrolment.examinationEventConfiguration &&
-                enrolment.exam.implementation !== 'AQUARIUM' &&
+                enrolment.exam?.implementation !== 'AQUARIUM' &&
                 hasUpcomingAlternativeEvents()
             "
             ngbDropdownItem

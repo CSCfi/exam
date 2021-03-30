@@ -91,11 +91,10 @@ const rootModule: RootModule = {
         },
         {
             name: 'newQuestion',
-            url: '/questions/newQuestion?{nextState}',
+            url: '/questions/newQuestion/:nextState',
             component: QuestionComponent,
             resolve: {
                 newQuestion: () => true,
-                nextState: () => 'dashboard',
             },
         },
         {
@@ -435,7 +434,7 @@ const rootModule: RootModule = {
         },
         {
             name: 'examReservations',
-            url: '/reservation/:eid',
+            url: '/reservations/:eid',
             component: TeacherReservationComponent,
         },
         { name: 'exams', url: '/exams', component: ExamListingComponent },

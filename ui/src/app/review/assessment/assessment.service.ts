@@ -12,10 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DOCUMENT, Location } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, noop, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
@@ -30,6 +31,7 @@ import { WindowRef } from '../../utility/window/window.service';
 import type { Observable } from 'rxjs';
 import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import type { StateDeclaration } from '@uirouter/core';
 
 type Payload = {
     id: number;
@@ -47,7 +49,7 @@ export class AssessmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private location: Location,
+        private state: StateService,
         @Inject(DOCUMENT) private document: Document,
         private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
@@ -140,17 +142,20 @@ export class AssessmentService {
         return words.length;
     };
 
-    getExitUrlById = (id: number, collaborative: boolean): string => {
-        return collaborative ? `/exams/collaborative/${id}/4` : `/exams/${id}/4`;
+    getExitStateById = (id: number, collaborative: boolean): StateDeclaration => {
+        return {
+            name: 'examEditor.assessments',
+            params: { collaborative: collaborative ? 'collaborative' : 'regular', id: id },
+        };
     };
 
-    getExitUrl = (exam: Exam, collaborative = false) => {
+    getExitState = (exam: Exam, collaborative = false): StateDeclaration => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
-            return '/';
+            return { name: 'app' };
         }
         const id = exam.parent ? exam.parent.id : exam.id; // CHECK THIS, need to get from URL!
-        return this.getExitUrlById(id, collaborative);
+        return this.getExitStateById(id, collaborative);
     };
 
     createExamRecord$ = (exam: Exam, needsConfirmation: boolean): Observable<void> => {
@@ -233,7 +238,8 @@ export class AssessmentService {
                 // Just save feedback and leave
                 this.saveFeedback$(exam).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
-                    this.location.go(this.getExitUrl(exam));
+                    const state = this.getExitState(exam);
+                    this.state.go(state.name as string, state.params);
                 });
             }
         } else {
@@ -313,7 +319,8 @@ export class AssessmentService {
                         );
                     } else {
                         toast.info(this.translate.instant('sitnet_review_graded'));
-                        this.location.go(this.getExitUrl(exam));
+                        const state = this.getExitState(exam);
+                        this.state.go(state.name as string, state.params);
                     }
                 }),
                 catchError((resp) => toast.error(resp)),

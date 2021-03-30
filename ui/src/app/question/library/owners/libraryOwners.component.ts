@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
@@ -60,6 +60,8 @@ import type { User } from '../../../session/session.service';
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[];
+    @Output() selected = new EventEmitter<{ user: User; selections: number[] }>();
+
     showOwnerSelection = false;
 
     teachers: User[];
@@ -108,6 +110,10 @@ export class LibraryOwnersComponent implements OnInit {
         this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_question_owner_added'));
+                this.selected.emit({
+                    user: this.teachers.find((t) => t.id === this.selectedTeacherId) as User,
+                    selections: this.selections,
+                });
             },
             () => toast.info(this.translate.instant('sitnet_update_failed')),
         );

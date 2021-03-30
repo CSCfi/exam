@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
@@ -75,6 +75,7 @@ export class SessionService implements OnDestroy {
         private http: HttpClient,
         private i18n: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
         private windowRef: WindowRef,
@@ -141,8 +142,11 @@ export class SessionService implements OnDestroy {
     }
 
     private redirect(): void {
-        const state = this.user?.isLanguageInspector ? 'languageInspections' : 'dashboard';
-        this.state.go(state);
+        if (this.routing.current.name === 'app' && this.user?.isLanguageInspector) {
+            this.state.go('languageInspections');
+        } else if (this.routing.current.name === 'app') {
+            this.state.go('dashboard');
+        }
     }
 
     logout(): void {

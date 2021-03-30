@@ -216,15 +216,9 @@ export class SlotPickerComponent {
             accessibilities: [], // todo
         });
 
-    private adjust(date: string, tz: string): Date {
-        const adjusted: moment.Moment = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
-    }
-
     private getTitle(slot: AvailableSlot): string {
-        const start = moment(slot.start).format('HH:mm');
-        const end = moment(slot.end).format('HH:mm');
+        const start = moment(this.adjust(slot.start, this.selectedRoom?.localTimezone as string)).format('HH:mm');
+        const end = moment(this.adjust(slot.end, this.selectedRoom?.localTimezone as string)).format('HH:mm');
         if (slot.availableMachines > 0) {
             return `${start}-${end} ${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
         } else {
@@ -259,14 +253,18 @@ export class SlotPickerComponent {
         }
     }
 
+    private adjust = (date: string, tz: string): Date => {
+        const adjusted: moment.Moment = moment.tz(date, tz);
+        const offset = adjusted.isDST() ? -1 : 0;
+        return adjusted.add(offset, 'hour').toDate();
+    };
+
     refresh($event: { date: Date }) {
         if (!this.selectedRoom) {
             return;
         }
         this.currentWeek = startOfWeek($event.date, { weekStartsOn: WeekDay.Monday });
-        const date = $event.date;
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
-        const tz = this.selectedRoom.localTimezone;
 
         const colorFn = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
@@ -281,8 +279,8 @@ export class SlotPickerComponent {
             const events: CalendarEvent<SlotMeta>[] = resp.map((slot: AvailableSlot, i) => ({
                 id: i,
                 title: this.getTitle(slot),
-                start: this.adjust(slot.start, tz),
-                end: this.adjust(slot.end, tz),
+                start: this.adjust(slot.start, this.selectedRoom?.localTimezone as string),
+                end: this.adjust(slot.end, this.selectedRoom?.localTimezone as string),
                 color: colorFn(slot),
                 cssClass: 'black-event-text',
                 meta: { availableMachines: slot.availableMachines },
@@ -290,7 +288,7 @@ export class SlotPickerComponent {
             this.events = events;
         };
         const errorFn = (resp: string) => toast.error(resp);
-        this.query(moment(date).format('YYYY-MM-DD'), accessibilities).subscribe(successFn, errorFn);
+        this.query(moment($event.date).format('YYYY-MM-DD'), accessibilities).subscribe(successFn, errorFn);
     }
 
     makeExternalReservation = () => {

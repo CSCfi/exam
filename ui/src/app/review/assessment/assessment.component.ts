@@ -38,7 +38,6 @@ export class AssessmentComponent {
     exam: Exam;
     participation: ExamParticipation;
     user: User;
-    backUrl: string;
     hideGeneralInfo = false;
     hideGradeInfo = false;
 
@@ -72,11 +71,13 @@ export class AssessmentComponent {
                 if (!exam.examFeedback) {
                     exam.examFeedback = { id: undefined, comment: '' };
                 }
+                if (exam.languageInspection && !exam.languageInspection.statement) {
+                    exam.languageInspection.statement = { comment: '' };
+                }
                 this.questionSummary = this.Question.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;
                 this.user = this.Session.getUser();
-                this.backUrl = this.Assessment.getExitUrl(this.exam, this.collaborative);
             },
             (err) => toast.error(err.data),
         );
@@ -113,7 +114,7 @@ export class AssessmentComponent {
     goToAssessment = () =>
         this.state.go('examEditor.assessments', {
             id: this.exam.parent?.id,
-            collaborative: this.collaborative ? 'collaborative' : 'false',
+            collaborative: this.collaborative ? 'collaborative' : 'regular',
         });
 
     // Set review status as started if not already done so

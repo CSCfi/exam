@@ -35,17 +35,6 @@ export class StatementComponent {
 
     toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
 
-    onChange = (value: string) => {
-        if (!this.exam.languageInspection) {
-            return;
-        }
-        if (!this.exam.languageInspection.statement?.comment) {
-            this.exam.languageInspection.statement = { comment: value };
-        } else {
-            this.exam.languageInspection.statement.comment = value;
-        }
-    };
-
     saveInspectionStatement = () =>
         this.Maturity.saveInspectionStatement$(this.exam).subscribe((resp) => (this.exam.languageInspection = resp));
 

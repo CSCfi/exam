@@ -44,6 +44,12 @@ export class EssayQuestionComponent {
         private Attachment: AttachmentService,
     ) {}
 
+    ngOnInit() {
+        if (!this.sectionQuestion.essayAnswer) {
+            this.sectionQuestion.essayAnswer = { id: 0 };
+        }
+    }
+
     downloadQuestionAttachment = () => {
         if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
             return this.Attachment.downloadCollaborativeAttachment(

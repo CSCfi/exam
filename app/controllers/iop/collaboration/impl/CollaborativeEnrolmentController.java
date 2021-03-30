@@ -1,13 +1,5 @@
 package controllers.iop.collaboration.impl;
 
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.User;
-import models.json.CollaborativeExam;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -19,12 +11,20 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.User;
+import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import util.datetime.DateTimeUtils;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
 
@@ -147,10 +147,6 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                                     .eq("exam.state", Exam.State.STUDENT_STARTED)
                                     .endOr()
                                     .findList();
-
-                                if (enrolments.isEmpty()) {
-                                    return notFound("not found");
-                                }
                                 return ok(enrolments);
                             }
                         )

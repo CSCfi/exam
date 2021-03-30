@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { forkJoin } from 'rxjs';
@@ -99,12 +99,12 @@ export class ReservationComponentBase {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private orderPipe: OrderByPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = this.state.params.eid;
+        this.examId = this.routing.params.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {
@@ -300,6 +300,8 @@ export class ReservationComponentBase {
             );
         }
     }
+
+    getPlaceHolder = () => (this.examId ? this.examOptions.find((o) => o.id == this.examId)?.label : '-');
 
     protected initExamOptions = () => {
         const loadExams = this.http.get<Exam[]>('/app/reservations/exams');

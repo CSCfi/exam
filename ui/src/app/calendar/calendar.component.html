@@ -13,6 +13,7 @@
         *ngIf="examInfo && reservationWindowSize"
         [examInfo]="examInfo"
         [reservationWindowSize]="reservationWindowSize"
+        [collaborative]="isCollaborative"
     ></calendar-exam-info>
     <!-- Phase 2: Optional exam section selection (optional) -->
     <div *ngIf="examInfo && hasOptionalSections()" class="mart10">
@@ -81,8 +82,10 @@
                                     {{ 'sitnet_course_name' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code>
-                                    {{ examInfo.course.name }}
+                                    <div *ngIf="examInfo.course">
+                                        <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code>
+                                        {{ examInfo.course.name }}
+                                    </div>
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-2">
                                     {{ 'sitnet_exam_validity' | translate }}:

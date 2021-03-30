@@ -66,10 +66,9 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
     rh.path match {
       case "/app/logout" => next.apply(rh)
       // Disable caching for index page so that CSRF cookie can be injected without worries
-      case "/" => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
         next.apply(rh).map(processResult(_)(rh))
-      case _ => next.apply(rh)
+      case _ => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
     }
 
 }
