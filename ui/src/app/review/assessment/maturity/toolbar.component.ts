@@ -18,9 +18,9 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { AssessmentService } from '../assessment.service';
-import type { StateName } from './maturity.service';
 import { MaturityService } from './maturity.service';
 
+import type { StateName } from './maturity.service';
 @Component({
     selector: 'r-maturity-toolbar',
     templateUrl: './toolbar.component.html',
@@ -51,6 +51,7 @@ export class MaturityToolbarComponent {
     isMissingStatement = () => this.Maturity.isMissingStatement(this.exam);
     isDisabled = (name?: StateName) => {
         const state = name ? this.getAlternateState(name) : this.getNextState();
-        return !state.canProceed || !this.valid || (state.validate && !state.validate(this.exam));
+        const disabled = (state && !state.canProceed) || !this.valid || (state?.validate && !state.validate(this.exam));
+        return disabled;
     };
 }

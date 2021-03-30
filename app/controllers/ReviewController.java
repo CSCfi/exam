@@ -16,38 +16,11 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import controllers.base.BaseController;
-import impl.EmailComposer;
-import models.Attachment;
-import models.Comment;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.ExamParticipation;
-import models.ExamType;
-import models.Grade;
-import models.GradeScale;
-import models.InspectionComment;
-import models.LanguageInspection;
-import models.Permission;
-import models.Role;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import models.questions.ClozeTestAnswer;
-import models.questions.EssayAnswer;
-import models.questions.Question;
-import models.sections.ExamSection;
-import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import sanitizers.CommaJoinedListSanitizer;
-import sanitizers.CommentSanitizer;
-import security.Authenticated;
-import system.interceptors.Anonymous;
-import util.csv.CsvBuilder;
-import util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
@@ -75,6 +48,26 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.inject.Inject;
+import models.Attachment;
+import models.Comment;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.ExamParticipation;
+import models.ExamType;
+import models.Grade;
+import models.GradeScale;
+import models.InspectionComment;
+import models.LanguageInspection;
+import models.Permission;
+import models.Role;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.ClozeTestAnswer;
+import models.questions.EssayAnswer;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -91,7 +84,14 @@ import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CommaJoinedListSanitizer;
+import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
+import system.interceptors.Anonymous;
+import util.csv.CsvBuilder;
+import util.file.FileHandler;
 
 public class ReviewController extends BaseController {
 
@@ -806,7 +806,7 @@ public class ReviewController extends BaseController {
     private static Query<ExamParticipation> createQuery() {
         return Ebean
             .find(ExamParticipation.class)
-            .fetch("exam", "state, additionalInfo, gradedTime, assessmentInfo")
+            .fetch("exam", "state, additionalInfo, gradedTime, assessmentInfo, subjectToLanguageInspection")
             .fetch("exam.course")
             .fetch("exam.course.organisation")
             .fetch("exam.course.gradeScale")

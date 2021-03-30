@@ -30,6 +30,13 @@ import type { CalendarEvent } from 'calendar-utils';
 @Component({
     templateUrl: './availability.component.html',
     selector: 'availability',
+    styles: [
+        `
+            .black-event-text span {
+                color: black !important;
+            }
+        `,
+    ],
 })
 export class AvailabilityComponent implements OnInit {
     openingHours: OpeningHours[];
@@ -49,12 +56,6 @@ export class AvailabilityComponent implements OnInit {
 
     query$ = (date: string) => this.roomService.getAvailability(this.state.params.id, date);
 
-    adjust = (date: string, tz: string) => {
-        const adjusted = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
-    };
-
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
         if (ratio <= 0.5) return { primary: '#27542f', secondary: '#a6e9b2' }; // green;
@@ -66,20 +67,18 @@ export class AvailabilityComponent implements OnInit {
         if (!this.room) {
             return;
         }
-        const date = event.date;
-        const tz = this.room.localTimezone;
         const successFn = (resp: Availability[]) => {
             this.events = resp.map((slot: Availability, i) => ({
                 id: i,
                 title: slot.reserved + ' / ' + slot.total,
-                start: this.adjust(slot.start, tz),
-                end: this.adjust(slot.end, tz),
+                start: new Date(slot.start),
+                end: new Date(slot.end),
                 color: this.getColor(slot),
                 cssClass: 'black-event-text',
                 meta: { availableMachines: 0 },
             }));
         };
         const errorFn = (resp: string) => toast.error(resp);
-        this.query$(moment(date).format('YYYY-MM-DD')).subscribe(successFn, errorFn);
+        this.query$(moment(event.date).format('YYYY-MM-DD')).subscribe(successFn, errorFn);
     };
 }

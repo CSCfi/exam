@@ -32,8 +32,10 @@ import type { Exam } from '../../exam/exam.model';
                         <div class="row">
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">
-                                <course-code [course]="examInfo.course"></course-code>
-                                {{ examInfo.course.name }}
+                                <div *ngIf="!collaborative">
+                                    <course-code [course]="examInfo.course"></course-code>
+                                    {{ examInfo.course.name }}
+                                </div>
                             </div>
                             <div class="clearfix visible-xs"></div>
                             <div class="clearfix visible-sm"></div>
@@ -76,6 +78,7 @@ import type { Exam } from '../../exam/exam.model';
 export class CalendarExamInfoComponent {
     @Input() examInfo: ExamInfo;
     @Input() reservationWindowSize: number;
+    @Input() collaborative: boolean;
 
     reservationWindowEndDate: moment.Moment;
 

@@ -123,6 +123,7 @@ import { QuestionReviewService } from './questions/questionReview.service';
         AbortedExamsComponent,
         ArchiveDownloadComponent,
         SpeedReviewFeedbackComponent,
+        InspectionCommentDialogComponent,
     ],
     providers: [
         AssessmentService,

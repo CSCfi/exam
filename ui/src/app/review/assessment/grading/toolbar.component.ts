@@ -12,10 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
@@ -37,7 +36,7 @@ export class ToolbarComponent {
 
     constructor(
         private state: StateService,
-        private location: Location,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
@@ -58,8 +57,8 @@ export class ToolbarComponent {
             this.CollaborativeAssessment.saveAssessment(
                 this.participation,
                 this.isOwnerOrAdmin(),
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
             );
         } else {
             this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
@@ -70,13 +69,14 @@ export class ToolbarComponent {
         if (this.collaborative) {
             this.CollaborativeAssessment.createExamRecord(
                 this.participation,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
             );
         } else {
             this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_review_recorded'));
-                this.location.go(this.getExitUrl());
+                const state = this.getExitState();
+                this.state.go(state.name as string, state.params);
             }, noop);
         }
     };
@@ -84,8 +84,9 @@ export class ToolbarComponent {
     rejectMaturity = () =>
         this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
             toast.info(this.translate.instant('sitnet_maturity_rejected'));
-            this.location.go(this.getExitUrl());
+            const state = this.getExitState();
+            this.state.go(state.name as string, state.params);
         });
 
-    getExitUrl = () => this.Assessment.getExitUrl(this.exam, this.collaborative);
+    getExitState = () => this.Assessment.getExitState(this.exam, this.collaborative);
 }

@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, TransitionService } from '@uirouter/core';
+import { TransitionService } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
@@ -59,7 +59,6 @@ export class ExamQuestionComponent {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
         private transition: TransitionService,
         private translate: TranslateService,
         private Question: QuestionService,
@@ -67,26 +66,21 @@ export class ExamQuestionComponent {
         private Attachment: AttachmentService,
         private Confirmation: ConfirmationDialogService,
     ) {
-        this.transitionWatcher = this.transition.onStart({ to: '*' }, (t) => {
+        this.transitionWatcher = this.transition.onBefore({}, () => {
             if (this.Window.nativeWindow.onbeforeunload) {
-                t.abort();
                 // we got changes in the model, ask confirmation
-                const dialog = this.Confirmation.open(
+                return this.Confirmation.open(
                     this.translate.instant('sitnet_confirm_exit'),
                     this.translate.instant('sitnet_unsaved_question_data'),
-                );
-                dialog.result.then((data) => {
-                    if (data.toString() === 'yes') {
-                        // ok to reroute
-                        this.Window.nativeWindow.onbeforeunload = null;
-                        delete this.transitionWatcher;
-                        this.state.go(t.to());
-                    }
+                ).result.then(() => {
+                    // ok to reroute
+                    this.Window.nativeWindow.onbeforeunload = null;
+                    delete this.transitionWatcher;
                 });
             } else {
                 this.Window.nativeWindow.onbeforeunload = null;
-                delete this.transitionWatcher;
-                this.state.go(t.to());
+
+                return true;
             }
         });
     }

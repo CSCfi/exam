@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -43,7 +43,7 @@ export class CollaborativeAssesmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private location: Location,
+        private state: StateService,
         private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
@@ -130,7 +130,8 @@ export class CollaborativeAssesmentService {
                             );
                         } else {
                             toast.info(this.translate.instant('sitnet_review_graded'));
-                            this.location.go(this.Assessment.getExitUrlById(examId, true));
+                            const state = this.Assessment.getExitStateById(examId, true);
+                            this.state.go(state.name as string, state.params);
                         }
                     },
                     (resp) => toast.error(resp),
@@ -146,7 +147,8 @@ export class CollaborativeAssesmentService {
                 // Just save feedback and leave
                 this.saveFeedback(id, ref, participation).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
-                    this.location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
+                    const state = this.Assessment.getExitStateById(participation.exam.id, true);
+                    this.state.go(state.name as string, state.params);
                 });
             }
         } else {
@@ -176,7 +178,8 @@ export class CollaborativeAssesmentService {
             (data) => {
                 participation._rev = data.rev;
                 toast.info(this.translate.instant('sitnet_review_recorded'));
-                this.location.go(this.Assessment.getExitUrlById(participation.exam.id, true));
+                const state = this.Assessment.getExitStateById(participation.exam.id, true);
+                this.state.go(state.name as string, state.params);
             },
             (resp) => toast.error(resp),
         );

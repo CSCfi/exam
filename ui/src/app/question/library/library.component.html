@@ -25,7 +25,10 @@
 
             <div class="row margin-20">
                 <div class="col-md-12 d-flex justify-content-between">
-                    <library-owner-selection [selections]="selections"></library-owner-selection>
+                    <library-owner-selection
+                        [selections]="selections"
+                        (selected)="ownerSelected($event)"
+                    ></library-owner-selection>
                     <library-transfer [selections]="selections"></library-transfer>
                     <library-file-export [selections]="selections"></library-file-export>
                 </div>

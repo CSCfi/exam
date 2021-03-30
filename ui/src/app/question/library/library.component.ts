@@ -17,6 +17,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import type { User } from '../../session/session.service';
+
 import type { LibraryQuestion } from './library.service';
 
 @Component({
@@ -40,5 +42,10 @@ export class LibraryComponent {
     questionCopied(copy: LibraryQuestion) {
         toast.info(this.translate.instant('sitnet_question_copied'));
         this.state.go('question', { id: copy.id });
+    }
+
+    ownerSelected(event: { user: User; selections: number[] }) {
+        const questions = this.questions.filter((q) => event.selections.indexOf(q.id) > -1);
+        questions.forEach((q) => q.questionOwners.push(event.user));
     }
 }

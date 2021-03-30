@@ -20,6 +20,7 @@ import { UIRouterModule } from '@uirouter/angular';
 import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
+import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
@@ -53,6 +54,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         WrongLocationComponent,
         AddEnrolmentInformationDialogComponent,
         ActiveEnrolmentMenuComponent,
+        SelectExaminationEventDialogComponent,
     ],
     entryComponents: [
         ActiveEnrolmentComponent,
@@ -68,6 +70,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         WaitingRoomComponent,
         WrongLocationComponent,
         AddEnrolmentInformationDialogComponent,
+        SelectExaminationEventDialogComponent,
     ],
     providers: [EnrolmentService, WrongLocationService],
 })
