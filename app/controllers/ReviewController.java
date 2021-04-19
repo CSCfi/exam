@@ -806,7 +806,7 @@ public class ReviewController extends BaseController {
     private static Query<ExamParticipation> createQuery() {
         return Ebean
             .find(ExamParticipation.class)
-            .fetch("exam", "state, additionalInfo, gradedTime, assessmentInfo, subjectToLanguageInspection")
+            .fetch("exam", "state, name, additionalInfo, gradedTime, assessmentInfo, subjectToLanguageInspection")
             .fetch("exam.course")
             .fetch("exam.course.organisation")
             .fetch("exam.course.gradeScale")
@@ -824,7 +824,7 @@ public class ReviewController extends BaseController {
             .fetch("exam.examEnrolments.examinationEventConfiguration.examinationEvent")
             .fetch("exam.examInspections")
             .fetch("exam.examInspections.user")
-            .fetch("user", "firstName, lastName")
+            .fetch("user", "firstName, lastName, email, userIdentifier")
             .fetch("exam.examType")
             .fetch("exam.executionType")
             .fetch("exam.examSections")

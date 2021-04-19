@@ -19,7 +19,17 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
+import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import models.Attachment;
 import models.Comment;
 import models.Exam;
@@ -30,25 +40,15 @@ import models.api.AttachmentContainer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import security.Authenticated;
-import util.config.ConfigReader;
-import util.file.FileHandler;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Pattern;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.StandardCopyOption;
-import java.util.concurrent.CompletionStage;
-import javax.inject.Inject;
 import play.Logger;
 import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import util.config.ConfigReader;
+import util.file.FileHandler;
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
 
@@ -129,7 +129,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
-        return wrapAsPromise(ok(attachment));
+        return wrapAsPromise(ok(answer));
     }
 
     private CompletionStage<Result> replaceAndFinish(

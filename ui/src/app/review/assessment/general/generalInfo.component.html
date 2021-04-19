@@ -28,10 +28,10 @@
     </div>
     <div class="detail-row marb20" *ngIf="reservation">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_location' | translate }}:</div>
-        <div class="col-md-4 general-info-content" *ngIf="reservation.machine.room">
+        <div class="col-md-4 general-info-content" *ngIf="reservation.machine?.room">
             {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
         </div>
-        <div class="col-md-4 general-info-content" *ngIf="!reservation.machine.room">N/A</div>
+        <div class="col-md-4 general-info-content" *ngIf="!reservation.machine?.room">N/A</div>
 
         <div class="col-md-2 general-info-title">{{ 'sitnet_exam_machine' | translate }}:</div>
         <div class="col-md-4 general-info-content" *ngIf="reservation.machine">

@@ -41,7 +41,7 @@
         <div class="more-separators"></div>
     </div>
 </div>
-<div class="row">
+<div class="row" *ngIf="exam.course">
     <div class="col-md-12 ml-3">
         <div class="right-title">{{ exam.course.name }}</div>
     </div>

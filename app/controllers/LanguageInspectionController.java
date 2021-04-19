@@ -16,19 +16,12 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import controllers.base.BaseController;
-import impl.EmailComposer;
-import models.Comment;
-import models.Exam;
-import models.LanguageInspection;
-import models.User;
-import sanitizers.Attrs;
-import sanitizers.CommentSanitizer;
-import security.Authenticated;
 import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.util.Date;
@@ -36,13 +29,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import models.Comment;
+import models.Exam;
+import models.LanguageInspection;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
+import security.Authenticated;
 
 public class LanguageInspectionController extends BaseController {
 
@@ -79,7 +79,7 @@ public class LanguageInspectionController extends BaseController {
                 query = query.lt("finishedAt", endDate.toDate());
             }
         } else if (month.isPresent()) {
-            DateTime startWithMonth = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
+            DateTime startWithMonth = DateTime.parse(month.get()).withMillisOfDay(0);
             DateTime endWithMonth = startWithMonth.plusMonths(1);
             query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
         }

@@ -43,7 +43,7 @@ export class StatementComponent {
     removeStatementAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
 
     selectFile = () => {
-        this.Attachment.selectFile(true, {}).then((res: FileResult) =>
+        this.Attachment.selectFile(false, {}).then((res: FileResult) =>
             this.Maturity.saveInspectionStatement$(this.exam).subscribe(() => {
                 this.Files.upload(
                     `/app/attachment/exam/${this.exam.id}/feedback`,

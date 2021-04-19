@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -44,6 +44,7 @@ export class CollaborativeAssesmentService {
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
@@ -130,7 +131,7 @@ export class CollaborativeAssesmentService {
                             );
                         } else {
                             toast.info(this.translate.instant('sitnet_review_graded'));
-                            const state = this.Assessment.getExitStateById(examId, true);
+                            const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                             this.state.go(state.name as string, state.params);
                         }
                     },
@@ -147,7 +148,7 @@ export class CollaborativeAssesmentService {
                 // Just save feedback and leave
                 this.saveFeedback(id, ref, participation).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
-                    const state = this.Assessment.getExitStateById(participation.exam.id, true);
+                    const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                     this.state.go(state.name as string, state.params);
                 });
             }
@@ -178,7 +179,7 @@ export class CollaborativeAssesmentService {
             (data) => {
                 participation._rev = data.rev;
                 toast.info(this.translate.instant('sitnet_review_recorded'));
-                const state = this.Assessment.getExitStateById(participation.exam.id, true);
+                const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                 this.state.go(state.name as string, state.params);
             },
             (resp) => toast.error(resp),

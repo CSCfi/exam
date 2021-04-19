@@ -1,7 +1,6 @@
 <!-- Buttons -->
-<div class="review-toolbar-wrapper padl0 padr0 marb20 d-flex justify-content-between">
+<div class="review-toolbar-wrapper pt-4 padl0 padr0 marb20 float-right">
     <div class="review-attachment-button exam-questions-buttons marl15">
-        <!-- TODO: use uiSref instead of href -->
         <a
             class="pointer preview"
             [uiSref]="getExitState().name"
@@ -26,7 +25,7 @@
     <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
         <button
             class="pointer"
-            [disabled]="isReadOnly() || !valid"
+            [disabled]="isReadOnly()"
             (click)="saveAssessment()"
             ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
             triggers="mouseenter:mouseleave"
