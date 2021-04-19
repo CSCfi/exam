@@ -17,6 +17,8 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
+import { WindowRef } from '../../utility/window/window.service';
+
 @Injectable()
 export class WrongLocationService {
     opts: ToastrOptions = {
@@ -24,34 +26,36 @@ export class WrongLocationService {
         preventDuplicates: true,
     };
 
-    constructor(private translate: TranslateService) {}
+    constructor(private translate: TranslateService, private Window: WindowRef) {}
 
     display = (data: string[]) => {
-        const startsAt = moment(data[4]);
-        const now = moment();
-        if (now.isDST()) {
-            startsAt.add(-1, 'hour');
-        }
-        const i18nRoom = this.translate.instant('sitnet_at_room');
-        const i18nMachine = this.translate.instant('sitnet_at_machine');
-        if (startsAt.isAfter(now)) {
-            const i18nLocation = this.translate.instant('sitnet_at_location');
-            const i18nTime = this.translate.instant('sitnet_your_exam_will_start_at');
-            toast.warning(
-                `${i18nTime} ${startsAt.format('HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
-                    data[2]
-                } ${i18nMachine} ${data[3]}`,
-                '',
-                this.opts,
-            );
-        } else {
-            const i18nLocation = this.translate.instant('sitnet_you_have_ongoing_exam_at_location');
-            toast.error(
-                `${i18nLocation}: ${data[0]}, ${data[1]} ${i18nRoom} ${data[2]} ${i18nMachine} ${data[3]}`,
-                '',
-                this.opts,
-            );
-        }
+        this.Window.nativeWindow.setTimeout(() => {
+            const startsAt = moment(data[4]);
+            const now = moment();
+            if (now.isDST()) {
+                startsAt.add(-1, 'hour');
+            }
+            const i18nRoom = this.translate.instant('sitnet_at_room');
+            const i18nMachine = this.translate.instant('sitnet_at_machine');
+            if (startsAt.isAfter(now)) {
+                const i18nLocation = this.translate.instant('sitnet_at_location');
+                const i18nTime = this.translate.instant('sitnet_your_exam_will_start_at');
+                toast.warning(
+                    `${i18nTime} ${startsAt.format('HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
+                        data[2]
+                    } ${i18nMachine} ${data[3]}`,
+                    '',
+                    this.opts,
+                );
+            } else {
+                const i18nLocation = this.translate.instant('sitnet_you_have_ongoing_exam_at_location');
+                toast.error(
+                    `${i18nLocation}: ${data[0]}, ${data[1]} ${i18nRoom} ${data[2]} ${i18nMachine} ${data[3]}`,
+                    '',
+                    this.opts,
+                );
+            }
+        }, 1000);
     };
 
     displayWrongUserAgent = (startsAtTxt: string) => {

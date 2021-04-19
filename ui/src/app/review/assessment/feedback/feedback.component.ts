@@ -55,7 +55,7 @@ export class FeedbackComponent {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(true, {}).then(
+        this.Attachment.selectFile(false, {}).then(
             (res: FileResult) =>
                 this.Assessment.saveFeedback$(this.exam).subscribe(() => {
                     this.Files.upload(

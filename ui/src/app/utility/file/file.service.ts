@@ -19,7 +19,7 @@ import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
 
 import type { HttpResponse } from '@angular/common/http';
-import type { Attachment } from '../../exam/exam.model';
+import type { Attachment, EssayAnswer } from '../../exam/exam.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 
@@ -73,7 +73,7 @@ export class FileService {
         this.doUpload(url, file, params)
             .then((resp) => {
                 if (parent) {
-                    parent.attachment = resp;
+                    parent.attachment = resp as Attachment;
                 }
                 if (callback) {
                     callback();
@@ -85,8 +85,8 @@ export class FileService {
     uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
         this.doUpload(url, file, params)
             .then((resp) => {
-                parent.objectVersion = resp.objectVersion; // FIXME: CSCEXAM-266 fixed in master, won't work here (ts)
-                parent.attachment = resp;
+                parent.objectVersion = resp.objectVersion;
+                parent.attachment = (resp as EssayAnswer).attachment;
             })
             .catch((resp) => toast.error(this.translate.instant(resp.data)));
     }
@@ -122,7 +122,7 @@ export class FileService {
         return false;
     }
 
-    private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment> {
+    private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment | EssayAnswer> {
         return new Promise<Attachment>((resolve, reject) => {
             if (this.isFileTooBig(file)) {
                 reject({ data: 'sitnet_file_too_large' });

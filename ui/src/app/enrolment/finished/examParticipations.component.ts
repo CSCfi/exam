@@ -30,7 +30,7 @@ export class ExamParticipationsComponent implements OnInit {
     filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
-    participations: ExamParticipation[];
+    participations: ExamParticipation[] = [];
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();

@@ -12,11 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toastr from 'toastr';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { noop, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ExamService } from '../../exam/exam.service';
@@ -139,7 +138,7 @@ export class ExamParticipationComponent implements OnInit {
         }
         this.http
             .get<ReviewedExam>(`/app/feedback/exams/${this.participation.exam.id}/score`)
-            .subscribe(this.prepareScores, (err) => toastr.error(err.data));
+            .subscribe(this.prepareScores, () => noop);
     };
 
     private prepareScores = (exam: ReviewedExam) => {

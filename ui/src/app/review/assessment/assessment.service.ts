@@ -16,7 +16,7 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, noop, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
@@ -50,6 +50,7 @@ export class AssessmentService {
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         @Inject(DOCUMENT) private document: Document,
         private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
@@ -154,7 +155,7 @@ export class AssessmentService {
         if (user && user.isAdmin) {
             return { name: 'app' };
         }
-        const id = exam.parent ? exam.parent.id : exam.id; // CHECK THIS, need to get from URL!
+        const id = exam.parent ? exam.parent.id : this.routing.params.id;
         return this.getExitStateById(id, collaborative);
     };
 
@@ -310,9 +311,7 @@ export class AssessmentService {
                 switchMap(() => this.saveFeedback$(exam)),
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
-                        messages.forEach(function (msg) {
-                            toast.warning(this.translate.instant(msg));
-                        });
+                        messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
                         this.windowRef.nativeWindow.setTimeout(
                             () => toast.info(this.translate.instant('sitnet_review_saved')),
                             1000,

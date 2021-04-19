@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { startOfMonth } from 'date-fns';
 import * as moment from 'moment';
 
 import { WindowRef } from '../../utility/window/window.service';
@@ -20,19 +21,18 @@ import { LanguageInspectionService } from '../languageInspections.service';
 
 import type { OnInit } from '@angular/core';
 import type { LanguageInspection } from '../maturity.model';
-
 @Component({
     selector: 'maturity-reporting',
     templateUrl: './maturityReporting.component.html',
 })
 export class MaturityReportingComponent implements OnInit {
     month: Date;
-    processedInspections: LanguageInspection[];
+    processedInspections: LanguageInspection[] = [];
 
     constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
 
     ngOnInit() {
-        this.month = new Date();
+        this.month = startOfMonth(new Date());
         this.query();
     }
 
@@ -41,8 +41,9 @@ export class MaturityReportingComponent implements OnInit {
     query = (event?: { date: Date | null }) => {
         const params: { month?: string } = {};
         if (event?.date) {
-            params.month = moment(event.date).toISOString();
-            this.month = event.date;
+            const beginning = startOfMonth(event.date);
+            params.month = moment(beginning).toISOString();
+            this.month = beginning;
         }
         this.LanguageInspection.query(params).subscribe(
             (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),

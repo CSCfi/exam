@@ -28,13 +28,13 @@ import { Examination } from '../examination.service';
         </div>
         <div class="row ml-2 guide-wrapper">
             <div class="col-md-12">
-                <div class="row">
+                <div class="row" *ngIf="exam.course">
                     <div class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</div>
                     <div class="text col-md-8">{{ exam.course.name }}</div>
                 </div>
-                <div class="row">
+                <div class="row" *ngIf="exam.course">
                     <div class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</div>
-                    <div class="text col-md-8"><course-code [course]="exam?.course"></course-code></div>
+                    <div class="text col-md-8"><course-code [course]="exam.course"></course-code></div>
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</div>

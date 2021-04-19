@@ -19,7 +19,7 @@
             <label for="month">{{ 'sitnet_month' | translate }}:</label>
 
             <p id="month" class="input-group">
-                <date-picker [optional]="true" (onUpdate)="query($event)"></date-picker>
+                <date-picker [initiallyEmpty]="true" (onUpdate)="query($event)"></date-picker>
             </p>
         </div>
 

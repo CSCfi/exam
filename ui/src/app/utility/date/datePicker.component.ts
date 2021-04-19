@@ -23,6 +23,7 @@ import type { OnInit } from '@angular/core';
 })
 export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | null = null;
+    @Input() initiallyEmpty = false;
     @Input() extra: boolean;
     @Input() extraText: string;
     @Input() modelOptions: Record<string, string> = {};
@@ -40,8 +41,10 @@ export class DatePickerComponent implements OnInit {
     ngOnInit() {
         const now = moment();
         const d = this.initialDate !== null ? moment(this.initialDate) : now;
-        this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
         this.today = new NgbDate(now.get('year'), now.get('month') + 1, now.get('date'));
+        if (!this.initiallyEmpty) {
+            this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
+        }
     }
 
     transform(value: NgbDate | null): Date | null {
