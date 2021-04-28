@@ -13,13 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { User } from '../../../session/session.service';
 
+import type { OnInit } from '@angular/core';
 @Component({
     selector: 'r-inspection',
     templateUrl: './inspection.component.html',

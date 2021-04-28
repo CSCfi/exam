@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 
 import { ExamParticipation } from '../../../exam/exam.model';
@@ -37,7 +37,7 @@ export class FeedbackComponent {
     hideEditor = false;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
@@ -46,9 +46,13 @@ export class FeedbackComponent {
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
-    saveFeedback = (id?: number, ref?: string) => {
-        if (this.collaborative && id && ref) {
-            this.CollaborativeAssessment.saveFeedback(id, ref, this.participation);
+    saveFeedback = () => {
+        if (this.collaborative) {
+            this.CollaborativeAssessment.saveFeedback$(
+                this.routing.params.id,
+                this.routing.params.ref,
+                this.participation,
+            ).subscribe();
         } else {
             this.Assessment.saveFeedback$(this.exam).subscribe();
         }
@@ -58,11 +62,19 @@ export class FeedbackComponent {
         this.Attachment.selectFile(false, {}).then(
             (res: FileResult) =>
                 this.Assessment.saveFeedback$(this.exam).subscribe(() => {
+                    const url = this.collaborative
+                        ? `/integration/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`
+                        : `/app/attachment/exam/${this.exam.id}/feedback`;
                     this.Files.upload(
-                        `/app/attachment/exam/${this.exam.id}/feedback`,
+                        url,
                         res.$value.attachmentFile,
                         { examId: this.exam.id.toString() },
                         this.exam.examFeedback,
+                        () => {
+                            // kinda hacky, but let's do this mangling for time being
+                            this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                            delete this.exam.examFeedback?.attachment?.rev;
+                        },
                     );
                 }),
             noop,
@@ -82,8 +94,8 @@ export class FeedbackComponent {
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
             this.Attachment.removeExternalFeedbackAttachment(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation,
             );
         } else {

@@ -41,7 +41,7 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th *ngIf="showId()" class="with-top">Id</th>
+                <th *ngIf="exam && showId()" class="with-top">Id</th>
                 <th class="with-top">
                     <table-sort
                         by="displayName"

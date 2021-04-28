@@ -331,7 +331,7 @@
                 <div
                     class="student-exam-row-infobox"
                     *ngIf="enrolment.reservation.optionalSections.length > 0"
-                    (hidden)="(!showMaterials)"
+                    [hidden]="!showMaterials"
                 >
                     <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
                         <div *ngIf="section.optional == false">

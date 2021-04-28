@@ -50,7 +50,7 @@ export class CollaborativeAssesmentService {
         private Assessment: AssessmentService,
     ) {}
 
-    saveAssessmentInfo = (
+    saveAssessmentInfo$ = (
         examId: number,
         examRef: string,
         participation: ExamParticipation,
@@ -70,12 +70,12 @@ export class CollaborativeAssesmentService {
         return of(participation);
     };
 
-    sendEmailMessage = (examId: number, examRef: string, message: string): Observable<void> => {
+    sendEmailMessage$ = (examId: number, examRef: string, message: string): Observable<void> => {
         const url = `/integration/iop/reviews/${examId}/${examRef}/mail`;
         return this.http.post<void>(url, { msg: message });
     };
 
-    saveFeedback(examId: number, examRef: string, participation: ExamParticipation): Observable<ExamParticipation> {
+    saveFeedback$(examId: number, examRef: string, participation: ExamParticipation): Observable<ExamParticipation> {
         const payload = {
             rev: participation._rev,
             comment: participation.exam.examFeedback?.comment,
@@ -90,7 +90,7 @@ export class CollaborativeAssesmentService {
         );
     }
 
-    setCommentRead(examId: string, examRef: string, revision: string) {
+    setCommentRead$(examId: string, examRef: string, revision: string) {
         const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.post(url, { rev: revision });
     }
@@ -121,7 +121,7 @@ export class CollaborativeAssesmentService {
         this.http.put<{ rev: string }>(url, payload).subscribe(
             (data) => {
                 participation._rev = data.rev;
-                this.saveFeedback(examId, examRef, participation).subscribe(
+                this.saveFeedback$(examId, examRef, participation).subscribe(
                     () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
@@ -146,7 +146,7 @@ export class CollaborativeAssesmentService {
         if (!modifiable) {
             if (participation.exam.state !== 'GRADED') {
                 // Just save feedback and leave
-                this.saveFeedback(id, ref, participation).subscribe(() => {
+                this.saveFeedback$(id, ref, participation).subscribe(() => {
                     toast.info(this.translate.instant('sitnet_saved'));
                     const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                     this.state.go(state.name as string, state.params);
@@ -187,7 +187,7 @@ export class CollaborativeAssesmentService {
     };
 
     private register = (participation: ExamParticipation, examId: number, ref: string, payload: Payload) => {
-        this.saveFeedback(examId, ref, participation).subscribe(
+        this.saveFeedback$(examId, ref, participation).subscribe(
             () => {
                 payload.rev = participation._rev as string;
                 const url = `/integration/iop/reviews/${examId}/${ref}`;

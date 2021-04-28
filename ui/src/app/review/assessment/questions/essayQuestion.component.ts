@@ -93,7 +93,7 @@ export class EssayQuestionComponent {
 
     insertEssayScore = () => {
         if (this.collaborative) {
-            return this.Assessment.saveCollaborativeEssayScore(
+            return this.Assessment.saveCollaborativeEssayScore$(
                 this.sectionQuestion as ExaminationQuestion,
                 this.state.params.id,
                 this.state.params.ref,
@@ -103,7 +103,7 @@ export class EssayQuestionComponent {
                 this.onScore.emit(resp.rev);
             });
         } else {
-            return this.Assessment.saveEssayScore(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
+            return this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_graded')), this.onScore.emit();
             });
         }

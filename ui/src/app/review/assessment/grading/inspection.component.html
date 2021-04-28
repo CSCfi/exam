@@ -13,9 +13,9 @@
             [(ngModel)]="inspection.ready"
             class="form-control"
             [disabled]="disabled"
-            (ngChange)="setInspectionStatus()"
+            (change)="setInspectionStatus()"
         >
-            <option *ngFor="let rs of reviewStatuses" [ngValue]="rs">{{ rs.value }}</option>
+            <option *ngFor="let rs of reviewStatuses" [ngValue]="rs.key">{{ rs.value }}</option>
         </select>
     </div>
 </div>

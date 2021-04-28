@@ -96,7 +96,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
             return;
         }
         if (this.collaborative) {
-            this.CollaborativeAssessment.sendEmailMessage(
+            this.CollaborativeAssessment.sendEmailMessage$(
                 this.state.params.id,
                 this.state.params.ref,
                 this.message.text,
@@ -117,13 +117,13 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     saveAssessmentInfo = () => {
         if (this.collaborative) {
-            this.CollaborativeAssessment.saveAssessmentInfo(
+            this.CollaborativeAssessment.saveAssessmentInfo$(
                 this.state.params.id,
                 this.state.params.ref,
                 this.participation,
-            );
+            ).subscribe();
         } else {
-            this.Assessment.saveAssessmentInfo(this.exam);
+            this.Assessment.saveAssessmentInfo$(this.exam).subscribe();
         }
     };
 

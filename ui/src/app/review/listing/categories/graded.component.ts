@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
@@ -22,17 +21,18 @@ import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { SimpleChanges } from '@angular/core';
+import type { Review } from '../../review.model';
+import type { ReviewListView } from '../reviewList.service';
 @Component({
     selector: 'rl-graded',
     templateUrl: './graded.component.html',
 })
 export class GradedReviewsComponent {
     @Input() exam: Exam;
-    @Input() reviews: Review[];
+    @Input() reviews: Review[] = [];
     @Input() collaborative: boolean;
     @Output() onRegistered = new EventEmitter<Review[]>();
     view: ReviewListView;
@@ -62,7 +62,7 @@ export class GradedReviewsComponent {
         }
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 

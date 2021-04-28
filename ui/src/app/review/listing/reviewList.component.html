@@ -61,7 +61,7 @@
         <div class="review-border mb-5">
             <!-- Graded -->
             <rl-graded
-                exam="exam"
+                [exam]="exam"
                 [reviews]="gradedReviews"
                 [collaborative]="collaborative"
                 (onRegistered)="onRegistration($event)"

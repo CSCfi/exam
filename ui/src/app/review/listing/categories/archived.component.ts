@@ -17,16 +17,16 @@ import { Component, Input } from '@angular/core';
 import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Review } from '../../review.model';
+import type { ReviewListView } from '../reviewList.service';
 @Component({
     selector: 'rl-archived',
     templateUrl: './archived.component.html',
 })
 export class ArchivedReviewsComponent {
-    @Input() reviews: Review[];
+    @Input() reviews: Review[] = [];
     @Input() exam: Exam;
 
     view: ReviewListView;

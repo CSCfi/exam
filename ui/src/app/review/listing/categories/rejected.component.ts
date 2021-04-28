@@ -17,16 +17,16 @@ import { Component, Input } from '@angular/core';
 import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Review } from '../../review.model';
+import type { ReviewListView } from '../reviewList.service';
 @Component({
     selector: 'rl-rejected',
     templateUrl: './rejected.component.html',
 })
 export class RejectedReviewsComponent {
-    @Input() reviews: Review[];
+    @Input() reviews: Review[] = [];
     @Input() exam: Exam;
 
     view: ReviewListView;
@@ -37,7 +37,7 @@ export class RejectedReviewsComponent {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 

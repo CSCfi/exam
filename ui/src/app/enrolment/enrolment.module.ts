@@ -21,6 +21,7 @@ import { UtilityModule } from '../utility/utility.module';
 import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
+import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
 import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
@@ -55,6 +56,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         AddEnrolmentInformationDialogComponent,
         ActiveEnrolmentMenuComponent,
         SelectExaminationEventDialogComponent,
+        ShowInstructionsDialogComponent,
     ],
     entryComponents: [
         ActiveEnrolmentComponent,
@@ -71,6 +73,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         WrongLocationComponent,
         AddEnrolmentInformationDialogComponent,
         SelectExaminationEventDialogComponent,
+        ShowInstructionsDialogComponent,
     ],
     providers: [EnrolmentService, WrongLocationService],
 })

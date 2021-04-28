@@ -19,13 +19,13 @@ import * as _ from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-import type { QuestionReview, ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
+import type { User } from '../../../session/session.service';
+import type { QuestionReview, ReviewQuestion } from '../../review.model';
 @Component({
     selector: 'question-assessment',
     templateUrl: './questionAssessment.component.html',
@@ -83,7 +83,7 @@ export class QuestionAssessmentComponent {
     private saveEvaluation = (answer: ReviewQuestion) => {
         return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-            this.Assessment.saveEssayScore(answer).subscribe(() => {
+            this.Assessment.saveEssayScore$(answer).subscribe(() => {
                 toast.info(this.$translate.instant('sitnet_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
