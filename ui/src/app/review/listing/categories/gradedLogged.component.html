@@ -175,7 +175,7 @@
                         *ngIf="collaborative"
                         class="pointer"
                         uiSref="collaborativeAssessment"
-                        [uiParams]="{ id: this.exam.id, ref: review.examParticipation._id }"
+                        [uiParams]="{ id: exam.id, ref: review.examParticipation._id }"
                     >
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user?.userIdentifier">
@@ -201,8 +201,10 @@
                 </td>
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>
                 <td class="table-column-10">
-                    {{ review.started | applyDst | date: 'dd.MM.yyyy' }} {{ 'sitnet_clock_short' | translate }}
-                    {{ review.started | applyDst | date: 'HH:mm' }} - {{ review.ended | applyDst | date: 'HH:mm' }}
+                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                    {{ 'sitnet_clock_short' | translate }}
+                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                 </td>
                 <td class="table-column-15">
                     {{ review.examParticipation.exam.totalScore }} / {{ review.examParticipation.exam.maxScore }}

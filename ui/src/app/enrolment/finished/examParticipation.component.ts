@@ -91,7 +91,7 @@ export class ExamParticipationComponent implements OnInit {
             !this.participation.exam.examFeedback.feedbackStatus
         ) {
             const participation = this.participation as CollaborativeParticipation;
-            this.CollaborativeAssessment.setCommentRead(
+            this.CollaborativeAssessment.setCommentRead$(
                 participation.examId,
                 participation._id,
                 participation._rev,

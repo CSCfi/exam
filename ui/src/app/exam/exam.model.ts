@@ -71,6 +71,7 @@ export interface Attachment {
     modified: boolean;
     size: number;
     file?: File;
+    rev?: string;
     objectVersion?: number;
 }
 export interface ReverseExamSection extends ExamSection {

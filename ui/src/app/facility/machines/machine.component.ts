@@ -96,24 +96,14 @@ export class MachineComponent implements OnInit {
         );
     };
 
-    updateMachine = () => {
-        return new Promise((resolve, reject) => {
-            this.machines.updateMachine(this.machine).subscribe(
-                () => {
-                    toast.info(this.translate.instant('sitnet_machine_updated'));
-                    resolve(null);
-                },
-                (error) => {
-                    toast.error(error.data);
-                    reject();
-                },
-            );
-        });
-    };
+    updateMachine = (cb?: () => void) =>
+        this.machines.updateMachine(this.machine).subscribe(
+            () => toast.info(this.translate.instant('sitnet_machine_updated')),
+            (error) => toast.error(error),
+            () => {
+                if (cb) cb();
+            },
+        );
 
-    updateMachineAndExit = () => {
-        this.updateMachine().then(() => {
-            this.state.go('rooms');
-        });
-    };
+    updateMachineAndExit = () => this.updateMachine(() => this.state.go('rooms'));
 }

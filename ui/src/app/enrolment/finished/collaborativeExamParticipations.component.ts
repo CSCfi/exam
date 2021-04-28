@@ -27,7 +27,7 @@ import type { OnInit } from '@angular/core';
 export class CollaborativeParticipationsComponent implements OnInit {
     collaborative = true;
     originals: CollaborativeParticipation[] = [];
-    participations: CollaborativeParticipation[];
+    participations: CollaborativeParticipation[] = [];
     pageSize = 10;
     currentPage = 0;
     filter = { ordering: 'ended', reverse: true, text: '' };

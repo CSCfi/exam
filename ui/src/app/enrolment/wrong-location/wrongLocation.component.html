@@ -1,21 +1,10 @@
-<div id="dashboard">
-    <div class="main-row" style="padding-left: 0">
-        <div
-            class="col-md-12 alert-danger exams-table-title-area"
-            style="padding-bottom: 1em; padding-top: 1em; padding-left: 15px"
-        >
-            <p class="col-md-12 exams-list-title-text">
-                {{ 'sitnet_logged_on_wrong_machine' | translate }}
-            </p>
+<div id="dashboard" *ngIf="currentMachine && enrolment">
+    <div class="row">
+        <div class="col-md-12 alert alert-danger">
+            <h4 class="alert-heading">{{ 'sitnet_logged_on_wrong_machine' | translate }}</h4>
+            {{ 'sitnet_current_wrong_machine_title' | translate }}: {{ currentMachine.name }}<br />
+            {{ 'sitnet_reserved_machine' | translate }}: {{ enrolment.reservation.machine.name }}
         </div>
-    </div>
-    <div class="top-row">
-        <div class="col-md-3 text">{{ 'sitnet_current_wrong_machine_title' | translate }}:</div>
-        <div class="col-md-9 light-text sitnet-text-alarm">{{ currentMachine.name }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="col-md-3 text">{{ 'sitnet_reserved_machine' | translate }}:</div>
-        <div class="col-md-9 light-text sitnet-text-ready">{{ enrolment.reservation.machine.name }}</div>
     </div>
     <div class="detail-row" *ngIf="cause === 'room'">
         <div class="col-md-3 text">{{ 'sitnet_current_wrong_room_title' | translate }}:</div>
@@ -32,10 +21,10 @@
 
     <div class="main-row">
         <div class="col-md-12">
-            <span class="exams-list-title-text pull-left"
-                >{{ 'sitnet_reserved_exam' | translate }}:&nbsp {{ enrolment.exam.name }} -
+            <span class="exams-list-title-text"
+                >{{ 'sitnet_reserved_exam' | translate }}:&nbsp; {{ enrolment.exam.name }} -
+                <course-code [course]="enrolment.exam.course"></course-code>
             </span>
-            <course-code [course]="enrolment.exam.course"></course-code>
         </div>
     </div>
 
@@ -64,7 +53,9 @@
     </div>
     <div class="detail-row" *ngIf="enrolment.exam.enrollInstruction">
         <div class="col-md-3 header text">{{ 'sitnet_instructions' | translate }}:</div>
-        <a (click)="showInstructions()">{{ 'sitnet_view' | translate }}</a>
+        <div class="col-md-9 text">
+            <a class="infolink pointer" (click)="showInstructions()">{{ 'sitnet_view' | translate }}</a>
+        </div>
     </div>
     <div class="bottom-row">
         <div class="col-md-3 header text">{{ 'sitnet_teachers' | translate }}:</div>
@@ -73,9 +64,9 @@
         </div>
     </div>
 
-    <div class="main-row">
-        <div class="col-md-12">
-            <p class="sitnet-text-theme pull-left">{{ 'sitnet_logout_and_login_elsewhere' | translate }}</p>
+    <div class="row">
+        <div class="col-md-12 alert alert-info">
+            {{ 'sitnet_logout_and_login_elsewhere' | translate }}
         </div>
     </div>
 </div>

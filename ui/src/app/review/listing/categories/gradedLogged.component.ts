@@ -32,7 +32,7 @@ import type { ReviewListView } from '../reviewList.service';
     templateUrl: './gradedLogged.component.html',
 })
 export class GradedLoggedReviewsComponent {
-    @Input() reviews: Review[];
+    @Input() reviews: Review[] = [];
     @Input() exam: Exam;
     @Input() collaborative: boolean;
     @Output() onArchive = new EventEmitter<Review[]>();
@@ -69,7 +69,7 @@ export class GradedLoggedReviewsComponent {
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
     pageSelected = (event: { page: number }) => (this.view.page = event.page);
 

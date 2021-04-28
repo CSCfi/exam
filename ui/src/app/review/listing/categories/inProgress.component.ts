@@ -48,7 +48,7 @@ export class InProgressReviewsComponent {
 
     isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
     pageSelected = (event: { page: number }) => (this.view.page = event.page);
 
