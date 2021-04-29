@@ -95,7 +95,7 @@
                             type="number"
                             lang="en"
                             class="form-control"
-                            [(ngModel)]="sectionQuestion.forcedScore"
+                            [(ngModel)]="scoreValue"
                             fixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             [disabled]="!isScorable"

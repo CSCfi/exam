@@ -12,10 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
+import { NgForm } from '@angular/forms';
 
 import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -23,6 +24,7 @@ import { AssessmentService } from '../assessment.service';
 
 import type { ExaminationQuestion } from '../../../examination/examination.service';
 import type { ReviewQuestion } from '../../review.model';
+
 @Component({
     selector: 'r-essay-question',
     templateUrl: './essayQuestion.component.html',
@@ -34,8 +36,10 @@ export class EssayQuestionComponent {
     @Input() isScorable: boolean;
     @Input() collaborative: boolean;
     @Output() onScore = new EventEmitter<string>();
+    @ViewChild('essayPoints', { static: false }) form: NgForm;
 
     reviewExpanded = true;
+    _score: number | undefined = undefined;
 
     constructor(
         private state: StateService,
@@ -47,6 +51,24 @@ export class EssayQuestionComponent {
     ngOnInit() {
         if (!this.sectionQuestion.essayAnswer) {
             this.sectionQuestion.essayAnswer = { id: 0 };
+        }
+
+        if (this.sectionQuestion.essayAnswer.evaluatedScore) {
+            this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
+        }
+    }
+
+    get scoreValue(): number | undefined {
+        return this._score;
+    }
+
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
+    set scoreValue(value: number | undefined) {
+        this._score = value;
+        if (this.form.valid) {
+            this.sectionQuestion.essayAnswer!.evaluatedScore = value;
+        } else {
+            this.sectionQuestion.essayAnswer!.evaluatedScore = undefined;
         }
     }
 

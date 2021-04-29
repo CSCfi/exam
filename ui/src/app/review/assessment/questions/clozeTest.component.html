@@ -77,13 +77,13 @@
                             <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
                         >
                     </div>
-                    <form #forcedPoints name="forcedPoints">
+                    <form #forcedPoints="ngForm" name="forcedPoints">
                         <input
                             name="score"
                             type="number"
                             lang="en"
                             class="form-control"
-                            [(ngModel)]="sectionQuestion.forcedScore"
+                            [(ngModel)]="scoreValue"
                             fixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             onclick="this.focus()"
