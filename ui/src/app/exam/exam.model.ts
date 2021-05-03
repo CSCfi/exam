@@ -110,7 +110,7 @@ export interface Question {
 }
 
 export interface EssayAnswer {
-    id: number;
+    id?: number;
     evaluatedScore?: number;
     answer?: string;
     objectVersion?: number;

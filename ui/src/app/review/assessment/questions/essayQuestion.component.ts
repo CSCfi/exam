@@ -62,13 +62,12 @@ export class EssayQuestionComponent {
         return this._score;
     }
 
-    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     set scoreValue(value: number | undefined) {
         this._score = value;
         if (this.form.valid) {
-            this.sectionQuestion.essayAnswer!.evaluatedScore = value;
+            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
         } else {
-            this.sectionQuestion.essayAnswer!.evaluatedScore = undefined;
+            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
         }
     }
 
