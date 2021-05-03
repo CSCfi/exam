@@ -93,7 +93,7 @@
                                 type="number"
                                 lang="en"
                                 class="form-control"
-                                [(ngModel)]="sectionQuestion.essayAnswer.evaluatedScore"
+                                [(ngModel)]="scoreValue"
                                 fixedPrecision
                                 (blur)="essayPoints.valid && insertEssayScore()"
                                 [disabled]="!isScorable"

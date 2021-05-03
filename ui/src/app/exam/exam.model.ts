@@ -110,7 +110,7 @@ export interface Question {
 }
 
 export interface EssayAnswer {
-    id: number;
+    id?: number;
     evaluatedScore?: number;
     answer?: string;
     objectVersion?: number;
@@ -162,7 +162,7 @@ export interface ExamSectionQuestion {
     id: number;
     question: Question;
     evaluationType?: string;
-    forcedScore: number;
+    forcedScore: number | null;
     maxScore: number;
     essayAnswer?: EssayAnswer;
     clozeTestAnswer?: ClozeTestAnswer;

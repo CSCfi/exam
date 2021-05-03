@@ -12,7 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
@@ -33,8 +34,10 @@ export class MultiChoiceQuestionComponent {
     @Input() isScorable: boolean;
     @Input() collaborative: boolean;
     @Output() onScore = new EventEmitter<string>();
+    @ViewChild('forcedPoints', { static: false }) form: NgForm;
 
     reviewExpanded = true;
+    _score: number | null = null;
 
     constructor(
         private state: StateService,
@@ -43,6 +46,25 @@ export class MultiChoiceQuestionComponent {
         private Attachment: AttachmentService,
         private Question: QuestionService,
     ) {}
+
+    ngOnInit() {
+        if (this.sectionQuestion.forcedScore) {
+            this.scoreValue = this.sectionQuestion.forcedScore;
+        }
+    }
+
+    get scoreValue(): number | null {
+        return this._score;
+    }
+
+    set scoreValue(value: number | null) {
+        this._score = value;
+        if (this.form.valid) {
+            this.sectionQuestion.forcedScore = value;
+        } else {
+            this.sectionQuestion.forcedScore = null;
+        }
+    }
 
     hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
 
