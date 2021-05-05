@@ -4,6 +4,7 @@
             <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
             <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
         </a>
+
         {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
         <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_machine_available' | translate }}">
             <span class="badge badge-success">
@@ -21,13 +22,12 @@
             </span>
         </span>
         <a
-            class="fa-stack fa-lg"
+            class="pl-2 text text-success pointer"
             (click)="addNewMachine()"
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_add' | translate }}"
         >
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i class="fa fa-plus text-success fa-stack-1x"></i>
+            <i class="pt-2 bi bi-plus-circle"></i>
         </a>
     </h5>
 </div>
