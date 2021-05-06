@@ -21,10 +21,16 @@ import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
 import backend.util.config.ConfigReader;
+import akka.util.ByteString;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -72,6 +78,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         .getString("sitnet.integration.enrolmentPermissionCheck.id");
 
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
+    private static final ByteString BOM = ByteString.fromArray(
+            new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
 
     private static final Logger.ALogger logger = Logger.of(ExternalCourseHandlerImpl.class);
 
@@ -190,6 +198,22 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             );
     }
 
+    private JsonNode stripBom(WSResponse response) throws RemoteException {
+        var bomCandidate = response.getBodyAsBytes().splitAt(3);
+        if (bomCandidate._1.equals(BOM)) {
+            logger.warn("BOM character detected in the beginning of response body");
+            ObjectMapper om = new ObjectMapper();
+            ObjectReader reader = om.reader();
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(bomCandidate._2.toArray())) {
+                return reader.readTree(bis);
+            } catch (IOException e) {
+                throw new RemoteException("Response contained a BOM character and we were unable to strip it out");
+            }
+        } else {
+            return response.asJson();
+        }
+    }
+
     private CompletionStage<List<Course>> downloadCourses(URL url) {
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
@@ -201,7 +225,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
             if (status == Http.Status.OK) {
-                return parseCourses(response.asJson());
+                return parseCourses(stripBom(response));
             }
             logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
             throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
