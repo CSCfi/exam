@@ -49,6 +49,8 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
                 FileInputStream fis = new FileInputStream(jsonFile);
                 ServletOutputStream sos = response.getOutputStream()
             ) {
+                // Inject a BOM character to test that we can work with it
+                sos.print('\ufeff');
                 IOUtils.copy(fis, sos);
                 sos.flush();
             } catch (IOException e) {
