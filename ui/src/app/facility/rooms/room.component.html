@@ -142,7 +142,7 @@
     </div>
 
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="top-row" *ngIf="room">
+    <div class="top-row" *ngIf="room && workingHoursExist()">
         <div class="col-md-12">
             <a uiSref="availability" [uiParams]="{ id: room.id }">{{ 'sitnet_reservations_new' | translate }}</a>
         </div>

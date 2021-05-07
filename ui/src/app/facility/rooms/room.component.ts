@@ -25,7 +25,7 @@ import { SettingsResourceService } from './settingsResource';
 
 import type { OnInit } from '@angular/core';
 import type { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { InteroperableRoom, Week, Weekday } from './room.service';
+import type { InteroperableRoom, Week, Weekday, WeekdayBlock } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
@@ -38,6 +38,7 @@ export class RoomComponent implements OnInit {
     showName: boolean;
     isInteroperable: boolean;
     editingMultipleRooms = false;
+    workingHours: WeekdayBlock[] = [];
 
     constructor(
         private translate: TranslateService,
@@ -75,9 +76,12 @@ export class RoomComponent implements OnInit {
         );
     }
 
-    updateWorkingHours = () => {
-        this.roomService.updateWorkingHours(this.week, [this.room.id]);
-    };
+    updateWorkingHours = () =>
+        this.roomService
+            .updateWorkingHours$(this.week, [this.room.id])
+            .subscribe((hours) => (this.workingHours = hours));
+
+    workingHoursExist = () => this.workingHours.flatMap((wh) => wh.blocks).length > 0;
 
     addException = (exception: ExceptionWorkingHours) => {
         this.roomService.addException([this.room.id], exception).then((data) => {
