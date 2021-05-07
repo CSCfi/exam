@@ -5,13 +5,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { cloneDeep } from 'lodash';
 import * as moment from 'moment';
+import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
 
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-
+import type { Observable } from 'rxjs';
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
 export interface Day {
@@ -31,7 +32,7 @@ export interface WorkingHour {
     selected: boolean;
 }
 
-interface WeekdayBlock {
+export interface WeekdayBlock {
     weekday: Weekday;
     blocks: HourBlock[];
 }
@@ -292,7 +293,7 @@ export class RoomService {
             );
         });
 
-    updateWorkingHours = (week: Week, ids: number[]) => {
+    updateWorkingHours$ = (week: Week, ids: number[]): Observable<WeekdayBlock[]> => {
         const data: WorkingHoursObject = {};
         const workingHours: WeekdayBlock[] = [];
         const times = this.getTimes();
@@ -311,13 +312,11 @@ export class RoomService {
         }
         data.workingHours = workingHours;
         data.roomIds = ids;
-        this.updateWorkingHoursData(data).subscribe(
-            () => {
+        return this.updateWorkingHoursData(data).pipe(
+            map(() => {
                 toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
-            },
-            (error) => {
-                toast.error(error.data);
-            },
+                return workingHours;
+            }),
         );
     };
 }

@@ -55,7 +55,7 @@ export class ExceptionListAllComponent implements OnInit {
     };
 
     updateWorkingHours = () => {
-        this.room.updateWorkingHours(this.week, this.getRoomIds());
+        this.room.updateWorkingHours$(this.week, this.getRoomIds()).subscribe();
     };
 
     massEditedRoomFilter = (room: ExamRoom) => room.calendarExceptionEvents.some((e) => e.massEdited);
