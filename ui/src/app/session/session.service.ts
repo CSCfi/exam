@@ -150,9 +150,6 @@ export class SessionService implements OnDestroy {
     }
 
     logout(): void {
-        if (!this.user) {
-            return;
-        }
         this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe((resp) => {
             this.webStorageService.remove('EXAM_USER');
             // delete this.user;
@@ -164,7 +161,6 @@ export class SessionService implements OnDestroy {
 
     translate(lang: string) {
         this.i18n.use(lang);
-        // this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
     }
 
     switchLanguage(lang: string) {
@@ -311,7 +307,7 @@ export class SessionService implements OnDestroy {
                     this.redirect();
                 }),
                 catchError((resp) => {
-                    toastr.error(this.i18n.instant(resp));
+                    if (resp) toastr.error(this.i18n.instant(resp));
                     this.logout();
                     return throwError(resp);
                 }),
