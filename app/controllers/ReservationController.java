@@ -15,29 +15,16 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import controllers.iop.transfer.api.ExternalReservationHandler;
-import exceptions.NotFoundException;
-import impl.EmailComposer;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamParticipation;
-import models.ExamRoom;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import sanitizers.Attrs;
-import security.Authenticated;
-import system.interceptors.Anonymous;
-import util.datetime.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
+import controllers.iop.collaboration.api.CollaborativeExamLoader;
+import controllers.iop.transfer.api.ExternalReservationHandler;
+import exceptions.NotFoundException;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
@@ -53,12 +40,25 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamParticipation;
+import models.ExamRoom;
+import models.Reservation;
+import models.Role;
+import models.User;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import system.interceptors.Anonymous;
+import util.datetime.DateTimeUtils;
 
 public class ReservationController extends BaseController {
 
@@ -403,16 +403,12 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = DateTimeUtils.withTimeAtStartOfDayConsideringTz(
-                DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser())
-            );
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
-            DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
-                DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser())
-            );
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
             query = query.lt("endAt", endDate.toDate());
         }
 

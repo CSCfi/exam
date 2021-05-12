@@ -15,6 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
+import { endOfDay, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { forkJoin } from 'rxjs';
@@ -30,7 +31,6 @@ import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model
 import type { User } from '../session/session.service';
 import type { Option } from '../utility/select/dropDownSelect.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
-
 interface Selection {
     [data: string]: string;
 }
@@ -130,10 +130,10 @@ export class ReservationComponentBase {
             delete params.examId;
         }
         if (this.startDate) {
-            params.start = this.startDate.toISOString();
+            params.start = startOfDay(this.startDate).toISOString();
         }
         if (this.endDate) {
-            params.end = this.endDate.toISOString();
+            params.end = endOfDay(this.endDate).toISOString();
         }
         return params;
     };
