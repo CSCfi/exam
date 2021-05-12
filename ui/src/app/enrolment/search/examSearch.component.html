@@ -6,23 +6,17 @@
             </div>
         </div>
     </div>
-    <div class="row ml-2 mr-2 mt-1">
-        <div class="col-md-12">
-            <div class="row mt-1 align-items-center">
-                <div class="col-1">
-                    <img class="nopad" src="/assets/assets/images/icon_info.png" class="pr-1" alt="info-icon" />
-                    &nbsp;
-                </div>
-                <div class="col">
-                    <div *ngIf="permissionCheck.active === false">
-                        {{ 'sitnet_exam_search_description' | translate }}
-                    </div>
-                    <div *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</div>
-                </div>
-            </div>
-        </div>
+    <div class="detail-row ml-2 mr-2 mt-3">
+        <span class="col-md-12 mt-1 align-items-center">
+            <img class="nopad" src="/assets/assets/images/icon_info.png" class="pr-1" alt="info-icon" />
+            &nbsp;
+            <span *ngIf="permissionCheck.active === false">
+                {{ 'sitnet_exam_search_description' | translate }}
+            </span>
+            <span *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</span>
+        </span>
     </div>
-    <div class="row ml-2 mr-2 mt-2" *ngIf="permissionCheck.active === false">
+    <div class="detail-row ml-2 mr-2 mt-2" *ngIf="permissionCheck.active === false">
         <div class="col-md-12">
             <div class="form-group input-group search">
                 <input
