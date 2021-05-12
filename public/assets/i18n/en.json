@@ -1000,5 +1000,6 @@
   "sitnet_transfer_questions": "Kopioi kysymykset itsellesi toiseen EXAM-järjestelmään EN",
   "sitnet_questions_transferred": "Kysymykset kopioitu EN",
   "sitnet_exam_room_accessibility": "Tenttitilan esteettömyysvaatimukset EN",
-  "sitnet_move_section": "Vaihda aihealueiden järjestystä raahaamalla EN"
+  "sitnet_move_section": "Vaihda aihealueiden järjestystä raahaamalla EN",
+  "sitnet_selected_sections": "Tentittäväksi valitut aihealueet EN"
 }
