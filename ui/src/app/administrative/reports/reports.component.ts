@@ -70,7 +70,7 @@ export class ReportsComponent implements OnInit {
     students: Category[];
 
     ngOnInit() {
-        this.room.getRooms().subscribe((resp) => {
+        this.room.getRooms$().subscribe((resp) => {
             this.rooms = resp.map((r) => ({
                 id: r.id,
                 label: `${r.buildingName} - ${r.name}`,

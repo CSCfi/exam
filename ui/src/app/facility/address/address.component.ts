@@ -36,7 +36,7 @@ export class AddressComponent {
     };
 
     updateAddress = () => {
-        this.room.updateAddress(this.address).subscribe(
+        this.room.updateAddress$(this.address).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_room_address_updated'));
             },

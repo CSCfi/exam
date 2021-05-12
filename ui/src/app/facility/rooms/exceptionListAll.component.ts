@@ -63,7 +63,7 @@ export class ExceptionListAllComponent implements OnInit {
     massEditedExceptionFilter = (exception: ExceptionWorkingHours) => exception.massEdited;
 
     private loadRooms = () => {
-        this.room.getRooms().subscribe(
+        this.room.getRooms$().subscribe(
             (rooms) => {
                 this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();

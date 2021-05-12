@@ -49,7 +49,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
     }
 
     createExamRoom = () => {
-        this.room.getDraft().subscribe(
+        this.room.getDraft$().subscribe(
             (room) => {
                 toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('room', { id: room.id });

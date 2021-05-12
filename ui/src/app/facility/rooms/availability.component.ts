@@ -47,14 +47,14 @@ export class AvailabilityComponent implements OnInit {
     constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}
 
     ngOnInit() {
-        this.roomService.getRoom(this.state.params.id).subscribe((room) => {
+        this.roomService.getRoom$(this.state.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
         });
     }
 
-    query$ = (date: string) => this.roomService.getAvailability(this.state.params.id, date);
+    query$ = (date: string) => this.roomService.getAvailability$(this.state.params.id, date);
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;

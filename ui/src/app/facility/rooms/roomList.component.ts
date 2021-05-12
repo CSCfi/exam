@@ -50,7 +50,7 @@ export class RoomListComponent implements OnInit {
 
         if (this.user.isAdmin) {
             if (!this.state.params.id) {
-                this.room.getRooms().subscribe((rooms) => {
+                this.room.getRooms$().subscribe((rooms) => {
                     this.times = this.room.getTimes();
                     const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
                     this.rooms = roomsWithVisibility.map((r) => ({ ...r, addressVisible: false }));
@@ -76,7 +76,7 @@ export class RoomListComponent implements OnInit {
 
     // Called when create exam button is clicked
     createExamRoom = () => {
-        this.room.getDraft().subscribe(
+        this.room.getDraft$().subscribe(
             (room) => {
                 toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('room', { id: room.id });

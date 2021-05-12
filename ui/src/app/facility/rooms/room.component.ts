@@ -55,7 +55,7 @@ export class RoomComponent implements OnInit {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
-        this.roomService.getRoom(this.state.params.id).subscribe(
+        this.roomService.getRoom$(this.state.params.id).subscribe(
             (room: InteroperableRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;

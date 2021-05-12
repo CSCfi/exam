@@ -141,36 +141,36 @@ export class RoomService {
     exceptionApi = (roomId: number, exceptionId: number) => `/app/rooms/${roomId}/exception/${exceptionId}`;
     draftApi = () => '/app/draft/rooms';
 
-    getRooms = () => this.http.get<ExamRoom[]>(this.roomsApi());
+    getRooms$ = () => this.http.get<ExamRoom[]>(this.roomsApi());
 
-    getRoom = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
+    getRoom$ = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
     /* TODO, check these text response APIs on backend side, doesn't seem legit */
     updateRoom = (room: ExamRoom) =>
         this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' });
 
-    inactivateRoom = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
+    inactivateRoom$ = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
 
-    activateRoom = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
+    activateRoom$ = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
 
-    updateAddress = (address: Address) =>
+    updateAddress$ = (address: Address) =>
         this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' });
 
-    getAvailability = (roomId: number, date: string) =>
+    getAvailability$ = (roomId: number, date: string) =>
         this.http.get<Availability[]>(this.availabilityApi(roomId, date));
 
-    updateWorkingHoursData = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
+    updateWorkingHoursData$ = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
 
-    updateExamStartingHours = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
+    updateExamStartingHours$ = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
         this.http.put(this.examStartingHoursApi(), data);
 
-    updateExceptions = (roomIds: number[], exception: ExceptionWorkingHours) =>
+    updateExceptions$ = (roomIds: number[], exception: ExceptionWorkingHours) =>
         this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
 
-    private removeException = (roomId: number, exceptionId: number) =>
+    private removeException$ = (roomId: number, exceptionId: number) =>
         this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
 
-    getDraft = () => this.http.get<ExamRoom>(this.draftApi());
+    getDraft$ = () => this.http.get<ExamRoom>(this.draftApi());
 
     isAnyExamMachines = (room: ExamRoom) => room.examMachines && room.examMachines.length > 0;
 
@@ -208,31 +208,30 @@ export class RoomService {
             this.translate.instant('sitnet_confirm_room_inactivation'),
         );
         dialog.result.then(() =>
-            this.inactivateRoom(room.id)
-                .toPromise()
-                .then(() => {
+            this.inactivateRoom$(room.id).subscribe(
+                () => {
                     toast.info(this.translate.instant('sitnet_room_inactivated'));
-                    this.state.reload();
-                })
-                .catch((error) => {
+                    room.state = 'INACTIVE';
+                },
+                (error) => {
                     toast.error(error.data);
-                }),
+                },
+            ),
         );
     };
 
     enableRoom = (room: ExamRoom) =>
-        this.activateRoom(room.id)
-            .toPromise()
-            .then(() => {
+        this.activateRoom$(room.id).subscribe(
+            () => {
                 toast.info(this.translate.instant('sitnet_room_activated'));
-            })
-            .catch((error) => {
-                toast.error(error.data);
-            });
+                room.state = 'ACTIVE';
+            },
+            (error) => toast.error(error.data),
+        );
 
     addException = (ids: number[], exception: ExceptionWorkingHours) =>
         new Promise<ExceptionWorkingHours>((resolve, reject) => {
-            this.updateExceptions(ids, exception).subscribe(
+            this.updateExceptions$(ids, exception).subscribe(
                 (data: ExceptionWorkingHours) => {
                     toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
@@ -259,7 +258,7 @@ export class RoomService {
 
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
-            this.removeException(roomId, exceptionId).subscribe(
+            this.removeException$(roomId, exceptionId).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_exception_time_removed'));
                     resolve();
@@ -281,7 +280,7 @@ export class RoomService {
             const selected = hours.filter((hour) => hour.selected).map((hour) => formatTime(hour.startingHour));
             const data = { hours: selected, offset, roomIds };
 
-            this.updateExamStartingHours(data).subscribe(
+            this.updateExamStartingHours$(data).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_exam_starting_hours_updated'));
                     resolve();
@@ -312,7 +311,7 @@ export class RoomService {
         }
         data.workingHours = workingHours;
         data.roomIds = ids;
-        return this.updateWorkingHoursData(data).pipe(
+        return this.updateWorkingHoursData$(data).pipe(
             map(() => {
                 toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
                 return workingHours;

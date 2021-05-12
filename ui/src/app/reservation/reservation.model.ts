@@ -74,6 +74,9 @@ export interface ExamMachine {
     }[];
     otherIdentifier: string;
     accessibilityInfo: string;
+    accessible: boolean;
+    surveillanceCamera: string;
+    videoRecordings: string;
 }
 
 export interface ExternalReservation {
