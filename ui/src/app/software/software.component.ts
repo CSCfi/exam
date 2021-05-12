@@ -24,33 +24,34 @@ import type { Software } from '../exam/exam.model';
     templateUrl: './software.component.html',
 })
 export class SoftwareComponent {
-    software: Software[] = [];
+    software: (Software & { showName: boolean })[] = [];
     newSoftware = { name: '' };
-    showName = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<Software[]>('/app/softwares').subscribe((resp) => (this.software = resp));
+        this.http
+            .get<Software[]>('/app/softwares')
+            .subscribe((resp) => (this.software = resp.map((r) => ({ ...r, showName: false }))));
     }
 
     updateSoftware = (software: Software) =>
-        this.http.put(`/app/softares/${software.id}/${software.name}`, {}).subscribe(
+        this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe(
             () => toast.info(this.translate.instant('sitnet_software_updated')),
             (err) => toast.error(err),
         );
 
     addSoftware = () =>
-        this.http.post<Software>(`/app/softwares/add/${this.newSoftware.name}`, {}).subscribe(
+        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe(
             (resp) => {
                 toast.info(this.translate.instant('sitnet_software_added'));
-                this.software.push(resp);
+                this.software.push({ ...resp, showName: false });
                 this.newSoftware.name = '';
             },
             (err) => toast.error(err),
         );
 
-    removeSoftware = (software: Software) =>
+    removeSoftware = (software: Software & { showName: boolean }) =>
         this.http.delete(`/app/softwares/${software.id}`).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_software_removed'));

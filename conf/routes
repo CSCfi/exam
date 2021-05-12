@@ -241,8 +241,8 @@ PUT           /app/software_machine/:mid                               controlle
 GET           /app/softwares                                           controllers.ExamMachineController.getSoftwares
 GET           /app/softwares/:id                                       controllers.ExamMachineController.getSoftware(id: Long)
 DELETE        /app/softwares/:id                                       controllers.ExamMachineController.removeSoftware(id: Long)
-POST          /app/softwares/add/:name                                 controllers.ExamMachineController.addSoftware(name: String, request: Request)
-PUT           /app/softwares/update/:id/:name                          controllers.ExamMachineController.updateSoftware(id: Long, name: String)
+POST          /app/softwares/:name                                     controllers.ExamMachineController.addSoftware(name: String, request: Request)
+PUT           /app/softwares/:id/:name                                 controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
 POST          /app/attachment/question                                 controllers.AttachmentController.addAttachmentToQuestion(request: Request)

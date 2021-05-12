@@ -42,19 +42,17 @@
                         </thead>
                         <tbody>
                             <tr *ngFor="let sw of software | orderBy: 'name'" scope="row">
-                                <td class="w-100 text-center">
-                                    <div [hidden]="showName">
-                                        <span class="editable" (click)="showName = !showName">
-                                            {{ sw.name }}
-                                        </span>
+                                <td class="text-center">
+                                    <div [hidden]="sw.showName">
+                                        {{ sw.name }}
                                     </div>
-                                    <div *ngIf="showName">
+                                    <div *ngIf="sw.showName">
                                         <form class="form-inline" role="form">
                                             <div class="form-group">
                                                 <label>
                                                     <input
                                                         type="text"
-                                                        class="form-control input-sm"
+                                                        class="form-control"
                                                         [(ngModel)]="sw.name"
                                                         name="software-name"
                                                         autofocus
@@ -64,7 +62,7 @@
                                             <button
                                                 type="button"
                                                 class="btn btn-primary btn-sm"
-                                                (click)="showName = !showName; updateSoftware(sw)"
+                                                (click)="sw.showName = !sw.showName; updateSoftware(sw)"
                                             >
                                                 <i class="bi-check"></i>
                                             </button>
@@ -72,7 +70,11 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a (click)="showName = !showName">
+                                    <a
+                                        (click)="sw.showName = !sw.showName"
+                                        ngbPopover="{{ 'sitnet_edit' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                    >
                                         <i class="bi-pencil"></i>
                                     </a>
                                 </td>
@@ -80,7 +82,6 @@
                                     <a
                                         (click)="removeSoftware(sw)"
                                         ngbPopover="{{ 'sitnet_remove_software' | translate }}"
-                                        placement="top"
                                         triggers="mouseenter:mouseleave"
                                     >
                                         <i class="sitnet-red bi-x"></i>
