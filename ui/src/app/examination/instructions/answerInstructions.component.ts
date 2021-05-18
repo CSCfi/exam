@@ -46,7 +46,7 @@ import { Examination } from '../examination.service';
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" [innerHtml]="exam.instruction"></div>
+                    <div class="text col-md-8" [MathJax]="exam.instruction"></div>
                 </div>
             </div>
         </div>
