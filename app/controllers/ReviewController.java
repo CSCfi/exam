@@ -389,7 +389,7 @@ public class ReviewController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradeless").equals("true")) {
+        } else if (df.get("gradeless") != null && df.get("gradeless").equals("true")) {
             exam.setGrade(null);
             exam.setGradeless(true);
         } else {

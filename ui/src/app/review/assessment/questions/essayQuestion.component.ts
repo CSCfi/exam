@@ -13,10 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
-import { NgForm } from '@angular/forms';
 
 import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -64,7 +64,7 @@ export class EssayQuestionComponent {
 
     set scoreValue(value: number | undefined) {
         this._score = value;
-        if (this.form.valid) {
+        if (this.form?.valid) {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
         } else {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
