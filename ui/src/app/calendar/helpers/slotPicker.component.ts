@@ -196,8 +196,8 @@ export class SlotPickerComponent {
             .get<Accessibility[]>('/app/accessibility')
             .subscribe((resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))));
         this.http.get<ExamRoom[]>('/app/rooms').subscribe((resp) => {
-            const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false }));
-            this.rooms = rooms.sort((a, b) => (a.name > b.name ? 1 : -1));
+            const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
+            this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         });
     }
 
