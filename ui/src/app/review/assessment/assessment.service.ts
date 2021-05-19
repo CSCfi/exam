@@ -109,12 +109,14 @@ export class AssessmentService {
         <strong>${this.translate.instant('sitnet_confirm_record_review')}</strong>
         `;
 
-    countCharacters = (text: string) => {
+    countCharacters = (text?: string) => {
         let normalizedText = text
-            .replace(/\s/g, '')
-            .replace(/&nbsp;/g, '')
-            .replace(/(\r\n|\n|\r)/gm, '')
-            .replace(/&nbsp;/gi, ' ');
+            ? text
+                  .replace(/\s/g, '')
+                  .replace(/&nbsp;/g, '')
+                  .replace(/(\r\n|\n|\r)/gm, '')
+                  .replace(/&nbsp;/gi, ' ')
+            : '';
         normalizedText = this.strip(normalizedText).replace(/^([\t\r\n]*)$/, '');
         return normalizedText.length;
     };
@@ -128,11 +130,13 @@ export class AssessmentService {
         return tmp.textContent || tmp.innerText;
     };
 
-    countWords = (text: string) => {
+    countWords = (text?: string) => {
         let normalizedText = text
-            .replace(/(\r\n|\n|\r)/gm, ' ')
-            .replace(/^\s+|\s+$/g, '')
-            .replace('&nbsp;', ' ');
+            ? text
+                  .replace(/(\r\n|\n|\r)/gm, ' ')
+                  .replace(/^\s+|\s+$/g, '')
+                  .replace('&nbsp;', ' ')
+            : '';
         normalizedText = this.strip(normalizedText);
         const words = normalizedText.split(/\s+/);
         for (let wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {

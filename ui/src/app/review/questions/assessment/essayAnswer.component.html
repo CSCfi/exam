@@ -45,7 +45,7 @@
             <strong>{{ 'sitnet_exam_answer' | translate | uppercase }}</strong>
         </div>
         <div class="main-row p-0">
-            <div class="col-md-12 essay-answer-item" [MathJax]="answer.essayAnswer.answer"></div>
+            <div class="col-md-12 essay-answer-item" [MathJax]="answer.essayAnswer.answer || ''"></div>
         </div>
 
         <div class="detail-row p-0" *ngIf="answer.essayAnswer.attachment">
