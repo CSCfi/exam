@@ -52,7 +52,7 @@ export class ExaminationSectionComponent {
 
     private resetAutosaver = () => {
         this.cancelAutosaver();
-        if (this.section) {
+        if (this.section && !this.isPreview) {
             this.autosaver = this.Window.nativeWindow.setInterval(
                 () =>
                     this.Examination.saveAllTextualAnswersOfSection$(
