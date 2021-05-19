@@ -132,7 +132,7 @@
                 <div *ngIf="reviewExpanded && sectionQuestion.expectedWordCount">
                     <span>{{ 'sitnet_essay_length_recommendation' | translate }}:</span>
                     {{ sectionQuestion.expectedWordCount }} ({{ 'sitnet_approximately' | translate }}
-                    {{ sectionQuestion.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
+                    {{ (sectionQuestion.expectedWordCount || 0) * 8 }} {{ 'sitnet_characters' | translate }})
                 </div>
             </div>
         </div>
