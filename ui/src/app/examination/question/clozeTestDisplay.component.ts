@@ -27,7 +27,6 @@ import {
 import type { OnInit, OnDestroy, ComponentRef } from '@angular/core';
 type ClozeTestAnswer = { [key: string]: string };
 
-const regexMathContent = /<span class="math-tex">(.*?)<\/span>/g;
 @Component({
     selector: 'cloze-test-display',
     template: ` <div #clozeContainer></div> `,
@@ -41,6 +40,14 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
     componentRef: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
     constructor(private compiler: Compiler, private el: ElementRef) {}
+
+    private getTextNodes = (el: Element) => {
+        const a = [],
+            walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+        let n;
+        while ((n = walk.nextNode())) a.push(n);
+        return a;
+    };
 
     ngOnInit() {
         const parser = new DOMParser();
@@ -56,35 +63,28 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
             input.setAttribute('value', this.answer[id]);
             input.setAttribute('data-input-handler', 'handleChange($event)');
         });
-        // Replace all curly braces outside math elements with urlencoded symbols to please angular compiler
-        Array.from(doc.querySelectorAll('span:not(.math-tex)'))
-            .flatMap((e) => Array.from(e.childNodes))
-            .filter((n) => n.nodeName === '#text')
-            .forEach((n) => {
-                if (n.textContent) {
-                    n.textContent = n.textContent.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
-                }
-            });
+        // Replace all left curly braces with urlencoded symbols to please angular compiler
+        this.getTextNodes(doc.body).forEach((n) => {
+            if (n.textContent) {
+                n.textContent = n.textContent.replace(/\{/g, '&#123;');
+            }
+        });
 
-        // Replace temporary input attributes with Angular input-directives, escape possible interpolation braces
-        // Also surround all math content with double braces so angular compiler stays happy
-        const clozeTemplate = doc.body.innerHTML
-            .replace(/data-input-handler/g, '(input)')
-            .replace(regexMathContent, (match) => `{{'${match}'}}`);
-
+        // Replace temporary input attributes with Angular input-directives
+        const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
         const clozeComponent = Component({ template: clozeTemplate, selector: 'dyn-cloze-test' })(
             class ClozeComponent {
                 el: ElementRef;
                 onInput: (_: { target: HTMLInputElement }) => void;
                 ngAfterViewInit() {
-                    // this is ugly but I didn't find any other way to deal with the LaTeX markup
-                    Array.from(this.el.nativeElement.getElementsByTagName('dyn-cloze-test')[0].childNodes)
+                    // this is ugly but I didn't find any other way
+                    // see: https://github.com/angular/angular/issues/11859
+                    Array.from(this.el.nativeElement.querySelectorAll('*'))
                         .flatMap((e: Element) => Array.from(e.childNodes))
                         .filter((n) => n.nodeName === '#text')
                         .forEach((n) => {
-                            if (n.textContent)
-                                n.textContent = n.textContent.replace(/\{\{'/g, '').replace(/'\}\}/g, '');
+                            if (n.textContent) n.textContent = n.textContent.replace(/&#123;/g, '{');
                         });
                     MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
                 }
