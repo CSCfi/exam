@@ -7,20 +7,22 @@
 <div id="dashboard">
     <!-- TAB NAVIGATION -->
     <div class="main-row">
-        <ul class="nav nav-tabs">
-            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'RESPONSES' }">
-                <a class="nav-link pointer" (click)="view = 'RESPONSES'">{{ 'sitnet_exam_responses' | translate }}</a>
-            </li>
-            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'ROOMS' }">
-                <a class="nav-link pointer" (click)="view = 'ROOMS'">{{ 'sitnet_statistics_rooms' | translate }}</a>
-            </li>
-            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'EXAMS' }">
-                <a class="nav-link pointer" (click)="view = 'EXAMS'">{{ 'sitnet_exams' | translate }}</a>
-            </li>
-            <li class="nav-item" role="presentation" [ngClass]="{ active: view === 'RESERVATIONS' }">
-                <a class="nav-link pointer" (click)="view = 'RESERVATIONS'">{{ 'sitnet_reservations' | translate }}</a>
-            </li>
-        </ul>
+        <div class="col-md-12">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+                <li [ngbNavItem]="'RESPONSES'">
+                    <a ngbNavLink>{{ 'sitnet_exam_responses' | translate }}</a>
+                </li>
+                <li [ngbNavItem]="'ROOMS'">
+                    <a ngbNavLink>{{ 'sitnet_statistics_rooms' | translate }}</a>
+                </li>
+                <li [ngbNavItem]="'EXAMS'">
+                    <a ngbNavLink>{{ 'sitnet_exams' | translate }}</a>
+                </li>
+                <li [ngbNavItem]="'RESERVATIONS'">
+                    <a ngbNavLink>{{ 'sitnet_reservations' | translate }}</a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- FILTERS -->

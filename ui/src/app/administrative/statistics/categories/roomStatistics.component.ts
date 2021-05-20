@@ -31,7 +31,7 @@ interface Participations {
         </div>
         <div class="main-row">
             <div class="col-md-12" style="overflow: auto">
-                <table class="table table-sm table-bordered ">
+                <table class="table table-sm table-bordered table-striped">
                     <thead>
                         <th class="warning">{{ 'sitnet_year' | translate }}</th>
                         <th class="warning">{{ 'sitnet_month' | translate }}</th>
