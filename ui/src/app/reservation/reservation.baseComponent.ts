@@ -19,13 +19,14 @@ import { endOfDay, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { forkJoin } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../session/session.service';
 import { OrderByPipe } from '../utility/sorting/orderBy.pipe';
 import { ReservationService } from './reservation.service';
 
+import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
@@ -304,23 +305,16 @@ export class ReservationComponentBase {
     getPlaceHolder = () => (this.examId ? this.examOptions.find((o) => o.id == this.examId)?.label : '-');
 
     protected initExamOptions = () => {
-        const loadExams = this.http.get<Exam[]>('/app/reservations/exams');
-        const loadCollaborativeExams = this.http.get<CollaborativeExam[]>('/integration/iop/exams');
-
-        const examObservables = [
-            loadExams,
-            ...(this.isInteroperable && this.isAdminView() ? [loadCollaborativeExams] : []),
+        const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
+            this.http.get<Exam[]>('/app/reservations/exams'),
         ];
-
+        if (this.isInteroperable && this.isAdminView()) {
+            examObservables.push(this.http.get<CollaborativeExam[]>('/integration/iop/exams'));
+        }
         forkJoin(examObservables)
             .pipe(
-                switchMap((exams) => exams),
-                map((exams) =>
-                    (exams as Array<Exam | CollaborativeExam>).map((e) => ({ id: e.id, value: e, label: e.name })),
-                ),
-                tap((exams) => {
-                    this.examOptions = this.orderPipe.transform(exams, 'label');
-                }),
+                map((exams) => exams.flat().flatMap((e) => ({ id: e.id, value: e, label: e.name }))),
+                tap((options) => (this.examOptions = this.orderPipe.transform(options, 'label'))),
             )
             .subscribe();
     };
