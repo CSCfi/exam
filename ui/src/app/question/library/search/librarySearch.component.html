@@ -1,34 +1,11 @@
-<div class="row ml-3 mt-3 mr-3">
-    <div class="col-md-6">
-        <div class="form-group search">
-            <div class="input-group">
-                <input
-                    class="form-control hgt40 wdt400"
-                    (input)="applySearchFilter()"
-                    [(ngModel)]="filter.text"
-                    placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
-                />
-                <div class="input-group-append">
-                    <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
-                </div>
-            </div>
-        </div>
-        <div class="form-group search" *ngIf="user.isAdmin">
-            <div class="input-group">
-                <input
-                    class="form-control hgt40 wdt400"
-                    (input)="applySearchFilter()"
-                    [(ngModel)]="filter.owner"
-                    placeholder="{{ 'sitnet_search_by_owner' | translate }}"
-                />
-                <div class="input-group-append search">
-                    <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
-                </div>
-            </div>
-        </div>
+<div class="row ml-3 mt-3 mr-3" *ngIf="user.isAdmin">
+    <div class="col-md-12 ml-1">
+        {{ 'sitnet_choose_atleast_one' | translate }}
     </div>
-    <div class="col-md-6">
-        <div id="filters" class="float-right form-group">
+</div>
+<div class="row ml-3 mr-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
+    <div class="col-md-3">
+        <div id="filters" class="form-group">
             <span class="m-1" ngbDropdown [autoClose]="'outside'">
                 <button
                     class="btn btn-outline-secondary btn-sm"
@@ -148,10 +125,44 @@
             </span>
         </div>
     </div>
+    <div class="col-md-9">
+        <div class="row">
+            <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input
+                            class="form-control"
+                            (input)="applySearchFilter()"
+                            [(ngModel)]="filter.text"
+                            placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
+                        />
+                        <div class="input-group-append">
+                            <img class="nopad" src="/assets/assets/images/icon_search.png" width="46" height="38" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" *ngIf="user.isAdmin">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input
+                            class="form-control"
+                            (input)="applySearchFilter()"
+                            [(ngModel)]="filter.owner"
+                            placeholder="{{ 'sitnet_search_by_owner' | translate }}"
+                        />
+                        <div class="input-group-append search">
+                            <img class="nopad" src="/assets/assets/images/icon_search.png" width="46" height="38" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="row col-md-12">
-    <div class="col-md-6">
-        <ul class="inline-list">
+<div class="row ml-3">
+    <div class="col-md-12">
+        <ul class="inline-list pl-1">
             <li *ngFor="let tag of getTags()">
                 {{ tag.name }}
                 <button class="reviewer-remove" (click)="applyFilter(tag)" title="{{ 'sitnet_remove' | translate }}">

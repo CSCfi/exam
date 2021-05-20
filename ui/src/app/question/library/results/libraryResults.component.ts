@@ -13,19 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import type { LibraryQuestion } from '../library.service';
 import { LibraryService } from '../library.service';
 
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import type { User } from '../../../session/session.service';
+import type { LibraryQuestion } from '../library.service';
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
@@ -193,8 +193,10 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
         if (_.isNumber(scoreColumnValue)) {
             return scoreColumnValue;
-        } else {
+        } else if (_.isString(scoreColumnValue)) {
             return this.translate.instant(scoreColumnValue);
+        } else {
+            return '';
         }
     };
 }

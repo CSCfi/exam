@@ -532,16 +532,14 @@
   .exams-table {
 
     font-family: $sitnet-family-helvetica;
-    font-weight: normal;
+    font-weight: bold;
     font-size: 0.9em;
 
     th {
       border: 0;
       font-family: $sitnet-family-helvetica;
-      font-size: 12px;
-      color: #777777;
+      font-size: 14px;
       text-transform: uppercase;
-      font-weight: normal;
       white-space: nowrap;
 
       &.with-space {
