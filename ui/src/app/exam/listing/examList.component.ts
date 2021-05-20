@@ -18,7 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { from, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -72,11 +72,7 @@ export class ExamListingComponent {
             .pipe(
                 debounceTime(500),
                 distinctUntilChanged(),
-                exhaustMap((term) =>
-                    term.length < 2
-                        ? from([])
-                        : this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } }),
-                ),
+                switchMap((term) => this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } })),
                 tap(() => (this.loader.loading = true)),
                 map((exams: ExamListExam[]) => {
                     exams.forEach((e) => {
