@@ -51,6 +51,7 @@ import models.Grade;
 import models.GradeScale;
 import models.Organisation;
 import models.User;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -115,12 +116,15 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .isNull("endDate")
             .gt("endDate", new Date())
             .endJunction()
-            .disjunction()
-            .isNull("startDate")
-            .lt("startDate", new Date())
-            .endJunction()
             .orderBy("code")
-            .findSet();
+            .findSet()
+            .stream()
+            .filter(
+                c ->
+                    c.getStartDate() == null ||
+                    configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
+            )
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -363,11 +367,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 course.setEndDate(endDate);
             }
             if (node.has("startDate")) {
-                Date startDate = DF.parse(node.get("startDate").asText());
-                if (startDate.after(new Date())) {
+                DateTime startDate = new DateTime(DF.parse(node.get("startDate").asText()));
+                DateTime validityDate = configReader.getCourseValidityDate(startDate);
+                if (validityDate.isAfterNow()) {
                     return Optional.empty();
                 }
-                course.setStartDate(startDate);
+                course.setStartDate(startDate.toDate());
             }
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());

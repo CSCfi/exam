@@ -110,6 +110,13 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public DateTime getCourseValidityDate(DateTime startDate) {
+        String window = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.window");
+        Period period = Period.parse(window);
+        return startDate.minus(period);
+    }
+
+    @Override
     public String getExamExpirationPeriod() {
         return ConfigFactory.load().getString("sitnet.exam.expiration.period");
     }
