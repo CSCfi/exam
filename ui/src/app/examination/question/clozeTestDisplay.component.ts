@@ -56,11 +56,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
         // Set input values and temporary attributes for input events
         const inputs = doc.getElementsByTagName('input');
         Array.from(inputs).forEach((input) => {
-            const { id } = input;
-            if (!this.answer[id]) {
-                this.answer = { [id]: '' };
-            }
-            input.setAttribute('value', this.answer[id]);
+            input.setAttribute('value', this.answer[input.id]);
             input.setAttribute('data-input-handler', 'handleChange($event)');
         });
         // Replace all left curly braces with urlencoded symbols to please angular compiler
