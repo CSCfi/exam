@@ -96,6 +96,7 @@
                                 [(ngModel)]="scoreValue"
                                 fixedPrecision
                                 (blur)="essayPoints.valid && insertEssayScore()"
+                                onclick="this.focus()"
                                 [disabled]="!isScorable"
                                 [min]="0"
                                 [max]="sectionQuestion.maxScore"

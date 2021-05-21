@@ -98,6 +98,7 @@
                             [(ngModel)]="scoreValue"
                             fixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
+                            onclick="this.focus()"
                             [disabled]="!isScorable"
                             [min]="getMinimumOptionScore()"
                             [max]="sectionQuestion.maxScore || calculateMaxPoints()"
