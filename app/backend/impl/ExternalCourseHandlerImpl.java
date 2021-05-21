@@ -15,14 +15,13 @@
 
 package backend.impl;
 
+import akka.util.ByteString;
 import backend.models.Course;
 import backend.models.Grade;
 import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
 import backend.util.config.ConfigReader;
-import akka.util.ByteString;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -53,6 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -61,25 +61,18 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
+
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
-    private static final boolean API_KEY_USED = ConfigFactory
-        .load()
-        .getBoolean("sitnet.integration.apiKey.enabled");
-    private static final String API_KEY_NAME = ConfigFactory
-        .load()
-        .getString("sitnet.integration.apiKey.name");
-    private static final String API_KEY_VALUE = ConfigFactory
-        .load()
-        .getString("sitnet.integration.apiKey.value");
+    private static final boolean API_KEY_USED = ConfigFactory.load().getBoolean("sitnet.integration.apiKey.enabled");
+    private static final String API_KEY_NAME = ConfigFactory.load().getString("sitnet.integration.apiKey.name");
+    private static final String API_KEY_VALUE = ConfigFactory.load().getString("sitnet.integration.apiKey.value");
     private static final String USER_IDENTIFIER = ConfigFactory
         .load()
         .getString("sitnet.integration.enrolmentPermissionCheck.id");
-
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
-    private static final ByteString BOM = ByteString.fromArray(
-            new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+    private static final ByteString BOM = ByteString.fromArray(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
 
     private static final Logger.ALogger logger = Logger.of(ExternalCourseHandlerImpl.class);
 
@@ -122,12 +115,15 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .isNull("endDate")
             .gt("endDate", new Date())
             .endJunction()
-            .disjunction()
-            .isNull("startDate")
-            .lt("startDate", new Date())
-            .endJunction()
             .orderBy("code")
-            .findSet();
+            .findSet()
+            .stream()
+            .filter(
+                c ->
+                    c.getStartDate() == null ||
+                    configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
+            )
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -371,11 +367,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 course.setEndDate(endDate);
             }
             if (node.has("startDate")) {
-                Date startDate = DF.parse(node.get("startDate").asText());
-                if (startDate.after(new Date())) {
+                DateTime startDate = new DateTime(DF.parse(node.get("startDate").asText()));
+                DateTime validityDate = configReader.getCourseValidityDate(startDate);
+                if (validityDate.isAfterNow()) {
                     return Optional.empty();
                 }
-                course.setStartDate(startDate);
+                course.setStartDate(startDate.toDate());
             }
             course.setIdentifier(node.get("identifier").asText());
             course.setName(node.get("courseUnitTitle").asText());
