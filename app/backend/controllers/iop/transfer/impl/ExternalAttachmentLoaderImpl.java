@@ -25,7 +25,7 @@ import akka.util.ByteString;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.models.Attachment;
 import backend.models.Exam;
-import backend.util.AppUtil;
+import backend.util.file.FileHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
@@ -39,13 +39,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.springframework.util.StringUtils;
-import play.Environment;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
+
     @Inject
     private ActorSystem actor;
 
@@ -53,7 +53,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     private WSClient wsClient;
 
     @Inject
-    private Environment environment;
+    private FileHandler fileHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExternalAttachmentLoaderImpl.class);
 
@@ -207,7 +207,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     .stream()
                     .thenAccept(
                         response -> {
-                            final String filePath = AppUtil.createFilePath(environment, pathParams);
+                            final String filePath = fileHandler.createFilePath(pathParams);
                             response
                                 .getBodyAsSource()
                                 .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))

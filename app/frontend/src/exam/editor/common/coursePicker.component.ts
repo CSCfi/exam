@@ -41,7 +41,7 @@ export const CoursePickerComponent: angular.IComponentOptions = {
         $onInit = () => {
             this.filter = {
                 name: this.course ? this.course.name : '',
-                code: this.course ? this.course.code : '',
+                code: this.course ? this.course.code.split('_')[0] : '',
             };
         };
 
@@ -67,7 +67,7 @@ export const CoursePickerComponent: angular.IComponentOptions = {
         };
 
         onCourseSelect = (selection: { name: string; code: string }) => {
-            this.filter = { name: selection.name, code: selection.code };
+            this.filter = { name: selection.name, code: selection.code.split('_')[0] };
             this.onUpdate({ course: selection });
         };
 

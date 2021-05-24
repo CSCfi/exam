@@ -49,6 +49,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 public class BaseController extends Controller {
+
     private static final Logger.ALogger logger = Logger.of(BaseController.class);
 
     @Inject
@@ -204,6 +205,17 @@ public class BaseController extends Controller {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String json = mapper.writeValueAsString(o);
+            return mapper.readTree(json);
+        } catch (IOException e) {
+            logger.error("unable to serialize");
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected JsonNode serialize(Object o, PathProperties pp) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = Ebean.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
             logger.error("unable to serialize");

@@ -30,7 +30,7 @@
                         {{ 'sitnet_course_name' | translate }}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{ $ctrl.examInfo.course.code }} {{ $ctrl.examInfo.course.name }}
+                        <course-code course="$ctrl.examInfo.course"></course-code> {{ $ctrl.examInfo.course.name }}
                     </div>
                     <div class="clearfix visible-xs"></div>
                     <div class="clearfix visible-sm"></div>
@@ -422,7 +422,7 @@
                         {{ 'sitnet_course_name' | translate }}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ $ctrl.examInfo.course.code }} {{ $ctrl.examInfo.course.name }}
+                        <course-code course="$ctrl.examInfo.course"></course-code> {{ $ctrl.examInfo.course.name }}
                     </div>
                     <div class="clearfix visible-xs"></div>
                     <div class="clearfix visible-sm"></div>

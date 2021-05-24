@@ -98,7 +98,9 @@
                 {{'sitnet_exam_status_external' | translate}}
             </td>
 
-            <td class="reservation-search" ng-if="!r.enrolment.exam.external">{{ r.enrolment.exam.course.code }}</td>
+            <td class="reservation-search" ng-if="!r.enrolment.exam.external">
+                <course-code course="r.enrolment.exam.course"></course-code>
+            </td>
             <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">
                 {{'sitnet_exam_status_external' | translate}}
             </td>

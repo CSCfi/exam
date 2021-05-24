@@ -42,6 +42,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 public class ExamInspectionController extends BaseController {
+
     @Inject
     protected EmailComposer emailComposer;
 
@@ -75,7 +76,7 @@ public class ExamInspectionController extends BaseController {
         inspection.setAssignedBy(user);
         if (comment.isPresent()) {
             Comment c = new Comment();
-            AppUtil.setCreator(c, user);
+            c.setCreatorWithDate(user);
             c.setComment(comment.get());
             inspection.setComment(c);
             c.save();

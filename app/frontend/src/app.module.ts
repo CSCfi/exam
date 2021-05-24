@@ -86,4 +86,5 @@ angular
     .directive('lowercase', directives.Lowercase.factory())
     .directive('sort', directives.Sort.factory())
     .directive('teacherList', directives.TeacherList.factory())
-    .directive('ngEnter', directives.NgEnter.factory());
+    .directive('ngEnter', directives.NgEnter.factory())
+    .directive('courseCode', directives.CourseCode.factory());

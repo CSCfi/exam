@@ -193,7 +193,7 @@ export default function configs(
         .state('machine', { url: '/machines/{id}', component: 'machine' })
         .state('reports', { url: '/reports', component: 'reports' })
         .state('statistics', { url: '/statistics', component: 'statistics' })
-        .state('settings', { url: '/settins', component: 'settings' })
+        .state('settings', { url: '/settings', component: 'settings' })
         .state('users', { url: '/users', component: 'users' })
         .state('languageInspections', { url: '/inspections', component: 'languageInspections' })
         .state('languageInspectionReports', { url: '/inspections/reports', component: 'maturityReporting' });

@@ -665,7 +665,7 @@
   "sitnet_exam_owner_description": "Ansvarslärare/tentator har alla rättigheter att redigera tentamen och bedöma prestationer",
   "sitnet_exam_instructor_description": "Bedömare har rättigheter att bedöma tentamenssvar",
   "sitnet_exam_software_description": "Genom att välja mjukvara och resurser kan du styra studenten till vissa datorer som har dessa program installerade.",
-  "sitnet_missing_statement": "Utlåtandet saknas",
+  "sitnet_missing_statement": "Återkoppling åt studenten saknas!",
   "sitnet_error_data_has_changed": "Problem med att spara informationen. Du kan t.ex. ha haft två webbläsare öppna och informationen kan ha sparats automatiskt från det andra fönstret. Kopiera texten som du redigerar t.ex. till klippbordet, refresha ditt webbläsarfönster och klistra in din text.",
   "sitnet_exam_status_rejected": "Underkänd",
   "sitnet_exam_rejected": "Underkända tentamenssvar",
@@ -991,5 +991,12 @@
   "sitnet_send_result_to_registry_popover_info": "Tenterna ska ha de bedömningar och vitsord som krävs innan den slutliga bedömningen låses. Efter att du låst bedömningen kan du inte längre ändra den och studenten får information per e-post om bedömningen.",
   "sitnet_section_accepted_and_rejected": "Godkända / underkända för sektionen:",
   "sitnet_missing_examination_event_configurations": "Tentamenstillfället saknas, tenten kan inte publiceras. Gå tillbaka och lägg till tentamenstillfälle.",
-  "sitnet_no_questions_to_review": "Inga frågor att bedöma"
+  "sitnet_no_questions_to_review": "Inga frågor att bedöma",
+  "sitnet_section_averages": "Medeltal av sektionernas poäng",
+  "sitnet_section_averages_tooltip": "Medeltal av sektionernas poäng / sektionens maxpoäng",
+  "sitnet_student_score_report": "Rapport över poäng per fråga",
+  "sitnet_download_report": "Ladda ned rapport",
+  "sitnet_error_creating_excel_file": "Ett fel uppstod då rapporten skapades",
+  "sitnet_transfer_questions": "Kopiera frågorna åt dig själv till ett annat EXAM-system",
+  "sitnet_questions_transferred": "Frågorna har kopierats"
 }

@@ -20,6 +20,7 @@ public interface ConfigReader {
     boolean isCourseSearchActive();
     Map<String, String> getCourseIntegrationUrls();
     DateTime getExamExpirationDate(DateTime timeOfSubmission);
+    DateTime getCourseValidityDate(DateTime startDate);
     String getExamExpirationPeriod();
     boolean isMaturitySupported();
     boolean isPrintoutSupported();

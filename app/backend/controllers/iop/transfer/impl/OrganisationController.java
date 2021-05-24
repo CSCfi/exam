@@ -33,6 +33,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
 public class OrganisationController extends BaseController {
+
     @Inject
     private WSClient wsClient;
 
@@ -42,7 +43,7 @@ public class OrganisationController extends BaseController {
         );
     }
 
-    @Restrict({ @Group("STUDENT") })
+    @Restrict({ @Group("STUDENT"), @Group("TEACHER") })
     public CompletionStage<Result> listOrganisations() throws MalformedURLException {
         URL url = parseUrl();
         WSRequest request = wsClient.url(url.toString());

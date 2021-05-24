@@ -20,6 +20,7 @@ import play.Logger;
 import play.mvc.Http;
 
 class AuditLogger {
+
     private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
 
     public static void log(Http.Request request) {
@@ -32,7 +33,8 @@ class AuditLogger {
         StringBuilder logEntry = new StringBuilder(
             String.format("%s %s %s %s", DateTime.now(), userString, method, uri)
         );
-        if (!method.equals("GET")) {
+        // Do not log body of data import request to avoid logs getting unreadable.
+        if (!method.equals("GET") && !request.path().equals("/integration/iop/import")) {
             String body = request.body() == null || request.body().asJson() == null
                 ? null
                 : request.body().asJson().toString();

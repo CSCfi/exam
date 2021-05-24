@@ -136,7 +136,7 @@
                         <tr
                             ng-repeat="exam in $ctrl.exams | filter: {state: $ctrl.view, expired: $ctrl.showExpired} | orderBy:$ctrl.examsPredicate:$ctrl.reverse"
                         >
-                            <td>{{exam.course.code}}</td>
+                            <td><course-code course="exam.course"></course-code></td>
                             <td>
                                 <a
                                     ng-if="exam.name"

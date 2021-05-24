@@ -19,7 +19,7 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
-import { Exam } from './exam/exam.model';
+import { Exam, Course } from './exam/exam.model';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
@@ -315,6 +315,19 @@ export class Lowercase implements IDirective {
     }
     static factory(): IDirectiveFactory {
         return () => new Lowercase();
+    }
+}
+interface CourseCodeScope extends IScope {
+    course: Course;
+}
+export class CourseCode implements IDirective<CourseCodeScope> {
+    restrict = 'E';
+    template = `<span>{{course.code.split('_')[0]}}</span>`;
+    scope = {
+        course: '=',
+    };
+    static factory(): IDirectiveFactory {
+        return () => new CourseCode();
     }
 }
 

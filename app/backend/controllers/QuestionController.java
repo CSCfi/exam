@@ -27,7 +27,6 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.QuestionTextSanitizer;
 import backend.sanitizers.SanitizingHelper;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import backend.util.xml.MoodleXmlConverter;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -53,9 +52,10 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import scala.collection.JavaConverters;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
+
     @Inject
     private MoodleXmlConverter xmlConverter;
 
@@ -163,8 +163,8 @@ public class QuestionController extends BaseController implements SectionQuestio
         Question copy = question.copy();
         copy.setParent(null);
         copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
-        AppUtil.setCreator(copy, user);
-        AppUtil.setModifier(copy, user);
+        copy.setCreatorWithDate(user);
+        copy.setModifierWithDate(user);
         copy.save();
         copy.getTags().addAll(question.getTags());
         copy.getQuestionOwners().clear();
@@ -201,9 +201,9 @@ public class QuestionController extends BaseController implements SectionQuestio
             question.setState(QuestionState.SAVED.toString());
         }
         if (question.getId() == null) {
-            AppUtil.setCreator(question, user);
+            question.setCreatorWithDate(user);
         }
-        AppUtil.setModifier(question, user);
+        question.setModifierWithDate(user);
 
         question.getQuestionOwners().clear();
         if (node.has("questionOwners")) {
@@ -235,8 +235,8 @@ public class QuestionController extends BaseController implements SectionQuestio
                 if (tag.isEmpty()) {
                     Tag newTag = new Tag();
                     newTag.setName(tagNode.get("name").asText());
-                    AppUtil.setCreator(newTag, user);
-                    AppUtil.setModifier(newTag, user);
+                    newTag.setCreatorWithDate(user);
+                    newTag.setModifier(user);
                     tag = Optional.of(newTag);
                 }
                 question.getTags().add(tag.get());
@@ -427,7 +427,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     private void addOwner(Question question, User user, User modifier) {
-        AppUtil.setModifier(question, modifier);
+        question.setModifierWithDate(modifier);
         question.getQuestionOwners().add(user);
         question.update();
     }
@@ -450,9 +450,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 q -> q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
             )
             .collect(Collectors.toList());
-        String document = xmlConverter.convert(
-            JavaConverters.collectionAsScalaIterableConverter(questions).asScala().toSeq()
-        );
+        String document = xmlConverter.convert(CollectionConverters.asScala(questions).toSeq());
         return ok(document)
             .withHeader("Content-Disposition", "attachment; filename=\"moodle-quiz.xml\"")
             .as("application/xml");

@@ -32,8 +32,8 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import backend.util.config.ConfigReader;
+import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -44,20 +44,23 @@ import java.io.IOException;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import play.Environment;
+import play.Logger;
 import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
-    @Inject
-    private Environment environment;
+
+    private static final Logger.ALogger logger = Logger.of(AttachmentController.class);
 
     @Inject
     private ConfigReader configReader;
 
-    private static void removePrevious(AttachmentContainer container) {
+    @Inject
+    private FileHandler fileHandler;
+
+    private void removePrevious(AttachmentContainer container) {
         if (container.getAttachment() != null) {
             Attachment a = container.getAttachment();
             String filePath = a.getFilePath();
@@ -67,12 +70,12 @@ public class AttachmentController extends BaseController implements LocalAttachm
             // Remove the file from disk if no references to it are found
             boolean removeFromDisk = Ebean.find(Attachment.class).where().eq("filePath", filePath).findList().isEmpty();
             if (removeFromDisk) {
-                AppUtil.removeAttachmentFile(a.getFilePath());
+                fileHandler.removeAttachmentFile(a.getFilePath());
             }
         }
     }
 
-    private static Attachment createNew(FilePart file, String path) {
+    private Attachment createNew(FilePart<?> file, String path) {
         Attachment attachment = new Attachment();
         attachment.setFileName(file.getFilename());
         attachment.setFilePath(path);
@@ -199,7 +202,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             Attachment aa = answer.getAttachment();
             answer.setAttachment(null);
             answer.save();
-            AppUtil.removeAttachmentFile(aa.getFilePath());
+            fileHandler.removeAttachmentFile(aa.getFilePath());
             aa.delete();
             return wrapAsPromise(ok(answer));
         }
@@ -282,7 +285,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         if (exam.getExamFeedback() == null) {
             Comment comment = new Comment();
-            AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setCreatorWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.save();
             exam.setExamFeedback(comment);
             exam.update();
@@ -308,7 +311,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         if (inspection.getStatement() == null) {
             Comment comment = new Comment();
-            AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
+            comment.setCreatorWithDate(request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.save();
             inspection.setStatement(comment);
             inspection.update();
@@ -439,7 +442,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     private String copyFile(Files.TemporaryFile srcFile, String... pathParams) throws IOException {
-        String newFilePath = AppUtil.createFilePath(environment, pathParams);
+        String newFilePath = fileHandler.createFilePath(pathParams);
         copyFile(srcFile, new File(newFilePath));
         return newFilePath;
     }

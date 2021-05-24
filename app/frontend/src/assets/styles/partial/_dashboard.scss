@@ -81,6 +81,10 @@
 
     }
 
+    &.unseen-review {
+      border-color: $sitnet-medium-green-new;
+    }
+
     @media (max-width: $sitnet-mobile) {
       margin-left: 0em;
       margin-right: 0em;

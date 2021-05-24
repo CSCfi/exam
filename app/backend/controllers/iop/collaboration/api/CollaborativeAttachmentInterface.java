@@ -33,7 +33,6 @@ import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
 import backend.models.sections.ExamSectionQuestion;
 import backend.security.Authenticated;
-import backend.util.AppUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -308,7 +307,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                                         li -> {
                                             if (li.getStatement() == null) {
                                                 final Comment comment = new Comment();
-                                                AppUtil.setCreator(comment, user);
+                                                comment.setCreatorWithDate(user);
                                                 li.setStatement(comment);
                                             }
                                             return uploadAttachment(filePart, ee, e, li.getStatement(), user);

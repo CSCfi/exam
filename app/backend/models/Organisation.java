@@ -25,6 +25,7 @@ import javax.persistence.OneToMany;
 
 @Entity
 public class Organisation extends GeneratedIdentityModel {
+
     private String code;
 
     private String name;
@@ -76,21 +77,5 @@ public class Organisation extends GeneratedIdentityModel {
 
     public void setParent(Organisation parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public String toString() {
-        return (
-            "Organisation{" +
-            "name='" +
-            name +
-            '\'' +
-            ", nameAbbreviation='" +
-            nameAbbreviation +
-            '\'' +
-            ", code='" +
-            code +
-            '}'
-        );
     }
 }

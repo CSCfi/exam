@@ -65,7 +65,9 @@ angular.module('app.examination').component('examination', {
 
             vm.timedOut = () =>
                 // Save all textual answers regardless of empty or not
-                Examination.saveAllTextualAnswersOfExam(vm.exam).then(() => logout('sitnet_exam_time_is_up'));
+                Examination.saveAllTextualAnswersOfExam(vm.exam, true).then(() =>
+                    logout('sitnet_exam_time_is_up', true),
+                );
 
             const findSection = function(sectionId) {
                 const i = vm.exam.examSections
@@ -89,8 +91,8 @@ angular.module('app.examination').component('examination', {
                 $window.scrollTo(0, 0);
             };
 
-            const logout = function(msg) {
-                Examination.logout(msg, vm.exam.hash, vm.exam.implementation === 'CLIENT_AUTH');
+            const logout = function(msg, canFail) {
+                Examination.logout(msg, vm.exam.hash, vm.exam.implementation === 'CLIENT_AUTH', canFail);
             };
         },
     ],

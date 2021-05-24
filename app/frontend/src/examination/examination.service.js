@@ -48,7 +48,7 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
         return deferred.promise;
     };
 
-    self.saveTextualAnswer = function(esq, hash, autosave) {
+    self.saveTextualAnswer = function(esq, hash, autosave, canFail) {
         esq.questionStatus = $translate.instant('sitnet_answer_saved');
         const deferred = $q.defer();
         const type = esq.question.type;
@@ -68,14 +68,18 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
                 if (autosave) {
                     esq.autosaved = new Date();
                 } else {
-                    toast.info($translate.instant('sitnet_answer_saved'));
+                    if (!canFail) {
+                        toast.info($translate.instant('sitnet_answer_saved'));
+                    }
                     self.setQuestionColors(esq);
                 }
                 answerObj.objectVersion = resp.data.objectVersion;
                 deferred.resolve();
             })
             .catch(function(resp) {
-                toast.error(resp.data);
+                if (!canFail) {
+                    toast.error(resp.data);
+                }
                 deferred.reject();
             });
         return deferred.promise;
@@ -92,14 +96,14 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
         }
     };
 
-    self.saveAllTextualAnswersOfSection = function(section, hash, autosave, allowEmpty) {
+    self.saveAllTextualAnswersOfSection = function(section, hash, autosave, allowEmpty, canFail) {
         const deferred = $q.defer();
 
         const questions = section.sectionQuestions.filter(function(esq) {
             return isTextualAnswer(esq, allowEmpty);
         });
         const save = function(question, cb) {
-            self.saveTextualAnswer(question, hash, autosave).then(
+            self.saveTextualAnswer(question, hash, autosave, canFail).then(
                 () => cb(null),
                 err => cb(err),
             );
@@ -109,10 +113,10 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
         return deferred.promise;
     };
 
-    self.saveAllTextualAnswersOfExam = exam => {
+    self.saveAllTextualAnswersOfExam = (exam, canFail) => {
         const deferred = $q.defer();
         const save = (section, cb) =>
-            self.saveAllTextualAnswersOfSection(section, exam.hash, false, true).then(
+            self.saveAllTextualAnswersOfSection(section, exam.hash, false, true, canFail).then(
                 () => cb(null),
                 err => cb(err),
             );
@@ -204,17 +208,22 @@ function ExaminationFactory($q, $state, $http, $window, $translate) {
         return $http.put(url);
     };
 
-    self.logout = function(msg, hash, quitLinkEnabled) {
+    self.logout = function(msg, hash, quitLinkEnabled, canFail) {
         const url = getResource('/app/student/exam/' + hash);
+        const ok = () => {
+            toast.info($translate.instant(msg), { timeOut: 5000 });
+            $window.onbeforeunload = null;
+            $state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+        };
         $http
             .put(url)
-            .then(function() {
-                toast.info($translate.instant(msg), { timeOut: 5000 });
-                $window.onbeforeunload = null;
-                $state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
-            })
+            .then(ok)
             .catch(function(resp) {
-                toast.error($translate.instant(resp.data));
+                if (!canFail) {
+                    toast.error($translate.instant(resp.data));
+                } else {
+                    ok();
+                }
             });
     };
 

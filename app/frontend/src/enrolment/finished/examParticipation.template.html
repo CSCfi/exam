@@ -1,4 +1,7 @@
-<div class="student-enrolment-wrapper marr20 marl20">
+<div
+    class="student-enrolment-wrapper marr20 marl20"
+    ng-class="{'unseen-review': $ctrl.participation.reviewedExam.examFeedback.feedbackStatus === null}"
+>
     <div class="col-md-12">
         <div class="student-exam-header-row">
             <div>
@@ -19,7 +22,8 @@
                             {{ 'sitnet_course_name' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.participation.exam.course.code }} {{ $ctrl.participation.exam.course.name }}
+                            <course-code course="$ctrl.participation.exam.course"></course-code> {{
+                            $ctrl.participation.exam.course.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>

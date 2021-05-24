@@ -30,7 +30,7 @@ public interface SectionQuestionHandler {
 
     default void saveOption(MultipleChoiceOption option, Question question, User user) {
         question.getOptions().add(option);
-        AppUtil.setModifier(question, user);
+        question.setModifierWithDate(user);
         question.save();
         option.save();
     }

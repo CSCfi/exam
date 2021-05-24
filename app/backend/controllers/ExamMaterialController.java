@@ -48,8 +48,8 @@ public class ExamMaterialController extends QuestionController implements Sectio
     public Result createMaterial(Http.Request request) {
         ExamMaterial em = parseFromBody(request.body().asJson());
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        AppUtil.setCreator(em, user);
-        AppUtil.setModifier(em, user);
+        em.setCreatorWithDate(user);
+        em.setModifierWithDate(user);
         em.save();
         return ok(em);
     }

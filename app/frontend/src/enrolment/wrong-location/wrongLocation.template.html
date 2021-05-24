@@ -35,8 +35,8 @@
         <div class="col-md-12">
             <span class="exams-list-title-text pull-left"
                 >{{ 'sitnet_reserved_exam' | translate}}:&nbsp {{$ctrl.enrolment.exam.name}} -
-                {{$ctrl.enrolment.exam.course.code}}</span
-            >
+            </span>
+            <course-code course="$ctrl.enrolment.exam.course"></course-code>
         </div>
     </div>
 

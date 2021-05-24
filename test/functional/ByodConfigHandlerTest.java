@@ -10,7 +10,8 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 
 public class ByodConfigHandlerTest extends IntegrationTestCase {
-    private Application app = new GuiceApplicationBuilder().build();
+
+    private final Application app = new GuiceApplicationBuilder().build();
 
     @Test
     public void testCalculateConfigKey() {

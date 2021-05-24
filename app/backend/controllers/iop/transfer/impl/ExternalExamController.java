@@ -85,6 +85,7 @@ import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
+
     @Inject
     private WSClient wsClient;
 
@@ -131,8 +132,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
             copy.save();
             clone.setAttachment(copy);
         }
-        AppUtil.setCreator(clone, user);
-        AppUtil.setModifier(clone, user);
+        clone.setCreatorWithDate(user);
+        clone.setModifierWithDate(user);
         clone.generateHash();
         clone.save();
 
@@ -151,13 +152,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
         for (ExamSection es : sections) {
             ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
-            AppUtil.setCreator(esCopy, user);
-            AppUtil.setModifier(esCopy, user);
+            esCopy.setCreatorWithDate(user);
+            esCopy.setModifierWithDate(user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 Question questionCopy = esq.getQuestion();
-                AppUtil.setCreator(questionCopy, user);
-                AppUtil.setModifier(questionCopy, user);
+                questionCopy.setCreatorWithDate(user);
+                questionCopy.setModifierWithDate(user);
                 questionCopy.update();
                 esq.save();
             }
@@ -360,11 +361,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(
                     esq -> {
-                        Question.Type questionType = Optional
+                        Optional<Question.Type> questionType = Optional
                             .ofNullable(esq.getQuestion())
-                            .map(Question::getType)
-                            .orElseGet(null);
-                        if (questionType == Question.Type.ClaimChoiceQuestion) {
+                            .map(Question::getType);
+                        if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
                             Set<ExamSectionQuestionOption> sorted = esq
                                 .getOptions()
                                 .stream()

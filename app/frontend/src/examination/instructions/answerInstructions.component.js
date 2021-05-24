@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import angular from 'angular';
 
 angular.module('app.examination').component('answerInstructions', {
@@ -28,7 +27,7 @@ angular.module('app.examination').component('answerInstructions', {
         '    </div>' +
         '    <div class="guide-column">' +
         '        <span class="header col-md-4"><span>{{ \'sitnet_course_code\' | translate }}:</span></span>' +
-        '        <span class="text col-md-8">{{ $ctrl.exam.course.code }}&nbsp;</span>' +
+        '        <span class="text col-md-8"><course-code course="$ctrl.exam.course"></course-code>&nbsp;</span>' +
         '    </div>' +
         '    <div class="guide-column">' +
         '        <span class="header col-md-4"><span>{{ \'sitnet_exam_name\' | translate }}:</span></span>' +
