@@ -12,14 +12,35 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
+import { NgbDate, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import type { OnInit } from '@angular/core';
+
+@Injectable()
+export class DatePickerFormatter extends NgbDateParserFormatter {
+    readonly DELIMITER = '.';
+
+    parse(value: string): NgbDateStruct {
+        const date = value.split(this.DELIMITER);
+        return {
+            day: parseInt(date[0], 10),
+            month: parseInt(date[1], 10),
+            year: parseInt(date[2], 10),
+        };
+    }
+
+    format(date: NgbDateStruct | null): string {
+        return date ? date.day + this.DELIMITER + date.month + this.DELIMITER + date.year : '';
+    }
+}
+
 @Component({
     selector: 'date-picker',
     templateUrl: './datePicker.component.html',
+    providers: [{ provide: NgbDateParserFormatter, useClass: DatePickerFormatter }],
 })
 export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | null = null;
