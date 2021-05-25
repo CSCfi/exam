@@ -78,10 +78,10 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         this.Tabs.notifyTabChange(1);
     }
 
-    ngOnDestroy = () => {
+    ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    };
+    }
 
     updateExam = (resetAutoEvaluationConfig: boolean) => {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(

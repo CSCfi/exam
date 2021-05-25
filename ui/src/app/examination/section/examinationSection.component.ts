@@ -17,7 +17,6 @@ import { Component, Input } from '@angular/core';
 import { WindowRef } from '../../utility/window/window.service';
 import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
 
-import type { SimpleChanges } from '@angular/core';
 @Component({
     selector: 'examination-section',
     templateUrl: './examinationSection.component.html',
@@ -37,13 +36,9 @@ export class ExaminationSectionComponent {
         this.resetAutosaver();
     }
 
-    ngOnChanges = (changes: SimpleChanges) => {
-        if (changes.section) {
-            this.resetAutosaver();
-        }
-    };
-
-    ngOnDestroy = () => this.cancelAutosaver();
+    ngOnDestroy() {
+        this.cancelAutosaver();
+    }
 
     getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
 

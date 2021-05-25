@@ -79,10 +79,10 @@ export class ExamParticipationComponent implements OnInit {
         });
     }
 
-    ngOnDestroy = () => {
+    ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
-    };
+    }
 
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (
