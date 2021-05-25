@@ -553,14 +553,13 @@ public class ExamController extends BaseController {
             if (course == null) {
                 return notFound("sitnet_error_not_found");
             }
-            Date now = new Date();
             if (course.getStartDate() != null) {
                 DateTime validity = configReader.getCourseValidityDate(new DateTime(course.getStartDate()));
                 if (validity.isAfterNow()) {
                     return forbidden("sitnet_error_course_not_active");
                 }
             }
-            if (course.getEndDate() != null && course.getEndDate().before(now)) {
+            if (course.getEndDate() != null && course.getEndDate().before(new Date())) {
                 return forbidden("sitnet_error_course_not_active");
             }
             exam.setCourse(course);
