@@ -166,7 +166,7 @@ export class ExamService {
             ),
         );
 
-    getScaleDisplayName = (gs: GradeScale | null): string => {
+    getScaleDisplayName = (gs?: GradeScale): string => {
         if (!gs) {
             return '';
         }

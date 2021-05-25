@@ -39,7 +39,9 @@ export class EnrolmentDetailsComponent {
     translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
 
     translateGradeScale = () =>
-        this.Exam.getScaleDisplayName(this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : null));
+        this.Exam.getScaleDisplayName(
+            this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : undefined),
+        );
 
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
 

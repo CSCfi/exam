@@ -6,6 +6,7 @@ export type UpdateProps = {
     code: string | null;
     name: string | null;
     scaleChange: boolean;
+    initScale: boolean;
 };
 
 @Injectable()

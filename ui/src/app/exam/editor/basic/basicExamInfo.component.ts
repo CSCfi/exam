@@ -27,13 +27,13 @@ import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../examTabs.service';
 
-import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import type { OnDestroy, OnInit } from '@angular/core';
 import type { ExamType, GradeScale } from '../../exam.model';
 @Component({
     selector: 'basic-exam-info',
     templateUrl: './basicExamInfo.component.html',
 })
-export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
+export class BasicExamInfoComponent implements OnInit, OnDestroy {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 
@@ -75,15 +75,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.http
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe((setting) => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
-        this.initGradeScale();
         this.Tabs.notifyTabChange(1);
     }
-
-    ngOnChanges = (changes: SimpleChanges) => {
-        if (changes.exam) {
-            this.initGradeScale();
-        }
-    };
 
     ngOnDestroy = () => {
         this.unsubscribe.next();
@@ -94,14 +87,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_exam_saved'));
-                if (resetAutoEvaluationConfig) {
-                    delete this.exam.autoEvaluationConfig;
-                }
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.ExamTabs.notifyExamUpdate({
                     name: this.exam.name,
                     code: code,
                     scaleChange: resetAutoEvaluationConfig,
+                    initScale: false,
                 });
             },
             (resp) => toast.error(resp),
@@ -109,12 +100,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     onCourseChange = () => {
-        this.initGradeScale(); //  Grade scale might need changing based on new course
         const code = this.exam.course ? this.exam.course.code : null;
         this.ExamTabs.notifyExamUpdate({
             name: this.exam.name,
             code: code,
-            scaleChange: false,
+            scaleChange: !this.gradeScaleSetting.overridable,
+            initScale: !this.gradeScaleSetting.overridable && !this.collaborative,
         });
     };
 
@@ -224,12 +215,5 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy, OnChanges {
         this.Exam.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
             this.gradeScales = scales;
         });
-    };
-
-    private initGradeScale = () => {
-        // Set exam grade scale from course default if not specifically set for exam
-        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
-            this.exam.gradeScale = this.exam.course.gradeScale;
-        }
     };
 }

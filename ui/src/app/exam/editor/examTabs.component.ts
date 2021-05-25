@@ -16,7 +16,6 @@ import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -25,14 +24,14 @@ import { Exam } from '../exam.model';
 import { ExamTabService } from './examTabs.service';
 
 import type { UpdateProps } from './examTabs.service';
-import type { OnInit } from '@angular/core';
+import type { OnInit, OnDestroy } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../../session/session.service';
 @Component({
     selector: 'exam-tabs',
     templateUrl: './examTabs.component.html',
 })
-export class ExamTabsComponent implements OnInit {
+export class ExamTabsComponent implements OnInit, OnDestroy {
     @Input() exam: Exam;
     @Input() collaborative: boolean;
 
@@ -69,6 +68,13 @@ export class ExamTabsComponent implements OnInit {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
+
+    private initGradeScale = () => {
+        // Set exam grade scale from course default if not specifically set for exam
+        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
+            this.exam.gradeScale = this.exam.course.gradeScale;
+        }
+    };
 
     updateTitle = (code: string | null, name: string | null) => {
         if (code && name) {
@@ -108,8 +114,10 @@ export class ExamTabsComponent implements OnInit {
     examUpdated = (props: UpdateProps) => {
         this.updateTitle(props.code, props.name);
         if (props.scaleChange) {
-            // Propagate a change so that children (namely auto eval component) can act based on scale change
-            this.exam = _.cloneDeep(this.exam);
+            delete this.exam.autoEvaluationConfig;
+        }
+        if (props.initScale) {
+            this.exam.gradeScale = this.exam?.course?.gradeScale;
         }
     };
 }

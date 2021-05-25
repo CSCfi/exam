@@ -36,7 +36,7 @@ export interface Course {
     name: string;
     code: string;
     credits: number;
-    gradeScale: GradeScale | null;
+    gradeScale?: GradeScale;
     organisation?: Organisation;
 }
 
