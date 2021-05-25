@@ -15,13 +15,9 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.User;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,6 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamParticipation;
+import models.User;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -540,7 +540,11 @@ public class StatisticsController extends BaseController {
             data.add(Integer.toString(p.getExam().getDuration()));
             data.add(p.getExam().getState().toString());
             data.add(Double.toString(p.getExam().getTotalScore()));
-            data.add(p.getExam().getGradeScale().getDescription());
+            data.add(
+                p.getExam().getGradeScale() != null
+                    ? p.getExam().getGradeScale().getDescription()
+                    : p.getExam().getCourse().getGradeScale().getDescription()
+            );
             data.add(p.getExam().getGrade() == null ? "" : p.getExam().getGrade().getName());
             data.add(
                 p.getExam().getGradedTime() == null
