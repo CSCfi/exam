@@ -16,29 +16,12 @@
 package controllers;
 
 import akka.actor.ActorSystem;
-import controllers.base.BaseController;
-import impl.EmailComposer;
-import impl.ExamUpdater;
-import models.Course;
-import models.Exam;
-import models.ExamExecutionType;
-import models.ExamMachine;
-import models.ExamType;
-import models.GradeScale;
-import models.Language;
-import models.Role;
-import models.Software;
-import models.User;
-import models.sections.ExamSection;
-import sanitizers.Attrs;
-import sanitizers.ExamUpdateSanitizer;
-import security.Authenticated;
-import system.interceptors.Anonymous;
-import util.config.ByodConfigHandler;
-import util.config.ConfigReader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
+import impl.EmailComposer;
+import impl.ExamUpdater;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
@@ -50,12 +33,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import javax.inject.Inject;
+import models.Course;
+import models.Exam;
+import models.ExamExecutionType;
+import models.ExamMachine;
+import models.ExamType;
+import models.GradeScale;
+import models.Language;
+import models.Role;
+import models.Software;
+import models.User;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExamUpdateSanitizer;
+import security.Authenticated;
+import system.interceptors.Anonymous;
+import util.config.ByodConfigHandler;
+import util.config.ConfigReader;
 
 public class ExamController extends BaseController {
 
@@ -554,8 +554,11 @@ public class ExamController extends BaseController {
                 return notFound("sitnet_error_not_found");
             }
             Date now = new Date();
-            if (course.getStartDate() != null && course.getStartDate().after(now)) {
-                return forbidden("sitnet_error_course_not_active");
+            if (course.getStartDate() != null) {
+                DateTime validity = configReader.getCourseValidityDate(new DateTime(course.getStartDate()));
+                if (validity.isAfterNow()) {
+                    return forbidden("sitnet_error_course_not_active");
+                }
             }
             if (course.getEndDate() != null && course.getEndDate().before(now)) {
                 return forbidden("sitnet_error_course_not_active");
