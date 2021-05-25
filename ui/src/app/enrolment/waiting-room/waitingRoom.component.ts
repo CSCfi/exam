@@ -13,16 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
+
+import type { OnDestroy, OnInit } from '@angular/core';
+import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import type { ExamEnrolment } from '../enrolment.model';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -64,9 +65,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             this.isUpcoming = true;
             this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
                 (enrolment) => {
-                    if (!enrolment.reservation) {
-                        throw Error('no reservation found');
-                    }
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
@@ -105,12 +103,16 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         };
     };
 
-    private calculateOffset = () => {
-        const startsAt = moment(this.enrolment.reservation.startAt);
-        const now = moment();
-        if (now.isDST()) {
-            startsAt.add(-1, 'hour');
+    private getStart = () => {
+        if (this.enrolment.examinationEventConfiguration) {
+            return moment(this.enrolment.examinationEventConfiguration.examinationEvent.start);
         }
-        return Date.parse(startsAt.format()) - new Date().getTime();
+        const start = moment(this.enrolment.reservation.startAt);
+        if (moment().isDST()) {
+            start.add(-1, 'hour');
+        }
+        return start;
     };
+
+    private calculateOffset = () => Date.parse(this.getStart().format()) - new Date().getTime();
 }

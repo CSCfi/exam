@@ -66,7 +66,7 @@
                             type="text"
                             class="form-control wdth-30"
                             [(ngModel)]="exam.name"
-                            (change)="updateExamName()"
+                            (blur)="updateExamName()"
                             required
                         />
                         <label for="examLanguage" class="mt-2">
