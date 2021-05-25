@@ -34,7 +34,6 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.security.Authenticated;
 import backend.system.interceptors.Anonymous;
-import backend.util.AppUtil;
 import backend.util.config.ByodConfigHandler;
 import backend.util.config.ConfigReader;
 import be.objectify.deadbolt.java.actions.Group;
@@ -553,11 +552,13 @@ public class ExamController extends BaseController {
             if (course == null) {
                 return notFound("sitnet_error_not_found");
             }
-            Date now = new Date();
-            if (course.getStartDate() != null && course.getStartDate().after(now)) {
-                return forbidden("sitnet_error_course_not_active");
+            if (course.getStartDate() != null) {
+                DateTime validity = configReader.getCourseValidityDate(new DateTime(course.getStartDate()));
+                if (validity.isAfterNow()) {
+                    return forbidden("sitnet_error_course_not_active");
+                }
             }
-            if (course.getEndDate() != null && course.getEndDate().before(now)) {
+            if (course.getEndDate() != null && course.getEndDate().before(new Date())) {
                 return forbidden("sitnet_error_course_not_active");
             }
             exam.setCourse(course);
