@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
+import * as _ from 'lodash';
 import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -209,7 +210,7 @@ export class ExamService {
         }
     };
 
-    hasCustomCredit = (exam: Exam | ReviewedExam) => !isNaN(exam.customCredit) && exam.customCredit >= 0;
+    hasCustomCredit = (exam: Exam | ReviewedExam) => _.isNumber(exam.customCredit) && exam.customCredit >= 0;
 
     getExamDisplayCredit = (exam: Exam) => {
         const courseCredit = exam.course ? exam.course.credits : 0;
