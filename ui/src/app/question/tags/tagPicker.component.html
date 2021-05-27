@@ -39,8 +39,7 @@
                 <button
                     class="reviewer-remove"
                     ngbPopover="{{ 'sitnet_remove' | translate }}"
-                    placement="top"
-                    delay="500"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     (click)="removeTag(tag)"
                     title="{{ 'sitnet_remove' | translate }}"

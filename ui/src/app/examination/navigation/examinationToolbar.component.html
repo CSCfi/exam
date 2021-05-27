@@ -95,6 +95,7 @@
                  {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
                  {{ getQuestionAmount(section, 'total') }}"
                 triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
             >
                 <div class="mr-3">
                     <div
@@ -142,6 +143,7 @@
             tabindex="0"
             class="row pointer d-flex align-items-center m-0"
             ngbPopover="{{ displayRoomInstructions() }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
         >
             <a class="mr-2">

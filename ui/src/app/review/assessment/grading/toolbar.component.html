@@ -29,7 +29,7 @@
             (click)="saveAssessment()"
             ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
             triggers="mouseenter:mouseleave"
-            placement="top"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
         >
             {{ 'sitnet_save_changes' | translate }}
         </button>
@@ -38,7 +38,7 @@
         <span
             class="disabled-button-popover-wrapper"
             ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"
-            placement="top"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
         >
             <button

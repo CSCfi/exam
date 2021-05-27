@@ -57,7 +57,8 @@ import type { User } from '../../../session/session.service';
                         (click)="getStudentReport()"
                         class="print-btn"
                         download
-                        popover-trigger="mouseenter:mouseleave"
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>

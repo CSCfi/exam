@@ -73,6 +73,7 @@
                                     <a
                                         (click)="sw.showName = !sw.showName"
                                         ngbPopover="{{ 'sitnet_edit' | translate }}"
+                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                         triggers="mouseenter:mouseleave"
                                     >
                                         <i class="bi-pencil"></i>
@@ -83,6 +84,7 @@
                                         (click)="removeSoftware(sw)"
                                         ngbPopover="{{ 'sitnet_remove_software' | translate }}"
                                         triggers="mouseenter:mouseleave"
+                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                     >
                                         <i class="sitnet-red bi-x"></i>
                                     </a>

@@ -4,8 +4,7 @@
             <div
                 class="col-md-1"
                 ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
-                placement="right"
-                delay="500"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <i

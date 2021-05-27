@@ -10,8 +10,7 @@
             <a
                 [hidden]="room.state === 'INACTIVE'"
                 (click)="disableRoom(room)"
-                placement="top"
-                delay="500"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'sitnet_inactivate_room' | translate }}"
             >
@@ -20,8 +19,7 @@
             <a
                 [hidden]="room.state !== 'INACTIVE'"
                 (click)="enableRoom(room)"
-                placement="top"
-                delay="500"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'sitnet_activate_room' | translate }}"
             >
@@ -35,8 +33,7 @@
                         <a
                             uiSref="room"
                             [uiParams]="{ id: room.id }"
-                            placement="top"
-                            delay="500"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_edit' | translate }}"
                         >

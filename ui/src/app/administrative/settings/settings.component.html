@@ -39,7 +39,8 @@
                 min="1"
                 [(ngModel)]="config.reviewDeadline"
                 ngbPopover="{{ 'sitnet_info_deadline' | translate }}"
-                triggers="focus"
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
             />
         </div>
     </div>
@@ -62,10 +63,11 @@
                 class="form-control"
                 type="number"
                 lang="en"
-                min="1"
+                [min]="1"
                 [(ngModel)]="config.reservationWindowSize"
                 ngbPopover="{{ 'sitnet_info_reservation_window' | translate }}"
-                triggers="focus"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
             />
         </div>
     </div>

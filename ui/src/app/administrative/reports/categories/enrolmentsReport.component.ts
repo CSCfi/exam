@@ -17,6 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
+
 import type { ExamName } from '../reports.service';
 
 @Component({
@@ -44,6 +45,7 @@ import type { ExamName } from '../reports.service';
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>

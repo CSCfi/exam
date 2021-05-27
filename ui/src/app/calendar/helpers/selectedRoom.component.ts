@@ -42,6 +42,7 @@ import type { OpeningHours } from '../calendar.service';
                     [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ eh.description | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 >
                     {{ eh.start }} - {{ eh.end }}
                 </div>

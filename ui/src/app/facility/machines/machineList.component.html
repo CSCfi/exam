@@ -6,17 +6,29 @@
         </a>
 
         {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
-        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_machine_available' | translate }}">
+        <span
+            triggers="mouseenter:mouseleave"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
+        >
             <span class="badge badge-success">
                 {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
             </span>
         </span>
-        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_notice' | translate }}">
+        <span
+            triggers="mouseenter:mouseleave"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'sitnet_status_notice' | translate }}"
+        >
             <span class="badge badge-warning marl10 sitnet-white">
                 {{ countMachineNotices() }}
             </span>
         </span>
-        <span triggers="mouseenter:mouseleave" ngbPopover="{{ 'sitnet_status_inservice' | translate }}">
+        <span
+            triggers="mouseenter:mouseleave"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
+        >
             <span class="badge badge-danger marl10">
                 {{ countMachineAlerts() }}
             </span>
@@ -26,6 +38,7 @@
             (click)="addNewMachine()"
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_add' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
         >
             <i class="pt-2 bi bi-plus-circle"></i>
         </a>

@@ -46,6 +46,7 @@ import { FileService } from '../../../utility/file/file.service';
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>

@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
+
 import type { User } from '../../../session/session.service';
 
 @Component({
@@ -57,6 +58,7 @@ import type { User } from '../../../session/session.service';
                         (click)="getTeacherExamsByDate()"
                         download
                         triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>

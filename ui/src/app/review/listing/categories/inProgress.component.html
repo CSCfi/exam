@@ -17,7 +17,7 @@
     <sup class="padl05">
         <img
             ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
-            placement="right"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
             src="/assets/assets/images/icon_tooltip.svg"
             alt="exam"
@@ -58,7 +58,7 @@
             <div *ngIf="!collaborative" class="review-attachment-button">
                 <a
                     ngbPopover="{{ 'sitnet_exam_review_attachment_description' | translate }}"
-                    placement="left"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     class="pointer"
                     (click)="getAnswerAttachments()"

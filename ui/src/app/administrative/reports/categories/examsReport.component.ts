@@ -49,6 +49,7 @@ import type { ExamName } from '../reports.service';
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_download' | translate }}"
                     >
                         <i *ngIf="fileType === 'xlsx'" class="bi-file-earmark-excel font-6"></i>
