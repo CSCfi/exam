@@ -1,24 +1,11 @@
 package impl;
 
 import akka.actor.ActorSystem;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
-import models.Accessibility;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExamStartingHour;
-import models.MailAddress;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
-import models.json.CollaborativeExam;
-import models.sections.ExamSection;
-import util.config.ConfigReader;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +24,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import models.Accessibility;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExamStartingHour;
+import models.MailAddress;
+import models.Reservation;
+import models.User;
+import models.iop.ExternalReservation;
+import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -49,6 +48,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import util.config.ConfigReader;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 
@@ -92,7 +92,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .fetch("enrolment.exam")
                 .where()
                 .eq("user", user)
-                .gt("startAt", searchDate.toDate())
+                .gt("startAt", searchDate.minusDays(1).toDate())
                 .findList();
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
@@ -110,7 +110,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Override
     public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
-        LocalDate searchDate = reservation.getStartAt().toLocalDate();
+        DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        LocalDate searchDate = reservation.getStartAt().withZone(dtz).toLocalDate();
         // users reservations starting from now
         List<Reservation> reservations = Ebean
             .find(Reservation.class)
@@ -233,21 +234,24 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Override
     public Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration) {
-        Collection<Interval> examSlots = new ArrayList<>();
         // Resolve the opening hours for room and day
         List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
         if (!openingHours.isEmpty()) {
             // Get suitable slots based on exam duration
-            for (Interval slot : allSlots(openingHours, room, date)) {
-                DateTime beginning = slot.getStart();
-                DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
-                if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
-                    DateTime end = beginning.plusMinutes(examDuration);
-                    examSlots.add(new Interval(beginning, end));
-                }
-            }
+            List<Interval> slots = allSlots(openingHours, room, date)
+                .stream()
+                .filter(
+                    slot -> {
+                        DateTime beginning = slot.getStart();
+                        DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
+                        return !beginning.plusMinutes(examDuration).isAfter(openUntil);
+                    }
+                )
+                .map(slot -> new Interval(slot.getStart(), slot.getStart().plusMinutes(examDuration)))
+                .collect(Collectors.toList());
+            return slots;
         }
-        return examSlots;
+        return Collections.emptyList();
     }
 
     private boolean isReservationForExam(Reservation r, Exam e) {
@@ -345,7 +349,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     /**
      * @return all intervals that fall within provided working hours
      */
-    private static Iterable<Interval> allSlots(
+    private static Collection<Interval> allSlots(
         Iterable<ExamRoom.OpeningHours> openingHours,
         ExamRoom room,
         LocalDate date
