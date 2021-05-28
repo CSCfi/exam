@@ -199,12 +199,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
-        for (ExamMachine machine : machines) {
-            if (!machine.isReservedDuring(wantedTime)) {
-                return Optional.of(machine);
-            }
-        }
-        return Optional.empty();
+        return machines.stream().filter(m -> !m.isReservedDuring(wantedTime)).findFirst();
     }
 
     @Override
@@ -238,7 +233,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
         if (!openingHours.isEmpty()) {
             // Get suitable slots based on exam duration
-            List<Interval> slots = allSlots(openingHours, room, date)
+            return allSlots(openingHours, room, date)
                 .stream()
                 .filter(
                     slot -> {
@@ -249,7 +244,6 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 )
                 .map(slot -> new Interval(slot.getStart(), slot.getStart().plusMinutes(examDuration)))
                 .collect(Collectors.toList());
-            return slots;
         }
         return Collections.emptyList();
     }
@@ -616,14 +610,17 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
-        for (ExamStartingHour esh : startingHours) {
-            int timeMs = new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay();
-            DateTime datetime = instant.withMillisOfDay(timeMs);
-            if (!datetime.isBefore(instant)) {
-                return datetime;
-            }
-        }
-        return null;
+        return startingHours
+            .stream()
+            .map(
+                sh -> {
+                    int timeMs = new LocalTime(sh.getStartingHour()).plusMillis(offset).getMillisOfDay();
+                    return instant.withMillisOfDay(timeMs);
+                }
+            )
+            .filter(dt -> !dt.isBefore(instant))
+            .findFirst()
+            .orElse(null);
     }
 
     private static List<ExamStartingHour> createDefaultStartingHours(String roomTz) {
@@ -643,12 +640,11 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours) {
-        for (ExamRoom.OpeningHours oh : openingHours) {
-            if (oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset()))) {
-                return oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset());
-            }
-        }
-        // should not occur, indicates programming error
-        throw new RuntimeException("slot not contained within opening hours, recheck logic!");
+        return openingHours
+            .stream()
+            .filter(oh -> oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset())))
+            .map(oh -> oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("slot not contained within opening hours, recheck logic!"));
     }
 }
