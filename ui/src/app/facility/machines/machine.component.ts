@@ -106,4 +106,10 @@ export class MachineComponent implements OnInit {
         );
 
     updateMachineAndExit = () => this.updateMachine(() => this.state.go('rooms'));
+
+    setReason = () => {
+        if (!this.machine.outOfService) {
+            delete this.machine.statusComment;
+        }
+    };
 }

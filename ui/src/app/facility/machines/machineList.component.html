@@ -18,15 +18,6 @@
         <span
             triggers="mouseenter:mouseleave"
             popoverTitle="{{ 'sitnet_instructions' | translate }}"
-            ngbPopover="{{ 'sitnet_status_notice' | translate }}"
-        >
-            <span class="badge badge-warning marl10 sitnet-white">
-                {{ countMachineNotices() }}
-            </span>
-        </span>
-        <span
-            triggers="mouseenter:mouseleave"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
             ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
         >
             <span class="badge badge-danger marl10">
@@ -38,7 +29,6 @@
             (click)="addNewMachine()"
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_add' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
         >
             <i class="pt-2 bi bi-plus-circle"></i>
         </a>
@@ -72,9 +62,9 @@
                 <td>
                     <ul>
                         <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
-                            <ng-template *ngIf="software.status !== 'DISABLED'">
-                                {{ software.name }}{{ l ? '' : ',&nbsp;' }}
-                            </ng-template>
+                            <span *ngIf="software.status != 'DISABLED'">
+                                {{ software.name }}<span *ngIf="!l">, </span>
+                            </span>
                         </li>
                     </ul>
                 </td>
@@ -82,11 +72,8 @@
                     <span class="status_red" *ngIf="machine.outOfService">{{
                         'sitnet_status_inactive' | translate
                     }}</span>
-                    <span class="status_green" *ngIf="!machine.outOfService && !machine.statusComment">{{
+                    <span class="status_green" *ngIf="!machine.outOfService">{{
                         'sitnet_status_active' | translate
-                    }}</span>
-                    <span class="status_orange" *ngIf="!machine.outOfService && machine.statusComment">{{
-                        'sitnet_status_notice' | translate
                     }}</span>
                     <span class="status_comment col-md-12">{{ machine.statusComment }}</span>
                 </td>

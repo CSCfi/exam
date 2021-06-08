@@ -6,7 +6,7 @@
     </div>
 
     <div>
-        <div class="row col-md-12 margin-20">
+        <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_name' | translate }}
                 <sup class="padl05">
@@ -22,7 +22,7 @@
             </div>
             <div class="col-md-6">{{ exam.name }}</div>
         </div>
-        <div class="row col-md-12 margin-20">
+        <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_course_name' | translate }}
                 <sup class="padl05">
@@ -37,153 +37,149 @@
                 </sup>
             </div>
             <div class="col-md-6">{{ exam.course.name }}</div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_exam_validity' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_exam_validity_period_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6">
-                    {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                    {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
-                </div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_exam_validity' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_exam_validity_period_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_exam_amount_questions' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_exam_amount_questions_description' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6" *ngIf="exam">
-                    {{ getQuestionCounts() }}
-                </div>
+            <div class="col-md-6">
+                {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} -
+                {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
             </div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_exam_amount_reservations' | translate }} /
-                    {{ 'sitnet_exam_amount_participations' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_exam_amount_reservations_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6" *ngIf="reviews">
-                    {{ gradedCount }} / {{ getRegisteredCount() }} ({{
-                        (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
-                    }}%)
-                </div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_exam_amount_questions' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_exam_amount_questions_description' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_exam_average_time' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_exam_average_time_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number: '1.0-1' }} min</div>
+            <div class="col-md-6" *ngIf="exam">
+                {{ getQuestionCounts() }}
             </div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_aborted_exams' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6">
-                    <a class="pointer bold underline" *ngIf="reviews.length > 0" (click)="openAborted()">
-                        {{ abortedExams.length }}
-                    </a>
-                </div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_exam_amount_reservations' | translate }} /
+                {{ 'sitnet_exam_amount_participations' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_exam_amount_reservations_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
             </div>
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_no_shows' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6">
-                    <a class="pointer bold underline" (click)="openNoShows()">
-                        {{ noShows.length }}
-                    </a>
-                </div>
+            <div class="col-md-6" *ngIf="reviews">
+                {{ gradedCount }} / {{ getRegisteredCount() }} ({{
+                    (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
+                }}%)
+            </div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_exam_average_time' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_exam_average_time_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number: '1.0-1' }} min</div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_aborted_exams' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" *ngIf="reviews.length > 0" (click)="openAborted()">
+                    {{ abortedExams.length }}
+                </a>
+            </div>
+        </div>
+        <div class="row margin-20">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_no_shows' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-6">
+                <a class="pointer bold underline" (click)="openNoShows()">
+                    {{ noShows.length }}
+                </a>
             </div>
         </div>
 
-        <div class="col-md-12 mart40">
-            <div class="review-list-title">
+        <div class="row mart40">
+            <div class="col-md-12 review-list-title">
                 {{ 'sitnet_feedback_summary' | translate }}
             </div>
         </div>
 
-        <div class="col-md-12">
-            <div class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_feedback_messages_read' | translate }}
-                    <sup class="padl05">
-                        <img
-                            ngbPopover="{{ 'sitnet_feedback_summary_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            src="/assets/assets/images/icon_tooltip.svg"
-                            alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                        />
-                    </sup>
-                </div>
-                <div class="col-md-6" *ngIf="reviews">
-                    {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{
-                        getFeedbackPercentage() | number: '1.0-1'
-                    }}%)
-                </div>
+        <div class="row">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_feedback_messages_read' | translate }}
+                <sup class="padl05">
+                    <img
+                        ngbPopover="{{ 'sitnet_feedback_summary_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        src="/assets/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-6" *ngIf="reviews">
+                {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{ getFeedbackPercentage() | number: '1.0-1' }}%)
             </div>
         </div>
 
-        <div class="col-md-12 mart40">
-            <div class="review-list-title">
+        <div class="row mart40">
+            <div class="col-md-12 review-list-title">
                 {{ 'sitnet_exam_grade_distribution' | translate }}
                 <sup class="padl05">
                     <img
@@ -198,20 +194,22 @@
             </div>
         </div>
 
-        <div class="col-md-12" *ngIf="gradeDistribution">
-            <div *ngFor="let kv of gradeDistribution | keyvalue" class="row col-md-12 margin-20">
+        <div *ngIf="gradeDistribution">
+            <div *ngFor="let kv of gradeDistribution | keyvalue" class="row margin-20">
                 <div class="col-md-3 exam-basic-title">
                     {{ kv.key }}
                 </div>
                 <div class="col-md-9">{{ kv.value }} ({{ (kv.value / gradedCount) * 100 | number: '1.2-2' }} %)</div>
             </div>
         </div>
-        <div class="col-md-6" style="height: 370px; padding-top: 30px">
-            <canvas id="gradeDistributionChart"></canvas>
+        <div class="row">
+            <div class="col-md-6" style="height: 370px; padding-top: 30px">
+                <canvas id="gradeDistributionChart"></canvas>
+            </div>
         </div>
 
-        <div class="col-md-12 mart40">
-            <div class="review-list-title">
+        <div class="row mart40">
+            <div class="col-md-12 review-list-title">
                 {{ 'sitnet_section_averages' | translate }}
                 <sup class="padl05">
                     <img
@@ -226,8 +224,8 @@
             </div>
         </div>
 
-        <div class="col-md-12 mar40">
-            <div *ngFor="let kv of sectionScores | keyvalue" class="row col-md-12 margin-20">
+        <div class="mar40">
+            <div *ngFor="let kv of sectionScores | keyvalue" class="row margin-20">
                 <div class="col-md-3 exam-basic-title">
                     {{ kv.key }}
                 </div>
@@ -237,24 +235,26 @@
             </div>
         </div>
 
-        <div class="col-md-12 mart40">
-            <div class="review-list-title">
+        <div class="row mart40">
+            <div class="col-md-12 review-list-title">
                 {{ 'sitnet_exam_grade_time' | translate }}
             </div>
         </div>
 
-        <div class="col-md-6" style="height: 370px; padding-top: 30px">
-            <canvas id="gradeTimeChart"></canvas>
+        <div class="row" style="height: 370px; padding-top: 30px">
+            <div class="col-md-6">
+                <canvas id="gradeTimeChart"></canvas>
+            </div>
         </div>
 
-        <div class="col-md-12 mart40">
-            <div class="review-list-title">
+        <div class="row mart40">
+            <div class="col-md-12 review-list-title">
                 {{ 'sitnet_exam_question_scores_report' | translate }}
             </div>
         </div>
 
-        <div class="col-md-12" *ngIf="reviews.length > 0">
-            <div class="margin-20">
+        <div class="row" *ngIf="reviews.length > 0">
+            <div class="col-md-12 margin-20">
                 <a class="pointer" (click)="printQuestionScoresReport()">
                     {{ 'sitnet_exam_print_question_scores_report' | translate }}
                 </a>

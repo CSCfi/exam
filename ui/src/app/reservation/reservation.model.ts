@@ -65,7 +65,7 @@ export interface ExamMachine {
     name: string;
     room: ExamRoom;
     outOfService: boolean;
-    statusComment: string;
+    statusComment?: string;
     archived: boolean;
     softwareInfo: {
         id: number;
@@ -77,6 +77,7 @@ export interface ExamMachine {
     accessible: boolean;
     surveillanceCamera: string;
     videoRecordings: string;
+    ipAddress: string;
 }
 
 export interface ExternalReservation {

@@ -6,7 +6,7 @@
         <div class="modal-body">
             <p *ngFor="let error of errors">{{ error | translate }}</p>
         </div>
-        <div class="student-message-dialog-footer">
+        <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
                     {{ 'sitnet_button_ok' | translate }}

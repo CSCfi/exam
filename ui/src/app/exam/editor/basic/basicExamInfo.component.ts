@@ -76,6 +76,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe((setting) => (this.anonymousReviewEnabled = setting.anonymousReviewEnabled));
         this.Tabs.notifyTabChange(1);
+        this.Tabs.notifyExamUpdate({
+            name: this.exam.name,
+            code: this.exam.course ? this.exam.course.code : null,
+            scaleChange: false,
+            initScale: true,
+        });
     }
 
     ngOnDestroy() {

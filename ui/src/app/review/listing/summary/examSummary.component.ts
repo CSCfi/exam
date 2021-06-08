@@ -251,6 +251,7 @@ export class ExamSummaryComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'xl',
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
@@ -261,6 +262,7 @@ export class ExamSummaryComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
+            size: 'xl',
         });
         modalRef.componentInstance.noShows = this.noShows;
     };
