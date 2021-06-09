@@ -17,6 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
+import { eachDayOfInterval, min, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
@@ -41,12 +42,14 @@ export class ExamSummaryComponent {
     gradeDistribution: Record<string, number>;
     gradedCount: number;
     gradeTimeData: Array<{ x: string; y: number }>;
+    examinationDateData: { date: number; amount: number }[] = [];
     gradeDistributionData: number[] = [];
     gradeDistributionLabels: string[] = [];
     abortedExams: ExamParticipation[] = [];
     noShows: ExamEnrolment[] = [];
     gradeDistributionChart: Chart;
     gradeTimeChart: Chart;
+    examinationDateDistribution: Chart;
     sectionScores: Record<string, { max: number; totals: number[] }>;
 
     constructor(
@@ -61,6 +64,8 @@ export class ExamSummaryComponent {
         this.getNoShows();
         this.calculateGradeDistribution();
         this.renderGradeDistributionChart();
+        this.calculateExaminationTimeValues();
+        this.renderExaminationTimeDistributionChart();
         this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
         this.abortedExams = this.reviews.filter((r) => r.exam.state === 'ABORTED');
         this.calculateGradeTimeValues();
@@ -70,7 +75,7 @@ export class ExamSummaryComponent {
     ngOnInit() {
         this.refresh();
         // Had to manually update chart locales
-        this.translate.onLangChange.subscribe(this.updateChartLocale);
+        this.translate.onLangChange.subscribe(() => this.updateChartLocale());
         this.calcSectionMaxAndAverages();
     }
 
@@ -163,6 +168,60 @@ export class ExamSummaryComponent {
             .map((r) => ({ x: String(this.getDurationAsMinutes(r.duration)), y: r.exam.totalScore }));
     };
 
+    calculateExaminationTimeValues = () => {
+        const dates = eachDayOfInterval({
+            start: min([new Date(this.exam.examActiveStartDate), new Date()]),
+            end: min([new Date(this.exam.examActiveEndDate), new Date()]),
+        });
+        this.examinationDateData = dates.map((d, i) => ({
+            date: i,
+            amount: this.reviews.filter((r) => startOfDay(new Date(r.ended)) <= d).length,
+        }));
+    };
+
+    renderExaminationTimeDistributionChart = () => {
+        this.examinationDateDistribution = new Chart('examinationDateDistributionChart', {
+            options: {
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                beginAtZero: true,
+                                callback: (label: number) => {
+                                    if (Math.floor(label) === label) {
+                                        return label;
+                                    }
+                                },
+                            },
+                        },
+                    ],
+                    xAxes: [
+                        {
+                            scaleLabel: {
+                                display: true,
+                                labelString: this.translate.instant('sitnet_days_since_period_beginning').toLowerCase(),
+                            },
+                        },
+                    ],
+                },
+            },
+            type: 'line',
+            data: {
+                labels: this.examinationDateData.map((d) => d.date),
+                datasets: [
+                    {
+                        label: this.translate.instant('sitnet_amount_exams'),
+                        data: this.examinationDateData.map((d) => d.amount),
+                        fill: false,
+                        borderColor: '#028a0f',
+                        lineTension: 0.1,
+                        pointRadius: 0,
+                    },
+                ],
+            },
+        });
+    };
+
     renderGradeTimeChart = () => {
         const { duration } = this.exam;
         const examMaxScore = this.Exam.getMaxScore(this.exam);
@@ -231,6 +290,18 @@ export class ExamSummaryComponent {
             }
         }
         this.gradeTimeChart.update();
+        if (this.examinationDateDistribution.options?.scales) {
+            const scales = this.examinationDateDistribution.options.scales;
+            if (scales.xAxes && scales.xAxes[0].scaleLabel) {
+                scales.xAxes[0].scaleLabel.labelString = this.translate
+                    .instant('sitnet_days_since_period_beginning')
+                    .toLowerCase();
+            }
+        }
+        if (this.examinationDateDistribution.data?.datasets) {
+            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('sitnet_amount_exams');
+        }
+        this.examinationDateDistribution.update();
     }
 
     printQuestionScoresReport = () => {

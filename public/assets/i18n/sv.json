@@ -1001,5 +1001,7 @@
   "sitnet_questions_transferred": "Frågorna har kopierats",
   "sitnet_exam_room_accessibility": "Tentutrymmets tillgänglighetskrav",
   "sitnet_move_section": "Ändra ordningsföljden på sektionerna genom att dra",
-  "sitnet_selected_sections": "Sektioner valda att tentera"
+  "sitnet_selected_sections": "Sektioner valda att tentera",
+  "sitnet_days_since_period_beginning": "Dagar sedan tentmensperiod började SV",
+  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti SV"
 }

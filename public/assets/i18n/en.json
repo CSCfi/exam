@@ -1001,5 +1001,7 @@
   "sitnet_questions_transferred": "The questions have been copied",
   "sitnet_exam_room_accessibility": "Accessibility requirements for the exam room",
   "sitnet_move_section": "Change the order of the exam sections by dragging",
-  "sitnet_selected_sections": "Exam sections which have been chosen for this exam"
+  "sitnet_selected_sections": "Exam sections which have been chosen for this exam",
+  "sitnet_days_since_period_beginning": "Days since beginning of exam period EN",
+  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti EN"
 }

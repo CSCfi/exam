@@ -1001,5 +1001,7 @@
   "sitnet_questions_transferred": "Kysymykset kopioitu",
   "sitnet_exam_room_accessibility": "Tenttitilan esteettömyysvaatimukset",
   "sitnet_move_section": "Vaihda aihealueiden järjestystä raahaamalla tästä",
-  "sitnet_selected_sections": "Tentittäväksi valitut aihealueet"
+  "sitnet_selected_sections": "Tentittäväksi valitut aihealueet",
+  "sitnet_days_since_period_beginning": "Päiviä tenttiperiodin alkamisesta",
+  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti"
 }
