@@ -159,7 +159,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_feedback_messages_read' | translate }}
                 <sup class="padl05">
@@ -194,17 +194,9 @@
             </div>
         </div>
 
-        <div *ngIf="gradeDistribution">
-            <div *ngFor="let kv of gradeDistribution | keyvalue" class="row margin-20">
-                <div class="col-md-3 exam-basic-title">
-                    {{ kv.key }}
-                </div>
-                <div class="col-md-9">{{ kv.value }} ({{ (kv.value / gradedCount) * 100 | number: '1.2-2' }} %)</div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6" style="height: 370px; padding-top: 30px">
-                <canvas id="gradeDistributionChart"></canvas>
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <canvas height="100" id="gradeDistributionChart"></canvas>
             </div>
         </div>
 
@@ -242,7 +234,7 @@
         </div>
         <div class="row mart40">
             <div class="col-md-12">
-                <canvas id="gradeTimeChart"></canvas>
+                <canvas height="300" id="gradeTimeChart"></canvas>
             </div>
         </div>
 
@@ -253,7 +245,7 @@
         </div>
         <div class="row mart40">
             <div class="col-md-12">
-                <canvas id="examinationDateDistributionChart"></canvas>
+                <canvas height="300" id="examinationDateDistributionChart"></canvas>
             </div>
         </div>
 

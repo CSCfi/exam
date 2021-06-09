@@ -114,14 +114,14 @@ export class ExamSummaryComponent {
             .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
         this.gradeDistribution = _.countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
-        this.gradeDistributionLabels = Object.keys(this.gradeDistribution);
+        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.Exam.getExamGradeDisplayName);
     };
 
     renderGradeDistributionChart = () => {
         const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
 
         this.gradeDistributionChart = new Chart('gradeDistributionChart', {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 datasets: [
                     {
@@ -132,9 +132,40 @@ export class ExamSummaryComponent {
                 labels: this.gradeDistributionLabels,
             },
             options: {
-                legend: { display: false },
-                responsive: true,
-                maintainAspectRatio: false,
+                animation: {
+                    onComplete: function () {
+                        const ctx = this.chart.ctx;
+                        ctx.font = Chart.helpers.fontString(
+                            Chart.defaults.global.defaultFontFamily,
+                            'bold',
+                            Chart.defaults.global.defaultFontFamily,
+                        );
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        const dataset = this.data.datasets[0];
+                        for (let i = 0; i < dataset.data?.length; i++) {
+                            const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
+                                total = dataset._meta[Object.keys(dataset._meta)[0]].total,
+                                mid_radius = model.innerRadius + (model.outerRadius - model.innerRadius) / 2,
+                                start_angle = model.startAngle,
+                                end_angle = model.endAngle,
+                                mid_angle = start_angle + (end_angle - start_angle) / 2;
+
+                            const x = mid_radius * Math.cos(mid_angle);
+                            const y = mid_radius * Math.sin(mid_angle);
+
+                            // Darker text color for lighter background
+                            ctx.fillStyle = '#444';
+                            const percent = String(Math.round((dataset.data[i] / total) * 100)) + '%';
+                            ctx.fillText(dataset.data[i], model.x + x, model.y + y);
+                            // Display percent in another line, line break doesn't work for fillText
+                            ctx.fillText(`(${percent})`, model.x + x, model.y + y + 15);
+                        }
+                    },
+                },
+                legend: { display: true },
+                tooltips: { enabled: false },
+                events: [],
             },
         });
     };

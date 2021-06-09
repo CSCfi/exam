@@ -141,7 +141,6 @@
                                     class="form-control custom-select"
                                     [disabled]="!isGradeable(review)"
                                     [(ngModel)]="review.selectedGrade"
-                                    required
                                 >
                                     <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
                                         {{ grade.name }}
