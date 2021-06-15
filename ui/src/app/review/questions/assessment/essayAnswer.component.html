@@ -74,11 +74,11 @@
                     {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
                     {{ getCharacterCount() }} {{ 'sitnet_characters' | translate }}
                 </div>
-                <div class="detail-row">
+                <div class="detail-row" *ngIf="(answer.expectedWordCount || 0) > 0">
                     {{ 'sitnet_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
                         'sitnet_approximately' | translate
                     }}
-                    {{ answer.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
+                    {{ (answer.expectedWordCount || 0) * 8 }} {{ 'sitnet_characters' | translate }})
                 </div>
             </div>
             <div>
