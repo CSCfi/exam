@@ -12,14 +12,16 @@
         <!-- search bar and search parameters -->
         <library-search (onUpdate)="resultsUpdated($event)"></library-search>
 
-        <div class="col-md-12 padl0 padr0 marb20">
-            <span class="pull-left marl20">
-                <div class="library-button make-inline mart20 marr30 marl10">
-                    <a class="pointer" (click)="addQuestions()"
-                        >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
-                    </a>
-                </div>
-            </span>
+        <div class="row">
+            <div class="col-md-12 padl0 padr0 marb20">
+                <span class="pull-left marl20">
+                    <div class="library-button make-inline mart20 marr30 marl10">
+                        <a class="pointer" (click)="addQuestions()"
+                            >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                        </a>
+                    </div>
+                </span>
+            </div>
         </div>
 
         <!-- resulting table with questions -->

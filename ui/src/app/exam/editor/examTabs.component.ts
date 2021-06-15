@@ -62,6 +62,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.user = this.Session.getUser();
         this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
+        // this.initGradeScale();
     }
 
     ngOnDestroy() {

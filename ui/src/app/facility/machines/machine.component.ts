@@ -57,7 +57,7 @@ export class MachineComponent implements OnInit {
                                 })
                                 .indexOf(s.id) > -1
                                 ? 'btn-info'
-                                : 'btn-default';
+                                : 'btn-outline-dark';
                     });
                 });
             },
