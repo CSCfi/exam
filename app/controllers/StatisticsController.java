@@ -506,6 +506,7 @@ public class StatisticsController extends BaseController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
+                .isNotNull("reservation.machine.room")
                 .eq("user.id", p.getUser().getId())
                 .eq("exam.id", p.getExam().getId())
                 .findOne();
