@@ -126,10 +126,24 @@ export class QuestionService {
     calculateDefaultMaxPoints = (question: Question) =>
         question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
-    // For weighted mcq
-    calculateMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
+    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
         const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
+    };
+
+    calculateMaxScore = (question: ExamSectionQuestion) => {
+        const evaluationType = question.evaluationType;
+        const type = question.question.type;
+        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
+            return question.maxScore;
+        }
+        if (type === 'WeightedMultipleChoiceQuestion') {
+            return this.calculateWeightedMaxPoints(question);
+        }
+        if (type === 'ClaimChoiceQuestion') {
+            return this.getCorrectClaimChoiceOptionScore(question);
+        }
+        return 0;
     };
 
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
@@ -215,6 +229,29 @@ export class QuestionService {
             return selected[0].score;
         }
         return 0;
+    };
+
+    calculateAnswerScore = (sq: ExamSectionQuestion) => {
+        switch (sq.question.type) {
+            case 'MultipleChoiceQuestion':
+                return { score: this.scoreMultipleChoiceAnswer(sq, false), rejected: false, approved: false };
+            case 'WeightedMultipleChoiceQuestion':
+                return { score: this.scoreWeightedMultipleChoiceAnswer(sq, false), rejected: false, approved: false };
+            case 'ClozeTestQuestion':
+                return { score: this.scoreClozeTestAnswer(sq), rejected: false, approved: false };
+            case 'EssayQuestion':
+                if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
+                    return { score: sq.essayAnswer.evaluatedScore, rejected: false, approved: false };
+                } else if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Selection') {
+                    const score = sq.essayAnswer.evaluatedScore;
+                    return { score: score, rejected: score === 0, approved: score === 1 };
+                }
+                return null;
+            case 'ClaimChoiceQuestion':
+                return { score: this.scoreClaimChoiceAnswer(sq, false), rejected: false, approved: false };
+            default:
+                return null;
+        }
     };
 
     private getQuestionData(question: Partial<Question>): Partial<Question> {

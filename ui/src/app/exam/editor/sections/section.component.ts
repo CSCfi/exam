@@ -72,20 +72,7 @@ export class SectionComponent {
         optional: this.section.optional,
     });
 
-    private getQuestionScore = (question: ExamSectionQuestion) => {
-        const evaluationType = question.evaluationType;
-        const type = question.question.type;
-        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
-            return question.maxScore;
-        }
-        if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.Question.calculateMaxPoints(question);
-        }
-        if (type === 'ClaimChoiceQuestion') {
-            return this.Question.getCorrectClaimChoiceOptionScore(question);
-        }
-        return null;
-    };
+    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
 
     questionPointsMatch = () => {
         const sectionQuestions = this.section.sectionQuestions;

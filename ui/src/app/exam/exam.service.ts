@@ -258,61 +258,22 @@ export class ExamService {
 
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            let score = 0;
-            switch (sq.question.type) {
-                case 'MultipleChoiceQuestion':
-                    score = this.Question.scoreMultipleChoiceAnswer(sq, false);
-                    break;
-                case 'WeightedMultipleChoiceQuestion':
-                    score = this.Question.scoreWeightedMultipleChoiceAnswer(sq, false);
-                    break;
-                case 'ClozeTestQuestion':
-                    score = this.Question.scoreClozeTestAnswer(sq);
-                    break;
-                case 'EssayQuestion':
-                    if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
-                        score = sq.essayAnswer.evaluatedScore;
-                    }
-                    break;
-                case 'ClaimChoiceQuestion':
-                    score += this.Question.scoreClaimChoiceAnswer(sq, false);
-                    break;
-            }
-            return n + score;
+            const points = this.Question.calculateAnswerScore(sq);
+            return n + (points ? points.score : 0);
         }, 0);
-
         return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
 
     getSectionMaxScore = (section: ExamSection): number => {
         let maxScore = section.sectionQuestions.reduce((n, sq) => {
-            let score = 0;
             if (!sq || !sq.question) {
                 return n;
             }
-            switch (sq.question.type) {
-                case 'MultipleChoiceQuestion':
-                case 'ClozeTestQuestion':
-                    score = sq.maxScore;
-                    break;
-                case 'WeightedMultipleChoiceQuestion':
-                    score = this.Question.calculateMaxPoints(sq);
-                    break;
-                case 'EssayQuestion':
-                    if (sq.evaluationType === 'Points') {
-                        score = sq.maxScore;
-                    }
-                    break;
-                case 'ClaimChoiceQuestion':
-                    score += this.Question.getCorrectClaimChoiceOptionScore(sq);
-                    break;
-            }
-            return n + score;
+            return n + this.Question.calculateMaxScore(sq);
         }, 0);
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
-
         return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 

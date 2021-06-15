@@ -28,7 +28,7 @@
                         <span *ngIf="hasForcedScore()" class="text text-danger">
                             {{ sectionQuestion.forcedScore }}
                         </span>
-                        / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+                        / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
                     </div>
                     <div
                         class="d-inline-block review-points"
@@ -85,7 +85,7 @@
                             >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
                             <small
                                 >[{{ getMinimumOptionScore() }} &hellip;
-                                {{ sectionQuestion.maxScore || calculateMaxPoints() }}]</small
+                                {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
                             ></span
                         >
                     </div>
@@ -101,7 +101,7 @@
                             onclick="this.focus()"
                             [disabled]="!isScorable"
                             [min]="getMinimumOptionScore()"
-                            [max]="sectionQuestion.maxScore || calculateMaxPoints()"
+                            [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

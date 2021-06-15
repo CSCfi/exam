@@ -1003,5 +1003,8 @@
   "sitnet_move_section": "Ändra ordningsföljden på sektionerna genom att dra",
   "sitnet_selected_sections": "Sektioner valda att tentera",
   "sitnet_days_since_period_beginning": "Dagar sedan tentmensperiod började SV",
-  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti SV"
+  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti SV",
+  "sitnet_pieces": "st",
+  "sitnet_question_score_statistics": "Kysymyskohtaiset tilastot SV",
+  "sitnet_question_approval_statistics": "Vastausten hyväksymisaste SV"
 }

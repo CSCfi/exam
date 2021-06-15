@@ -78,7 +78,7 @@
             <span *ngIf="hasForcedScore()" class="text text-danger">
                 {{ sectionQuestion.forcedScore }}
             </span>
-            / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+            / {{ calculateMultiChoiceMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
         </div>
         <div
             *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
@@ -90,7 +90,7 @@
             <span *ngIf="hasForcedScore()" class="text text-danger">
                 {{ sectionQuestion.forcedScore }}
             </span>
-            / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+            / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
         </div>
         <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'" class="sub-content-row col-md-9">
             <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">

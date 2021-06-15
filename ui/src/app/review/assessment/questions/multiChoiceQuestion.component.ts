@@ -94,7 +94,7 @@ export class MultiChoiceQuestionComponent {
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
 
     getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
 

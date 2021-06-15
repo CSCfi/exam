@@ -48,7 +48,12 @@ export class PrintedMultiChoiceComponent {
         return this.Question.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
     };
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
+
+    calculateMultiChoiceMaxPoints = () =>
+        _.isInteger(this.sectionQuestion.maxScore)
+            ? this.sectionQuestion.maxScore
+            : this.sectionQuestion.maxScore.toFixed(2);
 
     getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 

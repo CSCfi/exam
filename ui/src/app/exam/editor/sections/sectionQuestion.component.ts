@@ -53,7 +53,7 @@ export class SectionQuestionComponent {
         private Files: FileService,
     ) {}
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
 
     getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 

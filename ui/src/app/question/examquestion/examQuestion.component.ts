@@ -187,7 +187,8 @@ export class ExamQuestionComponent {
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
 
-    calculateMaxPoints = () => this.Question.calculateMaxPoints(this.examQuestion as ExamSectionQuestion);
+    calculateWeightedMaxPoints = () =>
+        this.Question.calculateWeightedMaxPoints(this.examQuestion as ExamSectionQuestion);
 
     returnOptionClass = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);

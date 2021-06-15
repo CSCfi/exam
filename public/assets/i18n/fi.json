@@ -1003,5 +1003,8 @@
   "sitnet_move_section": "Vaihda aihealueiden järjestystä raahaamalla tästä",
   "sitnet_selected_sections": "Tentittäväksi valitut aihealueet",
   "sitnet_days_since_period_beginning": "Päiviä tenttiperiodin alkamisesta",
-  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti"
+  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti",
+  "sitnet_pieces": "kpl",
+  "sitnet_question_score_statistics": "Kysymyskohtaiset tilastot",
+  "sitnet_question_approval_statistics": "Vastausten hyväksymisaste"
 }

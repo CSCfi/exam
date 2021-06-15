@@ -23,13 +23,22 @@ import * as moment from 'moment';
 
 import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
+import { QuestionService } from '../../../question/question.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
-import type { ExamParticipation } from '../../../exam/exam.model';
+import type { ExamParticipation, Question } from '../../../exam/exam.model';
+type QuestionData = {
+    question: string;
+    max: number;
+    avg: number;
+    median: number;
+    approvalRate: number;
+};
+
 @Component({
     selector: 'exam-summary',
     templateUrl: './examSummary.component.html',
@@ -43,6 +52,7 @@ export class ExamSummaryComponent {
     gradedCount: number;
     gradeTimeData: Array<{ x: string; y: number }>;
     examinationDateData: { date: number; amount: number }[] = [];
+    questionScoreData: QuestionData[] = [];
     gradeDistributionData: number[] = [];
     gradeDistributionLabels: string[] = [];
     abortedExams: ExamParticipation[] = [];
@@ -50,6 +60,8 @@ export class ExamSummaryComponent {
     gradeDistributionChart: Chart;
     gradeTimeChart: Chart;
     examinationDateDistribution: Chart;
+    questionScoreChart: Chart;
+    approvalRatingChart: Chart;
     sectionScores: Record<string, { max: number; totals: number[] }>;
 
     constructor(
@@ -57,6 +69,7 @@ export class ExamSummaryComponent {
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
+        private Question: QuestionService,
         private Files: FileService,
     ) {}
 
@@ -70,6 +83,9 @@ export class ExamSummaryComponent {
         this.abortedExams = this.reviews.filter((r) => r.exam.state === 'ABORTED');
         this.calculateGradeTimeValues();
         this.renderGradeTimeChart();
+        this.calculateQuestionData();
+        this.renderQuestionScoreChart();
+        this.renderApprovalRateChart();
     };
 
     ngOnInit() {
@@ -119,6 +135,7 @@ export class ExamSummaryComponent {
 
     renderGradeDistributionChart = () => {
         const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
+        const amount = this.translate.instant('sitnet_pieces');
 
         this.gradeDistributionChart = new Chart('gradeDistributionChart', {
             type: 'pie',
@@ -154,10 +171,9 @@ export class ExamSummaryComponent {
                             const x = mid_radius * Math.cos(mid_angle);
                             const y = mid_radius * Math.sin(mid_angle);
 
-                            // Darker text color for lighter background
                             ctx.fillStyle = '#444';
                             const percent = String(Math.round((dataset.data[i] / total) * 100)) + '%';
-                            ctx.fillText(dataset.data[i], model.x + x, model.y + y);
+                            ctx.fillText(`${dataset.data[i]} ${amount}`, model.x + x, model.y + y);
                             // Display percent in another line, line break doesn't work for fillText
                             ctx.fillText(`(${percent})`, model.x + x, model.y + y + 15);
                         }
@@ -199,6 +215,43 @@ export class ExamSummaryComponent {
             .map((r) => ({ x: String(this.getDurationAsMinutes(r.duration)), y: r.exam.totalScore }));
     };
 
+    private median = (...xs: number[]) => {
+        const sz = xs.length;
+        const sorted = xs.sort();
+        return sz % 2 == 1 ? sorted[Math.floor(sz / 2)] : (sorted[Math.floor(sz / 2 - 1)] + sorted[sz / 2]) / 2;
+    };
+
+    private groupBy = <T>(xs: T[], fn: (x: T) => string) =>
+        xs.map(fn).reduce((acc, x, i) => {
+            acc[x] = (acc[x] || []).concat(xs[i]);
+            return acc;
+        }, {} as { [k: string]: T[] });
+
+    private calculateQuestionData = () => {
+        const sectionQuestions = this.reviews
+            .map((r) => r.exam)
+            .flatMap((e) => e.examSections)
+            .flatMap((es) => es.sectionQuestions);
+        const mapped = this.groupBy(sectionQuestions, (sq) => (sq.question.parent as Question).id.toString());
+        this.questionScoreData = Object.entries(mapped)
+            .map((e) => ({
+                question: e[0],
+                max: this.Question.calculateMaxScore(e[1][0]), // hope this is ok
+                scores: e[1].map((sq) => this.Question.calculateAnswerScore(sq)).filter((s) => s != null),
+            }))
+            .map((e) => ({
+                question: e.question,
+                max: e.max,
+                avg:
+                    e.scores.reduce((a, b) => {
+                        const score = a + (b ? b.score : 0);
+                        return score;
+                    }, 0) / e.scores.length,
+                median: this.median(...e.scores.map((s) => (s ? s.score : 0))),
+                approvalRate: e.scores.filter((s) => s?.approved || (s && s.score > 0)).length / e.scores.length,
+            }));
+    };
+
     calculateExaminationTimeValues = () => {
         const dates = eachDayOfInterval({
             start: min([new Date(this.exam.examActiveStartDate), new Date()]),
@@ -210,9 +263,75 @@ export class ExamSummaryComponent {
         }));
     };
 
+    renderQuestionScoreChart = () => {
+        this.questionScoreChart = new Chart('questionScoreChart', {
+            options: {
+                maintainAspectRatio: false,
+            },
+            type: 'line',
+            data: {
+                labels: this.questionScoreData.map((d) => d.question),
+                datasets: [
+                    {
+                        label: 'max',
+                        data: this.questionScoreData.map((d) => d.max),
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: 'orange',
+                    },
+                    {
+                        label: 'avg',
+                        data: this.questionScoreData.map((d) => d.avg),
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: 'blue',
+                    },
+                    {
+                        label: 'median',
+                        data: this.questionScoreData.map((d) => d.median),
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: 'red',
+                    },
+                ],
+            },
+        });
+    };
+
+    renderApprovalRateChart = () => {
+        this.approvalRatingChart = new Chart('approvalRatingChart', {
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                beginAtZero: true,
+                            },
+                        },
+                    ],
+                },
+            },
+            type: 'line',
+            data: {
+                labels: this.questionScoreData.map((d) => d.question),
+                datasets: [
+                    {
+                        label: 'max',
+                        data: this.questionScoreData.map((d) => d.approvalRate),
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: 'green',
+                    },
+                ],
+            },
+        });
+    };
+
     renderExaminationTimeDistributionChart = () => {
         this.examinationDateDistribution = new Chart('examinationDateDistributionChart', {
             options: {
+                maintainAspectRatio: false,
                 scales: {
                     yAxes: [
                         {

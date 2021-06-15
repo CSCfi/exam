@@ -27,7 +27,7 @@
         {{ 'sitnet_evaluation_select' | translate }}
     </div>
     <div class="review-points-exam" *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-        0 / {{ calculateMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+        0 / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
     </div>
     <div class="review-points-exam" *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
         {{ getMinimumOptionScore() }} / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
