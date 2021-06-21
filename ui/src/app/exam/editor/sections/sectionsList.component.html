@@ -19,7 +19,11 @@
 
 <div class="row" id="exam" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
     <div class="col-md-12">
-        <div *ngFor="let section of exam.examSections; let i = index" cdkDrag cdkDragLockAxis="y">
+        <div
+            *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
+            cdkDrag
+            cdkDragLockAxis="y"
+        >
             <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
             <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
             <div class="row section-handle">

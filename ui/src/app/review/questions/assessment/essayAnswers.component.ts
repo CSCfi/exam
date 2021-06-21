@@ -14,9 +14,9 @@
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import type { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
+import type { ReviewQuestion } from '../../review.model';
 @Component({
     selector: 'essay-answers',
     template: `
@@ -55,10 +55,19 @@ export class EssayAnswerListComponent {
         if (!this.answers) {
             return 0;
         }
-        return this.answers.filter(this.QuestionReview.isAssessed).length;
+        return this.answers.filter((a) => this.QuestionReview.isAssessed(a) || a.essayAnswer?.textualScore).length;
     };
 
-    assessSelected = () => this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
+    assessSelected = () => {
+        this.answers
+            .filter((a) => a.essayAnswer.textualScore)
+            .forEach((a) => {
+                a.selected = true;
+                a.essayAnswer.temporaryScore = parseFloat(a.essayAnswer.textualScore);
+            });
+
+        this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
+    };
 
     assessEssay = (answer: ReviewQuestion) => {
         if (this.QuestionReview.isAssessed(answer)) {

@@ -109,14 +109,14 @@
                     <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
                         <select
                             class="form-control"
-                            [(ngModel)]="sectionQuestion.essayAnswer.evaluatedScore"
+                            [(ngModel)]="scoreValue"
                             (change)="insertEssayScore()"
                             [disabled]="!isScorable"
                         >
-                            <option [ngValue]="1" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 1">
+                            <option [ngValue]="1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option [ngValue]="0" [selected]="sectionQuestion.essayAnswer?.evaluatedScore === 0">
+                            <option [ngValue]="0">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>

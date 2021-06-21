@@ -52,10 +52,7 @@ export class EssayQuestionComponent {
         if (!this.sectionQuestion.essayAnswer) {
             this.sectionQuestion.essayAnswer = { id: 0 };
         }
-
-        if (this.sectionQuestion.essayAnswer.evaluatedScore) {
-            this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
-        }
+        this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
     }
 
     get scoreValue(): number | undefined {
@@ -64,7 +61,7 @@ export class EssayQuestionComponent {
 
     set scoreValue(value: number | undefined) {
         this._score = value;
-        if (this.form?.valid) {
+        if (!this.form || this.form.valid) {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
         } else {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };

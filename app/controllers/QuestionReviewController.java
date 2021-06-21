@@ -15,17 +15,9 @@
 
 package controllers;
 
-import controllers.base.BaseController;
-import models.Exam;
-import models.User;
-import models.base.GeneratedIdentityModel;
-import models.questions.Question;
-import models.sections.ExamSectionQuestion;
-import sanitizers.Attrs;
-import security.Authenticated;
-import system.interceptors.Anonymous;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.util.Arrays;
@@ -36,8 +28,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import models.Exam;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
 import play.mvc.Http;
 import play.mvc.Result;
+import sanitizers.Attrs;
+import security.Authenticated;
+import system.interceptors.Anonymous;
 
 public class QuestionReviewController extends BaseController {
 
@@ -72,18 +72,18 @@ public class QuestionReviewController extends BaseController {
             .stream()
             .sorted()
             .flatMap(es -> es.getSectionQuestions().stream().sorted())
-            .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
-            .filter(esq -> questionIds.isEmpty() || questionIds.contains(esq.getQuestion().getId()))
             .map(ExamSectionQuestion::getQuestion)
+            .filter(question -> question.getType() == Question.Type.EssayQuestion)
+            .filter(question -> questionIds.isEmpty() || questionIds.contains(question.getId()))
             .collect(Collectors.toList());
 
         // Comparator for ordering questions, have to take to account that answer's question is no longer found
         Comparator<Question> comparator = (o1, o2) -> {
             List<Long> l = questionSequence.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toList());
-            if (l.indexOf(o1.getId()) == -1) {
+            if (!l.contains(o1.getId())) {
                 return 1;
             }
-            if (l.indexOf(o2.getId()) == -1) {
+            if (!l.contains(o2.getId())) {
                 return -1;
             }
             return l.indexOf(o1.getId()) - l.indexOf(o2.getId());
@@ -111,7 +111,13 @@ public class QuestionReviewController extends BaseController {
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
             .filter(esq -> esq.getEvaluationCriteria() != null && esq.getQuestion() != null)
-            .collect(Collectors.toMap(ExamSectionQuestion::getQuestion, ExamSectionQuestion::getEvaluationCriteria));
+            .collect(
+                Collectors.toMap(
+                    ExamSectionQuestion::getQuestion,
+                    ExamSectionQuestion::getEvaluationCriteria,
+                    (existing, replacement) -> existing
+                )
+            );
 
         // Group essay answers by question and throw them in the ordered map
         questionMap.putAll(answers.stream().collect(Collectors.groupingBy(esq -> esq.getQuestion().getParent())));
@@ -129,7 +135,6 @@ public class QuestionReviewController extends BaseController {
             .map(
                 e -> {
                     Question key = e.getKey();
-                    List<ExamSectionQuestion> value = e.getValue();
                     String evaluationCriteria = evaluationCriteriaMap.get(key);
                     return new QuestionEntry(e.getKey(), e.getValue(), evaluationCriteria).toJson();
                 }
@@ -143,9 +148,9 @@ public class QuestionReviewController extends BaseController {
     // DTO
     private static class QuestionEntry {
 
-        private String question;
-        private List<String> answers;
-        private String evaluationCriteria;
+        private final String question;
+        private final List<String> answers;
+        private final String evaluationCriteria;
 
         QuestionEntry(Question question, List<ExamSectionQuestion> answers, String evaluationCriteria) {
             PathProperties pp = PathProperties.parse(
