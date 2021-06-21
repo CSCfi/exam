@@ -115,7 +115,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let user of filteredUsers">
+                    <tr
+                        *ngFor="
+                            let user of filteredUsers | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                        "
+                    >
                         <td>{{ user.lastName }}</td>
                         <td>{{ user.firstName }}</td>
                         <td>
