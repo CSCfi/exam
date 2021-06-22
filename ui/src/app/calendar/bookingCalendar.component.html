@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="col">
-            <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
+            <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale:weekStartsOn }}</h3>
         </div>
     </div>
     <ng-template #loading *ngIf="visible">
