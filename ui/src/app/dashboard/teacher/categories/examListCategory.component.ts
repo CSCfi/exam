@@ -139,7 +139,7 @@ export class ExamListCategoryComponent implements OnInit {
                     toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
-                (resp) => toast.error(resp.data),
+                (err) => toast.error(err),
             );
         });
     };
