@@ -130,7 +130,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
@@ -141,7 +141,7 @@ export class ReviewListComponent {
             backdrop: 'static',
             keyboard: true,
             windowClass: 'question-editor-modal',
-            size: 'lg',
+            size: 'xl',
         });
         modalRef.componentInstance.noShows = this.noShows;
     };
