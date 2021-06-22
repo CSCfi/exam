@@ -49,6 +49,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 import util.config.ConfigReader;
+import util.datetime.DateTimeUtils;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 
@@ -111,7 +112,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
         DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
-        LocalDate searchDate = reservation.getStartAt().withZone(dtz).toLocalDate();
+        LocalDate searchDate = DateTimeUtils.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
         // users reservations starting from now
         List<Reservation> reservations = Ebean
             .find(Reservation.class)

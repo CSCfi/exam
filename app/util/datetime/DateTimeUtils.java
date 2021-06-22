@@ -208,6 +208,10 @@ public class DateTimeUtils {
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
+    public static DateTime normalize(DateTime dateTime, DateTimeZone dtz) {
+        return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
+    }
+
     public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
         DateTimeZone dtz = getDefaultTimeZone();
         return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
