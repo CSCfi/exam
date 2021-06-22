@@ -187,7 +187,10 @@
         </div>
     </div>
 
-    <div class="row evaluation-padtop margin-20" *ngIf="!collaborative && assessment.state === 'GRADED_LOGGED'">
+    <div
+        class="row evaluation-padtop margin-20"
+        *ngIf="!collaborative && assessment.executionType.type !== 'MATURITY' && assessment.state === 'GRADED_LOGGED'"
+    >
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">{{ 'sitnet_student_score_report' | translate }}:</div>
