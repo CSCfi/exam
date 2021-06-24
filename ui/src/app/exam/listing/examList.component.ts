@@ -112,7 +112,7 @@ export class ExamListingComponent {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('examEditor.basic', { id: resp.id });
                 },
-                (err) => toast.error(err.data),
+                (err) => toast.error(err),
             );
 
     deleteExam = (exam: ExamListExam) => {
@@ -126,7 +126,7 @@ export class ExamListingComponent {
                     toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.exams.splice(this.exams.indexOf(exam), 1);
                 },
-                (err) => toast.error(err.data),
+                (err) => toast.error(err),
             );
         });
     };
