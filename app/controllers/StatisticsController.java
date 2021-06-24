@@ -430,16 +430,6 @@ public class StatisticsController extends BaseController {
         if (student == null) {
             return notFound("sitnet_error_not_found");
         }
-
-        List<ExamParticipation> participations = Ebean
-            .find(ExamParticipation.class)
-            .fetch("exam")
-            .where()
-            .gt("started", start)
-            .lt("ended", end)
-            .eq("user.id", studentId)
-            .findList();
-
         Workbook wb = new XSSFWorkbook();
         Sheet studentSheet = wb.createSheet("student");
         String[] studentHeaders = { "id", "first name", "last name", "email", "language" };
@@ -451,6 +441,21 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index++).setCellValue(student.getLastName());
         dataRow.createCell(index++).setCellValue(student.getEmail());
         dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
+
+        List<ExamParticipation> participations = Ebean
+            .find(ExamParticipation.class)
+            .fetch("exam")
+            .fetch("reservation")
+            .fetch("reservation.externalReservation")
+            .fetch("reservation.machine")
+            .fetch("reservation.machine.room")
+            .where()
+            .gt("started", start)
+            .lt("ended", end)
+            .eq("user.id", studentId)
+            .isNotNull("reservation")
+            .findList();
+
         generateParticipationSheet(wb, participations, false);
         return ok(encode(wb))
             .as(XLSX_MIME)
@@ -465,10 +470,10 @@ public class StatisticsController extends BaseController {
         Sheet sheet = workbook.createSheet("participations");
         List<String> headers = new ArrayList<>();
         if (includeStudentInfo) {
-            headers.addAll(Arrays.asList("student id", "student first name", "student last name", "student email"));
+            headers.addAll(List.of("student id", "student first name", "student last name", "student email"));
         }
         headers.addAll(
-            Arrays.asList(
+            List.of(
                 "graded by teacher id",
                 "graded by teacher first name",
                 "graded by teacher last name",
@@ -500,19 +505,6 @@ public class StatisticsController extends BaseController {
         addHeader(sheet, headers.toArray(new String[0]));
 
         for (ExamParticipation p : participations) {
-            ExamEnrolment enrolment = Ebean
-                .find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .isNotNull("reservation.machine.room")
-                .eq("user.id", p.getUser().getId())
-                .eq("exam.id", p.getExam().getId())
-                .findOne();
-            if (enrolment == null) {
-                continue;
-            }
             List<String> data = new ArrayList<>();
             if (includeStudentInfo) {
                 data.add(Long.toString(p.getUser().getId()));
@@ -524,18 +516,40 @@ public class StatisticsController extends BaseController {
             data.add(p.getExam().getGradedByUser() == null ? "" : p.getExam().getGradedByUser().getFirstName());
             data.add(p.getExam().getGradedByUser() == null ? "" : p.getExam().getGradedByUser().getLastName());
             data.add(p.getExam().getGradedByUser() == null ? "" : p.getExam().getGradedByUser().getEmail());
-            data.add(Long.toString(enrolment.getReservation().getId()));
+            data.add(Long.toString(p.getReservation().getId()));
             data.add(ISODateTimeFormat.dateTime().print(new DateTime(p.getStarted())));
             data.add(ISODateTimeFormat.dateTime().print(new DateTime(p.getEnded())));
             data.add(ISODateTimeFormat.time().print(new DateTime(p.getDuration())));
-            data.add(Long.toString(enrolment.getReservation().getMachine().getRoom().getId()));
-            data.add(enrolment.getReservation().getMachine().getRoom().getName());
-            data.add(enrolment.getReservation().getMachine().getRoom().getRoomCode());
-            data.add(Long.toString(enrolment.getReservation().getMachine().getId()));
-            data.add(enrolment.getReservation().getMachine().getName());
-            data.add(enrolment.getReservation().getMachine().getIpAddress());
-            data.add(p.getExam().getCourse().getName());
-            data.add(p.getExam().getCourse().getCode());
+            data.add(
+                p.getReservation().getMachine() != null
+                    ? Long.toString(p.getReservation().getMachine().getRoom().getId())
+                    : "external"
+            );
+            data.add(
+                p.getReservation().getMachine() != null
+                    ? p.getReservation().getMachine().getRoom().getName()
+                    : p.getReservation().getExternalReservation().getRoomName()
+            );
+            data.add(
+                p.getReservation().getMachine() != null
+                    ? p.getReservation().getMachine().getRoom().getRoomCode()
+                    : p.getReservation().getExternalReservation().getRoomCode()
+            );
+            data.add(
+                p.getReservation().getMachine() != null
+                    ? Long.toString(p.getReservation().getMachine().getId())
+                    : "external"
+            );
+            data.add(
+                p.getReservation().getMachine() != null
+                    ? p.getReservation().getMachine().getName()
+                    : p.getReservation().getExternalReservation().getMachineName()
+            );
+            data.add(
+                p.getReservation().getMachine() != null ? p.getReservation().getMachine().getIpAddress() : "external"
+            );
+            data.add(p.getExam().getCourse() != null ? p.getExam().getCourse().getName() : "");
+            data.add(p.getExam().getCourse() != null ? p.getExam().getCourse().getCode() : "");
             data.add(Long.toString(p.getExam().getId()));
             data.add(p.getExam().getName());
             data.add(Integer.toString(p.getExam().getDuration()));
