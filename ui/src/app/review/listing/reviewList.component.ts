@@ -67,40 +67,32 @@ export class ReviewListComponent {
     }
 
     refreshLists = () => {
-        this.abortedExams = this.filterByState(['ABORTED'], this.reviews);
-        this.inProgressReviews = this.filterByState(['REVIEW', 'REVIEW_STARTED'], this.reviews);
-        this.gradedReviews = this.filterByState(
+        this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
+        this.inProgressReviews = this.ReviewList.filterByStateAndEnhance(
+            ['REVIEW', 'REVIEW_STARTED'],
+            this.reviews,
+            this.collaborative,
+        );
+        this.gradedReviews = this.ReviewList.filterByStateAndEnhance(
             ['GRADED'],
             this.reviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
+            this.collaborative,
         );
-        this.gradedLoggedReviews = this.filterByState(['GRADED_LOGGED'], this.reviews);
-        this.archivedReviews = this.filterByState(['ARCHIVED'], this.reviews);
-        this.languageInspectedReviews = this.filterByState(
+        this.gradedLoggedReviews = this.ReviewList.filterByStateAndEnhance(
+            ['GRADED_LOGGED'],
+            this.reviews,
+            this.collaborative,
+        );
+        this.archivedReviews = this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], this.reviews, this.collaborative);
+        this.languageInspectedReviews = this.ReviewList.filterByStateAndEnhance(
             ['GRADED'],
             this.reviews.filter(
                 (r) => r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt,
             ),
+            this.collaborative,
         );
-        this.rejectedReviews = this.filterByState(['REJECTED'], this.reviews);
+        this.rejectedReviews = this.ReviewList.filterByStateAndEnhance(['REJECTED'], this.reviews, this.collaborative);
     };
-
-    private diffInMinutes = (from: string, to: string) => {
-        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
-        return Math.round(diff);
-    };
-
-    filterByState = (states: string[], reviews: ExamParticipation[]): Review[] =>
-        reviews
-            .filter((r) => states.indexOf(r.exam.state) > -1)
-            .map((r) => ({
-                examParticipation: r,
-                grades: [],
-                displayName: this.ReviewList.getDisplayName(r, this.collaborative),
-                duration: this.diffInMinutes(r.started, r.ended).toString(),
-                isUnderLanguageInspection: (r.exam.languageInspection &&
-                    !r.exam.languageInspection.finishedAt) as boolean,
-                selected: false,
-            }));
 
     onArchive = (reviews: Review[]) => {
         const ids = reviews.map((r) => r.examParticipation.id);

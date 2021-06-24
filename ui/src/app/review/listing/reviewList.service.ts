@@ -61,11 +61,31 @@ export class ReviewListService {
             _.get(review, 'examParticipation.user.email', '').toLowerCase().indexOf(s) > -1
         );
     };
+
     filterByState = (reviews: ExamParticipation[], states: string[]) => {
         return reviews.filter((r) => {
             return states.indexOf(r.exam.state) > -1;
         });
     };
+
+    private diffInMinutes = (from: string, to: string) => {
+        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
+        return Math.round(diff);
+    };
+
+    filterByStateAndEnhance = (states: string[], reviews: ExamParticipation[], collaborative = false): Review[] =>
+        reviews
+            .filter((r) => states.indexOf(r.exam.state) > -1)
+            .map((r) => ({
+                examParticipation: r,
+                grades: [],
+                displayName: this.getDisplayName(r, collaborative),
+                duration: this.diffInMinutes(r.started, r.ended).toString(),
+                isUnderLanguageInspection: (r.exam.languageInspection &&
+                    !r.exam.languageInspection.finishedAt) as boolean,
+                selected: false,
+            }));
+
     prepareView = (items: Review[], setup: (p: Review) => void, predicate: string): ReviewListView => {
         items.forEach(setup);
         return {

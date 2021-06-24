@@ -27,10 +27,12 @@ import { QuestionService } from '../../../question/question.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
+import { ReviewListService } from '../reviewList.service';
 
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 import type { ExamParticipation, Question } from '../../../exam/exam.model';
+import type { Review } from '../../review.model';
 type QuestionData = {
     question: string;
     max: number;
@@ -55,7 +57,7 @@ export class ExamSummaryComponent {
     questionScoreData: QuestionData[] = [];
     gradeDistributionData: number[] = [];
     gradeDistributionLabels: string[] = [];
-    abortedExams: ExamParticipation[] = [];
+    abortedExams: Review[] = [];
     noShows: ExamEnrolment[] = [];
     gradeDistributionChart: Chart;
     gradeTimeChart: Chart;
@@ -70,6 +72,7 @@ export class ExamSummaryComponent {
         private modal: NgbModal,
         private Exam: ExamService,
         private Question: QuestionService,
+        private ReviewList: ReviewListService,
         private Files: FileService,
     ) {}
 
@@ -80,7 +83,7 @@ export class ExamSummaryComponent {
         this.calculateExaminationTimeValues();
         this.renderExaminationTimeDistributionChart();
         this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
-        this.abortedExams = this.reviews.filter((r) => r.exam.state === 'ABORTED');
+        this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
         this.calculateGradeTimeValues();
         this.renderGradeTimeChart();
         this.calculateQuestionData();
