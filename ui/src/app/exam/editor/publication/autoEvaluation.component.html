@@ -69,8 +69,11 @@
 </div>
 
 <div class="row" [hidden]="!autoevaluationDisplay.visible">
-    <div class="col-md-12">
-        <form role="form" name="gradeEvaluations">
+    <div
+        class="col-md-12 pt-2"
+        [ngStyle]="gradesForm.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
+    >
+        <form role="form" #gradesForm="ngForm" appUniqueValues name="gradeEvaluations">
             <div *ngFor="let ge of exam.autoEvaluationConfig?.gradeEvaluations">
                 <div class="row padl30 mb-2">
                     <div class="col-md-2">
@@ -88,8 +91,6 @@
                             [min]="0"
                             [max]="100"
                             required
-                            [appUniqueValues]="exam.autoEvaluationConfig?.gradeEvaluations"
-                            property="percentage"
                         />
                         <span class="ml-2">%</span>
                     </div>

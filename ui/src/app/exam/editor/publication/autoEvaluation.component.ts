@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
 
 import { Exam } from '../../exam.model';
@@ -36,6 +37,7 @@ export class AutoEvaluationComponent implements OnInit {
     @Output() onEnabled = new EventEmitter<void>();
     @Output() onDisabled = new EventEmitter<void>();
     @Output() onUpdate = new EventEmitter<{ config: AutoEvaluationConfig }>();
+    @ViewChild('gradesForm', { static: false }) gradesForm: NgForm;
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
     autoevaluationDisplay: { visible: boolean };
@@ -123,6 +125,7 @@ export class AutoEvaluationComponent implements OnInit {
     };
 
     propertyChanged = () => {
-        if (this.exam.autoEvaluationConfig) this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        if (this.exam.autoEvaluationConfig && this.gradesForm.valid)
+            this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
     };
 }

@@ -12,14 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Directive, Input } from '@angular/core';
-import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import { Directive } from '@angular/core';
 import { NG_VALIDATORS } from '@angular/forms';
 
-export function uniqueValuesValidator(property: string, values: { [key: string]: unknown }[]): ValidatorFn {
+import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+export function uniqueValuesValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-        const matches = values.filter((v) => v[property] === control.value);
-        return matches.length > 1 ? { nonUniqueValue: { value: control.value } } : null;
+        const items = Object.values(control.value);
+        return new Set(items).size !== items.length ? { nonUniqueValue: { value: control.value } } : null;
     };
 }
 @Directive({
@@ -28,10 +28,7 @@ export function uniqueValuesValidator(property: string, values: { [key: string]:
     providers: [{ provide: NG_VALIDATORS, useExisting: UniqueValuesValidatorDirective, multi: true }],
 })
 export class UniqueValuesValidatorDirective implements Validator {
-    @Input('appUniqueValues') items: { [key: string]: unknown }[];
-    @Input() property: string;
-
     validate(control: AbstractControl): ValidationErrors | null {
-        return this.items && this.property ? uniqueValuesValidator(this.property, this.items)(control) : null;
+        return uniqueValuesValidator()(control);
     }
 }
