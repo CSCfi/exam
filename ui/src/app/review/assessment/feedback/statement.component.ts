@@ -46,10 +46,10 @@ export class StatementComponent {
         this.Attachment.selectFile(false, {}).then((res: FileResult) =>
             this.Maturity.saveInspectionStatement$(this.exam).subscribe(() => {
                 this.Files.upload(
-                    `/app/attachment/exam/${this.exam.id}/feedback`,
+                    `/app/attachment/exam/${this.exam.id}/statement`,
                     res.$value.attachmentFile,
                     { examId: this.exam.id.toString() },
-                    this.exam.examFeedback,
+                    this.exam.languageInspection?.statement,
                 );
             }),
         );

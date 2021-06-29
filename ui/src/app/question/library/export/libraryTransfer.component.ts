@@ -32,9 +32,7 @@ type Organisation = {
 export class LibraryTransferComponent implements OnInit {
     @Input() selections: number[] = [];
     organisations: Organisation[] = [];
-    filteredOrganisations: (Organisation & { filtered: boolean })[] = [];
     organisation: Organisation;
-    filter = '';
     showOrganisationSelection = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
@@ -42,14 +40,8 @@ export class LibraryTransferComponent implements OnInit {
     ngOnInit() {
         this.http.get<Organisation[]>('/integration/iop/organisations').subscribe((resp) => {
             this.organisations = resp.filter((org) => !org.homeOrg);
-            this.filterOrganisations();
         });
     }
-
-    filterOrganisations = () =>
-        (this.filteredOrganisations = this.organisations
-            .filter((o) => this.filter.length == 0 || o.name.startsWith(this.filter))
-            .map((o) => ({ ...o, filtered: false })));
 
     transfer = () => {
         if (this.selections.length == 0) {
