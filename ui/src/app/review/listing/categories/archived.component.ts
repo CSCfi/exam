@@ -37,7 +37,7 @@ export class ArchivedReviewsComponent {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 
