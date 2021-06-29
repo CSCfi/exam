@@ -35,8 +35,7 @@ export class StatementComponent {
 
     toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
 
-    saveInspectionStatement = () =>
-        this.Maturity.saveInspectionStatement$(this.exam).subscribe((resp) => (this.exam.languageInspection = resp));
+    saveInspectionStatement = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
 
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
 
