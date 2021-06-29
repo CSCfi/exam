@@ -36,7 +36,11 @@
         <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="4">
             <a ngbNavLink>{{ 'sitnet_exam_responses' | translate }}</a>
         </li>
-        <li *ngIf="exam && !collaborative" [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
+        <li
+            *ngIf="exam && !collaborative && !user.isAdmin"
+            [disabled]="exam.executionType?.type === 'PRINTOUT'"
+            [ngbNavItem]="5"
+        >
             <a ngbNavLink>{{ 'sitnet_question_review' | translate }}</a>
         </li>
         <li
