@@ -55,16 +55,13 @@ export class EssayAnswerListComponent {
         if (!this.answers) {
             return 0;
         }
-        return this.answers.filter((a) => this.QuestionReview.isAssessed(a) || a.essayAnswer?.textualScore).length;
+        return this.answers.filter((a) => this.QuestionReview.isAssessed(a)).length;
     };
 
     assessSelected = () => {
-        this.answers
-            .filter((a) => a.essayAnswer.textualScore)
-            .forEach((a) => {
-                a.selected = true;
-                a.essayAnswer.temporaryScore = parseFloat(a.essayAnswer.textualScore);
-            });
+        this.answers.forEach((a) => {
+            a.selected = true;
+        });
 
         this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
     };

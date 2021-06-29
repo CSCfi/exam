@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import * as _ from 'lodash';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
@@ -40,11 +39,6 @@ export class EssayAnswerComponent {
         this.answer.expanded = true;
         this.answer.essayAnswer = this.answer.essayAnswer || {};
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
-        if (this.answer.evaluationType === 'Selection') {
-            this.answer.essayAnswer.textualScore = this.answer.essayAnswer.evaluatedScore
-                ? this.answer.essayAnswer.evaluatedScore.toString()
-                : '';
-        }
     }
 
     getWordCount = () => this.Assessment.countWords(this.answer.essayAnswer.answer);
@@ -52,16 +46,11 @@ export class EssayAnswerComponent {
     getCharacterCount = () => this.Assessment.countCharacters(this.answer.essayAnswer.answer);
 
     saveScore = () => {
-        if (this.answer.essayAnswer.textualScore) {
-            this.answer.essayAnswer.temporaryScore = parseFloat(this.answer.essayAnswer.textualScore);
-        }
         this.onSelection.emit(this.answer);
         this.answer.selected = false;
     };
 
-    isAssessed = () =>
-        this.answer.essayAnswer &&
-        (_.isNumber(this.answer.essayAnswer.temporaryScore) || this.answer.essayAnswer.textualScore);
+    isAssessed = () => this.answer.essayAnswer.temporaryScore !== null && this.answer.essayAnswer.temporaryScore >= 0;
 
     displayMaxScore = () => (this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1);
 

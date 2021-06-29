@@ -112,13 +112,13 @@
                     <div *ngIf="answer.evaluationType === 'Selection'">
                         <select
                             class="form-control"
-                            [(ngModel)]="answer.essayAnswer.textualScore"
+                            [(ngModel)]="answer.essayAnswer.temporaryScore"
                             [disabled]="!editable"
                         >
-                            <option value="1" [selected]="answer.essayAnswer.textualScore == '1'">
+                            <option [ngValue]="1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" [selected]="answer.essayAnswer.textualScore == '0'">
+                            <option [ngValue]="0">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>
