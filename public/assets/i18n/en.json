@@ -1002,9 +1002,9 @@
   "sitnet_exam_room_accessibility": "Accessibility requirements for the exam room",
   "sitnet_move_section": "Change the order of the exam sections by dragging",
   "sitnet_selected_sections": "Exam sections which have been chosen for this exam",
-  "sitnet_days_since_period_beginning": "Days since beginning of exam period EN",
-  "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti EN",
+  "sitnet_days_since_period_beginning": "Days since the exam period started.",
+  "sitnet_examination_time_distribution": "Distribution of attainments in the exam period.",
   "sitnet_pieces": "pcs",
-  "sitnet_question_score_statistics": "Kysymyskohtaiset tilastot EN",
-  "sitnet_question_approval_statistics": "Vastausten hyväksymisaste EN"
+  "sitnet_question_score_statistics": "Statistics per question.",
+  "sitnet_question_approval_statistics": "The approval rate of answers."
 }
