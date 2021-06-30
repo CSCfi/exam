@@ -29,6 +29,7 @@ import { WindowRef } from '../../../utility/window/window.service';
 import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
+import { ExamTabService } from '../examTabs.service';
 import { PublicationDialogComponent } from './publicationDialog.component';
 import { PublicationErrorDialogComponent } from './publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './publicationRevocationDialog.component';
@@ -37,8 +38,6 @@ import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
-import { ExamTabService } from '../examTabs.service';
-
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
@@ -103,8 +102,9 @@ export class ExamPublicationComponent implements OnInit {
     startDateChanged = (event: { date: string }) => (this.exam.examActiveStartDate = event.date);
     endDateChanged = (event: { date: string }) => (this.exam.examActiveEndDate = event.date);
 
-    autoEvaluationConfigChanged = (config: AutoEvaluationConfig) =>
-        Object.assign(this.exam.autoEvaluationConfig, config);
+    autoEvaluationConfigChanged = (event: { config: AutoEvaluationConfig }) => {
+        this.exam.autoEvaluationConfig = event.config;
+    };
 
     canBeAutoEvaluated = () =>
         this.Exam.hasQuestions(this.exam) &&

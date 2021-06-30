@@ -40,6 +40,7 @@ export class AutoEvaluationComponent implements OnInit {
     @ViewChild('gradesForm', { static: false }) gradesForm: NgForm;
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
+    config: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
     constructor(private Exam: ExamService) {}
@@ -76,7 +77,7 @@ export class AutoEvaluationComponent implements OnInit {
         this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
         if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
             const releaseType = this.selectedReleaseType();
-            this.exam.autoEvaluationConfig = {
+            this.config = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
                 gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: _.cloneDeep(g), percentage: 0 })),
                 amountDays: 0,
@@ -84,8 +85,9 @@ export class AutoEvaluationComponent implements OnInit {
             };
         }
         if (this.exam.autoEvaluationConfig) {
-            this.exam.autoEvaluationConfig.gradeEvaluations.sort((a, b) => a.grade.id - b.grade.id);
-            const rt = this.getReleaseTypeByName(this.exam.autoEvaluationConfig.releaseType);
+            this.config = this.exam.autoEvaluationConfig;
+            this.config.gradeEvaluations.sort((a, b) => a.grade.id - b.grade.id);
+            const rt = this.getReleaseTypeByName(this.config.releaseType);
             this.applyFilter(rt);
         }
     };
@@ -93,14 +95,14 @@ export class AutoEvaluationComponent implements OnInit {
     private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
 
     applyFilter = (type?: ReleaseType) => {
-        if (!this.exam.autoEvaluationConfig) return;
+        if (!this.config) return;
         this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
         }
         const rt = this.selectedReleaseType();
-        this.exam.autoEvaluationConfig.releaseType = rt ? rt.name : undefined;
-        this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        this.config.releaseType = rt ? rt.name : undefined;
+        this.onUpdate.emit({ config: this.config });
     };
 
     selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
@@ -118,14 +120,13 @@ export class AutoEvaluationComponent implements OnInit {
         return (ratio / 100).toFixed(2);
     };
 
-    releaseDateChanged = (date: Date) => {
-        if (!this.exam.autoEvaluationConfig) return;
-        this.exam.autoEvaluationConfig.releaseDate = date;
-        this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+    releaseDateChanged = (event: { date: Date }) => {
+        if (!this.config) return;
+        this.config.releaseDate = event.date;
+        this.onUpdate.emit({ config: this.config });
     };
 
     propertyChanged = () => {
-        if (this.exam.autoEvaluationConfig && this.gradesForm.valid)
-            this.onUpdate.emit({ config: this.exam.autoEvaluationConfig });
+        if (this.config && this.gradesForm.valid) this.onUpdate.emit({ config: this.config });
     };
 }

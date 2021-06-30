@@ -12,13 +12,13 @@
                     triggers="mouseenter:mouseleave"
                 >
                     <img
-                        [hidden]="autoevaluationDisplay.visible"
+                        *ngIf="!autoevaluationDisplay.visible"
                         src="/assets/assets/images/icon_list_show_right.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
                     />
                     <img
-                        [hidden]="!autoevaluationDisplay.visible"
+                        *ngIf="autoevaluationDisplay.visible"
                         src="/assets/assets/images/icon_list_show_down.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
@@ -74,7 +74,7 @@
         [ngStyle]="gradesForm.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
         <form role="form" #gradesForm="ngForm" appUniqueValues name="gradeEvaluations">
-            <div *ngFor="let ge of exam.autoEvaluationConfig?.gradeEvaluations">
+            <div *ngFor="let ge of config.gradeEvaluations">
                 <div class="row padl30 mb-2">
                     <div class="col-md-2">
                         {{ getGradeDisplayName(ge.grade) }}
@@ -138,7 +138,7 @@
                 <div class="col-md-6">
                     <date-picker
                         (onUpdate)="releaseDateChanged($event)"
-                        [initialDate]="exam.autoEvaluationConfig.releaseDate"
+                        [initialDate]="config.releaseDate"
                     ></date-picker>
                 </div>
             </div>
@@ -150,7 +150,7 @@
                         type="number"
                         lang="en"
                         class="form-control"
-                        [(ngModel)]="exam.autoEvaluationConfig.amountDays"
+                        [(ngModel)]="config.amountDays"
                         (change)="propertyChanged()"
                         [min]="1"
                         [max]="60"
