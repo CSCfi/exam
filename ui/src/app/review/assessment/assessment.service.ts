@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import { from, noop, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { isRealGrade } from '../../exam/exam.model';
@@ -58,20 +58,16 @@ export class AssessmentService {
         private Exam: ExamService,
     ) {}
 
-    saveFeedback$ = (exam: Exam, silent = false): Observable<Exam> => {
+    saveFeedback$ = (exam: Exam, silent = false): Observable<void> => {
         const data = {
             id: exam.examFeedback?.id,
             comment: exam.examFeedback?.comment,
         };
-        return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
+        return this.http.put<void>(`/app/review/${exam.id}/comment`, data).pipe(
             tap(() => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
-            }),
-            map((feedback) => {
-                exam.examFeedback = feedback;
-                return exam;
             }),
         );
     };
