@@ -86,7 +86,6 @@ export class AutoEvaluationComponent implements OnInit {
         }
         if (this.exam.autoEvaluationConfig) {
             this.config = this.exam.autoEvaluationConfig;
-            this.config.gradeEvaluations.sort((a, b) => a.grade.id - b.grade.id);
             const rt = this.getReleaseTypeByName(this.config.releaseType);
             this.applyFilter(rt);
         }
