@@ -1,0 +1,50 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_reservations_new' | translate }}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <div class="student-exam-row">
+        <!-- ROOM  -->
+        <div class="calendar-room-title" *ngIf="room">
+            <span
+                >{{ room.name }}&nbsp;
+                <small> ({{ room.localTimezone }})</small>
+                <small class="text-muted"
+                    >{{ room.mailAddress.street }} {{ room.mailAddress.zip }} {{ room.mailAddress.city }}
+                </small>
+            </span>
+        </div>
+
+        <div class="calendar-room-info" *ngIf="room">
+            <div class="calendar-room-info-title">{{ 'sitnet_room_default_working_hours' | translate }}</div>
+            <div class="calendar-room-info-content">
+                <div *ngFor="let oh of openingHours">{{ oh.name }}: {{ oh.periodText }}</div>
+            </div>
+        </div>
+
+        <div class="calendar-room-info" *ngIf="exceptionHours && exceptionHours.length > 0">
+            <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
+            <div class="calendar-room-info-content">
+                <div *ngFor="let eh of exceptionHours">
+                    <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
+                        {{ eh.start }} - {{ eh.end }}
+                        <small>({{ eh.description | translate }})</small>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <hr *ngIf="room" />
+    </div>
+
+    <div class="student-exam-row bottom-row">
+        <booking-calendar
+            *ngIf="room"
+            (onNeedMoreEvents)="refresh($event)"
+            [room]="room"
+            [events]="events"
+            [visible]="true"
+        ></booking-calendar>
+    </div>
+</div>

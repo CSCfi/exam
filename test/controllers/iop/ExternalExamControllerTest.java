@@ -2,19 +2,6 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.util.file.FileHandler;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +26,18 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.Attachment;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Language;
+import models.Reservation;
+import models.User;
+import models.iop.ExternalReservation;
+import models.questions.Question;
+import models.sections.ExamSection;
+import models.sections.ExamSectionQuestion;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -58,8 +57,10 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.file.FileHandler;
 
 public class ExternalExamControllerTest extends IntegrationTestCase {
+
     private static final Logger.ALogger logger = Logger.of(ExternalExamControllerTest.class);
     private static final String RESERVATION_REF = "0e6d16c51f857a20ab578f57f105032e";
     private static final String RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f";

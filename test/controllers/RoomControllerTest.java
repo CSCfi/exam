@@ -3,12 +3,12 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.ExamRoom;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
+import models.ExamRoom;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;

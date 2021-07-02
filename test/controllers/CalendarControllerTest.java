@@ -3,14 +3,6 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamRoom;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.calendar.DefaultWorkingHours;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.icegreen.greenmail.junit.GreenMailRule;
@@ -22,6 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import javax.mail.internet.MimeMessage;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamRoom;
+import models.Language;
+import models.Reservation;
+import models.User;
+import models.calendar.DefaultWorkingHours;
 import net.jodah.concurrentunit.Waiter;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -33,6 +33,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public class CalendarControllerTest extends IntegrationTestCase {
+
     private Exam exam;
     private User user;
 

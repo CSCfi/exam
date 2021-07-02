@@ -1,0 +1,56 @@
+<div class="row col-md-12 margin-20">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_exam_editor_materials' | translate }}
+        <sup
+            ><img
+                ngbPopover="{{ 'sitnet_exam_material_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                src="/assets/assets/images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+        /></sup>
+    </div>
+    <div class="col-md-6">
+        <input
+            type="text"
+            class="form-control wdth-30 make-inline"
+            [(ngModel)]="filter"
+            [ngbTypeahead]="filterMaterials$"
+            (selectItem)="selectMaterial($event)"
+            [resultFormatter]="nameFormat"
+            [editable]="false"
+        />
+        <span
+            ><button (click)="addMaterial()" class="btn btn-primary green border-green">
+                {{ 'sitnet_add' | translate }}
+            </button></span
+        >
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-link" (click)="openMaterialEditor()">
+            {{ 'sitnet_modify_materials' | translate }}
+        </button>
+    </div>
+</div>
+<div class="row col-md-12">
+    <div class="col-md-3 exam-basic-title"></div>
+    <div class="col-md-9">
+        <ul class="list-inline mart10">
+            <li *ngFor="let material of section.examMaterials">
+                {{ material.name }}
+                <button
+                    class="reviewer-remove"
+                    (click)="removeMaterial(material)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img
+                        src="/assets/assets/images/icon_remove.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
+                    />
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-md-9 offset-md-3">
+        <input
+            type="text"
+            class="form-control wdth-30 make-inline"
+            placeholder="{{ 'sitnet_write_participant_name' | translate }}"
+            [(ngModel)]="newParticipant.name"
+            [ngbTypeahead]="listStudents$"
+            [inputFormatter]="nameFormat"
+            [resultFormatter]="nameFormat"
+            (selectItem)="setExamParticipant($event)"
+        />
+        <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-primary green border-green">
+            {{ 'sitnet_add' | translate }}
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-9 offset-md-3">
+        <ul class="muted-list mart10">
+            <!-- Students not having finished the exam -->
+            <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
+                {{ renderParticipantLabel(enrolment) }}
+                <span *ngIf="enrolment.user?.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
+                <button
+                    class="reviewer-remove"
+                    [disabled]="exam.state === 'PUBLISHED'"
+                    (click)="removeParticipant(enrolment.id)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img
+                        [hidden]="exam.state === 'PUBLISHED'"
+                        src="/assets/assets/images/icon_remove.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
+                    />
+                </button>
+            </li>
+            <!-- Students that have finished the exam -->
+            <li class="marl10" *ngFor="let participant of participants">
+                {{ participant.firstName }} {{ participant.lastName }}
+                <span *ngIf="participant.userIdentifier">({{ participant.userIdentifier }})</span>
+            </li>
+        </ul>
+    </div>
+</div>

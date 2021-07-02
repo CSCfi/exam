@@ -1,0 +1,58 @@
+<div class="row mt-2">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_exam_owners' | translate }}
+        <sup>
+            <img
+                ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                src="/assets/assets/images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+            />
+        </sup>
+    </div>
+    <div class="col-md-9">
+        <form #myForm="ngForm" name="myForm">
+            <input
+                type="email"
+                name="email"
+                placeholder="{{ 'sitnet_write_exam_owner_email' | translate }}"
+                class="form-control wdth-30 make-inline"
+                [(ngModel)]="newOwner.email"
+                email
+            />
+            <button
+                [disabled]="!myForm.valid || !newOwner.email || !user.isAdmin"
+                (click)="addOwner()"
+                class="btn btn-primary green border-green"
+            >
+                {{ 'sitnet_add' | translate }}
+            </button>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 exam-basic-title"></div>
+    <div class="col-md-9">
+        <ul class="list-inline mart10">
+            <!-- Owners for the exam -->
+            <li class="marl10" *ngFor="let owner of exam.examOwners">
+                {{ owner.email }}
+                <button
+                    class="reviewer-remove"
+                    [disabled]="!user.isAdmin"
+                    (click)="removeOwner(owner.id)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img
+                        [hidden]="exam.state === 'PUBLISHED'"
+                        src="/assets/assets/images/icon_remove.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
+                    />
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>

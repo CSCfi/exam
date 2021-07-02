@@ -1,0 +1,62 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [MathJax]="sectionQuestion.question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [hidden]="sectionQuestion.question.attachment">N/A</span>
+            <span *ngIf="sectionQuestion.question.attachment">
+                {{ sectionQuestion.question.attachment.fileName }}&nbsp;
+            </span>
+        </div>
+    </div>
+
+    <!-- question instructions -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow" *ngIf="sectionQuestion.answerInstructions">
+            {{ 'sitnet_instructions' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9" *ngIf="sectionQuestion.answerInstructions">
+            <div [innerHtml]="sectionQuestion.answerInstructions"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-content-row col-md-9" id="exam">
+            <div [innerHtml]="sectionQuestion.clozeTestAnswer.question"></div>
+        </div>
+    </div>
+
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_multiplechoice_question_correct' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            {{ sectionQuestion.clozeTestAnswer.score.correctAnswers }} /
+            {{
+                sectionQuestion.clozeTestAnswer.score.correctAnswers +
+                    sectionQuestion.clozeTestAnswer.score.incorrectAnswers
+            }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span>
+                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                    {{ displayAchievedScore() }}
+                </span>
+                <span *ngIf="hasForcedScore()" class="text text-danger">
+                    {{ sectionQuestion.forcedScore }}
+                </span>
+                / {{ sectionQuestion.maxScore }}
+            </span>
+        </div>
+    </div>
+</div>

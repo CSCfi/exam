@@ -1,4 +1,4 @@
-app/backend/views/index.scala.html
+public/index.html
 conf/local.conf
 node_modules
 project/project

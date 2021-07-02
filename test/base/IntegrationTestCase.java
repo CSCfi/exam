@@ -4,16 +4,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.Language;
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.util.json.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -37,6 +27,15 @@ import java.util.Objects;
 import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
+import models.Attachment;
+import models.Exam;
+import models.ExamInspection;
+import models.Language;
+import models.User;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -49,8 +48,10 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.json.JsonDeserializer;
 
 public class IntegrationTestCase {
+
     protected static final int MAIL_TIMEOUT = 20000;
     protected Application app;
     protected Long userId;

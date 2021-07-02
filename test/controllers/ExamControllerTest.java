@@ -3,9 +3,6 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamType;
-import backend.models.sections.ExamSection;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -17,6 +14,9 @@ import io.ebean.Ebean;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import models.Exam;
+import models.ExamType;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
@@ -235,7 +235,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             "examFeedback",
             "creditType",
             "expanded",
-            "attachment"
+            "attachment",
         };
     }
 
@@ -247,7 +247,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             "lotteryOn",
             "sequenceNumber",
             "description",
-            "lotteryItemCount"
+            "lotteryItemCount",
         };
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];

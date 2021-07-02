@@ -20,12 +20,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
 import base.IntegrationTestCase;
 import helpers.AttachmentServlet;
 import helpers.ExamServlet;
@@ -37,6 +31,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import javax.servlet.MultipartConfigElement;
+import models.Attachment;
+import models.Exam;
+import models.ExamExecutionType;
+import models.questions.EssayAnswer;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
@@ -51,6 +51,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public abstract class BaseCollaborativeAttachmentControllerTest<T> extends IntegrationTestCase {
+
     private static final Logger.ALogger logger = Logger.of(BaseCollaborativeAttachmentControllerTest.class);
 
     static final String EXAM_HASH = "0e6d16c51f857a20ab578f57f105032e";

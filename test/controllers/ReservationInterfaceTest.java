@@ -3,12 +3,12 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.ExamRoom;
-import backend.models.calendar.ExceptionWorkingHours;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
+import models.ExamRoom;
+import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
