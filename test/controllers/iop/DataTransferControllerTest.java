@@ -2,10 +2,6 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.models.Attachment;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.Question;
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,6 +18,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.Attachment;
+import models.User;
+import models.base.GeneratedIdentityModel;
+import models.questions.Question;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -68,7 +68,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
             .endOr()
             .findList();
         ArrayNode an = new ObjectMapper()
-        .valueToTree(questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+            .valueToTree(questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
         questions.forEach(q -> an.add(q.getId()));
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/integration/iop/export", body);
@@ -92,7 +92,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         question.setAttachment(attachment);
         question.save();
         ArrayNode an = new ObjectMapper()
-        .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+            .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
         an.add(question.getId());
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/integration/iop/export", body);

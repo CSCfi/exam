@@ -5,11 +5,11 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "5.3.3"
+version := "6.0.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.6"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -51,7 +51,7 @@ libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1
 javacOptions += "-Xlint:unchecked"
 javacOptions += "-Xlint:deprecation"
 
-routesImport += "backend.util.scala.Binders._"
+routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
@@ -61,11 +61,11 @@ sources in (Compile, doc) := Seq.empty
 publishArtifact in (Compile, packageDoc) := false
 
 lazy val frontendDirectory = baseDirectory {
-  _ / "app/frontend"
+  _ / "ui"
 }
 
 lazy val protractorDirectory = baseDirectory {
-  _ / "app/protractor"
+  _ / "ui/protractor"
 }
 
 /**
@@ -125,17 +125,11 @@ webDriverUpdate := {
       .run())
 }
 
-test in Test := {
+/*test in Test := {
   if (karmaTest.value.get.exitValue() != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
-}
-
-def foo = Def.sequential(
-  protractorInstall,
-  npmInstall,
-  webDriverUpdate
-)
+}*/
 
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   if (!skipUiTests.equals("true") && npmInstall.value.get
@@ -162,4 +156,4 @@ def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   }
 }
 
-PlayKeys.playRunHooks ++= uiTestTask.value
+// PlayKeys.playRunHooks ++= uiTestTask.value

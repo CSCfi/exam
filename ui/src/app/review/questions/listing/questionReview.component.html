@@ -1,0 +1,67 @@
+<div class="student-enrolment-wrapper essay-review">
+    <div class="review-points-exam d-flex justify-content-between">
+        <div>
+            <img
+                *ngIf="getAssessedAnswerCount() === review.answers.length"
+                src="/assets/assets/images/icon_question_type_ready.png"
+            />
+            <img
+                *ngIf="getAssessedAnswerCount() !== review.answers.length"
+                src="/assets/assets/images/icon_question_type_ready_grey.png"
+            />
+
+            <span class="vcenter marl10">
+                {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
+                {{ 'sitnet_graded' | translate | lowercase }}
+            </span>
+        </div>
+        <span class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
+            <input type="checkbox" (change)="reviewSelected()" class="questionToUpdate" [(ngModel)]="review.selected" />
+        </span>
+    </div>
+    <div class="review-points-exam">
+        <strong>#{{ review.question.id }}</strong>
+    </div>
+    <!-- question points -->
+    <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Points'">
+        {{ review.question.defaultMaxScore }} {{ 'sitnet_unit_points' | translate }}
+    </div>
+    <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Selection'">
+        {{ 'sitnet_evaluation_select' | translate }}
+    </div>
+
+    <!-- Question -->
+    <div class="marl10 make-inline">
+        <div class="review-question-title make-inline" [MathJax]="review.question.question"></div>
+        <a
+            (click)="review.expanded = !review.expanded"
+            class="pointer-hand"
+            *ngIf="review.question.defaultAnswerInstructions"
+        >
+            <img
+                *ngIf="!review.expanded"
+                src="/assets/assets/images/icon_list_show_right.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+            />
+            <img
+                *ngIf="review.expanded"
+                src="/assets/assets/images/icon_list_show_down.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+            />
+        </a>
+    </div>
+
+    <div *ngIf="review.expanded">
+        <img
+            *ngIf="review.question.defaultAnswerInstructions?.length > 0"
+            src="/assets/assets/images/icon_info.png"
+            alt="exam"
+            onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+        />
+        <span *ngIf="review.question.defaultAnswerInstructions?.length > 0" class="padl10">
+            {{ review.question.defaultAnswerInstructions }}</span
+        >
+    </div>
+</div>

@@ -1,0 +1,55 @@
+<div id="sitnet-dialog">
+    <div class="modal-header">
+        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'sitnet_exception_time' | translate }}</h4>
+    </div>
+
+    <div class="modal-body" *ngIf="exception">
+        <div class="row">
+            <div class="col">
+                <div class="form-check">
+                    <label>
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="exception.outOfService"
+                            (change)="exception.outOfService = !exception.outOfService"
+                        />
+                        {{ 'sitnet_room_out_of_service' | translate }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
+                <date-time-picker
+                    id="startDate"
+                    [initialTime]="exception.startDate"
+                    [hourStep]="1"
+                    [minuteStep]="15"
+                    (onUpdate)="onStartDateChange($event)"
+                >
+                </date-time-picker>
+            </div>
+            <div class="col">
+                <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
+                <date-time-picker
+                    id="endDate"
+                    [initialTime]="exception.endDate"
+                    [hourStep]="1"
+                    [minuteStep]="15"
+                    (onUpdate)="onEndDateChange($event)"
+                >
+                </date-time-picker>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-right" (click)="cancel()">
+            {{ 'sitnet_button_cancel' | translate }}
+        </button>
+        <button class="btn btn-primary" (click)="ok()">
+            {{ 'sitnet_button_save' | translate }}
+        </button>
+    </div>
+</div>

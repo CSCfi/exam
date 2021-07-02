@@ -1,0 +1,52 @@
+<div class="row mt-2">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_tag_question' | translate }}
+        <sup
+            ><img
+                ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                src="/assets/assets/images/icon_tooltip.svg"
+                alt="exam"
+        /></sup>
+    </div>
+    <div class="col-md-9">
+        <input
+            id="newTag"
+            name="newTag"
+            maxlength="30"
+            #newTag
+            (newTag)="newTag.value = $event.target.value.toLowerCase()"
+            class="form-control wdth-30 make-inline"
+            [(ngModel)]="tagName"
+            [ngbTypeahead]="getTags$"
+            (selectItem)="onTagSelect($event)"
+            [resultFormatter]="nameFormat"
+            [inputFormatter]="nameFormat"
+        />
+        <span>
+            <button
+                (click)="addTag()"
+                [disabled]="!question.newTag || question.newTag.length < 2"
+                class="btn btn-primary green border-green"
+            >
+                {{ 'sitnet_add' | translate }}
+            </button>
+        </span>
+        <ul class="list-inline mart10">
+            <li *ngFor="let tag of question.tags">
+                {{ tag.name }}
+                <button
+                    class="reviewer-remove"
+                    ngbPopover="{{ 'sitnet_remove' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    (click)="removeTag(tag)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img src="/assets/assets/images/icon_remove.svg" alt="exam" />
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>

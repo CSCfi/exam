@@ -1,0 +1,159 @@
+<nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
+    <div class="nav-container">
+        <div class="nav-header">
+            <div class="logo">
+                <div class="hidden-mobile">
+                    <img
+                        src="/assets/assets/images/exam-logo-new.svg"
+                        alt="exam"
+                        onerror="this.onerror = null;
+                            this.src = '/assets/assets/images/exam-logo-new.png'"
+                    />
+                </div>
+                <div class="visible-mobile">
+                    <div class="mobile-menu" (click)="openMenu()" [hidden]="!user">
+                        <img
+                            src="/assets/assets/images/icon_menu_mobile.svg"
+                            alt="exam-menu-mobile"
+                            onerror="this.onerror = null;
+                                this.src = '/assets/assets/images/icon_menu_mobile.png'"
+                        />
+                    </div>
+                    <img
+                        src="/assets/assets/images/exam-logo-mobile.svg"
+                        alt="exam-log-mobile"
+                        onerror="this.onerror = null;
+                            this.src = '/assets/assets/images/exam-logo-mobile.png'"
+                    />
+                </div>
+            </div>
+            <div [hidden]="!appVersion">
+                <div class="app-version">v. {{ appVersion }}</div>
+            </div>
+        </div>
+
+        <div class="nav-body">
+            <ul class="links">
+                <li *ngFor="let link of links" [hidden]="!link.visible">
+                    <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
+                        <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
+                            link.name | translate
+                        }}</span>
+                    </a>
+                    <ul class="submenu" [hidden]="!link.submenu.hidden">
+                        <li
+                            *ngFor="let subitem of link.submenu.items"
+                            [hidden]="!subitem.visible"
+                            [ngClass]="{ selectedsub: isActive(subitem) }"
+                        >
+                            <a uiSref="{{ subitem.state }}">
+                                <div>
+                                    <img
+                                        width="18"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
+                                        alt="{{ link.state | translate }}"
+                                    />
+                                    {{ subitem.name | translate }}
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-body-mobile pt-2 pb-2" [hidden]="!mobileMenuOpen">
+            <ul class="links">
+                <li *ngFor="let link of links" [hidden]="!link.visible">
+                    <a
+                        [ngClass]="{ selected: isActive(link) }"
+                        uiSref="{{ link.state }}"
+                        (click)="link.submenu.hidden = !link.submenu.hidden"
+                    >
+                        <img
+                            width="18"
+                            src="/assets/assets/images/nav/{{ link.iconPng }}"
+                            alt="{{ link.state | translate }}"
+                        />
+                        <span class="menu-item">{{ link.name | translate }}</span>
+                    </a>
+                    <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">
+                        <li
+                            *ngFor="let subitem of link.submenu.items"
+                            [ngClass]="{ selectedsub: isActive(subitem) }"
+                            [hidden]="!subitem.visible"
+                        >
+                            <a uiSref="{{ subitem.state }}">
+                                <div>
+                                    <img
+                                        width="18"
+                                        src="/assets/assets/images/nav/{{ subitem.iconPng }}"
+                                        alt="{{ link.state | translate }}"
+                                    />
+                                    {{ subitem.name | translate }}
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="user-name pb-1 pt-2">
+                        <div class="user-logo">
+                            <img src="/assets/assets/images/icon_menu_user.png" alt="User logo" />
+                        </div>
+                        <div class="user-data">
+                            {{ user.firstName }}&nbsp;{{ user.lastName }}
+                            <br />
+                            <span [hidden]="!user.isStudent">{{ 'sitnet_student' | translate }} </span>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <span class="locale-item">
+                        <a (click)="switchLanguage('fi')" tabindex="0" (keyup.enter)="switchLanguage('fi')">FI</a>
+                    </span>
+                    <span class="locale-item">
+                        <a (click)="switchLanguage('sv')" tabindex="0" (keyup.enter)="switchLanguage('sv')">SV</a>
+                    </span>
+                    <span class="locale-item">
+                        <a (click)="switchLanguage('en')" tabindex="0" (keyup.enter)="switchLanguage('en')">EN</a>
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-user" [hidden]="!user">
+            <div class="user">
+                <div class="user-name">
+                    <div class="user-logo">
+                        <img src="/assets/assets/images/icon_menu_user.png" alt="User logo" />
+                    </div>
+                    <div class="user-data">
+                        {{ user.firstName }}&nbsp;{{ user.lastName }}
+                        <br />
+                        <span [hidden]="!user.isStudent">{{ 'sitnet_student' | translate }} </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-footer">
+            <div class="locale-bar">
+                <span class="locale-item">
+                    <a (click)="switchLanguage('fi')" tabindex="0" (keyup.enter)="switchLanguage('fi')">FI</a>
+                </span>
+                <span class="locale-item">
+                    <a (click)="switchLanguage('sv')" tabindex="0" (keyup.enter)="switchLanguage('sv')">SV</a>
+                </span>
+                <span class="locale-item">
+                    <a (click)="switchLanguage('en')" tabindex="0" (keyup.enter)="switchLanguage('en')">EN</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</nav>

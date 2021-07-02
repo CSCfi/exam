@@ -1,0 +1,194 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_settings' | translate }}</span>
+    </div>
+</div>
+
+<div id="dashboard">
+    <div class="top-row" *ngIf="config">
+        <div class="col-md-12 form-group">
+            <label for="editor">{{ 'sitnet_user_agreement' | translate }}</label>
+            <ckeditor
+                id="editor"
+                #ck="ngModel"
+                name="editor"
+                ck-editor
+                rows="10"
+                cols="80"
+                [(ngModel)]="config.eula"
+            ></ckeditor>
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button (click)="updateAgreement()" class="btn btn-success">
+                {{ 'sitnet_button_save' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <div class="top-row" *ngIf="config">
+        <div class="col-md-2 form-group">
+            <label for="deadline">{{ 'sitnet_review_deadline' | translate }} ({{ 'sitnet_days' | translate }})</label>
+            <input
+                id="deadline"
+                name="deadline"
+                class="form-control"
+                type="number"
+                lang="en"
+                min="1"
+                [(ngModel)]="config.reviewDeadline"
+                ngbPopover="{{ 'sitnet_info_deadline' | translate }}"
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            />
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button (click)="updateDeadline()" class="btn btn-success">
+                {{ 'sitnet_button_save' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <div class="top-row" *ngIf="config">
+        <div class="col-md-2 form-group">
+            <label for="reservationWindow"
+                >{{ 'sitnet_reservation_window' | translate }} ({{ 'sitnet_days' | translate }})</label
+            >
+            <input
+                id="reservationWindow"
+                name="reservationWindow"
+                class="form-control"
+                type="number"
+                lang="en"
+                [min]="1"
+                [(ngModel)]="config.reservationWindowSize"
+                ngbPopover="{{ 'sitnet_info_reservation_window' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            />
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button (click)="updateReservationWindow()" class="btn btn-success">
+                {{ 'sitnet_button_save' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <div class="top-row" *ngIf="config">
+        <div class="col-md-12">
+            <ul>
+                <li>
+                    <strong>{{ 'sitnet_interoperable' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.isExamVisitSupported">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.isExamVisitSupported">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_exam_collaboration_supported' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.isExamCollaborationSupported">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.isExamCollaborationSupported">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_anonymous_review' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.anonymousReviewEnabled">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.anonymousReviewEnabled">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_course_integration_support' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.hasCourseSearchIntegration">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.hasCourseSearchIntegration">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <ul *ngIf="config.hasCourseSearchIntegration">
+                    <li *ngFor="let item of config.courseSearchIntegrationUrls | keyvalue">
+                        <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
+                    </li>
+                </ul>
+                <li>
+                    <strong>{{ 'sitnet_enrolment_check_integration_support' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.hasEnrolmentCheckIntegration">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.hasEnrolmentCheckIntegration">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_supports_maturity' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.supportsMaturity">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.supportsMaturity">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_supports_printouts' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.supportsPrintouts">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.supportsPrintouts">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_role_mapping' | translate }}</strong>
+                </li>
+                <ul>
+                    <li>
+                        <strong>{{ 'sitnet_student' | translate }}:</strong>&nbsp;
+                        {{ config.roles.STUDENT.join(',
+                        ') }}
+                    </li>
+                    <li>
+                        <strong>{{ 'sitnet_teacher' | translate }}:</strong>&nbsp;
+                        {{ config.roles.TEACHER.join(',
+                        ') }}
+                    </li>
+                    <li>
+                        <strong>{{ 'sitnet_admin' | translate }}:</strong>&nbsp; {{ config.roles.ADMIN.join(', ') }}
+                    </li>
+                </ul>
+                <li>
+                    <strong>{{ 'sitnet_exam_durations' | translate }}:</strong>&nbsp;{{
+                        config.examDurations.join(',
+                    ')
+                    }}
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
+                    <span *ngIf="config.isGradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="!config.isGradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_attachment_max_size' | translate }}:</strong>&nbsp;{{
+                        config.maxFileSize / 1000000
+                    }}
+                    MB
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_exam_expiration_period' | translate }}:</strong>&nbsp;{{
+                        config.expirationPeriod
+                    }}
+                </li>
+
+                <li>
+                    <strong>{{ 'sitnet_default_timezone' | translate }}:</strong>&nbsp;{{ config.defaultTimeZone }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-row"></div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <ul [hidden]="!attributes">
+                <li *ngFor="let item of attributes | keyvalue">
+                    <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <a [hidden]="attributes" (click)="showAttributes()" class="pointer">{{
+                'sitnet_show_http_headers' | translate
+            }}</a>
+            <a class="pointer" [hidden]="!attributes" (click)="attributes = undefined">{{
+                'sitnet_hide' | translate
+            }}</a>
+        </div>
+    </div>
+</div>

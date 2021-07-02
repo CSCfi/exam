@@ -19,14 +19,14 @@ package controllers.integration;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
 import java.util.List;
 import java.util.Optional;
+import models.Exam;
+import models.ExamExecutionType;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -36,6 +36,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public class ExamAPIControllerTest extends IntegrationTestCase {
+
     private List<Exam> exams;
     private ExamExecutionType publicType;
     private ExamExecutionType privateType;

@@ -1,0 +1,104 @@
+<div class="tab-wrapper-exams review">
+    <div class="review-border">
+        <div class="padt50 padl30 padr30">
+            <div class="col-md-12 review-list-title padl0">
+                {{ index }}. &nbsp; &nbsp;{{ section.name }}
+                <span class="score-details">
+                    <span *ngIf="getSectionMaxScore() > 0">
+                        {{ 'sitnet_word_points' | translate }}:&nbsp;
+                        <span style="color: #2c2c2c">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
+                    </span>
+                    &nbsp;
+                    <span *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
+                        {{ 'sitnet_section_accepted_and_rejected' | translate }}:&nbsp;
+                        <span style="color: #2c2c2c"
+                            >{{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}</span
+                        >
+                    </span>
+                </span>
+            </div>
+        </div>
+        <div class="detail-row padr0 padl0 mar0" *ngIf="section.description">
+            <div class="col-md-12 padr0 padl0">
+                <div class="padl30 mart20">
+                    <img
+                        src="/assets/assets/images/icon_info.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+                    />
+                    <span class="padl10 notice-text">{{ section.description }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'">
+                <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
+                    <r-multi-choice-question
+                        [sectionQuestion]="sq"
+                        [participation]="participation"
+                        [isScorable]="isScorable"
+                        [collaborative]="collaborative"
+                        (onScore)="scoreSet($event)"
+                    >
+                    </r-multi-choice-question>
+                </div>
+                <div *ngIf="sq.question.type === 'EssayQuestion'">
+                    <r-essay-question
+                        [sectionQuestion]="sq"
+                        [participation]="participation"
+                        [exam]="exam"
+                        [isScorable]="isScorable"
+                        [collaborative]="collaborative"
+                        (onScore)="scoreSet($event)"
+                    >
+                    </r-essay-question>
+                </div>
+                <div *ngIf="sq.question.type === 'WeightedMultipleChoiceQuestion'">
+                    <r-multi-choice-question
+                        [sectionQuestion]="sq"
+                        [participation]="participation"
+                        [isScorable]="isScorable"
+                        [collaborative]="collaborative"
+                        (onScore)="scoreSet($event)"
+                    >
+                        >
+                    </r-multi-choice-question>
+                </div>
+                <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
+                    <r-cloze-test
+                        [sectionQuestion]="sq"
+                        [participation]="participation"
+                        [isScorable]="isScorable"
+                        [collaborative]="collaborative"
+                        (onScore)="scoreSet($event)"
+                    >
+                        >
+                    </r-cloze-test>
+                </div>
+                <div *ngIf="sq.question.type === 'ClaimChoiceQuestion'">
+                    <r-multi-choice-question
+                        [sectionQuestion]="sq"
+                        [participation]="participation"
+                        [isScorable]="isScorable"
+                        [collaborative]="collaborative"
+                        (onScore)="scoreSet($event)"
+                    >
+                        >
+                    </r-multi-choice-question>
+                </div>
+            </div>
+        </div>
+        <div class="detail-row padt20 padr30 d-flex justify-content-end">
+            <div class="review-list-footer">
+                <div *ngIf="getSectionMaxScore() > 0">
+                    {{ 'sitnet_word_points' | translate }}:
+                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
+                </div>
+                <div *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
+                    {{ 'sitnet_section_accepted_and_rejected' | translate }}:
+                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -3,7 +3,6 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +13,7 @@ import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.Exam;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -24,6 +24,7 @@ import play.libs.Json;
 import play.mvc.Result;
 
 public class EnrolmentInterfaceTest extends IntegrationTestCase {
+
     private static Server server;
     static boolean emptyResponse;
 

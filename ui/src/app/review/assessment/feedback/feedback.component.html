@@ -1,0 +1,57 @@
+<div id="feedback">
+    <div cdkDrag id="draggable" class="wrapper">
+        <div class="row">
+            <div
+                class="col-md-1"
+                ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <i
+                    (click)="toggleFeedbackVisibility()"
+                    class="pointer vcenter font-6"
+                    [ngClass]="
+                        hideEditor ? 'bi-arrow-right-circle-fill sitnet-green' : 'bi-arrow-down-circle-fill sitnet-red'
+                    "
+                >
+                </i>
+            </div>
+            <div class="col-md-11">
+                <div class="vcenter">
+                    {{ 'sitnet_give_feedback' | translate }}
+                </div>
+            </div>
+        </div>
+        <div [hidden]="hideEditor" class="body">
+            <div class="row mt-2 mb-1">
+                <div class="col-md-12">
+                    <ckeditor
+                        id="feedback-editor"
+                        [enableClozeTest]="false"
+                        [(ngModel)]="exam.examFeedback.comment"
+                        #ck="ngModel"
+                        name="ck"
+                        rows="10"
+                        cols="80"
+                    ></ckeditor>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end" *ngIf="exam.examFeedback?.attachment">
+                <a class="pointer" (click)="downloadFeedbackAttachment()">{{
+                    exam.examFeedback?.attachment?.fileName
+                }}</a>
+                <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
+                    <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                </span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <button class="btn btn-outline-secondary" (click)="saveFeedback()">
+                    {{ 'sitnet_save' | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                    {{ 'sitnet_attach_file' | translate }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

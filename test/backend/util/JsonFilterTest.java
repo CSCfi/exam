@@ -18,7 +18,6 @@ package backend.util;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import backend.util.json.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;
@@ -30,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.libs.Json;
+import util.json.JsonFilter;
 
 public class JsonFilterTest {
 

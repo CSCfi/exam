@@ -3,22 +3,6 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamMachine;
-import backend.models.ExamParticipation;
-import backend.models.ExamRoom;
-import backend.models.GradeEvaluation;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
-import backend.models.questions.Question;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,6 +18,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import javax.mail.internet.MimeMessage;
+import models.AutoEvaluationConfig;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamMachine;
+import models.ExamParticipation;
+import models.ExamRoom;
+import models.GradeEvaluation;
+import models.Reservation;
+import models.User;
+import models.questions.ClozeTestAnswer;
+import models.questions.EssayAnswer;
+import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
+import models.questions.Question;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +43,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public class ExaminationControllerTest extends IntegrationTestCase {
+
     private Exam exam;
     private User user;
 

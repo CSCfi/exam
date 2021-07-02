@@ -1,0 +1,54 @@
+<div id="library">
+    <div class="library">
+        <!-- title row and add new question button -->
+        <div class="top-row">
+            <div class="col-md-12 marb20">
+                <div class="student-enroll-title-wrap">
+                    <div class="student-enroll-title">{{ 'sitnet_library_choose' | translate }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- search bar and search parameters -->
+        <library-search (onUpdate)="resultsUpdated($event)"></library-search>
+
+        <div class="row">
+            <div class="col-md-12 padl0 padr0 marb20">
+                <span class="pull-left marl20">
+                    <div class="library-button make-inline mart20 marr30 marl10">
+                        <a class="pointer" (click)="addQuestions()"
+                            >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                        </a>
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <!-- resulting table with questions -->
+        <library-results
+            [questions]="questions"
+            (onSelection)="questionSelected($event)"
+            (onCopy)="questionCopied()"
+            tableClass="library-table"
+            [disableLinks]="true"
+        ></library-results>
+
+        <!-- Buttons -->
+        <div class="row">
+            <div class="col-md-12 marr20 marb20">
+                <span class="float-right">
+                    <div class="library-button make-inline">
+                        <a class="pointer preview" (click)="cancel()">
+                            {{ 'sitnet_button_cancel' | translate }}
+                        </a>
+                    </div>
+                    <div class="library-button make-inline mart20 marr30 marl10">
+                        <a class="pointer" (click)="addQuestions()">
+                            {{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                        </a>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

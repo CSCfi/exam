@@ -1,0 +1,650 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <div class="student-enroll-title-wrap">
+                    <div class="student-enroll-title">{{ 'sitnet_questions_edit' | translate }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="marl50 marr50">
+        <!-- Question body //-->
+        <div class="row question-border padl40 padr40">
+            <div class="col-md-12">
+                <form role="form" class="form-horizontal" #form="ngForm" name="form">
+                    <div
+                        class="student-enrolment-wrapper review-view exam-view-warning mart40"
+                        *ngIf="examNames.length > 0"
+                    >
+                        <!-- Exam contexts -->
+                        <div class="row" *ngIf="showWarning()">
+                            <div class="col-auto p-1">
+                                <img
+                                    src="/assets/assets/images/icon_warning.png"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"
+                                />
+                            </div>
+                            <div class="col warning-text">
+                                {{ 'sitnet_exam_question_edit_instructions' | translate }}
+                                <ul class="list-inline margin-10">
+                                    <li>
+                                        <span *ngFor="let name of examNames" class="exists-text">
+                                            <span class="padr10">{{ name }}</span>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="!showWarning()">
+                            <div class="col-auto p-1">
+                                <img
+                                    src="/assets/assets/images/icon_warning.png"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"
+                                />
+                            </div>
+                            <div class="col warning-text">
+                                {{ 'sitnet_added_to_exams' | translate }}
+                                <ul class="list-inline margin-10">
+                                    <li>
+                                        <span *ngFor="let name of examNames" class="exists-text">
+                                            {{ name }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question editor -->
+                    <div class="row">
+                        <div class="col-md-12 mart40 wide-column">
+                            <div class="review-list-title">
+                                {{ 'sitnet_exam_basic_information_tab' | translate }}
+                                <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
+                                <span class="warning-text-small pl-2" *ngIf="showWarning()">{{
+                                    'sitnet_shared_question_property_info' | translate
+                                }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-3 exam-basic-title">{{ 'sitnet_question_id' | translate }}</div>
+                        <div class="col-md-9">#{{ question?.id }}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_new_question_type' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9">
+                            <span *ngIf="question?.type == 'EssayQuestion'">{{
+                                'sitnet_toolbar_essay_question' | translate
+                            }}</span>
+                            <span *ngIf="question?.type == 'ClozeTestQuestion'">{{
+                                'sitnet_toolbar_cloze_test_question' | translate
+                            }}</span>
+                            <span *ngIf="question?.type == 'MultipleChoiceQuestion'">{{
+                                'sitnet_toolbar_multiplechoice_question' | translate
+                            }}</span>
+                            <span *ngIf="question?.type == 'WeightedMultipleChoiceQuestion'">{{
+                                'sitnet_toolbar_weighted_multiplechoice_question' | translate
+                            }}</span>
+                            <span *ngIf="question?.type == 'ClaimChoiceQuestion'">
+                                {{ 'sitnet_toolbar_claim_choice_question' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_question_text' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9" *ngIf="question?.type">
+                            <ckeditor
+                                id="editor"
+                                name="editor"
+                                #ck="ngModel"
+                                [enableClozeTest]="question!.type === 'ClozeTestQuestion'"
+                                rows="10"
+                                cols="60"
+                                [(ngModel)]="question!.question"
+                                required
+                            >
+                            </ckeditor>
+                        </div>
+                    </div>
+
+                    <!-- TODO: Refactor these to smaller components -->
+                    <!-- Type specific content - essay -->
+                    <!-- Evaluation -->
+                    <div class="row" *ngIf="question?.type == 'EssayQuestion'">
+                        <div class="col-md-12 mart40 wide-column">
+                            <div class="review-list-title">{{ 'sitnet_comments' | translate }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" *ngIf="question?.type == 'EssayQuestion'">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_essay_length_recommendation' | translate }}
+                        </div>
+                        <span class="col-md-9">
+                            <div class="input-group" id="expectedWordCount">
+                                <input
+                                    name="expectedWordCount"
+                                    type="number"
+                                    lang="en"
+                                    class="form-control"
+                                    [(ngModel)]="examQuestion.expectedWordCount"
+                                    [min]="1"
+                                    [max]="1000000"
+                                    #wordCount="ngModel"
+                                />
+                                <span
+                                    class="input-group-text"
+                                    title="{{ 'sitnet_average_word_length_finnish' | translate }}"
+                                >
+                                    {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}
+                                    {{ 'sitnet_characters' | translate }}
+                                </span>
+                            </div>
+                            <div *ngIf="wordCount.invalid" class="warning-text-small margin-10">
+                                <i class="bi-exclamation-circle reddish"></i>
+                                {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
+                            </div>
+                        </span>
+                    </div>
+
+                    <!-- Multiple choises - title -->
+                    <div
+                        class="row mt-3"
+                        *ngIf="
+                            question?.type == 'MultipleChoiceQuestion' ||
+                            question?.type == 'WeightedMultipleChoiceQuestion' ||
+                            question?.type == 'ClaimChoiceQuestion'
+                        "
+                    >
+                        <div class="col-md-12 mt-2 wide-column mb-2">
+                            <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Type specific content - multiple choices table titles -->
+                    <div class="row mt-2" *ngIf="question?.type === 'WeightedMultipleChoiceQuestion'">
+                        <div class="col-md-6 mart20 marb10">
+                            <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
+                            <br />
+                            <span *ngIf="showWarning()">
+                                <i class="bi-exclamation-circle reddish"></i>
+                                <small>{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                            </span>
+                        </div>
+                        <div class="col question-option-title">
+                            {{ 'sitnet_word_points' | translate | uppercase }}
+                        </div>
+                    </div>
+
+                    <!-- Type specific content - weighted option -->
+                    <div class="row" *ngIf="question?.type === 'WeightedMultipleChoiceQuestion'">
+                        <div class="col-md-12">
+                            <div
+                                class="row form-horizontal question-editor-option"
+                                *ngFor="let option of examQuestion.options"
+                            >
+                                <div
+                                    class="col-md-6 question-option-empty"
+                                    *ngIf="option.option"
+                                    [ngClass]="option.score || 0 > 0 ? 'question-correct-option' : ''"
+                                >
+                                    <input
+                                        id="weightedOptionText_{{ option.id }}"
+                                        type="text"
+                                        name="weightedOptionText_{{ option.id }}"
+                                        class="question-option-input"
+                                        [(ngModel)]="option.option!.option"
+                                        required
+                                    />
+                                </div>
+                                <div
+                                    class="col-md-2 question-option-empty-radio"
+                                    [ngClass]="option.score || 0 > 0 ? 'question-correct-option-radio' : ''"
+                                >
+                                    <input
+                                        fixedPrecision
+                                        id="optionScore_{{ option.id }}"
+                                        name="maxScore_{{ option.id }}"
+                                        class="question-option-input points"
+                                        type="number"
+                                        lang="en"
+                                        [(ngModel)]="option.score"
+                                        required
+                                        [disabled]="lotteryOn"
+                                    />
+                                </div>
+                                <div
+                                    class="col-md-1 question-option-trash pointer"
+                                    [hidden]="lotteryOn"
+                                    (click)="removeOption(option)"
+                                >
+                                    <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">&nbsp;</div>
+                                <div class="col-md-2 question-option-title">
+                                    {{ 'sitnet_max_score' | translate | uppercase }}: {{ calculateWeightedMaxPoints() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Type specific content - option -->
+                    <div
+                        class="row"
+                        [hidden]="question?.type !== 'MultipleChoiceQuestion'"
+                        *ngFor="let option of examQuestion.options"
+                    >
+                        <div
+                            class="col-md-6 question-option-empty"
+                            [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
+                        >
+                            <input
+                                *ngIf="option.option"
+                                id="optionText_{{ option.id }}"
+                                name="optionText_{{ option.id }}"
+                                type="text"
+                                class="make-inline question-option-input radiobut"
+                                [(ngModel)]="option.option!.option"
+                                required
+                            />
+                        </div>
+                        <div
+                            class="col-md-2 question-option-empty-radio"
+                            [ngClass]="{ 'question-correct-option-radio': option.option?.correctOption }"
+                        >
+                            <input
+                                *ngIf="option.option"
+                                name="correctOption_{{ option.id }}"
+                                type="radio"
+                                [(ngModel)]="option.option!.correctOption"
+                                [value]="true"
+                                (click)="correctAnswerToggled(option)"
+                                [disabled]="optionDisabled(option)"
+                                class="make-inline question-option-radio"
+                            />
+                        </div>
+
+                        <div [hidden]="lotteryOn" (click)="removeOption(option)" class="col-md-1 question-option-trash">
+                            <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
+                        </div>
+                    </div>
+
+                    <!-- Type specific content - claim choice option -->
+                    <div *ngIf="question?.type === 'ClaimChoiceQuestion'">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>{{ 'sitnet_claim_choice_question_instruction' | translate }}</p>
+                                <p>{{ 'sitnet_claim_choice_options_description' | translate }}</p>
+                                <ul>
+                                    <li>{{ 'sitnet_claim_choice_correct_points_description' | translate }}</li>
+                                    <li>{{ 'sitnet_claim_choice_incorrect_points_description' | translate }}</li>
+                                    <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
+                                </ul>
+                                <br />
+                                <span>
+                                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
+                                    <small class="pl-2" *ngIf="showWarning">{{
+                                        'sitnet_shared_question_property_info' | translate
+                                    }}</small>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 margin-10 claim-choice-option-labels">
+                                <div class="claim-choice-option-label">
+                                    <span class="question-option-title">{{
+                                        'sitnet_question_options' | translate | uppercase
+                                    }}</span>
+                                </div>
+                                <div class="claim-choice-option-label points">
+                                    <span class="question-option-title">
+                                        {{ 'sitnet_word_points' | translate | uppercase }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 margin-10">
+                                <div
+                                    class="form-horizontal question-editor-claim-choice-option"
+                                    *ngFor="let opt of examQuestion.options"
+                                    [ngClass]="returnOptionClass(opt)"
+                                >
+                                    <div class="claim-choice-option-inputs" *ngIf="opt.option">
+                                        <input
+                                            [(ngModel)]="opt.option!.option"
+                                            name="claimChoiceOption_{{ opt.id }}"
+                                            type="text"
+                                            class="question-option-input"
+                                            required
+                                            [disabled]="lotteryOn || opt.option?.claimChoiceType === 'SkipOption'"
+                                        />
+                                        <input
+                                            name="claimChoiceOptionScore_{{ opt.id }}"
+                                            class="question-option-input points"
+                                            type="number"
+                                            lang="en"
+                                            fixedPrecision
+                                            [(ngModel)]="opt.score"
+                                            required
+                                            [disabled]="lotteryOn || opt.option!.claimChoiceType === 'SkipOption'"
+                                            (change)="validate()"
+                                        />
+                                    </div>
+                                    <div class="claim-choice-option-description">
+                                        {{ returnOptionDescriptionTranslation(opt) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 claim-choice-warning-wrapper">
+                                <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
+                                    <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
+                                    <span style="color: #e8172f">
+                                        {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
+                                        <span *ngFor="let opt of missingOptions; let l = last">
+                                            {{ opt | translate }}{{ l ? '' : ',' }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        *ngIf="
+                            question?.type === 'MultipleChoiceQuestion' ||
+                            question?.type === 'WeightedMultipleChoiceQuestion'
+                        "
+                    >
+                        <div class="col-md-12 mart20">
+                            <a (click)="addNewOption()" class="attachment-link pointer">
+                                <i class="bi-plus"></i>
+                                {{ 'sitnet_question_add_new_option' | translate }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation type - essay -->
+                    <div class="row mt-2" *ngIf="question?.type === 'EssayQuestion'">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_evaluation_type' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                            <select
+                                id="evaluationType"
+                                class="form-control wdt240"
+                                name="evaluationType"
+                                [(ngModel)]="examQuestion.evaluationType"
+                                (change)="updateEvaluationType()"
+                                required="question.type == 'EssayQuestion'"
+                            >
+                                <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                                <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Max score -->
+                    <div
+                        class="row mt-2"
+                        *ngIf="
+                            question?.type == 'MultipleChoiceQuestion' ||
+                            question?.type == 'ClozeTestQuestion' ||
+                            examQuestion.evaluationType == 'Points'
+                        "
+                    >
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_max_score' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                            <input
+                                id="maxScore"
+                                name="maxScore"
+                                type="number"
+                                lang="en"
+                                class="form-control wdt100"
+                                [(ngModel)]="examQuestion.maxScore"
+                                min="0"
+                                max="1000"
+                                fixedPrecision
+                                required
+                                [disabled]="lotteryOn"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Additional info -->
+                    <div class="row mt-2">
+                        <div class="col-md-12 mart40 wide-column">
+                            <div class="review-list-title">{{ 'sitnet_additional_info' | translate }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Exam owners -->
+                    <div class="row mt-2">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_question_owners' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9">
+                            <ul class="list-inline pl-2" *ngIf="question?.questionOwners">
+                                <li *ngFor="let user of question!.questionOwners">
+                                    {{ user.firstName }} {{ user.lastName }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Attachment -->
+                    <div class="row">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_question_attachment' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+
+                        <div class="col-md-9" id="attachment">
+                            <div class="review-attachment-button wdt120 make-inline">
+                                <a class="pointer" (click)="selectFile()">{{ 'sitnet_attach_file' | translate }}</a>
+                            </div>
+                            <div
+                                *ngIf="question?.attachment && !question!.attachment?.removed"
+                                class="make-inline padl10"
+                            >
+                                <!-- Uploaded -->
+                                <a
+                                    *ngIf="question!.attachment?.id"
+                                    class="pointer attachment-link"
+                                    (click)="downloadQuestionAttachment()"
+                                >
+                                    <i class="bi-paperclip"></i> {{ question!.attachment?.fileName }}
+                                </a>
+                                <!-- Not yet uploaded -->
+                                <span *ngIf="!question?.attachment?.id" class="attachment-link">
+                                    <i class="bi-paperclip"></i> {{ question?.attachment?.fileName }}
+                                    <small> ({{ getFileSize() }})</small>
+                                </span>
+                                <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                                    <img
+                                        src="/assets/assets/images/icon_remove.svg"
+                                        alt="{{ 'sitnet_remove_attachment' | translate }}"
+                                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"
+                                    />
+                                </span>
+                            </div>
+                            <div class="mart10" *ngIf="showWarning()">
+                                <i class="bi-exclamation-circle reddish"></i>
+                                <span class="warning-text-small pl-2">{{
+                                    'sitnet_shared_question_property_info' | translate
+                                }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="row mt-2">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_question_instruction' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9">
+                            <textarea
+                                id="instruction"
+                                name="instruction"
+                                class="form-control"
+                                rows="3"
+                                [(ngModel)]="examQuestion.answerInstructions"
+                                placeholder="{{ 'sitnet_question_instruction' | translate }}"
+                            >
+                            </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation criteria -->
+                    <div *ngIf="question?.type == 'EssayQuestion'" class="row mt-2">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_exam_evaluation_criteria' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9">
+                            <textarea
+                                id="evaluationCriteria"
+                                name="evaluationCriteria"
+                                class="form-control"
+                                rows="3"
+                                [(ngModel)]="examQuestion.evaluationCriteria"
+                                placeholder="{{ 'sitnet_exam_evaluation_criteria' | translate }}"
+                            >
+                            </textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="row mt-2">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_added_to_categories' | translate }}
+                            <sup>
+                                <img
+                                    ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    src="/assets/assets/images/icon_tooltip.svg"
+                                    alt="exam"
+                                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                                />
+                            </sup>
+                        </div>
+                        <div class="col-md-9">
+                            <ul class="list-inline" *ngIf="question?.tags">
+                                <li *ngFor="let tag of question!.tags">{{ tag.name }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="row mt-2">
+                        <div class="col-md-3 exam-basic-title">
+                            {{ 'sitnet_added_to_sections' | translate }}
+                        </div>
+                        <div class="col-md-9">
+                            <ul class="list-inline">
+                                <li *ngFor="let name of sectionNames">{{ name }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row padl40 padr40">
+            <div class="col-md-12 mart20">
+                <div class="question-cancel">
+                    <button
+                        [disabled]="form.invalid || hasInvalidClaimChoiceOptions()"
+                        (click)="save()"
+                        type="submit"
+                        class="btn btn-success bigbutton"
+                    >
+                        {{ 'sitnet_save' | translate }}
+                    </button>
+                </div>
+                <div class="question-cancel marr20">
+                    <button (click)="cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">
+                        {{ 'sitnet_button_cancel' | translate }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

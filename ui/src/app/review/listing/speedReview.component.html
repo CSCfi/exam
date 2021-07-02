@@ -1,0 +1,236 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <history-back></history-back>
+                <div class="student-exam-details-title">{{ 'sitnet_speed_review' | translate }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="speed-review-border marb20 padb30">
+        <div class="review-list-title-row marb20">
+            <div class="col-md-12 padl0">
+                <div class="speed-review-title" *ngIf="examInfo?.examOwners">
+                    {{ examInfo.title }}
+                    <span class="speed-review-subtitle">({{ 'sitnet_teachers' | translate }}:</span>
+                    <span class="speed-review-subtitle" *ngFor="let owner of examInfo.examOwners; let isLast = last">
+                        {{ owner.firstName }} {{ owner.lastName }} <span *ngIf="!isLast">,&nbsp;</span>
+                    </span>
+                    <span class="speed-review-subtitle">)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 padl30 mart20" *ngIf="examReviews && examReviews.length === 0">N/A</div>
+
+        <div *ngIf="examReviews && examReviews.length > 0">
+            <div class="col-md-12 padl0 padr0 mart40 overflow-x-scroll">
+                <table class="table table-striped exams-table">
+                    <thead>
+                        <tr>
+                            <th class="with-top">
+                                <table-sort
+                                    by="displayName"
+                                    text="sitnet_student"
+                                    [predicate]="reviewPredicate"
+                                    [reverse]="reverse"
+                                    (click)="setPredicate('displayName')"
+                                ></table-sort>
+                            </th>
+                            <th class="with-top">
+                                <table-sort
+                                    by="examParticipation.started"
+                                    text="sitnet_exam_duration"
+                                    [predicate]="reviewPredicate"
+                                    [reverse]="reverse"
+                                    (click)="setPredicate('examParticipation.started')"
+                                ></table-sort>
+                            </th>
+                            <th class="with-top">
+                                <table-sort
+                                    by="examParticipation.deadline"
+                                    text="sitnet_review_deadline"
+                                    [predicate]="reviewPredicate"
+                                    [reverse]="reverse"
+                                    (click)="setPredicate('examParticipation.deadline')"
+                                ></table-sort>
+                            </th>
+                            <th class="with-space">{{ 'sitnet_inspection_status' | translate }}</th>
+                            <th class="with-space">{{ 'sitnet_exam_state' | translate }}</th>
+                            <th class="with-space">{{ 'sitnet_total_score' | translate }}</th>
+                            <th class="with-top">{{ 'sitnet_grade' | translate }}</th>
+                            <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let review of examReviews
+                                    | orderBy: reviewPredicate:reverse
+                                    | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                            "
+                        >
+                            <td class="table-column-bold reservation-search">
+                                {{ review.displayName }}
+                                <span *ngIf="review.examParticipation.user?.userIdentifier">
+                                    <br />({{ review.examParticipation.user?.userIdentifier }})</span
+                                >
+                                <br />
+                                <a
+                                    class="pointer"
+                                    uiSref="assessment"
+                                    [uiParams]="{ id: review.examParticpation?.exam.id }"
+                                >
+                                    {{ review.examParticipation.user?.email }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                {{ 'sitnet_clock_short' | translate }}
+                                {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
+                                    review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                                }}&nbsp;min)
+                            </td>
+                            <td>
+                                {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (
+                                <span [innerHtml]="review.examParticipation.deadline | dayDiff"></span>)
+                            </td>
+                            <td>
+                                <div *ngFor="let inspection of review.examParticipation.exam.examInspections">
+                                    <span [ngClass]="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                                        <span
+                                            [ngClass]="
+                                                isOwner(inspection.user, review.examParticipation.exam.examOwners)
+                                                    ? 'bold'
+                                                    : ''
+                                            "
+                                        >
+                                            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-success">
+                                {{
+                                    'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate
+                                }}
+                            </td>
+                            <td>
+                                {{ review.examParticipation.exam.totalScore }} /
+                                {{ review.examParticipation.exam.maxScore }}
+                                <span
+                                    *ngIf="
+                                        review.examParticipation.exam.rejectedAnswerCount > 0 ||
+                                        review.examParticipation.exam.approvedAnswerCount > 0
+                                    "
+                                >
+                                    <br />{{ 'sitnet_approved' | translate }}:
+                                    {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
+                                        'sitnet_rejected' | translate
+                                    }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
+                                </span>
+                            </td>
+                            <td>
+                                <span *ngIf="!isGradeable(review)">{{
+                                    'sitnet_speed_review_incomplete_info_or_no_permission' | translate
+                                }}</span>
+                                <select
+                                    class="form-control custom-select"
+                                    [disabled]="!isGradeable(review)"
+                                    [(ngModel)]="review.selectedGrade"
+                                >
+                                    <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
+                                        {{ grade.name }}
+                                    </option>
+                                    <option value="" [selected]="!review.exam?.selectedGrade">
+                                        {{ 'sitnet_choose' | translate }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn general-info-link-bold btn-link padl0"
+                                    [disabled]="!isAllowedToGrade(review)"
+                                    (click)="showFeedbackEditor(review)"
+                                >
+                                    {{ 'sitnet_edit' | translate }}
+                                </button>
+                            </td>
+                        </tr>
+                        <!--Fill if page not full-->
+                        <tr *ngFor="let r of [] | pageFill: examReviews.length:currentPage:pageSize">
+                            <td class="table-column-examname">&nbsp;</td>
+                            <td colspan="8"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div *ngIf="toggleReviews">
+            <div *ngIf="examReviews.length > pageSize">
+                <paginator
+                    [items]="examReviews"
+                    (onSelectPage)="pageSelected($event)"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                ></paginator>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="padl15 padr15 marb20 d-flex justify-content-between">
+            <div>
+                <div class="speed-review-csv mb-1">
+                    <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
+                    <sup>
+                        <img
+                            ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                            src="/assets/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                        />
+                    </sup>
+                </div>
+
+                <div class="speed-review-csv mart0">
+                    <a class="pointer" (click)="createGradingTemplate()">{{
+                        'sitnet_create_grading_template' | translate
+                    }}</a>
+                    <sup>
+                        <img
+                            ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                            src="/assets/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+                        />
+                    </sup>
+                </div>
+            </div>
+
+            <div class="p-2">
+                <div class="review-attachment-button make-inline">
+                    <a class="pointer preview" uiSref="examEditor.assessments" [uiParams]="{ id: examId }">
+                        {{ 'sitnet_button_cancel' | translate }}
+                    </a>
+                </div>
+                <div class="review-attachment-button make-inline ml-2">
+                    <button
+                        class="btn btn-link"
+                        [disabled]="!hasModifications()"
+                        class="pointer"
+                        (click)="gradeExams()"
+                    >
+                        {{ 'sitnet_grade_exams' | translate }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

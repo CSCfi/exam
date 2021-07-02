@@ -22,11 +22,6 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.json.CollaborativeExam;
-import backend.models.questions.EssayAnswer;
-import backend.models.sections.ExamSectionQuestion;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,6 +31,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import models.Attachment;
+import models.Exam;
+import models.json.CollaborativeExam;
+import models.questions.EssayAnswer;
+import models.sections.ExamSectionQuestion;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
@@ -44,6 +44,7 @@ import play.test.Helpers;
 
 public class CollaborativeAttachmentControllerTest
     extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam> {
+
     private final String baseURL = "/integration/iop/attachment";
 
     @Test

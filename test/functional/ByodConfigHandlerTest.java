@@ -3,11 +3,11 @@ package functional;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.running;
 
-import backend.util.config.ByodConfigHandler;
 import base.IntegrationTestCase;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import util.config.ByodConfigHandler;
 
 public class ByodConfigHandlerTest extends IntegrationTestCase {
 

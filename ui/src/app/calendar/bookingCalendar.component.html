@@ -1,0 +1,51 @@
+<div *ngIf="visible">
+    <div class="row mart20 marb10">
+        <div class="col-md-4">
+            <div class="btn-group">
+                <button
+                    class="btn btn-primary"
+                    mwlCalendarPreviousView
+                    [disabled]="prevWeekDisabled"
+                    [view]="view"
+                    (click)="prevWeek(); refetch(viewDate)"
+                >
+                    <i class="bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch(viewDate)">
+                    {{ 'sitnet_today' | translate }}
+                </button>
+                <button
+                    class="btn btn-primary"
+                    mwlCalendarNextView
+                    [view]="view"
+                    [disabled]="nextWeekDisabled"
+                    (click)="nextWeek(); refetch(viewDate)"
+                >
+                    <i class="bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col">
+            <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale:weekStartsOn }}</h3>
+        </div>
+    </div>
+    <ng-template #loading *ngIf="visible">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </ng-template>
+
+    <div *ngIf="visible">
+        <mwl-calendar-week-view
+            [viewDate]="viewDate"
+            [events]="events"
+            [dayStartHour]="minHour"
+            [dayEndHour]="maxHour"
+            [locale]="locale"
+            [weekStartsOn]="weekStartsOn"
+            [excludeDays]="hiddenDays"
+            (eventClicked)="eventClicked($event.event)"
+        >
+        </mwl-calendar-week-view>
+    </div>
+</div>

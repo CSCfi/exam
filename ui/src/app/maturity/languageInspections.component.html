@@ -1,0 +1,28 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title marl20">{{ 'sitnet_language_inspections' | translate }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams">
+        <div class="review-border">
+            <!-- Under review language inspection -->
+            <unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
+            </unfinished-inspections>
+        </div>
+
+        <div class="review-border">
+            <!-- Reviewed language inspection -->
+            <reviewed-inspections
+                *ngIf="processedInspections"
+                [inspections]="processedInspections"
+                (onEndDateChange)="endDateChanged($event)"
+                (onStartDateChange)="startDateChanged($event)"
+            >
+            </reviewed-inspections>
+        </div>
+    </div>
+</div>

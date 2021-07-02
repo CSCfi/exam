@@ -1,0 +1,20 @@
+{
+    "name": "exam-protractor-tests",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": " https://github.com/CSCfi/exam.git"
+    },
+    "license": "EUPL-1.1",
+    "scripts": {
+        "test": "node_modules/.bin/protractor conf.js"
+    },
+    "dependencies": {
+        "eslint": "^6.4.0",
+        "lodash": "^4.17.21",
+        "pg": "^7",
+        "protractor": "^5.4.1",
+        "protractor-browser-logs": "^1.0.456",
+        "protractor-jasmine2-screenshot-reporter": "^0.5.0"
+    }
+}

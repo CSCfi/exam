@@ -1,0 +1,21 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "target": "es2015",
+    "lib": [
+      "es2019",
+      "dom"
+    ]
+  },
+}

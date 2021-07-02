@@ -1,0 +1,347 @@
+#exam {
+  .no-padding {
+    padding: 0;
+  }
+
+  .courseBorder {
+    width: 100%;
+    height: 100%;
+    padding: 1em 1em 4.5em;
+    border: 1px solid $sitnet-common-medium;
+    display: block;
+  }
+
+  .section-border {
+    padding: 0 15px 30px 0;
+    border: 1px solid white;
+    margin-bottom: 1em;
+    margin-top:1em;
+  }
+
+  .section-handle {
+    border: dashed 1px transparent;
+  }
+
+  .section-handle:hover {
+    border-color: $sitnet-teacher-turquoise-dark-inactive;
+  }
+
+  .exam-header {
+    background-color: $sitnet-teacher-turquoise-header;
+    color: white;
+  }
+
+  .exam-general-information-header {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    height: 4em;
+  }
+  .exam-general-information-header span {
+    font-size: 1.4em;
+  }
+
+  .exam-general-information {
+    background-color: $sitnet-white;
+    padding-left: 1em;
+  }
+
+  .exam-info {
+    padding: 5px;
+    margin-top: 1em;
+  }
+
+  .exam-wrapper {
+    padding: 2em;
+  }
+
+  .section-header {
+    height: 5.6em;
+    margin-bottom: 1em;
+  }
+
+  .line-height56 {
+    line-height: 5.6em;
+  }
+
+  .exam-question-container {
+    border-left: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    padding-left: 0.5em;
+    padding-top: 0.5em;
+  }
+
+  .create-new {
+    display: block;
+    color: #4c4c4c;
+    border: 4px dashed $sitnet-green-new;
+    border-radius: 4px;
+    padding: 1em;
+    margin: 1em 30px 1em 30px;
+    background-color: #EDFFF0;
+
+    div > i {
+      margin-right: 1em;
+      vertical-align: middle;
+    }
+
+    div > span {
+      line-height: 2em;
+    }
+  }
+
+  .total-score {
+    padding: 2em 1em 0 0;
+
+    span {
+      padding-top: 0.6em;
+      vertical-align: middle;
+    }
+  }
+
+  .create-new-section-button, .create-new-section-button:hover {
+    padding: 0.6em 1em 0.6em 1em;
+    color: $sitnet-white;
+    background-color: $sitnet-theme;
+    text-decoration: none;
+    cursor: pointer;
+    border: 0;
+    line-height: 2.5em;
+  }
+
+  .active-exams-list {
+    margin-bottom: 10px;
+  }
+
+  .exams-info-title {
+    font-weight: bold;
+  }
+
+  .exam-list-saved {
+    color: $sitnet-dark-grey;
+    border: dashed 3px $sitnet-white;
+    background-color: $sitnet-teacher-turquoise-dark-inactive;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 8px;
+    padding: 1em;
+  }
+
+  .exam-question-option {
+    background-color: $sitnet-white;
+    border: 1px solid $sitnet-common-medium;
+    border-top: 0;
+    padding: 0.2em 0.5em;
+  }
+
+  .exam-question-option-text {
+    color: #2C2C2C;
+    font-size: 14px;
+  }
+
+  .exam-editor-question-item {
+    color: $sitnet-white;
+    background-color: #B8DCE6;
+    margin-top: 0.5em !important;
+  }
+
+  .exam-editor-question-item:hover {
+    background-color: $sitnet-theme;
+    cursor: move;
+  }
+
+  .exam-editor-question-body {
+    color: $sitnet-teacher-turquoise-dark-active;
+    padding-top: 1em;
+  }
+
+  .single-question-icon {
+    color: $sitnet-teacher-turquoise-dark-active;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .pointer-hand {
+    cursor: pointer;
+  }
+
+  // to highlight ck-editor content marked with this class
+  .marker {
+    background-color: yellow;
+  }
+
+  .exams-table {
+
+    border: 0;
+    font-family: $sitnet-family-helvetica;
+    font-weight: normal;
+    font-size: 0.9em;
+
+    th {
+      background-color: $sitnet-common-light;
+      font-family: $sitnet-family-helvetica;
+      color: $sitnet-common-medium;
+      font-style: italic;
+      font-weight: normal;
+      border: 0;
+    }
+
+    td:first-child {
+      border-left: 0;
+    }
+    td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 0;
+      }
+    }
+    .table-column-examcode {
+      width: 6%;
+      text-align: center;
+      font-weight: bold;
+    }
+  }
+
+  // REVIEW RELATED ->
+
+  .review-question-border {
+    border: $sitnet-common-light solid 0.15em;
+    border-radius: 25px;
+    margin: 0.75em;
+    padding: 0.5em;
+  }
+
+  .review-question {
+    padding-left: 4em;
+  }
+
+  .review-question-value {
+    padding-left: 6em;
+
+    p {
+      word-wrap: break-word;
+    }
+  }
+
+  .review-question-option-name {
+    padding-left: 2em;
+  }
+
+  .review-feedback {
+    background-color: #f5f5f5;
+    opacity: 0.8;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-right: 1em;
+  }
+
+  .review-feedback-text {
+    color: grey;
+    font-style: italic;
+    margin: 1em;
+  }
+
+  .exam-duration-btn {
+    margin-right: 0.5em;
+  }
+
+  .exam-small-warning-box {
+    margin-top: 0.5em;
+    text-align: center;
+  }
+
+  .draggable {
+    list-style: none;
+  }
+
+  .cloze-correct {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid green;
+    border-radius: 3px;
+    background: #ccffcc;
+    min-width: 30px; 
+    display: inline-block; 
+    box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
+  }
+
+  .cloze-incorrect {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid red;
+    border-radius: 3px;
+    background: #feeeef;
+    min-width:30px; 
+    display: inline-block; 
+    box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
+  }
+
+  .lottery-item-count {
+    margin-top: 0 !important;
+    margin-right: 1em;
+  }
+
+  [class*="sortable-"] {
+    list-style: none;
+  }
+
+  .exam-answered-correct {
+    border: 1px solid $sitnet-green-new;
+    background-color: #F3FFF5;
+    padding: 10px;
+    border-radius:4px;
+
+    .answer-score-text {
+      color: #3c763d;
+    }
+  }
+
+  .exam-answered-wrong {
+    border: 1px solid $sitnet-red;
+    background-color: #FFF6F7;
+    padding: 10px;
+    border-radius:4px;
+
+    .answer-score-text {
+      color: #a94442;
+    }
+  }
+
+  .exam-answered-skip {
+    border: 1px solid #7F7F7F;
+    background-color: rgb(238, 238, 238);
+    padding: 10px;
+    border-radius:4px;
+  }
+
+  .exam-not-answered {
+    border: 1px solid white;
+    background-color: white;
+    padding: 10px;
+    border-radius:4px;
+  }
+
+  .drag-preview {
+    box-sizing: border-box;
+    background: white;
+    border: 2px solid #EDEDED;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+      0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  .dragdrop-placeholder {
+    background: #ccc;
+    border: dotted 3px #999;
+    min-height: 120px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .section-question {
+    box-sizing: border-box;
+    cursor: move;
+  }
+
+}
+

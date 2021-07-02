@@ -19,15 +19,15 @@ package controllers;
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
-import backend.models.Exam;
-import backend.models.ExamInspection;
-import backend.models.User;
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
+import models.Exam;
+import models.ExamInspection;
+import models.User;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
