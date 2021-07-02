@@ -23,12 +23,12 @@ EXAM Quickstart for developers
 
 3.  Get frontend dependencies
 
-        $ cd app/frontend
+        $ cd ui
         $ npm install       
 
 4.  Start sbt console
 
-        $ cd ../..
+        $ cd ..
         $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999
 
     This opens up a debug port at 9999 and starts up webpack dev server at 8080. You can run webpack server independent of
@@ -38,7 +38,7 @@ EXAM Quickstart for developers
 
     in which case you can manage the server yourself in a separate terminal like this
 
-        $ cd app/frontend
+        $ cd ui
         $ npm start    
 
 5.  Inside sbt console start the app
@@ -81,3 +81,4 @@ Using CI specific protractor configuration.
 
 ## More information
 For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
+
