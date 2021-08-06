@@ -274,12 +274,12 @@ public class SessionController extends BaseController {
     }
 
     private String parseStudentIdDomain(String src) {
-        String parts = src.split("studentID:")[1];
-        return parts.split(":")[0];
+        String parts = src.split("int:")[1];
+        return parts.split(":")[1];
     }
 
     private String parseStudentIdValue(String src) {
-        String parts = src.split("studentID:")[1];
+        String parts = src.substring(src.lastIndexOf(":"));
         String[] valueParts = parts.split(":");
         return valueParts.length > 1 ? valueParts[1] : "null";
     }
@@ -291,7 +291,7 @@ public class SessionController extends BaseController {
         } else {
             return Arrays
                 .stream(src.split(";"))
-                .filter(s -> s.contains("studentID:"))
+                .filter(s -> s.contains("int:"))
                 .collect(
                     Collectors.toMap(
                         this::parseStudentIdDomain,
