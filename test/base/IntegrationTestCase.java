@@ -73,9 +73,9 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("employeeNumber", "12345");
         HAKA_HEADERS.put(
             "schacPersonalUniqueCode",
-            "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
-            "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
-            "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+            "urn:schac:personalUniqueCode:int:peppiID:org3.org:33333;" +
+            "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
+            "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
         );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
