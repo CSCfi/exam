@@ -58,16 +58,17 @@ export class AssessmentService {
         private Exam: ExamService,
     ) {}
 
-    saveFeedback$ = (exam: Exam, silent = false): Observable<void> => {
+    saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
         const data = {
             id: exam.examFeedback?.id,
             comment: exam.examFeedback?.comment,
         };
-        return this.http.put<void>(`/app/review/${exam.id}/comment`, data).pipe(
-            tap(() => {
+        return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
+            tap((comment) => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
+                Object.assign(exam.examFeedback, { id: comment.id });
             }),
         );
     };
