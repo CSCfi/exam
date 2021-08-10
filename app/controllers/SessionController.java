@@ -274,14 +274,15 @@ public class SessionController extends BaseController {
     }
 
     private String parseStudentIdDomain(String src) {
-        String parts = src.split("int:")[1];
-        return parts.split(":")[1];
+        // urn:schac:personalUniqueCode:int:studentID:xyz.fi:99999 => xyz.fi
+        String attribute = src.substring(0, src.lastIndexOf(":"));
+        return attribute.substring(attribute.lastIndexOf(":") + 1);
     }
 
     private String parseStudentIdValue(String src) {
-        String parts = src.substring(src.lastIndexOf(":"));
-        String[] valueParts = parts.split(":");
-        return valueParts.length > 1 ? valueParts[1] : "null";
+        // urn:schac:personalUniqueCode:int:studentID:xyz.fi:99999 => 9999
+        String value = src.substring(src.lastIndexOf(":") + 1);
+        return value.isBlank() || value.isEmpty() ? "null" : value;
     }
 
     private String parseUserIdentifier(String src) {
@@ -291,7 +292,7 @@ public class SessionController extends BaseController {
         } else {
             return Arrays
                 .stream(src.split(";"))
-                .filter(s -> s.contains("int:"))
+                .filter(s -> s.contains("int:") || s.contains("fi:")) // TODO: make configurable?
                 .collect(
                     Collectors.toMap(
                         this::parseStudentIdDomain,
