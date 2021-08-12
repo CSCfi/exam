@@ -252,7 +252,8 @@ public class DataTransferController extends BaseController {
                     copy.setModifierWithDate(user);
                     copy.save();
                     copy.getTags().addAll(question.getTags());
-                    copy.getTags().forEach(t -> t.setCreator(user));
+                    copy.getTags().forEach(t -> t.setCreatorWithDate(user));
+                    copy.getTags().forEach(t -> t.setModifierWithDate(user));
                     copy.getQuestionOwners().clear();
                     copy.getQuestionOwners().add(user);
                     copy.update();
