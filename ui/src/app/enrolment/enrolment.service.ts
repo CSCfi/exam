@@ -18,19 +18,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import type { Observable } from 'rxjs';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
-import type { ExamRoom } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { LanguageService } from '../utility/language/language.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
+
+import type { Observable } from 'rxjs';
+import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { ExamRoom } from '../reservation/reservation.model';
+import type { User } from '../session/session.service';
 import type { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
 
 @Injectable()
@@ -142,7 +143,7 @@ export class EnrolmentService {
                     map((instructions) => {
                         return {
                             ...exam,
-                            languages: exam.examLanguages.map((el) => this.Language.getLanguageNativeName(el.code)),
+                            languages: exam.examLanguages.map((el) => el.name),
                             maturityInstructions: instructions,
                             alreadyEnrolled: false,
                             reservationMade: false,
@@ -196,7 +197,7 @@ export class EnrolmentService {
                     .map((e) => {
                         return {
                             ...e,
-                            languages: e.examLanguages.map((el) => this.Language.getLanguageNativeName(el.code)),
+                            languages: e.examLanguages.map((el) => el.name),
                             maturityInstructions: null,
                             alreadyEnrolled: false,
                             reservationMade: false,

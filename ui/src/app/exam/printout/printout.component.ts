@@ -40,7 +40,7 @@ export class PrintoutComponent {
 
     ngOnInit() {
         this.http
-            .get<Exam>(`/app/exams/${this.state.params.id}/preview`)
+            .get<Exam>(`/app/exams/${this.routing.params.id}/preview`)
             .pipe(
                 map((exam) => {
                     exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
@@ -128,7 +128,7 @@ export class PrintoutComponent {
 
     printAttachment = () =>
         this.Files.download(
-            '/app/attachment/exam/' + this.state.params.id,
+            '/app/attachment/exam/' + this.routing.params.id,
             (this.exam.attachment as Attachment).fileName,
         );
 }

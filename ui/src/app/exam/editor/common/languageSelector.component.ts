@@ -13,15 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../../utility/language/language.service';
-import type { ExamLanguage } from '../../exam.model';
 import { Exam } from '../../exam.model';
 
+import type { OnInit } from '@angular/core';
+import type { ExamLanguage } from '../../exam.model';
 @Component({
     selector: 'language-selector',
     templateUrl: './languageSelector.component.html',
@@ -35,18 +35,15 @@ export class LanguageSelectorComponent implements OnInit {
     constructor(private http: HttpClient, private translate: TranslateService, private Language: LanguageService) {}
 
     ngOnInit() {
-        this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
-            this.examLanguages = languages.map((language) => {
-                language.name = this.Language.getLanguageNativeName(language.code) || '';
-                return language;
-            });
+        this.Language.getExamLanguages$().subscribe((languages: ExamLanguage[]) => {
+            this.examLanguages = languages;
         });
     }
 
     selectedLanguages = () =>
         this.exam.examLanguages.length === 0
             ? this.translate.instant('sitnet_select')
-            : this.exam.examLanguages.map((language) => this.Language.getLanguageNativeName(language.code)).join(', ');
+            : this.exam.examLanguages.map((language) => language.name).join(', ');
 
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
 
