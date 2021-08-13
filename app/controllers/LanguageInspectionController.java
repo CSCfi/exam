@@ -62,6 +62,7 @@ public class LanguageInspectionController extends BaseController {
             .fetch("exam.course")
             .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
             .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
+            .fetch("exam.examLanguages")
             .fetch("statement")
             .fetch("creator", "firstName, lastName, email, userIdentifier")
             .fetch("assignee", "firstName, lastName, email, userIdentifier")
