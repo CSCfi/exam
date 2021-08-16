@@ -89,9 +89,7 @@ export class ExamSearchComponent implements OnInit {
                             console.warn('No languages for exam #' + exam.id);
                             exam.examLanguages = [];
                         }
-                        exam.languages = exam.examLanguages.map((lang) =>
-                            this.Language.getLanguageNativeName(lang.code),
-                        );
+                        exam.languages = exam.examLanguages.map((lang) => lang.name);
                     });
                     this.exams = exams;
                     this.checkEnrolment();

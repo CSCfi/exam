@@ -82,7 +82,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
             _.assign(e, {
                 reservationMade: false,
                 enrolled: false,
-                languages: e.examLanguages.map((l) => this.Language.getLanguageNativeName(l.code)),
+                languages: e.examLanguages.map((l) => l.name),
             }),
         );
         this.exams.forEach((e) => {

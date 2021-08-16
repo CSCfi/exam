@@ -17,18 +17,18 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import type { QuestionAmounts } from '../../../question/question.service';
 import { QuestionService } from '../../../question/question.service';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
+import type { QuestionAmounts } from '../../../question/question.service';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
@@ -145,7 +145,7 @@ export class PrintedAssessmentComponent {
     getLanguage = () => {
         if (!this.exam) return 'N/A';
         const lang = this.Assessment.pickExamLanguage(this.exam);
-        return !lang ? 'N/A' : this.Language.getLanguageNativeName(lang.code);
+        return !lang ? 'N/A' : lang.name;
     };
 
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
