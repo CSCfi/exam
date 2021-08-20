@@ -700,7 +700,7 @@ public class ReviewController extends BaseController {
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         try {
             csvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Failed to parse CSV file. Stack trace follows");
             e.printStackTrace();
             return internalServerError("sitnet_internal_error");

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.File;
@@ -41,7 +42,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import play.Logger;
 
 public class CsvBuilderImpl implements CsvBuilder {
@@ -102,7 +103,7 @@ public class CsvBuilderImpl implements CsvBuilder {
     }
 
     @Override
-    public void parseGrades(File csvFile, User user, Role.Name role) throws IOException {
+    public void parseGrades(File csvFile, User user, Role.Name role) throws IOException, CsvValidationException {
         CSVReader reader = new CSVReader(new FileReader(csvFile));
         String[] records;
         while ((records = reader.readNext()) != null) {
@@ -164,7 +165,7 @@ public class CsvBuilderImpl implements CsvBuilder {
                         comment.setCreatorWithDate(user);
                     }
                     comment.setModifierWithDate(user);
-                    comment.setComment(Jsoup.clean(feedback, Whitelist.relaxed()));
+                    comment.setComment(Jsoup.clean(feedback, Safelist.relaxed()));
                     comment.save();
                     exam.setExamFeedback(comment);
                 }
