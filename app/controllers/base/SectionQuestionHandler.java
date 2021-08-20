@@ -11,7 +11,7 @@ import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import play.mvc.Result;
 import play.mvc.Results;
 import sanitizers.SanitizingHelper;
@@ -145,11 +145,11 @@ public interface SectionQuestionHandler {
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());
         String answerInstructions = question.getDefaultAnswerInstructions();
         sectionQuestion.setAnswerInstructions(
-            answerInstructions == null ? null : Jsoup.clean(answerInstructions, Whitelist.relaxed())
+            answerInstructions == null ? null : Jsoup.clean(answerInstructions, Safelist.relaxed())
         );
         String evaluationCriteria = question.getDefaultEvaluationCriteria();
         sectionQuestion.setEvaluationCriteria(
-            evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Whitelist.relaxed())
+            evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Safelist.relaxed())
         );
         sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
         sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());

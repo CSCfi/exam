@@ -80,7 +80,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testConcurentCreateReservation() throws Exception {
+    public void testConcurrentCreateReservation() throws Exception {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();

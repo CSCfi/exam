@@ -42,7 +42,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
@@ -312,7 +315,9 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-            Yaml yaml = new Yaml(new JodaPropertyConstructor());
+            LoaderOptions options = new LoaderOptions();
+            options.setMaxAliasesForCollections(400);
+            Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(), new DumperOptions(), options);
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = yaml.load(is);
             is.close();
