@@ -15,7 +15,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
@@ -43,6 +43,7 @@ export class RoomComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private roomService: RoomService,
         private settings: SettingsResourceService,
         private interoperability: InteroperabilityResourceService,
@@ -55,7 +56,7 @@ export class RoomComponent implements OnInit {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
-        this.roomService.getRoom$(this.state.params.id).subscribe(
+        this.roomService.getRoom$(this.routing.params.id).subscribe(
             (room: InteroperableRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
@@ -81,7 +82,8 @@ export class RoomComponent implements OnInit {
             .updateWorkingHours$(this.week, [this.room.id])
             .subscribe((hours) => (this.workingHours = hours));
 
-    workingHoursExist = () => this.workingHours.flatMap((wh) => wh.blocks).length > 0;
+    workingHoursExist = () =>
+        this.room?.defaultWorkingHours.length > 0 || this.workingHours.flatMap((wh) => wh.blocks).length > 0;
 
     addException = (exception: ExceptionWorkingHours) => {
         this.roomService.addException([this.room.id], exception).then((data) => {
