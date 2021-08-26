@@ -213,7 +213,7 @@ export class SlotPickerComponent {
             start: $event.start,
             end: $event.end as Date,
             room: this.selectedRoom as ExamRoom,
-            accessibilities: [], // todo
+            accessibilities: this.accessibilities.filter((i) => i.filtered),
         });
 
     private getTitle(slot: AvailableSlot): string {
