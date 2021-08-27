@@ -335,7 +335,7 @@ public class EnrolmentController extends BaseController {
                     user,
                     exam.getId()
                 );
-                return wrapAsPromise(internalServerError()); // Lets fail right here
+                return wrapAsPromise(internalServerError()); // Let's fail right here
             }
             // reservation in the future, replace it
             if (!enrolmentsWithFutureReservations.isEmpty()) {
@@ -351,7 +351,7 @@ public class EnrolmentController extends BaseController {
                         }
                     );
             }
-            List<ExamEnrolment> enrolmentsWithFutureExaminatioEvents = enrolments
+            List<ExamEnrolment> enrolmentsWithFutureExaminationEvents = enrolments
                 .stream()
                 .filter(
                     e ->
@@ -359,17 +359,17 @@ public class EnrolmentController extends BaseController {
                         e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
                 )
                 .collect(Collectors.toList());
-            if (enrolmentsWithFutureExaminatioEvents.size() > 1) {
+            if (enrolmentsWithFutureExaminationEvents.size() > 1) {
                 logger.error(
                     "Several enrolments with future examination events found for user {} and exam {}",
                     user,
                     exam.getId()
                 );
-                return wrapAsPromise(internalServerError()); // Lets fail right here
+                return wrapAsPromise(internalServerError()); // Let's fail right here
             }
             // examination event in the future, replace it
-            if (!enrolmentsWithFutureExaminatioEvents.isEmpty()) {
-                ExamEnrolment enrolment = enrolmentsWithFutureExaminatioEvents.get(0);
+            if (!enrolmentsWithFutureExaminationEvents.isEmpty()) {
+                ExamEnrolment enrolment = enrolmentsWithFutureExaminationEvents.get(0);
                 enrolment.delete();
                 ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                 return wrapAsPromise(ok(newEnrolment));
