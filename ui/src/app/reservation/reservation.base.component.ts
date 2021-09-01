@@ -144,7 +144,7 @@ export class ReservationComponentBase {
     private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
         _.isObject(reservation.externalReservation);
     private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
-        _.isObject(reservation.enrolment.collaborativeExam);
+        _.isObject(reservation.enrolment?.collaborativeExam);
 
     query() {
         if (this.somethingSelected(this.selection)) {
@@ -178,24 +178,26 @@ export class ReservationComponentBase {
                                 : r.enrolment.exam.id.toString(),
                             org: '',
                             stateOrd: 0,
-                            enrolment: { ...r.enrolment, teacherAggregate: '' },
+                            enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
                         })),
                     ),
                     map((reservations: AnyReservation[]) => {
                         // Transfer exams taken here
                         reservations.filter(this.isLocalTransfer).forEach((r: LocalTransferExamReservation) => {
-                            r.enrolment = r.enrolment || {};
-                            const state =
-                                r.enrolment.externalExam && r.enrolment.externalExam.finished
-                                    ? 'EXTERNAL_FINISHED'
-                                    : 'EXTERNAL_UNFINISHED';
-                            r.enrolment.exam = {
-                                id: r.enrolment?.externalExam?.id as number,
-                                external: true,
-                                examOwners: [],
-                                state: state,
-                                parent: null,
+                            const state = r.enrolment?.externalExam?.finished
+                                ? 'EXTERNAL_FINISHED'
+                                : 'EXTERNAL_UNFINISHED';
+                            const enrolment: LocalTransferExamEnrolment = {
+                                ...r.enrolment,
+                                exam: {
+                                    id: r.enrolment?.externalExam?.id as number,
+                                    external: true,
+                                    examOwners: [],
+                                    state: state,
+                                    parent: null,
+                                },
                             };
+                            r.enrolment = enrolment;
                         });
                         // Transfer exams taken elsewhere
                         reservations.filter(this.isRemoteTransfer).forEach((r: RemoteTransferExamReservation) => {
@@ -223,12 +225,15 @@ export class ReservationComponentBase {
 
                         return reservations;
                     }),
-                    map((reservations: AnyReservation[]) => reservations.filter((r) => r.enrolment.exam)),
+                    map((reservations: AnyReservation[]) => reservations.filter((r) => r.enrolment?.exam)),
                     map((reservations: AnyReservation[]) => {
                         reservations.forEach((r) => {
-                            const exam = r.enrolment.exam.parent || r.enrolment.exam;
-                            r.enrolment.teacherAggregate = exam.examOwners.map((o) => o.lastName + o.firstName).join();
-                            const state = this.Reservation.printExamState(r);
+                            const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
+                            r.enrolment = {
+                                ...(r.enrolment as ExamEnrolment),
+                                teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
+                            };
+                            const state = this.Reservation.printExamState(r) as string;
                             r.stateOrd = [
                                 'PUBLISHED',
                                 'NO_SHOW',
