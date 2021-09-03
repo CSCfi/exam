@@ -82,11 +82,13 @@ export class FileService {
             .catch((resp) => toast.error(this.translate.instant(resp.data)));
     }
 
+    private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
+
     uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
         this.doUpload(url, file, params)
             .then((resp) => {
                 parent.objectVersion = resp.objectVersion;
-                parent.attachment = (resp as EssayAnswer).attachment;
+                parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
             })
             .catch((resp) => toast.error(this.translate.instant(resp.data)));
     }
@@ -123,7 +125,7 @@ export class FileService {
     }
 
     private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment | EssayAnswer> {
-        return new Promise<Attachment>((resolve, reject) => {
+        return new Promise<Attachment | EssayAnswer>((resolve, reject) => {
             if (this.isFileTooBig(file)) {
                 reject({ data: 'sitnet_file_too_large' });
             } else {
