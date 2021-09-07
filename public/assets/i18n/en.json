@@ -46,7 +46,6 @@
   "sitnet_draft": "Draft",
   "sitnet_edit": "Edit",
   "sitnet_student_edit": "Message to examiner (the examiner sees the message when assessing the exam)",
-  "sitnet_student_add": "Message to examiner (the examiner sees the message when assessing the exam)",
   "sitnet_email": "Email",
   "sitnet_email_body_text": "The booking for your exam has been cancelled. The computer is not available. Please make a new booking!",
   "sitnet_email_hi": "Dear",
