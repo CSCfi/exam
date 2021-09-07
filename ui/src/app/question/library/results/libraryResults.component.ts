@@ -193,7 +193,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
         if (_.isNumber(scoreColumnValue)) {
             return scoreColumnValue;
-        } else if (_.isString(scoreColumnValue)) {
+        } else if (_.isString(scoreColumnValue) && scoreColumnValue !== '') {
             return this.translate.instant(scoreColumnValue);
         } else {
             return '';
