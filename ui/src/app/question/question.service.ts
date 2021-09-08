@@ -246,11 +246,11 @@ export class QuestionService {
                     const score = sq.essayAnswer.evaluatedScore;
                     return { score: score, rejected: score === 0, approved: score === 1 };
                 }
-                return null;
+                return { score: 0, rejected: false, approved: false };
             case 'ClaimChoiceQuestion':
                 return { score: this.scoreClaimChoiceAnswer(sq, false), rejected: false, approved: false };
             default:
-                return null;
+                throw Error('unknown question type');
         }
     };
 

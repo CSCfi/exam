@@ -50,5 +50,5 @@ export class ExamSectionComponent {
 
     getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);
 
-    getSectionTotalScore = () => this.Exam.getSectionTotalScore(this.section);
+    getSectionTotalScore = () => this.Exam.getSectionTotalNumericScore(this.section);
 }

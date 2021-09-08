@@ -256,10 +256,19 @@ export class ExamService {
 
     private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 
+    getSectionTotalNumericScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
+            const points = this.Question.calculateAnswerScore(sq);
+            // handle only numeric scores (leave out approved/rejected type of scores)
+            return n + (points.rejected === false && points.approved === false ? points.score : 0);
+        }, 0);
+        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
             const points = this.Question.calculateAnswerScore(sq);
-            return n + (points ? points.score : 0);
+            return n + points.score;
         }, 0);
         return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
@@ -286,7 +295,7 @@ export class ExamService {
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
     getTotalScore = (exam: SectionContainer): string => {
-        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2);
+        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
         return parseFloat(score) > 0 ? score : '0';
     };
 
