@@ -274,13 +274,13 @@ public class SessionController extends BaseController {
     }
 
     private String parseStudentIdDomain(String src) {
-        // urn:schac:personalUniqueCode:int:studentID:xyz.fi:99999 => xyz.fi
+        // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => xyz.fi
         String attribute = src.substring(0, src.lastIndexOf(":"));
         return attribute.substring(attribute.lastIndexOf(":") + 1);
     }
 
     private String parseStudentIdValue(String src) {
-        // urn:schac:personalUniqueCode:int:studentID:xyz.fi:99999 => 9999
+        // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => 9999
         String value = src.substring(src.lastIndexOf(":") + 1);
         return value.isBlank() || value.isEmpty() ? "null" : value;
     }
