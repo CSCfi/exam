@@ -12,9 +12,13 @@
                 [ngbTypeahead]="getCoursesByCode$"
                 (selectItem)="onCourseSelect($event)"
                 [inputFormatter]="codeFormat"
-                [resultFormatter]="courseFormat"
+                [resultTemplate]="rtc"
                 required
             />
+            <ng-template #rtc let-r="result" let-t="term">
+                <ngb-highlight [result]="r.code" [term]="t"></ngb-highlight>
+                <p>{{ r.name }}</p>
+            </ng-template>
             <div class="input-group-append">
                 <span class="input-group-text">
                     <i
@@ -44,9 +48,13 @@
                 [ngbTypeahead]="getCoursesByName$"
                 (selectItem)="onCourseSelect($event)"
                 [inputFormatter]="nameFormat"
-                [resultFormatter]="courseFormat"
+                [resultTemplate]="rtn"
                 required
             />
+            <ng-template #rtn let-r="result" let-t="term">
+                <ngb-highlight [result]="r.name" [term]="t"></ngb-highlight>
+                <p>{{ r.code }}</p>
+            </ng-template>
             <div class="input-group-append">
                 <span class="input-group-text">
                     <i
