@@ -49,11 +49,19 @@
 
                 <div class="col-md-2">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <date-picker [optional]="true" (onUpdate)="startDateChanged($event)"></date-picker>
+                    <date-picker
+                        [optional]="true"
+                        [initiallyEmpty]="true"
+                        (onUpdate)="startDateChanged($event)"
+                    ></date-picker>
                 </div>
                 <div class="col-md-2">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <date-picker [optional]="true" (onUpdate)="endDateChanged($event)"></date-picker>
+                    <date-picker
+                        [optional]="true"
+                        [initiallyEmpty]="true"
+                        (onUpdate)="endDateChanged($event)"
+                    ></date-picker>
                 </div>
             </div>
         </div>
