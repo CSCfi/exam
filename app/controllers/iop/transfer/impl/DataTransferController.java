@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import models.Attachment;
+import models.Tag;
 import models.User;
 import models.questions.Question;
 import play.Logger;
@@ -229,6 +231,10 @@ public class DataTransferController extends BaseController {
         return attachment;
     }
 
+    private boolean isNewTag(Tag tag, List<Tag> existing) {
+        return existing.stream().noneMatch(e -> e.getName().equals(tag.getName()));
+    }
+
     private Result importQuestions(JsonNode node) {
         String eppn = node.get("owner").asText();
         Optional<User> ou = Ebean.find(User.class).where().eq("eppn", eppn).findOneOrEmpty();
@@ -236,6 +242,7 @@ public class DataTransferController extends BaseController {
             return badRequest("User not recognized");
         }
         User user = ou.get();
+        List<Tag> userTags = Ebean.find(Tag.class).where().eq("creator", user).findList();
         ArrayNode questionNode = node.withArray("questions");
         StreamSupport
             .stream(questionNode.spliterator(), false)
@@ -251,7 +258,17 @@ public class DataTransferController extends BaseController {
                     copy.setCreatorWithDate(user);
                     copy.setModifierWithDate(user);
                     copy.save();
-                    copy.getTags().addAll(question.getTags());
+                    List<Tag> newTags = question
+                        .getTags()
+                        .stream()
+                        .filter(t -> isNewTag(t, userTags))
+                        .collect(Collectors.toList());
+                    List<Tag> existingTags = userTags
+                        .stream()
+                        .filter(t -> !isNewTag(t, question.getTags()))
+                        .collect(Collectors.toList());
+                    copy.getTags().addAll(newTags);
+                    copy.getTags().addAll(existingTags);
                     copy.getTags().forEach(t -> t.setCreatorWithDate(user));
                     copy.getTags().forEach(t -> t.setModifierWithDate(user));
                     copy.getQuestionOwners().clear();
