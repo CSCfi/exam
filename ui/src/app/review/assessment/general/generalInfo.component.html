@@ -22,7 +22,7 @@
         <div class="col-md-2 general-info-title">{{ 'sitnet_time_of_exam_participation' | translate }}:</div>
         <div class="col-md-4 general-info-content">{{ participation.duration | date: 'HH:mm' }}</div>
     </div>
-    <div class="detail-row marb20" *ngIf="enrolment.information">
+    <div class="detail-row marb20" *ngIf="enrolment?.information">
         <div class="col-md-2 general-info-title">{{ 'sitnet_student_enrolment_info' | translate }}:</div>
         <div class="col-md-10 general-info-content">{{ enrolment.information }}</div>
     </div>
@@ -31,15 +31,15 @@
         <div class="col-md-4 general-info-content" *ngIf="reservation.machine?.room">
             {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
         </div>
-        <div class="col-md-4 general-info-content" *ngIf="!reservation.machine?.room">N/A</div>
+        <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine?.room">N/A</div>
 
         <div class="col-md-2 general-info-title">{{ 'sitnet_exam_machine' | translate }}:</div>
-        <div class="col-md-4 general-info-content" *ngIf="reservation.machine">
+        <div class="col-md-4 general-info-content" *ngIf="reservation?.machine">
             {{ reservation.machine.name }}
         </div>
-        <div class="col-md-4 general-info-content" *ngIf="!reservation.machine">N/A</div>
+        <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine">N/A</div>
     </div>
-    <div class="detail-row marb20" *ngIf="enrolment.examinationEventConfiguration">
+    <div class="detail-row marb20" *ngIf="enrolment?.examinationEventConfiguration">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_event' | translate }}:</div>
         <div class="col-md-4 general-info-content">
             {{ enrolment.examinationEventConfiguration?.examinationEvent.start | date }}
