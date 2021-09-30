@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { ExamService } from '../../exam/exam.service';
@@ -43,6 +43,7 @@ export class AssessmentComponent {
 
     constructor(
         private state: StateService,
+        private routing: UIRouterGlobals,
         private http: HttpClient,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
@@ -113,7 +114,7 @@ export class AssessmentComponent {
 
     goToAssessment = () =>
         this.state.go('examEditor.assessments', {
-            id: this.exam.parent?.id,
+            id: this.collaborative ? this.routing.params.id : this.exam.parent?.id,
             collaborative: this.collaborative ? 'collaborative' : 'regular',
         });
 
