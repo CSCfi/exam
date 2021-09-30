@@ -57,7 +57,7 @@ export class ClozeTestComponent {
 
     set scoreValue(value: number | null) {
         this._score = value;
-        if (this.form.valid) {
+        if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
         } else {
             this.sectionQuestion.forcedScore = null;
