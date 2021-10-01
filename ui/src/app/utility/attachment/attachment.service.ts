@@ -102,10 +102,10 @@ export class AttachmentService {
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete<{ objectVersion: number }>(url, {}).subscribe(
+            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe(
                 (resp) => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    question.essayAnswer.objectVersion = resp.objectVersion;
+                    question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
                     delete question.essayAnswer.attachment;
                 },
                 (err) => toast.error(err),
