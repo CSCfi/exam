@@ -164,9 +164,10 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     private Optional<Result> handleFutureReservations(List<ExamEnrolment> enrolments, User user, CollaborativeExam ce) {
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
             .stream()
-            .filter(ee -> ee.getReservation().toInterval().isAfterNow())
+            .filter(ee -> ee.getReservation().toInterval().isAfter(now))
             .collect(Collectors.toList());
         if (enrolmentsWithFutureReservations.size() > 1) {
             logger.error(
@@ -174,7 +175,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 user,
                 ce.getId()
             );
-            return Optional.of(internalServerError()); // Lets fail right here
+            return Optional.of(internalServerError()); // Let's fail right here
         }
         // reservation in the future, replace it
         if (!enrolmentsWithFutureReservations.isEmpty()) {
