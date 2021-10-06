@@ -90,7 +90,7 @@ const studentStates: Ng2StateDeclaration[] = [
     },
     {
         name: 'waitingRoom',
-        url: '/student/waiting-room/:id',
+        url: '/student/waiting-room/:id/:hash',
         component: WaitingRoomComponent,
     },
     {

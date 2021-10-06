@@ -131,8 +131,7 @@ public class ExternalExaminationController extends ExaminationController {
             });
     }
 
-    @Override
-    protected void processClozeTestQuestions(Exam exam) {
+    private void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
         exam
             .getExamSections()

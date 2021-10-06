@@ -250,10 +250,13 @@ public class EnrolmentRepository {
             DateTime threshold = DateTime.now().plusMinutes(5);
             DateTime start = enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
             if (start.isBefore(threshold)) {
-                headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
+                headers.put(
+                    "x-exam-upcoming-exam",
+                    String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                );
             }
         } else if (isMachineOk(enrolment, request, headers)) {
-            headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
+            headers.put("x-exam-upcoming-exam", String.format("%s:::%d", getExamHash(enrolment), enrolment.getId()));
         }
     }
 
@@ -303,6 +306,7 @@ public class EnrolmentRepository {
             .disjunction()
             .eq("exam.state", Exam.State.PUBLISHED)
             .eq("exam.state", Exam.State.STUDENT_STARTED)
+            .eq("exam.state", Exam.State.INITIALIZED)
             .and()
             .isNull("exam")
             .eq("collaborativeExam.state", Exam.State.PUBLISHED)
