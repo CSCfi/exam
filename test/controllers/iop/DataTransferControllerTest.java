@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import models.Attachment;
+import models.Tag;
 import models.User;
 import models.base.GeneratedIdentityModel;
 import models.questions.Question;
@@ -108,6 +109,25 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/integration/iop/import", json);
         assertThat(result.status()).isEqualTo(201);
         assertThat(Ebean.find(Question.class).where().like("question", "% **import").findCount()).isEqualTo(22);
+    }
+
+    @Test
+    public void testImportQuestionWithTags() throws IOException {
+        User user = Ebean.find(User.class).where().eq("email", "teacher@funet.fi").findOne();
+        Tag existing = new Tag();
+        existing.setCreatorWithDate(user);
+        existing.setModifierWithDate(user);
+        existing.setName("koira");
+        existing.save();
+        ObjectMapper mapper = new ObjectMapper();
+        File from = new File("test/resources/questionImportWithTags.json");
+        JsonNode json = mapper.readTree(from);
+
+        Result result = request(Helpers.POST, "/integration/iop/import", json);
+        assertThat(result.status()).isEqualTo(201);
+        assertThat(
+            (long) Ebean.find(Question.class).where().like("question", "% **import").findOne().getTags().size() == 2
+        );
     }
 
     @Test

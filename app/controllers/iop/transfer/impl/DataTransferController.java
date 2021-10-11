@@ -106,7 +106,7 @@ public class DataTransferController extends BaseController {
                 .stream(body.get("ids").spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
-            PathProperties pp = PathProperties.parse("(*, options(*), tags(*))");
+            PathProperties pp = PathProperties.parse("(*, options(*), tags(name))");
             Query<Question> query = Ebean.find(Question.class);
             query.apply(pp);
             Set<Question> questions = query
@@ -263,6 +263,7 @@ public class DataTransferController extends BaseController {
                         .stream()
                         .filter(t -> isNewTag(t, userTags))
                         .collect(Collectors.toList());
+                    newTags.forEach(t -> t.setId(null));
                     List<Tag> existingTags = userTags
                         .stream()
                         .filter(t -> !isNewTag(t, question.getTags()))
