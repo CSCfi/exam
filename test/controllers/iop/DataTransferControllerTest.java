@@ -10,22 +10,27 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import models.Attachment;
 import models.Tag;
 import models.User;
 import models.base.GeneratedIdentityModel;
 import models.questions.Question;
+import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -40,15 +45,45 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     public static class DataTransferServlet extends HttpServlet {
 
         @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+            RemoteServerHelper.writeJsonResponse(
+                response,
+                Json.newObject().set("ids", Json.newArray().add(Json.newObject().put("src", 1).put("dst", 1000))),
+                HttpServletResponse.SC_CREATED
+            );
+        }
+    }
+
+    public static class DataTransferAttachmentServlet extends HttpServlet {
+
+        static Waiter waiter = new Waiter();
+
+        @Override
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
             response.setStatus(HttpServletResponse.SC_CREATED);
+            Part filePart = request.getPart("file");
+            waiter.assertEquals(testImage.getName(), filePart.getSubmittedFileName());
+            waiter.assertEquals("image/png", filePart.getContentType());
+            waiter.resume();
         }
     }
 
     @BeforeClass
     public static void startServer() throws Exception {
-        String baseUrl = String.format("/api/organisations/%s/export", ORG_REF);
-        server = RemoteServerHelper.createAndStartServer(31247, Map.of(DataTransferServlet.class, List.of(baseUrl)));
+        String baseUrl1 = String.format("/api/organisations/%s/export", ORG_REF);
+        String baseUrl2 = String.format("/api/organisations/%s/export/%d/attachment", ORG_REF, 1000);
+        server =
+            RemoteServerHelper.createAndStartServer(
+                31247,
+                Map.of(
+                    DataTransferServlet.class,
+                    List.of(baseUrl1),
+                    DataTransferAttachmentServlet.class,
+                    List.of(baseUrl2)
+                ),
+                true
+            );
     }
 
     @AfterClass
@@ -78,7 +113,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testExportQuestionWithAttachment() {
+    public void testExportQuestionWithAttachment() throws InterruptedException, TimeoutException {
         User user = getLoggerUser();
         Question question = Ebean
             .find(Question.class)
@@ -97,6 +132,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         an.add(question.getId());
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/integration/iop/export", body);
+        DataTransferAttachmentServlet.waiter.await(10000, 1);
         assertThat(result.status()).isEqualTo(201);
     }
 
@@ -131,6 +167,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     }
 
     @Test
+    @Ignore("does not operate like this anymore")
     public void testImportQuestionWithAttachment() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         File from = new File("test/resources/questionImportWithAttachment.json");
