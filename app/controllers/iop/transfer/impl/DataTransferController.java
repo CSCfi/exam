@@ -1,12 +1,14 @@
 package controllers.iop.transfer.impl;
 
+import akka.stream.IOResult;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
+import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
@@ -14,21 +16,16 @@ import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.util.Base64;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
@@ -38,12 +35,14 @@ import models.User;
 import models.questions.Question;
 import play.Logger;
 import play.http.HttpErrorHandler;
+import play.libs.Files;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import sanitizers.Attrs;
 import security.Authenticated;
 import util.config.ConfigReader;
@@ -69,14 +68,49 @@ public class DataTransferController extends BaseController {
     }
 
     private final WSClient wsClient;
-    private final FileHandler fileHandler;
     private final ConfigReader configReader;
+    private final FileHandler fileHandler;
 
     @Inject
-    DataTransferController(WSClient wsClient, FileHandler fileHandler, ConfigReader configReader) {
+    DataTransferController(WSClient wsClient, ConfigReader configReader, FileHandler fileHandler) {
         this.wsClient = wsClient;
-        this.fileHandler = fileHandler;
         this.configReader = configReader;
+        this.fileHandler = fileHandler;
+    }
+
+    @SubjectNotPresent
+    public Result importQuestionAttachment(Long id, Http.Request request) {
+        Question question = Ebean.find(Question.class, id);
+        if (question == null) {
+            return notFound();
+        }
+        Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
+        if (filePart == null) {
+            throw new IllegalArgumentException("file not found");
+        }
+        Optional<String> contentLength = request.header("Content-Length");
+        if (contentLength.isEmpty() || Long.parseLong(contentLength.get()) > configReader.getMaxFileSize()) {
+            throw new IllegalArgumentException("sitnet_file_too_large");
+        }
+        String newFilePath;
+        try {
+            newFilePath = copyFile(filePart.getRef(), "question", Long.toString(id));
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_attachment");
+        }
+        // Remove existing one if found
+        fileHandler.removePrevious(question);
+        Attachment attachment = fileHandler.createNew(filePart, newFilePath);
+        question.setAttachment(attachment);
+        question.save();
+        return created();
+    }
+
+    private String copyFile(Files.TemporaryFile srcFile, String... pathParams) throws IOException {
+        String newFilePath = fileHandler.createFilePath(pathParams);
+        fileHandler.copyFile(srcFile, new File(newFilePath));
+        return newFilePath;
     }
 
     @SubjectNotPresent
@@ -87,12 +121,6 @@ public class DataTransferController extends BaseController {
             return importQuestions(body);
         }
         return notAcceptable();
-    }
-
-    private JsonNode questionToJson(Question question, JsonNode node, PathProperties pp) {
-        JsonNode questionNode = serialize(question, pp);
-        ((ObjectNode) questionNode).set("attachment", node);
-        return questionNode;
     }
 
     @Authenticated
@@ -117,63 +145,6 @@ public class DataTransferController extends BaseController {
                 .eq("creator", user)
                 .endOr()
                 .findSet();
-            long dataSize = questions
-                .stream()
-                .filter(q -> q.getAttachment() != null)
-                .map(q -> new File(q.getAttachment().getFilePath()))
-                .filter(File::exists)
-                .map(
-                    f -> {
-                        try {
-                            return Files.size(f.toPath());
-                        } catch (IOException e) {
-                            return 0L;
-                        }
-                    }
-                )
-                .reduce(0L, Long::sum);
-            if (dataSize > configReader.getMaxFileSize()) {
-                return wrapAsPromise(forbidden("sitnet_file_too_large"));
-            }
-
-            // attachments to JSON node (fileName, mime, data in B64)
-            Map<Question, Optional<Attachment>> attachments = questions
-                .stream()
-                .filter(q -> q.getAttachment() == null || new File(q.getAttachment().getFilePath()).exists())
-                .collect(
-                    Collectors.toMap(
-                        Function.identity(),
-                        q -> q.getAttachment() != null ? Optional.of(q.getAttachment()) : Optional.empty()
-                    )
-                );
-            Map<Question, JsonNode> qn = attachments
-                .entrySet()
-                .stream()
-                .collect(
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> {
-                            Optional<Attachment> oa = e.getValue();
-                            if (oa.isPresent()) {
-                                Attachment attachment = oa.get();
-                                File file = new File(attachment.getFilePath());
-                                try (InputStream is = new FileInputStream(file)) {
-                                    final String encoded = Base64.getEncoder().encodeToString(is.readAllBytes());
-                                    return Json
-                                        .newObject()
-                                        .put("fileName", attachment.getFileName())
-                                        .put("mimeType", attachment.getMimeType())
-                                        .put("data", encoded);
-                                } catch (IOException ioe) {
-                                    logger.error("Failed to encode attachment to Base64", ioe);
-                                    return NullNode.getInstance();
-                                }
-                            } else {
-                                return NullNode.getInstance();
-                            }
-                        }
-                    )
-                );
 
             JsonNode data =
                 ((ObjectNode) body).put("path", path)
@@ -182,30 +153,80 @@ public class DataTransferController extends BaseController {
                         "questions",
                         Json
                             .newArray()
-                            .addAll(
-                                qn
-                                    .entrySet()
-                                    .stream()
-                                    .map(e -> questionToJson(e.getKey(), e.getValue(), pp))
-                                    .collect(Collectors.toList())
-                            )
+                            .addAll(questions.stream().map(q -> serialize(q, pp)).collect(Collectors.toList()))
                     );
 
             URL url = parseURL(body.get("orgRef").asText());
+            String uploadUrl = parseUploadURL(body.get("orgRef").asText());
             WSRequest wsr = wsClient.url(url.toString());
             return wsr
                 .post(data)
-                .thenApplyAsync(
+                .thenComposeAsync(
                     response -> {
                         JsonNode root = response.asJson();
                         if (response.getStatus() != Http.Status.CREATED) {
-                            return internalServerError(root.get("message").asText("Connection refused"));
+                            return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                         }
-                        return created();
+                        Map<Long, Long> entries = StreamSupport
+                            .stream(root.get("ids").spliterator(), false)
+                            .collect(Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong()));
+                        Map<Long, Attachment> localAttachments = questions
+                            .stream()
+                            .filter(
+                                q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists()
+                            )
+                            .collect(Collectors.toMap(Question::getId, Question::getAttachment));
+                        // Map question copy ids to attachments
+                        Map<Long, Attachment> remoteAttachments = localAttachments
+                            .entrySet()
+                            .stream()
+                            .filter(e -> entries.containsKey(e.getKey()))
+                            .collect(Collectors.toMap(e -> entries.get(e.getKey()), Map.Entry::getValue));
+                        return CompletableFuture
+                            .allOf(
+                                remoteAttachments
+                                    .entrySet()
+                                    .stream()
+                                    .map(
+                                        ra -> {
+                                            String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
+                                            WSRequest req = wsClient.url(host);
+                                            return CompletableFuture.runAsync(
+                                                () ->
+                                                    req
+                                                        .post(createSource(ra.getValue()))
+                                                        .exceptionally(
+                                                            e -> {
+                                                                logger.error(
+                                                                    "failed in uploading attachment id " + ra.getKey(),
+                                                                    e
+                                                                );
+                                                                return null;
+                                                            }
+                                                        )
+                                            );
+                                        }
+                                    )
+                                    .toArray(CompletableFuture[]::new)
+                            )
+                            .thenComposeAsync(__ -> wrapAsPromise(created()));
                     }
                 );
         }
         return wrapAsPromise(badRequest());
+    }
+
+    private Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> createSource(
+        Attachment attachment
+    ) {
+        Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(Path.of(attachment.getFilePath()));
+        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
+            "file",
+            attachment.getFileName(),
+            attachment.getMimeType(),
+            source
+        );
+        return Source.from(Set.of(filePart));
     }
 
     private URL parseURL(String orgRef) throws MalformedURLException {
@@ -217,22 +238,28 @@ public class DataTransferController extends BaseController {
         return new URL(url);
     }
 
-    private Attachment importAttachment(JsonNode node, Long id) throws IOException {
-        String path = fileHandler.createFilePath("question", id.toString());
-        File file = new File(path);
-        try (OutputStream os = new FileOutputStream(file)) {
-            byte[] data = Base64.getDecoder().decode(node.get("data").asText());
-            os.write(data);
-        }
-        Attachment attachment = new Attachment();
-        attachment.setFilePath(path);
-        attachment.setFileName(node.get("fileName").asText());
-        attachment.setMimeType(node.get("mimeType").asText());
-        return attachment;
+    private String parseUploadURL(String orgRef) throws MalformedURLException {
+        String url = String.format(
+            "%s/api/organisations/%s/export/id/attachment",
+            ConfigFactory.load().getString("sitnet.integration.iop.host"),
+            orgRef
+        );
+        return new URL(url).toString();
     }
 
     private boolean isNewTag(Tag tag, List<Tag> existing) {
         return existing.stream().noneMatch(e -> e.getName().equals(tag.getName()));
+    }
+
+    private static class QuestionEntry {
+
+        public Long srcId;
+        public Long dstId;
+
+        QuestionEntry(Long src, Long dst) {
+            this.srcId = src;
+            this.dstId = dst;
+        }
     }
 
     private Result importQuestions(JsonNode node) {
@@ -244,14 +271,10 @@ public class DataTransferController extends BaseController {
         User user = ou.get();
         List<Tag> userTags = Ebean.find(Tag.class).where().eq("creator", user).findList();
         ArrayNode questionNode = node.withArray("questions");
-        StreamSupport
+        List<QuestionEntry> entries = StreamSupport
             .stream(questionNode.spliterator(), false)
-            .forEach(
+            .map(
                 n -> {
-                    Optional<JsonNode> attachmentNode = n.has("attachment") &&
-                        n.get("attachment").getNodeType() == JsonNodeType.OBJECT
-                        ? Optional.of(n.get("attachment"))
-                        : Optional.empty();
                     Question question = JsonDeserializer.deserialize(Question.class, n);
                     Question copy = question.copy();
                     copy.setParent(null);
@@ -276,20 +299,12 @@ public class DataTransferController extends BaseController {
                     copy.getQuestionOwners().add(user);
                     copy.update();
                     Ebean.saveAll(copy.getOptions());
-                    attachmentNode.ifPresent(
-                        an -> {
-                            try {
-                                Attachment attachment = importAttachment(an, copy.getId());
-                                attachment.save();
-                                copy.setAttachment(attachment);
-                                copy.update();
-                            } catch (IOException e) {
-                                logger.error("Failed to create attachment for imported question", e);
-                            }
-                        }
-                    );
+                    return new QuestionEntry(question.getId(), copy.getId());
                 }
-            );
-        return created();
+            )
+            .collect(Collectors.toList());
+        ArrayNode an = Json.newArray();
+        entries.forEach(entry -> an.add(Json.newObject().put("src", entry.srcId).put("dst", entry.dstId)));
+        return Results.created((JsonNode) Json.newObject().set("ids", an));
     }
 }

@@ -27,7 +27,6 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Attachment;
@@ -59,30 +58,6 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
     @Inject
     private FileHandler fileHandler;
-
-    private void removePrevious(AttachmentContainer container) {
-        if (container.getAttachment() != null) {
-            Attachment a = container.getAttachment();
-            String filePath = a.getFilePath();
-            container.setAttachment(null);
-            container.save();
-            a.delete();
-            // Remove the file from disk if no references to it are found
-            boolean removeFromDisk = Ebean.find(Attachment.class).where().eq("filePath", filePath).findList().isEmpty();
-            if (removeFromDisk) {
-                fileHandler.removeAttachmentFile(a.getFilePath());
-            }
-        }
-    }
-
-    private Attachment createNew(FilePart<?> file, String path) {
-        Attachment attachment = new Attachment();
-        attachment.setFileName(file.getFilename());
-        attachment.setFilePath(path);
-        attachment.setMimeType(file.getContentType());
-        attachment.save();
-        return attachment;
-    }
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
@@ -124,9 +99,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         // Remove existing one if found
         EssayAnswer answer = question.getEssayAnswer();
-        removePrevious(question.getEssayAnswer());
+        fileHandler.removePrevious(question.getEssayAnswer());
 
-        Attachment attachment = createNew(filePart, newFilePath);
+        Attachment attachment = fileHandler.createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
         return wrapAsPromise(ok(answer));
@@ -138,9 +113,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
         String path
     ) {
         // Remove existing one if found
-        removePrevious(ac);
+        fileHandler.removePrevious(ac);
 
-        Attachment attachment = createNew(fp, path);
+        Attachment attachment = fileHandler.createNew(fp, path);
 
         ac.setAttachment(attachment);
         ac.save();
@@ -179,7 +154,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (question == null) {
             return notFound();
         }
-        removePrevious(question);
+        fileHandler.removePrevious(question);
         return ok();
     }
 
@@ -222,7 +197,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
 
-        removePrevious(exam);
+        fileHandler.removePrevious(exam);
         return wrapAsPromise(ok());
     }
 
@@ -234,7 +209,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(notFound("sitnet_exam_not_found"));
         }
         Comment comment = exam.getExamFeedback();
-        removePrevious(comment);
+        fileHandler.removePrevious(comment);
         return wrapAsPromise(ok());
     }
 
@@ -247,7 +222,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(notFound("sitnet_exam_not_found"));
         }
         Comment comment = inspection.getStatement();
-        removePrevious(comment);
+        fileHandler.removePrevious(comment);
         return wrapAsPromise(ok());
     }
 
@@ -443,16 +418,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
     private String copyFile(Files.TemporaryFile srcFile, String... pathParams) throws IOException {
         String newFilePath = fileHandler.createFilePath(pathParams);
-        copyFile(srcFile, new File(newFilePath));
+        fileHandler.copyFile(srcFile, new File(newFilePath));
         return newFilePath;
-    }
-
-    private void copyFile(Files.TemporaryFile sourceFile, File destFile) throws IOException {
-        java.nio.file.Files.copy(
-            sourceFile.path(),
-            destFile.toPath(),
-            StandardCopyOption.REPLACE_EXISTING,
-            StandardCopyOption.COPY_ATTRIBUTES
-        );
     }
 }
