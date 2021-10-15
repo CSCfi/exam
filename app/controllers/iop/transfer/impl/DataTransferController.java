@@ -89,8 +89,7 @@ public class DataTransferController extends BaseController {
         if (filePart == null) {
             throw new IllegalArgumentException("file not found");
         }
-        Optional<String> contentLength = request.header("Content-Length");
-        if (contentLength.isEmpty() || Long.parseLong(contentLength.get()) > configReader.getMaxFileSize()) {
+        if (filePart.getFileSize() > configReader.getMaxFileSize()) {
             throw new IllegalArgumentException("sitnet_file_too_large");
         }
         String newFilePath;
