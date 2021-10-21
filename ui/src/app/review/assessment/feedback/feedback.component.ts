@@ -14,7 +14,6 @@
  */
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import { noop } from 'rxjs';
 
 import { ExamParticipation } from '../../../exam/exam.model';
 import { Examination } from '../../../examination/examination.service';
@@ -48,37 +47,44 @@ export class FeedbackComponent {
 
     saveFeedback = () => {
         if (this.collaborative) {
-            this.CollaborativeAssessment.saveFeedback$(
-                this.routing.params.id,
-                this.routing.params.ref,
-                this.participation,
-            ).subscribe();
+            this._saveCollaborativeFeedback$().subscribe();
         } else {
-            this.Assessment.saveFeedback$(this.exam).subscribe();
+            this._saveFeedback$().subscribe();
         }
     };
 
-    selectFile = () => {
-        this.Attachment.selectFile(false, {}).then(
-            (res: FileResult) =>
-                this.Assessment.saveFeedback$(this.exam).subscribe(() => {
-                    const url = this.collaborative
-                        ? `/integration/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`
-                        : `/app/attachment/exam/${this.exam.id}/feedback`;
-                    this.Files.upload(
-                        url,
-                        res.$value.attachmentFile,
-                        { examId: this.exam.id.toString() },
-                        this.exam.examFeedback,
-                        () => {
-                            // kinda hacky, but let's do this mangling for time being
-                            this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                            delete this.exam.examFeedback?.attachment?.rev;
-                        },
-                    );
-                }),
-            noop,
+    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
+
+    private _saveCollaborativeFeedback$ = () =>
+        this.CollaborativeAssessment.saveFeedback$(this.routing.params.id, this.routing.params.ref, this.participation);
+
+    private _upload = (res: FileResult, url: string) =>
+        this.Files.upload(
+            url,
+            res.$value.attachmentFile,
+            { examId: this.exam.id.toString() },
+            this.exam.examFeedback,
+            () => {
+                // kinda hacky, but let's do this mangling for time being
+                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                delete this.exam.examFeedback?.attachment?.rev;
+            },
         );
+
+    selectFile = () => {
+        this.Attachment.selectFile(false, {}).then((res: FileResult) => {
+            if (this.collaborative) {
+                this._saveCollaborativeFeedback$().subscribe(() => {
+                    const url = `/integration/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
+                    this._upload(res, url);
+                });
+            } else {
+                this._saveFeedback$().subscribe(() => {
+                    const url = `/app/attachment/exam/${this.exam.id}/feedback`;
+                    this._upload(res, url);
+                });
+            }
+        });
     };
 
     downloadFeedbackAttachment = () => {

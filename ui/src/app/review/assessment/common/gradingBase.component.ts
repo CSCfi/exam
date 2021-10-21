@@ -95,12 +95,11 @@ export abstract class GradingBaseComponent {
         if (!exam.answerLanguage) {
             exam.answerLanguage = lang.code;
         }
-        this.Language.getExamLanguages().then((languages) => {
+        this.Language.getExamLanguages$().subscribe((languages) => {
             this.languages = languages.map((language) => {
                 if (lang.code === language.code) {
                     this.selections.language = language;
                 }
-                language.name = this.Language.getLanguageNativeName(language.code);
                 return language;
             });
         });

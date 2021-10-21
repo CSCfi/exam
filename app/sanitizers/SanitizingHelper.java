@@ -18,13 +18,13 @@ package sanitizers;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 public final class SanitizingHelper {
 
-    private static final Whitelist WHITELIST = Whitelist
+    private static final Safelist SAFELIST = Safelist
         .relaxed()
         .addAttributes("a", "target")
         .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
@@ -42,7 +42,7 @@ public final class SanitizingHelper {
 
     public static String parseHtml(String fieldName, JsonNode node) {
         Optional<String> value = parse(fieldName, node, String.class);
-        return value.map(s -> Jsoup.clean(s, WHITELIST)).orElse(null);
+        return value.map(s -> Jsoup.clean(s, SAFELIST)).orElse(null);
     }
 
     public static <T> Optional<T> parse(String fieldName, JsonNode node, Class<T> type) {
@@ -89,7 +89,7 @@ public final class SanitizingHelper {
         throws SanitizingException {
         String value = parse(key, node, String.class)
             .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
-        return request.addAttr(attr, Jsoup.clean(value, WHITELIST));
+        return request.addAttr(attr, Jsoup.clean(value, SAFELIST));
     }
 
     // If value is null or not present, it will not be added as an attribute.
@@ -107,6 +107,6 @@ public final class SanitizingHelper {
     // If value is null or not present, it will not be added as an attribute.
     static Http.Request sanitizeOptionalHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request) {
         Optional<String> value = parse(key, node, String.class);
-        return value.isPresent() ? request.addAttr(attr, Jsoup.clean(value.get(), WHITELIST)) : request;
+        return value.isPresent() ? request.addAttr(attr, Jsoup.clean(value.get(), SAFELIST)) : request;
     }
 }

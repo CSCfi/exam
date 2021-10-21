@@ -34,7 +34,7 @@ export class HistoryBackComponent {
     };
 
     onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Enter' || event.keyCode === 13) {
+        if (event.key === 'Enter' || event.code === 'Enter') {
             this.goBack(event);
         }
     };

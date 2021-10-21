@@ -3,15 +3,17 @@ package helpers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.Servlet;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -57,10 +59,29 @@ public class RemoteServerHelper {
 
     public static Server createAndStartServer(int port, Map<Class<? extends Servlet>, List<String>> handlers)
         throws Exception {
+        return createAndStartServer(port, handlers, false);
+    }
+
+    public static Server createAndStartServer(
+        int port,
+        Map<Class<? extends Servlet>, List<String>> handlers,
+        boolean setMultipart
+    ) throws Exception {
         Server server = new Server(port);
         server.setStopAtShutdown(true);
         ServletHandler sh = new ServletHandler();
         handlers.forEach((k, v) -> v.forEach(s -> sh.addServletWithMapping(k, s)));
+        if (setMultipart) {
+            String path = Files.createTempDirectory("test_upload").toString();
+            handlers.forEach((k, v) ->
+                v.forEach(s ->
+                    sh
+                        .getServlet(sh.getServletMapping(s).getServletName())
+                        .getRegistration()
+                        .setMultipartConfig(new MultipartConfigElement(path))
+                )
+            );
+        }
         server.setHandler(sh);
         server.start();
         return server;

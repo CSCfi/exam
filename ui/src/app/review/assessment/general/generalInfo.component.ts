@@ -17,13 +17,13 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
 import { Exam } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
 export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
 
 @Component({
@@ -37,8 +37,8 @@ export class GeneralInfoComponent {
 
     student: User;
     studentName: string;
-    enrolment: ExamEnrolment;
-    reservation: Reservation;
+    enrolment?: ExamEnrolment;
+    reservation?: Reservation;
     previousParticipations: Partial<Participation>[];
 
     constructor(private http: HttpClient, private state: StateService, private Attachment: AttachmentService) {}
@@ -81,8 +81,8 @@ export class GeneralInfoComponent {
             : this.collaborative
             ? (this.participation._id as string)
             : this.exam.id.toString();
-        this.enrolment = this.exam.examEnrolments[0];
-        this.reservation = this.enrolment.reservation as Reservation;
+        this.enrolment = this.exam.examEnrolments.length > 0 ? this.exam.examEnrolments[0] : undefined;
+        this.reservation = this.enrolment?.reservation;
         if (this.collaborative) {
             this.http
                 .get<Participation[]>(

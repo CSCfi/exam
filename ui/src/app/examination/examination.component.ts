@@ -17,6 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
+import { SessionService } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
 import { ExaminationService } from './examination.service';
 
@@ -36,6 +37,7 @@ export class ExaminationComponent {
         private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Examination: ExaminationService,
+        private Session: SessionService,
         private Enrolment: EnrolmentService,
         private Window: WindowRef,
     ) {}
@@ -57,6 +59,9 @@ export class ExaminationComponent {
                 this.setActiveSection({ type: 'guide' });
                 if (!this.isPreview && !this.exam.cloned && this.exam.executionType.type === 'MATURITY') {
                     this.Enrolment.showMaturityInstructions({ exam: this.exam });
+                }
+                if (!this.isPreview) {
+                    this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states
                 }
             },
             (err) => {

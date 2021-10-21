@@ -14,14 +14,14 @@ import com.icegreen.greenmail.util.ServerSetup;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -214,19 +214,16 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         IntStream
             .range(0, callCount)
             .parallel()
-            .forEach(
-                i ->
-                    new Thread(
-                        () -> {
-                            request(
-                                Helpers.POST,
-                                String.format("/app/enrolments/%d", exam.getId()),
-                                Json.newObject().put("code", exam.getCourse().getCode())
-                            );
-                            waiter.resume();
-                        }
-                    )
-                        .start()
+            .forEach(i ->
+                new Thread(() -> {
+                    request(
+                        Helpers.POST,
+                        String.format("/app/enrolments/%d", exam.getId()),
+                        Json.newObject().put("code", exam.getCourse().getCode())
+                    );
+                    waiter.resume();
+                })
+                    .start()
             );
 
         waiter.await(5000, callCount);

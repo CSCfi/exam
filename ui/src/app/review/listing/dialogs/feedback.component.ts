@@ -14,6 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
 import { Exam } from '../../../exam/exam.model';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
@@ -25,13 +26,14 @@ import { AssessmentService } from '../../assessment/assessment.service';
 export class SpeedReviewFeedbackComponent {
     @Input() exam: Exam;
 
+    constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
+
     ngOnInit() {
         if (!this.exam.examFeedback) {
             this.exam.examFeedback = { comment: '' };
         }
     }
 
-    constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
     ok = () => {
         if (!this.exam.examFeedback) {
             this.exam.examFeedback = { comment: '', feedbackStatus: false };

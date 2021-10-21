@@ -53,15 +53,13 @@ public class CollaborativeCalendarController extends CollaborationController {
         }
 
         return downloadExam(ce)
-            .thenApplyAsync(
-                result -> {
-                    if (result.isEmpty()) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
+            .thenApplyAsync(result -> {
+                if (result.isEmpty()) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                Exam exam = result.get();
+                return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
+            });
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, Exam exam, User user) {
@@ -118,49 +116,47 @@ public class CollaborativeCalendarController extends CollaborationController {
         }
 
         return downloadExam(ce)
-            .thenApplyAsync(
-                result -> {
-                    if (result.isEmpty()) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
-                    if (badEnrolment.isPresent()) {
-                        return badEnrolment.get();
-                    }
-                    Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
-                    if (machine.isEmpty()) {
-                        return forbidden("sitnet_no_machines_available");
-                    }
-                    // We are good to go :)
-                    // Start manual transaction.
-                    Ebean.beginTransaction();
-                    try {
-                        // Take pessimistic lock for user to prevent multiple reservations creating.
-                        Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-                        Reservation oldReservation = enrolment.getReservation();
-                        Reservation reservation = calendarHandler.createReservation(
-                            start,
-                            end,
-                            machine.get(),
-                            user,
-                            sectionIds
-                        );
-                        // Nuke the old reservation if any
-                        if (oldReservation != null) {
-                            enrolment.setReservation(null);
-                            enrolment.update();
-                            oldReservation.delete();
-                        }
-                        Result newReservation = makeNewReservation(enrolment, exam, reservation, user);
-                        Ebean.commitTransaction();
-                        return newReservation;
-                    } finally {
-                        // End transaction to release lock.
-                        Ebean.endTransaction();
-                    }
+            .thenApplyAsync(result -> {
+                if (result.isEmpty()) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                Exam exam = result.get();
+                Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
+                if (badEnrolment.isPresent()) {
+                    return badEnrolment.get();
+                }
+                Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
+                if (machine.isEmpty()) {
+                    return forbidden("sitnet_no_machines_available");
+                }
+                // We are good to go :)
+                // Start manual transaction.
+                Ebean.beginTransaction();
+                try {
+                    // Take pessimistic lock for user to prevent multiple reservations creating.
+                    Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
+                    Reservation oldReservation = enrolment.getReservation();
+                    Reservation reservation = calendarHandler.createReservation(
+                        start,
+                        end,
+                        machine.get(),
+                        user,
+                        sectionIds
+                    );
+                    // Nuke the old reservation if any
+                    if (oldReservation != null) {
+                        enrolment.setReservation(null);
+                        enrolment.update();
+                        oldReservation.delete();
+                    }
+                    Result newReservation = makeNewReservation(enrolment, exam, reservation, user);
+                    Ebean.commitTransaction();
+                    return newReservation;
+                } finally {
+                    // End transaction to release lock.
+                    Ebean.endTransaction();
+                }
+            });
     }
 
     private Result makeNewReservation(ExamEnrolment enrolment, Exam exam, Reservation reservation, User user) {
@@ -196,23 +192,21 @@ public class CollaborativeCalendarController extends CollaborationController {
             return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
         }
         return downloadExam(ce)
-            .thenApplyAsync(
-                result -> {
-                    if (result.isEmpty()) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    if (!exam.hasState(Exam.State.PUBLISHED)) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Collection<Integer> accessibilityIds = Stream
-                        .of(aids.split(","))
-                        .filter(s -> !s.isEmpty())
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
-                    return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
+            .thenApplyAsync(result -> {
+                if (result.isEmpty()) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                Exam exam = result.get();
+                if (!exam.hasState(Exam.State.PUBLISHED)) {
+                    return notFound("sitnet_error_exam_not_found");
+                }
+                Collection<Integer> accessibilityIds = Stream
+                    .of(aids.split(","))
+                    .filter(s -> !s.isEmpty())
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+                return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
+            });
     }
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {

@@ -51,16 +51,14 @@ abstract class JsonFilterAction<T> extends Action<T> {
         return result
             .body()
             .consumeData(materializer)
-            .thenApply(
-                body -> {
-                    JsonNode json = Json.parse(body.decodeString("UTF-8"));
-                    JsonFilter.filterProperties(json, true, ids, properties);
-                    return new Result(
-                        result.status(),
-                        result.headers(),
-                        HttpEntity.fromString(Json.stringify(json), "UTF-8")
-                    );
-                }
-            );
+            .thenApply(body -> {
+                JsonNode json = Json.parse(body.decodeString("UTF-8"));
+                JsonFilter.filterProperties(json, true, ids, properties);
+                return new Result(
+                    result.status(),
+                    result.headers(),
+                    HttpEntity.fromString(Json.stringify(json), "UTF-8")
+                );
+            });
     }
 }

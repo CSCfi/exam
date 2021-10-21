@@ -80,70 +80,62 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         return downloadExam(ce)
-            .thenComposeAsync(
-                result -> {
-                    if (result.isEmpty()) {
-                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-                    }
-                    Exam exam = result.get();
-                    Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
-                    if (badEnrolment.isPresent()) {
-                        return wrapAsPromise(badEnrolment.get());
-                    }
-                    // Make ext request here
-                    // Lets do this
-                    URL url;
-                    try {
-                        url = parseUrl(orgRef, roomRef);
-                    } catch (MalformedURLException e) {
-                        throw new RuntimeException(e);
-                    }
-                    String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
-                    ObjectNode body = Json.newObject();
-                    body.put("requestingOrg", homeOrgRef);
-                    body.put("start", ISODateTimeFormat.dateTime().print(start));
-                    body.put("end", ISODateTimeFormat.dateTime().print(end));
-                    body.put("user", user.getEppn());
-                    body.set(
-                        "optionalSections",
-                        sectionIds.stream().collect(Collector.of(Json::newArray, ArrayNode::add, ArrayNode::add))
-                    );
-
-                    WSRequest wsRequest = wsClient.url(url.toString());
-                    return wsRequest
-                        .post(body)
-                        .thenComposeAsync(
-                            response -> {
-                                JsonNode root = response.asJson();
-                                if (response.getStatus() != Http.Status.CREATED) {
-                                    return wrapAsPromise(
-                                        internalServerError(root.get("message").asText("Connection refused"))
-                                    );
-                                }
-                                return calendarHandler
-                                    .handleExternalReservation(
-                                        enrolment,
-                                        exam,
-                                        root,
-                                        start,
-                                        end,
-                                        user,
-                                        orgRef,
-                                        roomRef,
-                                        sectionIds
-                                    )
-                                    .thenApplyAsync(
-                                        err -> {
-                                            if (err.isEmpty()) {
-                                                return created(root.get("id"));
-                                            }
-                                            return internalServerError();
-                                        }
-                                    );
-                            }
-                        );
+            .thenComposeAsync(result -> {
+                if (result.isEmpty()) {
+                    return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
                 }
-            );
+                Exam exam = result.get();
+                Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
+                if (badEnrolment.isPresent()) {
+                    return wrapAsPromise(badEnrolment.get());
+                }
+                // Make ext request here
+                // Lets do this
+                URL url;
+                try {
+                    url = parseUrl(orgRef, roomRef);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+                String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+                ObjectNode body = Json.newObject();
+                body.put("requestingOrg", homeOrgRef);
+                body.put("start", ISODateTimeFormat.dateTime().print(start));
+                body.put("end", ISODateTimeFormat.dateTime().print(end));
+                body.put("user", user.getEppn());
+                body.set(
+                    "optionalSections",
+                    sectionIds.stream().collect(Collector.of(Json::newArray, ArrayNode::add, ArrayNode::add))
+                );
+
+                WSRequest wsRequest = wsClient.url(url.toString());
+                return wsRequest
+                    .post(body)
+                    .thenComposeAsync(response -> {
+                        JsonNode root = response.asJson();
+                        if (response.getStatus() != Http.Status.CREATED) {
+                            return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                        }
+                        return calendarHandler
+                            .handleExternalReservation(
+                                enrolment,
+                                exam,
+                                root,
+                                start,
+                                end,
+                                user,
+                                orgRef,
+                                roomRef,
+                                sectionIds
+                            )
+                            .thenApplyAsync(err -> {
+                                if (err.isEmpty()) {
+                                    return created(root.get("id"));
+                                }
+                                return internalServerError();
+                            });
+                    });
+            });
     }
 
     @Authenticated
@@ -166,45 +158,41 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
             }
             return downloadExam(ce)
-                .thenComposeAsync(
-                    result -> {
-                        if (result.isEmpty()) {
-                            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-                        }
-                        Exam exam = result.get();
-                        if (!exam.hasState(Exam.State.PUBLISHED)) {
-                            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-                        }
-                        // Also sanity check the provided search date
-                        try {
-                            calendarHandler.parseSearchDate(date.get(), exam, null);
-                        } catch (NotFoundException e) {
-                            return wrapAsPromise(notFound());
-                        }
-                        // Ready to shoot
-                        String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
-                        String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
-                        Integer duration = exam.getDuration();
-                        URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
-                        WSRequest wsRequest = wsClient
-                            .url(url.toString().split("\\?")[0])
-                            .setQueryString(url.getQuery());
-                        Function<WSResponse, Result> onSuccess = response -> {
-                            JsonNode root = response.asJson();
-                            if (response.getStatus() != Http.Status.OK) {
-                                return internalServerError(root.get("message").asText("Connection refused"));
-                            }
-                            Set<CalendarHandler.TimeSlot> slots = calendarHandler.postProcessSlots(
-                                root,
-                                date.get(),
-                                exam,
-                                user
-                            );
-                            return ok(Json.toJson(slots));
-                        };
-                        return wsRequest.get().thenApplyAsync(onSuccess);
+                .thenComposeAsync(result -> {
+                    if (result.isEmpty()) {
+                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
                     }
-                );
+                    Exam exam = result.get();
+                    if (!exam.hasState(Exam.State.PUBLISHED)) {
+                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                    }
+                    // Also sanity check the provided search date
+                    try {
+                        calendarHandler.parseSearchDate(date.get(), exam, null);
+                    } catch (NotFoundException e) {
+                        return wrapAsPromise(notFound());
+                    }
+                    // Ready to shoot
+                    String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
+                    String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+                    Integer duration = exam.getDuration();
+                    URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
+                    WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
+                    Function<WSResponse, Result> onSuccess = response -> {
+                        JsonNode root = response.asJson();
+                        if (response.getStatus() != Http.Status.OK) {
+                            return internalServerError(root.get("message").asText("Connection refused"));
+                        }
+                        Set<CalendarHandler.TimeSlot> slots = calendarHandler.postProcessSlots(
+                            root,
+                            date.get(),
+                            exam,
+                            user
+                        );
+                        return ok(Json.toJson(slots));
+                    };
+                    return wsRequest.get().thenApplyAsync(onSuccess);
+                });
         }
         return wrapAsPromise(badRequest());
     }

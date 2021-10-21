@@ -277,31 +277,27 @@ public class ExcelBuilder {
         parentExam
             .getExamSections()
             .stream()
-            .forEach(
-                es -> {
-                    String sectionName = es.getName();
-                    Set<Long> questionIds = extractQuestionIdsFromSection(es);
-                    questionIdsBySectionName.put(sectionName, questionIds);
-                }
-            );
+            .forEach(es -> {
+                String sectionName = es.getName();
+                Set<Long> questionIds = extractQuestionIdsFromSection(es);
+                questionIdsBySectionName.put(sectionName, questionIds);
+            });
 
         /* Go through child exams and add missing questions/sections to map */
         childExams
             .stream()
             .flatMap(exam -> exam.getExamSections().stream())
-            .forEach(
-                es -> {
-                    String sectionName = es.getName();
-                    Set<Long> childQuestionIds = extractQuestionIdsFromSection(es);
-                    if (questionIdsBySectionName.containsKey(sectionName)) {
-                        /* Section exists, merge question id set from child exam to parent question ids */
-                        questionIdsBySectionName.get(sectionName).addAll(childQuestionIds);
-                    } else {
-                        /* Add new entry since section didn't exist */
-                        questionIdsBySectionName.put(sectionName, childQuestionIds);
-                    }
+            .forEach(es -> {
+                String sectionName = es.getName();
+                Set<Long> childQuestionIds = extractQuestionIdsFromSection(es);
+                if (questionIdsBySectionName.containsKey(sectionName)) {
+                    /* Section exists, merge question id set from child exam to parent question ids */
+                    questionIdsBySectionName.get(sectionName).addAll(childQuestionIds);
+                } else {
+                    /* Add new entry since section didn't exist */
+                    questionIdsBySectionName.put(sectionName, childQuestionIds);
                 }
-            );
+            });
 
         /* Create header row */
         Row headerRow = sheet.createRow(0);
@@ -321,35 +317,33 @@ public class ExcelBuilder {
         /* Start inserting header columns to spreadsheet, save column indexes to maps above */
         questionIdsBySectionName
             .entrySet()
-            .forEach(
-                sectionMap -> {
-                    String sectionName = sectionMap.getKey();
-                    Map<Long, Integer> columnIndexesByQuestionIds = new HashMap<>();
-                    for (Long questionId : sectionMap.getValue()) {
-                        if (deletedQuestionIds.contains(questionId)) {
-                            /* Question is deleted, set header as "removed" */
-                            int columnIndex = appendCell(headerRow, "removed");
-                            columnIndexesByQuestionIds.put(questionId, columnIndex); // saves the column index
-                        } else {
-                            /* Question exists on parent, create question header cell with id and add hyperlink to question */
-                            Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
-                            int columnIndex = headerRow.getLastCellNum();
-                            link.setAddress(hostname + "/questions/" + questionId);
-                            Cell cell = headerRow.createCell(columnIndex);
-                            cell.setCellStyle(linkStyle);
-                            cell.setHyperlink(link);
-                            cell.setCellValue("questionId_" + questionId);
-                            columnIndexesByQuestionIds.put(questionId, columnIndex);
-                        }
+            .forEach(sectionMap -> {
+                String sectionName = sectionMap.getKey();
+                Map<Long, Integer> columnIndexesByQuestionIds = new HashMap<>();
+                for (Long questionId : sectionMap.getValue()) {
+                    if (deletedQuestionIds.contains(questionId)) {
+                        /* Question is deleted, set header as "removed" */
+                        int columnIndex = appendCell(headerRow, "removed");
+                        columnIndexesByQuestionIds.put(questionId, columnIndex); // saves the column index
+                    } else {
+                        /* Question exists on parent, create question header cell with id and add hyperlink to question */
+                        Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
+                        int columnIndex = headerRow.getLastCellNum();
+                        link.setAddress(hostname + "/questions/" + questionId);
+                        Cell cell = headerRow.createCell(columnIndex);
+                        cell.setCellStyle(linkStyle);
+                        cell.setHyperlink(link);
+                        cell.setCellValue("questionId_" + questionId);
+                        columnIndexesByQuestionIds.put(questionId, columnIndex);
                     }
-                    /* Save "question id -> column index" hashmap under current section name */
-                    questionColumnIndexesBySectionName.put(sectionName, columnIndexesByQuestionIds);
-
-                    /* Set header cell for section's total score column and save column index again */
-                    int sectionTotalIdx = appendCell(headerRow, "Aihealueen " + sectionName + " pisteet");
-                    sectionTotalIndexesBySectionName.put(sectionName, sectionTotalIdx);
                 }
-            );
+                /* Save "question id -> column index" hashmap under current section name */
+                questionColumnIndexesBySectionName.put(sectionName, columnIndexesByQuestionIds);
+
+                /* Set header cell for section's total score column and save column index again */
+                int sectionTotalIdx = appendCell(headerRow, "Aihealueen " + sectionName + " pisteet");
+                sectionTotalIndexesBySectionName.put(sectionName, sectionTotalIdx);
+            });
         /* Also set exam's total score column header and save index */
         totalScoreIndex = appendCell(headerRow, "Kokonaispisteet");
 

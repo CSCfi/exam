@@ -12,14 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
 import { LanguageService } from '../utility/language/language.service';
-import type { QueryParams } from './languageInspections.service';
 import { LanguageInspectionService } from './languageInspections.service';
+
+import type { OnInit } from '@angular/core';
+import type { QueryParams } from './languageInspections.service';
 import type { LanguageInspection } from './maturity.model';
 
 export interface LanguageInspectionData extends LanguageInspection {
@@ -71,7 +72,7 @@ export class LanguageInspectionsComponent implements OnInit {
                     inspectorName: i.modifier ? `${i.modifier.firstName} ${i.modifier.lastName}` : '',
                     inspectorNameAggregate: i.modifier ? `${i.modifier.lastName} ${i.modifier.firstName}` : '',
                     answerLanguage: i.exam.answerLanguage
-                        ? this.Language.getLanguageNativeName(i.exam.answerLanguage)
+                        ? this.Language.getLanguageNativeName(i.exam.answerLanguage, i.exam)
                         : undefined,
                 }),
             );

@@ -236,13 +236,11 @@ public class CalendarHandlerImpl implements CalendarHandler {
             // Get suitable slots based on exam duration
             return allSlots(openingHours, room, date)
                 .stream()
-                .filter(
-                    slot -> {
-                        DateTime beginning = slot.getStart();
-                        DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
-                        return !beginning.plusMinutes(examDuration).isAfter(openUntil);
-                    }
-                )
+                .filter(slot -> {
+                    DateTime beginning = slot.getStart();
+                    DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
+                    return !beginning.plusMinutes(examDuration).isAfter(openUntil);
+                })
                 .map(slot -> new Interval(slot.getStart(), slot.getStart().plusMinutes(examDuration)))
                 .collect(Collectors.toList());
         }
@@ -501,15 +499,13 @@ public class CalendarHandlerImpl implements CalendarHandler {
             if (oldReservation.getExternalReservation() != null) {
                 return externalReservationHandler
                     .removeExternalReservation(oldReservation)
-                    .thenApply(
-                        err -> {
-                            if (err.isEmpty()) {
-                                Ebean.delete(oldReservation);
-                                postProcessRemoval(reservation, exam, user, machineNode);
-                            }
-                            return err;
+                    .thenApply(err -> {
+                        if (err.isEmpty()) {
+                            Ebean.delete(oldReservation);
+                            postProcessRemoval(reservation, exam, user, machineNode);
                         }
-                    );
+                        return err;
+                    });
             } else {
                 Ebean.delete(oldReservation);
                 postProcessRemoval(reservation, exam, user, machineNode);
@@ -613,12 +609,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
         return startingHours
             .stream()
-            .map(
-                sh -> {
-                    int timeMs = new LocalTime(sh.getStartingHour()).plusMillis(offset).getMillisOfDay();
-                    return instant.withMillisOfDay(timeMs);
-                }
-            )
+            .map(sh -> {
+                int timeMs = new LocalTime(sh.getStartingHour()).plusMillis(offset).getMillisOfDay();
+                return instant.withMillisOfDay(timeMs);
+            })
             .filter(dt -> !dt.isBefore(instant))
             .findFirst()
             .orElse(null);

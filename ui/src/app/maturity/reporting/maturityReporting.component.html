@@ -14,13 +14,25 @@
     </div>
 
     <div class="tab-wrapper-exams">
-        <!-- Datepicker -->
-        <div class="col-md-12 ml-3 mb-3 no-print">
-            <label for="month">{{ 'sitnet_month' | translate }}:</label>
-
-            <p id="month" class="input-group">
-                <date-picker [initiallyEmpty]="true" (onUpdate)="query($event)"></date-picker>
-            </p>
+        <div class="detail-row">
+            <div class="col-md-12 mb-3 no-print">
+                <form class="form-inline">
+                    <label for="month" class="mr-2">{{ 'sitnet_month' | translate }}:</label>
+                    <dropdown-select
+                        id="month"
+                        class="input-group mr-2"
+                        [options]="months"
+                        (onSelect)="monthChanged($event)"
+                    ></dropdown-select>
+                    <label for="year" class="mr-2">{{ 'sitnet_year' | translate }}:</label>
+                    <dropdown-select
+                        id="year"
+                        class="input-group"
+                        [options]="years"
+                        (onSelect)="yearChanged($event)"
+                    ></dropdown-select>
+                </form>
+            </div>
         </div>
 
         <div class="detail-row">

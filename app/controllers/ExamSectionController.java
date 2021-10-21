@@ -200,31 +200,29 @@ public class ExamSectionController extends BaseController implements SectionQues
         int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to)
-            .orElseGet(
-                () -> {
-                    Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
-                    if (exam == null) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
-                        // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                        List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
-                        ExamSection prev = sections.get(from);
-                        boolean removed = sections.remove(prev);
-                        if (removed) {
-                            sections.add(to, prev);
-                            for (int i = 0; i < sections.size(); ++i) {
-                                ExamSection section = sections.get(i);
-                                section.setSequenceNumber(i);
-                                section.update();
-                            }
-                        }
-                        return ok();
-                    }
-                    return forbidden("sitnet_error_access_forbidden");
+            .orElseGet(() -> {
+                Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
+                if (exam == null) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+                    // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                    List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
+                    ExamSection prev = sections.get(from);
+                    boolean removed = sections.remove(prev);
+                    if (removed) {
+                        sections.add(to, prev);
+                        for (int i = 0; i < sections.size(); ++i) {
+                            ExamSection section = sections.get(i);
+                            section.setSequenceNumber(i);
+                            section.update();
+                        }
+                    }
+                    return ok();
+                }
+                return forbidden("sitnet_error_access_forbidden");
+            });
     }
 
     @Authenticated
@@ -234,37 +232,33 @@ public class ExamSectionController extends BaseController implements SectionQues
         int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to)
-            .orElseGet(
-                () -> {
-                    Exam exam = Ebean.find(Exam.class, eid);
-                    if (exam == null) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
-                        ExamSection section = Ebean.find(ExamSection.class, sid);
-                        if (section == null) {
-                            return notFound("section not found");
-                        }
-                        // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                        List<ExamSectionQuestion> questions = new ArrayList<>(
-                            new TreeSet<>(section.getSectionQuestions())
-                        );
-                        ExamSectionQuestion prev = questions.get(from);
-                        boolean removed = questions.remove(prev);
-                        if (removed) {
-                            questions.add(to, prev);
-                            for (int i = 0; i < questions.size(); ++i) {
-                                ExamSectionQuestion question = questions.get(i);
-                                question.setSequenceNumber(i);
-                                question.update();
-                            }
-                        }
-                        return ok();
-                    }
-                    return forbidden("sitnet_error_access_forbidden");
+            .orElseGet(() -> {
+                Exam exam = Ebean.find(Exam.class, eid);
+                if (exam == null) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+                    ExamSection section = Ebean.find(ExamSection.class, sid);
+                    if (section == null) {
+                        return notFound("section not found");
+                    }
+                    // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                    List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
+                    ExamSectionQuestion prev = questions.get(from);
+                    boolean removed = questions.remove(prev);
+                    if (removed) {
+                        questions.add(to, prev);
+                        for (int i = 0; i < questions.size(); ++i) {
+                            ExamSectionQuestion question = questions.get(i);
+                            question.setSequenceNumber(i);
+                            question.update();
+                        }
+                    }
+                    return ok();
+                }
+                return forbidden("sitnet_error_access_forbidden");
+            });
     }
 
     private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, Http.Request request) {
@@ -425,20 +419,16 @@ public class ExamSectionController extends BaseController implements SectionQues
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             section
                 .getSectionQuestions()
-                .forEach(
-                    sq -> {
-                        sq
-                            .getQuestion()
-                            .getChildren()
-                            .forEach(
-                                c -> {
-                                    c.setParent(null);
-                                    c.update();
-                                }
-                            );
-                        sq.delete();
-                    }
-                );
+                .forEach(sq -> {
+                    sq
+                        .getQuestion()
+                        .getChildren()
+                        .forEach(c -> {
+                            c.setParent(null);
+                            c.update();
+                        });
+                    sq.delete();
+                });
             section.getSectionQuestions().clear();
             section.setLotteryOn(false);
             section.update();
@@ -475,12 +465,10 @@ public class ExamSectionController extends BaseController implements SectionQues
         StreamSupport
             .stream(node.spliterator(), false)
             .map(n -> n.get("option"))
-            .filter(
-                o -> {
-                    Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
-                    return id.isPresent() && persistedIds.contains(id.get());
-                }
-            )
+            .filter(o -> {
+                Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
+                return id.isPresent() && persistedIds.contains(id.get());
+            })
             .forEach(o -> updateOption(o, OptionUpdateOptions.SKIP_DEFAULTS));
         // Removals
         question.getOptions().stream().filter(o -> !providedIds.contains(o.getId())).forEach(this::deleteOption);
@@ -493,15 +481,13 @@ public class ExamSectionController extends BaseController implements SectionQues
         for (JsonNode option : node) {
             SanitizingHelper
                 .parse("id", option, Long.class)
-                .ifPresent(
-                    id -> {
-                        ExamSectionQuestionOption esqo = Ebean.find(ExamSectionQuestionOption.class, id);
-                        if (esqo != null) {
-                            esqo.setScore(round(SanitizingHelper.parse("score", option, Double.class).orElse(null)));
-                            esqo.update();
-                        }
+                .ifPresent(id -> {
+                    ExamSectionQuestionOption esqo = Ebean.find(ExamSectionQuestionOption.class, id);
+                    if (esqo != null) {
+                        esqo.setScore(round(SanitizingHelper.parse("score", option, Double.class).orElse(null)));
+                        esqo.update();
                     }
-                );
+                });
         }
     }
 
@@ -512,39 +498,33 @@ public class ExamSectionController extends BaseController implements SectionQues
     private boolean hasValidClaimChoiceOptions(ArrayNode an) {
         boolean hasCorrectOption = StreamSupport
             .stream(an.spliterator(), false)
-            .anyMatch(
-                n -> {
-                    ClaimChoiceOptionType type = SanitizingHelper
-                        .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
-                        .orElse(null);
-                    double score = n.get("score").asDouble();
-                    return type != ClaimChoiceOptionType.SkipOption && score > 0;
-                }
-            );
+            .anyMatch(n -> {
+                ClaimChoiceOptionType type = SanitizingHelper
+                    .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                    .orElse(null);
+                double score = n.get("score").asDouble();
+                return type != ClaimChoiceOptionType.SkipOption && score > 0;
+            });
 
         boolean hasIncorrectOption = StreamSupport
             .stream(an.spliterator(), false)
-            .anyMatch(
-                n -> {
-                    ClaimChoiceOptionType type = SanitizingHelper
-                        .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
-                        .orElse(null);
-                    double score = n.get("score").asDouble();
-                    return type != ClaimChoiceOptionType.SkipOption && score <= 0;
-                }
-            );
+            .anyMatch(n -> {
+                ClaimChoiceOptionType type = SanitizingHelper
+                    .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                    .orElse(null);
+                double score = n.get("score").asDouble();
+                return type != ClaimChoiceOptionType.SkipOption && score <= 0;
+            });
 
         boolean hasSkipOption = StreamSupport
             .stream(an.spliterator(), false)
-            .anyMatch(
-                n -> {
-                    ClaimChoiceOptionType type = SanitizingHelper
-                        .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
-                        .orElse(null);
-                    double score = n.get("score").asDouble();
-                    return type == ClaimChoiceOptionType.SkipOption && score == 0;
-                }
-            );
+            .anyMatch(n -> {
+                ClaimChoiceOptionType type = SanitizingHelper
+                    .parseEnum("claimChoiceType", n.get("option"), ClaimChoiceOptionType.class)
+                    .orElse(null);
+                double score = n.get("score").asDouble();
+                return type == ClaimChoiceOptionType.SkipOption && score == 0;
+            });
 
         return hasCorrectOption && hasIncorrectOption && hasSkipOption;
     }

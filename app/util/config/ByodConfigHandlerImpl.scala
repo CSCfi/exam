@@ -39,7 +39,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
   private val protocol = new URL(configReader.getHostName).getProtocol
 
-  private def getTemplate(hash: String): Node = {
+  private def getTemplate(hash: String): String = {
     val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
     val startUrl      = s"${configReader.getHostName}?exam=$hash"
     val quitLink      = configReader.getQuitExaminationLink
@@ -55,7 +55,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
       .replace(QuitPwdPlaceholder, quitPwd)
       .replace(AllowQuittingPlaceholder, allowQuitting)
     source.close
-    XML.loadString(template)
+    template
   }
 
   private def compress(data: Array[Byte]): Array[Byte] = {
@@ -105,7 +105,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
 
   override def getExamConfig(hash: String, pwd: Array[Byte], salt: String): Array[Byte] = {
     val template   = getTemplate(hash)
-    val templateGz = compress(template.toString.getBytes(StandardCharsets.UTF_8))
+    val templateGz = compress(template.getBytes(StandardCharsets.UTF_8))
     // Decrypt user defined setting password
     val plaintextPwd = getPlaintextPassword(pwd, salt)
     // Encrypt the config file using unencrypted password
@@ -139,7 +139,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
     }
 
   override def calculateConfigKey(hash: String): String = {
-    val plist: Node = getTemplate(hash)
+    val plist: Node = XML.loadString(getTemplate(hash))
     // Construct a Json-like structure out of .plist and create a digest over it
     // See SEB documentation for details
     dictToJson((plist \ "dict").head) match {

@@ -118,22 +118,17 @@ public class CollaborativeReviewController extends CollaborationController {
         // Manipulate cloze test answers so that they can be conveniently displayed for review
         stream(examNode.get("examSections"))
             .flatMap(es -> stream(es.get("sectionQuestions")))
-            .filter(
-                esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString())
+            .filter(esq ->
+                esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString())
             )
-            .forEach(
-                esq -> {
-                    if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").size() == 0) {
-                        ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
-                    }
-                    ClozeTestAnswer cta = JsonDeserializer.deserialize(
-                        ClozeTestAnswer.class,
-                        esq.get("clozeTestAnswer")
-                    );
-                    cta.setQuestionWithResults(esq, blankAnswerText);
-                    ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
+            .forEach(esq -> {
+                if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").size() == 0) {
+                    ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
                 }
-            );
+                ClozeTestAnswer cta = JsonDeserializer.deserialize(ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
+                cta.setQuestionWithResults(esq, blankAnswerText);
+                ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
+            });
 
         return writeAnonymousResult(request, ok(root), true, admin);
     }
@@ -161,16 +156,14 @@ public class CollaborativeReviewController extends CollaborationController {
             .flatMap(es -> stream(es.get("sectionQuestions")))
             .filter(esq -> esq.get("id").asLong() == qid)
             .findAny()
-            .ifPresent(
-                esq -> {
-                    JsonNode essayAnswer = esq.get("essayAnswer");
-                    if (essayAnswer.isObject() && essayAnswer.size() > 0) {
-                        ((ObjectNode) essayAnswer).put("evaluatedScore", score);
-                    } else {
-                        ((ObjectNode) essayAnswer).set("essayAnswer", Json.newObject().put("evaluatedScore", score));
-                    }
+            .ifPresent(esq -> {
+                JsonNode essayAnswer = esq.get("essayAnswer");
+                if (essayAnswer.isObject() && essayAnswer.size() > 0) {
+                    ((ObjectNode) essayAnswer).put("evaluatedScore", score);
+                } else {
+                    ((ObjectNode) essayAnswer).set("essayAnswer", Json.newObject().put("evaluatedScore", score));
                 }
-            );
+            });
     }
 
     @Authenticated
@@ -179,23 +172,16 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> listAssessments(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getRequest(ce, null)
-                        .map(
-                            wsr ->
-                                wsr
-                                    .get()
-                                    .thenApplyAsync(
-                                        response ->
-                                            handleMultipleAssesmentResponse(
-                                                request,
-                                                response,
-                                                user.hasRole(Role.Name.ADMIN)
-                                            )
-                                    )
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ce ->
+                getRequest(ce, null)
+                    .map(wsr ->
+                        wsr
+                            .get()
+                            .thenApplyAsync(response ->
+                                handleMultipleAssesmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
+                            )
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -206,47 +192,43 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> getParticipationsForExamAndUser(Long eid, String aid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(eid)
-            .map(
-                ce -> {
-                    Optional<URL> url = parseUrl(ce.getExternalRef(), null);
-                    if (url.isEmpty()) {
-                        return wrapAsPromise(internalServerError());
-                    }
-                    WSRequest wsRequest = wsClient.url(url.get().toString());
-                    return wsRequest
-                        .get()
-                        .thenApplyAsync(
-                            response -> {
-                                if (response.getStatus() != OK) {
-                                    return status(response.getStatus());
-                                }
-                                final JsonNode root = response.asJson();
-                                final Optional<JsonNode> assessment = stream(root)
-                                    .filter(node -> node.path("_id").asText().equals(aid))
-                                    .findFirst();
-                                if (assessment.isEmpty()) {
-                                    return notFound("Assessment not found!");
-                                }
-                                final String eppn = assessment.get().path("user").path("eppn").textValue();
-                                if (StringUtils.isEmpty(eppn)) {
-                                    return notFound("Eppn not found!");
-                                }
-                                // Filter for user eppn and left out assessment that we currently are looking.
-                                final Iterator<JsonNode> it = root.iterator();
-                                while (it.hasNext()) {
-                                    JsonNode node = it.next();
-                                    if (
-                                        !node.path("user").path("eppn").asText().equals(eppn) ||
-                                        node.path("_id").asText().equals(aid)
-                                    ) {
-                                        it.remove();
-                                    }
-                                }
-                                return writeAnonymousResult(request, ok(root), true, user.hasRole(Role.Name.ADMIN));
-                            }
-                        );
+            .map(ce -> {
+                Optional<URL> url = parseUrl(ce.getExternalRef(), null);
+                if (url.isEmpty()) {
+                    return wrapAsPromise(internalServerError());
                 }
-            )
+                WSRequest wsRequest = wsClient.url(url.get().toString());
+                return wsRequest
+                    .get()
+                    .thenApplyAsync(response -> {
+                        if (response.getStatus() != OK) {
+                            return status(response.getStatus());
+                        }
+                        final JsonNode root = response.asJson();
+                        final Optional<JsonNode> assessment = stream(root)
+                            .filter(node -> node.path("_id").asText().equals(aid))
+                            .findFirst();
+                        if (assessment.isEmpty()) {
+                            return notFound("Assessment not found!");
+                        }
+                        final String eppn = assessment.get().path("user").path("eppn").textValue();
+                        if (StringUtils.isEmpty(eppn)) {
+                            return notFound("Eppn not found!");
+                        }
+                        // Filter for user eppn and left out assessment that we currently are looking.
+                        final Iterator<JsonNode> it = root.iterator();
+                        while (it.hasNext()) {
+                            JsonNode node = it.next();
+                            if (
+                                !node.path("user").path("eppn").asText().equals(eppn) ||
+                                node.path("_id").asText().equals(aid)
+                            ) {
+                                it.remove();
+                            }
+                        }
+                        return writeAnonymousResult(request, ok(root), true, user.hasRole(Role.Name.ADMIN));
+                    });
+            })
             .getOrElseGet(Function.identity());
     }
 
@@ -276,36 +258,30 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> exportAssessments(Long id, Http.Request request) {
         Collection<String> refs = request.attrs().get(Attrs.REF_COLLECTION);
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getRequest(ce, null)
-                        .map(
-                            wsr ->
-                                wsr
-                                    .get()
-                                    .thenApplyAsync(
-                                        response -> {
-                                            JsonNode root = response.asJson();
-                                            if (response.getStatus() != OK) {
-                                                return internalServerError(
-                                                    root.get("message").asText("Connection refused")
-                                                );
-                                            }
-                                            filterFinished(root, refs);
-                                            calculateScores(root);
-                                            File file;
-                                            try {
-                                                file = csvBuilder.build(root);
-                                            } catch (IOException e) {
-                                                return internalServerError("sitnet_error_creating_csv_file");
-                                            }
-                                            String contentDisposition = fileHandler.getContentDisposition(file);
-                                            return ok(fileHandler.encodeAndDelete(file))
-                                                .withHeader("Content-Disposition", contentDisposition);
-                                        }
-                                    )
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ce ->
+                getRequest(ce, null)
+                    .map(wsr ->
+                        wsr
+                            .get()
+                            .thenApplyAsync(response -> {
+                                JsonNode root = response.asJson();
+                                if (response.getStatus() != OK) {
+                                    return internalServerError(root.get("message").asText("Connection refused"));
+                                }
+                                filterFinished(root, refs);
+                                calculateScores(root);
+                                File file;
+                                try {
+                                    file = csvBuilder.build(root);
+                                } catch (IOException e) {
+                                    return internalServerError("sitnet_error_creating_csv_file");
+                                }
+                                String contentDisposition = fileHandler.getContentDisposition(file);
+                                return ok(fileHandler.encodeAndDelete(file))
+                                    .withHeader("Content-Disposition", contentDisposition);
+                            })
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -316,19 +292,17 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> getAssessment(Long id, String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(id)
-            .map(
-                ce -> {
-                    Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-                    if (url.isEmpty()) {
-                        return wrapAsPromise(internalServerError());
-                    }
-                    WSRequest wsRequest = wsClient.url(url.get().toString());
-                    final boolean admin = user.hasRole(Role.Name.ADMIN);
-                    return wsRequest
-                        .get()
-                        .thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin, user));
+            .map(ce -> {
+                Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+                if (url.isEmpty()) {
+                    return wrapAsPromise(internalServerError());
                 }
-            )
+                WSRequest wsRequest = wsClient.url(url.get().toString());
+                final boolean admin = user.hasRole(Role.Name.ADMIN);
+                return wsRequest
+                    .get()
+                    .thenApplyAsync(response -> handleSingleAssessmentResponse(request, response, admin, user));
+            })
             .getOrElseGet(Function.identity());
     }
 
@@ -347,31 +321,28 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateAnswerScore(Long id, String ref, Long qid, Http.Request request) {
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getURL(ce, ref)
-                        .map(
-                            url -> {
-                                JsonNode body = request.body().asJson();
-                                JsonNode scoreNode = body.path("evaluatedScore");
-                                Double score = scoreNode.isNumber() ? scoreNode.asDouble() : null;
-                                String revision = body.get("rev").asText();
-                                WSRequest wsRequest = wsClient.url(url.toString());
-                                Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
-                                    JsonNode root = response.asJson();
-                                    if (response.getStatus() != OK) {
-                                        return wrapAsPromise(
-                                            internalServerError(root.get("message").asText("Connection refused"))
-                                        );
-                                    }
-                                    scoreAnswer(root.get("exam"), qid, score);
-                                    ((ObjectNode) root).put("rev", revision);
-                                    return upload(url, root);
-                                };
-                                return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce ->
+                getURL(ce, ref)
+                    .map(url -> {
+                        JsonNode body = request.body().asJson();
+                        JsonNode scoreNode = body.path("evaluatedScore");
+                        Double score = scoreNode.isNumber() ? scoreNode.asDouble() : null;
+                        String revision = body.get("rev").asText();
+                        WSRequest wsRequest = wsClient.url(url.toString());
+                        Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
+                            JsonNode root = response.asJson();
+                            if (response.getStatus() != OK) {
+                                return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                                );
                             }
-                        )
-                        .getOrElseGet(Function.identity())
+                            scoreAnswer(root.get("exam"), qid, score);
+                            ((ObjectNode) root).put("rev", revision);
+                            return upload(url, root);
+                        };
+                        return wsRequest.get().thenComposeAsync(onSuccess);
+                    })
+                    .getOrElseGet(Function.identity())
             )
             .get();
     }
@@ -386,50 +357,47 @@ public class CollaborativeReviewController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         String message = body.path("msg").asText();
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getURL(ce, ref)
-                        .map(
-                            url -> {
-                                WSRequest wsRequest = wsClient.url(url.toString());
-                                Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
-                                    JsonNode root = response.asJson();
-                                    if (response.getStatus() != OK) {
-                                        return wrapAsPromise(
-                                            internalServerError(root.get("message").asText("Connection refused"))
-                                        );
-                                    }
-                                    JsonNode examNode = root.get("exam");
-                                    Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                    if (isUnauthorizedToAssess(exam, user)) {
-                                        return wrapAsPromise(forbidden("You are not allowed to modify this object"));
-                                    }
-                                    Set<User> recipients = exam
-                                        .getExamInspections()
-                                        .stream()
-                                        .map(ExamInspection::getUser)
-                                        .collect(Collectors.toSet());
-                                    recipients.addAll(exam.getExamOwners());
-                                    actor
-                                        .scheduler()
-                                        .scheduleOnce(
-                                            Duration.create(1, TimeUnit.SECONDS),
-                                            () -> {
-                                                for (User u : recipients
-                                                    .stream()
-                                                    .filter(u -> !u.getEmail().equalsIgnoreCase(user.getEmail()))
-                                                    .collect(Collectors.toSet())) {
-                                                    emailComposer.composeInspectionMessage(u, user, ce, exam, message);
-                                                }
-                                            },
-                                            actor.dispatcher()
-                                        );
-                                    return wrapAsPromise(ok());
-                                };
-                                return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce ->
+                getURL(ce, ref)
+                    .map(url -> {
+                        WSRequest wsRequest = wsClient.url(url.toString());
+                        Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
+                            JsonNode root = response.asJson();
+                            if (response.getStatus() != OK) {
+                                return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                                );
                             }
-                        )
-                        .getOrElseGet(Function.identity())
+                            JsonNode examNode = root.get("exam");
+                            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+                            if (isUnauthorizedToAssess(exam, user)) {
+                                return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+                            }
+                            Set<User> recipients = exam
+                                .getExamInspections()
+                                .stream()
+                                .map(ExamInspection::getUser)
+                                .collect(Collectors.toSet());
+                            recipients.addAll(exam.getExamOwners());
+                            actor
+                                .scheduler()
+                                .scheduleOnce(
+                                    Duration.create(1, TimeUnit.SECONDS),
+                                    () -> {
+                                        for (User u : recipients
+                                            .stream()
+                                            .filter(u -> !u.getEmail().equalsIgnoreCase(user.getEmail()))
+                                            .collect(Collectors.toSet())) {
+                                            emailComposer.composeInspectionMessage(u, user, ce, exam, message);
+                                        }
+                                    },
+                                    actor.dispatcher()
+                                );
+                            return wrapAsPromise(ok());
+                        };
+                        return wsRequest.get().thenComposeAsync(onSuccess);
+                    })
+                    .getOrElseGet(Function.identity())
             )
             .get();
     }
@@ -466,83 +434,79 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateAssessment(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id)
-            .map(
-                ce -> {
-                    Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-                    if (url.isEmpty()) {
-                        return wrapAsPromise(internalServerError());
-                    }
-                    JsonNode body = request.body().asJson();
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    WSRequest wsRequest = wsClient.url(url.get().toString());
-                    Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
-                        JsonNode root = response.asJson();
-                        if (response.getStatus() != OK) {
-                            return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
-                        }
-                        JsonNode examNode = root.get("exam");
-                        Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                        if (isUnauthorizedToAssess(exam, user)) {
-                            return wrapAsPromise(forbidden("You are not allowed to modify this object"));
-                        }
-                        if (
-                            exam.hasState(
-                                Exam.State.ABORTED,
-                                Exam.State.REJECTED,
-                                Exam.State.GRADED_LOGGED,
-                                Exam.State.ARCHIVED
-                            )
-                        ) {
-                            return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
-                        }
-                        JsonNode grade = body.get("grade");
-                        if (grade != null && grade.isObject() && grade.size() > 0) {
-                            boolean validGrade = exam
-                                .getGradeScale()
-                                .getGrades()
-                                .stream()
-                                .map(Grade::getId)
-                                .anyMatch(i -> i == grade.get("id").asInt());
-                            if (validGrade) {
-                                ((ObjectNode) examNode).set("grade", grade);
-                            } else {
-                                return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
-                            }
-                        } else if (body.path("gradeless").asBoolean(false)) {
-                            ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                            ((ObjectNode) examNode).put("gradeless", true);
-                        } else {
-                            ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                        }
-                        JsonNode creditType = body.get("creditType");
-                        ((ObjectNode) examNode).set("creditType", creditType);
-                        ((ObjectNode) examNode).put("additionalInfo", body.path("additionalInfo").asText(null));
-                        ((ObjectNode) examNode).put("answerLanguage", body.path("answerLanguage").asText(null));
-                        ((ObjectNode) examNode).put(
-                                "customCredit",
-                                body.path("customCredit").isMissingNode()
-                                    ? null
-                                    : body.path("customCredit").doubleValue()
-                            );
-
-                        Exam.State newState = Exam.State.valueOf(body.path("state").asText());
-                        ((ObjectNode) examNode).put("state", newState.toString());
-                        if (newState == Exam.State.GRADED || newState == Exam.State.GRADED_LOGGED) {
-                            String gradedTime = ISODateTimeFormat.dateTime().print(DateTime.now());
-                            ((ObjectNode) examNode).put("gradedTime", gradedTime);
-                            ((ObjectNode) examNode).set("gradedByUser", serialize(user));
-                        }
-                        String revision = body.path("rev").asText(null);
-                        if (revision == null) {
-                            return wrapAsPromise(badRequest());
-                        }
-                        ((ObjectNode) root).put("rev", revision);
-
-                        return upload(url.get(), root);
-                    };
-                    return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce -> {
+                Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+                if (url.isEmpty()) {
+                    return wrapAsPromise(internalServerError());
                 }
-            )
+                JsonNode body = request.body().asJson();
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                WSRequest wsRequest = wsClient.url(url.get().toString());
+                Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
+                    JsonNode root = response.asJson();
+                    if (response.getStatus() != OK) {
+                        return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                    }
+                    JsonNode examNode = root.get("exam");
+                    Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+                    if (isUnauthorizedToAssess(exam, user)) {
+                        return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+                    }
+                    if (
+                        exam.hasState(
+                            Exam.State.ABORTED,
+                            Exam.State.REJECTED,
+                            Exam.State.GRADED_LOGGED,
+                            Exam.State.ARCHIVED
+                        )
+                    ) {
+                        return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
+                    }
+                    JsonNode grade = body.get("grade");
+                    if (grade != null && grade.isObject() && grade.size() > 0) {
+                        boolean validGrade = exam
+                            .getGradeScale()
+                            .getGrades()
+                            .stream()
+                            .map(Grade::getId)
+                            .anyMatch(i -> i == grade.get("id").asInt());
+                        if (validGrade) {
+                            ((ObjectNode) examNode).set("grade", grade);
+                        } else {
+                            return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
+                        }
+                    } else if (body.path("gradeless").asBoolean(false)) {
+                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                        ((ObjectNode) examNode).put("gradeless", true);
+                    } else {
+                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                    }
+                    JsonNode creditType = body.get("creditType");
+                    ((ObjectNode) examNode).set("creditType", creditType);
+                    ((ObjectNode) examNode).put("additionalInfo", body.path("additionalInfo").asText(null));
+                    ((ObjectNode) examNode).put("answerLanguage", body.path("answerLanguage").asText(null));
+                    ((ObjectNode) examNode).put(
+                            "customCredit",
+                            body.path("customCredit").isMissingNode() ? null : body.path("customCredit").doubleValue()
+                        );
+
+                    Exam.State newState = Exam.State.valueOf(body.path("state").asText());
+                    ((ObjectNode) examNode).put("state", newState.toString());
+                    if (newState == Exam.State.GRADED || newState == Exam.State.GRADED_LOGGED) {
+                        String gradedTime = ISODateTimeFormat.dateTime().print(DateTime.now());
+                        ((ObjectNode) examNode).put("gradedTime", gradedTime);
+                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                    }
+                    String revision = body.path("rev").asText(null);
+                    if (revision == null) {
+                        return wrapAsPromise(badRequest());
+                    }
+                    ((ObjectNode) root).put("rev", revision);
+
+                    return upload(url.get(), root);
+                };
+                return wsRequest.get().thenComposeAsync(onSuccess);
+            })
             .getOrElseGet(Function.identity());
     }
 
@@ -559,29 +523,26 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> addComment(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getURL(ce, ref)
-                        .map(
-                            url -> {
-                                JsonNode body = request.body().asJson();
-                                String revision = body.get("rev").asText();
-                                WSRequest wsRequest = wsClient.url(url.toString());
-                                Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
-                                    JsonNode root = response.asJson();
-                                    if (response.getStatus() != OK) {
-                                        return wrapAsPromise(
-                                            internalServerError(root.get("message").asText("Connection refused"))
-                                        );
-                                    }
-                                    JsonNode feedbackNode = getFeedback(root, revision);
-                                    ((ObjectNode) feedbackNode).put("comment", body.get("comment").asText());
-                                    return upload(url, root);
-                                };
-                                return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce ->
+                getURL(ce, ref)
+                    .map(url -> {
+                        JsonNode body = request.body().asJson();
+                        String revision = body.get("rev").asText();
+                        WSRequest wsRequest = wsClient.url(url.toString());
+                        Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
+                            JsonNode root = response.asJson();
+                            if (response.getStatus() != OK) {
+                                return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                                );
                             }
-                        )
-                        .getOrElseGet(Function.identity())
+                            JsonNode feedbackNode = getFeedback(root, revision);
+                            ((ObjectNode) feedbackNode).put("comment", body.get("comment").asText());
+                            return upload(url, root);
+                        };
+                        return wsRequest.get().thenComposeAsync(onSuccess);
+                    })
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -589,29 +550,26 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> setFeedbackRead(String examRef, String assessmentRef, Http.Request request) {
         return findCollaborativeExam(examRef)
-            .map(
-                ce ->
-                    getURL(ce, assessmentRef)
-                        .map(
-                            url -> {
-                                JsonNode body = request.body().asJson();
-                                String revision = body.get("rev").asText();
-                                WSRequest wsRequest = wsClient.url(url.toString());
-                                Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
-                                    JsonNode root = response.asJson();
-                                    if (response.getStatus() != OK) {
-                                        return wrapAsPromise(
-                                            internalServerError(root.get("message").asText("Connection refused"))
-                                        );
-                                    }
-                                    JsonNode feedbackNode = getFeedback(root, revision);
-                                    ((ObjectNode) feedbackNode).put("feedbackStatus", true);
-                                    return upload(url, root);
-                                };
-                                return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce ->
+                getURL(ce, assessmentRef)
+                    .map(url -> {
+                        JsonNode body = request.body().asJson();
+                        String revision = body.get("rev").asText();
+                        WSRequest wsRequest = wsClient.url(url.toString());
+                        Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
+                            JsonNode root = response.asJson();
+                            if (response.getStatus() != OK) {
+                                return wrapAsPromise(
+                                    internalServerError(root.get("message").asText("Connection refused"))
+                                );
                             }
-                        )
-                        .getOrElseGet(Function.identity())
+                            JsonNode feedbackNode = getFeedback(root, revision);
+                            ((ObjectNode) feedbackNode).put("feedbackStatus", true);
+                            return upload(url, root);
+                        };
+                        return wsRequest.get().thenComposeAsync(onSuccess);
+                    })
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -620,39 +578,35 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER") })
     public CompletionStage<Result> updateAssessmentInfo(Long id, String ref, Http.Request request) {
         return findCollaborativeExam(id)
-            .map(
-                ce -> {
-                    Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
-                    if (url.isEmpty()) {
-                        return wrapAsPromise(internalServerError());
-                    }
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    JsonNode body = request.body().asJson();
-                    String revision = body.get("rev").asText();
-                    WSRequest wsRequest = wsClient.url(url.get().toString());
-                    Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
-                        getResponse(response)
-                            .map(
-                                r -> {
-                                    JsonNode root = r.asJson();
-                                    JsonNode examNode = root.get("exam");
-                                    Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                    if (isUnauthorizedToAssess(exam, user)) {
-                                        return wrapAsPromise(forbidden("You are not allowed to modify this object"));
-                                    }
-                                    if (!exam.hasState(Exam.State.GRADED_LOGGED)) {
-                                        return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
-                                    }
-                                    ((ObjectNode) examNode).put("assessmentInfo", body.get("assessmentInfo").asText());
-                                    ((ObjectNode) root).put("rev", revision);
-                                    return upload(url.get(), root);
-                                }
-                            )
-                            .getOrElseGet(Function.identity());
-
-                    return wsRequest.get().thenComposeAsync(onSuccess);
+            .map(ce -> {
+                Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+                if (url.isEmpty()) {
+                    return wrapAsPromise(internalServerError());
                 }
-            )
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                JsonNode body = request.body().asJson();
+                String revision = body.get("rev").asText();
+                WSRequest wsRequest = wsClient.url(url.get().toString());
+                Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
+                    getResponse(response)
+                        .map(r -> {
+                            JsonNode root = r.asJson();
+                            JsonNode examNode = root.get("exam");
+                            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+                            if (isUnauthorizedToAssess(exam, user)) {
+                                return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+                            }
+                            if (!exam.hasState(Exam.State.GRADED_LOGGED)) {
+                                return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
+                            }
+                            ((ObjectNode) examNode).put("assessmentInfo", body.get("assessmentInfo").asText());
+                            ((ObjectNode) root).put("rev", revision);
+                            return upload(url.get(), root);
+                        })
+                        .getOrElseGet(Function.identity());
+
+                return wsRequest.get().thenComposeAsync(onSuccess);
+            })
             .getOrElseGet(Function.identity());
     }
 
@@ -686,69 +640,49 @@ public class CollaborativeReviewController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         JsonNode body = request.body().asJson();
         return findCollaborativeExam(id)
-            .map(
-                ce ->
-                    getURL(ce, ref)
-                        .map(
-                            url ->
-                                getRequest(ce, ref)
-                                    .map(
-                                        wsr -> {
-                                            String revision = body.path("rev").asText(null);
-                                            if (revision == null) {
-                                                return wrapAsPromise(badRequest());
-                                            }
-                                            boolean gradeless = body.path("gradeless").asBoolean(false);
-                                            Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
-                                                getResponse(response)
-                                                    .map(
-                                                        r -> {
-                                                            JsonNode root = r.asJson();
-                                                            JsonNode examNode = root.get("exam");
-                                                            Exam exam = JsonDeserializer.deserialize(
-                                                                Exam.class,
-                                                                examNode
-                                                            );
-                                                            return validateExamState(exam, !gradeless, user)
-                                                                .orElseGet(
-                                                                    () -> {
-                                                                        ((ObjectNode) examNode).put(
-                                                                                "state",
-                                                                                Exam.State.GRADED_LOGGED.toString()
-                                                                            );
-                                                                        if (
-                                                                            exam.getGradedByUser() == null &&
-                                                                            exam.getAutoEvaluationConfig() != null
-                                                                        ) {
-                                                                            // Automatically graded by system, set graded by user at this point.
-                                                                            ((ObjectNode) examNode).set(
-                                                                                    "gradedByUser",
-                                                                                    serialize(user)
-                                                                                );
-                                                                        }
-                                                                        if (gradeless) {
-                                                                            ((ObjectNode) examNode).put(
-                                                                                    "gradeless",
-                                                                                    true
-                                                                                );
-                                                                            ((ObjectNode) examNode).set(
-                                                                                    "grade",
-                                                                                    NullNode.getInstance()
-                                                                                );
-                                                                        }
-                                                                        ((ObjectNode) root).put("rev", revision);
-                                                                        return upload(url, root);
-                                                                    }
-                                                                );
-                                                        }
-                                                    )
-                                                    .getOrElseGet(Function.identity());
-                                            return wsr.get().thenComposeAsync(onSuccess);
-                                        }
-                                    )
-                                    .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ce ->
+                getURL(ce, ref)
+                    .map(url ->
+                        getRequest(ce, ref)
+                            .map(wsr -> {
+                                String revision = body.path("rev").asText(null);
+                                if (revision == null) {
+                                    return wrapAsPromise(badRequest());
+                                }
+                                boolean gradeless = body.path("gradeless").asBoolean(false);
+                                Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
+                                    getResponse(response)
+                                        .map(r -> {
+                                            JsonNode root = r.asJson();
+                                            JsonNode examNode = root.get("exam");
+                                            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+                                            return validateExamState(exam, !gradeless, user)
+                                                .orElseGet(() -> {
+                                                    ((ObjectNode) examNode).put(
+                                                            "state",
+                                                            Exam.State.GRADED_LOGGED.toString()
+                                                        );
+                                                    if (
+                                                        exam.getGradedByUser() == null &&
+                                                        exam.getAutoEvaluationConfig() != null
+                                                    ) {
+                                                        // Automatically graded by system, set graded by user at this point.
+                                                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                                                    }
+                                                    if (gradeless) {
+                                                        ((ObjectNode) examNode).put("gradeless", true);
+                                                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                                                    }
+                                                    ((ObjectNode) root).put("rev", revision);
+                                                    return upload(url, root);
+                                                });
+                                        })
+                                        .getOrElseGet(Function.identity());
+                                return wsr.get().thenComposeAsync(onSuccess);
+                            })
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }

@@ -54,20 +54,18 @@ export class ExamParticipationsComponent implements OnInit {
 
     private doSearch = (text: string) => {
         this.filter.text = text;
-        this.http
-            .get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } })
-            .subscribe(
-                (data) => {
-                    data.filter((p) => !p.ended).forEach(
-                        (p) =>
-                            (p.ended = p.reservation
-                                ? p.reservation.endAt
-                                : moment(p.examinationEvent?.start).add(p.duration, 'minutes').format()),
-                    );
-                    this.participations = data;
-                },
-                (err) => toast.error(err.data),
-            );
+        this.http.get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe(
+            (data) => {
+                data.filter((p) => !p.ended).forEach(
+                    (p) =>
+                        (p.ended = p.reservation
+                            ? p.reservation.endAt
+                            : moment(p.examinationEvent?.start).add(p.duration, 'minutes').format()),
+                );
+                this.participations = data;
+            },
+            (err) => toast.error(err.data),
+        );
     };
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);

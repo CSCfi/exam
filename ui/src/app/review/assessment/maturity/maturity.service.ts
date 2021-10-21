@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { from, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
@@ -144,7 +144,9 @@ export class MaturityService {
             id: inspection.id,
             comment: inspection.statement.comment,
         };
-        return this.http.put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement);
+        return this.http
+            .put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement)
+            .pipe(tap((li) => Object.assign(exam.languageInspection?.statement, { id: li.id })));
     };
 
     private getNextStateName = (exam: Exam): StateName => {

@@ -92,20 +92,17 @@ public class ExamInspectionController extends BaseController {
         exam
             .getChildren()
             .stream()
-            .filter(
-                c ->
-                    c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
-                    !isInspectorOf(recipient, c)
+            .filter(c ->
+                c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
+                !isInspectorOf(recipient, c)
             )
-            .forEach(
-                c -> {
-                    ExamInspection i = new ExamInspection();
-                    i.setExam(c);
-                    i.setUser(recipient);
-                    i.setAssignedBy(user);
-                    i.save();
-                }
-            );
+            .forEach(c -> {
+                ExamInspection i = new ExamInspection();
+                i.setExam(c);
+                i.setUser(recipient);
+                i.setAssignedBy(user);
+                i.save();
+            });
 
         return ok(Json.toJson(inspection));
     }
@@ -151,8 +148,8 @@ public class ExamInspectionController extends BaseController {
             .getChildren()
             .stream()
             .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
-            .forEach(
-                c -> c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
+            .forEach(c ->
+                c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
             );
         inspection.delete();
         return ok();

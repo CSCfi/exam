@@ -62,15 +62,13 @@ public class AssessmentTransferActor extends AbstractActor {
                         .isNotNull("externalExam.finished")
                         .isNotNull("reservation.externalRef")
                         .findList();
-                    enrolments.forEach(
-                        e -> {
-                            try {
-                                send(e);
-                            } catch (IOException ex) {
-                                logger.error("I/O failure while sending assessment to proxy server", ex);
-                            }
+                    enrolments.forEach(e -> {
+                        try {
+                            send(e);
+                        } catch (IOException ex) {
+                            logger.error("I/O failure while sending assessment to proxy server", ex);
                         }
-                    );
+                    });
                     logger.debug("<- done");
                 }
             )

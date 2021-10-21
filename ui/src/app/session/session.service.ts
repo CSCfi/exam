@@ -179,11 +179,15 @@ export class SessionService implements OnDestroy {
     }
 
     restartSessionCheck(): void {
+        this.disableSessionCheck();
+        const scheduler = interval(this.PING_INTERVAL);
+        this.sessionCheckSubscription = scheduler.subscribe(this.checkSession);
+    }
+
+    disableSessionCheck(): void {
         if (this.sessionCheckSubscription) {
             this.sessionCheckSubscription.unsubscribe();
         }
-        const scheduler = interval(this.PING_INTERVAL);
-        this.sessionCheckSubscription = scheduler.subscribe(this.checkSession);
     }
 
     checkSession = () => {

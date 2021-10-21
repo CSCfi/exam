@@ -240,24 +240,22 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             blueprint.setParent(question);
         }
         blueprint.save();
-        options.forEach(
-            option -> {
-                Optional<MultipleChoiceOption> parentOption = Optional
-                    .ofNullable(option.getOption())
-                    .filter(opt -> opt.getId() != null);
-                if (parentOption.isPresent()) {
-                    MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
-                    optionCopy.setQuestion(blueprint);
-                    optionCopy.save();
-                    ExamSectionQuestionOption esqoCopy = option.copyWithAnswer();
-                    esqoCopy.setOption(optionCopy);
-                    esqCopy.getOptions().add(esqoCopy);
-                } else {
-                    logger.error("Failed to copy a multi-choice question option!");
-                    throw new RuntimeException();
-                }
+        options.forEach(option -> {
+            Optional<MultipleChoiceOption> parentOption = Optional
+                .ofNullable(option.getOption())
+                .filter(opt -> opt.getId() != null);
+            if (parentOption.isPresent()) {
+                MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
+                optionCopy.setQuestion(blueprint);
+                optionCopy.save();
+                ExamSectionQuestionOption esqoCopy = option.copyWithAnswer();
+                esqoCopy.setOption(optionCopy);
+                esqCopy.getOptions().add(esqoCopy);
+            } else {
+                logger.error("Failed to copy a multi-choice question option!");
+                throw new RuntimeException();
             }
-        );
+        });
 
         esqCopy.setQuestion(blueprint);
         // Essay Answer
@@ -294,27 +292,25 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 blueprint.setParent(question);
             }
             blueprint.save();
-            optionMap.forEach(
-                (k, optionCopy) -> {
-                    optionCopy.setQuestion(blueprint);
-                    optionCopy.save();
-                    options
-                        .stream()
-                        .filter(o -> o.getOption().getId().equals(k))
-                        .findFirst()
-                        .ifPresentOrElse(
-                            esqo -> {
-                                ExamSectionQuestionOption esqoCopy = esqo.copy();
-                                esqoCopy.setOption(optionCopy);
-                                esqCopy.getOptions().add(esqoCopy);
-                            },
-                            () -> {
-                                logger.error("Failed to copy a multi-choice question option!");
-                                throw new RuntimeException();
-                            }
-                        );
-                }
-            );
+            optionMap.forEach((k, optionCopy) -> {
+                optionCopy.setQuestion(blueprint);
+                optionCopy.save();
+                options
+                    .stream()
+                    .filter(o -> o.getOption().getId().equals(k))
+                    .findFirst()
+                    .ifPresentOrElse(
+                        esqo -> {
+                            ExamSectionQuestionOption esqoCopy = esqo.copy();
+                            esqoCopy.setOption(optionCopy);
+                            esqCopy.getOptions().add(esqoCopy);
+                        },
+                        () -> {
+                            logger.error("Failed to copy a multi-choice question option!");
+                            throw new RuntimeException();
+                        }
+                    );
+            });
         }
         esqCopy.setQuestion(blueprint);
         return esqCopy;

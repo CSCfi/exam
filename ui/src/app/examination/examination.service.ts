@@ -17,8 +17,8 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { from, throwError } from 'rxjs';
-import { catchError, concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { forkJoin, throwError } from 'rxjs';
+import { catchError, defaultIfEmpty, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { WindowRef } from '../utility/window/window.service';
@@ -146,16 +146,14 @@ export class ExaminationService {
         canFail: boolean,
     ): Observable<ExaminationQuestion[]> => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
-        return from(questions).pipe(
-            concatMap((q) => this.saveTextualAnswer$(q, hash, autosave, canFail)),
-            toArray(),
-        );
+        const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
+        return forkJoin(tasks).pipe(defaultIfEmpty([]));
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<unknown> =>
-        from(exam.examSections).pipe(
-            concatMap((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        );
+    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<ExaminationQuestion[][]> =>
+        forkJoin(
+            exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
+        ).pipe(defaultIfEmpty([]));
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {

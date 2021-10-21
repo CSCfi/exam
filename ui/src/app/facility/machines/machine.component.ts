@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -41,14 +41,15 @@ export class MachineComponent implements OnInit {
         private machines: MachineService,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.state.params.id).subscribe(
+        this.machines.getMachine(this.routing.params.id).subscribe(
             (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {
-                    this.software = (data as unknown) as SoftwareWithClass[];
+                    this.software = data as unknown as SoftwareWithClass[];
                     this.software.forEach((s) => {
                         s.class =
                             this.machine.softwareInfo

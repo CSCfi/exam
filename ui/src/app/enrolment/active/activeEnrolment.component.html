@@ -98,34 +98,18 @@
                             <teacher-list [exam]="enrolment.exam"></teacher-list>
                         </div>
                         <div *ngIf="enrolment.exam" class="mart10">
-                            <span *ngIf="enrolment.information">
-                                <img
-                                    class="padr10"
-                                    alt="edit message to teacher"
-                                    src="/assets/assets/images/icon_message.png"
-                                />
-                                <a
-                                    class="infolink pointer"
-                                    (click)="addEnrolmentInformation()"
-                                    tabindex="0"
-                                    (keyup.enter)="addEnrolmentInformation()"
-                                    >{{ 'sitnet_student_edit' | translate }}</a
-                                >
-                            </span>
-                            <span *ngIf="!enrolment.information">
-                                <img
-                                    class="padr10"
-                                    src="/assets/assets/images/icon_message.png"
-                                    alt="add message to teacher"
-                                />
-                                <a
-                                    class="infolink pointer"
-                                    (click)="addEnrolmentInformation()"
-                                    tabindex="0"
-                                    (keyup.enter)="addEnrolmentInformation()"
-                                    >{{ 'sitnet_student_add' | translate }}</a
-                                >
-                            </span>
+                            <img
+                                class="padr10"
+                                alt="edit message to teacher"
+                                src="/assets/assets/images/icon_message.png"
+                            />
+                            <a
+                                class="infolink pointer"
+                                (click)="addEnrolmentInformation()"
+                                tabindex="0"
+                                (keyup.enter)="addEnrolmentInformation()"
+                                >{{ 'sitnet_student_edit' | translate }}</a
+                            >
                         </div>
                     </div>
                 </div>

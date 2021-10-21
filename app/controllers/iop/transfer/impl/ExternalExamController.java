@@ -212,8 +212,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment.getCollaborativeExam() != null) {
             return collaborativeExamLoader
                 .createAssessment(ep)
-                .thenComposeAsync(
-                    ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
+                .thenComposeAsync(ok ->
+                    CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
             // Fetch external attachments to local exam.
@@ -267,15 +267,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment.getCollaborativeExam() != null) {
             return collaborativeExamLoader
                 .downloadExam(enrolment.getCollaborativeExam())
-                .thenApplyAsync(
-                    oe -> {
-                        if (oe.isPresent()) {
-                            return ok(oe.get(), getPath());
-                        } else {
-                            return internalServerError("could not download collaborative exam");
-                        }
+                .thenApplyAsync(oe -> {
+                    if (oe.isPresent()) {
+                        return ok(oe.get(), getPath());
+                    } else {
+                        return internalServerError("could not download collaborative exam");
                     }
-                );
+                });
         } else {
             final Exam exam = enrolment.getExam();
 
@@ -290,30 +288,26 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .map(ExamSectionQuestion::getQuestion)
                 .filter(question -> question.getAttachment() != null)
                 .distinct()
-                .forEach(
-                    question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+                .forEach(question ->
+                    futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
             return CompletableFuture
                 .allOf(futures.toArray(new CompletableFuture[0]))
                 .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
-                .exceptionally(
-                    t -> {
-                        logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
-                        return internalServerError();
-                    }
-                );
+                .exceptionally(t -> {
+                    logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                    return internalServerError();
+                });
         }
     }
 
     @SubjectNotPresent
     public Result addNoShow(String ref) {
         return getPrototype(ref)
-            .map(
-                e -> {
-                    noShowHandler.handleNoShowAndNotify(e.getReservation());
-                    return ok();
-                }
-            )
+            .map(e -> {
+                noShowHandler.handleNoShowAndNotify(e.getReservation());
+                return ok();
+            })
             .orElse(notFound());
     }
 
@@ -359,28 +353,26 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .getExamSections()
                 .stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
-                .forEach(
-                    esq -> {
-                        Optional<Question.Type> questionType = Optional
-                            .ofNullable(esq.getQuestion())
-                            .map(Question::getType);
-                        if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
-                            Set<ExamSectionQuestionOption> sorted = esq
-                                .getOptions()
-                                .stream()
-                                .collect(
-                                    Collectors.toCollection(
-                                        () -> new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
-                                    )
-                                );
-                            esq.setOptions(sorted);
-                        } else {
-                            List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
-                            Collections.shuffle(shuffled);
-                            esq.setOptions(new HashSet<>(shuffled));
-                        }
+                .forEach(esq -> {
+                    Optional<Question.Type> questionType = Optional
+                        .ofNullable(esq.getQuestion())
+                        .map(Question::getType);
+                    if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
+                        Set<ExamSectionQuestionOption> sorted = esq
+                            .getOptions()
+                            .stream()
+                            .collect(
+                                Collectors.toCollection(() ->
+                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                                )
+                            );
+                        esq.setOptions(sorted);
+                    } else {
+                        List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                        Collections.shuffle(shuffled);
+                        esq.setOptions(new HashSet<>(shuffled));
                     }
-                );
+                });
 
             // Shuffle section questions if lottery on
             document.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);

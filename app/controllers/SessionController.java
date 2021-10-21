@@ -210,13 +210,11 @@ public class SessionController extends BaseController {
             .findSet()
             .stream()
             .filter(ee -> isUserPreEnrolled(ee.getPreEnrolledUserEmail(), user))
-            .forEach(
-                ee -> {
-                    ee.setPreEnrolledUserEmail(null);
-                    ee.setUser(user);
-                    ee.update();
-                }
-            );
+            .forEach(ee -> {
+                ee.setPreEnrolledUserEmail(null);
+                ee.setUser(user);
+                ee.update();
+            });
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
@@ -274,14 +272,15 @@ public class SessionController extends BaseController {
     }
 
     private String parseStudentIdDomain(String src) {
-        String parts = src.split("studentID:")[1];
-        return parts.split(":")[0];
+        // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => xyz.fi
+        String attribute = src.substring(0, src.lastIndexOf(":"));
+        return attribute.substring(attribute.lastIndexOf(":") + 1);
     }
 
     private String parseStudentIdValue(String src) {
-        String parts = src.split("studentID:")[1];
-        String[] valueParts = parts.split(":");
-        return valueParts.length > 1 ? valueParts[1] : "null";
+        // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => 9999
+        String value = src.substring(src.lastIndexOf(":") + 1);
+        return value.isBlank() || value.isEmpty() ? "null" : value;
     }
 
     private String parseUserIdentifier(String src) {
@@ -291,7 +290,7 @@ public class SessionController extends BaseController {
         } else {
             return Arrays
                 .stream(src.split(";"))
-                .filter(s -> s.contains("studentID:"))
+                .filter(s -> s.contains("int:") || s.contains("fi:")) // TODO: make configurable?
                 .collect(
                     Collectors.toMap(
                         this::parseStudentIdDomain,
@@ -306,8 +305,8 @@ public class SessionController extends BaseController {
                         },
                         () ->
                             new TreeMap<>(
-                                Comparator.comparingInt(
-                                    o -> !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
+                                Comparator.comparingInt(o ->
+                                    !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
                                 )
                             )
                     )
